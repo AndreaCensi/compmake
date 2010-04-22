@@ -173,6 +173,8 @@ if 1:
     
     
 def parmake_job(job_id):
+    import compmake
+    compmake.storage.redis = None
     #progress_set_queue(queue)
     make(job_id)
 

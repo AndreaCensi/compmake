@@ -44,6 +44,7 @@ redis = None
 def get_redis():
     global redis
     if redis is None:
+        print "Opening connection to Redis"
         redis = Redis()
     return redis
 
