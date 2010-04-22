@@ -55,8 +55,14 @@ def interpret_commands():
         sys.exit(0)
 
     elif commands[0] == 'clean':
-        removed = reset_cache()
-        print "Removed %s" % removed
+        job_list = parse_job_list(commands[1:])
+        if len(job_list) == 0:
+            removed = reset_cache()
+            print "Removed %s" % removed
+        else:
+            for job_id in job_list:
+                delete_cache(job_id)
+            
 
     elif commands[0] == 'list':
         job_list = parse_job_list(commands[1:])
