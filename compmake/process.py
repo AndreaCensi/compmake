@@ -13,7 +13,7 @@ def progress(job_id, num, total):
     progress_watch[job_id] = (num, total)
     if num == total:
         del progress_watch[job_id] 
-    print_progress():
+    print_progress()
         
 def progress_string():
     s = ""
