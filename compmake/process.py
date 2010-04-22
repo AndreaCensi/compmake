@@ -217,6 +217,8 @@ def parmake(targets=None, processes=None):
         
         todo, ready_todo = list_targets(targets)
         
+        todo = set(todo).difference(failed)
+        
         if len(todo) == 0:
             break
         

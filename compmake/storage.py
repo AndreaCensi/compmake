@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, fcntl
 import pickle
 from glob import glob
 from os import makedirs
@@ -7,6 +7,29 @@ from os.path import expanduser, dirname, join, expandvars, \
 from StringIO import StringIO
 from compmake.structures import ParsimException
 from compmake.structures import Computation
+
+
+def lwrite(filename, data):
+    if (not os.path.exists(filename)) or (os.path.getsize(filename) != len(data)):
+        fd = open(filename,'w')
+        #print('The buffer %s does not exist: %s created' % (filename, filename))
+        fd.write(data)
+        fd.close()
+
+    fds = open(filename, 'r+')
+    fcntl.flock(fds, fcntl.LOCK_EX)
+    fds.seek(0)
+    fds.write(data)
+    fcntl.flock(fds, fcntl.LOCK_UN)
+    return
+
+def lread(filename):
+    fds = open(filename, 'r')
+    fcntl.flock(fds, fcntl.LOCK_EX)
+    data = fds.read()
+    fcntl.flock(fds, fcntl.LOCK_UN)
+    return data
+
 
 # TODO: redo cleanly removing double interface
 
@@ -41,11 +64,13 @@ def save_state(job_id, state):
     content = sio.getvalue()
    # print "W %s len %d" % (job_id, len(content))
     
-    file = open(filename, 'w')
-    file.write(content)
-    file.flush()
-    os.fsync(file) # XXX I'm desperate
-    file.close()
+    lwrite(filename, content)
+        
+    #file = open(filename, 'w')
+    #file.write(content)
+    #file.flush()
+    #os.fsync(file) # XXX I'm desperate
+    #file.close()
     
     # make sure we can do it
     # load_state(job_id)
@@ -55,15 +80,16 @@ def load_state(job_id):
     if not is_state_available(job_id):
         raise ParsimException('Could not find job %s' % job_id)
     filename = filename_for_job(job_id)
-    file = open(filename, 'r')
     try:
-        content = file.read()
+        # file = open(filename, 'r')
+        content = lread(filename)
+        #content = file.read()
         # print "R %s len %d" % (job_id, len(content))
         sio = StringIO(content)
         state = pickle.load(sio)
     except EOFError:
         raise  EOFError("Could not unpickle file %s" % file) 
-    file.close()
+    #file.close()
     return state
 
 def remove_state(job_id):
