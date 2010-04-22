@@ -11,7 +11,12 @@ from compmake.structures import Computation
 def get_cache(name):
     k = key2rediskey(name)
     s = get_redis().get(k)
-    return string2object(s)
+    try:
+        ob = string2object(s)
+    except:
+        tmp_core = '/tmp/pickle_core' 
+        open(tmp_core,'w').write(s)
+        print "Could not load cache %s. Dumped %s" % (name, tmp_core)
 
 def delete_cache(name):
     k = key2rediskey(name)
