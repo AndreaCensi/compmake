@@ -19,7 +19,7 @@ def progress(job_id, num, total):
         
 def progress_reset_cache(onlykeep=[]):
     if not is_cache_available(progress_cache_name):
-        continue
+        return
     pw = get_cache(progress_cache_name)
     pw2 = {}
     for k in onlykeep:
