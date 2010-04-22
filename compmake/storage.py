@@ -42,6 +42,8 @@ def save_state(job_id, state):
     os.fsync(file) # XXX I'm desperate
     file.close()
     
+    # make sure we can do it
+    load_state(job_id)
 
 def load_state(job_id):
     """ load the state  """
@@ -49,7 +51,10 @@ def load_state(job_id):
         raise BVException('Could not find job %s' % job_id)
     filename = filename_for_job(job_id)
     file = open(filename, 'r')
-    state = pickle.load(file)
+    try:
+        state = pickle.load(file)
+    except EOFError:
+        raise  EOFError("Could not unpickle file %s" % file) 
     file.close()
     return state
 
@@ -75,8 +80,7 @@ num_inside = 0
 
 def storage_lock_acquire():
     global storage_lock
-    global num_inside
-    # print "H" 
+    global num_inside 
     storage_lock.acquire()
     num_inside += 1
     assert(num_inside == 1)
