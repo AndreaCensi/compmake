@@ -228,7 +228,7 @@ def parmake(targets=None, processes=None):
         sleep(5)
  
 def invalidate_cache(jobs):
-    for job in joblist:
+    for job_id in jobs:
         up, reason = up_to_date(job_id)
 
         if up:

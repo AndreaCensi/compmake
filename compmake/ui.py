@@ -47,12 +47,14 @@ def parse_job_list(argv):
     return jobs
 
 def interpret_commands():
-    make_sure_cache_is_sane()
     
     commands = sys.argv[1:]
     if len(commands) == 0:
         make_all()
         sys.exit(0)
+
+    elif commands[0] == 'check':
+        make_sure_cache_is_sane()
 
     elif commands[0] == 'clean':
         job_list = parse_job_list(commands[1:])
