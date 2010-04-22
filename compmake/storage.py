@@ -53,7 +53,7 @@ def save_state(job_id, state):
 def load_state(job_id):
     """ load the state  """
     if not is_state_available(job_id):
-        raise BVException('Could not find job %s' % job_id)
+        raise ParsimException('Could not find job %s' % job_id)
     filename = filename_for_job(job_id)
     file = open(filename, 'r')
     try:
