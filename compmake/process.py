@@ -178,29 +178,43 @@ def parmake(targets=None, processes=8):
         
     # jobs currently in processing
     processing = set()
+    failed = set()
+    done = set()
     processing2result = {}
     print "Targets %d " % len(targets)
     while True:
         for name, result in processing2result.items():
             try:
                 result.get(timeout=0.1)
+                done.add(name)
+                processing.remove(name)
                 del processing2result[name]
             except TimeoutError:
                 pass
             except Exception as e:
                 print "Job %s failed: %s" % (name, e)
-                sys.exit(-1)
+                failed.add(name)
+                processing.remove(name)
+                del processing2result[name]
+
+                computation = Computation.id2computations[job_id]
+                if len(c.needed_by) > 0: 
+                    print "Exiting because job %s is needed" % job_id
+                    sys.exit(-1)
         
         todo, ready_todo = list_targets(targets)
         
         if len(todo) == 0:
             break
         
-        ready_not_processing = set(ready_todo).difference(processing) 
+        ready_not_processing = set(ready_todo).difference(processing, failed) 
 
-        print "Todo %d, doing %d new todo %d" % (len(todo), 
+        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\n--" % (
+                        len(done), len(failed), len(todo), 
                                               len(processing), 
-                                              len(ready_not_processing))
+                                              len(ready_not_processing)))
+        sys.stderr.flush()
+        
         for job_id in ready_not_processing:
             print "Launching %s " % job_id
             processing.add(job_id)
