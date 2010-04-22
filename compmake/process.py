@@ -83,10 +83,9 @@ def make(job_id, more=False):
                                                   'should be a tuple with 3 elemnts.'+
                                                   'Got: %s' % next)
                         user_object, num, total = next
-                        #if pbar is None:
-                        #    pbar = create_progress_bar(job_id, total)
-                        # pbar.update(num)
-                        # pbar
+                        if pbar is None:
+                            pbar = create_progress_bar(job_id, total)
+                        pbar.update(num)
                         cache = Cache(timestamp=0,user_object=user_object,
                                       computation=computation, finished=False)
                         set_cache(job_id, cache)
