@@ -141,6 +141,7 @@ def bottom_targets():
 
 from multiprocessing import Pool, TimeoutError
 from time import sleep
+import sys
 
 def parmake(targets=None, processes=2):
     pool = Pool(processes=processes)
