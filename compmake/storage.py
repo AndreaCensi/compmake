@@ -4,7 +4,7 @@ from glob import glob
 from os import makedirs
 from os.path import expanduser, dirname, join, expandvars, \
     splitext, exists, basename
-
+from StringIO import StringIO
 from compmake.structures import ParsimException
 from compmake.structures import Computation
 
@@ -36,14 +36,19 @@ def save_state(job_id, state):
     if not exists(directory):
         os.makedirs(directory)
     
+    sio = StringIO()
+    pickle.dump(state, sio, pickle.HIGHEST_PROTOCOL)
+    content = sio.getvalue()
+    print "W %s len %d" % (job_id, len(content))
+    
     file = open(filename, 'w')
-    pickle.dump(state, file, pickle.HIGHEST_PROTOCOL)
+    file.write(content)
     file.flush()
     os.fsync(file) # XXX I'm desperate
     file.close()
     
     # make sure we can do it
-    load_state(job_id)
+    # load_state(job_id)
 
 def load_state(job_id):
     """ load the state  """
@@ -52,7 +57,10 @@ def load_state(job_id):
     filename = filename_for_job(job_id)
     file = open(filename, 'r')
     try:
-        state = pickle.load(file)
+        content = file.read()
+        print "R %s len %d" % (job_id, len(content))
+        sio = StringIO(content)
+        state = pickle.load(sio)
     except EOFError:
         raise  EOFError("Could not unpickle file %s" % file) 
     file.close()

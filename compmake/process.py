@@ -143,7 +143,7 @@ from multiprocessing import Pool, TimeoutError
 from time import sleep
 import sys
 
-def parmake(targets=None, processes=2):
+def parmake(targets=None, processes=8):
     pool = Pool(processes=processes)
         
     """ If no target is passed, we do all top_targets """
