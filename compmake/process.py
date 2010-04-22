@@ -7,19 +7,25 @@ from compmake.storage import \
 from pybv.simulation.utils import create_progress_bar
 
 class Stats:
-    progress_watch = {} 
+    def __init__(self):
+        self.progress_watch = {}
+
+stats = Stats() 
 
 def progress(job_id, num, total):
     """ Total might be none """
-    Stats.progress_watch[job_id] = (num, total)
+    pw = stats.progress_watch
+    pw[job_id] = (num, total)
     if num == total:
-        del progress_watch[job_id] 
+        del pw[job_id]
+    stats.progress_watch = pw 
     print_progress()
         
 def progress_string():
     s = ""
-    for job_id, stats in Stats.progress_watch.items():
-        num, total = stats
+    pw = stats.progress_watch
+    for job_id, prog in pw.items():
+        num, total = prog
         ss = "[%s %d/%s] " % (job_id, num, total)
         s = s + ss
     return s
