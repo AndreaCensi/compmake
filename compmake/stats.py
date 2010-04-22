@@ -1,58 +1,40 @@
 import os 
-import pickle
-import select
+import sys
+from compmake.storage import \
+    get_cache, delete_cache, is_cache_available, set_cache
 
-fifo_path = '/tmp/fifo'
-fifo_file = None
-progress_watch = {}
+progress_cache_name = "progress" 
 
 def progress(job_id, num, total):
-    global fifo_file
-    if fifo_file is None:
-        if not os.path.exists(fifo_path):
-            print "Craeting fifo"
-            os.mkfifo(fifo_path)
-        fifo_file = open(fifo_path, 'w')
-
-    obj = (job_id, num, total)
-    pickle.dump(obj, fifo_file)
-    print "Wrote %s" % (obj,)
-    
-def progress_read():
-    global fifo_file
-    if fifo_file is None:
-        if not os.path.exists(fifo_path):
-            print "Craeting fifo"
-            os.mkfifo(fifo_path)
-        fifo_file = open(fifo_path, 'r')
-
-    poll = select.poll()
-    poll.register(fifo_file.fileno(), select.POLLIN)
-    print "Polling %s" % fifo_file.fileno()
-    avail = poll.poll()
-    for fd, code in avail:
-        if code != select.POLLIN:
-            print "Got invalid poll %s " % code
-            continue
-        print "Data available %s " % avail
-        object = pickle.load(fifo_file)
-        job_id, num, total = object
-        print "Got %s " % object
-    
-        global progress_watch
-        progress_watch[job_id] = (num, total)
-        if num == total:
-            del progress_watch[job_id]
-    else: 
-        print "No data"
+    if not is_cache_available(progress_cache_name):
+        set_cache(progress_cache_name, {})
         
+    pw = get_cache(progress_cache_name)
+    pw[job_id] = (num, total)
+    if num == total:
+        del pw[job_id]
+    set_cache(progress_cache_name, pw)
+    
+    sys.stderr.write("\r%s" % progress_string())
+        
+def progress_reset_cache(onlykeep=[]):
+    pw = get_cache(progress_cache_name)
+    pw2 = {}
+    for k in onlykeep:
+        if k in pw:
+            pw2[k] = pw[k]
+    set_cache(progress_cache_name, pw)
+
 def progress_string():
-    progress_read()
+    if not is_cache_available(progress_cache_name):
+        set_cache(progress_cache_name, {})
+     
+    pw = get_cache(progress_cache_name)
     s = ""
-    pw = progress_watch
     for job_id, prog in pw.items():
         num, total = prog
-        ss = "[%s %d/%s] " % (job_id, num, total)
+        # ss = "[%s %d/%s] " % (job_id, num, total)
+        ss = "[%d/%s] " % ( num, total)
         s = s + ss
     return s
 

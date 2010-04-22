@@ -4,7 +4,8 @@ from compmake.structures import Computation, Cache, ParsimException
 from compmake.storage import \
     get_cache, delete_cache, is_cache_available, set_cache
 
-from compmake.stats import progress, progress_string, print_progress
+from compmake.stats import progress, progress_string, \
+    print_progress, progress_reset_cache
 
 
 def up_to_date(job_id):
@@ -193,6 +194,8 @@ def parmake(targets=None, processes=None):
     processing2result = {}
     print "Targets %d " % len(targets)
     while True:
+        progress_reset_cache(processing)
+        
         for name, result in processing2result.items():
             try:
                 result.get(timeout=0.1)
