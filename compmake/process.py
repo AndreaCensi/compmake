@@ -9,6 +9,7 @@ from pybv.simulation.utils import create_progress_bar
 progress_watch = {} 
 
 def progress(job_id, num, total):
+    global progress_watch
     """ Total might be none """
     progress_watch[job_id] = (num, total)
     if num == total:
@@ -16,6 +17,7 @@ def progress(job_id, num, total):
     print_progress()
         
 def progress_string():
+    global progress_watch
     s = ""
     for job_id, stats in progress_watch.items():
         num, total = stats
