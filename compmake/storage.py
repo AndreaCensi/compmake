@@ -13,10 +13,13 @@ def get_cache(name):
     s = get_redis().get(k)
     try:
         ob = string2object(s)
-    except:
+        return ob
+    except e:
         tmp_core = '/tmp/pickle_core' 
         open(tmp_core,'w').write(s)
-        print "Could not load cache %s. Dumped %s" % (name, tmp_core)
+        msg = "Could not load cache %s. Dumped %s" % (name, tmp_core)
+        print msg
+        raise e
 
 def delete_cache(name):
     k = key2rediskey(name)
