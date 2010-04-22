@@ -205,7 +205,7 @@ def parmake(targets=None, processes=8):
             processing.add(job_id)
             processing2result[job_id] = pool.apply_async(make, [job_id])
         
-        sleep(1)
+        sleep(5)
             
     
     

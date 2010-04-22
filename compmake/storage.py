@@ -89,7 +89,9 @@ num_inside = 0
 def storage_lock_acquire():
     global storage_lock
     global num_inside 
+    print "waiting"
     storage_lock.acquire()
+    print "done"
     num_inside += 1
     assert(num_inside == 1)
     
