@@ -144,14 +144,8 @@ from multiprocessing import Pool, TimeoutError
 from time import sleep
 import sys
 
-def parmake(targets=None, processes=8):
-    pool = Pool(processes=processes)
-        
-    """ If no target is passed, we do all top_targets """
-    if targets is None:
-        targets = top_targets()
-        
-    def list_targets(jobs):
+if 1:
+   def list_targets(jobs):
         """ returns two lists:
              todo:  list of job ids to do
              ready_todo: subset of jobs that are ready to do """
@@ -175,6 +169,15 @@ def parmake(targets=None, processes=8):
             else:
                 print "Job %s uptodate" % job_id
         return todo, ready_todo
+    
+def parmake(targets=None, processes=8):
+    pool = Pool(processes=processes)
+        
+    """ If no target is passed, we do all top_targets """
+    if targets is None:
+        targets = top_targets()
+        
+ 
         
     # jobs currently in processing
     processing = set()
@@ -197,9 +200,9 @@ def parmake(targets=None, processes=8):
                 processing.remove(name)
                 del processing2result[name]
 
-                computation = Computation.id2computations[job_id]
+                computation = Computation.id2computations[name]
                 if len(computation.needed_by) > 0: 
-                    print "Exiting because job %s is needed" % job_id
+                    print "Exiting because job %s is needed" % name
                     sys.exit(-1)
         
         todo, ready_todo = list_targets(targets)
