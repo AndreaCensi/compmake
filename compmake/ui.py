@@ -2,10 +2,10 @@ import sys
 from time import time
 import re
 
-from pybv.simulation.utils import create_progress_bar
-
 from compmake.structures import Computation
 from compmake.storage import make_sure_cache_is_sane
+from compmake.process import make, make_more, make_all, remake, remake_all,\
+    top_targets, bottom_targets, parmake
 
 def add_computation(depends, parsim_job_id, command, *args, **kwargs):
     job_id = parsim_job_id
@@ -71,6 +71,14 @@ def interpret_commands():
         for job in job_list:
             make(job)
         sys.exit(0)
+    
+    if commands[0] == 'parmake':
+        if len(commands) == 1:
+            parmake()
+            sys.exit(0)
+            
+        job_list = parse_job_list(commands[1:])
+        parmake(job_list)
         
     if commands[0] == 'remake':
         job_list = parse_job_list(commands[1:])

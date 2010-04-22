@@ -12,7 +12,7 @@ from compmake.structures import Computation
 
 def get_computations_root():
     # TODO: make this configurable 
-    basepath = '~/parsim_storage/computation/'
+    basepath = '~/parsim_storage_local/computation/'
     basepath = expandvars(expanduser(basepath))
     return basepath
 
@@ -38,7 +38,10 @@ def save_state(job_id, state):
     
     file = open(filename, 'w')
     pickle.dump(state, file, pickle.HIGHEST_PROTOCOL)
+    file.flush()
+    os.fsync(file) # XXX I'm desperate
     file.close()
+    
 
 def load_state(job_id):
     """ load the state  """
@@ -60,24 +63,65 @@ def list_available_states():
     basenames = [ splitext(basename(x))[0] for x in glob(filename)]
     return basenames
     
-    
-############### Saving and loading state
 def job2cachename(job_id):
     return 'parsim_%s' % job_id
+    
+############### Saving and loading state
+# This functions are locking 
+from threading import Lock
+print "Initializing"
+storage_lock = Lock()
+num_inside = 0
 
+def storage_lock_acquire():
+    global storage_lock
+    global num_inside
+    # print "H" 
+    storage_lock.acquire()
+    num_inside += 1
+    assert(num_inside == 1)
+    
+def storage_lock_release():
+    global storage_lock
+    global num_inside
+    assert(num_inside == 1)
+    num_inside -= 1
+    storage_lock.release()
+    
 def get_cache(name):
-    assert(is_cache_available(name))
-    return load_state(job2cachename(name))
+    storage_lock_acquire()
+    #assert(is_cache_available(name))
+    try:
+        result = load_state(job2cachename(name))    
+        return result
+    finally:
+        storage_lock_release()        
+    
 
 def delete_cache(name):
-    assert(is_cache_available(name))
-    remove_state(job2cachename(name))
+    storage_lock_acquire()
+    try:
+        #assert(is_cache_available(name))
+        remove_state(job2cachename(name))
+    finally:
+        storage_lock_release()        
     
 def is_cache_available(name):
-    return is_state_available(job2cachename(name))
+    """ Note that we don't guarantee consistency if delete_cahce is used """
+    storage_lock_acquire()
+    try:
+        resp = is_state_available(job2cachename(name))
+    finally:
+        storage_lock_release()        
+    return resp
     
-def set_cache(name, value): 
-    return save_state(job2cachename(name), value)
+def set_cache(name, value):
+    storage_lock_acquire()
+    try: 
+        save_state(job2cachename(name), value)
+    finally:
+        storage_lock_release()        
+    
 ################## 
 
 def make_sure_cache_is_sane():
