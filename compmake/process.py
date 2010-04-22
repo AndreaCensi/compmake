@@ -114,22 +114,13 @@ def make_all():
     for t in targets:
         make(t)
     
-def remake(job_id):
-    up, reason = up_to_date(job_id)
-
-    if up:
-        # invalidate the timestamp
-        cache = get_cache(job_id)
-        cache.timestamp = 0
-        set_cache(job_id, cache) 
-        up, reason = up_to_date(job_id)
-        assert(not up)
-        
-    return make(job_id)
+def remake(jobs):
+    invalidate_cache(jobs)
+    for job_id in jobs:        
+        make(job_id)
     
 def remake_all():
-    for job in bottom_targets():
-        remake(job)
+    remake(bottom_targets())
         
 def top_targets():
     """ Returns a list of all jobs which are not needed by anybody """

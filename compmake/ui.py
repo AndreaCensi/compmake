@@ -98,8 +98,7 @@ def interpret_commands():
             remake_all()
             sys.exit(0)
             
-        for job in job_list:
-            remake(job)
+        remake(job_list)
             
     elif commands[0] == 'parremake':
         job_list = parse_job_list(commands[1:])
