@@ -39,7 +39,7 @@ def save_state(job_id, state):
     sio = StringIO()
     pickle.dump(state, sio, pickle.HIGHEST_PROTOCOL)
     content = sio.getvalue()
-    print "W %s len %d" % (job_id, len(content))
+   # print "W %s len %d" % (job_id, len(content))
     
     file = open(filename, 'w')
     file.write(content)
@@ -58,7 +58,7 @@ def load_state(job_id):
     file = open(filename, 'r')
     try:
         content = file.read()
-        print "R %s len %d" % (job_id, len(content))
+        # print "R %s len %d" % (job_id, len(content))
         sio = StringIO(content)
         state = pickle.load(sio)
     except EOFError:
@@ -89,9 +89,9 @@ num_inside = 0
 def storage_lock_acquire():
     global storage_lock
     global num_inside 
-    print "waiting"
+    # print "waiting"
     storage_lock.acquire()
-    print "done"
+    # print "done"
     num_inside += 1
     assert(num_inside == 1)
     
