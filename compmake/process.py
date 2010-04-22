@@ -198,7 +198,7 @@ def parmake(targets=None, processes=8):
                 del processing2result[name]
 
                 computation = Computation.id2computations[job_id]
-                if len(c.needed_by) > 0: 
+                if len(computation.needed_by) > 0: 
                     print "Exiting because job %s is needed" % job_id
                     sys.exit(-1)
         
