@@ -13,18 +13,19 @@ def progress(job_id, num, total):
     progress_watch[job_id] = (num, total)
     if num == total:
         del progress_watch[job_id] 
-    
+    print_progress():
+        
 def progress_string():
     s = ""
     for job_id, stats in progress_watch.items():
         num, total = stats
         ss = "[%s %d/%s] " % (job_id, num, total)
-        s += ss
+        s = s + ss
     return s
 
 def print_progress():
     s = progress_string()
-    sys.stderr.write('%s' % s)
+    sys.stderr.write('%s\n' % s)
     sys.stderr.flush()
 
 def up_to_date(job_id):
