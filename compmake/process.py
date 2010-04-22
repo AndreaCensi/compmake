@@ -6,6 +6,27 @@ from compmake.storage import \
 
 from pybv.simulation.utils import create_progress_bar
 
+progress_watch = {} 
+
+def progress(job_id, num, total):
+    """ Total might be none """
+    progress_watch[job_id] = (num, total)
+    if num == total:
+        del progress_watch[job_id] 
+    
+def progress_string():
+    s = ""
+    for job_id, stats in progress_watch.items():
+        num, total = stats
+        ss = "[%s %d/%s] " % (job_id, num, total)
+        s += ss
+    return s
+
+def print_progress():
+    s = progress_string()
+    sys.stderr.write('%s' % s)
+    sys.stderr.flush()
+
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
@@ -70,10 +91,10 @@ def make(job_id, more=False):
             previous_user_object = cache.user_object
         else:
             previous_user_object = None
-                
+        
+        progress(job_id, 0, None)
         result = computation.compute(deps, previous_user_object)
         if type(result) == GeneratorType:
-            pbar = None
             try:
                 while True:
                     next = result.next()
@@ -83,9 +104,7 @@ def make(job_id, more=False):
                                                   'should be a tuple with 3 elemnts.'+
                                                   'Got: %s' % next)
                         user_object, num, total = next
-                        if pbar is None:
-                            pbar = create_progress_bar(job_id, total)
-                        pbar.update(num)
+                        progress(job_id, num, total)
                         cache = Cache(timestamp=0,user_object=user_object,
                                       computation=computation, finished=False)
                         set_cache(job_id, cache)
@@ -93,10 +112,8 @@ def make(job_id, more=False):
             except StopIteration:
                 pass
         else:
-            pbar = create_progress_bar(job_id, 1)
-            pbar.update(0)
+            progress(job_id, 1, 1)
             user_object = result
-            pbar.update(1)
             
         timestamp = time()
         cache = Cache(timestamp=timestamp,user_object=user_object,
@@ -167,10 +184,11 @@ if 1:
                 if dependencies_up_to_date:
                     ready_todo.append(job_id)
             else:
-                print "Job %s uptodate" % job_id
+                pass
+                # print "Job %s uptodate" % job_id
         return todo, ready_todo
     
-def parmake(targets=None, processes=8):
+def parmake(targets=None, processes=None):
     pool = Pool(processes=processes)
         
     """ If no target is passed, we do all top_targets """
