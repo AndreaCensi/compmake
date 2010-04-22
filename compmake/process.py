@@ -7,7 +7,6 @@ from compmake.storage import \
 from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
 
-
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
@@ -238,8 +237,15 @@ def parmake(targets=None, processes=None):
                                               progress_string()))
         sleep(5)
             
-    
-    
 
+def make_sure_cache_is_sane():
+    """ Checks that the cache is sane, deletes things that cannot be open """
+    for job_id in Computation.id2computations.keys():
+        if is_cache_available(job_id):
+            try:
+                get_cache(job_id)
+            except:
+                print "Cache %s not sane. Deleting." % job_id
+                delete_cache(job_id)
 
 

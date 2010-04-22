@@ -3,9 +3,9 @@ from time import time
 import re
 
 from compmake.structures import Computation
-from compmake.storage import make_sure_cache_is_sane
+
 from compmake.process import make, make_more, make_all, remake, remake_all,\
-    top_targets, bottom_targets, parmake
+    top_targets, bottom_targets, parmake, make_sure_cache_is_sane, up_to_date
 
 def add_computation(depends, parsim_job_id, command, *args, **kwargs):
     job_id = parsim_job_id
@@ -53,16 +53,23 @@ def interpret_commands():
         make_all()
         sys.exit(0)
         
-    if commands[0] == 'list':
+    elif commands[0] == 'list':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
             job_list = Computation.id2computations.keys()
         job_list.sort()
         print "Defined targets:"
         for job_id in job_list:
-            print "\t%s" % job_id
+            up, reason = up_to_date(job_id)
+            s = job_id
+            s += " " * (50-len(s))
+            if up:
+                s += "OK "
+            else:
+                s += reason
+            print s 
 
-    if commands[0] == 'make':
+    elif commands[0] == 'make':
         if len(commands) == 1:
             make_all()
             sys.exit(0)
@@ -72,7 +79,7 @@ def interpret_commands():
             make(job)
         sys.exit(0)
     
-    if commands[0] == 'parmake':
+    elif commands[0] == 'parmake':
         if len(commands) == 1:
             parmake()
             sys.exit(0)
@@ -80,7 +87,7 @@ def interpret_commands():
         job_list = parse_job_list(commands[1:])
         parmake(job_list)
         
-    if commands[0] == 'remake':
+    elif commands[0] == 'remake':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
             remake_all()
@@ -89,14 +96,16 @@ def interpret_commands():
         for job in job_list:
             remake(job)
             
-    if commands[0] == 'more':
+    elif commands[0] == 'more':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
             job_list = bottom_targets()
             
         for job in job_list:
             make_more(job)
-        
+    else:
+        print "Uknown command %s" % commands[0]
+        sys.exit(-1)    
     
     
     
