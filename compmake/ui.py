@@ -4,6 +4,7 @@ import re
 
 from compmake.structures import Computation
 
+from compmake.storage import reset_cache
 from compmake.process import make, make_more, make_all, remake, remake_all,\
     top_targets, bottom_targets, parmake, make_sure_cache_is_sane, up_to_date
 
@@ -52,7 +53,11 @@ def interpret_commands():
     if len(commands) == 0:
         make_all()
         sys.exit(0)
-        
+
+    elif commands[0] == 'clean':
+        removed = reset_cache()
+        print "Removed %s" % removed
+
     elif commands[0] == 'list':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:

@@ -2,7 +2,7 @@ from time import time
 
 from compmake.structures import Computation, Cache, ParsimException
 from compmake.storage import \
-    get_cache, delete_cache, is_cache_available, set_cache
+    get_cache, delete_cache, is_cache_available, set_cache, reset_cache
 
 from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
@@ -183,10 +183,7 @@ def parmake(targets=None, processes=None):
         
     """ If no target is passed, we do all top_targets """
     if targets is None:
-        targets = top_targets()
-        
- #   q = Queue()
-  #  progress_set_queue(q)
+        targets = top_targets() 
         
     # jobs currently in processing
     processing = set()

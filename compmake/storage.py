@@ -25,6 +25,13 @@ def set_cache(name, value):
     k = key2rediskey(name)
     s = object2string(value)
     get_redis().set(k, s)
+    
+def reset_cache():
+    """ reset the whole cache """
+    keys = get_redis().keys(pattern = key2rediskey('*') ).split()
+    for k in keys:
+        res = get_redis().delete(k)
+    return keys
 
 # Serialization device
 def object2string(obj):
