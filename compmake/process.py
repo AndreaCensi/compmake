@@ -185,6 +185,9 @@ def parmake(targets=None, processes=2):
                 del processing2result[name]
             except TimeoutError:
                 pass
+            except Exception as e:
+                print "Job %s failed: %s" % (name, e)
+                sys.exit(-1)
         
         todo, ready_todo = list_targets(targets)
         
