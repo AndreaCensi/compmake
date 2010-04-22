@@ -48,10 +48,12 @@ def key2rediskey(s):
     return "compmake:%s" % s
 
 redis = None
+redis_host = 'localhost'
 def get_redis():
     global redis
     if redis is None:
-        print "Opening connection to Redis"
-        redis = Redis()
+        sys.stderr.write("Opening connection to Redis (host=%s)... " % redis_host)
+        redis = Redis(host=redis_host)
+        sys.stderr.write("done.\n")
     return redis
 

@@ -235,7 +235,22 @@ def parmake(targets=None, processes=None):
                                               len(ready_not_processing), 
                                               progress_string()))
         sleep(5)
-            
+ 
+def invalidate_cache(jobs):
+    for job in joblist:
+        up, reason = up_to_date(job_id)
+
+        if up:
+            # invalidate the timestamp
+            cache = get_cache(job_id)
+            cache.timestamp = 0
+            set_cache(job_id, cache) 
+            up, reason = up_to_date(job_id)
+            assert(not up)
+
+def parremake(joblist):
+    invalidate_cache(joblist)
+    parmake(joblist)            
 
 def make_sure_cache_is_sane():
     """ Checks that the cache is sane, deletes things that cannot be open """
@@ -243,6 +258,7 @@ def make_sure_cache_is_sane():
         if is_cache_available(job_id):
             try:
                 get_cache(job_id)
+                print "%s sane" % job_id
             except:
                 print "Cache %s not sane. Deleting." % job_id
                 delete_cache(job_id)

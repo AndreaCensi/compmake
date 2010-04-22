@@ -101,6 +101,13 @@ def interpret_commands():
         for job in job_list:
             remake(job)
             
+    elif commands[0] == 'parremake':
+        job_list = parse_job_list(commands[1:])
+        #if len(job_list) == 0:
+        #    print "want more"
+            
+        parremake(job_list)
+            
     elif commands[0] == 'more':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
