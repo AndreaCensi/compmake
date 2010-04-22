@@ -4,36 +4,8 @@ from compmake.structures import Computation, Cache, ParsimException
 from compmake.storage import \
     get_cache, delete_cache, is_cache_available, set_cache
 
-from pybv.simulation.utils import create_progress_bar
+from compmake.stats import progress, progress_string, print_progress
 
-class Stats:
-    def __init__(self):
-        self.progress_watch = {}
-
-stats = Stats() 
-
-def progress(job_id, num, total):
-    """ Total might be none """
-    pw = stats.progress_watch
-    pw[job_id] = (num, total)
-    if num == total:
-        del pw[job_id]
-    stats.progress_watch = pw 
-    print_progress()
-        
-def progress_string():
-    s = ""
-    pw = stats.progress_watch
-    for job_id, prog in pw.items():
-        num, total = prog
-        ss = "[%s %d/%s] " % (job_id, num, total)
-        s = s + ss
-    return s
-
-def print_progress():
-    s = progress_string()
-    sys.stderr.write('%s\n' % s)
-    sys.stderr.flush()
 
 def up_to_date(job_id):
     """ Check that the job is up to date. 
@@ -168,7 +140,7 @@ def bottom_targets():
     return [x.job_id for x in Computation.id2computations.values() if len(x.depends) == 0]
 
 
-from multiprocessing import Pool, TimeoutError
+from multiprocessing import Pool, TimeoutError, Queue
 from time import sleep
 import sys
 
@@ -199,6 +171,11 @@ if 1:
                 # print "Job %s uptodate" % job_id
         return todo, ready_todo
     
+    
+def parmake_job(job_id):
+    #progress_set_queue(queue)
+    make(job_id)
+
 def parmake(targets=None, processes=None):
     pool = Pool(processes=processes)
         
@@ -206,7 +183,8 @@ def parmake(targets=None, processes=None):
     if targets is None:
         targets = top_targets()
         
- 
+ #   q = Queue()
+  #  progress_set_queue(q)
         
     # jobs currently in processing
     processing = set()
@@ -246,7 +224,7 @@ def parmake(targets=None, processes=None):
         for job_id in ready_not_processing:
             #print "Launching %s " % job_id
             processing.add(job_id)
-            processing2result[job_id] = pool.apply_async(make, [job_id])
+            processing2result[job_id] = pool.apply_async(parmake_job, [job_id])
         
         sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
                         len(done), len(failed), len(todo), 
