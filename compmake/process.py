@@ -30,7 +30,8 @@ def print_progress():
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
-    1) we have a cache AND the timestamp is not 0  AND finished = True
+    1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+      AND finished = True
     2) the children are up to date AND
     3) the children timestamp is older than this timestamp AND
     
@@ -44,6 +45,8 @@ def up_to_date(job_id):
         this_timestamp = cache.timestamp
         if this_timestamp == 0:
             return False, 'Forced to remake'
+        if this_timestamp == -1:
+            return False, 'Resuming computation'
         if cache.finished == False:
             return False, 'Previous job not finished'
         
@@ -105,7 +108,7 @@ def make(job_id, more=False):
                                                   'Got: %s' % next)
                         user_object, num, total = next
                         progress(job_id, num, total)
-                        cache = Cache(timestamp=0,user_object=user_object,
+                        cache = Cache(timestamp=-1,user_object=user_object,
                                       computation=computation, finished=False)
                         set_cache(job_id, cache)
 
@@ -230,17 +233,18 @@ def parmake(targets=None, processes=None):
         
         ready_not_processing = set(ready_todo).difference(processing, failed) 
 
-        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\n--" % (
-                        len(done), len(failed), len(todo), 
-                                              len(processing), 
-                                              len(ready_not_processing)))
         sys.stderr.flush()
         
         for job_id in ready_not_processing:
-            print "Launching %s " % job_id
+            #print "Launching %s " % job_id
             processing.add(job_id)
             processing2result[job_id] = pool.apply_async(make, [job_id])
         
+        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
+                        len(done), len(failed), len(todo), 
+                                              len(processing), 
+                                              len(ready_not_processing), 
+                                              progress_string()))
         sleep(5)
             
     
