@@ -163,13 +163,13 @@ if 1:
         return todo, ready_todo
     
     
-def parmake_job(job_id):
+def parmake_job(job_id, more=False):
     import compmake
     compmake.storage.redis = None
     #progress_set_queue(queue)
     make(job_id)
 
-def parmake(targets=None, processes=None):
+def parmake(targets=None, more=False, processes=None):
     pool = Pool(processes=processes)
         
     """ If no target is passed, we do all top_targets """
@@ -218,7 +218,8 @@ def parmake(targets=None, processes=None):
         for job_id in ready_not_processing:
             #print "Launching %s " % job_id
             processing.add(job_id)
-            processing2result[job_id] = pool.apply_async(parmake_job, [job_id])
+            processing2result[job_id] = \
+                pool.apply_async(parmake_job, [job_id, more])
         
         sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
                         len(done), len(failed), len(todo), 

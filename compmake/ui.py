@@ -103,18 +103,26 @@ def interpret_commands():
     elif commands[0] == 'remake':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
-            remake_all()
-            sys.exit(0)
+            print "remake: specify which ones "
+            sys.exit(2)
             
         remake(job_list)
             
     elif commands[0] == 'parremake':
         job_list = parse_job_list(commands[1:])
-        #if len(job_list) == 0:
-        #    print "want more"
+        if len(job_list) == 0:
+            print "parremake: specify which ones "
+            sys.exit(2)
             
         parremake(job_list)
             
+    elif commands[0] == 'parmore':
+        job_list = parse_job_list(commands[1:])
+        if len(job_list) == 0:
+            print "parmore: specify which ones "
+            sys.exit(2)
+        parmake(job_list, more=True)
+
     elif commands[0] == 'more':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
