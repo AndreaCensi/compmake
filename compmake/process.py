@@ -6,7 +6,7 @@ from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \
-    get_job_userobject, is_job_userobject_available,\
+    get_job_userobject, is_job_userobject_available, delete_job_userobject, \
     set_job_userobject, get_job_tmpobject, is_job_tmpobject_available, \
     set_job_tmpobject, delete_job_tmpobject
 
