@@ -7,8 +7,16 @@ from redis import Redis
 from compmake.structures import ParsimException
 from compmake.structures import Computation
 
+local_cache = {}
+
 # Storage public interface
 def get_cache(name):
+    global local_cache
+    if local_cache.has_key(name):
+        sys.stderr.write('+')
+        return local_cache[name]
+    
+    sys.stderr.write('-')
     k = key2rediskey(name)
     s = get_redis().get(k)
     try:
@@ -33,6 +41,9 @@ def set_cache(name, value):
     k = key2rediskey(name)
     s = object2string(value)
     get_redis().set(k, s)
+    
+    global local_cache
+    local_cache[name] = value
     
 def reset_cache():
     """ reset the whole cache """
