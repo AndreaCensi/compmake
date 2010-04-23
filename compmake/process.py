@@ -29,7 +29,7 @@ up_to_date_cache = set()
 def up_to_date(job_id):
     global up_to_date_cache
     if job_id in up_to_date_cache:
-        return True
+        return True, '(cached)'
     
     """ Check that the job is up to date. 
     We are up to date if:
