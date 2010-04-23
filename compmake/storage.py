@@ -29,8 +29,8 @@ def get_cache(name):
         print msg
         raise e
 
-   # local_cache[name] = value
-    sys.stderr.write('Load %s [%.2fK]\n' % (name, len(s)/1000.0 ) )
+    # Useful to get a sense what it's doing
+    # sys.stderr.write('Load %s [%.2fK]\n' % (name, len(s)/1000.0 ) )
     return value
 
 def delete_cache(name):
@@ -45,7 +45,8 @@ def set_cache(name, value, precious=False):
     k = key2rediskey(name)
     s = object2string(value)
     
-    sys.stderr.write('Save %s [%.2fK]\n' % (name, len(s)/1000.0 ) )
+    # Useful to get a sense what it's doing
+    # sys.stderr.write('Save %s [%.2fK]\n' % (name, len(s)/1000.0 ) )
     
     get_redis().set(k, s)
     
