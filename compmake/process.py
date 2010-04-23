@@ -103,7 +103,7 @@ def make(job_id, more=False):
                       computation=computation, finished=True)
         set_cache(job_id, cache)
         
-        print "Finished %s " % job_id
+        # print "Finished %s " % job_id
         return cache.user_object
 
 def make_more(job_id):
@@ -181,7 +181,7 @@ def parmake(targets=None, more=False, processes=None):
     failed = set()
     done = set()
     processing2result = {}
-    print "Targets %d " % len(targets)
+    # print "Targets %d " % len(targets)
     while True:
         progress_reset_cache(processing)
         
@@ -250,7 +250,7 @@ def make_sure_cache_is_sane():
         if is_cache_available(job_id):
             try:
                 get_cache(job_id)
-                print "%s sane" % job_id
+               # print "%s sane" % job_id
             except:
                 print "Cache %s not sane. Deleting." % job_id
                 delete_cache(job_id)

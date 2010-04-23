@@ -2,9 +2,9 @@ import sys
 from time import time
 import re
 
-from compmake.structures import Computation
+from compmake.structures import Computation, ParsimException
 
-from compmake.storage import reset_cache
+from compmake.storage import reset_cache, delete_cache
 from compmake.process import make, make_more, make_all, remake, remake_all,\
     top_targets, bottom_targets, parmake, make_sure_cache_is_sane, up_to_date
 
@@ -16,8 +16,13 @@ def add_computation(depends, parsim_job_id, command, *args, **kwargs):
     
     if not isinstance(depends, list):
         depends = [depends]
-    depends = [Computation.id2computations[x] for x in depends]
-    
+        
+    for i, d in enumerate(depends):
+        if isinstance(d, str):
+            depends[i] = Computation.id2computations[x]
+        elif isinstance(d, Computation):
+            pass
+        
     c = Computation(job_id=job_id,depends=depends,
                     command=command, args=args, kwargs=kwargs)
     Computation.id2computations[job_id] = c
@@ -26,6 +31,8 @@ def add_computation(depends, parsim_job_id, command, *args, **kwargs):
         x.needed_by.append(c)
         
     return c
+
+
 
 def reg_from_shell_wildcard(arg):
     """ Returns a regular expression from a shell wildcard expression """

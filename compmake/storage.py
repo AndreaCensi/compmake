@@ -14,10 +14,10 @@ def get_cache(name):
     try:
         ob = string2object(s)
         return ob
-    except e:
+    except Exception as e:
         tmp_core = '/tmp/pickle_core' 
         open(tmp_core,'w').write(s)
-        msg = "Could not load cache %s. Dumped %s" % (name, tmp_core)
+        msg = "Could not load cache %s. Dumped %s. Error: %s" % (name, tmp_core, e)
         print msg
         raise e
 
