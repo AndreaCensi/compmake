@@ -16,18 +16,20 @@ def get_cache(name):
         sys.stderr.write('+')
         return local_cache[name]
     
-    sys.stderr.write('-')
     k = key2rediskey(name)
     s = get_redis().get(k)
     try:
-        ob = string2object(s)
-        return ob
+        value = string2object(s)
     except Exception as e:
         tmp_core = '/tmp/pickle_core' 
         open(tmp_core,'w').write(s)
         msg = "Could not load cache %s. Dumped %s. Error: %s" % (name, tmp_core, e)
         print msg
         raise e
+
+    local_cache[name] = value
+    sys.stderr.write('Load %s [%dK]' % (name, len(s)/1000 ) )
+    return value
 
 def delete_cache(name):
     k = key2rediskey(name)
