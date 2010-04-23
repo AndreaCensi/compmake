@@ -50,6 +50,7 @@ def make(job_id, more=False):
     """ Returns the user-object """
     up, reason = up_to_date(job_id)
     if up and not more:
+        print "%s is up to date" % job_id
         return get_cache(job_id).user_object
     else:
         if up and more: 

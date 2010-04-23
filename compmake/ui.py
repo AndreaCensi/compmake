@@ -38,18 +38,17 @@ def reg_from_shell_wildcard(arg):
     """ Returns a regular expression from a shell wildcard expression """
     return re.compile('\A' + arg.replace('*', '.*') + '\Z')
                       
-def parse_job_list(argv):
+def parse_job_list(argv): 
     jobs = []
     for arg in argv:
-        if arg.find('*') is not None:
+        if arg.find('*') > -1:
             reg = reg_from_shell_wildcard(arg)
             matches = [x for x in Computation.id2computations.keys() 
                        if reg.match(x) ]
             jobs.extend(matches)
         else:
             if not arg in Computation.id2computations:
-                raise ParsimException('Job %s not found (%s)' %
-                                       (arg, Computation.id2computations.keys())) 
+                raise ParsimException('Job %s not found ' % arg) 
             jobs.append(arg)
     return jobs
 
