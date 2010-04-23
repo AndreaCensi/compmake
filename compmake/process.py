@@ -25,12 +25,16 @@ def mark_remake(job_id):
     cache.state = Cache.NOT_STARTED
     set_job_cache(job_id, cache)
 
-  
+up_to_date_cache = set()
 def up_to_date(job_id):
+    global up_to_date_cache
+    if job_id in up_to_date_cache:
+        return True
+    
     """ Check that the job is up to date. 
     We are up to date if:
-    REMOVED --- *) we are in the up_to_date_cache
-       (nothing uptodate can become not uptodate)
+    *) we are in the up_to_date_cache
+       (nothing uptodate can become not uptodate so this is generally safe)
     OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
       AND finished = True
@@ -42,29 +46,31 @@ def up_to_date(job_id):
         boolean, explanation 
     
     """ 
-    if 1: 
-        cache = get_job_cache(job_id) # OK
+    
+    cache = get_job_cache(job_id) # OK
         
-        computation = Computation.id2computations[job_id]
-        for child in computation.depends:
-            if not up_to_date(child.job_id):
-                return False, 'Children not up to date.'
-            else:
-                this_timestamp = cache.timestamp
-                child_timestamp = get_job_cache(child.job_id).timestamp
-                if child_timestamp > this_timestamp:
-                    return False, 'Children have been updated.'
-        
-        if cache.state == Cache.NOT_STARTED:
-            return False, 'Not started'
-        elif cache.state ==  Cache.IN_PROGRESS:
-            return False, 'Resuming progress'
-        elif cache.state ==  Cache.FAILED:
-            return False, 'Failed'
-                
-        assert( cache.state in [Cache.DONE, Cache.MORE_REQUESTED] )
+    computation = Computation.id2computations[job_id]
+    for child in computation.depends:
+        if not up_to_date(child.job_id):
+            return False, 'Children not up to date.'
+        else:
+            this_timestamp = cache.timestamp
+            child_timestamp = get_job_cache(child.job_id).timestamp
+            if child_timestamp > this_timestamp:
+                return False, 'Children have been updated.'
+    
+    if cache.state == Cache.NOT_STARTED:
+        return False, 'Not started'
+    elif cache.state ==  Cache.IN_PROGRESS:
+        return False, 'Resuming progress'
+    elif cache.state ==  Cache.FAILED:
+        return False, 'Failed'
+            
+    assert( cache.state in [Cache.DONE, Cache.MORE_REQUESTED] )
 
-        return True, ''
+    up_to_date_cache.add(job_id)
+    
+    return True, ''
     
     
 from types import GeneratorType

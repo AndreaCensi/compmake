@@ -39,7 +39,7 @@ def add_computation(depends, parsim_job_id, command, *args, **kwargs):
         
     for i, d in enumerate(depends):
         if isinstance(d, str):
-            depends[i] = Computation.id2computations[x]
+            depends[i] = Computation.id2computations[d]
         elif isinstance(d, Computation):
             pass
         
