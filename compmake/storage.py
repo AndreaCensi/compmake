@@ -28,7 +28,7 @@ def get_cache(name):
         raise e
 
     local_cache[name] = value
-    sys.stderr.write('Load %s [%dK]' % (name, len(s)/1000 ) )
+    sys.stderr.write('Load %s [%dK]\n' % (name, len(s)/1000 ) )
     return value
 
 def delete_cache(name):
