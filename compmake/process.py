@@ -7,9 +7,18 @@ from compmake.storage import \
 from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
 
+up_to_date_cache = {}
+
 def up_to_date(job_id):
+    global up_to_date_cache
+    if up_to_date_cache.has_key(job_id):
+        return True, ''
+    
     """ Check that the job is up to date. 
     We are up to date if:
+    *) we are in the up_to_date_cache
+       (nothing uptodate can become not uptodate)
+    OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
       AND finished = True
     2) the children are up to date AND
@@ -40,6 +49,7 @@ def up_to_date(job_id):
                     return False, 'Child %s has been updated.' % child.job_id
                 
         # TODO: Check arguments!!
+        up_to_date_cache[job_id] = True
         return True, ''
     else:
         return False, 'Cache not found'
@@ -102,7 +112,8 @@ def make(job_id, more=False):
         timestamp = time()
         cache = Cache(timestamp=timestamp,user_object=user_object,
                       computation=computation, finished=True)
-        set_cache(job_id, cache)
+        precious = len(computation.needed_by) > 1
+        set_cache(job_id, cache, precious)
         
         # print "Finished %s " % job_id
         return cache.user_object

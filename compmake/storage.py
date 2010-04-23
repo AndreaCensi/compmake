@@ -9,6 +9,8 @@ from compmake.structures import Computation
 
 local_cache = {}
 
+# TODO add should_be_fast
+
 # Storage public interface
 def get_cache(name):
     global local_cache
@@ -27,7 +29,7 @@ def get_cache(name):
         print msg
         raise e
 
-    local_cache[name] = value
+   # local_cache[name] = value
     sys.stderr.write('Load %s [%dK]\n' % (name, len(s)/1000 ) )
     return value
 
@@ -39,13 +41,14 @@ def is_cache_available(name):
     k = key2rediskey(name)
     return get_redis().exists(k)
     
-def set_cache(name, value):
+def set_cache(name, value, precious=False):
     k = key2rediskey(name)
     s = object2string(value)
     get_redis().set(k, s)
     
-    global local_cache
-    local_cache[name] = value
+    if precious:
+        global local_cache
+        local_cache[name] = value
     
 def reset_cache():
     """ reset the whole cache """
