@@ -1,22 +1,35 @@
 from time import time
 
 from compmake.structures import Computation, Cache, ParsimException
-from compmake.storage import \
-    get_cache, delete_cache, is_cache_available, set_cache, reset_cache
 
 from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
 
-up_to_date_cache = {}
+from compmake.process_storage import get_job_cache, set_job_cache, \
+    get_job_userobject, is_job_userobject_available,\
+    set_job_userobject, get_job_tmpobject, is_job_tmpobject_available, \
+    set_job_tmpobject, delete_job_tmpobject
 
+def mark_more(job_id):
+    cache = get_job_cache(job_id)
+    cache.state = Cache.MORE_REQUESTED
+    set_job_cache(job_id, cache)
+
+def mark_remake(job_id):
+    if is_job_userobject_available(job_id):
+        delete_job_userobject(job_id)
+    if is_job_tmpobject_available(job_id):
+        set_job_tmpobject(job_id)
+        
+    cache = get_job_cache(job_id)
+    cache.state = Cache.NOT_STARTED
+    set_job_cache(job_id, cache)
+
+  
 def up_to_date(job_id):
-    global up_to_date_cache
-    if up_to_date_cache.has_key(job_id):
-        return True, ''
-    
     """ Check that the job is up to date. 
     We are up to date if:
-    *) we are in the up_to_date_cache
+    REMOVED --- *) we are in the up_to_date_cache
        (nothing uptodate can become not uptodate)
     OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
@@ -29,62 +42,76 @@ def up_to_date(job_id):
         boolean, explanation 
     
     """ 
-    if is_cache_available(job_id): 
-        cache = get_cache(job_id)
-        this_timestamp = cache.timestamp
-        if this_timestamp == 0:
-            return False, 'Forced to remake'
-        if this_timestamp == -1:
-            return False, 'Resuming computation'
-        if cache.finished == False:
-            return False, 'Previous job not finished'
+    if 1: 
+        cache = get_job_cache(job_id) # OK
         
         computation = Computation.id2computations[job_id]
         for child in computation.depends:
             if not up_to_date(child.job_id):
-                return False, 'Child %s not up to date.' % child.job_id
+                return False, 'Children not up to date.'
             else:
-                child_timestamp = get_cache(child.job_id).timestamp
+                this_timestamp = cache.timestamp
+                child_timestamp = get_job_cache(child.job_id).timestamp
                 if child_timestamp > this_timestamp:
-                    return False, 'Child %s has been updated.' % child.job_id
+                    return False, 'Children have been updated.'
+        
+        if cache.state == Cache.NOT_STARTED:
+            return False, 'Not started'
+        elif cache.state ==  Cache.IN_PROGRESS:
+            return False, 'Resuming progress'
+        elif cache.state ==  Cache.FAILED:
+            return False, 'Failed'
                 
-        # TODO: Check arguments!!
-        up_to_date_cache[job_id] = True
+        assert( cache.state in [Cache.DONE, Cache.MORE_REQUESTED] )
+
         return True, ''
-    else:
-        return False, 'Cache not found'
+    
     
 from types import GeneratorType
+
 
 def make(job_id, more=False):
     """ Returns the user-object """
     up, reason = up_to_date(job_id)
-    if up and not more:
-        print "%s is up to date" % job_id
-        return get_cache(job_id).user_object
+    cache = get_job_cache(job_id)
+    want_more = cache.state == Cache.MORE_REQUESTED
+    if up and not (more and want_more):
+        # print "%s is up to date" % job_id
+        assert(is_job_userobject_available(job_id))
+        return get_job_userobject(job_id)
     else:
-        if up and more: 
+        if up and (more and want_more): # XXX review the logic 
             reason = 'want more'
         print "Making %s (%s)" % (job_id, reason)
         computation = Computation.id2computations[job_id]
         deps = []
         for child in computation.depends:
             deps.append(make(child.job_id))
-            
-        cache_available = is_cache_available(job_id)
-        if cache_available:
-            cache = get_cache(job_id)
-            not_finished = not cache.finished
-             
-        if more and (not cache_available or (cache_available and not_finished) ): 
-            raise ParsimException('You asked for more of %s, but nothing found.' %
-                                      job_id) 
-        assert( not more or cache_available)
+      
+        assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
+                               Cache.MORE_REQUESTED])
         
-        if more or (cache_available and not_finished):
-            previous_user_object = cache.user_object
-        else:
+        if cache.state == Cache.NOT_STARTED:
             previous_user_object = None
+            cache.state = Cache.IN_PROGRESS
+        elif cache.state == Cache.IN_PROGRESS:
+            if is_job_tmpobject_available(job_id):
+                previous_user_object = get_job_tmpobject(job_id)
+            else:
+                previous_user_object = None
+        elif cache.state == Cache.MORE_REQUESTED:
+            assert(is_job_userobject_available(job_id))
+            if is_job_tmpobject_available(job_id):
+                # resuming more computation
+                previous_user_object = get_job_tmpobject(job_id)
+            else:
+                # starting more computation
+                previous_user_object = get_job_userobject(job_id)
+        else:
+            assert(False)
+        
+        # update state
+        set_job_cache(job_id, cache)
         
         progress(job_id, 0, None)
         result = computation.compute(deps, previous_user_object)
@@ -99,26 +126,25 @@ def make(job_id, more=False):
                                                   'Got: %s' % next)
                         user_object, num, total = next
                         progress(job_id, num, total)
-                        cache = Cache(timestamp=-1,user_object=user_object,
-                                      computation=computation, finished=False)
-                        set_cache(job_id, cache)
-
+                        set_job_tmpobject(job_id, user_object)
+                        
             except StopIteration:
                 pass
         else:
             progress(job_id, 1, 1)
             user_object = result
-            
-        timestamp = time()
-        cache = Cache(timestamp=timestamp,user_object=user_object,
-                      computation=computation, finished=True)
-        precious = len(computation.needed_by) > 1
-        set_cache(job_id, cache, precious)
         
-        # print "Finished %s " % job_id
-        return cache.user_object
+        set_job_userobject(job_id, user_object)
+        delete_job_tmpobject(job_id)
+        
+        cache.state = Cache.DONE
+        cache.timestamp = time()
+        set_job_cache(job_id, cache)
+        
+        return user_object
 
 def make_more(job_id):
+    mark_more(job_id)
     return make(job_id, more=True)
 
 def make_all():
@@ -127,12 +153,10 @@ def make_all():
         make(t)
     
 def remake(jobs):
-    invalidate_cache(jobs)
+    for job_id in jobs:
+        mark_remake(job_id)
     for job_id in jobs:        
         make(job_id)
-    
-def remake_all():
-    remake(bottom_targets())
         
 def top_targets():
     """ Returns a list of all jobs which are not needed by anybody """
@@ -179,7 +203,7 @@ def parmake_job(job_id, more=False):
     import compmake
     compmake.storage.redis = None
     #progress_set_queue(queue)
-    make(job_id)
+    make(job_id, more)
 
 def parmake(targets=None, more=False, processes=None):
     pool = Pool(processes=processes)
@@ -230,33 +254,28 @@ def parmake(targets=None, more=False, processes=None):
         for job_id in ready_not_processing:
             #print "Launching %s " % job_id
             processing.add(job_id)
+            make_more_of_this = more and (job_id in targets)
             processing2result[job_id] = \
-                pool.apply_async(parmake_job, [job_id, more])
+                pool.apply_async(parmake_job, [job_id, make_more_of_this])
         
         sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
                         len(done), len(failed), len(todo), 
                                               len(processing), 
                                               len(ready_not_processing), 
                                               progress_string()))
-        sleep(5)
- 
-def invalidate_cache(jobs):
-    for job_id in jobs:
-        up, reason = up_to_date(job_id)
+        sleep(1)
 
-        if up:
-            # invalidate the timestamp
-            cache = get_cache(job_id)
-            cache.timestamp = 0
-            set_cache(job_id, cache) 
-            up, reason = up_to_date(job_id)
-            assert(not up)
+
 
 def parremake(joblist):
-    invalidate_cache(joblist)
+    for job_id in joblist:
+        mark_remake(job_id)
+    
     parmake(joblist)            
 
 def make_sure_cache_is_sane():
+    return
+# XXX review this
     """ Checks that the cache is sane, deletes things that cannot be open """
     for job_id in Computation.id2computations.keys():
         if is_cache_available(job_id):

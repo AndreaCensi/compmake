@@ -2,11 +2,31 @@ import sys
 from time import time
 import re
 
-from compmake.structures import Computation, ParsimException
+from compmake.structures import Computation, ParsimException, UserError
 
 from compmake.storage import reset_cache, delete_cache
-from compmake.process import make, make_more, make_all, remake, remake_all,\
+from compmake.process import make, make_more, make_all, remake,\
     top_targets, bottom_targets, parmake, make_sure_cache_is_sane, up_to_date
+
+def make_sure_pickable(obj):
+    # TODO
+    pass
+
+def comp(command, *args, **kwargs):
+    # Get job id from arguments
+    job_id_key = 'job'
+    if job_id_key in kwargs:
+        job_id = kwargs[job_id_key]
+        del kwargs[job_id_key]
+        if job_id in Computation.id2computations:
+            raise UserError('Computation %s already defined.' % job_id)
+    else:
+        # make our own
+        for i in xrange(1000000):
+            job_id = str(command)
+            if not job_id in Computation.id2computations:
+                break
+    
 
 def add_computation(depends, parsim_job_id, command, *args, **kwargs):
     job_id = parsim_job_id
