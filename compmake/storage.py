@@ -57,7 +57,7 @@ def reset_cache():
 # Serialization device
 def object2string(obj):
     sio = StringIO()
-    pickle.dump(obj, sio)
+    pickle.dump(obj, sio, pickle.HIGHEST_PROTOCOL)
     return sio.getvalue()
 
 def string2object(s):
