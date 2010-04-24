@@ -306,6 +306,7 @@ def parmake_targets(targets, more=False, processes=None):
         while ready_todo and len(processing) <= max_num_processing:
             # todo: add task priority
             job_id = ready_todo.pop()
+            assert(job_id in todo)
             processing.add(job_id)
             make_more_of_this = more and (job_id in targets)
             processing2result[job_id] = \
@@ -317,6 +318,9 @@ def parmake_targets(targets, more=False, processes=None):
         while True:
             received_some_results = False
             for job_id, async_result in processing2result.items():
+                assert(job_id in processing)
+                assert(job_id in todo)
+                assert(not job_id in ready_todo)
                 try:
                     async_result.get(timeout=0.01)
                     del processing2result[job_id]
