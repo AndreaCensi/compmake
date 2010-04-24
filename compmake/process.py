@@ -176,7 +176,7 @@ from multiprocessing import Pool, TimeoutError, Queue
 from time import sleep
 import sys
 
-def dependencies_up_to_date(jobid):
+def dependencies_up_to_date(job_id):
     computation = Computation.id2computations[job_id]
     dependencies_up_to_date = True
     for child in computation.depends:
