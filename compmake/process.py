@@ -342,12 +342,13 @@ def parmake_targets(targets, more=False, processes=None):
                     # it simply means the job is not ready
                     pass
                 except Exception as e:
+                    received_some_results = True
+
                     print "Job %s failed: %s" % (job_id, e)
                     failed.add(job_id)
                     todo.remove(job_id)
                     processing.remove(job_id)
                     del processing2result[job_id]
-    
                     computation = Computation.id2computations[job_id]
                     if len(computation.needed_by) > 0: 
                         print "Exiting because job %s is needed" % job_id
