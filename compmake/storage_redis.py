@@ -4,13 +4,24 @@ import pickle
 from StringIO import StringIO
 from redis import Redis
 
-from compmake.structures import ParsimException
-from compmake.structures import Computation
+from compmake.structures import ParsimException, Computation
+
 
 class RedisInterface:
+    host = 'localhost'
+    port = 6379
+    
     # XXX Add dbname
     local_cache = {}
     
+    @staticmethod
+    def __str__():
+        return "Redis backend"
+    
+    @staticmethod
+    def supports_concurrency(self):
+        return True
+        
     # Storage public interface
     @staticmethod
     def get_cache(name):
@@ -82,11 +93,11 @@ def key2rediskey(s):
     return "compmake:%s" % s
 
 redis = None
-redis_host = 'localhost'
+
 def get_redis():
     global redis
     if redis is None:
         # sys.stderr.write("Opening connection to Redis (host=%s)... " % redis_host)
-        redis = Redis(host=redis_host)
+        redis = Redis(host=RedisInterface.host,port=RedisInterface.port)
         # sys.stderr.write("done.\n")
     return redis

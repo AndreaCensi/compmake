@@ -282,6 +282,29 @@ def make_targets(targets, more=False):
  
 
 def parmake_targets(targets, more=False, processes=None):
+    from compmake.storage import db
+    if not db.supports_concurrency():
+        raise ParsimException("""\
+%s does not support concurrency, so you cannot run commands such as parmake(). 
+Try using the Redis backend.
+
+To use the Redis backend, you have to:
+
+1) install Redis from the website: 
+
+        http://code.google.com/p/redis/
+
+2) install the python driver:
+
+        $ easy_install redis
+
+3) in your program, run the following:
+
+        from compmake import use_redis
+        
+        use_redis(host='hostname')
+""" % str(db))            
+    
     # See make_targets for comments on the common structure
     pool = Pool(processes=processes)
     max_num_processing = cpu_count() + 1

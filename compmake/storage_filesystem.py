@@ -10,7 +10,17 @@ from compmake.structures import ParsimException
 from compmake.structures import Computation
 
 class StorageFilesystem:
+    basepath = '~/compmake'
+    
     local_cache = {}
+    
+    @staticmethod
+    def __str__():
+        return "Filesystem backend"
+    
+    @staticmethod
+    def supports_concurrency():
+        return False
     
     @staticmethod
     def get_cache(key):
@@ -83,8 +93,7 @@ def key2filename(key):
 
 def get_computations_root():
     # TODO: make this configurable 
-    basepath = '~/parsim_storage_local/computation/'
-    basepath = expandvars(expanduser(basepath))
+    basepath = expandvars(expanduser(StorageFilesystem.basepath))
     return basepath
 
 def filename_for_key(key):

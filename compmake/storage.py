@@ -1,18 +1,20 @@
-import os, sys, fcntl
-import pickle
 
-from StringIO import StringIO
-from redis import Redis
+db = None
 
-from compmake.structures import ParsimException
-from compmake.structures import Computation
-
-if 0:
+def use_redis(host='localhost',port=6379):
+    # FIXME host not honored
     from compmake.storage_redis import RedisInterface
+    global db
     db = RedisInterface
+    db.host = host
+    db.port = port
 
-from compmake.storage_filesystem import StorageFilesystem
-db = StorageFilesystem
+def use_filesystem(directory='~/compmake'):
+    from compmake.storage_filesystem import StorageFilesystem
+    global db
+    db = StorageFilesystem
+    db.basepath = directory
 
+use_filesystem()
 
 
