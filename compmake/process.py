@@ -414,6 +414,9 @@ def parmake_job(job_id, more=False):
         cache.backtrace = sio.getvalue()
         set_job_cache(job_id, cache)
         
+        # clear progress cache
+        progress(job_id, 1,1)
+        
         # make sure
         cache = get_job_cache(job_id)
         assert(cache.state == Cache.FAILED)
