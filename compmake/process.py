@@ -268,6 +268,14 @@ def make_targets(targets, more=False):
                     ready_todo.add(opportunity)
             
         except Exception as e:
+            cache = get_job_cache(job_id)
+            cache.state = Cache.FAILED
+            cache.exception = e
+            sio = StringIO()
+            traceback.print_exc(file=sio)
+            cache.backtrace = sio.getvalue()
+            set_job_cache(job_id, cache)
+        
             # if we fail
             print "Job %s failed: %s" % (job_id, e)
             sys.stdout.flush()
