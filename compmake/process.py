@@ -99,7 +99,7 @@ def make(job_id, more=False):
     else:
         if up and (more and want_more): # XXX review the logic 
             reason = 'want more'
-        print "Making %s (%s)" % (job_id, reason)
+        # print "Making %s (%s)" % (job_id, reason)
         computation = Computation.id2computations[job_id]
         deps = []
         for child in computation.depends:
@@ -346,7 +346,8 @@ To use the Redis backend, you have to:
         
         # Loop until we get some response
         while True:
-            print_progress()
+            sys.stderr.write("parmake:   jobs: %s\r" %  progress_string() )
+            sys.stderr.flush()
             
             received_some_results = False
             for job_id, async_result in processing2result.items():
@@ -390,9 +391,9 @@ To use the Redis backend, you have to:
     write_status()
     
 def parmake_job(job_id, more=False):
-    import compmake
-    compmake.storage.redis = None
-    #progress_set_queue(queue)
+    from compmake.storage import db
+    db.reopen_after_fork()
+
     try:
         make(job_id, more)
     except Exception as e:

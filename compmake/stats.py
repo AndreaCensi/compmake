@@ -5,12 +5,15 @@ from compmake.storage import db
 progress_cache_name = "progress" 
 
 def progress(job_id, num, total):
-    db.set_cache('progress:' + job_id, (job_id, num, total) )
+    k = 'progress:' + job_id
+    db.set_cache(k, (job_id, num, total) )
+    if num == total:
+        db.delete_cache(k)
         
 def progress_reset_cache():
     keys = db.keys('progress:*')
     for k in keys:
-        print "Removing progress key %s" % k
+        # print "Removing progress key %s" % k
         db.delete_cache(k)
 
 def read_progress_info():

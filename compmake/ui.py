@@ -2,7 +2,7 @@ import sys
 from time import time
 import re
 
-from compmake.structures import Computation, ParsimException, UserError
+from compmake.structures import Computation, ParsimException, UserError, Cache
 
 #from compmake.storage import reset_cache, delete_cache
 from compmake.process import make_targets, mark_more, mark_remake,\
@@ -165,12 +165,14 @@ def list_jobs(job_list):
         up, reason = up_to_date(job_id)
         s = job_id
         s += " " * (50-len(s))
+        cache = get_job_cache(job_id)
+        s += Cache.state2desc[cache.state]
         if up:
-            cache = get_job_cache(job_id)
             when = duration_human(time() - cache.timestamp)
-            s += "OK  (%s ago)" % when
+            s += " (%s ago)" % when
         else:
-            s += reason
+            if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
+                s += " (needs update: %s)" % reason 
         print s
     
     

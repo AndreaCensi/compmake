@@ -85,6 +85,12 @@ however I found %s (%s)' % (s, type(s)) )
         assert(isinstance(K, list))
         return [rediskey2key(k) for k in K]
     
+    @staticmethod
+    def reopen_after_fork():
+        global redis
+        redis = None
+        get_redis(force=True)
+        
 #    @staticmethod   
 #    def reset_cache():
 #        """ reset the whole cache """
@@ -114,11 +120,11 @@ def rediskey2key(key):
 
 redis = None
 
-def get_redis():
+def get_redis(force=False):
     global redis
-    if redis is None:
-        sys.stderr.write("Opening connection to Redis (host=%s)... " %
-                         RedisInterface.host)
+    if redis is None or force:
+        #sys.stderr.write("Opening connection to Redis (host=%s)... " %
+        #                 RedisInterface.host)
         redis = Redis(host=RedisInterface.host,port=RedisInterface.port)
-        sys.stderr.write("done.\n")
+        #sys.stderr.write("done.\n")
     return redis
