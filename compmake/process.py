@@ -1,4 +1,5 @@
 from time import time
+from StringIO import StringIO
 import traceback
 from compmake.structures import Computation, Cache, ParsimException
 
