@@ -61,7 +61,8 @@ def up_to_date(job_id):
         
     computation = Computation.id2computations[job_id]
     for child in computation.depends:
-        if not up_to_date(child.job_id):
+        child_up, why = up_to_date(child.job_id) 
+        if not child_up:
             return False, 'Children not up to date.'
         else:
             this_timestamp = cache.timestamp
