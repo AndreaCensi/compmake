@@ -19,7 +19,7 @@ class RedisInterface:
         return "Redis backend"
     
     @staticmethod
-    def supports_concurrency(self):
+    def supports_concurrency():
         return True
         
     # Storage public interface
