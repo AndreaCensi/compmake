@@ -6,10 +6,17 @@ from compmake.stats import progress, progress_string, \
     print_progress, progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \
+    delete_job_cache, \
     get_job_userobject, is_job_userobject_available, delete_job_userobject, \
     set_job_userobject, get_job_tmpobject, is_job_tmpobject_available, \
     set_job_tmpobject, delete_job_tmpobject
 
+def clean_target(job_id):
+    # Cleans associated objects
+    mark_remake(job_id)
+    # Removes also the Cache object 
+    delete_job_cache(job_id)
+    
 def mark_more(job_id):
     cache = get_job_cache(job_id)
     cache.state = Cache.MORE_REQUESTED
@@ -19,7 +26,7 @@ def mark_remake(job_id):
     if is_job_userobject_available(job_id):
         delete_job_userobject(job_id)
     if is_job_tmpobject_available(job_id):
-        set_job_tmpobject(job_id)
+        delete_job_tmpobject(job_id)
         
     cache = get_job_cache(job_id)
     cache.state = Cache.NOT_STARTED
@@ -48,6 +55,9 @@ def up_to_date(job_id):
     """ 
     
     cache = get_job_cache(job_id) # OK
+    
+    if cache.state == Cache.NOT_STARTED:
+        return False, 'Not started'
         
     computation = Computation.id2computations[job_id]
     for child in computation.depends:
@@ -59,9 +69,9 @@ def up_to_date(job_id):
             if child_timestamp > this_timestamp:
                 return False, 'Children have been updated.'
     
-    if cache.state == Cache.NOT_STARTED:
-        return False, 'Not started'
-    elif cache.state ==  Cache.IN_PROGRESS:
+    # FIXME BUG if I start (in progress), children get updated,
+    # I still finish the computation instead of starting again
+    if cache.state ==  Cache.IN_PROGRESS:
         return False, 'Resuming progress'
     elif cache.state ==  Cache.FAILED:
         return False, 'Failed'
@@ -95,7 +105,7 @@ def make(job_id, more=False):
             deps.append(make(child.job_id))
       
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
-                               Cache.MORE_REQUESTED])
+                               Cache.MORE_REQUESTED, Cache.DONE])
         
         if cache.state == Cache.NOT_STARTED:
             previous_user_object = None
@@ -113,6 +123,10 @@ def make(job_id, more=False):
             else:
                 # starting more computation
                 previous_user_object = get_job_userobject(job_id)
+        elif cache.state == Cache.DONE:
+            # If we are done, it means children have been updated
+            assert(not up)
+            previous_user_object = None
         else:
             assert(False)
         
@@ -148,21 +162,6 @@ def make(job_id, more=False):
         set_job_cache(job_id, cache)
         
         return user_object
-
-def make_more(job_id):
-    mark_more(job_id)
-    return make(job_id, more=True)
-
-def make_all():
-    targets = top_targets()
-    for t in targets:
-        make(t)
-    
-def remake(jobs):
-    for job_id in jobs:
-        mark_remake(job_id)
-    for job_id in jobs:        
-        make(job_id)
         
 def top_targets():
     """ Returns a list of all jobs which are not needed by anybody """
@@ -177,39 +176,188 @@ from multiprocessing import Pool, TimeoutError, Queue
 from time import sleep
 import sys
 
-if 1:
-   def list_targets(jobs):
-        """ returns two lists:
-             todo:  list of job ids to do
-             ready_todo: subset of jobs that are ready to do """
-        todo = []
-        ready_todo = []
-        for job_id in jobs:
-            up, reason = up_to_date(job_id)
-            if not up:
-                todo.append(job_id)
-                computation = Computation.id2computations[job_id]
-                dependencies_up_to_date = True
-                for child in computation.depends:
-                    child_up, reason = up_to_date(child.job_id) 
-                    if not child_up:
-                          dependencies_up_to_date = False
-                          its_todo, its_ready_todo = list_targets([child.job_id])
-                          todo.extend(its_todo)
-                          ready_todo.extend(its_ready_todo)
-                if dependencies_up_to_date:
-                    ready_todo.append(job_id)
-            else:
-                pass
-                # print "Job %s uptodate" % job_id
-        return todo, ready_todo
+def dependencies_up_to_date(jobid):
+    computation = Computation.id2computations[job_id]
+    dependencies_up_to_date = True
+    for child in computation.depends:
+        child_up, reason = up_to_date(child.job_id) 
+        if not child_up:
+            return False
+    return True
+
+def list_targets(jobs):
+    """ returns two sets:
+         todo:  set of job ids to do
+         ready_todo: subset of jobs that are ready to do """
+    todo = []
+    ready_todo = []
+    for job_id in jobs:
+        up, reason = up_to_date(job_id)
+        if not up:
+            todo.append(job_id)
+            computation = Computation.id2computations[job_id]
+            dependencies_up_to_date = True
+            for child in computation.depends:
+                child_up, reason = up_to_date(child.job_id) 
+                if not child_up:
+                      dependencies_up_to_date = False
+                      its_todo, its_ready_todo = list_targets([child.job_id])
+                      todo.extend(its_todo)
+                      ready_todo.extend(its_ready_todo)
+            if dependencies_up_to_date:
+                ready_todo.append(job_id)
+        else:
+            pass
+            # print "Job %s uptodate" % job_id
+    return set(todo), set(ready_todo)
     
+def make_targets(targets, more=False):
+    # todo: jobs which we need to do, eventually
+    # ready_todo: jobs which are ready to do (dependencies satisfied)
+    todo, ready_todo = list_targets(targets)    
+    # jobs currently in processing
+    processing = set()
+    # jobs which have failed
+    failed = set()
+    # jobs completed succesfully
+    done = set()
+
+    def write_status():
+        sys.stderr.write(
+         ("compmake: done %4d | failed %4d | todo %4d "+
+         "| ready %4d | processing %4d \n") % (
+                len(done), len(failed), len(todo),
+                len(ready_todo), len(processing) ))
+
+    # Until we have something to do
+    while todo:
+        # single thread, we do one thing at a time
+        assert(not processing)
+        # Unless there are circular references,
+        # something should always be ready to do
+        assert(ready_todo)
+        
+        
+        # todo: add task priority
+        job_id = ready_todo.pop()
+        
+        processing.add(job_id)
+        
+        write_status()
+        
+        try:
+            do_more = more and job_id in targets
+            # try to do the job
+            make(job_id, more=do_more)
+            # if we succeed, mark as done
+            done.add(job_id)
+            # now look for its parents
+            parent_jobs = [x.job_id for x in \
+                           Computation.id2computations[job_id].needed_by ]
+            for opportunity in todo.intersection(set(parent_jobs)):
+                # opportunity is a parent that we should do
+                # if its dependencies are satisfied, we can put it 
+                #  in the ready_todo list
+                if dependencies_up_to_date(opportunity):
+                    # print "Now I can make %s" % opportunity
+                    ready_todo.add(opportunity)
+            
+        except Exception as e:
+            # if we fail
+            print "Job %s failed: %s" % (name, e)
+            failed.add(job_id)
+            computation = Computation.id2computations[job_id]
+            # TODO: mark dependencies as failed
+            if len(computation.needed_by) > 0: 
+                print "Exiting because job %s is needed" % job_id
+                sys.exit(-1) # XXX
+        finally:
+            # in any case, we remove the job from the todo list
+            todo.remove(job_id)
+            processing.remove(job_id)
+        
+    write_status()
+ 
+
+def parmake_targets(targets, more=False, processes=None):
+    # See make_targets for comments on the common structure
+    pool = Pool(processes=processes)
+    max_num_processing = 4
+    
+    todo, ready_todo = list_targets(targets)    
+    processing = set()
+    # this hash contains  job_id -> async result
+    processing2result = {}
+    failed = set()
+    done = set()
+
+    def write_status():
+        sys.stderr.write(
+         ("parmake: done %4d | failed %4d | todo %4d "+
+         "| ready %4d | processing %4d \n") % (
+                len(done), len(failed), len(todo),
+                len(ready_todo), len(processing) ))
+
+    while todo:
+        # note that in the single-thread processing=[]
+        assert(ready_todo or processing) 
+
+        # add jobs up to saturations
+        while ready_todo and len(processing) <= max_num_processing:
+            # todo: add task priority
+            job_id = ready_todo.pop()
+            processing.add(job_id)
+            make_more_of_this = more and (job_id in targets)
+            processing2result[job_id] = \
+                pool.apply_async(parmake_job, [job_id, make_more_of_this])
+   
+        write_status()
+        
+        # Loop until we get some response
+        while True:
+            received_some_results = False
+            for job_id, async_result in processing2result.items():
+                try:
+                    async_result.get(timeout=0.01)
+                    del processing2result[job_id]
+                    
+                    received_some_results = True
+                    done.add(job_id)
+                    todo.remove(job_id)
+                    processing.remove(job_id)
+                    
+                    parent_jobs = [x.job_id for x in \
+                           Computation.id2computations[job_id].needed_by ]
+                    for opportunity in todo.intersection(set(parent_jobs)):
+                        if dependencies_up_to_date(opportunity):
+                            # print "Now I can make %s" % opportunity
+                            ready_todo.add(opportunity)
+                        
+                except TimeoutError:
+                    # it simply means the job is not ready
+                    pass
+                except Exception as e:
+                    print "Job %s failed: %s" % (job_id, e)
+                    failed.add(job_id)
+                    todo.remove(job_id)
+                    processing.remove(job_id)
+                    del processing2result[job_id]
+    
+                    computation = Computation.id2computations[job_id]
+                    if len(computation.needed_by) > 0: 
+                        print "Exiting because job %s is needed" % job_id
+                        sys.exit(-1)
+            if received_some_results:
+                break
+        write_status()
+    write_status()
     
 def parmake_job(job_id, more=False):
     import compmake
     compmake.storage.redis = None
     #progress_set_queue(queue)
     make(job_id, more)
+    
 
 def parmake(targets=None, more=False, processes=None):
     pool = Pool(processes=processes)

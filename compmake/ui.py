@@ -4,9 +4,14 @@ import re
 
 from compmake.structures import Computation, ParsimException, UserError
 
-from compmake.storage import reset_cache, delete_cache
-from compmake.process import make, make_more, make_all, remake,\
-    top_targets, bottom_targets, parmake, make_sure_cache_is_sane, up_to_date
+#from compmake.storage import reset_cache, delete_cache
+from compmake.process import make_targets, mark_more, mark_remake,\
+    top_targets, bottom_targets, parmake_targets, make_sure_cache_is_sane, \
+    up_to_date, clean_target
+
+from compmake.process_storage import get_job_cache
+
+from compmake.visualization import duration_human
 
 def make_sure_pickable(obj):
     # TODO
@@ -85,11 +90,11 @@ def interpret_commands():
     elif commands[0] == 'clean':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
-            removed = reset_cache()
-            print "Removed %s" % removed
-        else:
-            for job_id in job_list:
-                delete_cache(job_id)
+            job_list = Computation.id2computations.keys()
+        
+        for job_id in job_list:
+            print "Cleaning %s" % job_id
+            clean_target(job_id)
             
 
     elif commands[0] == 'list':
@@ -97,69 +102,75 @@ def interpret_commands():
         if len(job_list) == 0:
             job_list = Computation.id2computations.keys()
         job_list.sort()
-        print "Defined targets:"
-        for job_id in job_list:
-            up, reason = up_to_date(job_id)
-            s = job_id
-            s += " " * (50-len(s))
-            if up:
-                s += "OK "
-            else:
-                s += reason
-            print s 
+        list_jobs(job_list)
+         
 
     elif commands[0] == 'make':
-        if len(commands) == 1:
-            make_all()
-            sys.exit(0)
-            
         job_list = parse_job_list(commands[1:])
-        for job in job_list:
-            make(job)
-        sys.exit(0)
+        if not job_list:
+            job_list = top_targets()
+        make_targets(job_list)
     
     elif commands[0] == 'parmake':
-        if len(commands) == 1:
-            parmake()
-            sys.exit(0)
-            
         job_list = parse_job_list(commands[1:])
-        parmake(job_list)
+        if not job_list:
+            job_list = top_targets()
+        
+        parmake_targets(job_list)
         
     elif commands[0] == 'remake':
         job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
+        if not job_list:
             print "remake: specify which ones "
             sys.exit(2)
             
-        remake(job_list)
+        for job in job_list:
+           mark_remake(job)
             
+        make_targets(job_list)
+                    
     elif commands[0] == 'parremake':
         job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
+        if not job_list:
             print "parremake: specify which ones "
             sys.exit(2)
             
-        parremake(job_list)
+        parmake_targets(job_list)
             
     elif commands[0] == 'parmore':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
             print "parmore: specify which ones "
             sys.exit(2)
-        parmake(job_list, more=True)
+        parmake_targets(job_list, more=True)
 
     elif commands[0] == 'more':
         job_list = parse_job_list(commands[1:])
         if len(job_list) == 0:
-            job_list = bottom_targets()
-            
+            print "more: specify which ones "
+            sys.exit(2)
+        
         for job in job_list:
-            make_more(job)
+           mark_more(job)
+            
+        make_targets(job_list, more=True)
+
     else:
         print "Uknown command %s" % commands[0]
         sys.exit(-1)    
     
-    
+
+def list_jobs(job_list):
+   for job_id in job_list:
+        up, reason = up_to_date(job_id)
+        s = job_id
+        s += " " * (50-len(s))
+        if up:
+            cache = get_job_cache(job_id)
+            when = duration_human(time() - cache.timestamp)
+            s += "OK  (%s ago)" % when
+        else:
+            s += reason
+        print s
     
     

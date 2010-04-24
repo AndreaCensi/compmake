@@ -15,7 +15,7 @@ def progress(job_id, num, total):
         del pw[job_id]
     set_cache(progress_cache_name, pw)
     
-    sys.stderr.write("\r%s" % progress_string())
+  #  sys.stderr.write("\r%s" % progress_string())
         
 def progress_reset_cache(onlykeep=[]):
     if not is_cache_available(progress_cache_name):

@@ -32,6 +32,11 @@ def set_job_cache(job_id, cache):
     cache_key = '%s:cache' % job_id
     set_cache(cache_key, cache)
     
+def delete_job_cache(job_id):
+    cache_key = '%s:cache' % job_id
+    delete_cache(cache_key)
+    
+    
 #### User objects
 def get_job_userobject(job_id):
     assert(is_job_userobject_available(job_id))

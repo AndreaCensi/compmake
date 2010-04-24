@@ -9,7 +9,8 @@ from compmake.structures import Computation
 
 local_cache = {}
 
-# TODO add should_be_fast
+# XXX Add dbname
+
 
 # Storage public interface
 def get_cache(name):

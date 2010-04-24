@@ -93,7 +93,6 @@ class Computation:
         self.yields = yields
         
     def compute(self, deps, previous_result=None):
-        print "make %s" % self.job_id
         kwargs = dict(**self.kwargs)
         if previous_result is not None:
             kw = 'previous_result'
