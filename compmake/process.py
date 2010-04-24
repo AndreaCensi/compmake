@@ -172,7 +172,7 @@ def bottom_targets():
     return [x.job_id for x in Computation.id2computations.values() if len(x.depends) == 0]
 
 
-from multiprocessing import Pool, TimeoutError, Queue
+from multiprocessing import Pool, TimeoutError, cpu_count
 from time import sleep
 import sys
 
@@ -282,7 +282,7 @@ def make_targets(targets, more=False):
 def parmake_targets(targets, more=False, processes=None):
     # See make_targets for comments on the common structure
     pool = Pool(processes=processes)
-    max_num_processing = 4
+    max_num_processing = cpu_count() + 1
     
     todo, ready_todo = list_targets(targets)    
     processing = set()
@@ -368,65 +368,65 @@ def parmake_job(job_id, more=False):
         raise e
     
 
-def parmake(targets=None, more=False, processes=None):
-    pool = Pool(processes=processes)
-        
-    """ If no target is passed, we do all top_targets """
-    if targets is None:
-        targets = top_targets() 
-        
-    # jobs currently in processing
-    processing = set()
-    failed = set()
-    done = set()
-    processing2result = {}
-    # print "Targets %d " % len(targets)
-    while True:
-        progress_reset_cache(processing)
-        
-        for name, result in processing2result.items():
-            try:
-                result.get(timeout=0.1)
-                done.add(name)
-                processing.remove(name)
-                del processing2result[name]
-            except TimeoutError:
-                pass
-            except Exception as e:
-                print "Job %s failed: %s" % (name, e)
-                failed.add(name)
-                processing.remove(name)
-                del processing2result[name]
-
-                computation = Computation.id2computations[name]
-                if len(computation.needed_by) > 0: 
-                    print "Exiting because job %s is needed" % name
-                    sys.exit(-1)
-        
-        todo, ready_todo = list_targets(targets)
-        
-        todo = set(todo).difference(failed)
-        
-        if len(todo) == 0:
-            break
-        
-        ready_not_processing = set(ready_todo).difference(processing, failed) 
-
-        sys.stderr.flush()
-        
-        for job_id in ready_not_processing:
-            #print "Launching %s " % job_id
-            processing.add(job_id)
-            make_more_of_this = more and (job_id in targets)
-            processing2result[job_id] = \
-                pool.apply_async(parmake_job, [job_id, make_more_of_this])
-        
-        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
-                        len(done), len(failed), len(todo), 
-                                              len(processing), 
-                                              len(ready_not_processing), 
-                                              progress_string()))
-        sleep(1)
+#def parmake(targets=None, more=False, processes=None):
+#    pool = Pool(processes=processes)
+#        
+#    """ If no target is passed, we do all top_targets """
+#    if targets is None:
+#        targets = top_targets() 
+#        
+#    # jobs currently in processing
+#    processing = set()
+#    failed = set()
+#    done = set()
+#    processing2result = {}
+#    # print "Targets %d " % len(targets)
+#    while True:
+#        progress_reset_cache(processing)
+#        
+#        for name, result in processing2result.items():
+#            try:
+#                result.get(timeout=0.1)
+#                done.add(name)
+#                processing.remove(name)
+#                del processing2result[name]
+#            except TimeoutError:
+#                pass
+#            except Exception as e:
+#                print "Job %s failed: %s" % (name, e)
+#                failed.add(name)
+#                processing.remove(name)
+#                del processing2result[name]
+#
+#                computation = Computation.id2computations[name]
+#                if len(computation.needed_by) > 0: 
+#                    print "Exiting because job %s is needed" % name
+#                    sys.exit(-1)
+#        
+#        todo, ready_todo = list_targets(targets)
+#        
+#        todo = set(todo).difference(failed)
+#        
+#        if len(todo) == 0:
+#            break
+#        
+#        ready_not_processing = set(ready_todo).difference(processing, failed) 
+#
+#        sys.stderr.flush()
+#        
+#        for job_id in ready_not_processing:
+#            #print "Launching %s " % job_id
+#            processing.add(job_id)
+#            make_more_of_this = more and (job_id in targets)
+#            processing2result[job_id] = \
+#                pool.apply_async(parmake_job, [job_id, make_more_of_this])
+#        
+#        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
+#                        len(done), len(failed), len(todo), 
+#                                              len(processing), 
+#                                              len(ready_not_processing), 
+#                                              progress_string()))
+#        sleep(1)
 
 
 
