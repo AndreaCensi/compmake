@@ -77,12 +77,11 @@ class StorageFilesystem:
     
     @staticmethod
     # TODO change key
-    def list_available_states():
-        filename = filename_for_key('*')
-        basekeys = [ splitext(basekey(x))[0] for x in glob(filename)]
+    def keys(pattern):
+        filename = filename_for_key(pattern)
+        basekeys = [ splitext(basename(x))[0] for x in glob(filename)]
         return basekeys
     
-
 
 def key2filename(key):
     '''turns a key into a reasonable filename'''

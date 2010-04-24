@@ -305,6 +305,8 @@ To use the Redis backend, you have to:
         use_redis(host='hostname')
 """ % str(db))            
     
+    progress_reset_cache()
+    
     # See make_targets for comments on the common structure
     pool = Pool(processes=processes)
     max_num_processing = cpu_count() + 1
@@ -322,6 +324,7 @@ To use the Redis backend, you have to:
          "| ready %4d | processing %4d \n") % (
                 len(done), len(failed), len(todo),
                 len(ready_todo), len(processing) ))
+        print_progress()
 
     while todo:
         # note that in the single-thread processing=[]

@@ -67,14 +67,22 @@ class RedisInterface:
         
         if precious:
             RedisInterface.local_cache[name] = value
+ 
+    @staticmethod
+    def keys(pattern='*'):
+        K = get_redis().keys(pattern = key2rediskey(pattern) )
+        assert(isinstance(K, str))
+        K = K.split()
+        assert(isinstance(K, list))
+        return [rediskey2key(k) for k in K]
     
-    @staticmethod   
-    def reset_cache():
-        """ reset the whole cache """
-        keys = get_redis().keys(pattern = key2rediskey('*') ).split()
-        for k in keys:
-            res = get_redis().delete(k)
-        return keys
+#    @staticmethod   
+#    def reset_cache():
+#        """ reset the whole cache """
+#        keys = get_redis().keys(pattern = key2rediskey('*') ).split()
+#        for k in keys:
+#            res = get_redis().delete(k)
+#        return keys
 
 # Other utilities
 
@@ -91,6 +99,9 @@ def string2object(s):
 # 
 def key2rediskey(s):
     return "compmake:%s" % s
+
+def rediskey2key(key):
+    return key.replace('compmake:','',1)
 
 redis = None
 

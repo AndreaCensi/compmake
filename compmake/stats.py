@@ -5,35 +5,25 @@ from compmake.storage import db
 progress_cache_name = "progress" 
 
 def progress(job_id, num, total):
-    if not db.is_cache_available(progress_cache_name):
-        db.set_cache(progress_cache_name, {})
+    db.set_cache('progress:' + job_id, (job_id, num, total) )
         
-    pw = db.get_cache(progress_cache_name)
-    pw[job_id] = (num, total)
-    if num == total:
-        del pw[job_id]
-    db.set_cache(progress_cache_name, pw)
-    
-  #  sys.stderr.write("\r%s" % progress_string())
-        
-def progress_reset_cache(onlykeep=[]):
-    if not db.is_cache_available(progress_cache_name):
-        return
-    pw = db.get_cache(progress_cache_name)
-    pw2 = {}
-    for k in onlykeep:
-        if k in pw:
-            pw2[k] = pw[k]
-    db.set_cache(progress_cache_name, pw)
+def progress_reset_cache():
+    keys = db.keys('progress:*')
+    for k in keys:
+        print "Removing progress key %s" % k
+        db.delete_cache(k)
 
+def read_progress_info():
+    res = []
+    keys = db.keys('progress:*')
+    keys = list(keys).sort()
+    for k in keys:
+        res.append( db.get_cache(k) )
+    return res
+    
 def progress_string():
-    if not is_cache_available(progress_cache_name):
-        db.set_cache(progress_cache_name, {})
-     
-    pw = db.get_cache(progress_cache_name)
     s = ""
-    for job_id, prog in pw.items():
-        num, total = prog
+    for job_id, num, total in read_progress_info():
         # ss = "[%s %d/%s] " % (job_id, num, total)
         ss = "[%d/%s] " % ( num, total)
         s = s + ss
