@@ -409,7 +409,7 @@ def parmake_job(job_id, more=False):
         sio = StringIO()
         traceback.print_exc(file=sio)
         cache.backtrace = sio.getvalue()
-        set_job_cache(cache)
+        set_job_cache(job_id, cache)
         
         # make sure
         cache = get_job_cache(job_id)
