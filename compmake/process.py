@@ -230,7 +230,7 @@ def make_targets(targets, more=False):
     def write_status():
         sys.stderr.write(
          ("compmake: done %4d | failed %4d | todo %4d "+
-         "| ready %4d | processing %4d \n") % (
+         "| ready %4d | processing %4d \r") % (
                 len(done), len(failed), len(todo),
                 len(ready_todo), len(processing) ))
 
