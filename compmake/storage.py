@@ -2,7 +2,6 @@
 db = None
 
 def use_redis(host='localhost',port=6379):
-    # FIXME host not honored
     from compmake.storage_redis import RedisInterface
     global db
     db = RedisInterface
@@ -15,6 +14,7 @@ def use_filesystem(directory='~/compmake'):
     db = StorageFilesystem
     db.basepath = directory
 
-use_filesystem()
+#use_filesystem()
+use_redis()
 
 
