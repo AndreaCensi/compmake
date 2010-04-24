@@ -174,5 +174,10 @@ def list_jobs(job_list):
             if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
                 s += " (needs update: %s)" % reason 
         print s
+        
+        if cache.state == Cache.FAILED:
+            print cache.exception
+            print cache.backtrace
+            
     
     

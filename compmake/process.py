@@ -401,6 +401,19 @@ def parmake_job(job_id, more=False):
         sys.stdout.flush()
         traceback.print_exc(file=sys.stderr)
         sys.stderr.flush()
+        
+        cache = get_job_cache(job_id)
+        cache.state = Cache.FAILED
+        cache.exception = e
+        sio = StringIO()
+        traceback.print_exc(file=sio)
+        cache.backtrace = sio.getvalue()
+        set_job_cache(cache)
+        
+        # make sure
+        cache = get_job_cache(job_id)
+        assert(cache.state == Cache.FAILED)
+        
         raise e
     
 def make_sure_cache_is_sane():

@@ -132,7 +132,12 @@ class Cache:
         assert(state in Cache.allowed_states)
         self.state = state
         self.timestamp = 0
-        self.timestarted = 0
+        #self.timestarted = 0
         # self.computation = computation
+        
+        # in case of failure
+        self.exception = None
+        self.backtrace = None
+        
         
         
