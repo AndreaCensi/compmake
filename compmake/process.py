@@ -107,9 +107,12 @@ def make(job_id, more=False):
             deps.append(make(child.job_id))
       
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
-                               Cache.MORE_REQUESTED, Cache.DONE])
+                               Cache.MORE_REQUESTED, Cache.DONE, Cache.FAILED])
         
         if cache.state == Cache.NOT_STARTED:
+            previous_user_object = None
+            cache.state = Cache.IN_PROGRESS
+        if cache.state == Cache.FAILED:
             previous_user_object = None
             cache.state = Cache.IN_PROGRESS
         elif cache.state == Cache.IN_PROGRESS:
