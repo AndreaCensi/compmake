@@ -23,8 +23,11 @@ def read_progress_info():
     return res
     
 def progress_string():
+    info = read_progress_info()
+    if not info:
+        return ' -- No jobs active -- '
     s = ""
-    for job_id, num, total in read_progress_info():
+    for job_id, num, total in info:
         # ss = "[%s %d/%s] " % (job_id, num, total)
         ss = "[%d/%s] " % ( num, total)
         s = s + ss
