@@ -16,7 +16,8 @@ def progress_reset_cache():
 def read_progress_info():
     res = []
     keys = db.keys('progress:*')
-    keys = list(keys).sort()
+    keys = list(keys)
+    keys.sort()
     for k in keys:
         res.append( db.get_cache(k) )
     return res

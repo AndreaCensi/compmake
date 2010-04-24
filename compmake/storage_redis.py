@@ -32,6 +32,9 @@ class RedisInterface:
         
         k = key2rediskey(name)
         s = get_redis().get(k)
+        if not isinstance(s, str):
+            raise ParsimException('I usually put string-string values in the db.\
+however I found %s (%s)' % (s, type(s)) )
         try:
             value = string2object(s)
         except Exception as e:
@@ -57,12 +60,18 @@ class RedisInterface:
     
     @staticmethod
     def set_cache(name, value, precious=False):
+        if not isinstance(name, str):
+            raise ParsimException(
+                'Panic: received %s (%s) as a key. I want strings.' %
+                (name, type(name) ) )
         k = key2rediskey(name)
         s = object2string(value)
         
         # Useful to get a sense what it's doing
         # sys.stderr.write('Save %s [%.2fK]\n' % (name, len(s)/1000.0 ) )
         
+        assert(isinstance(k, str))
+        assert(isinstance(s, str))
         get_redis().set(k, s)
         
         if precious:

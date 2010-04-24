@@ -266,7 +266,9 @@ def make_targets(targets, more=False):
         except Exception as e:
             # if we fail
             print "Job %s failed: %s" % (job_id, e)
-            traceback.print_exc(file=sys.stdout)
+            sys.stdout.flush()
+            traceback.print_exc(file=sys.stderr)
+            sys.stderr.flush()
             failed.add(job_id)
             computation = Computation.id2computations[job_id]
             # TODO: mark dependencies as failed
@@ -324,7 +326,6 @@ To use the Redis backend, you have to:
          "| ready %4d | processing %4d \n") % (
                 len(done), len(failed), len(todo),
                 len(ready_todo), len(processing) ))
-        print_progress()
 
     while todo:
         # note that in the single-thread processing=[]
@@ -345,6 +346,8 @@ To use the Redis backend, you have to:
         
         # Loop until we get some response
         while True:
+            print_progress()
+            
             received_some_results = False
             for job_id, async_result in processing2result.items():
                 assert(job_id in processing)
@@ -394,6 +397,9 @@ def parmake_job(job_id, more=False):
         make(job_id, more)
     except Exception as e:
         print "**Job %s failed: %s" % ( job_id, e)
+        sys.stdout.flush()
+        traceback.print_exc(file=sys.stderr)
+        sys.stderr.flush()
         raise e
     
 def make_sure_cache_is_sane():
