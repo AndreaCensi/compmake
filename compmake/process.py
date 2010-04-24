@@ -301,6 +301,7 @@ def parmake_targets(targets, more=False, processes=None):
     while todo:
         # note that in the single-thread processing=[]
         assert(ready_todo or processing) 
+        assert(not failed.intersection(todo))
 
         # add jobs up to saturations
         while ready_todo and len(processing) <= max_num_processing:
@@ -360,7 +361,11 @@ def parmake_job(job_id, more=False):
     import compmake
     compmake.storage.redis = None
     #progress_set_queue(queue)
-    make(job_id, more)
+    try:
+        make(job_id, more)
+    except Exception as e:
+        print "**Job %s failed: %s" % ( job_id, e)
+        raise e
     
 
 def parmake(targets=None, more=False, processes=None):
@@ -424,12 +429,6 @@ def parmake(targets=None, more=False, processes=None):
         sleep(1)
 
 
-
-def parremake(joblist):
-    for job_id in joblist:
-        mark_remake(job_id)
-    
-    parmake(joblist)            
 
 def make_sure_cache_is_sane():
     return
