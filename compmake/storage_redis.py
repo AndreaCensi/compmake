@@ -118,7 +118,7 @@ def get_redis():
     global redis
     if redis is None:
         sys.stderr.write("Opening connection to Redis (host=%s)... " %
-                         RedisInterface.redis_host)
+                         RedisInterface.host)
         redis = Redis(host=RedisInterface.host,port=RedisInterface.port)
         sys.stderr.write("done.\n")
     return redis
