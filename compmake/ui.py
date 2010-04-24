@@ -93,7 +93,7 @@ def interpret_commands():
             job_list = Computation.id2computations.keys()
         
         for job_id in job_list:
-            print "Cleaning %s" % job_id
+            # print "Cleaning %s" % job_id
             clean_target(job_id)
             
 

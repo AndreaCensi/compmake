@@ -1,5 +1,5 @@
 from time import time
-
+import traceback
 from compmake.structures import Computation, Cache, ParsimException
 
 from compmake.stats import progress, progress_string, \
@@ -265,7 +265,8 @@ def make_targets(targets, more=False):
             
         except Exception as e:
             # if we fail
-            print "Job %s failed: %s" % (name, e)
+            print "Job %s failed: %s" % (job_id, e)
+            traceback.print_exc(file=sys.stdout)
             failed.add(job_id)
             computation = Computation.id2computations[job_id]
             # TODO: mark dependencies as failed
@@ -369,69 +370,6 @@ def parmake_job(job_id, more=False):
         print "**Job %s failed: %s" % ( job_id, e)
         raise e
     
-
-#def parmake(targets=None, more=False, processes=None):
-#    pool = Pool(processes=processes)
-#        
-#    """ If no target is passed, we do all top_targets """
-#    if targets is None:
-#        targets = top_targets() 
-#        
-#    # jobs currently in processing
-#    processing = set()
-#    failed = set()
-#    done = set()
-#    processing2result = {}
-#    # print "Targets %d " % len(targets)
-#    while True:
-#        progress_reset_cache(processing)
-#        
-#        for name, result in processing2result.items():
-#            try:
-#                result.get(timeout=0.1)
-#                done.add(name)
-#                processing.remove(name)
-#                del processing2result[name]
-#            except TimeoutError:
-#                pass
-#            except Exception as e:
-#                print "Job %s failed: %s" % (name, e)
-#                failed.add(name)
-#                processing.remove(name)
-#                del processing2result[name]
-#
-#                computation = Computation.id2computations[name]
-#                if len(computation.needed_by) > 0: 
-#                    print "Exiting because job %s is needed" % name
-#                    sys.exit(-1)
-#        
-#        todo, ready_todo = list_targets(targets)
-#        
-#        todo = set(todo).difference(failed)
-#        
-#        if len(todo) == 0:
-#            break
-#        
-#        ready_not_processing = set(ready_todo).difference(processing, failed) 
-#
-#        sys.stderr.flush()
-#        
-#        for job_id in ready_not_processing:
-#            #print "Launching %s " % job_id
-#            processing.add(job_id)
-#            make_more_of_this = more and (job_id in targets)
-#            processing2result[job_id] = \
-#                pool.apply_async(parmake_job, [job_id, make_more_of_this])
-#        
-#        sys.stderr.write("--\nDone %d Failed %d Todo %d, Processing %d new %d\nStats %s--" % (
-#                        len(done), len(failed), len(todo), 
-#                                              len(processing), 
-#                                              len(ready_not_processing), 
-#                                              progress_string()))
-#        sleep(1)
-
-
-
 def make_sure_cache_is_sane():
     return
 # XXX review this

@@ -7,8 +7,12 @@ from redis import Redis
 from compmake.structures import ParsimException
 from compmake.structures import Computation
 
-from compmake.storage_redis import RedisInterface
+if 0:
+    from compmake.storage_redis import RedisInterface
+    db = RedisInterface
 
-db = RedisInterface
+from compmake.storage_filesystem import StorageFilesystem
+db = StorageFilesystem
+
 
 

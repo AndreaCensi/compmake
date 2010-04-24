@@ -5,7 +5,7 @@ from compmake.storage import db
 progress_cache_name = "progress" 
 
 def progress(job_id, num, total):
-    if not is_cache_available(progress_cache_name):
+    if not db.is_cache_available(progress_cache_name):
         db.set_cache(progress_cache_name, {})
         
     pw = db.get_cache(progress_cache_name)
