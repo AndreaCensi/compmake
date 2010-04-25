@@ -219,7 +219,10 @@ def list_targets(jobs):
 def make_targets(targets, more=False):
     # todo: jobs which we need to do, eventually
     # ready_todo: jobs which are ready to do (dependencies satisfied)
-    todo, ready_todo = list_targets(targets)    
+    todo, ready_todo = list_targets(targets)
+    
+#    if more:
+#       todo    
     # jobs currently in processing
     processing = set()
     # jobs which have failed
