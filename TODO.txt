@@ -1,0 +1,8 @@
+
+TODO:
+
+* Find out whether Make more works.
+* Command line options for backends?
+* Estimation of residual time.
+* Curses-based visualization.
+* Extra commands
