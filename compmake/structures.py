@@ -2,6 +2,9 @@
 class ParsimException(Exception):
     pass
 
+class KeyNotFound(ParsimException):
+    pass
+
 class UserError(ParsimException):
     pass
 

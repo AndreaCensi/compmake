@@ -1,6 +1,7 @@
 import os 
 import sys
 from compmake.storage import db
+from compmake.structures import KeyNotFound
 
 progress_cache_name = "progress" 
 
@@ -22,7 +23,12 @@ def read_progress_info():
     keys = list(keys)
     keys.sort()
     for k in keys:
-        res.append( db.get_cache(k) )
+        try:
+            val = db.get_cache(k)
+            res.append( val )
+        except KeyNotFound:
+            pass
+            
     return res
     
 def progress_string():
