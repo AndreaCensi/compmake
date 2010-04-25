@@ -31,8 +31,11 @@ class RedisInterface:
             return RedisInterface.local_cache[name]
         
         k = key2rediskey(name)
-        assert(get_redis().exists(k))
         s = get_redis().get(k)
+        
+        if s is None:
+            raise ParsimException('Key %s does not exist anymore' % name)
+        
         if not isinstance(s, str):
             raise ParsimException('I usually put string-string values in the db.\
 however I found %s (%s). Key is %s' % (s, type(s), k) )
