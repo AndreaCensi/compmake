@@ -34,7 +34,7 @@ class RedisInterface:
         s = get_redis().get(k)
         if not isinstance(s, str):
             raise ParsimException('I usually put string-string values in the db.\
-however I found %s (%s)' % (s, type(s)) )
+however I found %s (%s). Key is %s' % (s, type(s), k) )
         try:
             value = string2object(s)
         except Exception as e:
