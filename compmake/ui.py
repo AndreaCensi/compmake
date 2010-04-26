@@ -6,7 +6,7 @@ from compmake.structures import Computation, ParsimException, UserError, Cache
 
 #from compmake.storage import reset_cache, delete_cache
 from compmake.process import make_targets, mark_more, mark_remake,\
-    top_targets, bottom_targets, parmake_targets, make_sure_cache_is_sane, \
+    top_targets, parmake_targets, make_sure_cache_is_sane, \
     up_to_date, clean_target
 
 from compmake.process_storage import get_job_cache
@@ -17,9 +17,22 @@ def make_sure_pickable(obj):
     # TODO
     pass
 
+
+def collect_dependencies(iterable):
+    depends = []
+    for i in iterable:
+        if isinstance(i, Computation):
+            depends.append(i)
+        if isinstance(i, list):
+            depends.extend(collect_dependencies(i))
+        if isinstance(i, dict):
+            depends.extend(collect_dependencies(i.values()))
+    return list(set(depends))
+
 def comp(command, *args, **kwargs):
+    args = list(args) # args is a non iterable tuple
     # Get job id from arguments
-    job_id_key = 'job'
+    job_id_key = 'job_id'
     if job_id_key in kwargs:
         job_id = kwargs[job_id_key]
         del kwargs[job_id_key]
@@ -28,10 +41,26 @@ def comp(command, *args, **kwargs):
     else:
         # make our own
         for i in xrange(1000000):
-            job_id = str(command)
+            job_id = str(command)+'-%d'%i
             if not job_id in Computation.id2computations:
                 break
+
+    assert(job_id not in Computation.id2computations )
+
+    depends = collect_dependencies([args, kwargs])
+    # make sure we do not have two Computation with the same id
+    depends = [ Computation.id2computations[x.job_id] for x in depends ]
     
+    c = Computation(job_id=job_id,depends=depends,
+                    command=command, args=args, kwargs=kwargs)
+    Computation.id2computations[job_id] = c
+        # TODO: check for loops     
+            
+    for x in depends:
+        if not c in x.needed_by:
+            x.needed_by.append(c)
+        
+    return c
 
 def add_computation(depends, parsim_job_id, command, *args, **kwargs):
     job_id = parsim_job_id
@@ -81,7 +110,7 @@ def interpret_commands():
     
     commands = sys.argv[1:]
     if len(commands) == 0:
-        make_all()
+        make_targets(top_targets())
         sys.exit(0)
 
     elif commands[0] == 'check':
