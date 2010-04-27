@@ -1,4 +1,3 @@
-import os 
 import sys
 
 from compmake import storage
@@ -9,7 +8,7 @@ progress_cache_name = "progress"
 
 def progress(job_id, num, total):
     k = 'progress:' + job_id
-    storage.db.set_cache(k, (job_id, num, total) )
+    storage.db.set_cache(k, (job_id, num, total))
     if num == total:
         storage.db.delete_cache(k)
         
@@ -27,7 +26,7 @@ def read_progress_info():
     for k in keys:
         try:
             val = storage.db.get_cache(k)
-            res.append( val )
+            res.append(val)
         except KeyNotFound:
             pass
             
@@ -40,7 +39,7 @@ def progress_string():
     s = ""
     for job_id, num, total in info:
         # ss = "[%s %d/%s] " % (job_id, num, total)
-        ss = "[%d/%s] " % ( num, total)
+        ss = "[%d/%s] " % (num, total)
         s = s + ss
     return s
 

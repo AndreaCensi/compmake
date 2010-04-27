@@ -1,16 +1,15 @@
 import sys
-from time import time
 import re
 
 from compmake.structures import Computation, ParsimException, UserError, Cache
  
-from compmake.process import make_targets, mark_more, mark_remake,\
+from compmake.process import make_targets, mark_more, mark_remake, \
     top_targets, parmake_targets, make_sure_cache_is_sane, \
     up_to_date, clean_target
 
 from compmake.process_storage import get_job_cache
 
-from compmake.visualization import duration_human
+from compmake.visualization import duration_human, user_error
 
 def make_sure_pickable(obj):
     # TODO
@@ -46,17 +45,17 @@ def comp(command, *args, **kwargs):
     else:
         # make our own
         for i in xrange(1000000):
-            job_id = str(command)+'-%d'%i
+            job_id = str(command) + '-%d' % i
             if not job_id in Computation.id2computations:
                 break
 
-    assert(job_id not in Computation.id2computations )
+    assert(job_id not in Computation.id2computations)
 
     depends = collect_dependencies([args, kwargs])
     # make sure we do not have two Computation with the same id
     depends = [ Computation.id2computations[x.job_id] for x in depends ]
     
-    c = Computation(job_id=job_id,depends=depends,
+    c = Computation(job_id=job_id, depends=depends,
                     command=command, args=args, kwargs=kwargs)
     Computation.id2computations[job_id] = c
         # TODO: check for loops     
@@ -82,7 +81,7 @@ def add_computation(depends, parsim_job_id, command, *args, **kwargs):
         elif isinstance(d, Computation):
             pass
         
-    c = Computation(job_id=job_id,depends=depends,
+    c = Computation(job_id=job_id, depends=depends,
                     command=command, args=args, kwargs=kwargs)
     Computation.id2computations[job_id] = c
         # TODO: check for loops     
@@ -113,22 +112,23 @@ def parse_job_list(argv):
 
 
 from collections import namedtuple
+
 def find_commands():
     Command = namedtuple('Command', 'function name doc ')
     commands = {}
     import compmake.ui_commands as ui_commands
-    keys = ui_commands.__dict__.keys()
+    keys = ui_commands.__dict__.keys() #@UndefinedVariable
     keys.sort() # XXX does not work?
     for k in keys: 
-        v = ui_commands.__dict__[k]
+        v = ui_commands.__dict__[k] #@UndefinedVariable
         if type(v) == type(ui_commands.make) and v.__module__ == 'compmake.ui_commands' and v.__doc__:
-            commands[k] = Command(function=v,name=k,doc=v.__doc__)
+            commands[k] = Command(function=v, name=k, doc=v.__doc__)
     return commands
 
-def list_commands(commands):
+def list_commands(commands, file=sys.stdout):
     for cmd in commands.values():
         function, name, doc = cmd
-        print padleft(15, name), doc
+        file.write("%s\n" % (padleft(15, name), doc))
 
 def padleft(n, s):
     return " " * (n - len(s)) + s
@@ -137,106 +137,47 @@ def interpret_commands(commands):
 
     ui_commands = find_commands()
     
-    if (len(commands) == 0) or commands[0]=='help':
+    if (len(commands) == 0) or commands[0] == 'help':
         list_commands(ui_commands)
         sys.exit(0)
 
     command = commands[0]
     if not command in ui_commands.keys():
-        print "Uknown command '%s' " % command
+        user_error("Uknown command '%s' " % command)
         list_commands(ui_commands)
         sys.exit(-2)
         
     function, name, doc = ui_commands[commands[0]]
+    function_args = function.func_code.co_varnames[:function.func_code.co_argcount]
+    
     args = commands[1:]
     
-    function_args = command.func_code.co_varnames
+    # look for  key=value pairs 
+    other = []
+    kwargs = {}
+    for a in args:
+        if a.index('=') > 0:
+            k, v = a.split('=')
+            kwargs[k] = v
+            if not k in function_args:
+                user_error(("You passed the argument '%s' for command '%s'" + 
+                       " but the only available arguments are %s") % (
+                            k, name, function_args))
+                sys.exit(-2)
+        else:
+            other.append(a)
+    args = other
+    
     if 'non_empty_job_list' in function_args:
         if not args:
-            print "Command %s requires arguments" % command
-
-
-    elif commands[0] == 'check':
-        make_sure_cache_is_sane()
-
-    elif commands[0] == 'clean':
-        job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
-            job_list = Computation.id2computations.keys()
-        
-        for job_id in job_list:
-            # print "Cleaning %s" % job_id
-            clean_target(job_id)
+            user_error("Command %s requires arguments" % command)
+            sys.exit(-3)
             
-
-    elif commands[0] == 'list':
-        job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
-            job_list = Computation.id2computations.keys()
-        job_list.sort()
-        list_jobs(job_list)
-         
-
-    elif commands[0] == 'make':
-        job_list = parse_job_list(commands[1:])
-        if not job_list:
-            job_list = top_targets()
-        make_targets(job_list)
+        kwargs['non_empty_job_list'] = parse_job_list(args)
+        
+    if 'job_list' in function_args:
+        kwargs['job_list'] = parse_job_list(args)
+        
     
-    elif commands[0] == 'parmake':
-        job_list = parse_job_list(commands[1:])
-        if not job_list:
-            job_list = top_targets()
-        
-        parmake_targets(job_list)
-        
-    elif commands[0] == 'remake':
-        job_list = parse_job_list(commands[1:])
-        if not job_list:
-            print "remake: specify which ones "
-            sys.exit(2)
-            
-        for job in job_list:
-            mark_remake(job)
-            
-        make_targets(job_list)
-                    
-    elif commands[0] == 'parremake':
-        job_list = parse_job_list(commands[1:])
-        if not job_list:
-            print "parremake: specify which ones "
-            sys.exit(2)
-            
-        parmake_targets(job_list)
-            
-    elif commands[0] == 'parmore':
-        job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
-            print "parmore: specify which ones "
-            sys.exit(2)
-        parmake_targets(job_list, more=True)
-    elif commands[0] == 'parmorecont':
-        job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
-            print "parmorecont: specify which ones "
-            sys.exit(2)
-            
-        for i in range(100000):
-            print "------- parmorecont: iteration %d" % i 
-            parmake_targets(job_list, more=True)
+    function(**kwargs)
 
-    elif commands[0] == 'more':
-        job_list = parse_job_list(commands[1:])
-        if len(job_list) == 0:
-            print "more: specify which ones "
-            sys.exit(2)
-        
-        for job in job_list:
-           mark_more(job)
-            
-        make_targets(job_list, more=True)
-
-    else:
-        print "Uknown command %s" % commands[0]
-        sys.exit(-1)    
-    

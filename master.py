@@ -1,5 +1,6 @@
 ''' This is the executable '''
 import sys
+import traceback
 
 from optparse import OptionParser
 from compmake import interpret_commands
@@ -7,15 +8,13 @@ from compmake.storage import use_redis, use_filesystem
 
 
 def main():             
-                      
     parser = OptionParser()
 
-    allowed_db = ['filesystem','redis']
+    allowed_db = ['filesystem', 'redis']
     parser.add_option("--db", dest="db", help="Specifies db backend. Options: %s" % allowed_db, default=allowed_db[0])
     parser.add_option("--path", dest="path", help="[filesystem db] Path to directory for filesystem storage", default=None)
-    parser.add_option("--host hostname[:port]", dest="hostname", 
+    parser.add_option("--host hostname[:port]", dest="hostname",
                       help="[redis db] Hostname for redis server", default='localhost')
-    
     
     (options, args) = parser.parse_args()
 
@@ -51,7 +50,8 @@ def main():
     try:
         __import__(module_name)
     except Exception as e:
-        print e
+        traceback.print_exc(file=sys.stderr)
+
         sys.exit(-5)
         
     interpret_commands(rest_of_params)

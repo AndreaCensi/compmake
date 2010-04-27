@@ -3,7 +3,7 @@ from StringIO import StringIO
 import traceback
 from compmake.structures import Computation, Cache, ParsimException
 
-from compmake.stats import progress, progress_string,  progress_reset_cache
+from compmake.stats import progress, progress_string, progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \
     delete_job_cache, \
@@ -72,12 +72,12 @@ def up_to_date(job_id):
     
     # FIXME BUG if I start (in progress), children get updated,
     # I still finish the computation instead of starting again
-    if cache.state ==  Cache.IN_PROGRESS:
+    if cache.state == Cache.IN_PROGRESS:
         return False, 'Resuming progress'
-    elif cache.state ==  Cache.FAILED:
+    elif cache.state == Cache.FAILED:
         return False, 'Failed'
             
-    assert( cache.state in [Cache.DONE, Cache.MORE_REQUESTED] )
+    assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
 
     up_to_date_cache.add(job_id)
     
@@ -145,8 +145,8 @@ def make(job_id, more=False):
                     next = result.next()
                     if isinstance(next, tuple):
                         if len(next) != 3:
-                            raise ParsimException('If computation yields a tuple, ' +
-                                                  'should be a tuple with 3 elemnts.'+
+                            raise ParsimException('If computation yields a tuple, ' + 
+                                                  'should be a tuple with 3 elemnts.' + 
                                                   'Got: %s' % next)
                         user_object, num, total = next
                         progress(job_id, num, total)
@@ -193,13 +193,23 @@ def list_todo_targets(jobs):
          todo:  set of job ids to do """
     todo = set()
     for job_id in jobs:
-        up, reason  = up_to_date(job_id)
+        up, reason = up_to_date(job_id)
         if not up:
             todo.add(job_id)
             computation = Computation.id2computations[job_id]
             children_id = [x.job_id for x in computation.depends]
             todo = todo.union(list_todo_targets(children_id))
     return set(todo)
+    
+def tree(jobs):
+    ''' Returns the tree of all dependencies of the jobs '''
+    t = set(jobs)
+    for job_id in jobs:
+        computation = Computation.id2computations[job_id]
+        children_id = [x.job_id for x in computation.depends]
+        t = t.union(tree(children_id))
+    return t
+    
     
 def make_targets(targets, more=False):
     # todo: jobs which we need to do, eventually
@@ -219,10 +229,10 @@ def make_targets(targets, more=False):
 
     def write_status():
         sys.stderr.write(
-         ("compmake: done %4d | failed %4d | todo %4d "+
+         ("compmake: done %4d | failed %4d | todo %4d " + 
          "| ready %4d | processing %4d \r") % (
                 len(done), len(failed), len(todo),
-                len(ready_todo), len(processing) ))
+                len(ready_todo), len(processing)))
 
     assert(ready_todo.issubset(todo))
     
@@ -332,10 +342,10 @@ To use the Redis backend, you have to:
 
     def write_status():
         sys.stderr.write(
-         ("parmake: done %4d | failed %4d | todo %4d "+
+         ("parmake: done %4d | failed %4d | todo %4d " + 
          "| ready %4d | processing %4d \n") % (
                 len(done), len(failed), len(todo),
-                len(ready_todo), len(processing) ))
+                len(ready_todo), len(processing)))
 
     while todo:
         # note that in the single-thread processing=[]
@@ -356,7 +366,7 @@ To use the Redis backend, you have to:
         
         # Loop until we get some response
         while True:
-            sys.stderr.write("parmake:   jobs: %s\r" %  progress_string() )
+            sys.stderr.write("parmake:   jobs: %s\r" % progress_string())
             sys.stderr.flush()
             
             received_some_results = False
@@ -409,7 +419,7 @@ def parmake_job(job_id, more=False):
             mark_more(job_id)
         make(job_id, more)
     except Exception as e:
-        print "**Job %s failed: %s" % ( job_id, e)
+        print "**Job %s failed: %s" % (job_id, e)
         sys.stdout.flush()
         traceback.print_exc(file=sys.stderr)
         sys.stderr.flush()
@@ -423,7 +433,7 @@ def parmake_job(job_id, more=False):
         set_job_cache(job_id, cache)
         
         # clear progress cache
-        progress(job_id, 1,1)
+        progress(job_id, 1, 1)
         
         # make sure
         cache = get_job_cache(job_id)

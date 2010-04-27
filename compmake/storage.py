@@ -1,9 +1,8 @@
 import os
 
 db = None
-print "initialized to None again"
 
-def use_redis(host=None,port=None):
+def use_redis(host=None, port=None):
     if host is None:
         host = 'localhost'
     if port is None:
