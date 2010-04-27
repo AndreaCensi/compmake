@@ -1,5 +1,5 @@
 from compmake import comp
-from compmake.structures import ParsimException
+from compmake.structures import ParsimException, UserError
 from compmake.process import make
 import unittest
 
@@ -38,7 +38,7 @@ class Test1(unittest.TestCase):
         ''' Make sure we set up a warning if the job_id key
            is already used '''
         self.assertTrue( comp(f1, job_id='ciao'))
-        self.assertRaises(ParsimException, comp, f1, job_id='ciao')
+        self.assertRaises(UserError, comp, f1, job_id='ciao')
         
     def testDep(self):
         ''' Testing advanced dependencies discovery '''
@@ -62,6 +62,10 @@ class Test1(unittest.TestCase):
         self.assertTrue(cf1 in cf2.depends)
         self.assertTrue(cf2 in cf1.needed_by)
       
+    def testJOBparam(self):
+        ''' We should issue a warning if job_id is used as a parameter in the function '''
+        cf1 = comp(uses_id)
+        self.assertRaises(UserError, comp, uses_id, job_id='myjobid' )
         
         
         

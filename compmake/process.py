@@ -3,8 +3,7 @@ from StringIO import StringIO
 import traceback
 from compmake.structures import Computation, Cache, ParsimException
 
-from compmake.stats import progress, progress_string, \
-    print_progress, progress_reset_cache
+from compmake.stats import progress, progress_string,  progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \
     delete_job_cache, \
@@ -178,7 +177,6 @@ def bottom_targets():
 
 
 from multiprocessing import Pool, TimeoutError, cpu_count
-from time import sleep
 import sys
 
 def dependencies_up_to_date(job_id):
@@ -190,44 +188,33 @@ def dependencies_up_to_date(job_id):
             return False
     return True
 
-def list_targets(jobs):
-    """ returns two sets:
-         todo:  set of job ids to do
-         ready_todo: subset of jobs that are ready to do """
-    todo = []
-    ready_todo = []
+def list_todo_targets(jobs):
+    """ returns set:
+         todo:  set of job ids to do """
+    todo = set()
     for job_id in jobs:
-        up, reason = up_to_date(job_id)
+        up, reason  = up_to_date(job_id)
         if not up:
-            todo.append(job_id)
+            todo.add(job_id)
             computation = Computation.id2computations[job_id]
-            dependencies_up_to_date = True
-            for child in computation.depends:
-                child_up, reason = up_to_date(child.job_id) 
-                if not child_up:
-                      dependencies_up_to_date = False
-                      its_todo, its_ready_todo = list_targets([child.job_id])
-                      todo.extend(its_todo)
-                      ready_todo.extend(its_ready_todo)
-            if dependencies_up_to_date:
-                ready_todo.append(job_id)
-        else:
-            pass
-            # print "Job %s uptodate" % job_id
-    return set(todo), set(ready_todo)
+            children_id = [x.job_id for x in computation.depends]
+            todo = todo.union(list_todo_targets(children_id))
+    return set(todo)
     
 def make_targets(targets, more=False):
     # todo: jobs which we need to do, eventually
     # ready_todo: jobs which are ready to do (dependencies satisfied)
-    todo, ready_todo = list_targets(targets)
-    
-#    if more:
-#       todo    
+    todo = list_todo_targets(targets)    
+    if more:
+        todo = todo.union(targets)
+    ready_todo = set([job_id for job_id in todo 
+                      if dependencies_up_to_date(job_id)])
+
     # jobs currently in processing
     processing = set()
     # jobs which have failed
     failed = set()
-    # jobs completed succesfully
+    # jobs completed successfully
     done = set()
 
     def write_status():
@@ -237,6 +224,8 @@ def make_targets(targets, more=False):
                 len(done), len(failed), len(todo),
                 len(ready_todo), len(processing) ))
 
+    assert(ready_todo.issubset(todo))
+    
     # Until we have something to do
     while todo:
         # single thread, we do one thing at a time
@@ -328,7 +317,13 @@ To use the Redis backend, you have to:
     pool = Pool(processes=processes)
     max_num_processing = cpu_count() + 1
     
-    todo, ready_todo = list_targets(targets)    
+    todo = list_todo_targets(targets)    
+    if more:
+        todo = todo.union(targets)
+    ready_todo = set([job_id for job_id in todo 
+                      if dependencies_up_to_date(job_id)])
+
+    
     processing = set()
     # this hash contains  job_id -> async result
     processing2result = {}
@@ -410,6 +405,8 @@ def parmake_job(job_id, more=False):
     db.reopen_after_fork()
 
     try:
+        if more: # XXX this should not be necessary
+            mark_more(job_id)
         make(job_id, more)
     except Exception as e:
         print "**Job %s failed: %s" % ( job_id, e)
@@ -434,17 +431,22 @@ def parmake_job(job_id, more=False):
         
         raise e
     
+
+def all_targets():
+    return Computation.id2computations.keys()
+
 def make_sure_cache_is_sane():
+    # TODO write new version of this
     return
 # XXX review this
-    """ Checks that the cache is sane, deletes things that cannot be open """
-    for job_id in Computation.id2computations.keys():
-        if is_cache_available(job_id):
-            try:
-                get_cache(job_id)
-               # print "%s sane" % job_id
-            except:
-                print "Cache %s not sane. Deleting." % job_id
-                delete_cache(job_id)
+#    """ Checks that the cache is sane, deletes things that cannot be open """
+#   for job_id in Computation.id2computations.keys():
+#      if is_cache_available(job_id):
+#         try:
+#            get_cache(job_id)
+# print "%s sane" % job_id
+#       except:
+#          print "Cache %s not sane. Deleting." % job_id
+#         delete_cache(job_id)
 
 

@@ -1,4 +1,4 @@
-import os, sys, fcntl
+import os 
 import pickle
 from glob import glob
 from os import makedirs
@@ -6,8 +6,7 @@ from os.path import expanduser, dirname, join, expandvars, \
     splitext, exists, basename
 from StringIO import StringIO
 
-from compmake.structures import ParsimException
-from compmake.structures import Computation
+from compmake.structures import ParsimException 
 
 class StorageFilesystem:
     basepath = '~/compmake'
@@ -64,7 +63,7 @@ class StorageFilesystem:
         file.close()
         
         if precious:
-            RedisInterface.local_cache[key] = value
+            StorageFilesystem.local_cache[key] = value
     
     #@staticmethod   
     #def reset_cache():
@@ -90,8 +89,7 @@ def key2filename(key):
     key = key.replace('~', 'HOME')
     return key
 
-def get_computations_root():
-    # TODO: make this configurable 
+def get_computations_root():  
     basepath = expandvars(expanduser(StorageFilesystem.basepath))
     return basepath
 

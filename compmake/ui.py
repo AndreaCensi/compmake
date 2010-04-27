@@ -3,8 +3,7 @@ from time import time
 import re
 
 from compmake.structures import Computation, ParsimException, UserError, Cache
-
-#from compmake.storage import reset_cache, delete_cache
+ 
 from compmake.process import make_targets, mark_more, mark_remake,\
     top_targets, parmake_targets, make_sure_cache_is_sane, \
     up_to_date, clean_target
@@ -34,6 +33,12 @@ def comp(command, *args, **kwargs):
     # Get job id from arguments
     job_id_key = 'job_id'
     if job_id_key in kwargs:
+        # make sure that command does not have itself a job_id key
+        available = command.func_code.co_varnames
+        if job_id_key in available:
+            raise UserError('You cannot define the job_id in this way' + 
+                'because job_id is already a parameter of this function')    
+        
         job_id = kwargs[job_id_key]
         del kwargs[job_id_key]
         if job_id in Computation.id2computations:
@@ -106,12 +111,50 @@ def parse_job_list(argv):
             jobs.append(arg)
     return jobs
 
-def interpret_commands():
+
+from collections import namedtuple
+def find_commands():
+    Command = namedtuple('Command', 'function name doc ')
+    commands = {}
+    import compmake.ui_commands as ui_commands
+    keys = ui_commands.__dict__.keys()
+    keys.sort() # XXX does not work?
+    for k in keys: 
+        v = ui_commands.__dict__[k]
+        if type(v) == type(ui_commands.make) and v.__module__ == 'compmake.ui_commands' and v.__doc__:
+            commands[k] = Command(function=v,name=k,doc=v.__doc__)
+    return commands
+
+def list_commands(commands):
+    for cmd in commands.values():
+        function, name, doc = cmd
+        print padleft(15, name), doc
+
+def padleft(n, s):
+    return " " * (n - len(s)) + s
+
+def interpret_commands(commands):
+
+    ui_commands = find_commands()
     
-    commands = sys.argv[1:]
-    if len(commands) == 0:
-        make_targets(top_targets())
+    if (len(commands) == 0) or commands[0]=='help':
+        list_commands(ui_commands)
         sys.exit(0)
+
+    command = commands[0]
+    if not command in ui_commands.keys():
+        print "Uknown command '%s' " % command
+        list_commands(ui_commands)
+        sys.exit(-2)
+        
+    function, name, doc = ui_commands[commands[0]]
+    args = commands[1:]
+    
+    function_args = command.func_code.co_varnames
+    if 'non_empty_job_list' in function_args:
+        if not args:
+            print "Command %s requires arguments" % command
+
 
     elif commands[0] == 'check':
         make_sure_cache_is_sane()
@@ -154,7 +197,7 @@ def interpret_commands():
             sys.exit(2)
             
         for job in job_list:
-           mark_remake(job)
+            mark_remake(job)
             
         make_targets(job_list)
                     
@@ -172,6 +215,15 @@ def interpret_commands():
             print "parmore: specify which ones "
             sys.exit(2)
         parmake_targets(job_list, more=True)
+    elif commands[0] == 'parmorecont':
+        job_list = parse_job_list(commands[1:])
+        if len(job_list) == 0:
+            print "parmorecont: specify which ones "
+            sys.exit(2)
+            
+        for i in range(100000):
+            print "------- parmorecont: iteration %d" % i 
+            parmake_targets(job_list, more=True)
 
     elif commands[0] == 'more':
         job_list = parse_job_list(commands[1:])
@@ -187,26 +239,4 @@ def interpret_commands():
     else:
         print "Uknown command %s" % commands[0]
         sys.exit(-1)    
-    
-
-def list_jobs(job_list):
-   for job_id in job_list:
-        up, reason = up_to_date(job_id)
-        s = job_id
-        s += " " * (50-len(s))
-        cache = get_job_cache(job_id)
-        s += Cache.state2desc[cache.state]
-        if up:
-            when = duration_human(time() - cache.timestamp)
-            s += " (%s ago)" % when
-        else:
-            if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
-                s += " (needs update: %s)" % reason 
-        print s
-        
-        if cache.state == Cache.FAILED:
-            print cache.exception
-            print cache.backtrace
-            
-    
     
