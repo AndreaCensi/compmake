@@ -84,7 +84,7 @@ class UserError(ParsimException):
 
 
 class Computation:
-    id2computations = {}
+    id2computation = {}
     
     def __init__(self, job_id, depends, command, args, kwargs, yields=False):
         self.job_id = job_id
@@ -106,8 +106,8 @@ class Computation:
                                   'for makemore (args: %s)') % (kw, available))
             kwargs[kw] = previous_result
             
-        from compmake.process import substitute_dependencies
-
+        from compmake.jobs import substitute_dependencies
+        # TODO: move this to jobs.actions?
         args = substitute_dependencies(self.args)
         kwargs = substitute_dependencies(kwargs)
         return self.command(*args, **kwargs)

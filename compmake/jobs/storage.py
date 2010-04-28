@@ -14,12 +14,23 @@ The storage/index for objects in type (1) is the dict Computation.id2computation
 These are all wrappers around the raw methods in storage
 '''
 
-from compmake.structures import Cache
+from compmake.structures import Cache, Computation
 from compmake import storage
 
-def get_computation(job_id):
-    return Computation.id2computations[job_id]
+def all_jobs():
+    ''' Returns the list of all jobs '''
+    return Computation.id2computation.keys()
 
+def get_computation(job_id):
+    return Computation.id2computation[job_id]
+
+def exists_computation(job_id):
+    return job_id in Computation.id2computation.keys()
+
+def add_computation(job_id, computation):
+    assert(isinstance(computation, Computation))
+    Computation.id2computation[job_id] = computation
+        
 
 #
 # Cache objects

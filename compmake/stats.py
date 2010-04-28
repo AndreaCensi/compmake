@@ -1,7 +1,4 @@
-import sys
-
 from compmake import storage
-
 from compmake.structures import KeyNotFound
 
 progress_cache_name = "progress" 
@@ -47,8 +44,8 @@ def progress_string():
             
     return s
 
-def print_progress():
-    s = progress_string()
-    sys.stderr.write('%s\n' % s)
-    sys.stderr.flush()
+#def print_progress():
+#    s = progress_string()
+#    sys.stderr.write('%s\n' % s)
+#    sys.stderr.flush()
     

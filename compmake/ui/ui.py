@@ -4,6 +4,8 @@ from compmake.utils import user_error
 from compmake.ui.helpers import find_commands
 from compmake.console.console import compmake_console
 from compmake.ui.commands import ShellExitRequested
+from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
+    all_jobs
 
 def make_sure_pickable(obj):
     # TODO
@@ -36,7 +38,7 @@ def comp(command, *args, **kwargs):
         
         job_id = kwargs[job_id_key]
         del kwargs[job_id_key]
-        if job_id in Computation.id2computations:
+        if exists_computation(job_id):
             raise UserError('Computation %s already defined.' % job_id)
     else:
         # make our own
@@ -45,18 +47,18 @@ def comp(command, *args, **kwargs):
             base = command.func_name
         for i in xrange(1000000):
             job_id = base + '-%d' % i
-            if not job_id in Computation.id2computations:
+            if not exists_computation(job_id):
                 break
 
-    assert(job_id not in Computation.id2computations)
+    assert(not exists_computation(job_id))
 
     depends = collect_dependencies([args, kwargs])
     # make sure we do not have two Computation with the same id
-    depends = [ Computation.id2computations[x.job_id] for x in depends ]
+    depends = [ get_computation(x.job_id) for x in depends ]
     
     c = Computation(job_id=job_id, depends=depends,
                     command=command, args=args, kwargs=kwargs)
-    Computation.id2computations[job_id] = c
+    add_computation(job_id, c)
         # TODO: check for loops     
             
     for x in depends:
@@ -75,13 +77,12 @@ def parse_job_list(argv):
     for arg in argv:
         if arg.find('*') > -1:
             reg = reg_from_shell_wildcard(arg)
-            matches = [x for x in Computation.id2computations.keys() 
-                       if reg.match(x) ]
+            matches = [x for x in all_jobs()  if reg.match(x) ]
             jobs.extend(matches)
             if not matches:
                 raise UserError('Could not find matches for pattern "%s"' % arg)
         else:
-            if not arg in Computation.id2computations:
+            if not exists_computation(arg):
                 raise UserError('Job %s not found ' % arg) 
             jobs.append(arg)
     return jobs

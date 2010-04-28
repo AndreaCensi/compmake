@@ -1,12 +1,12 @@
 ''' These are the commands available from the CLI '''
 
 import os
-from compmake.process import make_targets, mark_more, mark_remake, \
-    top_targets, parmake_targets, make_sure_cache_is_sane, \
-     clean_target, all_targets, up_to_date, tree
-from compmake.process_storage import get_job_cache
+
 from compmake.utils import  duration_human, info
 from compmake.ui.helpers import find_commands, list_commands
+from compmake.jobs import make_sure_cache_is_sane, up_to_date, \
+    clean_target, make_targets, mark_remake, mark_more, top_targets, tree, parmake_targets
+from compmake.jobs.storage import get_job_cache, all_jobs, get_computation
 
 class ShellExitRequested(Exception):
     pass
@@ -23,7 +23,7 @@ def check():
 def clean(job_list):
     '''Cleans the result of the selected computation (or everything is nothing specified) '''
     if not job_list: 
-        job_list = all_targets()
+        job_list = all_jobs()
         
     for job_id in job_list:
         clean_target(job_id)
@@ -31,7 +31,7 @@ def clean(job_list):
 def list(job_list):
     '''Lists the status of the selected targets (or all targets if not specified) '''
     if not job_list:
-        job_list = all_targets()
+        job_list = all_jobs()
     job_list.sort()
     
     list_jobs(job_list)
@@ -181,7 +181,7 @@ def graph(job_list, filename='compmake'):
         graph.styleApply(job_id, job2node[job_id])
     
     for job_id in job_list:
-        c = Computation.id2computations[job_id]
+        c = get_computation(job_id)
         children_id = [x.job_id for x in c.depends]
         for c in children_id:
             graph.newLink(job2node[job_id], job2node[c])
@@ -189,6 +189,7 @@ def graph(job_list, filename='compmake'):
     f = open(filename, 'w')
     graph.dot(f)    
     f.close()
+    
     
     png_output = filename + '.png'
     cmd_line = 'dot %s -Tpng -o%s' % (filename, png_output)    

@@ -1,6 +1,6 @@
 from compmake import comp
 from compmake.structures import  UserError
-from compmake.process import make
+from compmake.jobs import make
 import unittest
 
 
