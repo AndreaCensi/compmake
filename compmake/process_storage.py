@@ -1,9 +1,9 @@
 '''
 Compmake stores three kind of data:
 
-    1) Cache
-    2) user_object
-    3) tmp_object
+    1) Cache objects 
+    2) user_object (any type)
+    3) tmp_object (any type)
    
 These are all wrappers around the raw methods in storage
 '''

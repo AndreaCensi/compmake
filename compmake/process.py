@@ -313,6 +313,7 @@ def make_targets(targets, more=False):
 
             its_parents = set(parents(job_id))
             for p in its_parents:
+                mark_as_failed(p, 'Failure of dependency %s' % job_id)
                 if p in todo:
                     todo.remove(p)
                     failed.add(p)
@@ -425,16 +426,11 @@ To use the Redis backend, you have to:
                 except TimeoutError:
                     # it simply means the job is not ready
                     pass
-                except Exception as e:
+                except Exception:
                     received_some_results = True
-
-
-                    # get backtrace
-                    sio = StringIO()
-                    traceback.print_exc(file=sio)
-                    bt = sio.getvalue()
-                    # mark as failed
-                    mark_as_failed(job_id, exception=e, backtrace=bt)
+                    # Note: unlike in make(), we do not set the cache object,
+                    # because our agent on the other side does it for us
+                    # (and only he knows the backtrace)
                     failed.add(job_id)
                     todo.remove(job_id)
                     processing.remove(job_id)
@@ -442,6 +438,7 @@ To use the Redis backend, you have to:
                     
                     its_parents = set(parents(job_id))
                     for p in its_parents:
+                        mark_as_failed(p, 'Failure of dependency %s' % job_id)
                         if p in todo:
                             todo.remove(p)
                             failed.add(p)
