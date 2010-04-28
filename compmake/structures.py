@@ -95,24 +95,24 @@ class Computation:
         self.args = args
         self.yields = yields
         
-    def compute(self, deps, previous_result=None):
+    def compute(self, previous_result=None):
         kwargs = dict(**self.kwargs)
         if previous_result is not None:
             kw = 'previous_result'
             available = self.command.func_code.co_varnames
             
             if not kw in available:
-                raise ParsimException(('Function does not have a "%s" argument, necessary'+
+                raise ParsimException(('Function does not have a "%s" argument, necessary' + 
                                   'for makemore (args: %s)') % (kw, available))
             kwargs[kw] = previous_result
             
-        if len(deps) == 0:
-            return self.command(*self.args, **kwargs)
-        elif len(deps) == 1:
-            return self.command(deps[0], *self.args, **kwargs)
-        else:
-            return self.command(deps, *self.args, **kwargs)
+        from compmake.process import substitute_dependencies
+
+        args = substitute_dependencies(self.args)
+        kwargs = substitute_dependencies(kwargs)
+        return self.command(*args, **kwargs)
         
+    
     
 class Cache:
     

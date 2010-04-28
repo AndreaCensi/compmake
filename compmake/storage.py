@@ -15,7 +15,6 @@ def use_redis(host=None, port=None):
     db.port = port
 
 def use_filesystem(directory=None):
-    print __name__
     if directory is None:
         directory = 'compmake_storage'
         

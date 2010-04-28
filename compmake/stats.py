@@ -37,10 +37,14 @@ def progress_string():
     if not info:
         return ' -- No jobs active -- '
     s = ""
-    for job_id, num, total in info:
-        # ss = "[%s %d/%s] " % (job_id, num, total)
-        ss = "[%d/%s] " % (num, total)
-        s = s + ss
+    if len(info) >= 3:
+        for job_id, num, total in info:
+            s += "[%d/%s] " % (num, total)
+            
+    else:
+        for job_id, num, total in info:
+            s += "[%s %d/%s] " % (job_id, num, total)
+            
     return s
 
 def print_progress():

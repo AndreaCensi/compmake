@@ -40,7 +40,8 @@ class StorageFilesystem:
     @staticmethod
     def delete_cache(key):
         filename = filename_for_key(key)
-        assert(os.path.exists(filename))
+        assert os.path.exists(filename), \
+            'I expected path %s to exist before deleting' % filename
         os.remove(filename)
         
     @staticmethod
@@ -95,7 +96,7 @@ def get_computations_root():
 
 def filename_for_key(key):
     """ Returns the pickle storage filename corresponding to the job id """
-    filename =  join(get_computations_root(), key2filename(key) + '.pickle')
+    filename = join(get_computations_root(), key2filename(key) + '.pickle')
     directory = dirname(filename)
     if not exists(directory):
         makedirs(directory)

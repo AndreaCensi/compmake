@@ -2,7 +2,7 @@ from time import time
 from StringIO import StringIO
 import traceback
 from compmake.structures import Computation, Cache, ParsimException
-
+from compmake.visualization import error
 from compmake.stats import progress, progress_string, progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \
@@ -10,6 +10,10 @@ from compmake.process_storage import get_job_cache, set_job_cache, \
     get_job_userobject, is_job_userobject_available, delete_job_userobject, \
     set_job_userobject, get_job_tmpobject, is_job_tmpobject_available, \
     set_job_tmpobject, delete_job_tmpobject
+import sys
+from multiprocessing import Pool, TimeoutError, cpu_count
+from types import GeneratorType
+from copy import deepcopy
 
 def clean_target(job_id):
     # Cleans associated objects
@@ -61,7 +65,7 @@ def up_to_date(job_id):
         
     computation = Computation.id2computations[job_id]
     for child in computation.depends:
-        child_up, why = up_to_date(child.job_id) 
+        child_up, why = up_to_date(child.job_id) #@UnusedVariable
         if not child_up:
             return False, 'Children not up to date.'
         else:
@@ -82,14 +86,31 @@ def up_to_date(job_id):
     up_to_date_cache.add(job_id)
     
     return True, ''
-    
-    
-from types import GeneratorType
 
 
+def substitute_dependencies(a):
+    a = deepcopy(a)
+    if isinstance(a, dict):
+        for k, v in a.items():
+            a[k] = substitute_dependencies(v)
+    if isinstance(a, list):
+        for i, v in enumerate(a):
+            a[i] = substitute_dependencies(v)
+    if isinstance(a, Computation):
+        a = get_job_userobject(a.job_id)
+    return a
+
+def mark_as_failed(job_id, exception=None, backtrace=None):
+    ''' Marks job_id and its parents as failed '''
+    cache = get_job_cache(job_id)
+    cache.state = Cache.FAILED
+    cache.exception = exception
+    cache.backtrace = backtrace
+    set_job_cache(job_id, cache)
+        
 def make(job_id, more=False):
     """ Returns the user-object """
-    up, reason = up_to_date(job_id)
+    up, reason = up_to_date(job_id) #@UnusedVariable
     cache = get_job_cache(job_id)
     want_more = cache.state == Cache.MORE_REQUESTED
     if up and not (more and want_more):
@@ -97,8 +118,8 @@ def make(job_id, more=False):
         assert(is_job_userobject_available(job_id))
         return get_job_userobject(job_id)
     else:
-        if up and (more and want_more): # XXX review the logic 
-            reason = 'want more'
+        # if up and (more and want_more): # XXX review the logic 
+        #    reason = 'want more'
         # print "Making %s (%s)" % (job_id, reason)
         computation = Computation.id2computations[job_id]
         deps = []
@@ -138,7 +159,9 @@ def make(job_id, more=False):
         set_job_cache(job_id, cache)
         
         progress(job_id, 0, None)
-        result = computation.compute(deps, previous_user_object)
+        
+        result = computation.compute(previous_user_object)
+        
         if type(result) == GeneratorType:
             try:
                 while True:
@@ -159,7 +182,9 @@ def make(job_id, more=False):
             user_object = result
         
         set_job_userobject(job_id, user_object)
-        delete_job_tmpobject(job_id)
+        if is_job_tmpobject_available(job_id):
+            # We only have onw with yeld
+            delete_job_tmpobject(job_id)
         
         cache.state = Cache.DONE
         cache.timestamp = time()
@@ -176,14 +201,11 @@ def bottom_targets():
     return [x.job_id for x in Computation.id2computations.values() if len(x.depends) == 0]
 
 
-from multiprocessing import Pool, TimeoutError, cpu_count
-import sys
-
 def dependencies_up_to_date(job_id):
     computation = Computation.id2computations[job_id]
     dependencies_up_to_date = True
     for child in computation.depends:
-        child_up, reason = up_to_date(child.job_id) 
+        child_up, reason = up_to_date(child.job_id) #@UnusedVariable
         if not child_up:
             return False
     return True
@@ -193,7 +215,7 @@ def list_todo_targets(jobs):
          todo:  set of job ids to do """
     todo = set()
     for job_id in jobs:
-        up, reason = up_to_date(job_id)
+        up, reason = up_to_date(job_id) #@UnusedVariable
         if not up:
             todo.add(job_id)
             computation = Computation.id2computations[job_id]
@@ -201,6 +223,7 @@ def list_todo_targets(jobs):
             todo = todo.union(list_todo_targets(children_id))
     return set(todo)
     
+# TODO should this be children()
 def tree(jobs):
     ''' Returns the tree of all dependencies of the jobs '''
     t = set(jobs)
@@ -209,7 +232,16 @@ def tree(jobs):
         children_id = [x.job_id for x in computation.depends]
         t = t.union(tree(children_id))
     return t
+
+def parents(job_id):
+    ''' Returns the set of all the parents, grandparents, etc. (does not include job_id) '''
+    t = set()
+    computation = Computation.id2computations[job_id]
     
+    for x in computation.needed_by:
+        t = t.union(parents(x.job_id))
+    
+    return t
     
 def make_targets(targets, more=False):
     # todo: jobs which we need to do, eventually
@@ -270,25 +302,26 @@ def make_targets(targets, more=False):
                     ready_todo.add(opportunity)
             
         except Exception as e:
-            cache = get_job_cache(job_id)
-            cache.state = Cache.FAILED
-            cache.exception = e
+            # get backtrace
             sio = StringIO()
             traceback.print_exc(file=sio)
-            cache.backtrace = sio.getvalue()
-            set_job_cache(job_id, cache)
-        
-            # if we fail
-            print "Job %s failed: %s" % (job_id, e)
-            sys.stdout.flush()
-            traceback.print_exc(file=sys.stderr)
-            sys.stderr.flush()
+            bt = sio.getvalue()
+            # mark as failed
+            mark_as_failed(job_id, exception=e, backtrace=bt)
             failed.add(job_id)
-            computation = Computation.id2computations[job_id]
-            # TODO: mark dependencies as failed
-            if len(computation.needed_by) > 0: 
-                print "Exiting because job %s is needed" % job_id
-                sys.exit(-1) # XXX
+
+            its_parents = set(parents(job_id))
+            for p in its_parents:
+                if p in todo:
+                    todo.remove(p)
+                    failed.add(p)
+                    if p in ready_todo:
+                        ready_todo.remove(p)
+            
+            # write something 
+            error("Job %s failed: %s" % (job_id, e))
+            error(bt)
+            
         finally:
             # in any case, we remove the job from the todo list
             todo.remove(job_id)
@@ -396,15 +429,26 @@ To use the Redis backend, you have to:
                 except Exception as e:
                     received_some_results = True
 
-                    print "Job %s failed: %s" % (job_id, e)
+
+                    # get backtrace
+                    sio = StringIO()
+                    traceback.print_exc(file=sio)
+                    bt = sio.getvalue()
+                    # mark as failed
+                    mark_as_failed(job_id, exception=e, backtrace=bt)
                     failed.add(job_id)
                     todo.remove(job_id)
                     processing.remove(job_id)
                     del processing2result[job_id]
-                    computation = Computation.id2computations[job_id]
-                    if len(computation.needed_by) > 0: 
-                        print "Exiting because job %s is needed" % job_id
-                        sys.exit(-1)
+                    
+                    its_parents = set(parents(job_id))
+                    for p in its_parents:
+                        if p in todo:
+                            todo.remove(p)
+                            failed.add(p)
+                            if p in ready_todo:
+                                ready_todo.remove(p)
+
             if received_some_results:
                 break
         write_status()

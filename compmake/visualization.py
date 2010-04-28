@@ -1,4 +1,5 @@
 import sys
+from math import ceil
 
 # TODO: generalize with curses
 def red_color(string):
@@ -13,6 +14,10 @@ def green_color(string):
 def normal_color(string):
     return  str(string)
     
+
+def warning(string):
+    write_message(string, formatting=red_color)
+    
 def error(string):
     write_message(string, formatting=red_color)
     
@@ -26,6 +31,7 @@ def debug(string):
     write_message(string, formatting=normal_color)
 
 def write_message(string, formatting):
+    string = str(string)
     sys.stdout.flush()
     lines = string.split('\n')
     if len(lines) == 1:
@@ -41,13 +47,14 @@ def write_message(string, formatting):
     
     sys.stderr.flush()
     
+
     
 def duration_human(seconds):
     ''' Code modified from 
     http://darklaunch.com/2009/10/06
     /python-time-duration-human-friendly-timestamp
     '''
-    seconds = long(round(seconds))
+    seconds = long(ceil(seconds))
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
@@ -75,6 +82,7 @@ def duration_human(seconds):
                     if seconds > 0:
                         duration.append('%d second' % seconds + 
                                          's' * (seconds != 1))
+                    
     return ' '.join(duration)
 
 

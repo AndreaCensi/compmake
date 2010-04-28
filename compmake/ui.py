@@ -1,15 +1,10 @@
 import sys
 import re
 
-from compmake.structures import Computation, ParsimException, UserError, Cache
- 
-from compmake.process import make_targets, mark_more, mark_remake, \
-    top_targets, parmake_targets, make_sure_cache_is_sane, \
-    up_to_date, clean_target
+from compmake.structures import Computation, ParsimException, UserError 
 
-from compmake.process_storage import get_job_cache
-
-from compmake.visualization import duration_human, user_error
+from compmake.visualization import   user_error
+from compmake.ui_commands_helpers import find_commands, list_commands
 
 def make_sure_pickable(obj):
     # TODO
@@ -26,6 +21,7 @@ def collect_dependencies(iterable):
         if isinstance(i, dict):
             depends.extend(collect_dependencies(i.values()))
     return list(set(depends))
+
 
 def comp(command, *args, **kwargs):
     args = list(args) # args is a non iterable tuple
@@ -44,8 +40,11 @@ def comp(command, *args, **kwargs):
             raise UserError('Computation %s already defined.' % job_id)
     else:
         # make our own
+        base = str(command)
+        if type(command) == type(comp):
+            base = command.func_name
         for i in xrange(1000000):
-            job_id = str(command) + '-%d' % i
+            job_id = base + '-%d' % i
             if not job_id in Computation.id2computations:
                 break
 
@@ -110,44 +109,24 @@ def parse_job_list(argv):
             jobs.append(arg)
     return jobs
 
-
-from collections import namedtuple
-
-def find_commands():
-    Command = namedtuple('Command', 'function name doc ')
-    commands = {}
-    import compmake.ui_commands as ui_commands
-    keys = ui_commands.__dict__.keys() #@UndefinedVariable
-    keys.sort() # XXX does not work?
-    for k in keys: 
-        v = ui_commands.__dict__[k] #@UndefinedVariable
-        if type(v) == type(ui_commands.make) and v.__module__ == 'compmake.ui_commands' and v.__doc__:
-            commands[k] = Command(function=v, name=k, doc=v.__doc__)
-    return commands
-
-def list_commands(commands, file=sys.stdout):
-    for cmd in commands.values():
-        function, name, doc = cmd
-        file.write("%s\n" % (padleft(15, name), doc))
-
-def padleft(n, s):
-    return " " * (n - len(s)) + s
-
 def interpret_commands(commands):
 
     ui_commands = find_commands()
     
-    if (len(commands) == 0) or commands[0] == 'help':
+    if (len(commands) == 0):
+        user_error('Please use one of the following commands:')
         list_commands(ui_commands)
-        sys.exit(0)
+        sys.exit(-1)
 
     command = commands[0]
     if not command in ui_commands.keys():
         user_error("Uknown command '%s' " % command)
+        from compmake.ui_commands import help
+        help()
         list_commands(ui_commands)
         sys.exit(-2)
         
-    function, name, doc = ui_commands[commands[0]]
+    function, name, doc = ui_commands[commands[0]] #@UnusedVariable
     function_args = function.func_code.co_varnames[:function.func_code.co_argcount]
     
     args = commands[1:]
@@ -156,28 +135,28 @@ def interpret_commands(commands):
     other = []
     kwargs = {}
     for a in args:
-        if a.index('=') > 0:
+        if a.find('=') > 0:
             k, v = a.split('=')
             kwargs[k] = v
             if not k in function_args:
-                user_error(("You passed the argument '%s' for command '%s'" + 
+                raise UserError(("You passed the argument '%s' for command '%s'" + 
                        " but the only available arguments are %s") % (
                             k, name, function_args))
-                sys.exit(-2)
         else:
             other.append(a)
     args = other
     
+    if 'args' in function_args:
+        kwargs['args'] = args
+
     if 'non_empty_job_list' in function_args:
         if not args:
-            user_error("Command %s requires arguments" % command)
-            sys.exit(-3)
+            raise UserError("Command %s requires arguments" % command)
             
         kwargs['non_empty_job_list'] = parse_job_list(args)
         
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
         
-    
-    function(**kwargs)
 
+    function(**kwargs)
