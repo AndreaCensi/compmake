@@ -8,7 +8,7 @@ def use_redis(host=None, port=None):
     if port is None:
         port = 6379
         
-    from compmake.storage_redis import RedisInterface
+    from compmake.storage.redis import RedisInterface
     global db
     db = RedisInterface
     db.host = host
@@ -18,7 +18,7 @@ def use_filesystem(directory=None):
     if directory is None:
         directory = 'compmake_storage'
         
-    from compmake.storage_filesystem import StorageFilesystem
+    from compmake.storage.filesystem import StorageFilesystem
     global db
     db = StorageFilesystem
     db.basepath = directory

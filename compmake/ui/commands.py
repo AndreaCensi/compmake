@@ -5,8 +5,8 @@ from compmake.process import make_targets, mark_more, mark_remake, \
     top_targets, parmake_targets, make_sure_cache_is_sane, \
      clean_target, all_targets, up_to_date, tree
 from compmake.process_storage import get_job_cache
-from compmake.visualization import  duration_human, info
-from compmake.ui_commands_helpers import find_commands, list_commands
+from compmake.utils import  duration_human, info
+from compmake.ui.helpers import find_commands, list_commands
 
 class ShellExitRequested(Exception):
     pass
@@ -14,6 +14,7 @@ class ShellExitRequested(Exception):
 def exit():
     '''Exits the shell.'''
     raise ShellExitRequested()
+
 
 def check():
     '''Makes sure that the cache is sane '''

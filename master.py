@@ -3,9 +3,9 @@ import sys
 import traceback
 
 from optparse import OptionParser
-from compmake import interpret_commands
+from compmake.ui import interpret_commands
 from compmake.storage import use_redis, use_filesystem 
-from compmake.visualization import error, user_error, warning
+from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
 
 

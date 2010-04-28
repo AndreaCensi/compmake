@@ -6,11 +6,13 @@ def find_commands():
     Command = namedtuple('Command', 'function name doc ')
     commands = {}
     import compmake.ui.commands as ui_commands
+    
     keys = ui_commands.__dict__.keys() #@UndefinedVariable
     for k in keys: 
         v = ui_commands.__dict__[k] #@UndefinedVariable
-        if type(v) == type(ui_commands.make) and v.__module__ == 'compmake.ui_commands' and v.__doc__:
+        if type(v) == type(ui_commands.make) and v.__module__ == 'compmake.ui.commands' and v.__doc__:
             commands[k] = Command(function=v, name=k, doc=v.__doc__)
+            
     return commands
 
 def list_commands(commands, file=sys.stdout):

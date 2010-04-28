@@ -7,7 +7,7 @@ from StringIO import StringIO
 import traceback
 
 from compmake.structures import Computation, Cache, ParsimException, UserError
-from compmake.visualization import error
+from compmake.utils import error
 from compmake.stats import progress, progress_string, progress_reset_cache
 
 from compmake.process_storage import get_job_cache, set_job_cache, \

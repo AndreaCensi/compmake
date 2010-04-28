@@ -8,7 +8,7 @@ Compmake stores three kind of data:
 These are all wrappers around the raw methods in storage
 '''
 
-from compmake.structures import Cache, Computation
+from compmake.structures import Cache
 from compmake import storage
 
 def get_job_cache(job_id):
@@ -18,8 +18,8 @@ def get_job_cache(job_id):
         assert(isinstance(cache, Cache))
         return cache
     else:
-        computation = Computation.id2computations[job_id]
-        cache = Cache(Cache.NOT_STARTED, computation)
+        #computation = Computation.id2computations[job_id]
+        cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set_cache(cache_key, cache)
         return cache 

@@ -1,1 +1,1 @@
-from ui import comp
+from ui import comp, interpret_commands

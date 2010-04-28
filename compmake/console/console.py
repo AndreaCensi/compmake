@@ -1,6 +1,6 @@
 import readline
 from compmake.structures import Computation
-from compmake.ui_commands_helpers import find_commands 
+from compmake.ui.helpers import find_commands 
 
 def tab_completion2(text, state):
     available = find_commands().keys()

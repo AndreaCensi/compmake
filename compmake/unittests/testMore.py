@@ -1,21 +1,21 @@
 from compmake import comp
-from compmake.structures import ParsimException, UserError
+from compmake.structures import  UserError
 from compmake.process import make
 import unittest
 
 
-def f1(*arg,**kwargs):
+def f1(*arg, **kwargs):
     ''' Generic function '''
     pass
 
-def f2(*arg,**kwargs):
+def f2(*arg, **kwargs):
     ''' Generic function '''
     pass
 
 def failing():
     raise TypeError()
 
-def uses_id(a,b,job_id):
+def uses_id(a, b, job_id):
     pass
     
 
@@ -37,7 +37,7 @@ class Test1(unittest.TestCase):
     def testID2(self):
         ''' Make sure we set up a warning if the job_id key
            is already used '''
-        self.assertTrue( comp(f1, job_id='ciao'))
+        self.assertTrue(comp(f1, job_id='ciao'))
         self.assertRaises(UserError, comp, f1, job_id='ciao')
         
     def testDep(self):
@@ -64,8 +64,8 @@ class Test1(unittest.TestCase):
       
     def testJOBparam(self):
         ''' We should issue a warning if job_id is used as a parameter in the function '''
-        cf1 = comp(uses_id)
-        self.assertRaises(UserError, comp, uses_id, job_id='myjobid' )
+        comp(uses_id)
+        self.assertRaises(UserError, comp, uses_id, job_id='myjobid')
         
         
         
