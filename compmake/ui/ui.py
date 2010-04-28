@@ -1,16 +1,14 @@
-import sys
 import re
-
-from compmake.structures import Computation, ParsimException, UserError 
-
-from compmake.visualization import   user_error
-from compmake.ui_commands_helpers import find_commands, list_commands
+from compmake.structures import Computation, UserError 
+from compmake.utils import user_error
+from compmake.ui.helpers import find_commands
 from compmake.console.console import compmake_console
-from compmake.ui_commands import ShellExitRequested
+from compmake.ui.commands import ShellExitRequested
 
 def make_sure_pickable(obj):
     # TODO
     pass
+
 
 
 def collect_dependencies(iterable):

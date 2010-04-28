@@ -5,7 +5,7 @@ def find_commands():
     """ Returns: commands: hash name -> namedtuple """
     Command = namedtuple('Command', 'function name doc ')
     commands = {}
-    import compmake.ui_commands as ui_commands
+    import compmake.ui.commands as ui_commands
     keys = ui_commands.__dict__.keys() #@UndefinedVariable
     for k in keys: 
         v = ui_commands.__dict__[k] #@UndefinedVariable

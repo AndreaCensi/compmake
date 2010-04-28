@@ -1,6 +1,11 @@
+import sys
+from multiprocessing import Pool, TimeoutError, cpu_count #@UnresolvedImport
+from types import GeneratorType
+from copy import deepcopy
 from time import time
 from StringIO import StringIO
 import traceback
+
 from compmake.structures import Computation, Cache, ParsimException, UserError
 from compmake.visualization import error
 from compmake.stats import progress, progress_string, progress_reset_cache
@@ -10,10 +15,6 @@ from compmake.process_storage import get_job_cache, set_job_cache, \
     get_job_userobject, is_job_userobject_available, delete_job_userobject, \
     set_job_userobject, get_job_tmpobject, is_job_tmpobject_available, \
     set_job_tmpobject, delete_job_tmpobject
-import sys
-from multiprocessing import Pool, TimeoutError, cpu_count
-from types import GeneratorType
-from copy import deepcopy
 
 def clean_target(job_id):
     # Cleans associated objects
@@ -347,11 +348,9 @@ To use the Redis backend, you have to:
 
         $ easy_install redis
 
-3) in your program, run the following:
+3) Use the --db=redis option to compmake
 
-        from compmake import use_redis
-        
-        use_redis(host='hostname')
+        $ compmake --db=redis your_module parmake
 """ % str(db))            
     
     progress_reset_cache()

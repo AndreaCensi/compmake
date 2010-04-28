@@ -1,10 +1,8 @@
-import os, sys, fcntl
+import sys
 import pickle
-
 from StringIO import StringIO
-from redis import Redis
-
-from compmake.structures import ParsimException, Computation, KeyNotFound
+from redis import Redis #@UnresolvedImport
+from compmake.structures import ParsimException, KeyNotFound
 
 
 class RedisInterface:
@@ -38,12 +36,12 @@ class RedisInterface:
         
         if not isinstance(s, str):
             raise ParsimException('I usually put string-string values in the db.\
-however I found %s (%s). Key is %s' % (s, type(s), k) )
+however I found %s (%s). Key is %s' % (s, type(s), k))
         try:
             value = string2object(s)
         except Exception as e:
             tmp_core = '/tmp/pickle_core' 
-            open(tmp_core,'w').write(s)
+            open(tmp_core, 'w').write(s)
             msg = "Could not load cache %s. Dumped %s. Error: %s" % (name, tmp_core, e)
             print msg
             raise e
@@ -66,8 +64,8 @@ however I found %s (%s). Key is %s' % (s, type(s), k) )
     def set_cache(name, value, precious=False):
         if not isinstance(name, str):
             raise ParsimException(
-                'Panic: received %s (%s) as a key. I want strings.' %
-                (name, type(name) ) )
+                'Panic: received %s (%s) as a key. I want strings.' % 
+                (name, type(name)))
         k = key2rediskey(name)
         s = object2string(value)
         
@@ -83,7 +81,7 @@ however I found %s (%s). Key is %s' % (s, type(s), k) )
  
     @staticmethod
     def keys(pattern='*'):
-        K = get_redis().keys(pattern = key2rediskey(pattern) )
+        K = get_redis().keys(pattern=key2rediskey(pattern))
         assert(isinstance(K, str))
         K = K.split()
         assert(isinstance(K, list))
@@ -120,7 +118,7 @@ def key2rediskey(s):
     return "compmake:%s" % s
 
 def rediskey2key(key):
-    return key.replace('compmake:','',1)
+    return key.replace('compmake:', '', 1)
 
 redis = None
 
@@ -129,6 +127,6 @@ def get_redis(force=False):
     if redis is None or force:
         #  sys.stderr.write("Opening connection to Redis (host=%s)... " %
         #                 RedisInterface.host)
-        redis = Redis(host=RedisInterface.host,port=RedisInterface.port)
+        redis = Redis(host=RedisInterface.host, port=RedisInterface.port)
         # sys.stderr.write("done.\n")
     return redis

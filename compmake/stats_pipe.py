@@ -57,9 +57,9 @@ def progress_string():
         s = s + ss
     return s
 
-def print_progress():
-    s = progress_string()
-    sys.stderr.write('%s\n' % s)
-    sys.stderr.flush()
+#def print_progress():
+#    s = progress_string()
+#    sys.stderr.write('%s\n' % s)
+#    sys.stderr.flush()
     
     

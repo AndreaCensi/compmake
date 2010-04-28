@@ -131,13 +131,11 @@ class Cache:
         FAILED: 'Failed',
         DONE: 'Done'}
     
-    def __init__(self, state, computation):
+    def __init__(self, state):
         assert(state in Cache.allowed_states)
         self.state = state
         self.timestamp = 0
-        #self.timestarted = 0
-        # self.computation = computation
-        
+        # TODO: add timestart
         # in case of failure
         self.exception = None
         self.backtrace = None

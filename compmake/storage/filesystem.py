@@ -66,15 +66,15 @@ class StorageFilesystem:
         if precious:
             StorageFilesystem.local_cache[key] = value
     
-    #@staticmethod   
-    #def reset_cache():
-     #   raise TypeError
-        #""" reset the whole cache """
-        #keys = get_redis().keys(pattern = key2rediskey('*') ).split()
-        #for k in keys:
-        #    res = get_redis().delete(k)
-        # return keys
-    
+#@staticmethod   
+#def reset_cache():
+#   raise TypeError
+#""" reset the whole cache """
+#keys = get_redis().keys(pattern = key2rediskey('*') ).split()
+#for k in keys:
+#    res = get_redis().delete(k)
+# return keys
+
     @staticmethod
     # TODO change key
     def keys(pattern):
