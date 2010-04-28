@@ -2,11 +2,13 @@
 
 import os
 
-from compmake.utils import  duration_human, info
+from compmake.utils import   info
 from compmake.ui.helpers import find_commands, list_commands
-from compmake.jobs import make_sure_cache_is_sane, up_to_date, \
+from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, tree, parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs, get_computation
+from compmake.structures import UserError, Cache
+from compmake.ui.commands_impl import list_jobs, list_job_detail
 
 class ShellExitRequested(Exception):
     pass
@@ -29,10 +31,26 @@ def clean(job_list):
         clean_target(job_id)
             
 def list(job_list):
-    '''Lists the status of the selected targets (or all targets if not specified) '''
+    '''Lists the status of the selected targets (or all targets if not specified).
+    
+    If only one job is specified, then it is listed in more detail.  '''
     if not job_list:
         job_list = all_jobs()
     job_list.sort()
+    
+    if len(job_list) > 1:
+        list_jobs(job_list)
+    else:
+        list_job_detail(job_list[0])
+
+def list_failed(job_list):
+    '''Lists the jobs that have failed. '''
+    if not job_list:
+        job_list = all_jobs()
+    job_list.sort()
+    
+    job_list = [job_id for job_id in job_list \
+                if get_job_cache(job_id).state == Cache.FAILED]
     
     list_jobs(job_list)
          
@@ -120,30 +138,8 @@ def help(args):
         print s 
         print doc
 
-from compmake.structures import Cache, UserError
-from time import time
 
-def list_jobs(job_list):
-    for job_id in job_list:
-        up, reason = up_to_date(job_id)
-        s = job_id
-        s += " " * (50 - len(s))
-        cache = get_job_cache(job_id)
-        s += Cache.state2desc[cache.state]
-        if up:
-            when = duration_human(time() - cache.timestamp)
-            s += " (%s ago)" % when
-        else:
-            if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
-                s += " (needs update: %s)" % reason 
-        print s
-        
-        if cache.state == Cache.FAILED:
-            print cache.exception
-            print cache.backtrace
-            
-from compmake.structures import Computation
-    
+# TODO: move implemenation in other file
 def graph(job_list, filename='compmake'):
     '''Creates a graph of the given targets and dependencies 
     
@@ -185,11 +181,11 @@ def graph(job_list, filename='compmake'):
         children_id = [x.job_id for x in c.depends]
         for c in children_id:
             graph.newLink(job2node[job_id], job2node[c])
+    
     # TODO: add check?
     f = open(filename, 'w')
     graph.dot(f)    
     f.close()
-    
     
     png_output = filename + '.png'
     cmd_line = 'dot %s -Tpng -o%s' % (filename, png_output)    

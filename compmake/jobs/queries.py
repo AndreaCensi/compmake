@@ -15,8 +15,7 @@ def tree(jobs):
     ''' Returns the tree of all dependencies of the jobs '''
     t = set(jobs)
     for job_id in jobs:
-        computation = get_computation(job_id)
-        children_id = [x.job_id for x in computation.depends]
+        children_id = direct_children(job_id)
         t = t.union(tree(children_id))
     return t
 
@@ -31,6 +30,14 @@ def parents(job_id):
     return t
  
 
+def direct_parents(job_id):
+    computation = get_computation(job_id)
+    return [x.job_id for x in computation.needed_by]
+    
+def direct_children(job_id):
+    computation = get_computation(job_id)
+    return [x.job_id for x in computation.depends]
+    
 def list_todo_targets(jobs):
     """ returns set:
          todo:  set of job ids to do (children that are not up to date) """
