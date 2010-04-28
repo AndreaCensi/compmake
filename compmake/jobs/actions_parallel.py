@@ -144,7 +144,7 @@ def parmake_job(job_id, more=False):
         error("Job %s failed: %s" % (job_id, e))
         error(bt)
         
-        mark_as_failed(e, bt)
+        mark_as_failed(job_id, e, bt)
         
         # clear progress cache
         progress(job_id, 1, 1)
