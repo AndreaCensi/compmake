@@ -1,16 +1,29 @@
 '''
-Compmake stores three kind of data:
+Compmake stores 4 kind of data, all of them indexed by a job_id string.
 
-    1) Cache objects 
-    2) user_object (any type)
-    3) tmp_object (any type)
+    1) Computation objects
+    2) Cache objects.
+    3) user_object (any type)
+    4) tmp_object (any type)
    
+Object of type (1) are kept in memory, while objects of type (2-4) 
+are kept in the database (using storage_db).
+
+The storage/index for objects in type (1) is the dict Computation.id2computations
+
 These are all wrappers around the raw methods in storage
 '''
 
 from compmake.structures import Cache
 from compmake import storage
 
+def get_computation(job_id):
+    return Computation.id2computations[job_id]
+
+
+#
+# Cache objects
+#
 def get_job_cache(job_id):
     cache_key = '%s:cache' % job_id
     if storage.db.is_cache_available(cache_key):
@@ -33,8 +46,9 @@ def delete_job_cache(job_id):
     cache_key = '%s:cache' % job_id
     storage.db.delete_cache(cache_key)
     
-    
-#### User objects
+#
+# User objects
+#
 def get_job_userobject(job_id):
     assert(is_job_userobject_available(job_id))
     key = '%s:userobject' % job_id
@@ -52,7 +66,9 @@ def delete_job_userobject(job_id):
     key = '%s:userobject' % job_id
     storage.db.delete_cache(key)
     
-#### Temporary objects
+#
+# Temporary objects
+#
 def get_job_tmpobject(job_id):
     assert(is_job_tmpobject_available(job_id))
     key = '%s:userobject:tmp' % job_id

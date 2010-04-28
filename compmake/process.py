@@ -37,57 +37,6 @@ def mark_remake(job_id):
     cache.state = Cache.NOT_STARTED
     set_job_cache(job_id, cache)
 
-up_to_date_cache = set()
-def up_to_date(job_id):
-    global up_to_date_cache
-    if job_id in up_to_date_cache:
-        return True, '(cached)'
-    
-    """ Check that the job is up to date. 
-    We are up to date if:
-    *) we are in the up_to_date_cache
-       (nothing uptodate can become not uptodate so this is generally safe)
-    OR
-    1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
-      AND finished = True
-    2) the children are up to date AND
-    3) the children timestamp is older than this timestamp AND
-    
-    Returns:
-    
-        boolean, explanation 
-    
-    """ 
-    
-    cache = get_job_cache(job_id) # OK
-    
-    if cache.state == Cache.NOT_STARTED:
-        return False, 'Not started'
-        
-    computation = Computation.id2computations[job_id]
-    for child in computation.depends:
-        child_up, why = up_to_date(child.job_id) #@UnusedVariable
-        if not child_up:
-            return False, 'Children not up to date.'
-        else:
-            this_timestamp = cache.timestamp
-            child_timestamp = get_job_cache(child.job_id).timestamp
-            if child_timestamp > this_timestamp:
-                return False, 'Children have been updated.'
-    
-    # FIXME BUG if I start (in progress), children get updated,
-    # I still finish the computation instead of starting again
-    if cache.state == Cache.IN_PROGRESS:
-        return False, 'Resuming progress'
-    elif cache.state == Cache.FAILED:
-        return False, 'Failed'
-            
-    assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
-
-    up_to_date_cache.add(job_id)
-    
-    return True, ''
-
 
 def substitute_dependencies(a):
     a = deepcopy(a)
@@ -193,56 +142,7 @@ def make(job_id, more=False):
         
         return user_object
         
-def top_targets():
-    """ Returns a list of all jobs which are not needed by anybody """
-    return [x.job_id for x in Computation.id2computations.values() if len(x.needed_by) == 0]
     
-def bottom_targets():
-    """ Returns a list of all jobs with no dependencies """
-    return [x.job_id for x in Computation.id2computations.values() if len(x.depends) == 0]
-
-
-def dependencies_up_to_date(job_id):
-    computation = Computation.id2computations[job_id]
-    dependencies_up_to_date = True
-    for child in computation.depends:
-        child_up, reason = up_to_date(child.job_id) #@UnusedVariable
-        if not child_up:
-            return False
-    return True
-
-def list_todo_targets(jobs):
-    """ returns set:
-         todo:  set of job ids to do """
-    todo = set()
-    for job_id in jobs:
-        up, reason = up_to_date(job_id) #@UnusedVariable
-        if not up:
-            todo.add(job_id)
-            computation = Computation.id2computations[job_id]
-            children_id = [x.job_id for x in computation.depends]
-            todo = todo.union(list_todo_targets(children_id))
-    return set(todo)
-    
-# TODO should this be children()
-def tree(jobs):
-    ''' Returns the tree of all dependencies of the jobs '''
-    t = set(jobs)
-    for job_id in jobs:
-        computation = Computation.id2computations[job_id]
-        children_id = [x.job_id for x in computation.depends]
-        t = t.union(tree(children_id))
-    return t
-
-def parents(job_id):
-    ''' Returns the set of all the parents, grandparents, etc. (does not include job_id) '''
-    t = set()
-    computation = Computation.id2computations[job_id]
-    
-    for x in computation.needed_by:
-        t = t.union(parents(x.job_id))
-    
-    return t
     
 def make_targets(targets, more=False):
     # todo: jobs which we need to do, eventually
@@ -481,10 +381,6 @@ def parmake_job(job_id, more=False):
         
         raise e
     
-
-def all_targets():
-    return Computation.id2computations.keys()
-
 def make_sure_cache_is_sane():
     # TODO write new version of this
     return
