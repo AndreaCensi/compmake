@@ -1,7 +1,7 @@
 from time import time
 from StringIO import StringIO
 import traceback
-from compmake.structures import Computation, Cache, ParsimException
+from compmake.structures import Computation, Cache, ParsimException, UserError
 from compmake.visualization import error
 from compmake.stats import progress, progress_string, progress_reset_cache
 
@@ -333,7 +333,7 @@ def make_targets(targets, more=False):
 def parmake_targets(targets, more=False, processes=None):
     from compmake.storage import db
     if not db.supports_concurrency():
-        raise ParsimException("""\
+        raise UserError("""\
 %s does not support concurrency, so you cannot run commands such as parmake(). 
 Try using the Redis backend.
 
