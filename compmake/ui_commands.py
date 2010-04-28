@@ -8,6 +8,13 @@ from compmake.process_storage import get_job_cache
 from compmake.visualization import  duration_human, info
 from compmake.ui_commands_helpers import find_commands, list_commands
 
+class ShellExitRequested(Exception):
+    pass
+
+def exit():
+    '''Exits the shell.'''
+    raise ShellExitRequested()
+
 def check():
     '''Makes sure that the cache is sane '''
     make_sure_cache_is_sane()
@@ -136,7 +143,7 @@ def list_jobs(job_list):
             
 from compmake.structures import Computation
     
-def graph(job_list, filename='compmake.dot'):
+def graph(job_list, filename='compmake'):
     '''Creates a graph of the given targets and dependencies 
     
         graph filename=filename

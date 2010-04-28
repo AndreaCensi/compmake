@@ -5,6 +5,8 @@ from compmake.structures import Computation, ParsimException, UserError
 
 from compmake.visualization import   user_error
 from compmake.ui_commands_helpers import find_commands, list_commands
+from compmake.console.console import compmake_console
+from compmake.ui_commands import ShellExitRequested
 
 def make_sure_pickable(obj):
     # TODO
@@ -63,32 +65,7 @@ def comp(command, *args, **kwargs):
         if not c in x.needed_by:
             x.needed_by.append(c)
         
-    return c
-
-def add_computation(depends, parsim_job_id, command, *args, **kwargs):
-    job_id = parsim_job_id
-    
-    if job_id in Computation.id2computations:
-        raise ParsimException('Computation %s already defined.' % job_id)
-    
-    if not isinstance(depends, list):
-        depends = [depends]
-        
-    for i, d in enumerate(depends):
-        if isinstance(d, str):
-            depends[i] = Computation.id2computations[d]
-        elif isinstance(d, Computation):
-            pass
-        
-    c = Computation(job_id=job_id, depends=depends,
-                    command=command, args=args, kwargs=kwargs)
-    Computation.id2computations[job_id] = c
-        # TODO: check for loops     
-    for x in depends:
-        x.needed_by.append(c)
-        
-    return c
-
+    return c 
 
 
 def reg_from_shell_wildcard(arg):
@@ -103,28 +80,46 @@ def parse_job_list(argv):
             matches = [x for x in Computation.id2computations.keys() 
                        if reg.match(x) ]
             jobs.extend(matches)
+            if not matches:
+                raise UserError('Could not find matches for pattern "%s"' % arg)
         else:
             if not arg in Computation.id2computations:
-                raise ParsimException('Job %s not found ' % arg) 
+                raise UserError('Job %s not found ' % arg) 
             jobs.append(arg)
     return jobs
+
 
 def interpret_commands(commands):
 
     ui_commands = find_commands()
     
-    if (len(commands) == 0):
-        user_error('Please use one of the following commands:')
-        list_commands(ui_commands)
-        sys.exit(-1)
-
+    if len(commands) == 0:
+        # starting console
+        print "Welcome to the compmake console. ('help' for a list of commands)"
+        exit_requested = False
+        while not exit_requested:
+            try:
+                for line in compmake_console():
+                    commands = line.strip().split()
+                    if commands:
+                        try:
+                            interpret_commands(commands)
+                        except UserError as e:
+                            user_error(e)
+                        except KeyboardInterrupt:
+                            user_error('Execution of "%s" interrupted' % line)
+                        except ShellExitRequested:
+                            exit_requested = True
+                            break
+            except KeyboardInterrupt:
+                print "\nPlease use 'exit' to quit."
+        print "Thanks for using. Until next time!"
+        return
+    
     command = commands[0]
     if not command in ui_commands.keys():
-        user_error("Uknown command '%s' " % command)
-        from compmake.ui_commands import help
-        help()
-        list_commands(ui_commands)
-        sys.exit(-2)
+        raise UserError("Uknown command '%s' (try 'help') " % command)
+        
         
     function, name, doc = ui_commands[commands[0]] #@UnusedVariable
     function_args = function.func_code.co_varnames[:function.func_code.co_argcount]
