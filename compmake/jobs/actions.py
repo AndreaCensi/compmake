@@ -11,7 +11,7 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, set_job_cache
     delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_tmpobject, \
     set_job_userobject, get_computation
 from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date
-from compmake.jobs.queries import list_todo_targets, parents
+from compmake.jobs.queries import list_todo_targets, parents, direct_parents
 from compmake.structures import Cache, Computation, ParsimException
 from compmake.utils import error
 from compmake.stats import progress
@@ -79,10 +79,7 @@ def make(job_id, more=False):
         #    reason = 'want more'
         # print "Making %s (%s)" % (job_id, reason)
         computation = get_computation(job_id)
-        deps = []
-        for child in computation.depends:
-            deps.append(make(child.job_id))
-      
+        
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                                Cache.MORE_REQUESTED, Cache.DONE, Cache.FAILED])
         
@@ -200,7 +197,7 @@ def make_targets(targets, more=False):
             # if we succeed, mark as done
             done.add(job_id)
             # now look for its parents
-            parent_jobs = [x.job_id for x in get_computation(job_id).needed_by]
+            parent_jobs = direct_parents(job_id)
             for opportunity in todo.intersection(set(parent_jobs)):
                 # opportunity is a parent that we should do
                 # if its dependencies are satisfied, we can put it 

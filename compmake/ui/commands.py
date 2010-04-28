@@ -2,13 +2,13 @@
 
 import os
 
-from compmake.utils import   info
+from compmake.utils import  info
 from compmake.ui.helpers import find_commands, list_commands
+from compmake.ui.commands_impl import list_jobs, list_job_detail
 from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, tree, parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs, get_computation
 from compmake.structures import UserError, Cache
-from compmake.ui.commands_impl import list_jobs, list_job_detail
 
 class ShellExitRequested(Exception):
     pass

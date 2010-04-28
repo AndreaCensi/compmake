@@ -2,13 +2,27 @@
 from compmake.jobs.storage import get_computation, all_jobs
 from compmake.jobs.uptodate import up_to_date
 
+
+def direct_parents(job_id):
+    ''' Returns the direct parents of the specified job.
+        (Jobs that depend directly on this one) '''
+    assert(isinstance(job_id, str))
+    computation = get_computation(job_id)
+    return [x.job_id for x in computation.needed_by]
+    
+def direct_children(job_id):
+    ''' Returns the direct children (dependences) of the specified job '''
+    assert(isinstance(job_id, str))
+    computation = get_computation(job_id)
+    return [x.job_id for x in computation.depends]
+
 def top_targets():
     """ Returns a list of all jobs which are not needed by anybody """
-    return [x for x in all_jobs() if not get_computation(x).needed_by]
+    return [x for x in all_jobs() if not direct_parents(x)]
     
 def bottom_targets():
     """ Returns a list of all jobs with no dependencies """
-    return [x for x in all_jobs() if not get_computation(x).depends]
+    return [x for x in all_jobs() if not direct_children(x)]
 
 # TODO should this be children()
 def tree(jobs):
@@ -20,23 +34,16 @@ def tree(jobs):
     return t
 
 def parents(job_id):
-    ''' Returns the set of all the parents, grandparents, etc. (does not include job_id) '''
+    ''' Returns the set of all the parents, grandparents, etc. 
+        (does not include job_id) '''
+    assert(isinstance(job_id, str))
     t = set()
-    computation = get_computation(job_id)
-    
-    for x in computation.needed_by:
-        t = t.union(parents(x.job_id))
-    
+    for p in direct_parents(job_id):
+        t.add(p)
+        t.update(parents(p))
     return t
  
 
-def direct_parents(job_id):
-    computation = get_computation(job_id)
-    return [x.job_id for x in computation.needed_by]
-    
-def direct_children(job_id):
-    computation = get_computation(job_id)
-    return [x.job_id for x in computation.depends]
     
 def list_todo_targets(jobs):
     """ returns set:
@@ -46,7 +53,6 @@ def list_todo_targets(jobs):
         up, reason = up_to_date(job_id) #@UnusedVariable
         if not up:
             todo.add(job_id)
-            computation = get_computation(job_id)
-            children_id = [x.job_id for x in computation.depends]
-            todo = todo.union(list_todo_targets(children_id))
-    return set(todo)
+            children_id = direct_children(job_id)
+            todo.update(list_todo_targets(children_id))
+    return todo

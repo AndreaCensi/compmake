@@ -6,10 +6,9 @@ from multiprocessing import TimeoutError, cpu_count, Pool
 from compmake.structures import UserError
 from compmake.stats import progress, progress_reset_cache, progress_string
 from compmake.utils import error
-from compmake.jobs.storage import  get_computation
 from compmake.jobs.actions import mark_more, make, mark_as_failed
 from compmake.jobs.uptodate import dependencies_up_to_date
-from compmake.jobs.queries import list_todo_targets, parents
+from compmake.jobs.queries import list_todo_targets, parents, direct_parents
 
 def parmake_targets(targets, more=False, processes=None):
     from compmake.storage import db
@@ -95,8 +94,7 @@ To use the Redis backend, you have to:
                     todo.remove(job_id)
                     processing.remove(job_id)
                     
-                    parent_jobs = [x.job_id for x in \
-                           get_computation(job_id).needed_by ]
+                    parent_jobs = direct_parents(job_id)
                     for opportunity in todo.intersection(set(parent_jobs)):
                         if dependencies_up_to_date(opportunity):
                             # print "Now I can make %s" % opportunity

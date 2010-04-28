@@ -33,8 +33,8 @@ def comp(command, *args, **kwargs):
         # make sure that command does not have itself a job_id key
         available = command.func_code.co_varnames
         if job_id_key in available:
-            raise UserError('You cannot define the job_id in this way' + 
-                'because job_id is already a parameter of this function')    
+            raise UserError('You cannot define the job id in this way ' + 
+                'because "job_id" is already a parameter of this function')    
         
         job_id = kwargs[job_id_key]
         del kwargs[job_id_key]
