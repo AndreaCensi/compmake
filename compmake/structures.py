@@ -96,6 +96,7 @@ class Computation:
         self.yields = yields
         
     def compute(self, previous_result=None):
+        ### XXX move this somewhere else
         kwargs = dict(**self.kwargs)
         if previous_result is not None:
             kw = 'previous_result'

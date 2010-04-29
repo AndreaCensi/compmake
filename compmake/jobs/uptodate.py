@@ -19,7 +19,6 @@ def up_to_date(job_id):
        (nothing uptodate can become not uptodate so this is generally safe)
     OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
-      AND finished = True
     2) the children are up to date AND
     3) the children timestamp is older than this timestamp AND
     

@@ -1,35 +1,28 @@
 import sys
 from math import ceil
 
-# TODO: generalize with curses
-def red_color(string):
-    return "\033[0;31m%s\033[m" % str(string)
-
-def purple_color(string):
-    return "\033[0;31m%s\033[m" % str(string)
-
-def green_color(string):
-    return "\033[0;36m%s\033[m" % str(string)
-
-def normal_color(string):
-    return  str(string)
+try:
+    from termcolor import colored #@UnresolvedImport
+except:
+    sys.stderr.write('compmake requires the package termcolor. Please install it.\n')
+    def colored(x, color, on_color=None, attr=None): #@UnusedVariable
+        return x
     
-
 def warning(string):
-    write_message(string, formatting=red_color)
+    write_message(string, lambda x: colored(x, 'magenta'))
     
 def error(string):
-    write_message(string, formatting=red_color)
+    write_message(string, lambda x: colored(x, 'red'))
     
 def user_error(string):
-    write_message(string, formatting=purple_color)
-
+    write_message(string, lambda x: colored(x, 'red'))
+    
 def info(string):
-    write_message(string, formatting=green_color)
-
+    write_message(string, lambda x: colored(x, 'green'))
+    
 def debug(string):
-    write_message(string, formatting=normal_color)
-
+    write_message(string, lambda x: colored(x, 'cyan', attr=['dark']))
+    
 def write_message(string, formatting):
     string = str(string)
     sys.stdout.flush()

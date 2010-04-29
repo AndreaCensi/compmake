@@ -1,5 +1,6 @@
 import sys
 from collections import namedtuple 
+from compmake.utils.visualization import colored
 
 def find_commands():
     """ Returns: commands: hash name -> namedtuple """
@@ -25,7 +26,7 @@ def list_commands(commands, file=sys.stdout):
     for name in names:
         function, name, doc = commands[name] #@UnusedVariable
         short_doc = doc.split('\n')[0]
-        file.write("%s  %s\n" % (padleft(15, name), short_doc))
+        file.write("%s  %s\n" % (colored(padleft(15, name), attrs=['bold']), short_doc))
 
 def padleft(n, s):
     return " " * (n - len(s)) + s

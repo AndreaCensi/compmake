@@ -1,11 +1,26 @@
 ''' The actual interface of some commands in commands.py '''
+from time import time
 
 from compmake.structures import Cache
-from time import time
-from compmake.utils.visualization import duration_human
+from compmake.utils.visualization import duration_human, colored
+
 from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache
 from compmake.jobs.uptodate import up_to_date
+
+state2color = {
+        # The ones commented out are not possible
+        # (Cache.NOT_STARTED, True): None,
+        (Cache.NOT_STARTED, False): {'attrs':['dark']},
+        # (Cache.IN_PROGRESS, True): None,
+        (Cache.IN_PROGRESS, False): {'color':'yellow'},
+        (Cache.MORE_REQUESTED, True): {'color': 'blue'},
+        (Cache.MORE_REQUESTED, False): {'color':'green', 'on_color':'on_red'},
+        #(Cache.FAILED, True): None,
+        (Cache.FAILED, False): {'color':'red'},
+        (Cache.DONE, True): {'color':'green'},
+        (Cache.DONE, False): {'color':'magenta'},
+}
 
 def list_jobs(job_list):
     for job_id in job_list:
@@ -13,8 +28,12 @@ def list_jobs(job_list):
         s = job_id
         s += " " * (50 - len(s))
         cache = get_job_cache(job_id)
-        s += Cache.state2desc[cache.state]
-        s += '/%s' % up
+        tag = '%s/%s' % (Cache.state2desc[cache.state], up) 
+        
+        k = (cache.state, up)
+        assert k in state2color, "I found strange state %s" % k
+        color_args = state2color[k]
+        s += colored(tag, **color_args)
         if up:
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
@@ -23,10 +42,6 @@ def list_jobs(job_list):
                 s += " (needs update: %s)" % reason 
         print s
         
-        if cache.state == Cache.FAILED:
-            print cache.exception
-            print cache.backtrace
-
 def list_job_detail(job_id):
     #computation = get_computation(job_id)
     cache = get_job_cache(job_id)     
@@ -36,5 +51,8 @@ def list_job_detail(job_id):
     print 'Status: %s' % Cache.state2desc[cache.state]
     print 'Direct children: %s' % depends_on
     print 'Direct parents: %s' % needed_by
-    
+    #        if cache.state == Cache.FAILED:
+    #            print cache.exception
+    #            print cache.backtrace
+
           
