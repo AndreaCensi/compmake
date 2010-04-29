@@ -2,16 +2,22 @@ import sys
 from math import ceil
 
 try:
+    # TODO: add option to disable colored output 
     from termcolor import colored #@UnresolvedImport
 except:
-    sys.stderr.write('compmake requires the package termcolor. Please install it.\n')
+    sys.stderr.write('compmake can make use of the package "termcolor".\
+Please install it.\n')
     def colored(x, color=None, on_color=None, attrs=None): #@UnusedVariable
+        ''' emulation of the termcolor interface '''
         return x
 
 try:
     from setproctitle import setproctitle #@UnresolvedImport @UnusedImport
 except:
+    sys.stderr.write('compmake can make use of the package "termcolor".\
+Please install it.\n')
     def setproctitle(x):
+        ''' emulation of the setproctitle interface '''
         pass
     
 def warning(string):

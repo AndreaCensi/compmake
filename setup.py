@@ -7,5 +7,6 @@ setup(name='compmake',
          'console_scripts': [
            'compmake = master:main'
         ]
-      }
+      },
+      install_requires=['termcolor', 'setproctitle']
 )

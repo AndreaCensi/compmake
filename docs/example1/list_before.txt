@@ -1,7 +1,7 @@
-draw-0                                            Not started
-draw-1                                            Not started
-draw-2                                            Not started
-draw-3                                            Not started
-draw-4                                            Not started
-draw-5                                            Not started
+draw-0                                            [2mNot started/False[0m
+draw-1                                            [2mNot started/False[0m
+draw-2                                            [2mNot started/False[0m
+draw-3                                            [2mNot started/False[0m
+draw-4                                            [2mNot started/False[0m
+draw-5                                            [2mNot started/False[0m
 [...]
