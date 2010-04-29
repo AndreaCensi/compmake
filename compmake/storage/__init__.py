@@ -8,11 +8,13 @@ def use_redis(host=None, port=None):
     if port is None:
         port = 6379
         
-    from compmake.storage.redisdb import RedisInterface
+    from compmake.storage.redisdb import RedisInterface, get_redis
     global db
     db = RedisInterface
     db.host = host
-    db.port = port
+    db.port = int(port)
+    
+    get_redis()
 
 def use_filesystem(directory=None):
     if directory is None:

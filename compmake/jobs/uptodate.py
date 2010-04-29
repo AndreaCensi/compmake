@@ -11,6 +11,8 @@ def dependencies_up_to_date(job_id):
             return False
     return True
 
+
+    
 up_to_date_cache = set()
 def up_to_date(job_id):
     """ Check that the job is up to date. 
@@ -29,7 +31,7 @@ def up_to_date(job_id):
     """ 
     global up_to_date_cache
     if job_id in up_to_date_cache:
-        return True, '(cached)'
+        return True, 'cached result'
     
     
     cache = get_job_cache(job_id) # OK

@@ -21,10 +21,12 @@ def make_sure_cache_is_sane():
     return
 
 def clean_target(job_id):
+    # TODO: think of the difference between this and mark_remake
     # Cleans associated objects
     mark_remake(job_id)
     # Removes also the Cache object 
     delete_job_cache(job_id)
+
     
 def mark_more(job_id):
     cache = get_job_cache(job_id)
@@ -33,7 +35,7 @@ def mark_more(job_id):
 
 def mark_remake(job_id):
     ''' Delets and invalidates the cache for this object '''
-        
+    # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id)
     cache.state = Cache.NOT_STARTED
     set_job_cache(job_id, cache)
@@ -42,6 +44,10 @@ def mark_remake(job_id):
         delete_job_userobject(job_id)
     if is_job_tmpobject_available(job_id):
         delete_job_tmpobject(job_id)
+
+    from compmake.jobs.uptodate import up_to_date_cache
+    if job_id in up_to_date_cache:
+        up_to_date_cache.remove(job_id)
 
 
 def substitute_dependencies(a):
@@ -234,4 +240,5 @@ def make_targets(targets, more=False):
             processing.remove(job_id)
         
     write_status()
+    sys.stderr.write('\n')
  

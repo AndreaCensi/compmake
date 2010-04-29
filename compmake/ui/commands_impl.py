@@ -7,6 +7,7 @@ from compmake.utils.visualization import duration_human, colored
 from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache
 from compmake.jobs.uptodate import up_to_date
+from compmake.ui.helpers import padleft
 
 state2color = {
         # The ones commented out are not possible
@@ -47,12 +48,17 @@ def list_job_detail(job_id):
     cache = get_job_cache(job_id)     
     needed_by = direct_parents(job_id)
     depends_on = direct_children(job_id)
-    print 'Job name: %s' % job_id 
-    print 'Status: %s' % Cache.state2desc[cache.state]
-    print 'Direct children: %s' % depends_on
-    print 'Direct parents: %s' % needed_by
-    #        if cache.state == Cache.FAILED:
-    #            print cache.exception
-    #            print cache.backtrace
+    up, reason = up_to_date(job_id)
 
+    red = lambda x: colored(x, 'red')
+    bold = lambda x:  colored(padleft(15, x), attrs=['bold'])
+    
+    print bold('Job ID: ') + '%s' % job_id 
+    print bold('Status: ') + '%s' % Cache.state2desc[cache.state]
+    print bold('Uptodate: ') + '%s (%s)' % (up, reason)
+    print bold('Children: ') + '%s' % ', '.join(depends_on)
+    print bold('Parents: ') + '%s' % ', '.join(needed_by)
+    if cache.state == Cache.FAILED:
+        print red(cache.exception)
+        print red(cache.backtrace)
           

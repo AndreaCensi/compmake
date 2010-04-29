@@ -6,12 +6,12 @@ from compmake.console.console import compmake_console
 from compmake.ui.commands import ShellExitRequested
 from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
     all_jobs
+from compmake.utils.visualization import colored
+from compmake import version
 
 def make_sure_pickable(obj):
     # TODO
     pass
-
-
 
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., Computation objects that
@@ -136,8 +136,11 @@ def interpret_commands(commands):
 
     ui_commands = find_commands()
     
+    
     if len(commands) == 0:
         # starting console
+    
+        print "%s %s" % (colored('Compmake', attrs=['bold']), version)
         print "Welcome to the compmake console. ('help' for a list of commands)"
         exit_requested = False
         while not exit_requested:
