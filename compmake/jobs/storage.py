@@ -25,7 +25,7 @@ def get_computation(job_id):
     return Computation.id2computation[job_id]
 
 def exists_computation(job_id):
-    return job_id in Computation.id2computation.keys()
+    return job_id in Computation.id2computation
 
 def add_computation(job_id, computation):
     assert(isinstance(computation, Computation))
