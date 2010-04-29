@@ -52,6 +52,7 @@ To use the Redis backend, you have to:
     done = set()
 
     def write_status():
+        # TODO add color
         stderr.write(
          ("parmake: done %4d | failed %4d | todo %4d " + 
          "| ready %4d | processing %4d \n") % (
@@ -86,7 +87,7 @@ To use the Redis backend, you have to:
                 assert(job_id in todo)
                 assert(not job_id in ready_todo)
                 try:
-                    async_result.get(timeout=0.01)
+                    async_result.get(timeout=0.01) # TODO make configurable
                     del processing2result[job_id]
                     
                     received_some_results = True

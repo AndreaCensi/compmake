@@ -1,4 +1,4 @@
-''' contains functions concerning the up-to-date status of jobs '''
+''' Contains functions concerning the up-to-date status of jobs '''
 from compmake.structures import Cache
 from compmake.jobs.storage import get_job_cache, get_computation
 
@@ -10,7 +10,6 @@ def dependencies_up_to_date(job_id):
         if not child_up:
             return False
     return True
-
 
     
 up_to_date_cache = set()

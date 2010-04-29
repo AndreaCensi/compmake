@@ -1,14 +1,19 @@
 from compmake import storage
 from compmake.structures import KeyNotFound
+from compmake.utils.visualization import setproctitle
 
 progress_cache_name = "progress" 
 
 def progress(job_id, num, total):
     k = 'progress:' + job_id
     storage.db.set_cache(k, (job_id, num, total))
+    setproctitle('%s/%s %s' % (num, total, job_id))
+                  
     if num == total:
         storage.db.delete_cache(k)
+        setproctitle('%s finished' % job_id)
         
+    
 def progress_reset_cache():
     keys = storage.db.keys('progress:*')
     for k in keys:

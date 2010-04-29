@@ -5,6 +5,7 @@ import time
 from types import GeneratorType
 from copy import deepcopy
 
+# FEATURE: clean confirmation if interactive 
 
 from compmake.jobs.storage import delete_job_cache, get_job_cache, set_job_cache, \
     is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available, \

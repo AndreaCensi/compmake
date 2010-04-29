@@ -7,6 +7,12 @@ except:
     sys.stderr.write('compmake requires the package termcolor. Please install it.\n')
     def colored(x, color=None, on_color=None, attrs=None): #@UnusedVariable
         return x
+
+try:
+    from setproctitle import setproctitle #@UnresolvedImport @UnusedImport
+except:
+    def setproctitle(x):
+        pass
     
 def warning(string):
     write_message(string, lambda x: colored(x, 'magenta'))
