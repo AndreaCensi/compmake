@@ -5,7 +5,7 @@ try:
     from termcolor import colored #@UnresolvedImport
 except:
     sys.stderr.write('compmake requires the package termcolor. Please install it.\n')
-    def colored(x, color, on_color=None, attrs=None): #@UnusedVariable
+    def colored(x, color=None, on_color=None, attrs=None): #@UnusedVariable
         return x
     
 def warning(string):
