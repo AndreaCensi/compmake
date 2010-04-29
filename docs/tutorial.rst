@@ -38,11 +38,17 @@ The command "make [jobs]" runs the computation in series::
 
 	$ compmake example make
 
-The command "parmake [jobs]" runs the computation in parallel::
+You can run a specified job by adding it on the command line:
 
-	$ compmake --db=redis example parmake
+	$ compmake example make func1-\*
 
-Note that to use this feature, you should have installed ``redis``.
+Cleaning up
+-----------
+
+Use the command ``clean`` to clean::
+
+	$ compmake my_program clean 
+
 
 Diagnostics
 -----------
@@ -74,19 +80,18 @@ $ compmake my_program diagram
 before running ``make`` you will see the following:
 
 .. image:: example1/graph_before.png
-
+   
 The color grey means that the job has not started. After running ``make``, the output will be:
 
 .. image:: example1/graph_after.png
 
 Here, green means that the job is done.
 
+After we run 
+
+.. image:: example1/graph3.png
+
+Here, green means that the job is done.
+
 The computation gra
-
-Cleaning up
------------
-
-Use the command ``clean`` to clean::
-
-	$ compmake my_program clean 
 

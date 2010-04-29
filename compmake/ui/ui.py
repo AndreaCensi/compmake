@@ -13,19 +13,61 @@ def make_sure_pickable(obj):
 
 
 
-def collect_dependencies(iterable):
-    depends = []
-    for i in iterable:
-        if isinstance(i, Computation):
-            depends.append(i)
-        if isinstance(i, list):
-            depends.extend(collect_dependencies(i))
-        if isinstance(i, dict):
-            depends.extend(collect_dependencies(i.values()))
-    return list(set(depends))
+def collect_dependencies(ob):
+    ''' Returns a set of dependencies (i.e., Computation objects that
+        are mentioned somewhere in the structure '''  
+    if isinstance(ob, Computation):
+        return set([ob])
+    else:
+        depends = set()
+        if isinstance(ob, list):
+            for child in ob: 
+                depends.update(collect_dependencies(child))
+        if isinstance(ob, dict):
+            for child in ob.values(): 
+                depends.update(collect_dependencies(child))
+        return depends
 
+
+job_prefix = None
+
+def comp_prefix(prefix):
+    ''' Sets the prefix for creating the subsequent job names. '''
+    global job_prefix
+    job_prefix = prefix 
+
+def generate_job_id(command):
+    ''' Generates a unique job_id for the specified commmand.
+        Takes into account job_prefix if that's defined '''
+    base = str(command)
+    if type(command) == type(comp):
+        base = command.func_name
+        
+    if job_prefix:
+        job_id = '%s-%s' % (job_prefix, base)
+        if not exists_computation(job_id):
+            return job_id
+           
+    for i in xrange(1000000):
+        if job_prefix:
+            job_id = '%s-%s-%d' % (job_prefix, base, i)
+        else:
+            job_id = '%s-%d' % (base, i)
+            
+        if not exists_computation(job_id):
+            return job_id
+
+    assert(False)
 
 def comp(command, *args, **kwargs):
+    ''' Main method to define a computation.
+    
+    
+        Extra arguments:
+    
+        :arg:job_id:   sets the job id (respects job_prefix)
+        :arg:extra_dep: extra dependencies (not passed as arguments)
+    '''
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments
     job_id_key = 'job_id'
@@ -37,22 +79,24 @@ def comp(command, *args, **kwargs):
                 'because "job_id" is already a parameter of this function')    
         
         job_id = kwargs[job_id_key]
+        if job_prefix:
+            job_id = '%s-%s' % (job_prefix, job_id)
         del kwargs[job_id_key]
         if exists_computation(job_id):
             raise UserError('Computation %s already defined.' % job_id)
     else:
-        # make our own
-        base = str(command)
-        if type(command) == type(comp):
-            base = command.func_name
-        for i in xrange(1000000):
-            job_id = base + '-%d' % i
-            if not exists_computation(job_id):
-                break
-
+        job_id = generate_job_id(command)
+        
+    if 'extra_dep' in kwargs:
+        extra_dep = collect_dependencies(kwargs['extra_dep'])
+        del kwargs['extra_dep']
+    else:
+        extra_dep = set()
+        
     assert(not exists_computation(job_id))
 
     depends = collect_dependencies([args, kwargs])
+    depends.update(extra_dep)
     # make sure we do not have two Computation with the same id
     depends = [ get_computation(x.job_id) for x in depends ]
     

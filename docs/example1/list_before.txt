@@ -1,11 +1,7 @@
-func1-0                                           Not started
-func1-1                                           Not started
-func1-2                                           Not started
-func1-3                                           Not started
-func1-4                                           Not started
-func1-5                                           Not started
-func1-6                                           Not started
-func1-7                                           Not started
-func1-8                                           Not started
-func2-0                                           Not started
+draw-0                                            Not started
+draw-1                                            Not started
+draw-2                                            Not started
+draw-3                                            Not started
+draw-4                                            Not started
+draw-5                                            Not started
 [...]

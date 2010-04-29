@@ -1,4 +1,10 @@
-''' These are the commands available from the CLI '''
+''' These are the commands available from the CLI.
+
+There are 3 special variables:
+- 'args': list of all command line arguments
+- 'job_list': the remaining argument parsed as a job list.
+- 'non_empty_job_list': same, but error if not specified.
+'''
 
 import os
 
@@ -16,7 +22,6 @@ class ShellExitRequested(Exception):
 def exit():
     '''Exits the shell.'''
     raise ShellExitRequested()
-
 
 def check():
     '''Makes sure that the cache is sane '''
@@ -140,13 +145,18 @@ def help(args):
 
 
 # TODO: move implemenation in other file
-def graph(job_list, filename='compmake'):
+def graph(job_list, filename='compmake', compact=0, filter='dot', format='png'):
     '''Creates a graph of the given targets and dependencies 
     
-        graph filename=filename
+        graph filename=filename compact=0,1 format=png,...
          
         Params:
-            filename:  name of generated filename
+            filename:  name of generated filename in the dot format
+            compact=0: whether to include the job names in the nodes  
+            filter=[dot,circo,twopi,...]  which algorithm to use to arrange
+                       the nodes. This depends on the topology of your 
+                       computation. The default is 'dot' (hierarchy top-bottom). 
+            format=[png,...]  The output file format.
     '''
     if not job_list:
         job_list = top_targets()
@@ -170,7 +180,10 @@ def graph(job_list, filename='compmake'):
 
     job2node = {}
     for job_id in job_list:
-        job2node[job_id] = graph.newItem("")
+        if int(compact):
+            job2node[job_id] = graph.newItem("")
+        else:
+            job2node[job_id] = graph.newItem(job_id)
         cache = get_job_cache(job_id)
         graph.styleAppend(job_id, "style", "filled")
         graph.styleAppend(job_id, "fillcolor", state2color[cache.state])
@@ -187,12 +200,12 @@ def graph(job_list, filename='compmake'):
     graph.dot(f)    
     f.close()
     
-    png_output = filename + '.png'
-    cmd_line = 'dot %s -Tpng -o%s' % (filename, png_output)    
+    output = filename + '.' + format
+    cmd_line = '%s %s -T%s -o%s' % (filter, filename, format, output)    
     try:
         os.system(cmd_line)
     except:
         raise UserError("Could not run dot (cmdline='%s'). Make sure graphviz is installed" % 
               cmd_line) # XXX maybe not UserError
 
-    info("Written output on files %s, %s." % (filename, png_output))
+    info("Written output on files %s, %s." % (filename, output))
