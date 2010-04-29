@@ -1,10 +1,11 @@
 import readline
 from compmake.structures import Computation
 from compmake.ui.helpers import find_commands 
+from compmake.jobs.storage import all_jobs
 
 def tab_completion2(text, state):
     available = find_commands().keys()
-    available.extend(Computation.id2computations.keys())
+    available.extend(all_jobs())
     matches = sorted(x for x in available if x.startswith(text))
     try:
         response = matches[state]
