@@ -14,6 +14,7 @@ def list_jobs(job_list):
         s += " " * (50 - len(s))
         cache = get_job_cache(job_id)
         s += Cache.state2desc[cache.state]
+        s += '/%s' % up
         if up:
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
