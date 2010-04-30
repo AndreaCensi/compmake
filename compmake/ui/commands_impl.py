@@ -8,6 +8,7 @@ from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache
 from compmake.jobs.uptodate import up_to_date
 from compmake.ui.helpers import padleft
+import sys
 
 state2color = {
         # The ones commented out are not possible
@@ -53,12 +54,35 @@ def list_job_detail(job_id):
     red = lambda x: colored(x, 'red')
     bold = lambda x:  colored(padleft(15, x), attrs=['bold'])
     
-    print bold('Job ID: ') + '%s' % job_id 
-    print bold('Status: ') + '%s' % Cache.state2desc[cache.state]
-    print bold('Uptodate: ') + '%s (%s)' % (up, reason)
-    print bold('Children: ') + '%s' % ', '.join(depends_on)
-    print bold('Parents: ') + '%s' % ', '.join(needed_by)
-    if cache.state == Cache.FAILED:
-        print red(cache.exception)
-        print red(cache.backtrace)
+    
+    try:
+        print bold('Job ID: ') + '%s' % job_id 
+        print bold('Status: ') + '%s' % Cache.state2desc[cache.state]
+        print bold('Uptodate: ') + '%s (%s)' % (up, reason)
+        print bold('Children: ') + '%s' % ', '.join(depends_on)
+        print bold('Parents: ') + '%s' % ', '.join(needed_by)
+        
+        #if cache.state == Cache.DONE:
+            #print bold('Time: ') + '%s' % ', '.join(needed_by)
+
+        if cache.state == Cache.FAILED:
+            print red(cache.exception)
+            print red(cache.backtrace)
+            
+        def display_with_prefix(buffer, prefix, transform=lambda x:x, out=sys.stdout):
+            for line in buffer.split('\n'):
+                out.write('%s%s\n' % (prefix, transform(line)))
+                
+        if cache.captured_stdout:
+            print "-----> captured stdout <-----"
+            display_with_prefix(cache.captured_stdout, prefix='|',
+                                transform=lambda x: colored(x, attrs=['dark']))
+            
+        if cache.captured_stderr:
+            print "-----> captured stderr <-----"
+            display_with_prefix(cache.captured_stdout, prefix='|',
+                                transform=lambda x: colored(x, attrs=['dark']))
+            
+    except AttributeError:
+        pass
           

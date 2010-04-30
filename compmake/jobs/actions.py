@@ -160,8 +160,8 @@ def make(job_id, more=False):
         
         cache.state = Cache.DONE
         cache.timestamp = time()
-        cache.captured_stderr = capture.stderr_replacement.buffer
-        cache.captured_stdout = capture.stdout_replacement.buffer
+        cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
+        cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
         cache.walltime_used = cache.timestamp - cache.time_start
         cache.cputime_used = clock() - cpu_start
         set_job_cache(job_id, cache)

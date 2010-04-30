@@ -1,15 +1,16 @@
 import sys
 from compmake.utils.visualization import colored
+from StringIO import StringIO
 
 
 class StreamCapture:
     def __init__(self, transform=None, dest=None):
-        self.buffer = []
+        self.buffer = StringIO()
         self.dest = dest
         self.transform = transform
         
     def write(self, s):
-        self.buffer.append(s)
+        self.buffer.write(s)
         if self.transform:
             s = self.transform(s)
         if self.dest:
