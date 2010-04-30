@@ -1,9 +1,9 @@
 import readline
-from compmake.ui.helpers import find_commands 
+from compmake.ui.helpers import get_commands 
 from compmake.jobs.storage import all_jobs
 
 def tab_completion2(text, state):
-    available = find_commands().keys()
+    available = get_commands().keys()
     available.extend(all_jobs())
     matches = sorted(x for x in available if x.startswith(text))
     try:

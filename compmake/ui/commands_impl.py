@@ -5,10 +5,26 @@ from compmake.structures import Cache
 from compmake.utils.visualization import duration_human, colored
 
 from compmake.jobs.queries import direct_parents, direct_children
-from compmake.jobs.storage import get_job_cache
+from compmake.jobs.storage import get_job_cache, all_jobs
 from compmake.jobs.uptodate import up_to_date
-from compmake.ui.helpers import padleft
+from compmake.ui.helpers import padleft, ui_command, VISUALIZATION
 import sys
+
+         
+@ui_command(section=VISUALIZATION, alias='ls')
+def list(job_list):
+    '''Lists the status of the selected targets (or all targets if not specified).
+    
+    If only one job is specified, then it is listed in more detail.  '''
+    if not job_list:
+        job_list = all_jobs()
+    job_list.sort()
+    
+    if len(job_list) > 1:
+        list_jobs(job_list)
+    else:
+        list_job_detail(job_list[0])
+
 
 state2color = {
         # The ones commented out are not possible
@@ -23,6 +39,7 @@ state2color = {
         (Cache.DONE, True): {'color':'green'},
         (Cache.DONE, False): {'color':'magenta'},
 }
+
 
 def list_jobs(job_list):
     for job_id in job_list:

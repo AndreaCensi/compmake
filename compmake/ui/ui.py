@@ -1,7 +1,7 @@
 import re
 from compmake.structures import Computation, UserError 
 from compmake.utils import user_error
-from compmake.ui.helpers import find_commands
+from compmake.ui.helpers import get_commands, alias2name
 from compmake.console.console import compmake_console
 from compmake.ui.commands import ShellExitRequested
 from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
@@ -12,6 +12,7 @@ from compmake import version
 def make_sure_pickable(obj):
     # TODO
     pass
+
 
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., Computation objects that
@@ -133,9 +134,7 @@ def parse_job_list(argv):
 
 
 def interpret_commands(commands):
-
-    ui_commands = find_commands()
-    
+    ui_commands = get_commands()
     
     if len(commands) == 0:
         # starting console
@@ -162,12 +161,15 @@ def interpret_commands(commands):
         print "Thanks for using. Until next time!"
         return
     
-    command = commands[0]
-    if not command in ui_commands.keys():
-        raise UserError("Uknown command '%s' (try 'help') " % command)
+    command_name = commands[0]
+    if command_name in alias2name:
+        command_name = alias2name[command_name]
+    if not command_name in ui_commands.keys():
+        raise UserError("Uknown command '%s' (try 'help') " % command_name)
         
         
-    function, name, doc = ui_commands[commands[0]] #@UnusedVariable
+    cmd = ui_commands[command_name]
+    function = cmd.function 
     function_args = function.func_code.co_varnames[:function.func_code.co_argcount]
     
     args = commands[1:]
@@ -182,7 +184,7 @@ def interpret_commands(commands):
             if not k in function_args:
                 raise UserError(("You passed the argument '%s' for command '%s'" + 
                        " but the only available arguments are %s") % (
-                            k, name, function_args))
+                            k, cmd.name, function_args))
         else:
             other.append(a)
     args = other
@@ -192,7 +194,7 @@ def interpret_commands(commands):
 
     if 'non_empty_job_list' in function_args:
         if not args:
-            raise UserError("Command %s requires arguments" % command)
+            raise UserError("Command %s requires arguments" % command_name)
             
         kwargs['non_empty_job_list'] = parse_job_list(args)
         
