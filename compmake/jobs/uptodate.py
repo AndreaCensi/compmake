@@ -58,6 +58,7 @@ def up_to_date(job_id):
             
     assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
 
-    up_to_date_cache.add(job_id)
+    # FIXME: the cache is broken for now
+    # up_to_date_cache.add(job_id)
     
     return True, ''

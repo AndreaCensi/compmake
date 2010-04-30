@@ -135,11 +135,15 @@ class Cache:
     def __init__(self, state):
         assert(state in Cache.allowed_states)
         self.state = state
+        # if DONE:
         self.timestamp = 0
-        # TODO: add timestart
+        self.cputime_used = None
+        self.walltime_used = None
+        
         # in case of failure
         self.exception = None
         self.backtrace = None
-        
-        
+        # 
+        self.captured_stdout = None
+        self.captured_stderr = None
         

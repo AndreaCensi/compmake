@@ -7,6 +7,7 @@ class StreamCapture:
         self.buffer = []
         self.dest = dest
         self.transform = transform
+        
     def write(self, s):
         self.buffer.append(s)
         if self.transform:
@@ -17,15 +18,17 @@ class StreamCapture:
 
 class OutputCapture:
     
-    def __init__(self, prefix):
+    def __init__(self, prefix, echo=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-        t = lambda s: '%s| %s' % (prefix, colored(s, attrs=['dark'])) 
-        self.stdout_replacement = StreamCapture(transform=t, dest=sys.stdout)
+        t = lambda s: '%s| %s' % (prefix, colored(s, attrs=['dark']))
+        dest = {True: sys.stdout, False: None}[echo]     
+        self.stdout_replacement = StreamCapture(transform=t, dest=dest)
         sys.stdout = self.stdout_replacement
         
-        t = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark'])) 
-        self.stderr_replacement = StreamCapture(transform=t, dest=sys.stderr)
+        t = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
+        dest = {True: sys.stderr, False: None}[echo]      
+        self.stderr_replacement = StreamCapture(transform=t, dest=dest)
         sys.stderr = self.stderr_replacement
         
     def deactivate(self):

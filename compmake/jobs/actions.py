@@ -1,7 +1,7 @@
 import sys
 import traceback
 from StringIO import StringIO
-import time
+from time import time, clock
 from types import GeneratorType
 from copy import deepcopy
 
@@ -17,6 +17,7 @@ from compmake.structures import Cache, Computation, ParsimException
 from compmake.utils import error
 from compmake.stats import progress
 from compmake.utils.capture import OutputCapture
+from compmake.utils.visualization import colored
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -118,11 +119,15 @@ def make(job_id, more=False):
             assert(False)
         
         # update state
+        cache.time_start = time()
+        cpu_start = clock()
         set_job_cache(job_id, cache)
         
         progress(job_id, 0, None)
         
-        capture = OutputCapture(prefix=job_id)
+        echo_output = False # TODO make this configurable
+        
+        capture = OutputCapture(prefix=job_id, echo=echo_output)
         try: 
             result = computation.compute(previous_user_object)
             
@@ -154,9 +159,14 @@ def make(job_id, more=False):
             delete_job_tmpobject(job_id)
         
         cache.state = Cache.DONE
-        cache.timestamp = time.time()
+        cache.timestamp = time()
+        cache.captured_stderr = capture.stderr_replacement.buffer
+        cache.captured_stdout = capture.stdout_replacement.buffer
+        cache.walltime_used = cache.timestamp - cache.time_start
+        cache.cputime_used = clock() - cpu_start
         set_job_cache(job_id, cache)
-        # TODO: save captured output
+        
+        # TODO: clear these records in other place
         return user_object
         
         
@@ -178,12 +188,22 @@ def make_targets(targets, more=False):
     # jobs completed successfully
     done = set()
 
+    # TODO: return 
     def write_status():
+        if processing:
+            proc = list(processing)[0]
+        else:
+            proc = '0'
+        if failed:
+            fail = colored('failed %4d' % len(failed), 'red')
+        else:
+            fail = 'failed %4d' % 0
+        
         sys.stderr.write(
-         ("compmake: done %4d | failed %4d | todo %4d " + 
-         "| ready %4d | processing %4d \r") % (
-                len(done), len(failed), len(todo),
-                len(ready_todo), len(processing)))
+         ("compmake: done %4d | %s | todo %4d " + 
+         "| ready %4d | %s \r") % (
+                len(done), fail, len(todo),
+                len(ready_todo), proc))
 
     assert(ready_todo.issubset(todo))
     
