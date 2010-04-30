@@ -7,15 +7,18 @@ There are 3 special variables:
 '''
 
 import os
+import pickle
 
-from compmake.utils import  info
+from compmake.utils import  info, user_error
 from compmake.ui.helpers import find_commands, list_commands
 from compmake.ui.commands_impl import list_jobs, list_job_detail
 from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, tree, parmake_targets
-from compmake.jobs.storage import get_job_cache, all_jobs, get_computation
+from compmake.jobs.storage import get_job_cache, all_jobs, get_computation, \
+    get_job_userobject, is_job_userobject_available
 from compmake.structures import UserError, Cache
 
+ 
 class ShellExitRequested(Exception):
     pass
 
@@ -113,7 +116,24 @@ def parmoreconf(non_empty_job_list):
             mark_more(job)
         parmake_targets(non_empty_job_list, more=True)
         
+def dump(non_empty_job_list, directory='.'):
+    '''Dumps the content of jobs as pickle files.
 
+Arguments: 
+    directory='.'   where to dump the files
+    
+'''
+    for job_id in non_empty_job_list:
+        
+        if is_job_userobject_available(job_id):
+            user_object = get_job_userobject(job_id)
+            filename = os.path.join(directory, job_id + '.pickle')
+            with open(filename, 'w') as f:
+                pickle.dump(user_object, f)
+            info('Wrote %s' % filename)
+        else:
+            user_error('Job %s is not ready yet.' % job_id)
+        
 def help(args):
     '''Prints help about the other commands. (try 'help help')
     

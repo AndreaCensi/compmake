@@ -16,6 +16,7 @@ from compmake.jobs.queries import list_todo_targets, parents, direct_parents
 from compmake.structures import Cache, Computation, ParsimException
 from compmake.utils import error
 from compmake.stats import progress
+from compmake.utils.capture import OutputCapture
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -121,26 +122,31 @@ def make(job_id, more=False):
         
         progress(job_id, 0, None)
         
-        result = computation.compute(previous_user_object)
-        
-        if type(result) == GeneratorType:
-            try:
-                while True:
-                    next = result.next()
-                    if isinstance(next, tuple):
-                        if len(next) != 3:
-                            raise ParsimException('If computation yields a tuple, ' + 
-                                                  'should be a tuple with 3 elemnts.' + 
-                                                  'Got: %s' % next)
-                        user_object, num, total = next
-                        progress(job_id, num, total)
-                        set_job_tmpobject(job_id, user_object)
-                        
-            except StopIteration:
-                pass
-        else:
-            progress(job_id, 1, 1)
-            user_object = result
+        capture = OutputCapture(prefix=job_id)
+        try: 
+            result = computation.compute(previous_user_object)
+            
+            if type(result) == GeneratorType:
+                try:
+                    while True:
+                        next = result.next()
+                        if isinstance(next, tuple):
+                            if len(next) != 3:
+                                raise ParsimException('If computation yields a tuple, ' + 
+                                                      'should be a tuple with 3 elemnts.' + 
+                                                      'Got: %s' % str(next))
+                            user_object, num, total = next
+                            progress(job_id, num, total)
+                            set_job_tmpobject(job_id, user_object)
+                            
+                except StopIteration:
+                    pass
+            else:
+                progress(job_id, 1, 1)
+                user_object = result
+        finally:
+            capture.deactivate()
+            
         
         set_job_userobject(job_id, user_object)
         if is_job_tmpobject_available(job_id):
@@ -150,7 +156,7 @@ def make(job_id, more=False):
         cache.state = Cache.DONE
         cache.timestamp = time.time()
         set_job_cache(job_id, cache)
-        
+        # TODO: save captured output
         return user_object
         
         
