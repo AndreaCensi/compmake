@@ -140,8 +140,8 @@ def interpret_commands(commands):
     if len(commands) == 0:
         # starting console
         banner = get_banner()
-        print "%s %s, %s  - %s " % (
-            colored('Compmake', attrs=['bold']), version, compmake_copyright, banner)
+        print "%s %s - ``%s''     %s " % (
+            colored('Compmake', attrs=['bold']), version, banner, compmake_copyright)
         print "Welcome to the compmake console. ('help' for a list of commands)"
         exit_requested = False
         while not exit_requested:
