@@ -1,6 +1,6 @@
 # constants
 version = '1.0'
-copyright = '(c) 2010, Andrea Censi, Caltech'
+compmake_copyright = '(c) 2010, Andrea Censi, Caltech'
 
 # This is the module's public interface
 from compmake.ui import comp, comp_prefix

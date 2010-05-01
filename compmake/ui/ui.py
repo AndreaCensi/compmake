@@ -7,7 +7,7 @@ from compmake.ui.commands import ShellExitRequested
 from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
     all_jobs
 from compmake.utils.visualization import colored
-from compmake import version
+from compmake import version, compmake_copyright
 
 def make_sure_pickable(obj):
     # TODO
@@ -141,7 +141,7 @@ def interpret_commands(commands):
         # starting console
         banner = get_banner()
         print "%s %s, %s  - %s " % (
-            colored('Compmake', attrs=['bold']), version, copyright, banner)
+            colored('Compmake', attrs=['bold']), version, compmake_copyright, banner)
         print "Welcome to the compmake console. ('help' for a list of commands)"
         exit_requested = False
         while not exit_requested:
