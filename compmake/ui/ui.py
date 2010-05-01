@@ -3,11 +3,11 @@ from compmake.structures import Computation, UserError
 from compmake.utils import user_error
 from compmake.ui.helpers import get_commands, alias2name
 from compmake.ui.console import compmake_console
-from compmake.ui.commands import ShellExitRequested
+from compmake.ui.commands import ShellExitRequested, stats
 from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
     all_jobs
 from compmake.utils.visualization import colored
-from compmake import version, compmake_copyright
+from compmake import version, compmake_copyright, compmake_url
 
 def make_sure_pickable(obj):
     # TODO
@@ -143,6 +143,7 @@ def interpret_commands(commands):
         print "%s %s - ``%s''     %s " % (
             colored('Compmake', attrs=['bold']), version, banner, compmake_copyright)
         print "Welcome to the compmake console. ('help' for a list of commands)"
+        stats()
         exit_requested = False
         while not exit_requested:
             try:
@@ -160,7 +161,8 @@ def interpret_commands(commands):
                             break
             except KeyboardInterrupt:
                 print "\nPlease use 'exit' to quit."
-        print "Thanks for using. Until next time!"
+        print "Thanks for using compmake. Problems? Suggestions? Praise? Go to %s" % \
+         compmake_url
         return
     
     command_name = commands[0]

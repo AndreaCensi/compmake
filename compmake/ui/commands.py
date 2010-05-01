@@ -7,13 +7,13 @@ There are 3 special variables:
 '''
  
 from compmake.utils import  info 
-from compmake.ui.helpers import  list_commands, ui_section, ui_command, get_commands, \
+from compmake.ui.helpers import   ui_section, ui_command, \
     GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS
 from compmake.ui.commands_impl import list_jobs 
 from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs 
-from compmake.structures import UserError, Cache
+from compmake.structures import  Cache
 
 
 class ShellExitRequested(Exception):
@@ -27,7 +27,7 @@ def exit():
     '''Exits the shell.'''
     raise ShellExitRequested()
 
-@ui_command(section=ACTIONS)
+#@ui_command(section=ACTIONS)
 def check():
     '''Makes sure that the cache is sane '''
     make_sure_cache_is_sane()
@@ -63,7 +63,7 @@ def make(job_list):
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parmake(job_list):
-    '''Parallel equivalent of 'make'.
+    '''Parallel equivalent of "make".
 
        Note: you should use the Redis backend to use multiprocessing.
  '''
@@ -82,7 +82,7 @@ def remake(non_empty_job_list):
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
-    '''Parallel equivalent of remake. '''
+    '''Parallel equivalent of "remake". '''
     for job in non_empty_job_list:
         mark_remake(job)
         
@@ -99,7 +99,7 @@ def more(non_empty_job_list):
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parmore(non_empty_job_list):
-    '''Parallel equivalent of more. '''
+    '''Parallel equivalent of "more". '''
     for job in non_empty_job_list:
         mark_more(job)
         
@@ -113,6 +113,11 @@ def parmoreconf(non_empty_job_list):
         for job in non_empty_job_list:
             mark_more(job)
         parmake_targets(non_empty_job_list, more=True)
-        
-        
+    
+@ui_command(section=VISUALIZATION)
+def stats():
+    '''Prints statistics about the jobs loaded'''
+    njobs = len(all_jobs())
+    print("%d jobs loaded." % njobs)
+    # Add class report    
 
