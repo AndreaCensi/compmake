@@ -6,9 +6,7 @@ from compmake.ui.helpers import   INPUT_OUTPUT, ui_section, ui_command
 
 from compmake.jobs.storage import \
     get_job_userobject, is_job_userobject_available
-
-
-print "ciao"
+ 
 
 ui_section(INPUT_OUTPUT)
 

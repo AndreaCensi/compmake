@@ -2,7 +2,7 @@ import re
 from compmake.structures import Computation, UserError 
 from compmake.utils import user_error
 from compmake.ui.helpers import get_commands, alias2name
-from compmake.console.console import compmake_console
+from compmake.ui.console import compmake_console
 from compmake.ui.commands import ShellExitRequested
 from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
     all_jobs
@@ -12,6 +12,7 @@ from compmake import version
 def make_sure_pickable(obj):
     # TODO
     pass
+
 
 
 def collect_dependencies(ob):
@@ -138,8 +139,9 @@ def interpret_commands(commands):
     
     if len(commands) == 0:
         # starting console
-    
-        print "%s %s" % (colored('Compmake', attrs=['bold']), version)
+        banner = get_banner()
+        print "%s %s, %s  - %s " % (
+            colored('Compmake', attrs=['bold']), version, copyright, banner)
         print "Welcome to the compmake console. ('help' for a list of commands)"
         exit_requested = False
         while not exit_requested:
@@ -203,3 +205,17 @@ def interpret_commands(commands):
         
 
     function(**kwargs)
+
+
+def get_banner():
+    # TODO: add more banners
+    banners = [
+        (1, 'Conquer your Python computations!')
+    ]
+    
+    # TODO: add mass-dependent sampling
+    return banners[0][1]
+
+    
+    
+    

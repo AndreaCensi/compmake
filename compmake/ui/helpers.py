@@ -72,16 +72,16 @@ def get_commands():
 
 # Pre-defined sections
 GENERAL = 'General'
-VISUALIZATION = 'Visualization'
-INPUT_OUTPUT = 'InputOutput'
+VISUALIZATION = 'Visualization and diagnostics'
+INPUT_OUTPUT = 'Import / export'
 ACTIONS = 'Actions'
 PARALLEL_ACTIONS = 'Parallel actions'
 
-ui_section(GENERAL, 'General commands', 0)
-ui_section(ACTIONS, 'Basic actions', 1)
-ui_section(VISUALIZATION, 'Visualization and diagnostics', 1.5)
+ui_section(GENERAL, order=0)
+ui_section(ACTIONS, order=1)
+ui_section(VISUALIZATION, order=1.5)
 ui_section(PARALLEL_ACTIONS,
-           'Parallel actions. Note that redis must be used as backend.', 2)
+           'Note that redis must be used as backend.', 2)
 ui_section(INPUT_OUTPUT, 'Ways to get data out of compmake.', 3)
 
 @ui_command(section=GENERAL)
