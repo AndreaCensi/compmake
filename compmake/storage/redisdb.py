@@ -43,7 +43,8 @@ however I found %s (%s). Key is %s' % (s, type(s), k))
         except Exception as e:
             tmp_core = '/tmp/pickle_core' 
             open(tmp_core, 'w').write(s)
-            msg = "Could not load cache %s. Dumped %s. Error: %s" % (name, tmp_core, e)
+            msg = "Could not load cache %s.\n Dumped file %s.\n Error: '%s'" % \
+                (name, tmp_core, e)
             print msg
             raise e
     
@@ -83,7 +84,7 @@ however I found %s (%s). Key is %s' % (s, type(s), k))
     @staticmethod
     def keys(pattern='*'):
         K = get_redis().keys(pattern=key2rediskey(pattern))
-        assert(isinstance(K, str))
+        assert isinstance(K, str), 'I think you have the wrong version of pyredis '
         K = K.split()
         assert(isinstance(K, list))
         return [rediskey2key(k) for k in K]

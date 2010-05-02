@@ -8,6 +8,8 @@ from compmake.storage import use_redis, use_filesystem
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
 from compmake.jobs.storage import remove_all_jobs
+import compmake
+from compmake.ui.ui import set_slave_mode
 
 
 def main():             
@@ -68,6 +70,8 @@ def main():
             error('Error while trying to import module "%s": %s' % (module_name, e)) 
             traceback.print_exc(file=sys.stderr)
             sys.exit(-5)
+    else:
+        set_slave_mode(True)
         
     try:
         interpret_commands(args)

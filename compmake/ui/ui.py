@@ -8,11 +8,11 @@ from compmake.jobs.storage import exists_computation, \
     get_computation, all_jobs, set_computation
 from compmake.utils.visualization import colored
 from compmake import version, compmake_copyright, compmake_url
+import compmake
 
 def make_sure_pickable(obj):
     # TODO write this function
     pass
-
 
 
 def collect_dependencies(ob):
@@ -61,6 +61,15 @@ def generate_job_id(command):
 
     assert(False)
 
+compmake_slave_mode = False 
+
+def is_slave_mode():
+    return compmake.ui.compmake_slave_mode
+
+def set_slave_mode(mode=True):
+    global compmake_slave_mode
+    compmake.ui.compmake_slave_mode = mode
+
 def comp(command, *args, **kwargs):
     ''' Main method to define a computation.
     
@@ -70,6 +79,9 @@ def comp(command, *args, **kwargs):
         :arg:job_id:   sets the job id (respects job_prefix)
         :arg:extra_dep: extra dependencies (not passed as arguments)
     '''
+    if is_slave_mode():
+        return None
+    
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments
     job_id_key = 'job_id'
