@@ -116,6 +116,7 @@ To use the Redis backend, you have to:
                     del processing2result[job_id]
                     
                     its_parents = set(parents(job_id))
+                    print "Putting parents %s as failed" % its_parents
                     for p in its_parents:
                         mark_as_failed(p, 'Failure of dependency %s' % job_id)
                         if p in todo:
