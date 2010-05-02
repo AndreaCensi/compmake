@@ -64,8 +64,8 @@ def list_jobs(job_list):
 def list_job_detail(job_id):
     #computation = get_computation(job_id)
     cache = get_job_cache(job_id)     
-    needed_by = direct_parents(job_id)
-    depends_on = direct_children(job_id)
+    parents = direct_parents(job_id)
+    children = direct_children(job_id)
     up, reason = up_to_date(job_id)
 
     red = lambda x: colored(x, 'red')
@@ -76,11 +76,11 @@ def list_job_detail(job_id):
         print bold('Job ID: ') + '%s' % job_id 
         print bold('Status: ') + '%s' % Cache.state2desc[cache.state]
         print bold('Uptodate: ') + '%s (%s)' % (up, reason)
-        print bold('Children: ') + '%s' % ', '.join(depends_on)
-        print bold('Parents: ') + '%s' % ', '.join(needed_by)
+        print bold('Children: ') + '%s' % ', '.join(children)
+        print bold('Parents: ') + '%s' % ', '.join(parents)
         
         #if cache.state == Cache.DONE:
-            #print bold('Time: ') + '%s' % ', '.join(needed_by)
+            #print bold('Time: ') 
 
         if cache.state == Cache.FAILED:
             print red(cache.exception)

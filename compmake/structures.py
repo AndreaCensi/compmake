@@ -86,10 +86,13 @@ class UserError(ParsimException):
 class Computation:
     id2computation = {}
     
-    def __init__(self, job_id, depends, command, args, kwargs, yields=False):
+    def __init__(self, job_id, command, args, kwargs, yields=False):
         self.job_id = job_id
-        self.depends = depends
-        self.needed_by = []
+        #self.depends = depends
+        #self.needed_by = []
+        self.parents = []
+        self.children = []
+        
         self.command = command
         self.kwargs = kwargs 
         self.args = args

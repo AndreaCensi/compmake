@@ -7,8 +7,9 @@ from compmake.structures import UserError
 from compmake.stats import progress, progress_reset_cache, progress_string
 from compmake.utils import error
 from compmake.jobs.actions import mark_more, make, mark_as_failed
-from compmake.jobs.uptodate import dependencies_up_to_date
-from compmake.jobs.queries import list_todo_targets, parents, direct_parents
+from compmake.jobs.queries import  parents, direct_parents
+from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
+
 
 def parmake_targets(targets, more=False, processes=None):
     from compmake.storage import db

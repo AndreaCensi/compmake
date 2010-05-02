@@ -11,8 +11,9 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, set_job_cache
     is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available, \
     delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_tmpobject, \
     set_job_userobject, get_computation
-from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date
-from compmake.jobs.queries import list_todo_targets, parents, direct_parents
+from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date, \
+    list_todo_targets
+from compmake.jobs.queries import parents, direct_parents    
 from compmake.structures import Cache, Computation, ParsimException
 from compmake.utils import error
 from compmake.stats import progress

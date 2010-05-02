@@ -145,8 +145,9 @@ def padleft(n, s):
     return " " * (n - len(s)) + s
 
 # FIXME: put this somewhere else
-import compmake.ui.commands
-import compmake.plugins.dump
-import compmake.plugins.graph
+import compmake.ui.commands #@UnusedImport
+import compmake.plugins.dump #@UnusedImport
+import compmake.plugins.graph #@UnusedImport
+import compmake.plugins.credits #@UnusedImport
     
     

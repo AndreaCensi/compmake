@@ -4,22 +4,22 @@ from compmake.utils import user_error
 from compmake.ui.helpers import get_commands, alias2name
 from compmake.ui.console import compmake_console
 from compmake.ui.commands import ShellExitRequested, stats
-from compmake.jobs.storage import exists_computation, add_computation, get_computation, \
-    all_jobs
+from compmake.jobs.storage import exists_computation, add_computation, \
+    get_computation, all_jobs
 from compmake.utils.visualization import colored
 from compmake import version, compmake_copyright, compmake_url
 
 def make_sure_pickable(obj):
-    # TODO
+    # TODO write this function
     pass
 
 
 
 def collect_dependencies(ob):
-    ''' Returns a set of dependencies (i.e., Computation objects that
+    ''' Returns a set of dependencies (i.e., strings objects that
         are mentioned somewhere in the structure '''  
     if isinstance(ob, Computation):
-        return set([ob])
+        return set([ob.job_id])
     else:
         depends = set()
         if isinstance(ob, list):
@@ -97,19 +97,18 @@ def comp(command, *args, **kwargs):
         
     assert(not exists_computation(job_id))
 
-    depends = collect_dependencies([args, kwargs])
-    depends.update(extra_dep)
-    # make sure we do not have two Computation with the same id
-    depends = [ get_computation(x.job_id) for x in depends ]
+    children = collect_dependencies([args, kwargs])
+    children.update(extra_dep)
     
-    c = Computation(job_id=job_id, depends=depends,
-                    command=command, args=args, kwargs=kwargs)
+    c = Computation(job_id=job_id, command=command, args=args, kwargs=kwargs)
+    c.children = list(children)
     add_computation(job_id, c)
-        # TODO: check for loops     
+    # TODO: check for loops     
             
-    for x in depends:
-        if not c in x.needed_by:
-            x.needed_by.append(c)
+    for child in children:
+        child_comp = get_computation(child)
+        if not job_id in child_comp.parents:
+            child_comp.parents.append(job_id)
         
     return c 
 
@@ -159,8 +158,13 @@ def interpret_commands(commands):
                         except ShellExitRequested:
                             exit_requested = True
                             break
-            except KeyboardInterrupt:
+            except KeyboardInterrupt:  # CTRL-C
                 print "\nPlease use 'exit' to quit."
+            except EOFError: # CTRL-D
+                # TODO maybe make loop different? we don't want to catch
+                # EOFerror in interpret_commands
+                print "(end of input detected)"
+                exit_requested = True
         print "Thanks for using compmake. Problems? Suggestions? Praise? Go to %s" % \
          compmake_url
         return

@@ -1,17 +1,9 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
 from compmake.structures import Cache
-from compmake.jobs.storage import get_job_cache, get_computation
-
-def dependencies_up_to_date(job_id):
-    computation = get_computation(job_id)
-    dependencies_up_to_date = True
-    for child in computation.depends:
-        child_up, reason = up_to_date(child.job_id) #@UnusedVariable
-        if not child_up:
-            return False
-    return True
-
+from compmake.jobs.storage import get_job_cache
+from compmake.jobs.queries import direct_children
     
+# XXX not used for now
 up_to_date_cache = set()
 def up_to_date(job_id):
     """ Check that the job is up to date. 
@@ -32,20 +24,19 @@ def up_to_date(job_id):
     if job_id in up_to_date_cache:
         return True, 'cached result'
     
-    
     cache = get_job_cache(job_id) # OK
     
     if cache.state == Cache.NOT_STARTED:
         return False, 'Not started'
         
-    computation = get_computation(job_id)
-    for child in computation.depends:
-        child_up, why = up_to_date(child.job_id) #@UnusedVariable
+    #computation = get_computation(job_id)
+    for child in direct_children(job_id):
+        child_up, why = up_to_date(child) #@UnusedVariable
         if not child_up:
             return False, 'Children not up to date.'
         else:
             this_timestamp = cache.timestamp
-            child_timestamp = get_job_cache(child.job_id).timestamp
+            child_timestamp = get_job_cache(child).timestamp
             if child_timestamp > this_timestamp:
                 return False, 'Children have been updated.'
     
@@ -62,3 +53,25 @@ def up_to_date(job_id):
     # up_to_date_cache.add(job_id)
     
     return True, ''
+
+
+
+def list_todo_targets(jobs):
+    """ returns set:
+         todo:  set of job ids to do (children that are not up to date) """
+    todo = set()
+    for job_id in jobs:
+        up, reason = up_to_date(job_id) #@UnusedVariable
+        if not up:
+            todo.add(job_id)
+            children_id = direct_children(job_id)
+            todo.update(list_todo_targets(children_id))
+    return todo
+
+def dependencies_up_to_date(job_id):
+    ''' Returns true if all the dependencies are up to date '''
+    for child in direct_children(job_id):
+        child_up, reason = up_to_date(child.job_id) #@UnusedVariable
+        if not child_up:
+            return False
+    return True
