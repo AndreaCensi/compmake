@@ -13,7 +13,6 @@ setup(name='compmake',
       install_requires=['termcolor', 'setproctitle', 'readline'],
       extras_require={
         'multiprocessing':  ['redis']
-        
     }
-
 )
+

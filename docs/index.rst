@@ -27,6 +27,7 @@ Interested? Please read along:
    parallel.rst
    commandline.rst
    developer.rst
+   issues.rst
 
 
 Installation
