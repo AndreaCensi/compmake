@@ -102,13 +102,14 @@ def comp(command, *args, **kwargs):
     
     c = Computation(job_id=job_id, command=command, args=args, kwargs=kwargs)
     c.children = list(children)
-    add_computation(job_id, c)
     # TODO: check for loops     
             
     for child in children:
         child_comp = get_computation(child)
         if not job_id in child_comp.parents:
             child_comp.parents.append(job_id)
+    
+    add_computation(job_id, c)
         
     return c 
 
