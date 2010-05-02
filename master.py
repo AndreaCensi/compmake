@@ -19,14 +19,10 @@ def main():
     parser.add_option("--host hostname[:port]", dest="hostname",
                       help="[redis db] Hostname for redis server", default='localhost')
     
+    parser.add_option("--slave", action="store_true", dest="slave", default=False,
+                       help="Runs compmake in slave mode.")
+    
     (options, args) = parser.parse_args()
-
-    if not args:
-        user_error('I expect at least one parameter (module name)')
-        sys.exit(-2)
-        
-    module_name = args[0]
-    rest_of_params = args[1:]
 
     if not options.db in allowed_db:
         user_error('DB name "%s" not valid I was expecting one in %s' % 
@@ -50,25 +46,31 @@ def main():
     if not db:
         error('There was some error in initializing db.')
         sys.exit(-54)
-        
     
-
-    if module_name.endswith('.py') or (module_name.find('/') > 0):
-        warning('You passed a string "%s" which looks like a filename.' % module_name)
-        module_name = module_name.replace('/', '.')
-        module_name = module_name.replace('.py', '')
-        warning('However, I need a module name. I will try with "%s".' % module_name)
+    if not options.slave:
+        if not args:
+            user_error('I expect at least one parameter (module name)')
+            sys.exit(-2)
+            
+        module_name = args[0]
+        args = args[1:]
     
-    remove_all_jobs()    
-    try:
-        __import__(module_name)
-    except Exception as e:
-        error('Error while trying to import module "%s": %s' % (module_name, e)) 
-        traceback.print_exc(file=sys.stderr)
-        sys.exit(-5)
+        if module_name.endswith('.py') or (module_name.find('/') > 0):
+            warning('You passed a string "%s" which looks like a filename.' % module_name)
+            module_name = module_name.replace('/', '.')
+            module_name = module_name.replace('.py', '')
+            warning('However, I need a module name. I will try with "%s".' % module_name)
+        
+        remove_all_jobs()    
+        try:
+            __import__(module_name)
+        except Exception as e:
+            error('Error while trying to import module "%s": %s' % (module_name, e)) 
+            traceback.print_exc(file=sys.stderr)
+            sys.exit(-5)
         
     try:
-        interpret_commands(rest_of_params)
+        interpret_commands(args)
     except UserError as e:
         user_error(e)
         sys.exit(-6)
