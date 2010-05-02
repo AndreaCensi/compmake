@@ -84,7 +84,6 @@ class UserError(ParsimException):
 
 
 class Computation:
-    id2computation = {}
     
     def __init__(self, job_id, command, args, kwargs, yields=False):
         self.job_id = job_id

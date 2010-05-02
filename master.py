@@ -7,6 +7,7 @@ from compmake.ui import interpret_commands
 from compmake.storage import use_redis, use_filesystem 
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
+from compmake.jobs.storage import remove_all_jobs
 
 
 def main():             
@@ -50,12 +51,15 @@ def main():
         error('There was some error in initializing db.')
         sys.exit(-54)
         
+    
+
     if module_name.endswith('.py') or (module_name.find('/') > 0):
         warning('You passed a string "%s" which looks like a filename.' % module_name)
         module_name = module_name.replace('/', '.')
         module_name = module_name.replace('.py', '')
         warning('However, I need a module name. I will try with "%s".' % module_name)
-        
+    
+    remove_all_jobs()    
     try:
         __import__(module_name)
     except Exception as e:

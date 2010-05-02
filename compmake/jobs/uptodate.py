@@ -54,8 +54,6 @@ def up_to_date(job_id):
     
     return True, ''
 
-
-
 def list_todo_targets(jobs):
     """ returns set:
          todo:  set of job ids to do (children that are not up to date) """
