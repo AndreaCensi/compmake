@@ -126,6 +126,7 @@ def make(job_id, more=False):
         progress(job_id, 0, None)
         
         echo_output = False # TODO make this configurable
+        echo_output = True 
         
         capture = OutputCapture(prefix=job_id, echo=echo_output)
         try: 

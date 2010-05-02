@@ -89,35 +89,38 @@ def parremake(non_empty_job_list):
     parmake_targets(non_empty_job_list)
 
 @ui_command(section=ACTIONS) 
-def more(non_empty_job_list):
+def more(non_empty_job_list, loop=1):
     '''Makes more of the selected targets. '''
     
-    for job in non_empty_job_list:
-        mark_more(job)
-        
-    make_targets(non_empty_job_list, more=True)
+    for x in range(int(loop)):
+        if loop > 1:
+            info("------- more: iteration %d --- " % x) 
+
+        for job in non_empty_job_list:
+            mark_more(job)
+            
+        make_targets(non_empty_job_list, more=True)
 
 @ui_command(section=PARALLEL_ACTIONS)
-def parmore(non_empty_job_list):
+def parmore(non_empty_job_list, loop=1):
     '''Parallel equivalent of "more". '''
     for job in non_empty_job_list:
         mark_more(job)
         
-    parmake_targets(non_empty_job_list, more=True)
+    for x in range(int(loop)):
+        if loop > 1:
+            info("------- parmore: iteration %d --- " % x) 
 
-@ui_command(section=PARALLEL_ACTIONS)
-def parmoreconf(non_empty_job_list):
-    '''Makes more of the selected target, in an infinite loop '''
-    for i in range(100000):
-        info("------- parmorecont: iteration %d --- " % i) 
         for job in non_empty_job_list:
             mark_more(job)
+            
         parmake_targets(non_empty_job_list, more=True)
-    
+
+
 @ui_command(section=VISUALIZATION)
 def stats():
     '''Prints statistics about the jobs loaded'''
     njobs = len(all_jobs())
     print("%d jobs loaded." % njobs)
-    # Add class report    
+    # TODO: Add class report    
 
