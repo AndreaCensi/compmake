@@ -71,7 +71,7 @@ def list_todo_targets(jobs):
 def dependencies_up_to_date(job_id):
     ''' Returns true if all the dependencies are up to date '''
     for child in direct_children(job_id):
-        child_up, reason = up_to_date(child.job_id) #@UnusedVariable
+        child_up, reason = up_to_date(child) #@UnusedVariable
         if not child_up:
             return False
     return True
