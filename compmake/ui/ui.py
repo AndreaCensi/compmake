@@ -4,8 +4,8 @@ from compmake.utils import user_error
 from compmake.ui.helpers import get_commands, alias2name
 from compmake.ui.console import compmake_console
 from compmake.ui.commands import ShellExitRequested, stats
-from compmake.jobs.storage import exists_computation, add_computation, \
-    get_computation, all_jobs
+from compmake.jobs.storage import exists_computation, \
+    get_computation, all_jobs, set_computation
 from compmake.utils.visualization import colored
 from compmake import version, compmake_copyright, compmake_url
 
@@ -108,8 +108,9 @@ def comp(command, *args, **kwargs):
         child_comp = get_computation(child)
         if not job_id in child_comp.parents:
             child_comp.parents.append(job_id)
+            set_computation(child, child_comp)
     
-    add_computation(job_id, c)
+    set_computation(job_id, c)
         
     return c 
 

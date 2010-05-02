@@ -50,7 +50,7 @@ def exists_computation(job_id):
     return storage.db.is_cache_available(key)
     #return job_id in Computation.id2computation
 
-def add_computation(job_id, computation):
+def set_computation(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Computation))
