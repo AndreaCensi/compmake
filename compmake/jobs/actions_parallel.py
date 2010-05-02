@@ -62,7 +62,7 @@ To use the Redis backend, you have to:
 
     while todo:
         # note that in the single-thread processing=[]
-        assert(ready_todo or processing) 
+        assert ready_todo or processing, 'Still todo (not ready): %s' % todo 
         assert(not failed.intersection(todo))
 
         # add jobs up to saturations
@@ -128,6 +128,7 @@ To use the Redis backend, you have to:
                 break
         write_status()
     write_status()
+    # TODO: make sure we terminate the slaves?
     
 
 def parmake_job(job_id, more=False):
