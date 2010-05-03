@@ -133,7 +133,12 @@ def comp(command, *args, **kwargs):
 def reg_from_shell_wildcard(arg):
     """ Returns a regular expression from a shell wildcard expression """
     return re.compile('\A' + arg.replace('*', '.*') + '\Z')
-                      
+                     
+# TODO: FEATURE: add aliases 
+#  command  alias aliasname job...
+# TODO: special targets $top $bottom $all
+# TODO: feature: target by class
+  
 def parse_job_list(argv): 
     jobs = []
     for arg in argv:
