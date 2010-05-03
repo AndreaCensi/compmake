@@ -14,7 +14,7 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, set_job_cache
 from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date, \
     list_todo_targets
 from compmake.jobs.queries import parents, direct_parents    
-from compmake.structures import Cache, Computation, ParsimException
+from compmake.structures import Cache, Computation, ParsimException, UserError
 from compmake.utils import error
 from compmake.stats import progress
 from compmake.utils.capture import OutputCapture
@@ -34,6 +34,9 @@ def clean_target(job_id):
     
 def mark_more(job_id):
     cache = get_job_cache(job_id)
+    if cache.state != Cache.DONE:
+        raise UserError(('I cannot make more of job %s because I did not even ' + 
+                        'completed one iteration') % job_id)
     cache.state = Cache.MORE_REQUESTED
     set_job_cache(job_id, cache)
 
