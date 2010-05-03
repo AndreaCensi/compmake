@@ -34,7 +34,7 @@ def clean_target(job_id):
     
 def mark_more(job_id):
     cache = get_job_cache(job_id)
-    if cache.state != Cache.DONE:
+    if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
         raise UserError(('I cannot make more of job %s because I did not even ' + 
                         'completed one iteration (state: %s)') % \
                         (job_id, Cache.state2desc[cache.state]))
