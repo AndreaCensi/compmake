@@ -14,7 +14,6 @@ def make_sure_pickable(obj):
     # TODO write this function
     pass
 
-
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., strings objects that
         are mentioned somewhere in the structure '''  
@@ -44,12 +43,16 @@ def generate_job_id(command):
     base = str(command)
     if type(command) == type(comp):
         base = command.func_name
+
         
     if job_prefix:
         job_id = '%s-%s' % (job_prefix, base)
         if not exists_computation(job_id):
             return job_id
-           
+    else:
+        if not exists_computation(base):
+            return base
+
     for i in xrange(1000000):
         if job_prefix:
             job_id = '%s-%s-%d' % (job_prefix, base, i)

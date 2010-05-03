@@ -153,6 +153,10 @@ def make(job_id, more=False):
                 user_object = result
         finally:
             capture.deactivate()
+            # even if we send an error, let's save the output of the process
+            cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
+            cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
+            set_job_cache(job_id, cache)
             
         
         set_job_userobject(job_id, user_object)
@@ -162,8 +166,6 @@ def make(job_id, more=False):
         
         cache.state = Cache.DONE
         cache.timestamp = time()
-        cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
-        cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
         cache.walltime_used = cache.timestamp - cache.time_start
         cache.cputime_used = clock() - cpu_start
         set_job_cache(job_id, cache)

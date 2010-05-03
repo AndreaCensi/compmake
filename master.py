@@ -1,14 +1,13 @@
 ''' This is the executable '''
 import sys
 import traceback
-
 from optparse import OptionParser
+
 from compmake.ui import interpret_commands
 from compmake.storage import use_redis, use_filesystem 
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
 from compmake.jobs.storage import remove_all_jobs
-import compmake
 from compmake.ui.ui import set_slave_mode
 
 
@@ -50,6 +49,10 @@ def main():
         sys.exit(-54)
     
     if not options.slave:
+        # XXX make sure this is the default
+        set_slave_mode(False)
+        # TODO: add command namespace
+        # TODO: add command "load"
         if not args:
             user_error('I expect at least one parameter (module name)')
             sys.exit(-2)
