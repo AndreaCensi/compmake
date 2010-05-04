@@ -36,7 +36,7 @@ def mark_more(job_id):
     cache = get_job_cache(job_id)
     if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
         raise UserError(('I cannot make more of job %s because I did not even ' + 
-                        'completed one iteration (state: %s)') % \
+                        'complete one iteration (state: %s)') % \
                         (job_id, Cache.state2desc[cache.state]))
     cache.state = Cache.MORE_REQUESTED
     set_job_cache(job_id, cache)
