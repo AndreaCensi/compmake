@@ -14,6 +14,7 @@ from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs 
 from compmake.structures import  Cache
+from compmake.jobs.actions_cluster import clustmake_targets
 
 
 class ShellExitRequested(Exception):
@@ -71,6 +72,18 @@ def parmake(job_list):
         job_list = top_targets()
     
     parmake_targets(job_list)
+
+@ui_command(section=PARALLEL_ACTIONS)
+def clustmake(job_list):
+    '''Cluster equivalent of "make".
+
+       Note: you should use the Redis backend to use multiprocessing.
+ '''
+    if not job_list:
+        job_list = top_targets()
+    
+    clustmake_targets(job_list)
+
 
 @ui_command(section=ACTIONS)
 def remake(non_empty_job_list):  
