@@ -7,7 +7,7 @@ from compmake.ui.commands import ShellExitRequested, stats
 from compmake.jobs.storage import exists_computation, \
     get_computation, all_jobs, set_computation
 from compmake.utils.visualization import colored
-from compmake import version, compmake_copyright, compmake_url, \
+from compmake import version, compmake_copyright, \
     compmake_issues_url
 import compmake
 
@@ -236,7 +236,6 @@ Praise? Go to %s" % compmake_issues_url
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
         
-
     function(**kwargs)
 
 
@@ -248,7 +247,3 @@ def get_banner():
     
     # TODO: add mass-dependent sampling
     return banners[0][1]
-
-    
-    
-    
