@@ -3,7 +3,7 @@ from traceback import print_exc
 from sys import stderr
 from multiprocessing import TimeoutError, cpu_count, Pool
 
-from compmake.structures import UserError
+from compmake.structures import UserError, ParsimException
 from compmake.stats import progress, progress_reset_cache, progress_string
 from compmake.utils import error
 from compmake.jobs.actions import mark_more, make, mark_as_failed
@@ -12,7 +12,7 @@ from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
 from compmake.jobs.cluster_conf import parse_yaml_configuration
 from compmake.storage.redisdb import RedisInterface
 from compmake.utils.visualization import info
-from pybv import BVException
+
 import sys
 import time
 
@@ -79,7 +79,8 @@ def clustmake_targets(targets, more=False, processes=None):
             
             if True:
                 processing2result[job_id] = \
-                    pool.apply_async(cluster_job, [slave, job_id, make_more_of_this])
+                    pool.apply_async(cluster_job,
+                                     [slave, job_id, make_more_of_this])
             else:
                 # Fake async 
                 class Job:
@@ -195,7 +196,7 @@ def cluster_job(hostname, job_id, more=False):
     ret = p.wait()
     
     if ret != 0:
-        raise BVException('Command line:\n %s\n terminated with error %d' % 
+        raise ParsimException('Command line:\n %s\n terminated with error %d' % 
                           (" ".join(args), ret))
          
     

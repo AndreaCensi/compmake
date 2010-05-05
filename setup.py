@@ -13,6 +13,8 @@ setup(name='compmake',
       install_requires=['termcolor', 'setproctitle', 'readline'],
       extras_require={
         'multiprocessing':  ['redis']
+        # TODO: learn how to use this feature
+        # TODO: add gvgen
     }
 )
 

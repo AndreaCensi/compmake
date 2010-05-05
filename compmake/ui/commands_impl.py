@@ -13,7 +13,8 @@ import sys
          
 @ui_command(section=VISUALIZATION, alias='ls')
 def list(job_list):
-    '''Lists the status of the selected targets (or all targets if not specified).
+    '''Lists the status of the selected targets (or all targets \
+if not specified).
     
     If only one job is specified, then it is listed in more detail.  '''
     if not job_list:
@@ -86,7 +87,8 @@ def list_job_detail(job_id):
             print red(cache.exception)
             print red(cache.backtrace)
             
-        def display_with_prefix(buffer, prefix, transform=lambda x:x, out=sys.stdout):
+        def display_with_prefix(buffer, prefix,
+                                transform=lambda x:x, out=sys.stdout):
             for line in buffer.split('\n'):
                 out.write('%s%s\n' % (prefix, transform(line)))
                 

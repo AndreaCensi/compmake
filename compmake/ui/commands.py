@@ -11,7 +11,8 @@ from compmake.ui.helpers import   ui_section, ui_command, \
     GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS
 from compmake.ui.commands_impl import list_jobs 
 from compmake.jobs import make_sure_cache_is_sane, \
-    clean_target, make_targets, mark_remake, mark_more, top_targets, parmake_targets
+    clean_target, make_targets, mark_remake, mark_more, top_targets, \
+    parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs 
 from compmake.structures import  Cache
 from compmake.jobs.actions_cluster import clustmake_targets
@@ -35,7 +36,8 @@ def check():
 
 @ui_command(section=ACTIONS)
 def clean(job_list):
-    '''Cleans the result of the selected computation (or everything is nothing specified) '''
+    '''Cleans the result of the selected computation \
+(or everything is nothing specified) '''
     if not job_list: 
         job_list = all_jobs()
         

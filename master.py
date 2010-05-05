@@ -15,13 +15,21 @@ def main():
     parser = OptionParser()
 
     allowed_db = ['filesystem', 'redis']
-    parser.add_option("--db", dest="db", help="Specifies db backend. Options: %s" % allowed_db, default=allowed_db[0])
-    parser.add_option("--path", dest="path", help="[filesystem db] Path to directory for filesystem storage", default=None)
-    parser.add_option("--host hostname[:port]", dest="hostname",
-                      help="[redis db] Hostname for redis server", default='localhost')
+    parser.add_option("--db", dest="db",
+                      help="Specifies db backend. Options: %s" % 
+                      allowed_db, default=allowed_db[0])
     
-    parser.add_option("--slave", action="store_true", dest="slave", default=False,
-                       help="Runs compmake in slave mode.")
+    parser.add_option("--path", dest="path",
+            help="[filesystem db] Path to directory for filesystem storage",
+            default=None)
+    
+    parser.add_option("--host hostname[:port]", dest="hostname",
+                      help="[redis db] Hostname for redis server",
+                      default='localhost')
+    
+    parser.add_option("--slave", action="store_true", dest="slave",
+                      default=False,
+                      help="Runs compmake in slave mode.")
     
     (options, args) = parser.parse_args()
 
@@ -61,16 +69,19 @@ def main():
         args = args[1:]
     
         if module_name.endswith('.py') or (module_name.find('/') > 0):
-            warning('You passed a string "%s" which looks like a filename.' % module_name)
+            warning('You passed a string "%s" which looks like a filename.' % 
+                    module_name)
             module_name = module_name.replace('/', '.')
             module_name = module_name.replace('.py', '')
-            warning('However, I need a module name. I will try with "%s".' % module_name)
+            warning('However, I need a module name. I will try with "%s".' % 
+                    module_name)
         
         remove_all_jobs()    
         try:
             __import__(module_name)
         except Exception as e:
-            error('Error while trying to import module "%s": %s' % (module_name, e)) 
+            error('Error while trying to import module "%s": %s' % 
+                  (module_name, e)) 
             traceback.print_exc(file=sys.stderr)
             sys.exit(-5)
     else:

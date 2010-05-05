@@ -7,7 +7,8 @@ from compmake.ui.commands import ShellExitRequested, stats
 from compmake.jobs.storage import exists_computation, \
     get_computation, all_jobs, set_computation
 from compmake.utils.visualization import colored
-from compmake import version, compmake_copyright, compmake_url
+from compmake import version, compmake_copyright, compmake_url, \
+    compmake_issues_url
 import compmake
 
 def make_sure_pickable(obj):
@@ -158,12 +159,15 @@ def parse_job_list(argv):
 def interpret_commands(commands):
     ui_commands = get_commands()
     
+    # TODO: make this a separate function
     if len(commands) == 0:
         # starting console
         banner = get_banner()
         print "%s %s - ``%s''     %s " % (
-            colored('Compmake', attrs=['bold']), version, banner, compmake_copyright)
-        print "Welcome to the compmake console. ('help' for a list of commands)"
+            colored('Compmake', attrs=['bold']),
+            version, banner, compmake_copyright)
+        print "Welcome to the compmake console. " + \
+                "('help' for a list of commands)"
         stats()
         exit_requested = False
         while not exit_requested:
@@ -187,8 +191,8 @@ def interpret_commands(commands):
                 # EOFerror in interpret_commands
                 print "(end of input detected)"
                 exit_requested = True
-        print "Thanks for using compmake. Problems? Suggestions? Praise? Go to %s" % \
-         compmake_url
+        print "Thanks for using compmake. Problems? Suggestions? \
+Praise? Go to %s" % compmake_issues_url
         return
     
     command_name = commands[0]
@@ -200,7 +204,8 @@ def interpret_commands(commands):
         
     cmd = ui_commands[command_name]
     function = cmd.function 
-    function_args = function.func_code.co_varnames[:function.func_code.co_argcount]
+    function_args = \
+        function.func_code.co_varnames[:function.func_code.co_argcount]
     
     args = commands[1:]
     
@@ -212,8 +217,8 @@ def interpret_commands(commands):
             k, v = a.split('=')
             kwargs[k] = v
             if not k in function_args:
-                raise UserError(("You passed the argument '%s' for command '%s'" + 
-                       " but the only available arguments are %s") % (
+                raise UserError(("You passed the argument '%s' for command" + 
+                "'%s'  but the only available arguments are %s") % (
                             k, cmd.name, function_args))
         else:
             other.append(a)

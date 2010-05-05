@@ -36,8 +36,8 @@ class RedisInterface:
             raise KeyNotFound('Key %s does not exist anymore' % name)
         
         if not isinstance(s, str):
-            raise ParsimException('I usually put string-string values in the db.\
-however I found %s (%s). Key is %s' % (s, type(s), k))
+            raise ParsimException('I usually put string-string values in\
+the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         try:
             value = string2object(s)
         except Exception as e:
@@ -84,7 +84,8 @@ however I found %s (%s). Key is %s' % (s, type(s), k))
     @staticmethod
     def keys(pattern='*'):
         K = get_redis().keys(pattern=key2rediskey(pattern))
-        assert isinstance(K, str), 'I think you have the wrong version of pyredis '
+        assert isinstance(K, str), \
+            'I think you have the wrong version of pyredis '
         K = K.split()
         assert(isinstance(K, list))
         return [rediskey2key(k) for k in K]

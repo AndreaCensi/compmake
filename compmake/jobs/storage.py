@@ -5,18 +5,12 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
     2) Cache objects.
     3) user_object (any type)
     4) tmp_object (any type)
-   
-Object of type (1) are kept in memory, while objects of type (2-4) 
-are kept in the database (using storage_db).
-
-The storage/index for objects in type (1) is the dict Computation.id2computations
 
 These are all wrappers around the raw methods in storage
 '''
 
 from compmake.structures import Cache, Computation
 from compmake import storage
-from compmake.storage.redisdb import object2string
 
 namespace = 'default'
 
@@ -111,6 +105,9 @@ def delete_job_userobject(job_id):
 #
 # Temporary objects
 #
+
+# TODO: add function 2key
+
 def get_job_tmpobject(job_id):
     assert(is_job_tmpobject_available(job_id))
     key = '%s:userobject:tmp' % job_id
