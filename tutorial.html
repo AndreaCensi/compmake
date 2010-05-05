@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; Compmake v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Compmake v1.0 documentation" href="index.html" />
+    <link rel="next" title="Features and limitations" href="features.html" />
+    <link rel="prev" title="compmake" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="features.html" title="Features and limitations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="compmake"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Compmake v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Suppose that you have the typical program <tt class="docutils literal"><span class="pre">original.py</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">func2</span><span class="p">(</span><span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(problems)</p>
+<p>To use <tt class="docutils literal"><span class="pre">compmake</span></tt>, modify each function call of interest by wrapping it with the <tt class="docutils literal"><span class="pre">comp()</span></tt> function.
+It&#8217;s easy: each fragment of the form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">result</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">params1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>becomes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">result</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">params1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, the source code becomes (file <tt class="docutils literal"><span class="pre">using_compmake.py</span></tt>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is all you have to do to take advantage of <tt class="docutils literal"><span class="pre">compmake</span></tt>.
+Now, instead of running your program as:</p>
+<div class="highlight-python"><pre>$ python original.py</pre>
+</div>
+<p>use the syntax:</p>
+<div class="highlight-python"><pre>$ compmake [MODULE] [COMMAND]</pre>
+</div>
+<p>The following are some examples.</p>
+<div class="section" id="running-the-computation">
+<h2>Running the computation<a class="headerlink" href="#running-the-computation" title="Permalink to this headline">¶</a></h2>
+<p>The command &#8220;make [jobs]&#8221; runs the computation in series:</p>
+<div class="highlight-python"><pre>$ compmake example make</pre>
+</div>
+<p>You can run a specified job by adding it on the command line:</p>
+<div class="highlight-python"><pre>$ compmake example make func1\*</pre>
+</div>
+<p>You can also the wildcard <tt class="docutils literal"><span class="pre">*</span></tt> to select multiple jobs.</p>
+</div>
+<div class="section" id="cleaning-up">
+<h2>Cleaning up<a class="headerlink" href="#cleaning-up" title="Permalink to this headline">¶</a></h2>
+<p>Use the command <tt class="docutils literal"><span class="pre">clean</span> <span class="pre">[jobs]</span></tt> to clean:</p>
+<div class="highlight-python"><pre>$ compmake my_program clean</pre>
+</div>
+</div>
+<div class="section" id="diagnostics">
+<h2>Diagnostics<a class="headerlink" href="#diagnostics" title="Permalink to this headline">¶</a></h2>
+<p>The command &#8220;list&#8221; shows a list of the jobs with relative status.
+If you run</p>
+<div class="highlight-python"><pre>$ compmake example list</pre>
+</div>
+<p>before running <tt class="docutils literal"><span class="pre">make</span></tt>, you will see an output similar to this:</p>
+<div class="highlight-python"><pre>draw-0                                            [2mNot started/False[0m
+draw-1                                            [2mNot started/False[0m
+draw-2                                            [2mNot started/False[0m
+draw-3                                            [2mNot started/False[0m
+draw-4                                            [2mNot started/False[0m
+draw-5                                            [2mNot started/False[0m
+[...]
+</pre>
+</div>
+<p>After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
+<div class="highlight-python"><pre>draw-0                                            [32mDone/True[0m (1 second ago)
+draw-1                                            [32mDone/True[0m (1 second ago)
+draw-2                                            [32mDone/True[0m (1 second ago)
+draw-3                                            [32mDone/True[0m (1 second ago)
+draw-4                                            [32mDone/True[0m (1 second ago)
+draw-5                                            [32mDone/True[0m (1 second ago)
+[...]
+</pre>
+</div>
+</div>
+<div class="section" id="prettier-diagnostics">
+<h2>Prettier diagnostics<a class="headerlink" href="#prettier-diagnostics" title="Permalink to this headline">¶</a></h2>
+<p>There is a command &#8220;graph&#8221; that can produce a graphical depiction of the computation.
+(to use this feature, you should have installed <tt class="docutils literal"><span class="pre">graphviz</span></tt> and the <tt class="docutils literal"><span class="pre">gvgen</span></tt> library)</p>
+<p>If you run:</p>
+<div class="highlight-python"><pre>$ compmake my_program diagram</pre>
+</div>
+<p>before running <tt class="docutils literal"><span class="pre">make</span></tt> you will see the following:</p>
+<img alt="_images/graph_before.png" src="_images/graph_before.png" style="width: 100%;" />
+<p>The color grey means that the job has not started. After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
+<img alt="_images/graph_after.png" src="_images/graph_after.png" style="width: 100%;" />
+<p>Here, green means that the job is done.</p>
+<p>After we run</p>
+<img alt="_images/graph3.png" src="_images/graph3.png" style="width: 100%;" />
+<p>Here, green means that the job is done.</p>
+<p>The computation gra</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Tutorial</a><ul>
+<li><a class="reference external" href="#running-the-computation">Running the computation</a></li>
+<li><a class="reference external" href="#cleaning-up">Cleaning up</a></li>
+<li><a class="reference external" href="#diagnostics">Diagnostics</a></li>
+<li><a class="reference external" href="#prettier-diagnostics">Prettier diagnostics</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">compmake</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="features.html"
+                                  title="next chapter">Features and limitations</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/tutorial.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="features.html" title="Features and limitations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="compmake"
+             >previous</a> |</li>
+        <li><a href="index.html">Compmake v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.5.
+    </div>
+  </body>
+</html>

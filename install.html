@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation notes &mdash; Compmake v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '1.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Compmake v1.0 documentation" href="index.html" />
+    <link rel="next" title="Parallel execution using multiprocessing" href="parallel.html" />
+    <link rel="prev" title="Advanced usage & API documentation" href="advanced.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="parallel.html" title="Parallel execution using multiprocessing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced usage & API documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Compmake v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation-notes">
+<h1>Installation notes<a class="headerlink" href="#installation-notes" title="Permalink to this headline">¶</a></h1>
+<p>## Installing <tt class="docutils literal"><span class="pre">compmake</span></tt></p>
+<blockquote>
+$ python setup.py install</blockquote>
+<p>The following are notes for the prerequisites:</p>
+<p>## Installing prerequisites ##</p>
+<div class="section" id="dependencies-for-parallel-computation-support">
+<h2>Dependencies for parallel computation support<a class="headerlink" href="#dependencies-for-parallel-computation-support" title="Permalink to this headline">¶</a></h2>
+<p>For using the parallel version of compmake, you
+should install the Redis server.</p>
+<p>The python interface to Redis can be installed using:</p>
+<div class="highlight-python"><pre>$ easy_install redis</pre>
+</div>
+<p>Note: we require version</p>
+<p><tt class="docutils literal"><span class="pre">readline</span></tt></p>
+</div>
+<div class="section" id="other-non-strictly-necessary-dependencies">
+<h2>Other non-strictly necessary dependencies<a class="headerlink" href="#other-non-strictly-necessary-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>The following Python packages are used if they are found, but they
+are not necessary.</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">termcolor</span></tt> allows <tt class="docutils literal"><span class="pre">compmake</span></tt> to use colors. Do install it, it
+makes life more fun.:</p>
+<div class="highlight-python"><pre>$ easy_install termcolor</pre>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">setproctitle</span></tt> will change the name of the process to a string
+describing the current computation status. Useful to monitor
+compmake using <tt class="docutils literal"><span class="pre">top</span></tt>. (in Linux, press <tt class="docutils literal"><span class="pre">c</span></tt> to see the full command name.):</p>
+<div class="highlight-python"><pre>$ easy_install setproctitle</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="software-to-generate-dependency-graphs">
+<h2>Software to generate dependency graphs<a class="headerlink" href="#software-to-generate-dependency-graphs" title="Permalink to this headline">¶</a></h2>
+<p>The command <tt class="docutils literal"><span class="pre">graph</span></tt> allows you to</p>
+<p>You have to have installed the python package <tt class="docutils literal"><span class="pre">gvgen</span></tt> from
+<a class="reference external" href="http://software.inl.fr/trac/wiki/GvGen">http://software.inl.fr/trac/wiki/GvGen</a></p>
+<p>Moreover, you have to have installed <tt class="docutils literal"><span class="pre">graphviz</span></tt>
+<a class="reference external" href="http://www.graphviz.org/">http://www.graphviz.org/</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Installation notes</a><ul>
+<li><a class="reference external" href="#dependencies-for-parallel-computation-support">Dependencies for parallel computation support</a></li>
+<li><a class="reference external" href="#other-non-strictly-necessary-dependencies">Other non-strictly necessary dependencies</a></li>
+<li><a class="reference external" href="#software-to-generate-dependency-graphs">Software to generate dependency graphs</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="advanced.html"
+                                  title="previous chapter">Advanced usage &amp; API documentation</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="parallel.html"
+                                  title="next chapter">Parallel execution using multiprocessing</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/install.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="parallel.html" title="Parallel execution using multiprocessing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced usage & API documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">Compmake v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.5.
+    </div>
+  </body>
+</html>

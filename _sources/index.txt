@@ -1,0 +1,59 @@
+compmake
+========
+
+``compmake`` is ``make`` for batch python processes.
+
+.. image:: workers.jpg
+   :align: right
+
+It is a non-obtrusive module that allows to add:
+
+* ``make``--like facilities to your computations (``make``, ``clean``, etc.)
+
+* Automatic **caching** of the results on disk.
+
+* **Parallelization** using the ``multiprocessing`` module.
+
+
+Interested? Please read along:
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorial.rst
+   features.rst
+   advanced.rst
+   install.rst
+   parallel.rst
+   commandline.rst
+   developer.rst
+   issues.rst
+
+
+Installation
+------------
+
+The quick install is::
+
+$ easy_install compmake
+
+Altough there are also dependencies to install for advanced features. 
+See install.rst__ for more information.
+
+
+Repository access
+------------------
+
+compmake is hosted on github:
+
+$ git clone ...
+
+
+Author(s)
+---------
+
+Compmake is currently developed by Andrea Censi. 
+Contributors are most welcome.
+
+
+
