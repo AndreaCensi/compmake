@@ -68,11 +68,11 @@ def generate_job_id(command):
 compmake_slave_mode = False 
 
 def is_slave_mode():
-    return compmake.ui.compmake_slave_mode
+    return compmake.ui.ui.compmake_slave_mode
 
 def set_slave_mode(mode=True):
     global compmake_slave_mode
-    compmake.ui.compmake_slave_mode = mode
+    compmake.ui.ui.compmake_slave_mode = mode
 
 def comp(command, *args, **kwargs):
     ''' Main method to define a computation.
