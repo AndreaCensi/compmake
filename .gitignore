@@ -1,0 +1,5 @@
+dependencies/*
+*.pyc
+.project
+.pydevproject
+compmake.egg-info
