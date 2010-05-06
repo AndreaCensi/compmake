@@ -12,7 +12,7 @@ from compmake.jobs.queries import  parents, direct_parents
 from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
 from compmake.jobs.cluster_conf import parse_yaml_configuration
 from compmake.storage.redisdb import RedisInterface
-from compmake.utils.visualization import info
+from compmake.utils.visualization import info, setproctitle
 
 import sys
 import time
@@ -44,6 +44,10 @@ class Manager:
 ### Derived class interface 
     def process_init(self):
         ''' Called before processing '''
+        pass
+    
+    def process_finished(self):
+        ''' Called after processing '''
         pass
     
     def can_accept_job(self):
@@ -161,6 +165,8 @@ class Manager:
                            
     def loop_until_something_finishes(self):
         while True:
+            stderr.write("jobs: %s\r" % progress_string())
+            
             received = False
             # We make a copy because processing is updated during the loop
             for job_id in self.processing.copy(): 
@@ -190,6 +196,9 @@ class Manager:
             self.write_status()
             self.loop_until_something_finishes()
             self.write_status()
+            
+        self.process_finished()
+
             
     def write_status(self):
         # TODO add color
@@ -239,6 +248,12 @@ class ClusterManager(Manager):
         # job-id -> host
         self.processing2host = {}
         self.pool = Pool(processes=len(self.hosts_ready))
+
+    def process_finished(self):
+        if self.failed_hosts:
+            error('The following hosts failed: %s.' % 
+                  ", ".join(list(self.failed_hosts)))
+
 
     def can_accept_job(self):
         # only one job at a time
@@ -326,11 +341,12 @@ def parmake_job2(job_id, more):
 import subprocess
 
 def cluster_job(config, job_id, more=False):
+    setproctitle('%s %s' % (job_id, config.name))
     
     proxy_port = 13000
     
-    compmake_cmd = 'compmake --slave --db=redis --host localhost:%s make_single %s' % \
-            (proxy_port, job_id)
+    compmake_cmd = 'compmake --slave --db=redis --host localhost:%s make_single more=%s %s' % \
+            (proxy_port, more, job_id)
             
     redis_host = RedisInterface.host
     redis_port = RedisInterface.port

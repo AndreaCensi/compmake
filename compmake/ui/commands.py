@@ -4,23 +4,20 @@ There are 3 special variables:
 - 'args': list of all command line arguments
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
-'''
- 
-from compmake.utils import  info 
+''' 
 from compmake.ui.helpers import   ui_section, ui_command, \
     GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS
 from compmake.ui.commands_impl import list_jobs 
 from compmake.jobs import make_sure_cache_is_sane, \
-    clean_target, make_targets, mark_remake, mark_more, top_targets, \
-    parmake_targets
+    clean_target, mark_remake, mark_more, top_targets    
 from compmake.jobs.storage import get_job_cache, all_jobs 
 from compmake.structures import  Cache, UserError, JobFailed
-from compmake.jobs.actions_cluster import clustmake_targets, ManagerLocal, \
-    ClusterManager, MultiprocessingManager
-from compmake.utils.visualization import info
+from compmake.jobs.actions_cluster import ManagerLocal, \
+    ClusterManager, MultiprocessingManager 
 from compmake.config import compmake_config
 from compmake.ui.console import ask_question
 from compmake.jobs.cluster_conf import parse_yaml_configuration
+from compmake.utils.visualization import info
 
 
 class ShellExitRequested(Exception):
@@ -91,7 +88,10 @@ def make_single(job_list, more=False):
     
     from compmake import jobs
     try:
-        jobs.make(job_list[0], more)
+        job_id = job_list[0]
+        if more:
+            mark_more(job_id)
+        jobs.make(job_id, more)
         return 0
     except JobFailed:
         return 113

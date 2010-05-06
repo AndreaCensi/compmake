@@ -3,6 +3,7 @@ from compmake.utils.visualization import info, colored
 import sys
 from collections import namedtuple
 from compmake.structures import UserError
+from compmake.utils.values_interpretation import interpret_strings_like
 
 ConfigSwitch = namedtuple('ConfigSwitch',
                           'name default_value desc section order allowed')
@@ -36,23 +37,10 @@ def set_config_from_strings(name, args):
         raise UserError("I don't know config switch '%s'" % name)
     
     switch = config_switches[name]
-    if isinstance(switch.default_value, str):
-        value = " ".join(args)
-    elif isinstance(switch.default_value, bool):
-        if len(args) > 1:
-            raise UserError('Too many arguments for bool.')
-        value = eval(args[0])
-    elif isinstance(switch.default_value, int):
-        if len(args) > 1:
-            raise UserError('Too many arguments for int.')
-        value = int(args[0])
-    elif isinstance(switch.default_value, float):
-        if len(args) > 1:
-            raise UserError('Too many arguments for float.')
-        value = float(args[0])
-    else:
-        # XXX: security risk?
-        value = eval(args[0])
+    try:
+        value = interpret_strings_like(args, switch.default_value)
+    except ValueError as e:
+        raise UserError(e)
     
     # TODO: broadcast change?
     compmake_config.__dict__[name] = value

@@ -10,6 +10,8 @@ from compmake.utils.visualization import colored
 from compmake import version, compmake_copyright, \
     compmake_issues_url
 import compmake
+import inspect
+from compmake.utils.values_interpretation import interpret_strings_like
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -212,14 +214,34 @@ Praise? Go to %s" % compmake_issues_url
     # look for  key=value pairs 
     other = []
     kwargs = {}
+    argspec = inspect.getargspec(function)
     for a in args:
         if a.find('=') > 0:
             k, v = a.split('=')
-            kwargs[k] = v
-            if not k in function_args:
+        
+            if not k in argspec.args:
                 raise UserError(("You passed the argument '%s' for command" + 
                 "'%s'  but the only available arguments are %s") % (
                             k, cmd.name, function_args))
+            # look if we have a default value
+            num_args_with_default = len(argspec.defaults)
+            num_args = len(argspec.args)
+            num_args_without_default = num_args - num_args_with_default
+            index = argspec.args.index(k)
+            if index < num_args_without_default:
+                # no default, pass as string
+                kwargs[k] = v
+            else:
+                default_value = \
+                    argspec.defaults[index - num_args_without_default]
+                try:
+                    kwargs[k] = interpret_strings_like(v, default_value)
+                except ValueError:
+                    raise UserError('Could not parse %s=%s as %s' % 
+                                    (k, v, type(default_value)))
+                
+                print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
+                
         else:
             other.append(a)
     args = other
