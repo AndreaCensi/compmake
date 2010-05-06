@@ -14,8 +14,13 @@ from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, make_targets, mark_remake, mark_more, top_targets, \
     parmake_targets
 from compmake.jobs.storage import get_job_cache, all_jobs 
-from compmake.structures import  Cache
-from compmake.jobs.actions_cluster import clustmake_targets
+from compmake.structures import  Cache, UserError, JobFailed
+from compmake.jobs.actions_cluster import clustmake_targets, ManagerLocal, \
+    ClusterManager, MultiprocessingManager
+from compmake.utils.visualization import info
+from compmake.config import compmake_config
+from compmake.ui.console import ask_question
+from compmake.jobs.cluster_conf import parse_yaml_configuration
 
 
 class ShellExitRequested(Exception):
@@ -41,6 +46,15 @@ def clean(job_list):
     if not job_list: 
         job_list = all_jobs()
         
+    if not job_list:
+        return 
+    
+    if compmake_config.interactive: #@UndefinedVariable
+        question = "Should I clean %d jobs?" % len(job_list)
+        answer = ask_question(question)
+        if not answer:
+            info('Not cleaned.')
+    
     for job_id in job_list:
         clean_target(job_id)
    
@@ -62,7 +76,26 @@ def make(job_list):
     '''Makes selected targets; or all targets if none specified ''' 
     if not job_list:
         job_list = top_targets()
-    make_targets(job_list)
+        
+    manager = ManagerLocal()
+    manager.add_targets(job_list)
+    manager.process()
+    #make_targets(job_list)
+
+# TODO: add hidden
+@ui_command(section=ACTIONS)
+def make_single(job_list, more=False):
+    ''' Makes a single job -- not for users, but for slave mode '''
+    if len(job_list) > 1:
+        raise UserError("I want only one job")
+    
+    from compmake import jobs
+    try:
+        jobs.make(job_list[0], more)
+        return 0
+    except JobFailed:
+        return 113
+
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parmake(job_list):
@@ -73,7 +106,11 @@ def parmake(job_list):
     if not job_list:
         job_list = top_targets()
     
-    parmake_targets(job_list)
+    manager = MultiprocessingManager()
+    manager.add_targets(job_list, more=False)
+    manager.process()
+    
+    #parmake_targets(job_list)
 
 @ui_command(section=PARALLEL_ACTIONS)
 def clustmake(job_list):
@@ -84,7 +121,12 @@ def clustmake(job_list):
     if not job_list:
         job_list = top_targets()
     
-    clustmake_targets(job_list)
+    hosts = parse_yaml_configuration(open('cluster.yaml'))
+    manager = ClusterManager(hosts)
+    manager.add_targets(job_list)
+    manager.process()
+
+    #clustmake_targets(job_list)
 
 
 @ui_command(section=ACTIONS)
@@ -92,8 +134,12 @@ def remake(non_empty_job_list):
     '''Remake the selected targets (equivalent to clean and make). '''
     for job in non_empty_job_list:
         mark_remake(job)
-        
-    make_targets(non_empty_job_list)
+    
+    manager = ManagerLocal()
+    manager.add_targets(non_empty_job_list)
+    manager.process()
+    
+    #make_targets(non_empty_job_list)
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
@@ -101,7 +147,9 @@ def parremake(non_empty_job_list):
     for job in non_empty_job_list:
         mark_remake(job)
         
-    parmake_targets(non_empty_job_list)
+    manager = MultiprocessingManager()
+    manager.add_targets(non_empty_job_list, more=True)
+    manager.process()
 
 @ui_command(section=ACTIONS) 
 def more(non_empty_job_list, loop=1):
@@ -114,7 +162,11 @@ def more(non_empty_job_list, loop=1):
         for job in non_empty_job_list:
             mark_more(job)
             
-        make_targets(non_empty_job_list, more=True)
+        manager = ManagerLocal()
+        manager.add_targets(non_empty_job_list, more=True)
+        manager.process()
+    
+        #make_targets(non_empty_job_list, more=True)
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parmore(non_empty_job_list, loop=1):
@@ -128,10 +180,11 @@ def parmore(non_empty_job_list, loop=1):
 
         for job in non_empty_job_list:
             mark_more(job)
-            
-        parmake_targets(non_empty_job_list, more=True)
 
-
+        manager = MultiprocessingManager()
+        manager.add_targets(non_empty_job_list, more=True)
+        manager.process()
+   
 @ui_command(section=VISUALIZATION)
 def stats():
     '''Prints statistics about the jobs loaded'''

@@ -8,6 +8,14 @@ class KeyNotFound(ParsimException):
 class UserError(ParsimException):
     pass
 
+class JobFailed(ParsimException):
+    ''' This signals that some job has failed '''
+    pass
+
+class JobInterrupted(ParsimException):
+    ''' The job has been interrupted and must be redone (it has not faile though) '''
+    pass
+
 '''
     A Computation represents the computation as passed by the user.
     It contains only the "action" but not the state.

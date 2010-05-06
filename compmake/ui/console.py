@@ -23,3 +23,18 @@ def compmake_console():
         yield line
     
 
+def ask_question(question):
+    ''' Asks a yes/no question to the user '''
+    allowed = {
+               'y': True,
+               'Y': True,
+               'yes': True,
+               'n': False,
+               'N': False,
+               'no': False
+               }
+    while True:
+        line = raw_input(question + ' [y/n] ')
+        line = line.strip().lower()
+        if line in allowed:
+            return allowed[line]

@@ -88,7 +88,8 @@ def main():
         set_slave_mode(True)
         
     try:
-        interpret_commands(args)
+        retcode = interpret_commands(args)
+        sys.exit(retcode)
     except UserError as e:
         user_error(e)
         sys.exit(-6)

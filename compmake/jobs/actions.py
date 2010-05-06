@@ -15,11 +15,14 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, \
 from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date, \
     list_todo_targets
 from compmake.jobs.queries import parents, direct_parents    
-from compmake.structures import Cache, Computation, ParsimException, UserError
+from compmake.structures import Cache, Computation, ParsimException, UserError, \
+    JobFailed
 from compmake.utils import error
 from compmake.stats import progress
 from compmake.utils.capture import OutputCapture
 from compmake.utils.visualization import colored
+from compmake.config import compmake_config
+from traceback import print_exc
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -80,7 +83,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     set_job_cache(job_id, cache)
         
 def make(job_id, more=False):
-    """ Makes a single job. Returns the user-object. """
+    """ Makes a single job. Returns the user-object or raises JobFailed """
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id) #@UnusedVariable
     cache = get_job_cache(job_id)
@@ -131,10 +134,9 @@ def make(job_id, more=False):
         
         progress(job_id, 0, None)
         
-        echo_output = False # TODO make this configurable
-        echo_output = True 
-        
-        capture = OutputCapture(prefix=job_id, echo=echo_output)
+        capture = OutputCapture(prefix=job_id,
+            echo_stdout=compmake_config.echo_stdout, #@UndefinedVariable
+            echo_stderr=compmake_config.echo_stderr) #@UndefinedVariable
         try: 
             result = computation.compute(previous_user_object)
             
@@ -156,9 +158,26 @@ def make(job_id, more=False):
             else:
                 progress(job_id, 1, 1)
                 user_object = result
+        # TODO: interrupted
+        except Exception as e:
+            sio = StringIO()
+            print_exc(file=sio)
+            bt = sio.getvalue()
+            
+            error("Job %s failed: %s" % (job_id, e))
+            error(bt)
+            
+            mark_as_failed(job_id, e, bt)
+            
+            # clear progress cache
+            progress(job_id, 1, 1)
+            
+            raise JobFailed('Job %s failed: %s' % (job_id, e))
+    
         finally:
             capture.deactivate()
             # even if we send an error, let's save the output of the process
+            cache = get_job_cache(job_id)
             cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
             cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
             set_job_cache(job_id, cache)

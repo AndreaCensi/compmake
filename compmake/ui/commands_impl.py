@@ -21,11 +21,10 @@ if not specified).
         job_list = all_jobs()
     job_list.sort()
     
-    if len(job_list) > 1:
-        list_jobs(job_list)
-    else:
+    if len(job_list) == 1:
         list_job_detail(job_list[0])
-
+    else:
+        list_jobs(job_list)        
 
 state2color = {
         # The ones commented out are not possible

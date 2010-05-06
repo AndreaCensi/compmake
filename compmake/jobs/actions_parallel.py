@@ -131,26 +131,27 @@ To use the Redis backend, you have to:
     # TODO: make sure we terminate the slaves?
     
 
-def parmake_job(job_id, more=False):
+def parmake_job(job_id, more):
     from compmake.storage import db
     db.reopen_after_fork()
 
-    try:
-        if more: # XXX this should not be necessary
-            mark_more(job_id)
-        make(job_id, more)
-    except Exception as e:
-        sio = StringIO()
-        print_exc(file=sio)
-        bt = sio.getvalue()
-        
-        error("Job %s failed: %s" % (job_id, e))
-        error(bt)
-        
-        mark_as_failed(job_id, e, bt)
-        
-        # clear progress cache
-        progress(job_id, 1, 1)
-        
-        raise e
+    #try:
+    if more: # XXX this should not be necessary
+        mark_more(job_id)
+    make(job_id, more)
     
+#    except Exception as e:
+#        sio = StringIO()
+#        print_exc(file=sio)
+#        bt = sio.getvalue()
+#        
+#        error("Job %s failed: %s" % (job_id, e))
+#        error(bt)
+#        
+#        mark_as_failed(job_id, e, bt)
+#        
+#        # clear progress cache
+#        progress(job_id, 1, 1)
+#        
+#        raise e
+#    

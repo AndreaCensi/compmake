@@ -24,19 +24,21 @@ class StreamCapture:
                 
             self.dest.flush()
         
+    def flush(self):
+        pass
 
 class OutputCapture:
     
-    def __init__(self, prefix, echo=True):
+    def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
         t = lambda s: '%s| %s' % (prefix, colored(s, 'cyan', attrs=['dark']))
-        dest = {True: sys.stdout, False: None}[echo]     
+        dest = {True: sys.stdout, False: None}[echo_stdout]     
         self.stdout_replacement = StreamCapture(transform=t, dest=dest)
         sys.stdout = self.stdout_replacement
         
         t = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
-        dest = {True: sys.stderr, False: None}[echo]      
+        dest = {True: sys.stderr, False: None}[echo_stderr]      
         self.stderr_replacement = StreamCapture(transform=t, dest=dest)
         sys.stderr = self.stderr_replacement
         
