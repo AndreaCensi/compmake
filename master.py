@@ -89,11 +89,12 @@ def main():
         
     try:
         retcode = interpret_commands(args)
+        print "Exiting with retcode %s" % retcode
         sys.exit(retcode)
     except UserError as e:
         user_error(e)
         sys.exit(-6)
 
-
+    
 # FEATURE: history across iterations
 

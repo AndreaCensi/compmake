@@ -240,7 +240,7 @@ Praise? Go to %s" % compmake_issues_url
                     raise UserError('Could not parse %s=%s as %s' % 
                                     (k, v, type(default_value)))
                 
-                print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
+                #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
                 
         else:
             other.append(a)
