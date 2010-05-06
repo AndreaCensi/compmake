@@ -258,7 +258,7 @@ Praise? Go to %s" % compmake_issues_url
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
         
-    function(**kwargs)
+    return function(**kwargs)
 
 
 def get_banner():
