@@ -1,5 +1,7 @@
-Configuration reference
-=======================
+.. _config:
+
+Compmake configuration reference
+================================
 
 The following is an auto-generated list of configuration switches.
 

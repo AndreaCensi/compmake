@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tutorial &mdash; Compmake make for batch Python processes</title>
+    <title>Basic compmake usage &mdash; Compmake make for batch Python processes</title>
     <link rel="stylesheet" href="static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
@@ -25,31 +25,31 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
-    <link rel="next" title="Features and limitations" href="features.html" />
-    <link rel="prev" title="Compmake" href="index.html" /> 
+    <link rel="next" title="make, clean, remake" href="tutorial_makeclean.html" />
+    <link rel="prev" title="Features and limitations" href="features.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>Tutorial</span></h2>
+        <h2 class="heading"><span>Basic compmake usage</span></h2>
       </div>
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="index.html">Compmake</a>
+        «&#160;&#160;<a href="features.html">Features and limitations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="features.html">Features and limitations</a>&#160;&#160;»
+        <a href="tutorial_makeclean.html">make, clean, remake</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content">
         
         
-  <div class="section" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>Suppose that you have the typical program <tt class="docutils literal"><span class="pre">original.py</span></tt>:</p>
+  <div class="section" id="basic-compmake-usage">
+<span id="tutorial0"></span><h1>Basic compmake usage<a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
+<p>Suppose that you have the typical program <tt class="docutils literal"><span class="pre">original.py</span></tt> (<a href="downloads/original.py"><tt class="xref download docutils literal"><span class="pre">download</span> <span class="pre">example</span></tt></a>).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
 
 <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
@@ -59,7 +59,9 @@
         <span class="n">draw</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(problems)</p>
+<p>Compmake was developed to deal with programs like this one,
+where each of the functions <tt class="docutils literal"><span class="pre">f1</span></tt>,``f2`` take lots of computation
+time.  You probably</p>
 <p>To use <tt class="docutils literal"><span class="pre">compmake</span></tt>, modify each function call of interest by wrapping it with the <tt class="docutils literal"><span class="pre">comp()</span></tt> function.
 It&#8217;s easy: each fragment of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">result</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">params1</span><span class="p">)</span>
@@ -155,11 +157,11 @@ draw-4                                            Done/True (1 second ago)
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="index.html">Compmake</a>
+        «&#160;&#160;<a href="features.html">Features and limitations</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="features.html">Features and limitations</a>&#160;&#160;»
+        <a href="tutorial_makeclean.html">make, clean, remake</a>&#160;&#160;»
         </p>
 
       </div>

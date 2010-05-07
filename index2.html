@@ -25,7 +25,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="#" />
-    <link rel="next" title="Tutorial" href="tutorial.html" /> 
+    <link rel="next" title="Installation notes" href="install.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="#">
@@ -37,7 +37,7 @@
         <p>
         <a class="uplink" href="#">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial.html">Tutorial</a>&#160;&#160;»
+        <a href="install.html">Installation notes</a>&#160;&#160;»
         </p>
 
       </div>
@@ -47,31 +47,85 @@
   <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
 <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-<img align="right" alt="images/workers.jpg" class="align-right" src="images/workers.jpg" />
+
+
+<style type="text/css">
+
+div.col1 {
+	display: block;
+	float: left;
+}
+
+div.col2 {
+	padding-left: 3em;
+	display: block;
+	float: left;
+}
+
+div.after {
+	clear: left;
+}
+
+</style><img align="right" alt="images/workers.jpg" class="align-right" src="images/workers.jpg" />
 <p><tt class="docutils literal"><span class="pre">compmake</span></tt> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.
 It is a non-obtrusive module that provides:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
 including caching of temporary results. That is you can do a CTRL+C, play your
 videogame, and then restart compmake without losing data.</li>
-<li><strong>Single-host parallelization</strong> using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module.</li>
-<li><strong>Multiple-host parallelization</strong> using ssh-spawned slaves.</li>
+<li>Single-host parallelization (using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module).</li>
+<li>Multiple-host parallelization (using ssh-spawned slaves).</li>
 </ul>
-<p>Interested? Please read along:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference external" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference external" href="features.html">Features and limitations</a></li>
-<li class="toctree-l1"><a class="reference external" href="install.html">Installation notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="parallel.html">Parallel execution using multiprocessing</a></li>
-<li class="toctree-l1"><a class="reference external" href="commandline.html">Command line reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="developer.html">Developer notes</a></li>
-<li class="toctree-l1"><a class="reference external" href="advanced.html">Advanced usage &amp; API documentation</a></li>
-<li class="toctree-l1"><a class="reference external" href="commands.html">Commands reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="config.html">Configuration reference</a></li>
+<p>To use compmake, you have to minimally modify your Python program,
+such that compmake can understand the processing layout and
+the opportunities for parallelization.</p>
+<img alt="images/initial.png" src="images/initial.png" />
+<p>That&#8217;s it. After that, you are ready to run your computation using:</p>
+<div class="highlight-python"><pre>$ compmake example make       # runs locally
+$ compmake example parmake    # runs locally in parallel
+$ compmake example clustmake  # runs on a cluster</pre>
+</div>
+<p>Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
+console that allows you to inspect the status of the computations,
+cleaning/remaking jobs, etc.</p>
+<p>Compmake has been designed primarily for handling long computational-intensive
+batch processes. It assumes that the computational layout is fixed and that
+all intermediate results can be cached to disk. If these two conditions are met,
+you can use compmake to gain considerable peace of mind.</p>
+<p>Still interested? Please read along:</p>
+<div class="col1 container">
+<p><strong>Getting started</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="install.html#install"><em>Installation notes</em></a></li>
+<li><a class="reference external" href="features.html#features"><em>Features and limitations</em></a></li>
+</ul>
+<p><strong>Tutorial</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="tutorial.html#tutorial0"><em>Basic compmake usage</em></a></li>
+<li><a class="reference external" href="tutorial_makeclean.html#tutorial1"><em>make, clean, remake</em></a></li>
+<li><a class="reference external" href="tutorial_parmake.html#tutorial2"><em>Single-host multiprocessing</em></a></li>
+<li><a class="reference external" href="tutorial_yield.html#tutorial3"><em>Suspending and resuming computation</em></a></li>
+<li><a class="reference external" href="tutorial_naming.html#tutorial4"><em>Naming jobs; the compmake console</em></a></li>
 </ul>
 </div>
-<div class="section" id="quick-installation">
+<div class="col2 container">
+<p><strong>Advanced usage</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="advanced.html#advanced0"><em>Cluster configuration</em></a></li>
+<li><a class="reference external" href="advanced_more.html#advanced1"><em>Making more of the same thing</em></a></li>
+</ul>
+<p><strong>Reference</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a></li>
+<li><a class="reference external" href="config.html#config"><em>Compmake configuration reference</em></a></li>
+</ul>
+<p><strong>Developer</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="developer.html#developer"><em>Developer notes</em></a></li>
+<li><a class="reference external" href="extending.html#extending"><em>Extending compmake</em></a></li>
+</ul>
+</div>
+<div style="clear:left"/><div class="section" id="quick-installation">
 <h2>Quick installation<a class="headerlink" href="#quick-installation" title="Permalink to this headline">¶</a></h2>
 <p>The quick install is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
@@ -99,10 +153,60 @@ advanced features. See <a href="#id1"><span class="problematic" id="id2">install
   by running:
   <pre>$ git clone git://github.com/AndreaCensi/compmake</pre>
 </p></div>
-<div class="section" id="author-s">
-<h2>Author(s)<a class="headerlink" href="#author-s" title="Permalink to this headline">¶</a></h2>
-<p>Compmake is currently developed by Andrea Censi.
-Contributors are most welcome.</p>
+<div class="section" id="feedback">
+<h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
+<p>Compmake is currently developed by Andrea Censi. Contributors are most welcome.</p>
+<p>Please use the <a class="reference external" href="https://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and requested features.</p>
+</div>
+<div class="section" id="complete-documentation-table-of-contents">
+<h2>Complete documentation table of contents<a class="headerlink" href="#complete-documentation-table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference external" href="install.html">Installation notes</a><ul>
+<li class="toctree-l2"><a class="reference external" href="install.html#dependencies-for-parallel-computation-support">Dependencies for parallel computation support</a></li>
+<li class="toctree-l2"><a class="reference external" href="install.html#other-non-strictly-necessary-dependencies">Other non-strictly necessary dependencies</a></li>
+<li class="toctree-l2"><a class="reference external" href="install.html#software-to-generate-dependency-graphs">Software to generate dependency graphs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="features.html">Features and limitations</a><ul>
+<li class="toctree-l2"><a class="reference external" href="features.html#extended-list-of-features">Extended list of features</a></li>
+<li class="toctree-l2"><a class="reference external" href="features.html#limitations-and-assumptions">Limitations and assumptions</a><ul>
+<li class="toctree-l3"><a class="reference external" href="features.html#computational-graph-should-be-fixed">Computational graph should be fixed</a></li>
+<li class="toctree-l3"><a class="reference external" href="features.html#all-intermediate-results-are-saved-to-disk-memory">All intermediate results are saved to disk/memory</a></li>
+<li class="toctree-l3"><a class="reference external" href="features.html#all-the-code-is-available-on-all-machines">All the code is available on all machines</a></li>
+<li class="toctree-l3"><a class="reference external" href="features.html#input-and-ouput-should-be-pickable">Input and ouput should be pickable</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="tutorial.html">Basic compmake usage</a><ul>
+<li class="toctree-l2"><a class="reference external" href="tutorial.html#running-the-computation">Running the computation</a></li>
+<li class="toctree-l2"><a class="reference external" href="tutorial.html#cleaning-up">Cleaning up</a></li>
+<li class="toctree-l2"><a class="reference external" href="tutorial.html#diagnostics">Diagnostics</a></li>
+<li class="toctree-l2"><a class="reference external" href="tutorial.html#prettier-diagnostics">Prettier diagnostics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="tutorial_makeclean.html">make, clean, remake</a></li>
+<li class="toctree-l1"><a class="reference external" href="tutorial_naming.html">Naming jobs; the compmake console</a></li>
+<li class="toctree-l1"><a class="reference external" href="tutorial_parmake.html">Single-host multiprocessing</a></li>
+<li class="toctree-l1"><a class="reference external" href="tutorial_yield.html">Suspending and resuming computation</a></li>
+<li class="toctree-l1"><a class="reference external" href="advanced.html">Cluster configuration</a></li>
+<li class="toctree-l1"><a class="reference external" href="advanced_more.html">Making more of the same thing</a></li>
+<li class="toctree-l1"><a class="reference external" href="config.html">Compmake configuration reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="commands.html">Compmake commands reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="commandline.html">Command line reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="developer.html">Developer notes</a><ul>
+<li class="toctree-l2"><a class="reference external" href="developer.html#gotcha-when-debugging">Gotcha when debugging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="extending.html">Extending compmake</a></li>
+<li class="toctree-l1"><a class="reference external" href="main.html">Welcome to Compmake&#8217;s documentation!</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="main.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference external" href="parallel.html">Parallel execution using multiprocessing</a></li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -113,7 +217,7 @@ Contributors are most welcome.</p>
         <p>
         <a class="uplink" href="#">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial.html">Tutorial</a>&#160;&#160;»
+        <a href="install.html">Installation notes</a>&#160;&#160;»
         </p>
 
       </div>

@@ -1,7 +1,7 @@
+.. _developer:
+
 Developer notes
 ===============
-
-
 
 
 Gotcha when debugging
