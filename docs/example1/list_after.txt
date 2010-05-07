@@ -1,7 +1,7 @@
-draw-0                                            [32mDone/True[0m (1 second ago)
-draw-1                                            [32mDone/True[0m (1 second ago)
-draw-2                                            [32mDone/True[0m (1 second ago)
-draw-3                                            [32mDone/True[0m (1 second ago)
-draw-4                                            [32mDone/True[0m (1 second ago)
-draw-5                                            [32mDone/True[0m (1 second ago)
+draw                                              Done/True (1 second ago)
+draw-0                                            Done/True (1 second ago)
+draw-1                                            Done/True (1 second ago)
+draw-2                                            Done/True (1 second ago)
+draw-3                                            Done/True (1 second ago)
+draw-4                                            Done/True (1 second ago)
 [...]

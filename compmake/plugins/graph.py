@@ -6,6 +6,7 @@ from compmake.jobs.storage import get_job_cache, get_computation
 from compmake.structures import UserError, Cache
 from compmake.ui.helpers import ui_section, VISUALIZATION, ui_command
 from compmake.utils import  info
+from compmake.jobs.queries import direct_children
 
 ui_section(VISUALIZATION)
 
@@ -60,10 +61,10 @@ def graph(job_list, filename='compmake', compact=0,
         graph.styleApply(job_id, job2node[job_id])
     
     for job_id in job_list:
-        c = get_computation(job_id)
-        children_id = [x.job_id for x in c.depends]
-        for c in children_id:
-            graph.newLink(job2node[job_id], job2node[c])
+        #c = get_computation(job_id)
+        #children_id = [x.job_id for x in c.depends]
+        for child in direct_children(job_id):
+            graph.newLink(job2node[job_id], job2node[child])
     
     # TODO: add check?
     with open(filename, 'w') as f:

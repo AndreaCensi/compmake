@@ -12,6 +12,7 @@ from compmake.ui.ui import set_slave_mode
 from compmake.ui.console import interactive_console
 from compmake import  version, stats
 from compmake.config.config_optparse import config_populate_optparser
+from compmake.config import compmake_config
 
 
 def main():             
@@ -100,13 +101,10 @@ def main():
         module_name = args.pop(0)
         set_namespace(module_name)
         set_slave_mode(True)
-        
-        #if not args:
-        #    user_error('In slave mode, I expect some command.')
-        #    sys.exit(-7)
-            
+             
     if args:
         try:
+            compmake_config.interactive = False
             retcode = interpret_commands(args)
             # print "Exiting with retcode %s" % retcode
             sys.exit(retcode)
