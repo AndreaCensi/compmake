@@ -1,5 +1,8 @@
-compmake
-========
+Compmake
+=========
+
+.. raw:: html
+   :file: fork.html
 
 ``compmake`` is ``make`` for batch python processes.
 
