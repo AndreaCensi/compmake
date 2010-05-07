@@ -3,7 +3,7 @@ import sys
 from collections import namedtuple
 
 
-Host = namedtuple('Host', 'name host username processors init test type')
+Host = namedtuple('Host', 'name host username processors init test type instance')
 
 
 def parse_yaml_configuration(file):
@@ -25,7 +25,8 @@ def parse_yaml_configuration(file):
         'init': None,
         'test': None,
         'username': None,
-        'host': None
+        'host': None,
+        'instance': 0
     }
     default_type = types.get('default', {})
     fill_in(default_type, default_conf)

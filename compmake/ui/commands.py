@@ -134,7 +134,23 @@ def clustmake(job_list):
     manager.add_targets(job_list)
     manager.process()
 
-    #clustmake_targets(job_list)
+@ui_command(section=COMMANDS_CLUSTER)
+def clustmore(non_empty_job_list, loop=1):
+    '''Cluster equivalent of "more".
+
+       Note: you should use the Redis backend to use multiprocessing.
+ ''' 
+    
+    for x in range(int(loop)):
+        if loop > 1:
+            info("------- more: iteration %d --- " % x) 
+
+        for job in non_empty_job_list:
+            mark_more(job)
+            
+        manager = ClusterManager()
+        manager.add_targets(non_empty_job_list, more=True)
+        manager.process()
 
 
 @ui_command(section=ACTIONS)

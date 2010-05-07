@@ -146,7 +146,7 @@ class Manager:
                     
 
     def job_succeeded(self, job_id):
-        info('Job %s succeded ' % job_id)
+        #info('Job %s succeded ' % job_id)
         ''' The specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''            
         del self.processing2result[job_id]         

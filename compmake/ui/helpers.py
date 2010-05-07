@@ -135,7 +135,7 @@ def list_commands_with_sections(file=sys.stdout):
             file.write("  | %s \n" % section.desc)
         for name in section.commands:
             cmd = commands[name]
-            short_doc = cmd.doc.split('\n')[0]
+            short_doc = cmd.doc.split('\n')[0].strip()
             file.write("  | %s  %s\n" % 
                        (colored(padleft(max_len, name), attrs=['bold']), short_doc))
 
