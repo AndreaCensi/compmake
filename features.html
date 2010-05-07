@@ -78,9 +78,15 @@ multiprocessing module.</li>
 <p class="first admonition-title">Attention</p>
 <p class="last">There are some limitations that might limit this module  usefulness. Please read these carefully because it is really hard to work around them, without severely limiting the <tt class="docutils literal"><span class="pre">compmake</span></tt> experience.</p>
 </div>
-<p>### Computational graph should be fixed</p>
+<div class="section" id="computational-graph-should-be-fixed">
+<h3>Computational graph should be fixed<a class="headerlink" href="#computational-graph-should-be-fixed" title="Permalink to this headline">¶</a></h3>
 <p>The computational graph should not depend on the result of the computation.</p>
-<p>### Input and ouput should be pickable</p>
+</div>
+<div class="section" id="all-intermediate-results-are-saved-to-disk-memory">
+<h3>All intermediate results are saved to disk/memory<a class="headerlink" href="#all-intermediate-results-are-saved-to-disk-memory" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="input-and-ouput-should-be-pickable">
+<h3>Input and ouput should be pickable<a class="headerlink" href="#input-and-ouput-should-be-pickable" title="Permalink to this headline">¶</a></h3>
 <p>All parameters and intermediate results should be pickable (i.e., serializable using the <tt class="docutils literal"><span class="pre">pickle</span></tt> module).</p>
 <p>This rules out the use of lambda functions in the argument.</p>
 <p>For example, this is not supported:</p>
@@ -100,6 +106,7 @@ as a top-level function:</p>
 
 <span class="n">comp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
+</div>
 </div>
 </div>
 </div>
