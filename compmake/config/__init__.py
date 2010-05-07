@@ -69,15 +69,18 @@ def show_config(file):
             file.write("  | %s \n" % section.desc)
         for name in section.switches:
             switch = config_switches[name]
-            value = str(compmake_config.__dict__[name])
-            changed = value == switch.default_value
+            value = compmake_config.__dict__[name]
+            changed = (value != switch.default_value)
             if changed:
-                value = "* " + value  
+                attrs = ['bold']
+            else:
+                attrs = []  
+            value = str(value)
             desc = str(switch.desc)
             
             file.write("  | %s  %s  %s\n" % 
                        (colored(padleft(max_len_name, name), attrs=['bold']),
-                        colored(padleft(max_len_val, value), attrs=[]),
+                        colored(padleft(max_len_val, value), attrs=attrs),
                         desc))
 
 
