@@ -5,6 +5,7 @@ from compmake.storage.redisdb import RedisInterface
 from compmake.utils.visualization import info, setproctitle, error
 from compmake.jobs.manager import Manager
 from compmake.jobs.manager_local import FakeAsync
+from compmake.jobs.storage import get_namespace
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -105,8 +106,8 @@ def cluster_job(config, job_id, more=False):
     proxy_port = 13000
     
     compmake_cmd = \
-    'compmake --slave --db=redis --host localhost:%s make_single more=%s %s' % \
-            (proxy_port, more, job_id)
+    'compmake --db=redis --host localhost:%s --slave  %s make_single more=%s %s' % \
+            (get_namespace(), proxy_port, more, job_id)
             
     redis_host = RedisInterface.host
     redis_port = RedisInterface.port

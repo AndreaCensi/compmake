@@ -7,10 +7,10 @@ from compmake.ui import interpret_commands
 from compmake.storage import use_redis, use_filesystem 
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
-from compmake.jobs.storage import remove_all_jobs
+from compmake.jobs.storage import remove_all_jobs, set_namespace
 from compmake.ui.ui import set_slave_mode
 from compmake.ui.console import interactive_console
-from compmake import  version
+from compmake import  version, stats
 from compmake.config.config_optparse import config_populate_optparser
 
 
@@ -83,6 +83,7 @@ def main():
             warning('However, I need a module name. I will try with "%s".' % 
                     module_name)
         
+        set_namespace(module_name)
         remove_all_jobs()    
         try:
             __import__(module_name)
@@ -92,8 +93,18 @@ def main():
             traceback.print_exc(file=sys.stderr)
             sys.exit(-5)
     else:
+        if not args:
+            user_error('I expect at least one parameter (namespace name)')
+            sys.exit(-2)
+        
+        module_name = args.pop(0)
+        set_namespace(module_name)
         set_slave_mode(True)
         
+        if not args:
+            user_error('In slave mode, I expect some command.')
+            sys.exit(-7)
+            
     if args:
         try:
             retcode = interpret_commands(args)

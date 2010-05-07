@@ -5,6 +5,7 @@ from compmake import storage
 from compmake.structures import KeyNotFound
 from compmake.utils.visualization import setproctitle
 
+# XXX: no namespace for progress information?
 progress_cache_name = "progress" 
 
 def progresskey(job_id):

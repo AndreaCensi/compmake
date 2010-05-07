@@ -22,12 +22,19 @@ Limitations
 
 .. attention:: There are some limitations that might limit this module  usefulness. Please read these carefully because it is really hard to work around them, without severely limiting the ``compmake`` experience.
 
-### Computational graph should be fixed
+Computational graph should be fixed
++++++++++++++++++++++++++++++++++++
 
 The computational graph should not depend on the result of the computation.
 
 
-### Input and ouput should be pickable 
+All intermediate results are saved to disk/memory
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+Input and ouput should be pickable 
+++++++++++++++++++++++++++++++++++
 
 All parameters and intermediate results should be pickable (i.e., serializable using the ``pickle`` module).
 

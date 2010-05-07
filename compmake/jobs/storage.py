@@ -11,8 +11,15 @@ These are all wrappers around the raw methods in storage
 
 from compmake.structures import Cache, Computation
 from compmake import storage
+import compmake
 
 namespace = 'default'
+
+def set_namespace(n):
+    compmake.jobs.namespace = n
+
+def get_namespace():
+    return compmake.jobs.namespace
 
 def remove_all_jobs():
     map(remove_computation, all_jobs())
@@ -48,7 +55,7 @@ def set_computation(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Computation))
-   # Computation.id2computation[job_id] = computation
+    # Computation.id2computation[job_id] = computation
     storage.db.set_cache(key, computation)
         
 def remove_computation(job_id):
@@ -58,8 +65,12 @@ def remove_computation(job_id):
 #
 # Cache objects
 #
+def job2cachekey(job_id):
+    prefix = 'compmake:%s:cache:' % namespace
+    return '%s%s' % (prefix, job_id) 
+
 def get_job_cache(job_id):
-    cache_key = '%s:cache' % job_id
+    cache_key = job2cachekey(job_id)
     if storage.db.is_cache_available(cache_key):
         cache = storage.db.get_cache(cache_key)
         assert(isinstance(cache, Cache))
@@ -75,31 +86,35 @@ def get_job_cache(job_id):
 
 def set_job_cache(job_id, cache):
     assert(isinstance(cache, Cache))
-    cache_key = '%s:cache' % job_id
+    cache_key = job2cachekey(job_id)
     storage.db.set_cache(cache_key, cache)
     
 def delete_job_cache(job_id):
-    cache_key = '%s:cache' % job_id
+    cache_key = job2cachekey(job_id)
     storage.db.delete_cache(cache_key)
     
 #
 # User objects
 #
+def job2userobjectkey(job_id):
+    prefix = 'compmake:%s:userobject:' % namespace
+    return '%s%s' % (prefix, job_id) 
+
 def get_job_userobject(job_id):
     assert(is_job_userobject_available(job_id))
-    key = '%s:userobject' % job_id
+    key = job2userobjectkey(job_id)
     return storage.db.get_cache(key)
 
 def is_job_userobject_available(job_id):
-    key = '%s:userobject' % job_id
+    key = job2userobjectkey(job_id)
     return storage.db.is_cache_available(key)
 
 def set_job_userobject(job_id, obj):
-    key = '%s:userobject' % job_id
+    key = job2userobjectkey(job_id)
     storage.db.set_cache(key, obj)
     
 def delete_job_userobject(job_id):
-    key = '%s:userobject' % job_id
+    key = job2userobjectkey(job_id)
     storage.db.delete_cache(key)
     
 #
@@ -108,20 +123,24 @@ def delete_job_userobject(job_id):
 
 # TODO: add function 2key
 
+def job2tmpobjectkey(job_id):
+    prefix = 'compmake:%s:tmpobject:' % namespace
+    return '%s%s' % (prefix, job_id) 
+
 def get_job_tmpobject(job_id):
     assert(is_job_tmpobject_available(job_id))
-    key = '%s:userobject:tmp' % job_id
+    key = job2tmpobjectkey(job_id)
     return storage.db.get_cache(key)
 
 def is_job_tmpobject_available(job_id):
-    key = '%s:userobject:tmp' % job_id
+    key = job2tmpobjectkey(job_id)
     return storage.db.is_cache_available(key)
 
 def set_job_tmpobject(job_id, obj):
-    key = '%s:userobject:tmp' % job_id
+    key = job2tmpobjectkey(job_id)
     storage.db.set_cache(key, obj)
     
 def delete_job_tmpobject(job_id):
-    key = '%s:userobject:tmp' % job_id
+    key = job2tmpobjectkey(job_id)
     storage.db.delete_cache(key)
 
