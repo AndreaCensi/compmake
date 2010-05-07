@@ -1,11 +1,15 @@
-Tutorial
-==================
+.. _tutorial0:
 
-Suppose that you have the typical program ``original.py``:
+Basic compmake usage
+========================
+
+Suppose that you have the typical program ``original.py`` (:download:`download example  <example1/original.py>`).
 
 .. literalinclude:: example1/original.py
 
-(problems)
+Compmake was developed to deal with programs like this one,
+where each of the functions ``f1``,``f2`` take lots of computation
+time.  You probably
 
 To use ``compmake``, modify each function call of interest by wrapping it with the ``comp()`` function.
 It's easy: each fragment of the form::

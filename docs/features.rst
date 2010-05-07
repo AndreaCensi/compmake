@@ -1,3 +1,4 @@
+.. _features:
 
 Features and limitations
 ========================
@@ -17,8 +18,10 @@ Extended list of features
 * (TODO) Tracking of the computation status (estimated time to go).
 * (TODO) Curses-based interface
 
-Limitations
------------
+.. _limitations:
+
+Limitations and assumptions
+---------------------------
 
 .. attention:: There are some limitations that might limit this module  usefulness. Please read these carefully because it is really hard to work around them, without severely limiting the ``compmake`` experience.
 
@@ -32,6 +35,8 @@ All intermediate results are saved to disk/memory
 +++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+All the code is available on all machines
++++++++++++++++++++++++++++++++++++++++++
 
 Input and ouput should be pickable 
 ++++++++++++++++++++++++++++++++++

@@ -1,17 +1,22 @@
 #!/bin/bash
 set -e
 
-compmake using_compmake1 clean
-compmake --colorize False  using_compmake1 list | head -n 6 > list_before.txt
+module=using_compmake1
+
+compmake ${module} clean
+compmake --colorize False   ${module} list | head -n 6 > list_before.txt
 echo "[...]" >> list_before.txt
-compmake using_compmake1 graph filename=graph_before
+compmake  ${module} graph filename=graph_before
+compmake  ${module} graph compact=1 filename=graph_before_compact
 
-compmake using_compmake1 make 
-compmake --colorize False  using_compmake1 list | head -n 6 > list_after.txt
+compmake  ${module} make 
+compmake --colorize False   ${module} list | head -n 6 > list_after.txt
 echo "[...]" >> list_after.txt
-compmake using_compmake1 graph filename=graph_after
+compmake  ${module} graph filename=graph_after
+compmake  ${module} graph compact=1 filename=graph_after_compact
 
-compmake using_compmake1 clean func2-\*
-compmake using_compmake1 graph filename=graph3
+
+compmake  ${module} clean func2-\*
+compmake  ${module} graph filename=graph3
 
 #make -C .. html
