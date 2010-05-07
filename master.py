@@ -101,9 +101,9 @@ def main():
         set_namespace(module_name)
         set_slave_mode(True)
         
-        if not args:
-            user_error('In slave mode, I expect some command.')
-            sys.exit(-7)
+        #if not args:
+        #    user_error('In slave mode, I expect some command.')
+        #    sys.exit(-7)
             
     if args:
         try:

@@ -25,6 +25,8 @@ class ClusterManager(Manager):
             for n in range(hostconf.processors): #@UnusedVariable
                 self.hosts_ready.append(host)
 
+        print self.hosts_ready
+        
         # job-id -> host
         self.processing2host = {}
         self.pool = Pool(processes=len(self.hosts_ready))
@@ -106,8 +108,9 @@ def cluster_job(config, job_id, more=False):
     proxy_port = 13000
     
     compmake_cmd = \
-    'compmake --db=redis --host localhost:%s --slave  %s make_single more=%s %s' % \
-            (get_namespace(), proxy_port, more, job_id)
+    'compmake --db=redis --host localhost:%s --slave  %s ---save_progress=False\
+     make_single more=%s %s' % \
+            (proxy_port, get_namespace(), more, job_id)
             
     redis_host = RedisInterface.host
     redis_port = RedisInterface.port

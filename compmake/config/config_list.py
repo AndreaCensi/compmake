@@ -19,6 +19,10 @@ add_config_switch('echo_stderr', True,
        desc="If true, the job output to stderr is shown.",
        section=CONFIG_JOB_EXEC)
 
+add_config_switch('save_progress', True,
+        desc="Whether to save intermediate results for jobs that use \
+the yield() paradigm.\nAutomatically disabled for cluster slaves to save \
+bandwidth.", section=CONFIG_JOB_EXEC)
 
 add_config_switch('colorize', True,
        desc="Use colors in terminals if possible.",

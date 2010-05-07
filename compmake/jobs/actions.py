@@ -151,7 +151,8 @@ def make(job_id, more=False):
                                                       'Got: %s' % str(next))
                             user_object, num, total = next
                             progress(job_id, num, total)
-                            set_job_tmpobject(job_id, user_object)
+                            if compmake_config.save_progress: #@UndefinedVariable
+                                set_job_tmpobject(job_id, user_object)
                             
                 except StopIteration:
                     pass

@@ -2,7 +2,7 @@ from sys import stderr
 from multiprocessing import TimeoutError 
 from compmake.structures import  ParsimException, JobFailed, \
     JobInterrupted
-from compmake.stats import   progress_reset_cache, progress_string
+from compmake.stats import   progress_reset_cache, progress_string, progress
 from compmake.utils import error
 from compmake.jobs.actions import  mark_as_failed
 from compmake.jobs.queries import  parents, direct_parents
@@ -88,6 +88,8 @@ class Manager:
             self.processing2result[job_id] = \
                 self.instance_job(job_id, make_more)
                 
+            progress(job_id, None, None)
+            
             info('Job %s instantiated (more=%s)' % (job_id, make_more))
         
             
