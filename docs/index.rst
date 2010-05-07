@@ -1,5 +1,8 @@
-compmake
-========
+Compmake
+=========
+
+.. raw:: html
+   :file: fork.html
 
 ``compmake`` is ``make`` for batch python processes.
 
@@ -22,12 +25,13 @@ Interested? Please read along:
 
    tutorial.rst
    features.rst
-   advanced.rst
    install.rst
    parallel.rst
    commandline.rst
    developer.rst
-   issues.rst
+   advanced.rst
+   commands.rst
+   config.rst
 
 
 Installation

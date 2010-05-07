@@ -1,14 +1,8 @@
 import re
-from compmake.structures import Computation, UserError 
-from compmake.utils import user_error
-from compmake.ui.helpers import get_commands, alias2name
-from compmake.ui.console import compmake_console
-from compmake.ui.commands import ShellExitRequested, stats
+from compmake.structures import Computation, UserError  
+from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import exists_computation, \
-    get_computation, all_jobs, set_computation
-from compmake.utils.visualization import colored
-from compmake import version, compmake_copyright, \
-    compmake_issues_url
+    get_computation, all_jobs, set_computation 
 import compmake
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
@@ -70,7 +64,7 @@ def generate_job_id(command):
 compmake_slave_mode = False 
 
 def is_slave_mode():
-    return compmake.ui.ui.compmake_slave_mode
+    return compmake.ui.ui.compmake_slave_mode #@UndefinedVariable
 
 def set_slave_mode(mode=True):
     global compmake_slave_mode
@@ -157,45 +151,10 @@ def parse_job_list(argv):
             jobs.append(arg)
     return jobs
 
-
 def interpret_commands(commands):
     ui_commands = get_commands()
     
-    # TODO: make this a separate function
-    if len(commands) == 0:
-        # starting console
-        banner = get_banner()
-        print "%s %s - ``%s''     %s " % (
-            colored('Compmake', attrs=['bold']),
-            version, banner, compmake_copyright)
-        print "Welcome to the compmake console. " + \
-                "('help' for a list of commands)"
-        stats()
-        exit_requested = False
-        while not exit_requested:
-            try:
-                for line in compmake_console():
-                    commands = line.strip().split()
-                    if commands:
-                        try:
-                            interpret_commands(commands)
-                        except UserError as e:
-                            user_error(e)
-                        except KeyboardInterrupt:
-                            user_error('Execution of "%s" interrupted' % line)
-                        except ShellExitRequested:
-                            exit_requested = True
-                            break
-            except KeyboardInterrupt:  # CTRL-C
-                print "\nPlease use 'exit' to quit."
-            except EOFError: # CTRL-D
-                # TODO maybe make loop different? we don't want to catch
-                # EOFerror in interpret_commands
-                print "(end of input detected)"
-                exit_requested = True
-        print "Thanks for using compmake. Problems? Suggestions? \
-Praise? Go to %s" % compmake_issues_url
-        return
+    
     
     command_name = commands[0]
     if command_name in alias2name:
@@ -260,12 +219,3 @@ Praise? Go to %s" % compmake_issues_url
         
     return function(**kwargs)
 
-
-def get_banner():
-    # TODO: add more banners
-    banners = [
-        (1, 'Conquer your Python computations!')
-    ]
-    
-    # TODO: add mass-dependent sampling
-    return banners[0][1]

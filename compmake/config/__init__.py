@@ -1,5 +1,3 @@
-from compmake.ui.helpers import ui_command, padleft, GENERAL
-from compmake.utils.visualization import info, colored
 import sys
 from collections import namedtuple
 from compmake.structures import UserError
@@ -44,7 +42,7 @@ def set_config_from_strings(name, args):
     
     # TODO: broadcast change?
     compmake_config.__dict__[name] = value
-    info('Setting config %s %s' % (name, value))
+#    info('Setting config %s %s' % (name, value))
 
     
 def add_config_section(name, desc=None, order=0):
@@ -54,6 +52,9 @@ def add_config_section(name, desc=None, order=0):
     
 
 def show_config(file):
+    from compmake.ui.helpers import  padleft
+    from compmake.utils.visualization import colored
+
     ordered_sections = sorted(config_sections.values(),
                               key=lambda section: section.order)
 
@@ -79,39 +80,8 @@ def show_config(file):
                         colored(padleft(max_len_val, value), attrs=[]),
                         desc))
 
-@ui_command(section=GENERAL)
-def config(args):
-    ''' Get/set configuration parameters '''    
-    if not args:
-        # show
-        show_config(sys.stdout)
-        return
-        
-    name = args.pop(0)
-    if not args:
-        if not name in config_switches:
-            raise UserError("I don't know the switch '%s'." % name)
-        info('config %s %s' % (name, compmake_config.__dict__[name]))
-        return
-        
-    set_config_from_strings(name, args)
 
 
-CONFIG_GENERAL = 'General configuration'
-add_config_section(name=CONFIG_GENERAL, desc='', order=0)
-CONFIG_JOB_EXEC = 'Job execution'
-add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
-
-add_config_switch('interactive', True,
-       desc="Whether we are in interactive mode (e.g., ask confirmations)",
-       section=CONFIG_GENERAL)
-
-add_config_switch('echo_stdout', True,
-       desc="If true, the job output to stdout is shown.",
-       section=CONFIG_JOB_EXEC)
-
-add_config_switch('echo_stderr', True,
-       desc="If true, the job output to stderr is shown.",
-       section=CONFIG_JOB_EXEC)
+import config_list
 
 

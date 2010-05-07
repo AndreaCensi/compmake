@@ -6,18 +6,24 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
 from compmake.ui.helpers import   ui_section, ui_command, \
-    GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS
+    GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
+    COMMANDS_CLUSTER
 from compmake.ui.commands_impl import list_jobs 
 from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, mark_remake, mark_more, top_targets    
 from compmake.jobs.storage import get_job_cache, all_jobs 
 from compmake.structures import  Cache, UserError, JobFailed
-from compmake.jobs.actions_cluster import ManagerLocal, \
-    ClusterManager, MultiprocessingManager 
-from compmake.config import compmake_config
-from compmake.ui.console import ask_question
+from compmake.config import compmake_config, show_config, config_switches, \
+    set_config_from_strings
+
 from compmake.jobs.cluster_conf import parse_yaml_configuration
 from compmake.utils.visualization import info
+from compmake.jobs.manager_local import ManagerLocal
+from compmake.jobs.manager_multiprocessing import MultiprocessingManager
+from compmake.jobs.manager_ssh_cluster import ClusterManager
+import sys
+from compmake.config.config_html import create_config_html
+from compmake.ui.commands_html import create_commands_html
 
 
 class ShellExitRequested(Exception):
@@ -45,6 +51,8 @@ def clean(job_list):
         
     if not job_list:
         return 
+    
+    from compmake.ui.console import ask_question
     
     if compmake_config.interactive: #@UndefinedVariable
         question = "Should I clean %d jobs?" % len(job_list)
@@ -80,7 +88,7 @@ def make(job_list):
     #make_targets(job_list)
 
 # TODO: add hidden
-@ui_command(section=ACTIONS)
+@ui_command(section=COMMANDS_ADVANCED)
 def make_single(job_list, more=False):
     ''' Makes a single job -- not for users, but for slave mode '''
     if len(job_list) > 1:
@@ -112,7 +120,7 @@ def parmake(job_list):
     
     #parmake_targets(job_list)
 
-@ui_command(section=PARALLEL_ACTIONS)
+@ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):
     '''Cluster equivalent of "make".
 
@@ -193,3 +201,39 @@ def stats():
     # TODO: Add class report    
 
 
+@ui_command(section=GENERAL)
+def config(args):
+    ''' Get/set configuration parameters '''    
+    if not args:
+        # show
+        show_config(sys.stdout)
+        return
+        
+    name = args.pop(0)
+    if not args:
+        if not name in config_switches:
+            raise UserError("I don't know the switch '%s'." % name)
+        info('config %s %s' % (name, compmake_config.__dict__[name]))
+        return
+        
+    set_config_from_strings(name, args)
+
+
+@ui_command(section=COMMANDS_ADVANCED)
+def config_html(output_file=''):
+    ''' Dumps the config description in html on the specified file '''
+    if output_file:
+        f = open(output_file, 'w')
+    else:
+        f = sys.stdout
+    create_config_html(f)
+    
+
+@ui_command(section=COMMANDS_ADVANCED)
+def commands_html(output_file=''):
+    ''' Dumps the commands description in html on the specified file '''
+    if output_file:
+        f = open(output_file, 'w')
+    else:
+        f = sys.stdout
+    create_commands_html(f)

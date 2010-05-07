@@ -4,3 +4,4 @@ dependencies/*
 .pydevproject
 compmake.egg-info
 compmake_storage
+compmake_update_others.sh

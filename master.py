@@ -9,10 +9,13 @@ from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
 from compmake.jobs.storage import remove_all_jobs
 from compmake.ui.ui import set_slave_mode
+from compmake.ui.console import interactive_console
+from compmake import  version
+from compmake.config.config_optparse import config_populate_optparser
 
 
 def main():             
-    parser = OptionParser()
+    parser = OptionParser(version=version)
 
     allowed_db = ['filesystem', 'redis']
     parser.add_option("--db", dest="db",
@@ -30,6 +33,10 @@ def main():
     parser.add_option("--slave", action="store_true", dest="slave",
                       default=False,
                       help="Runs compmake in slave mode.")
+    
+    
+    config_populate_optparser(parser)
+    
     
     (options, args) = parser.parse_args()
 
@@ -87,14 +94,17 @@ def main():
     else:
         set_slave_mode(True)
         
-    try:
-        retcode = interpret_commands(args)
-        print "Exiting with retcode %s" % retcode
+    if args:
+        try:
+            retcode = interpret_commands(args)
+            # print "Exiting with retcode %s" % retcode
+            sys.exit(retcode)
+        except UserError as e:
+            user_error(e)
+            sys.exit(-6)
+    else:
+        retcode = interactive_console()
         sys.exit(retcode)
-    except UserError as e:
-        user_error(e)
-        sys.exit(-6)
-
     
 # FEATURE: history across iterations
 

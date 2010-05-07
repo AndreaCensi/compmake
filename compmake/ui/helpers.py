@@ -71,18 +71,27 @@ def get_commands():
 
 
 # Pre-defined sections
-GENERAL = 'General'
+GENERAL = 'General commands'
 VISUALIZATION = 'Visualization and diagnostics'
 INPUT_OUTPUT = 'Import / export'
-ACTIONS = 'Actions'
-PARALLEL_ACTIONS = 'Parallel actions'
+ACTIONS = 'Commands'
+PARALLEL_ACTIONS = 'Parallel commands'
+COMMANDS_ADVANCED = 'Advanced commands'
+COMMANDS_CLUSTER = 'Cluster commands'
 
 ui_section(GENERAL, order=0)
 ui_section(ACTIONS, order=1)
 ui_section(VISUALIZATION, order=1.5)
 ui_section(PARALLEL_ACTIONS,
            'Note that redis must be used as backend.', 2)
+ui_section(COMMANDS_CLUSTER,
+           'These assume that you have a cluster configuration file as \
+explained in the documentation.', 2.5)
 ui_section(INPUT_OUTPUT, 'Ways to get data out of compmake.', 3)
+
+ui_section(COMMANDS_ADVANCED, 'Advanced commands not for general use', 4)
+
+
 
 @ui_command(section=GENERAL)
 def help(args):
@@ -113,17 +122,7 @@ def help(args):
         print s 
         print cmd.doc
 
- 
-def list_commands(commands, file=sys.stdout):
-    """ commands: hash name -> namedtuple """
-    names = commands.keys()
-    names.sort()
-    for name in names:
-        cmd = commands[name] #@UnusedVariable
-        short_doc = cmd.doc.split('\n')[0]
-        file.write("%s  %s\n" % 
-                   (colored(padleft(15, name), attrs=['bold']), short_doc))
-
+  
 def list_commands_with_sections(file=sys.stdout):
     ordered_sections = sorted(sections.values(),
                               key=lambda section: section.order)

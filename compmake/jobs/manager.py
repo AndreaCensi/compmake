@@ -1,22 +1,16 @@
-from StringIO import StringIO
-from traceback import print_exc
 from sys import stderr
-from multiprocessing import TimeoutError, cpu_count, Pool
-
-from compmake.structures import UserError, ParsimException, JobFailed, \
+from multiprocessing import TimeoutError 
+from compmake.structures import  ParsimException, JobFailed, \
     JobInterrupted
-from compmake.stats import progress, progress_reset_cache, progress_string
+from compmake.stats import   progress_reset_cache, progress_string
 from compmake.utils import error
-from compmake.jobs.actions import mark_more, make, mark_as_failed
+from compmake.jobs.actions import  mark_as_failed
 from compmake.jobs.queries import  parents, direct_parents
 from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
-from compmake.jobs.cluster_conf import parse_yaml_configuration
-from compmake.storage.redisdb import RedisInterface
-from compmake.utils.visualization import info, setproctitle
-
+from compmake.utils.visualization import info 
 import sys
 import time
-from compmake.jobs.actions_parallel import parmake_job
+
 
 class AsyncResultInterface:
     def get(self, timeout=0):
@@ -40,9 +34,7 @@ class Manager:
         
         # this hash contains  job_id -> async result
         self.processing2result = {}
-        
-        # temp for debug
-        self.interrupted = set()
+         
 
 ### Derived class interface 
     def process_init(self):
@@ -127,7 +119,6 @@ class Manager:
 
     def job_interrupted(self, job_id):
         error('Job %s has been interrupted ' % job_id)
-        self.interrupted.add(job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
@@ -193,6 +184,7 @@ class Manager:
             self.instance_some_jobs()
             self.write_status()
             if self.ready_todo and not self.processing:
+                # XXX - what kind of error should we throw?
                 error('Cannot find computing resources -- giving up')
                 return False
                 #raise ParsimException('Cannot find computing resources') 
@@ -211,176 +203,11 @@ class Manager:
          "| ready %4d | processing %4d \n") % (
                 len(self.done), len(self.failed), len(self.todo),
                 len(self.ready_todo), len(self.processing)))
-        info('done: %s' % self.done)
-        info('todo: %s' % self.todo)
-        info('ready: %s' % self.ready_todo)
-        info('processing: %s' % self.processing)
-        info('failed: %s' % self.failed)
-        info('interrupted: %s' % self.interrupted)
+        #info('done: %s' % self.done)
+        #info('todo: %s' % self.todo)
+        #info('ready: %s' % self.ready_todo)
+        #info('processing: %s' % self.processing)
+        #info('failed: %s' % self.failed)
+        #info('interrupted: %s' % self.interrupted)
          
-class FakeAsync:
-    def __init__(self, cmd, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self.cmd = cmd
         
-    def get(self, timeout=0): #@UnusedVariable
-        self.cmd(*self.args, **self.kwargs)
-
-class ManagerLocal(Manager):
-    def can_accept_job(self):
-        # only one job at a time
-        return not self.processing 
-    
-    def instance_job(self, job_id, more):
-        return FakeAsync(make, job_id, more=more)
-        
-
-class ClusterManager(Manager):
-    def __init__(self, hosts):
-        ''' Hosts: name -> Host '''
-        self.hosts = hosts
-        Manager.__init__(self)
-        
-    def process_init(self):
-        from compmake.storage import db
-        if not db.supports_concurrency():
-            raise UserError("")
-        
-        self.failed_hosts = set()
-        self.hosts_processing = []
-        self.hosts_ready = []
-        for host, hostconf in self.hosts.items():
-            for n in range(hostconf.processors): #@UnusedVariable
-                self.hosts_ready.append(host)
-
-        # job-id -> host
-        self.processing2host = {}
-        self.pool = Pool(processes=len(self.hosts_ready))
-
-    def process_finished(self):
-        if self.failed_hosts:
-            error('The following hosts failed: %s.' % 
-                  ", ".join(list(self.failed_hosts)))
-
-
-    def can_accept_job(self):
-        # only one job at a time
-        return self.hosts_ready 
-
-    def host_failed(self, host):
-        info('Host %s failed, removing from stack' % host)
-        self.failed_hosts.add(host)
-        while host in self.hosts_ready:
-            self.hosts_ready.remove(host)
-
-    def job_failed(self, job_id):
-        Manager.job_failed(self, job_id)
-        self.release(job_id)
-        
-    def job_interrupted(self, job_id):
-        Manager.job_interrupted(self, job_id)
-        self.release(job_id)
-            
-    def job_succeeded(self, job_id):
-        Manager.job_succeeded(self, job_id)
-        self.release(job_id)
-        
-    def release(self, job_id):
-        slave = self.processing2host[job_id]
-        del self.processing2host[job_id]
-        if not slave in self.failed_hosts:
-            self.hosts_ready.append(slave)
-            info("Putting %s into the stack again" % slave)
-        else:
-            info("Not reusing host %s because it failed" % slave)
-        
-        
-    def instance_job(self, job_id, more):
-        slave = self.hosts_ready.pop() 
-        self.processing2host[job_id] = slave
-
-        info("scheduling job %s on host %s" % (job_id, slave))
-        host_config = self.hosts[slave]
-        if 0:
-            async_result = self.pool.apply_async(cluster_job,
-                                                 [host_config, job_id, more])
-        else:
-            async_result = FakeAsync(cluster_job, host_config, job_id, more)
-        
-        return MyWrapper(async_result, self, slave)
-
-class MyWrapper:
-    def __init__(self, async_result, manager, host):
-        self.async_result = async_result
-        self.manager = manager
-        self.host = host
-    def get(self, timeout=0):
-        retcode = self.async_result.get(timeout)
-        if retcode != 0:
-            self.manager.host_failed(self.host)
-            raise JobInterrupted('Retcode = %s' % retcode)
-
-class MultiprocessingManager(Manager):
-        
-    def process_init(self):
-        from compmake.storage import db
-        if not db.supports_concurrency():
-            raise UserError("")
-        
-        self.pool = Pool(processes=cpu_count() + 1)
-        self.max_num_processing = cpu_count() + 1
-        
-    def can_accept_job(self):
-        # only one job at a time
-        return len(self.processing) < self.max_num_processing 
-
-    def instance_job(self, job_id, more):
-        return self.pool.apply_async(parmake_job2, [ job_id, more])
-        
-
-def parmake_job2(job_id, more):
-    from compmake.storage import db
-    db.reopen_after_fork()
-
-    #try:
-    if more: # XXX this should not be necessary
-        mark_more(job_id)
-    make(job_id, more)
-    
-import subprocess
-
-def cluster_job(config, job_id, more=False):
-    setproctitle('%s %s' % (job_id, config.name))
-    
-    proxy_port = 13000
-    
-    compmake_cmd = \
-    'compmake --slave --db=redis --host localhost:%s make_single more=%s %s' % \
-            (proxy_port, more, job_id)
-            
-    redis_host = RedisInterface.host
-    redis_port = RedisInterface.port
-    if config.username:
-        connection_string = '%s@%s' % (config.username, config.host)
-    else:
-        connection_string = config.host
-        
-    args = ['ssh', connection_string, '-R',
-            '%s:%s:%s' % (proxy_port, redis_host, redis_port),
-            '%s' % compmake_cmd]
-    
-    print " ".join(args)
-    p = subprocess.Popen(args)
-    ret = p.wait()
-    
-    if ret == 113:
-        raise JobFailed('Job %s failed' % job_id)
-    
-    if ret != 0:
-        raise JobInterrupted('Job %s interrupted (line: "%s", ret=%s)' % 
-                             (job_id, " ".join(args), ret))
-        
-    return ret
-     
-
