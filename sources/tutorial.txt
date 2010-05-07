@@ -1,9 +1,9 @@
 .. _tutorial0:
 
 Basic compmake usage
-========================
+====================
 
-Suppose that you have the typical program ``original.py`` (:download:`download example  <example1/original.py>`).
+Suppose that you have the typical program ``original.py`` (:download:`download source  <example1/original.py>`).
 
 .. literalinclude:: example1/original.py
 

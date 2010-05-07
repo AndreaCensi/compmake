@@ -1,18 +1,23 @@
-Compmake
-=========
-
 .. raw:: html
    :file: fork.html
 
-.. image:: workers.jpg
-   :align: right
+.. container:: twitterbadge
+
+   **Latest news**
+
+   .. raw:: html
+      :file: twitter_badge.html
+
+Compmake
+=========
 
 ``compmake`` is ``make`` for batch python processes. 
 It is a non-obtrusive module that provides:
 
 * ``make``--like facilities to your computations (``make``, ``clean``, etc.),
-  including caching of temporary results. That is you can do a CTRL+C, play your
-  videogame, and then restart compmake without losing data.
+  including caching of temporary results. That is, you can do a CTRL+C, and then 
+  restart compmake without losing data. You can clean and redo selectively
+  part of the computation.
 * Single-host parallelization (using the ``multiprocessing`` module).
 * Multiple-host parallelization (using ssh-spawned slaves).
 
@@ -20,14 +25,23 @@ To use compmake, you have to minimally modify your Python program,
 such that compmake can understand the processing layout and
 the opportunities for parallelization.
 
-.. image:: initial.png
+.. image:: initial.png 
+   :class: bigpicture
 
-That's it. After that, you are ready to run your computation using::
+After that, you are ready to run your computation using::
 
     $ compmake example make       # runs locally
     $ compmake example parmake    # runs locally in parallel
     $ compmake example clustmake  # runs on a cluster
 
+You can selectively remake part of the computations. For example,
+suppose that you modify the ``draw()`` function, and you want to
+rerun the last step. If now you use the command::
+
+    $ compmake example remake "draw*"
+
+then compmake will reuse part of the computations (``func1`` and ``func2``)
+but it will redo the last step.
 Moreover, by running ``compmake example`` only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.
@@ -84,11 +98,13 @@ $ easy_install compmake
 
 This will allow you to run ``compmake`` on a single host.
 However, there are also separate dependencies to install for some
-advanced features. See install.rst__ for more information.
+advanced features such as multiprocessing. See :ref:`install` for more information.
 
 
 Source download
----------------
++++++++++++++++
+
+Development happens on github: http://github.com/AndreaCensi/compmake
 
 .. raw:: html
    :file: download.html
@@ -97,17 +113,16 @@ Source download
 Feedback
 ---------
 
-Compmake is currently developed by Andrea Censi. Contributors are most welcome.
+Compmake is currently developed by `Andrea Censi`_. Contributors are most welcome.
 
 Please use the `issue tracker on github`_ for bugs and requested features.
 
-.. _`issue tracker on github`: https://github.com/AndreaCensi/compmake/issues
+.. _`issue tracker on github`: http://github.com/AndreaCensi/compmake/issues
 
-
-Complete documentation table of contents
-----------------------------------------
-
+.. _`Andrea Censi`: http://www.cds.caltech.edu/~andrea/
+ 
 .. toctree::
+   :hidden:
    :glob:
 
    install*
