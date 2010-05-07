@@ -28,7 +28,7 @@
     <link rel="next" title="Tutorial" href="tutorial.html" /> 
   </head>
   <body>
-      <div class="header"><img class="rightlogo" src="static/workers.jpg" alt="Logo"/><h1 class="heading"><a href="#">
+      <div class="header"><h1 class="heading"><a href="#">
           <span></span></a></h1>
         <h2 class="heading"><span>Compmake</span></h2>
       </div>
@@ -47,13 +47,15 @@
   <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
 <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-<p><tt class="docutils literal"><span class="pre">compmake</span></tt> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.</p>
 <img align="right" alt="images/workers.jpg" class="align-right" src="images/workers.jpg" />
-<p>It is a non-obtrusive module that allows to add:</p>
+<p><tt class="docutils literal"><span class="pre">compmake</span></tt> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.
+It is a non-obtrusive module that provides:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.)</li>
-<li>Automatic <strong>caching</strong> of the results on disk.</li>
-<li><strong>Parallelization</strong> using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module.</li>
+<li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
+including caching of temporary results. That is you can do a CTRL+C, play your
+videogame, and then restart compmake without losing data.</li>
+<li><strong>Single-host parallelization</strong> using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module.</li>
+<li><strong>Multiple-host parallelization</strong> using ssh-spawned slaves.</li>
 </ul>
 <p>Interested? Please read along:</p>
 <div class="toctree-wrapper compound">
@@ -69,19 +71,34 @@
 <li class="toctree-l1"><a class="reference external" href="config.html">Configuration reference</a></li>
 </ul>
 </div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="quick-installation">
+<h2>Quick installation<a class="headerlink" href="#quick-installation" title="Permalink to this headline">¶</a></h2>
 <p>The quick install is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
 </div>
-<p>Altough there are also dependencies to install for advanced features.
-See <a href="#id1"><span class="problematic" id="id2">install.rst__</span></a> for more information.</p>
+<p>This will allow you to run <tt class="docutils literal"><span class="pre">compmake</span></tt> on a single host.
+However, there are also separate dependencies to install for some
+advanced features. See <a href="#id1"><span class="problematic" id="id2">install.rst__</span></a> for more information.</p>
 </div>
-<div class="section" id="repository-access">
-<h2>Repository access<a class="headerlink" href="#repository-access" title="Permalink to this headline">¶</a></h2>
-<p>compmake is hosted on github:</p>
-<p>$ git clone ...</p>
+<div class="section" id="source-download">
+<h2>Source download<a class="headerlink" href="#source-download" title="Permalink to this headline">¶</a></h2>
+
+<div style="float:right" class="download">
+  <a href="http://github.com/AndreaCensi/compmake/zipball/master">
+    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+  <a href="http://github.com/AndreaCensi/compmake/tarball/master">
+    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
 </div>
+
+<p>
+  You can download this project in either
+  <a href="http://github.com/AndreaCensi/compmake/zipball/master">zip</a> or
+  <a href="http://github.com/AndreaCensi/compmake/tarball/master">tar</a> formats.
+</p>
+<p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+  by running:
+  <pre>$ git clone git://github.com/AndreaCensi/compmake</pre>
+</p></div>
 <div class="section" id="author-s">
 <h2>Author(s)<a class="headerlink" href="#author-s" title="Permalink to this headline">¶</a></h2>
 <p>Compmake is currently developed by Andrea Censi.
