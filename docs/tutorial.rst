@@ -1,9 +1,20 @@
+
+.. raw:: html
+
+   <style type="text/css">
+   .pagetoc { display: block; float: right; margin-left: 2em}
+   </style>
+
+.. contents::
+   :class: pagetoc
+
 .. _tutorial0:
 
 Basic compmake usage
 ====================
 
 This tutorial gives some motivation for using ``compmake`` and explain the basic usage.
+
 
 What  ``compmake`` can do for you
 -------------------------
@@ -121,7 +132,7 @@ You can run a specified job by adding it on the command line::
 
 You can also the wildcard ``*`` to select multiple jobs.::
 
-	$ compmake example make func1\*
+	$ compmake example make "func1*"
 
 
 (See `advanced section`_ for how to specify your own job names)

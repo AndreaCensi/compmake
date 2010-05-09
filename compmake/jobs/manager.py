@@ -113,6 +113,10 @@ class Manager:
         except JobFailed:
             self.job_failed(job_id)
             return True
+        except KeyboardInterrupt:
+            # XXX I'm not sure this is ok
+            self.job_interrupted(job_id) 
+            return True
         except JobInterrupted:
             # the execution has been interrupted, but not failed
             self.job_interrupted(job_id) 

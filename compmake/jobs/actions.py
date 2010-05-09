@@ -16,7 +16,7 @@ from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date, \
     list_todo_targets
 from compmake.jobs.queries import parents, direct_parents    
 from compmake.structures import Cache, Computation, ParsimException, UserError, \
-    JobFailed
+    JobFailed, JobInterrupted
 from compmake.utils import error
 from compmake.stats import progress
 from compmake.utils.capture import OutputCapture
@@ -160,6 +160,9 @@ def make(job_id, more=False):
                 progress(job_id, 1, 1)
                 user_object = result
         # TODO: interrupted
+        except KeyboardInterrupt:
+            raise JobInterrupted('Keyboard interrupt')
+        
         except Exception as e:
             sio = StringIO()
             print_exc(file=sio)
