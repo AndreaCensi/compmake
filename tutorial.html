@@ -48,7 +48,7 @@
         
         
   <style type="text/css">
-.pagetoc { display: block; float: right}
+.pagetoc { display: block; float: right; margin-left: 2em}
 </style><div class="contents pagetoc topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
@@ -61,7 +61,7 @@
 </ul>
 </div>
 <div class="section" id="basic-compmake-usage">
-<h1><a class="toc-backref" href="#id1">Basic compmake usage</a><a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial0"></span><h1><a class="toc-backref" href="#id1">Basic compmake usage</a><a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial gives some motivation for using <tt class="docutils literal"><span class="pre">compmake</span></tt> and explain the basic usage.</p>
 <div class="section" id="what-compmake-can-do-for-you">
 <h2><a class="toc-backref" href="#id2">What  <tt class="docutils literal"><span class="pre">compmake</span></tt> can do for you</a><a class="headerlink" href="#what-compmake-can-do-for-you" title="Permalink to this headline">¶</a></h2>
@@ -162,7 +162,7 @@ use the syntax:</p>
 <div class="highlight-python"><pre>$ compmake example make func1</pre>
 </div>
 <p>You can also the wildcard <tt class="docutils literal"><span class="pre">*</span></tt> to select multiple jobs.:</p>
-<div class="highlight-python"><pre>$ compmake example make func1\*</pre>
+<div class="highlight-python"><pre>$ compmake example make "func1*"</pre>
 </div>
 <p>(See <a href="#id5"><span class="problematic" id="id6">`advanced section`_</span></a> for how to specify your own job names)</p>
 <p><strong>Cleaning up</strong>: Use the command <tt class="docutils literal"><span class="pre">clean</span> <span class="pre">[jobs]</span></tt> to clean:</p>
