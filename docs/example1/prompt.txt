@@ -1,0 +1,5 @@
+$ compmake example 
+Compmake 1.0 - ``Conquer your Python computations!''     (c) 2010, Andrea Censi, Caltech 
+Welcome to the compmake console. ('help' for a list of commands)
+27 jobs loaded.
+@:

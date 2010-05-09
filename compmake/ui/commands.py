@@ -24,6 +24,7 @@ from compmake.jobs.manager_ssh_cluster import ClusterManager
 import sys
 from compmake.config.config_html import create_config_html
 from compmake.ui.commands_html import create_commands_html
+from compmake import RET_CODE_JOB_FAILED
 
 
 class ShellExitRequested(Exception):
@@ -59,7 +60,8 @@ def clean(job_list):
         answer = ask_question(question)
         if not answer:
             info('Not cleaned.')
-    
+            return
+        
     for job_id in job_list:
         clean_target(job_id)
    
@@ -85,7 +87,11 @@ def make(job_list):
     manager = ManagerLocal()
     manager.add_targets(job_list)
     manager.process()
-    #make_targets(job_list)
+
+    if manager.failed:
+        return RET_CODE_JOB_FAILED
+    else:
+        return 0
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
@@ -102,7 +108,7 @@ def make_single(job_list, more=False):
         jobs.make(job_id, more)
         return 0
     except JobFailed:
-        return 113
+        return RET_CODE_JOB_FAILED
 
 
 @ui_command(section=PARALLEL_ACTIONS)
@@ -118,7 +124,10 @@ def parmake(job_list):
     manager.add_targets(job_list, more=False)
     manager.process()
     
-    #parmake_targets(job_list)
+    if manager.failed:
+        return RET_CODE_JOB_FAILED
+    else:
+        return 0
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):
@@ -129,10 +138,18 @@ def clustmake(job_list):
     if not job_list:
         job_list = top_targets()
     
-    hosts = parse_yaml_configuration(open('cluster.yaml'))
+    cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
+    
+    hosts = parse_yaml_configuration(open(cluster_conf))
     manager = ClusterManager(hosts)
     manager.add_targets(job_list)
     manager.process()
+    
+    if manager.failed:
+        return RET_CODE_JOB_FAILED
+    else:
+        return 0
+
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmore(non_empty_job_list, loop=1):
@@ -151,6 +168,13 @@ def clustmore(non_empty_job_list, loop=1):
         manager = ClusterManager()
         manager.add_targets(non_empty_job_list, more=True)
         manager.process()
+        
+        if manager.failed:
+            return RET_CODE_JOB_FAILED
+        
+    return 0
+
+
 
 
 @ui_command(section=ACTIONS)
@@ -163,7 +187,10 @@ def remake(non_empty_job_list):
     manager.add_targets(non_empty_job_list)
     manager.process()
     
-    #make_targets(non_empty_job_list)
+    if manager.failed:
+        return RET_CODE_JOB_FAILED
+    else:
+        return 0
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
@@ -174,6 +201,11 @@ def parremake(non_empty_job_list):
     manager = MultiprocessingManager()
     manager.add_targets(non_empty_job_list, more=True)
     manager.process()
+
+    if manager.failed:
+        return RET_CODE_JOB_FAILED
+    else:
+        return 0
 
 @ui_command(section=ACTIONS) 
 def more(non_empty_job_list, loop=1):
@@ -189,6 +221,12 @@ def more(non_empty_job_list, loop=1):
         manager = ManagerLocal()
         manager.add_targets(non_empty_job_list, more=True)
         manager.process()
+        
+        if manager.failed:
+            return RET_CODE_JOB_FAILED
+
+    return 0
+
     
         #make_targets(non_empty_job_list, more=True)
 
@@ -208,6 +246,11 @@ def parmore(non_empty_job_list, loop=1):
         manager = MultiprocessingManager()
         manager.add_targets(non_empty_job_list, more=True)
         manager.process()
+        
+        if manager.failed:
+            return RET_CODE_JOB_FAILED
+
+    return 0
    
 @ui_command(section=VISUALIZATION)
 def stats():

@@ -1,3 +1,4 @@
+@: list
 draw                                              Done/True (1 second ago)
 draw-0                                            Done/True (1 second ago)
 draw-1                                            Done/True (1 second ago)

@@ -7,6 +7,7 @@ from compmake.jobs.manager import Manager
 from compmake.jobs.manager_local import FakeAsync
 from compmake.jobs.storage import get_namespace
 from compmake.jobs.cluster_conf import Host
+from compmake import RET_CODE_JOB_FAILED
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -95,20 +96,7 @@ class ClusterManager(Manager):
         else:
             async_result = FakeAsync(cluster_job, host_config, job_id, more)
         
-        return async_result
-    #MyWrapper(async_result, self, slave)
-
-#class MyWrapper:
-#    def __init__(self, async_result, manager, host):
-#        self.async_result = async_result
-#        self.manager = manager
-#        self.host = host
-#    def get(self, timeout=0):
-#        retcode = self.async_result.get(timeout)
-#        if (retcode != 0) and (retcode != 113):
-#            self.manager.host_failed(self.host)
-#            raise JobInterrupted('Retcode = %s' % retcode)
-
+        return async_result 
 
     
 import subprocess
@@ -139,7 +127,7 @@ def cluster_job(config, job_id, more=False):
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     ret = p.wait()
     
-    if ret == 113:
+    if ret == RET_CODE_JOB_FAILED:
         raise JobFailed('Job %s failed' % job_id)
     
     if ret != 0:
