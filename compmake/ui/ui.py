@@ -29,7 +29,7 @@ def collect_dependencies(ob):
 
 job_prefix = None
 
-def comp_prefix(prefix):
+def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
     global job_prefix
     job_prefix = prefix 
