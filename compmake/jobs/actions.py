@@ -132,7 +132,9 @@ def make(job_id, more=False):
         cpu_start = clock()
         set_job_cache(job_id, cache)
         
-        progress(job_id, 0, None)
+        num, total = 0, None
+        user_object = None
+        progress(job_id, num, total)
         
         capture = OutputCapture(prefix=job_id,
             echo_stdout=compmake_config.echo_stdout, #@UndefinedVariable
@@ -159,8 +161,19 @@ def make(job_id, more=False):
             else:
                 progress(job_id, 1, 1)
                 user_object = result
-        # TODO: interrupted
+        
         except KeyboardInterrupt:
+            # TODO: clear progress cache
+            # Save the current progress:
+            cache.iterations_in_progress = num
+            cache.iterations_goal = total
+            if user_object:
+                set_job_tmpobject(job_id, user_object)
+            
+            set_job_cache(job_id, cache)
+
+            # clear progress cache
+            progress(job_id, 1, 1)
             raise JobInterrupted('Keyboard interrupt')
         
         except Exception as e:
@@ -194,8 +207,14 @@ def make(job_id, more=False):
         
         cache.state = Cache.DONE
         cache.timestamp = time()
-        cache.walltime_used = cache.timestamp - cache.time_start
-        cache.cputime_used = clock() - cpu_start
+        walltime = cache.timestamp - cache.time_start 
+        cputime = clock() - cpu_start
+        # FIXME walltime/cputime not precise (especially for "more" computation)
+        cache.walltime_used = walltime
+        cache.cputime_used = cputime
+        cache.done_iterations = num # XXX not true
+        cache.host = compmake_config.hostname #@UndefinedVariable
+        
         set_job_cache(job_id, cache)
         
         # TODO: clear these records in other place

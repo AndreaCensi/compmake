@@ -149,6 +149,11 @@ class Cache:
         self.timestamp = 0
         self.cputime_used = None
         self.walltime_used = None
+        self.done_iterations = -1
+        
+        # if IN_PROGRESS:
+        self.iterations_in_progress = -1
+        self.iterations_goal = -1
         
         # in case of failure
         self.exception = None

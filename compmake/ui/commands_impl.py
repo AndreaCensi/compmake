@@ -53,6 +53,11 @@ def list_jobs(job_list):
         assert k in state2color, "I found strange state %s" % k
         color_args = state2color[k]
         s += colored(tag, **color_args)
+        if cache.state == Cache.DONE and cache.done_iterations > 1:
+            s += ' %d iterations completed ' % cache.done_iterations 
+        if cache.state == Cache.IN_PROGRESS:
+            s += ' (%d/%d iterations in progress) ' % \
+                (cache.iterations_in_progress, cache.iterations_goal)
         if up:
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
@@ -73,11 +78,21 @@ def list_job_detail(job_id):
     
     
     try:
-        print bold('Job ID: ') + '%s' % job_id 
-        print bold('Status: ') + '%s' % Cache.state2desc[cache.state]
+        print bold('Job ID:   ') + '%s' % job_id 
+        print bold('Status:   ') + '%s' % Cache.state2desc[cache.state]
         print bold('Uptodate: ') + '%s (%s)' % (up, reason)
         print bold('Children: ') + '%s' % ', '.join(children)
-        print bold('Parents: ') + '%s' % ', '.join(parents)
+        print bold('Parents:  ') + '%s' % ', '.join(parents)
+        
+        if cache.state == Cache.DONE and cache.done_iterations > 1:
+            print bold('Iterations: ') + '%s' % cache.done_iterations 
+            print bold(' Wall Time: ') + '%s' % cache.walltime_used 
+            print bold('  CPU Time: ') + '%s' % cache.cputime_used
+            print bold('      Host: ') + '%s' % cache.host
+
+        if cache.state == Cache.IN_PROGRESS:
+            print bold('Progress: ') + '%s/%s' % \
+                (cache.iterations_in_progress, cache.iterations_goal)
         
         #if cache.state == Cache.DONE:
             #print bold('Time: ') 

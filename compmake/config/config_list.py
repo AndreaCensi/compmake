@@ -36,4 +36,7 @@ add_config_switch('cluster_conf', 'cluster.yaml',
                   desc='Location of cluster configuration file',
                   section=CONFIG_CLUSTER)
                   
+add_config_switch('hostname', 'localhost',
+                  desc='Nickname for current host (set by compmake master)',
+                  section=CONFIG_CLUSTER)
                   
