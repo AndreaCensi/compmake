@@ -4,10 +4,12 @@ CONFIG_GENERAL = 'General configuration'
 CONFIG_JOB_EXEC = 'Job execution'
 CONFIG_APPEARANCE = 'Appearance'
 CONFIG_CLUSTER = 'Cluster execution'
+CONFIG_REDIS = 'Redis '
 
 add_config_section(name=CONFIG_GENERAL, desc='', order=0)
 add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
 add_config_section(name=CONFIG_APPEARANCE, desc='', order=3)
+add_config_section(name=CONFIG_REDIS, desc='', order=2)
 add_config_section(name=CONFIG_CLUSTER, desc='', order=2)
 
 add_config_switch('interactive', True,
@@ -40,3 +42,7 @@ add_config_switch('hostname', 'localhost',
                   desc='Nickname for current host (set by compmake master)',
                   section=CONFIG_CLUSTER)
                   
+
+add_config_switch('redis_host', 'localhost',
+                  desc='Hostname[:port] for Redis host',
+                  section=CONFIG_REDIS)

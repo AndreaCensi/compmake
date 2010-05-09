@@ -106,10 +106,12 @@ def cluster_job(config, job_id, more=False):
     
     proxy_port = 13000 + config.instance
     
+    hostname_no_instance = config.name.split(':')[0]
+    
     compmake_cmd = \
-    'compmake --db=redis --host localhost:%s --slave  %s --save_progress=False\
+    'compmake --hostname=%s --db=redis --redis_host=localhost:%s --slave  %s --save_progress=False\
      make_single more=%s %s' % \
-            (proxy_port, get_namespace(), more, job_id)
+            (hostname_no_instance, proxy_port, get_namespace(), more, job_id)
             
     redis_host = RedisInterface.host
     redis_port = RedisInterface.port
@@ -122,7 +124,7 @@ def cluster_job(config, job_id, more=False):
             '%s:%s:%s' % (proxy_port, redis_host, redis_port),
             '%s' % compmake_cmd]
     
-    #  print " ".join(args)
+    print " ".join(args)
     PIPE = subprocess.PIPE 
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     ret = p.wait()

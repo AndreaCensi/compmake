@@ -27,9 +27,9 @@ def main():
             help="[filesystem db] Path to directory for filesystem storage",
             default=None)
     
-    parser.add_option("--host hostname[:port]", dest="hostname",
-                      help="[redis db] Hostname for redis server",
-                      default='localhost')
+#parser.add_option("--host hostname[:port]", dest="hostname",
+#                      help="[redis db] Hostname for redis server",
+#                      default='localhost')
     
     parser.add_option("--slave", action="store_true", dest="slave",
                       default=False,
@@ -47,7 +47,7 @@ def main():
         sys.exit(-1)
     
     if options.db == 'redis':
-        hostname = options.hostname
+        hostname = compmake_config.redis_host #@UndefinedVariable
         if ':' in hostname:
             hostname, port = hostname.split(':')
         else:
