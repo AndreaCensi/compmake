@@ -1,11 +1,22 @@
 .. _tutorial0:
 
+.. raw:: html
+
+   <style type="text/css">
+   .pagetoc { display: block; float: right}
+   </style>
+
+.. contents::
+   :class: pagetoc
+
+
 Basic compmake usage
 ====================
 
 This tutorial gives some motivation for using ``compmake`` and explain the basic usage.
 
-The case for  ``compmake``
+
+What  ``compmake`` can do for you
 -------------------------
 
 This section explains why you would want to use compmake. If you already know why, skip ahead to
