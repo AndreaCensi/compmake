@@ -1,3 +1,6 @@
+.. contents::
+   :class: pagetoc
+
 .. _developer:
 
 Developer notes

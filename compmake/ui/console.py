@@ -2,9 +2,9 @@ import readline
 from compmake.ui.helpers import get_commands 
 from compmake.jobs.storage import all_jobs
 from compmake.ui import  interpret_commands
-from compmake.utils.visualization import colored, user_error
+from compmake.utils.visualization import colored, user_error, error
 from compmake import compmake_copyright, version, compmake_issues_url
-from compmake.structures import UserError
+from compmake.structures import UserError, ParsimException
 from compmake.ui.commands import ShellExitRequested, stats
 from compmake.ui.misc import get_banner
 
@@ -27,6 +27,9 @@ def interactive_console():
                         interpret_commands(commands)
                     except UserError as e:
                         user_error(e)
+                    except ParsimException as e:
+                        # Added this for KeyboardInterrupt
+                        error(e)
                     except KeyboardInterrupt:
                         user_error('Execution of "%s" interrupted' % line)
                     except ShellExitRequested:
