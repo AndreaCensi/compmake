@@ -33,15 +33,21 @@ add_config_switch('colorize', True,
        desc="Use colors in terminals if possible.",
        section=CONFIG_APPEARANCE)
 
-
 add_config_switch('cluster_conf', 'cluster.yaml',
-                  desc='Location of cluster configuration file',
+                  desc='Location of cluster configuration file.',
                   section=CONFIG_CLUSTER)
                   
 add_config_switch('hostname', 'localhost',
-                  desc='Nickname for current host (set by compmake master)',
+                  desc='Nickname for current host (set by compmake master).',
                   section=CONFIG_CLUSTER)
                   
+add_config_switch('cluster_nice', 0,
+                  desc='Nice level for spawned remote processes.',
+                  section=CONFIG_CLUSTER)
+
+add_config_switch('cluster_show_cmd', True,
+                  desc='If true, it shows the connection string to the slaves.',
+                  section=CONFIG_CLUSTER)
 
 add_config_switch('redis_host', 'localhost',
                   desc='Hostname[:port] for Redis host',

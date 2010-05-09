@@ -157,6 +157,8 @@ def clustmore(non_empty_job_list, loop=1):
 
        Note: you should use the Redis backend to use multiprocessing.
  ''' 
+    cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
+    hosts = parse_yaml_configuration(open(cluster_conf))
     
     for x in range(int(loop)):
         if loop > 1:
@@ -165,7 +167,7 @@ def clustmore(non_empty_job_list, loop=1):
         for job in non_empty_job_list:
             mark_more(job)
             
-        manager = ClusterManager()
+            manager = ClusterManager(hosts)
         manager.add_targets(non_empty_job_list, more=True)
         manager.process()
         

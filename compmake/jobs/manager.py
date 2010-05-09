@@ -175,7 +175,11 @@ class Manager:
             if received:
                 break
             else:
-                time.sleep(1)
+                try:
+                    time.sleep(1)
+                except KeyboardInterrupt:
+                    # XXX make sure that the pool close
+                    raise ParsimException('Processing interrupted by user')
 
     def process(self):
         self.process_init()

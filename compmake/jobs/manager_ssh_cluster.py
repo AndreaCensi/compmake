@@ -8,6 +8,7 @@ from compmake.jobs.manager_local import FakeAsync
 from compmake.jobs.storage import get_namespace
 from compmake.jobs.cluster_conf import Host
 from compmake import RET_CODE_JOB_FAILED
+from compmake.config import compmake_config
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -107,11 +108,12 @@ def cluster_job(config, job_id, more=False):
     proxy_port = 13000 + config.instance
     
     hostname_no_instance = config.name.split(':')[0]
+    nice = compmake_config.cluster_nice #@UndefinedVariable
     
     compmake_cmd = \
-    'compmake --hostname=%s --db=redis --redis_host=localhost:%s --slave  %s --save_progress=False\
+    'nice -n %d compmake --hostname=%s --db=redis --redis_host=localhost:%s --slave  %s --save_progress=False\
      make_single more=%s %s' % \
-            (hostname_no_instance, proxy_port, get_namespace(), more, job_id)
+            (nice, hostname_no_instance, proxy_port, get_namespace(), more, job_id)
             
     redis_host = RedisInterface.host
     redis_port = RedisInterface.port
@@ -124,7 +126,8 @@ def cluster_job(config, job_id, more=False):
             '%s:%s:%s' % (proxy_port, redis_host, redis_port),
             '%s' % compmake_cmd]
     
-    print " ".join(args)
+    if compmake_config.cluster_show_cmd: #@UndefinedVariable
+        print " ".join(args)
     PIPE = subprocess.PIPE 
     p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     ret = p.wait()
