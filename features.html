@@ -26,7 +26,42 @@
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Basic compmake usage" href="tutorial.html" />
-    <link rel="prev" title="Installation notes" href="install.html" /> 
+    <link rel="prev" title="Installation notes" href="install.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { display: block; float: right; margin-left: 3em}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+   </style>
+
+
+
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
@@ -71,47 +106,7 @@ multiprocessing module.</li>
 <li><p class="first">(TODO) Curses-based interface</p>
 </li>
 </ul>
-</div>
-<div class="section" id="limitations-and-assumptions">
-<span id="limitations"></span><h2>Limitations and assumptions<a class="headerlink" href="#limitations-and-assumptions" title="Permalink to this headline">¶</a></h2>
-<div class="admonition attention">
-<p class="first admonition-title">Attention</p>
-<p class="last">There are some limitations that might limit this module  usefulness. Please read these carefully because it is really hard to work around them, without severely limiting the <tt class="docutils literal"><span class="pre">compmake</span></tt> experience.</p>
-</div>
-<div class="section" id="computational-graph-should-be-fixed">
-<h3>Computational graph should be fixed<a class="headerlink" href="#computational-graph-should-be-fixed" title="Permalink to this headline">¶</a></h3>
-<p>The computational graph should not depend on the result of the computation.</p>
-</div>
-<div class="section" id="all-intermediate-results-are-saved-to-disk-memory">
-<h3>All intermediate results are saved to disk/memory<a class="headerlink" href="#all-intermediate-results-are-saved-to-disk-memory" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="all-the-code-is-available-on-all-machines">
-<h3>All the code is available on all machines<a class="headerlink" href="#all-the-code-is-available-on-all-machines" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="input-and-ouput-should-be-pickable">
-<h3>Input and ouput should be pickable<a class="headerlink" href="#input-and-ouput-should-be-pickable" title="Permalink to this headline">¶</a></h3>
-<p>All parameters and intermediate results should be pickable (i.e., serializable using the <tt class="docutils literal"><span class="pre">pickle</span></tt> module).</p>
-<p>This rules out the use of lambda functions in the argument.</p>
-<p>For example, this is not supported:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span>
-
-<span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">param</span><span class="p">:</span> <span class="n">param</span> <span class="o">*</span> <span class="mi">2</span>
-<span class="n">comp</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>If you google around, you&#8217;ll see that this is a fundamental limitation
-of the <tt class="docutils literal"><span class="pre">pickle</span></tt> module. You will have to write your lambda
-as a top-level function:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span>
-
-<span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
-  <span class="k">return</span> <span class="n">param</span> <span class="o">*</span> <span class="mi">2</span>
-
-<span class="n">comp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
+<span class="target" id="limitations"></span></div>
 </div>
 
 

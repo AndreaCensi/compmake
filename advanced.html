@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Cluster configuration &mdash; Compmake make for batch Python processes</title>
+    <title>Compmake on a cluster &mdash; Compmake make for batch Python processes</title>
     <link rel="stylesheet" href="static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
@@ -26,12 +26,47 @@
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Making more of the same thing" href="advanced_more.html" />
-    <link rel="prev" title="Suspending and resuming computation" href="tutorial_yield.html" /> 
+    <link rel="prev" title="Suspending and resuming computation" href="tutorial_yield.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { display: block; float: right; margin-left: 3em}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+   </style>
+
+
+
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>Cluster configuration</span></h2>
+        <h2 class="heading"><span>Compmake on a cluster</span></h2>
       </div>
       <div class="topnav">
       
@@ -47,16 +82,50 @@
       <div class="content">
         
         
-  <div class="section" id="cluster-configuration">
-<span id="advanced0"></span><h1>Cluster configuration<a class="headerlink" href="#cluster-configuration" title="Permalink to this headline">¶</a></h1>
-<p>We assume the following:</p>
-<ul class="simple">
-<li>You know the IPs of the servers.</li>
-<li>You can do passwordless ssh logins on the server.</li>
-<li>You have installed compmake on the slaves.</li>
-<li>You have installed your software on the slaves in the system path.</li>
+  <div class="section" id="compmake-on-a-cluster">
+<span id="advanced0"></span><h1>Compmake on a cluster<a class="headerlink" href="#compmake-on-a-cluster" title="Permalink to this headline">¶</a></h1>
+<p>Clustering works by spawning compmake processes on other hosts.</p>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="the-details-of-how-compmake-uses-clustering">
+<h2>The details of how compmake uses clustering<a class="headerlink" href="#the-details-of-how-compmake-uses-clustering" title="Permalink to this headline">¶</a></h2>
+<p>What happens is that compmake is spawned using a command line similar to this:</p>
+<div class="highlight-python"><pre>ssh nessa.cds.caltech.edu -R 13005:redisdb:6379 nice -n 10 compmake --hostname=nessa.cds.caltech.edu  --db=redis --redis_host=localhost:13005  --save_progress=False --slave  pybv_experiments.first_order.go_parallel      make_single more=True v_olfaction180n-fields</pre>
+</div>
+<p>This long command line contains several pieces. Let&#8217;s deconstruct it:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ssh</span> <span class="pre">nessa.cds.caltech.edu</span> <span class="pre">-R</span> <span class="pre">13005:redisdb:6379</span> <span class="pre">...</span></tt></p>
+<p>This opens a ssh connection to the given host. Moreover, it opens a tunnel for accessing the redis server.
+In this case, port 13005 on the remote host is redirected to the host redisdb (port 6379).
+You got to have the power to use these redirects</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">nice</span> <span class="pre">-n</span> <span class="pre">10</span> <span class="pre">...</span></tt></p>
+<p>This selects the nice level (option <tt class="docutils literal"><span class="pre">cluster_nice</span></tt>). Be nice to your fellow users.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">compmake</span> <span class="pre">--hostname=nessa.cds.caltech.edu</span>&nbsp; <span class="pre">...</span></tt></p>
+<p>The <tt class="docutils literal"><span class="pre">hostname</span></tt> option gives a nickname to the slave. This nickname is only used
+for statistics purposes.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">--db=redis</span> <span class="pre">--redis_host=localhost:13005</span> <span class="pre">...</span></tt></p>
+<p>This selects redis as the DB backend and uses port 13005 to connect to it.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">--save_progress=False</span> <span class="pre">...</span></tt></p>
+<p>The incremental saving progrees is disabled on remote hosts for network performance purposes.</p>
+<p>CONFIG: progress</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">--slave</span>&nbsp; <span class="pre">pybv_experiments.first_order.go_parallel</span> <span class="pre">...</span></tt></p>
+<p>The <tt class="docutils literal"><span class="pre">--slave</span></tt> option tells compmake to read the jobs from the DB, instead of running
+the module. The module name here is used only as a namespace.</p>
+<p>SEE: namespaces</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">...</span> <span class="pre">make_single</span> <span class="pre">more=True</span> <span class="pre">v_olfaction180n-fields</span></tt></p>
+<p>Finally, the actual compmake command. <tt class="docutils literal"><span class="pre">make_single</span></tt> is like <tt class="docutils literal"><span class="pre">make</span></tt> but without the
+scheduler. The slave will not look at the job&#8217;s dependences, and it will throw an error
+if the depenencies are not up to date.</p>
+</li>
 </ul>
-<p>(to write)</p>
+</div>
 </div>
 
 

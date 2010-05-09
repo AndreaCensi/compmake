@@ -1,10 +1,4 @@
 
-.. raw:: html
-
-   <style type="text/css">
-   .pagetoc { display: block; float: right; margin-left: 2em}
-   </style>
-
 .. contents::
    :class: pagetoc
 

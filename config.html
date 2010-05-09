@@ -26,7 +26,42 @@
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Compmake commands reference" href="commands.html" />
-    <link rel="prev" title="Making more of the same thing" href="advanced_more.html" /> 
+    <link rel="prev" title="Making more of the same thing" href="advanced_more.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { display: block; float: right; margin-left: 3em}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+   </style>
+
+
+
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
@@ -57,8 +92,13 @@
 <tr> <td class='config-name'><tt>echo_stdout</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stdout is shown.</td> </tr> 
 <tr> <td class='config-name'><tt>echo_stderr</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stderr is shown.</td> </tr> 
 <tr> <td class='config-name'><tt>save_progress</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>Whether to save intermediate results for jobs that use the yield() paradigm. Automatically disabled for cluster slaves to save bandwidth.</td> </tr> 
+<tr><th colspan='3'>Redis </th></tr/ 
+<tr> <td class='config-name'><tt>redis_host</tt></td> <td class='config-value'><tt>localhost<tt></td> <td class='config-desc'>Hostname[:port] for Redis host</td> </tr> 
 <tr><th colspan='3'>Cluster execution</th></tr/ 
-<tr> <td class='config-name'><tt>cluster_conf</tt></td> <td class='config-value'><tt>cluster.yaml<tt></td> <td class='config-desc'>Location of cluster configuration file</td> </tr> 
+<tr> <td class='config-name'><tt>cluster_conf</tt></td> <td class='config-value'><tt>cluster.yaml<tt></td> <td class='config-desc'>Location of cluster configuration file.</td> </tr> 
+<tr> <td class='config-name'><tt>hostname</tt></td> <td class='config-value'><tt>localhost<tt></td> <td class='config-desc'>Nickname for current host (set by compmake master).</td> </tr> 
+<tr> <td class='config-name'><tt>cluster_nice</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Nice level for spawned remote processes.</td> </tr> 
+<tr> <td class='config-name'><tt>cluster_show_cmd</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, it shows the connection string to the slaves.</td> </tr> 
 <tr><th colspan='3'>Appearance</th></tr/ 
 <tr> <td class='config-name'><tt>colorize</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>Use colors in terminals if possible.</td> </tr> 
 </table>

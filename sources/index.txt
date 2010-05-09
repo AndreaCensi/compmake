@@ -51,13 +51,15 @@ batch processes. It assumes that the computational layout is fixed and that
 all intermediate results can be cached to disk. If these two conditions are met,
 you can use compmake to gain considerable peace of mind.
 
-Still interested? Please read along:
+Still interested? Read along. Start with the tutorial :ref:`tutorial0`.
+And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 .. container:: col1
 
 	**Getting started**
 
 	* :ref:`install`
+	* :ref:`limitations`
 	* :ref:`features`
 
 	**Tutorial**
