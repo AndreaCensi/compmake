@@ -135,3 +135,12 @@ Please use the `issue tracker on github`_ for bugs and requested features.
    commands*
    *
 
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
