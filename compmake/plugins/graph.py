@@ -2,7 +2,7 @@ import os
 
 from compmake.jobs import top_targets, tree
 
-from compmake.jobs.storage import get_job_cache, get_computation 
+from compmake.jobs.storage import get_job_cache 
 from compmake.structures import UserError, Cache
 from compmake.ui.helpers import ui_section, VISUALIZATION, ui_command
 from compmake.utils import  info

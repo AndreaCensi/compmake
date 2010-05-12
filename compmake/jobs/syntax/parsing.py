@@ -163,7 +163,7 @@ def parse_job_list(tokens):
     
     result = eval_ops(ops)
     
-    print " %s => %s" % (tokens, result)
+    # print " %s => %s" % (tokens, result)
     
     return result
     

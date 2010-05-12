@@ -9,16 +9,20 @@ from compmake.jobs.storage import get_job_cache, all_jobs
 from compmake.jobs.uptodate import up_to_date
 from compmake.ui.helpers import padleft, ui_command, VISUALIZATION
 import sys
+from compmake.jobs.syntax.parsing import parse_job_list
 
          
 @ui_command(section=VISUALIZATION, alias='ls')
-def list(job_list):
+def list(args):
     '''Lists the status of the selected targets (or all targets \
 if not specified).
     
     If only one job is specified, then it is listed in more detail.  '''
-    if not job_list:
+    if not args:
         job_list = all_jobs()
+    else:
+        job_list = parse_job_list(args)
+        
     job_list.sort()
     
     if len(job_list) == 1:

@@ -13,15 +13,20 @@ class StreamCapture:
     def write(self, s):
         self.buffer.write(s)
         if self.dest:
-            lines = s.split('\n')
-            for line in lines:
-                # XXX I'm not sure why we get empty lines here
-                if line:
-                    if self.transform:
-                        line = self.transform(line)
-                    self.dest.write(line)
-                    self.dest.write('\n')
-                
+            if s.find('\n') != (len(s) - 1):
+                lines = s.split('\n')
+                for line in lines:
+                    # XXX I'm not sure why we get empty lines here
+                    if line:
+                        if self.transform:
+                            line = self.transform(line)
+                        self.dest.write(line)
+                        self.dest.write('\n')
+            else:
+                if self.transform:
+                    s = self.transform(s)       
+                self.dest.write(s)
+                self.dest.write('\n')
             self.dest.flush()
         
     def flush(self):

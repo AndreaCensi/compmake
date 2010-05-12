@@ -6,6 +6,7 @@ from compmake.jobs.storage import exists_computation, \
 import compmake
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
+from compmake.jobs.syntax.parsing import parse_job_list
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -126,30 +127,12 @@ def comp(command, *args, **kwargs):
         
     return c 
 
-
-def reg_from_shell_wildcard(arg):
-    """ Returns a regular expression from a shell wildcard expression """
-    return re.compile('\A' + arg.replace('*', '.*') + '\Z')
                      
 # TODO: FEATURE: add aliases 
 #  command  alias aliasname job...
 # TODO: special targets $top $bottom $all
 # TODO: feature: target by class
   
-def parse_job_list(argv): 
-    jobs = []
-    for arg in argv:
-        if arg.find('*') > -1:
-            reg = reg_from_shell_wildcard(arg)
-            matches = [x for x in all_jobs()  if reg.match(x) ]
-            jobs.extend(matches)
-            if not matches:
-                raise UserError('Could not find matches for pattern "%s"' % arg)
-        else:
-            if not exists_computation(arg):
-                raise UserError('Job %s not found ' % arg) 
-            jobs.append(arg)
-    return jobs
 
 def interpret_commands(commands):
     ui_commands = get_commands()

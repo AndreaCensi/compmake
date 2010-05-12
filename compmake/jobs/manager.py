@@ -182,6 +182,10 @@ class Manager:
                     raise ParsimException('Processing interrupted by user')
 
     def process(self):
+        if not self.todo:
+            info('Nothing to do.')
+            return
+        
         self.process_init()
         
         progress_reset_cache()
@@ -209,7 +213,7 @@ class Manager:
     def write_status(self):
         # TODO add color
         sys.stderr.write(
-         ("parmake: done %4d | failed %4d | todo %4d " + 
+         ("done %4d | failed %4d | todo %4d " + 
          "| ready %4d | processing %4d \n") % (
                 len(self.done), len(self.failed), len(self.todo),
                 len(self.ready_todo), len(self.processing)))

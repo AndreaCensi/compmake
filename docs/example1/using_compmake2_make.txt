@@ -1,0 +1,135 @@
+done    0 | failed    0 | todo   27 | ready    9 | processing    0 
+Job p1=2-p2=10-func1 instantiated (more=False)
+done    0 | failed    0 | todo   27 | ready    8 | processing    1 
+done    0 | failed    0 | todo   27 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+Job p1=1-p2=10-func1 instantiated (more=False)
+done    1 | failed    0 | todo   26 | ready    8 | processing    1 
+done    1 | failed    0 | todo   26 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    2 | failed    0 | todo   25 | ready    9 | processing    0 
+done    2 | failed    0 | todo   25 | ready    9 | processing    0 
+Job p1=1-p2=10-func2 instantiated (more=False)
+done    2 | failed    0 | todo   25 | ready    8 | processing    1 
+done    2 | failed    0 | todo   25 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    3 | failed    0 | todo   24 | ready    9 | processing    0 
+done    3 | failed    0 | todo   24 | ready    9 | processing    0 
+Job p1=1-p2=12-func1 instantiated (more=False)
+done    3 | failed    0 | todo   24 | ready    8 | processing    1 
+done    3 | failed    0 | todo   24 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    4 | failed    0 | todo   23 | ready    9 | processing    0 
+done    4 | failed    0 | todo   23 | ready    9 | processing    0 
+Job p1=3-p2=12-func1 instantiated (more=False)
+done    4 | failed    0 | todo   23 | ready    8 | processing    1 
+done    4 | failed    0 | todo   23 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    5 | failed    0 | todo   22 | ready    9 | processing    0 
+done    5 | failed    0 | todo   22 | ready    9 | processing    0 
+Job p1=1-p2=11-func1 instantiated (more=False)
+done    5 | failed    0 | todo   22 | ready    8 | processing    1 
+done    5 | failed    0 | todo   22 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    6 | failed    0 | todo   21 | ready    9 | processing    0 
+done    6 | failed    0 | todo   21 | ready    9 | processing    0 
+Job p1=2-p2=11-func1 instantiated (more=False)
+done    6 | failed    0 | todo   21 | ready    8 | processing    1 
+done    6 | failed    0 | todo   21 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    7 | failed    0 | todo   20 | ready    9 | processing    0 
+done    7 | failed    0 | todo   20 | ready    9 | processing    0 
+Job p1=3-p2=12-func2 instantiated (more=False)
+done    7 | failed    0 | todo   20 | ready    8 | processing    1 
+done    7 | failed    0 | todo   20 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    8 | failed    0 | todo   19 | ready    9 | processing    0 
+done    8 | failed    0 | todo   19 | ready    9 | processing    0 
+Job p1=1-p2=10-draw instantiated (more=False)
+done    8 | failed    0 | todo   19 | ready    8 | processing    1 
+done    8 | failed    0 | todo   19 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    9 | failed    0 | todo   18 | ready    8 | processing    0 
+done    9 | failed    0 | todo   18 | ready    8 | processing    0 
+Job p1=2-p2=12-func1 instantiated (more=False)
+done    9 | failed    0 | todo   18 | ready    7 | processing    1 
+done    9 | failed    0 | todo   18 | ready    7 | processing    1 
+jobs:  -- No jobs active -- done   10 | failed    0 | todo   17 | ready    8 | processing    0 
+done   10 | failed    0 | todo   17 | ready    8 | processing    0 
+Job p1=2-p2=12-func2 instantiated (more=False)
+done   10 | failed    0 | todo   17 | ready    7 | processing    1 
+done   10 | failed    0 | todo   17 | ready    7 | processing    1 
+jobs:  -- No jobs active -- done   11 | failed    0 | todo   16 | ready    8 | processing    0 
+done   11 | failed    0 | todo   16 | ready    8 | processing    0 
+Job p1=1-p2=11-func2 instantiated (more=False)
+done   11 | failed    0 | todo   16 | ready    7 | processing    1 
+done   11 | failed    0 | todo   16 | ready    7 | processing    1 
+jobs:  -- No jobs active -- done   12 | failed    0 | todo   15 | ready    8 | processing    0 
+done   12 | failed    0 | todo   15 | ready    8 | processing    0 
+Job p1=2-p2=12-draw instantiated (more=False)
+done   12 | failed    0 | todo   15 | ready    7 | processing    1 
+done   12 | failed    0 | todo   15 | ready    7 | processing    1 
+jobs:  -- No jobs active -- done   13 | failed    0 | todo   14 | ready    7 | processing    0 
+done   13 | failed    0 | todo   14 | ready    7 | processing    0 
+Job p1=1-p2=11-draw instantiated (more=False)
+done   13 | failed    0 | todo   14 | ready    6 | processing    1 
+done   13 | failed    0 | todo   14 | ready    6 | processing    1 
+jobs:  -- No jobs active -- done   14 | failed    0 | todo   13 | ready    6 | processing    0 
+done   14 | failed    0 | todo   13 | ready    6 | processing    0 
+Job p1=2-p2=10-func2 instantiated (more=False)
+done   14 | failed    0 | todo   13 | ready    5 | processing    1 
+done   14 | failed    0 | todo   13 | ready    5 | processing    1 
+jobs:  -- No jobs active -- done   15 | failed    0 | todo   12 | ready    6 | processing    0 
+done   15 | failed    0 | todo   12 | ready    6 | processing    0 
+Job p1=3-p2=12-draw instantiated (more=False)
+done   15 | failed    0 | todo   12 | ready    5 | processing    1 
+done   15 | failed    0 | todo   12 | ready    5 | processing    1 
+jobs:  -- No jobs active -- done   16 | failed    0 | todo   11 | ready    5 | processing    0 
+done   16 | failed    0 | todo   11 | ready    5 | processing    0 
+Job p1=1-p2=12-func2 instantiated (more=False)
+done   16 | failed    0 | todo   11 | ready    4 | processing    1 
+done   16 | failed    0 | todo   11 | ready    4 | processing    1 
+jobs:  -- No jobs active -- done   17 | failed    0 | todo   10 | ready    5 | processing    0 
+done   17 | failed    0 | todo   10 | ready    5 | processing    0 
+Job p1=2-p2=11-func2 instantiated (more=False)
+done   17 | failed    0 | todo   10 | ready    4 | processing    1 
+done   17 | failed    0 | todo   10 | ready    4 | processing    1 
+jobs:  -- No jobs active -- done   18 | failed    0 | todo    9 | ready    5 | processing    0 
+done   18 | failed    0 | todo    9 | ready    5 | processing    0 
+Job p1=2-p2=11-draw instantiated (more=False)
+done   18 | failed    0 | todo    9 | ready    4 | processing    1 
+done   18 | failed    0 | todo    9 | ready    4 | processing    1 
+jobs:  -- No jobs active -- done   19 | failed    0 | todo    8 | ready    4 | processing    0 
+done   19 | failed    0 | todo    8 | ready    4 | processing    0 
+Job p1=3-p2=10-func1 instantiated (more=False)
+done   19 | failed    0 | todo    8 | ready    3 | processing    1 
+done   19 | failed    0 | todo    8 | ready    3 | processing    1 
+jobs:  -- No jobs active -- done   20 | failed    0 | todo    7 | ready    4 | processing    0 
+done   20 | failed    0 | todo    7 | ready    4 | processing    0 
+Job p1=3-p2=11-func1 instantiated (more=False)
+done   20 | failed    0 | todo    7 | ready    3 | processing    1 
+done   20 | failed    0 | todo    7 | ready    3 | processing    1 
+jobs:  -- No jobs active -- done   21 | failed    0 | todo    6 | ready    4 | processing    0 
+done   21 | failed    0 | todo    6 | ready    4 | processing    0 
+Job p1=2-p2=10-draw instantiated (more=False)
+done   21 | failed    0 | todo    6 | ready    3 | processing    1 
+done   21 | failed    0 | todo    6 | ready    3 | processing    1 
+jobs:  -- No jobs active -- done   22 | failed    0 | todo    5 | ready    3 | processing    0 
+done   22 | failed    0 | todo    5 | ready    3 | processing    0 
+Job p1=1-p2=12-draw instantiated (more=False)
+done   22 | failed    0 | todo    5 | ready    2 | processing    1 
+done   22 | failed    0 | todo    5 | ready    2 | processing    1 
+jobs:  -- No jobs active -- done   23 | failed    0 | todo    4 | ready    2 | processing    0 
+done   23 | failed    0 | todo    4 | ready    2 | processing    0 
+Job p1=3-p2=11-func2 instantiated (more=False)
+done   23 | failed    0 | todo    4 | ready    1 | processing    1 
+done   23 | failed    0 | todo    4 | ready    1 | processing    1 
+jobs:  -- No jobs active -- done   24 | failed    0 | todo    3 | ready    2 | processing    0 
+done   24 | failed    0 | todo    3 | ready    2 | processing    0 
+Job p1=3-p2=10-func2 instantiated (more=False)
+done   24 | failed    0 | todo    3 | ready    1 | processing    1 
+done   24 | failed    0 | todo    3 | ready    1 | processing    1 
+jobs:  -- No jobs active -- done   25 | failed    0 | todo    2 | ready    2 | processing    0 
+done   25 | failed    0 | todo    2 | ready    2 | processing    0 
+Job p1=3-p2=11-draw instantiated (more=False)
+done   25 | failed    0 | todo    2 | ready    1 | processing    1 
+done   25 | failed    0 | todo    2 | ready    1 | processing    1 
+jobs:  -- No jobs active -- done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+Job p1=3-p2=10-draw instantiated (more=False)
+done   26 | failed    0 | todo    1 | ready    0 | processing    1 
+done   26 | failed    0 | todo    1 | ready    0 | processing    1 
+jobs:  -- No jobs active -- done   27 | failed    0 | todo    0 | ready    0 | processing    0 

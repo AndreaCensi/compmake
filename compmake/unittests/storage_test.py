@@ -2,11 +2,14 @@ import unittest
 
 from compmake import storage
 from compmake.storage import use_filesystem
+from compmake.jobs.storage import set_namespace, remove_all_jobs
 
 class Simple(unittest.TestCase):
     
     def setUp(self):
-        use_filesystem()
+        use_filesystem('Simple_db')
+        set_namespace('Simple')
+        remove_all_jobs()
             
     def testExists1(self):
         assert(not storage.db.is_cache_available('not-existent'))
