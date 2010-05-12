@@ -25,7 +25,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
-    <link rel="next" title="make, clean, remake" href="tutorial_makeclean.html" />
+    <link rel="next" title="The compmake console, more about jobs" href="tutorial_makeclean.html" />
     <link rel="prev" title="Features and limitations" href="features.html" />
 	 
 	
@@ -75,7 +75,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_makeclean.html">make, clean, remake</a>&#160;&#160;»
+        <a href="tutorial_makeclean.html">The compmake console, more about jobs</a>&#160;&#160;»
         </p>
 
       </div>
@@ -86,9 +86,11 @@
 <p class="topic-title first">Contents</p>
 <ul class="simple">
 <li><a class="reference internal" href="#basic-compmake-usage" id="id1">Basic compmake usage</a><ul>
-<li><a class="reference internal" href="#what-compmake-can-do-for-you" id="id2">What  <tt class="docutils literal"><span class="pre">compmake</span></tt> can do for you</a></li>
+<li><a class="reference internal" href="#why-using-compmake" id="id2">Why using  <tt class="docutils literal"><span class="pre">compmake</span></tt></a></li>
 <li><a class="reference internal" href="#preparing-your-programs-for-compmake" id="id3">Preparing your programs for  <tt class="docutils literal"><span class="pre">compmake</span></tt></a></li>
 <li><a class="reference internal" href="#running-the-computation" id="id4">Running the computation</a></li>
+<li><a class="reference internal" href="#naming-jobs" id="id5">Naming jobs</a></li>
+<li><a class="reference internal" href="#cleaning-and-remaking" id="id6">Cleaning and remaking</a></li>
 </ul>
 </li>
 </ul>
@@ -96,8 +98,8 @@
 <div class="section" id="basic-compmake-usage">
 <span id="tutorial0"></span><h1><a class="toc-backref" href="#id1">Basic compmake usage</a><a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial gives some motivation for using <tt class="docutils literal"><span class="pre">compmake</span></tt> and explain the basic usage.</p>
-<div class="section" id="what-compmake-can-do-for-you">
-<h2><a class="toc-backref" href="#id2">What  <tt class="docutils literal"><span class="pre">compmake</span></tt> can do for you</a><a class="headerlink" href="#what-compmake-can-do-for-you" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="why-using-compmake">
+<h2><a class="toc-backref" href="#id2">Why using  <tt class="docutils literal"><span class="pre">compmake</span></tt></a><a class="headerlink" href="#why-using-compmake" title="Permalink to this headline">¶</a></h2>
 <p>This section explains why you would want to use compmake. If you already know why, skip ahead to
 <a class="reference internal" href="#preparing"><em>Preparing your programs for  compmake</em></a>.</p>
 <p>Suppose that you are working on this simple program:</p>
@@ -183,36 +185,48 @@ is discovered:</p>
 </div>
 <div class="section" id="running-the-computation">
 <h2><a class="toc-backref" href="#id4">Running the computation</a><a class="headerlink" href="#running-the-computation" title="Permalink to this headline">¶</a></h2>
-<p>Before, you running your program as <tt class="docutils literal"><span class="pre">python</span> <span class="pre">original.py</span></tt>,
-use the syntax:</p>
+<p>Suppose that before you ran your program as <tt class="docutils literal"><span class="pre">python</span> <span class="pre">[MODULE].py</span></tt>.
+Now, you have to use the syntax:</p>
 <div class="highlight-python"><pre>$ compmake [MODULE] [COMMAND]</pre>
 </div>
 <p>The following are some examples.</p>
 <p><strong>Making</strong>: The command &#8220;make [jobs]&#8221; runs the computation in series:</p>
 <div class="highlight-python"><pre>$ compmake example make</pre>
 </div>
-<p>You can run a specified job by adding it on the command line:</p>
-<div class="highlight-python"><pre>$ compmake example make func1</pre>
-</div>
-<p>You can also the wildcard <tt class="docutils literal"><span class="pre">*</span></tt> to select multiple jobs.:</p>
-<div class="highlight-python"><pre>$ compmake example make "func1*"</pre>
-</div>
-<p>(See <a href="#id5"><span class="problematic" id="id6">`advanced section`_</span></a> for how to specify your own job names)</p>
-<p><strong>Cleaning up</strong>: Use the command <tt class="docutils literal"><span class="pre">clean</span> <span class="pre">[jobs]</span></tt> to clean:</p>
-<div class="highlight-python"><pre>$ compmake my_program clean</pre>
-</div>
-<p><strong>Using the console</strong>: If you do not write any command, you will enter the
-console:</p>
-<div class="highlight-python"><pre>$ compmake example 
-Compmake 1.0 - ``Conquer your Python computations!''     (c) 2010, Andrea Censi, Caltech 
-Welcome to the compmake console. ('help' for a list of commands)
-27 jobs loaded.
-@:
+<p>The first time you run this, you will see an output like the following:</p>
+<div class="highlight-python"><pre>done    0 | failed    0 | todo   27 | ready    9 | processing    0 
+done    0 | failed    0 | todo   27 | ready    8 | processing    1 
+jobs:  -- No jobs active -- 
+done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+done    1 | failed    0 | todo   26 | ready    8 | processing    1 
+    [...] 
+done   25 | failed    0 | todo    2 | ready    1 | processing    1 
+jobs:  -- No jobs active -- 
+done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+done   26 | failed    0 | todo    1 | ready    0 | processing    1 
+jobs:  -- No jobs active -- 
+done   27 | failed    0 | todo    0 | ready    0 | processing    0 
 </pre>
 </div>
-<p>In the console, you can see the status of the computation.
-For example, the command &#8220;list&#8221; shows a list of the jobs with relative status.
-If you run it before running <tt class="docutils literal"><span class="pre">make</span></tt>, you will see an output similar to this:</p>
+<p>However, the second time, the output will be:</p>
+<div class="highlight-python"><pre>Nothing to do.
+</pre>
+</div>
+<p>because compmake has cached the results of the computation.</p>
+<p><strong>Cleaning up</strong>: Use the command <tt class="docutils literal"><span class="pre">clean</span></tt> to clean:</p>
+<div class="highlight-python"><pre>$ compmake example clean</pre>
+</div>
+<p>Moreover, the command <tt class="docutils literal"><span class="pre">remake</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">clean</span></tt> + <tt class="docutils literal"><span class="pre">make</span></tt>.</p>
+</div>
+<div class="section" id="naming-jobs">
+<h2><a class="toc-backref" href="#id5">Naming jobs</a><a class="headerlink" href="#naming-jobs" title="Permalink to this headline">¶</a></h2>
+<p>Each invocation of the <tt class="docutils literal"><span class="pre">comp()</span></tt> function produces one <em>job</em>.
+Each job is described by a unique ID. By default, the ID is generated
+by the name of the function, with a progressive number postponed.
+You can use the command <tt class="docutils literal"><span class="pre">list</span></tt> to obtain a list of the jobs.
+For this example, the output would be:</p>
 <div class="highlight-python"><pre>@: list
 draw                                              Not started/False
 draw-0                                            Not started/False
@@ -220,21 +234,85 @@ draw-1                                            Not started/False
 draw-2                                            Not started/False
 draw-3                                            Not started/False
 draw-4                                            Not started/False
-[...]
+    [...]
 </pre>
 </div>
-<p>After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
+<p>As you can see, the jobs are named <tt class="docutils literal"><span class="pre">func1-&lt;n&gt;</span></tt>, <tt class="docutils literal"><span class="pre">func2-&lt;n&gt;</span></tt>,
+<tt class="docutils literal"><span class="pre">draw-&lt;n&gt;</span></tt>.</p>
+<p>It is very useful to have distinctive names for the jobs. Compmake provides
+two mechanisms to that effect. The first is the function <tt class="docutils literal"><span class="pre">comp_prefix()</span></tt>
+which takes a string used as a prefix for the job ids generated.
+That command is particularly useful in scenarios like the example
+where we presumably want to group the functions by the parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_prefix</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="c"># Add a prefix to the job ids</span>
+        <span class="c"># for easy reference </span>
+        <span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
+                
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
 <div class="highlight-python"><pre>@: list
-draw                                              Done/True (1 second ago)
-draw-0                                            Done/True (1 second ago)
-draw-1                                            Done/True (1 second ago)
-draw-2                                            Done/True (1 second ago)
-draw-3                                            Done/True (1 second ago)
-draw-4                                            Done/True (1 second ago)
-[...]
+p1=1-p2=10-draw                                   Not started/False
+p1=1-p2=10-func1                                  Not started/False
+p1=1-p2=10-func2                                  Not started/False
+p1=1-p2=11-draw                                   Not started/False
+p1=1-p2=11-func1                                  Not started/False
+p1=1-p2=11-func2                                  Not started/False
+    [...]
 </pre>
 </div>
-<p>(See section <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a> for a list of all supported commands)</p>
+<p>Another method  is using the <tt class="docutils literal"><span class="pre">job_id</span></tt> keyword argument to <tt class="docutils literal"><span class="pre">comp()</span></tt>.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_prefix</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span> 
+        <span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
+        
+        <span class="c"># use job_id to override default naming</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;drawing&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
+<div class="highlight-python"><pre>@: list
+p1=1-p2=10-computing                              Not started/False
+p1=1-p2=10-drawing                                Not started/False
+p1=1-p2=10-preparing                              Not started/False
+p1=1-p2=11-computing                              Not started/False
+p1=1-p2=11-drawing                                Not started/False
+p1=1-p2=11-preparing                              Not started/False
+    [...]
+</pre>
+</div>
+</div>
+<div class="section" id="cleaning-and-remaking">
+<h2><a class="toc-backref" href="#id6">Cleaning and remaking</a><a class="headerlink" href="#cleaning-and-remaking" title="Permalink to this headline">¶</a></h2>
+<p>Now that you know how to give names to your jobs, you can
+use them for referring to them. For example:</p>
+<div class="highlight-python"><pre>$ compmake  example   make p1=1,p2=11-drawing</pre>
+</div>
+<p>You can use the <tt class="docutils literal"><span class="pre">*</span></tt> wildcard. This is very useful to refer
+only to part of the jobs. In the example, you can write:</p>
+<div class="highlight-python"><pre>$ compmake  example   remake   *-p2=11-*</pre>
+</div>
+<p>to re-do only the subset of computations with a certain value
+of the parameters. Or, you can remake the last stage of the computation:</p>
+<div class="highlight-python"><pre>$ compmake  example   remake   *-drawing</pre>
+</div>
+<p>As you can see, compmake gives you peace of mind and a sense of empowerment.</p>
+<ul class="simple">
+<li>Go on to the next chapter <a class="reference external" href="tutorial_makeclean.html#tutorial1"><em>The compmake console, more about jobs</em></a>.</li>
+</ul>
 </div>
 </div>
 
@@ -247,7 +325,7 @@ draw-4                                            Done/True (1 second ago)
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_makeclean.html">make, clean, remake</a>&#160;&#160;»
+        <a href="tutorial_makeclean.html">The compmake console, more about jobs</a>&#160;&#160;»
         </p>
 
       </div>

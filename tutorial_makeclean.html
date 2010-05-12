@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>make, clean, remake &mdash; Compmake make for batch Python processes</title>
+    <title>The compmake console, more about jobs &mdash; Compmake make for batch Python processes</title>
     <link rel="stylesheet" href="static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
@@ -66,7 +66,7 @@
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>make, clean, remake</span></h2>
+        <h2 class="heading"><span>The compmake console, more about jobs</span></h2>
       </div>
       <div class="topnav">
       
@@ -82,9 +82,74 @@
       <div class="content">
         
         
-  <div class="section" id="make-clean-remake">
-<span id="tutorial1"></span><h1>make, clean, remake<a class="headerlink" href="#make-clean-remake" title="Permalink to this headline">¶</a></h1>
-<p>(to write)</p>
+  <div class="section" id="the-compmake-console-more-about-jobs">
+<span id="tutorial1"></span><h1>The compmake console, more about jobs<a class="headerlink" href="#the-compmake-console-more-about-jobs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="using-the-console">
+<h2>Using the console<a class="headerlink" href="#using-the-console" title="Permalink to this headline">¶</a></h2>
+<p>Compmake can be used both in batch mode (like make) and interactively with a
+console. The console allows to inspect the status of the jobs, manually
+add some for execution, and related task.</p>
+<p>To use the batch mode, invoke compmake as <tt class="docutils literal"><span class="pre">$</span> <span class="pre">compmake</span> <span class="pre">[MODULE]</span> <span class="pre">[COMMAND]</span></tt>.
+If you do not specify a command, then you will enter the console mode.
+For example, assuming that your module is called <tt class="docutils literal"><span class="pre">example.py</span></tt>, you will
+see:</p>
+<div class="highlight-python"><pre>$ compmake example 
+Compmake 1.0 - ``Conquer your Python computations!''     (c) 2010, Andrea Censi, Caltech 
+Welcome to the compmake console. ('help' for a list of commands)
+27 jobs loaded.
+@:
+</pre>
+</div>
+<p>The compmake console is designed to be friendly. You can use auto-completion
+with <tt class="docutils literal"><span class="pre">&lt;tab&gt;</span></tt>. The complete list of the console commands is in the  section <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
+<p><strong>``help``</strong></p>
+<p>If you write:</p>
+<div class="highlight-python"><pre>@&gt; help</pre>
+</div>
+<p>you will see a list of all the available commands.</p>
+<p>This is the same information in the page <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
+<p><strong>``make``, ``clean``</strong></p>
+<p><strong>``list``</strong></p>
+<p>In the console, you can see the status of the computation.
+For example, the command &#8220;list&#8221; shows a list of the jobs with relative status.
+If you run it before running <tt class="docutils literal"><span class="pre">make</span></tt>, you will see an output similar to this:</p>
+<div class="highlight-python"><pre>@: list
+draw                                              Not started/False
+draw-0                                            Not started/False
+draw-1                                            Not started/False
+draw-2                                            Not started/False
+draw-3                                            Not started/False
+draw-4                                            Not started/False
+[...]
+</pre>
+</div>
+<p>After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
+<div class="highlight-python"><pre>@: list
+draw                                              Done/True (1 second ago)
+draw-0                                            Done/True (1 second ago)
+draw-1                                            Done/True (1 second ago)
+draw-2                                            Done/True (1 second ago)
+draw-3                                            Done/True (1 second ago)
+draw-4                                            Done/True (1 second ago)
+[...]
+</pre>
+</div>
+<p><strong>``config``</strong></p>
+<p>To show all configuration switches, use:</p>
+<div class="highlight-python"><pre>@&gt; config</pre>
+</div>
+<p>To set a configuration switch, use:</p>
+<div class="highlight-python"><pre>@&gt; config &lt;name&gt; &lt;value&gt;</pre>
+</div>
+<p>For example, the following command suppresses echoing of the
+jobs&#8217; stdout to the console:</p>
+<div class="highlight-python"><pre>@&gt; config &lt;name&gt; &lt;value&gt;</pre>
+</div>
+<p>TO WRITE</p>
+</div>
+<div class="section" id="advanced-console-usage">
+<h2>Advanced console usage<a class="headerlink" href="#advanced-console-usage" title="Permalink to this headline">¶</a></h2>
+</div>
 </div>
 
 
