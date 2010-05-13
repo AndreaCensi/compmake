@@ -58,6 +58,31 @@
 		margin: 1em;
 		max-width: 90%;
 	}
+	
+	.header h2 {
+		color: orange !important;
+		font-size: 200% !important;
+	}
+	.content {
+		padding-left: 5em;
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+		body { font-size: 150%; font-family: Georgia,Serif !important;}
    </style>
 
 <script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
@@ -109,8 +134,8 @@ Y.Remarkbox.render();
 <div class="section" id="using-the-console">
 <h2>Using the console<a class="headerlink" href="#using-the-console" title="Permalink to this headline">¶</a></h2>
 <p>Compmake can be used both in batch mode (like make) and interactively with a
-console. The console allows to inspect the status of the jobs, manually
-add some for execution, and related task.</p>
+console. The console allows to inspect the status of the jobs, start/stop jobs,
+set configuration, and other related tasks.</p>
 <p>To use the batch mode, invoke compmake as <tt class="docutils literal"><span class="pre">$</span> <span class="pre">compmake</span> <span class="pre">[MODULE]</span> <span class="pre">[COMMAND]</span></tt>.
 If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called <tt class="docutils literal"><span class="pre">example.py</span></tt>, you will
@@ -123,41 +148,26 @@ Welcome to the compmake console. ('help' for a list of commands)
 </pre>
 </div>
 <p>The compmake console is designed to be friendly. You can use auto-completion
-with <tt class="docutils literal"><span class="pre">&lt;tab&gt;</span></tt>. The complete list of the console commands is in the  section <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
-<p><strong>``help``</strong></p>
+with <tt class="docutils literal"><span class="pre">&lt;tab&gt;</span></tt>.
+In the previous section, we discussed the commands <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt>.
+Here we discuss several of the other most useful commands.
+The complete list of the console commands is in the  section <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
+<div class="section" id="the-help-command">
+<h3>The <tt class="docutils literal"><span class="pre">help</span></tt> command<a class="headerlink" href="#the-help-command" title="Permalink to this headline">¶</a></h3>
 <p>If you write:</p>
 <div class="highlight-python"><pre>@&gt; help</pre>
 </div>
-<p>you will see a list of all the available commands.</p>
-<p>This is the same information in the page <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
-<p><strong>``make``, ``clean``</strong></p>
-<p><strong>``list``</strong></p>
-<p>In the console, you can see the status of the computation.
-For example, the command &#8220;list&#8221; shows a list of the jobs with relative status.
-If you run it before running <tt class="docutils literal"><span class="pre">make</span></tt>, you will see an output similar to this:</p>
-<div class="highlight-python"><pre>@: list
-draw                                              Not started/False
-draw-0                                            Not started/False
-draw-1                                            Not started/False
-draw-2                                            Not started/False
-draw-3                                            Not started/False
-draw-4                                            Not started/False
-[...]
-</pre>
+<p>you will see a list of all the available commands.
+If you write:</p>
+<div class="highlight-python"><pre>@&gt; help &lt;command&gt;</pre>
 </div>
-<p>After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
-<div class="highlight-python"><pre>@: list
-draw                                              Done/True (1 second ago)
-draw-0                                            Done/True (1 second ago)
-draw-1                                            Done/True (1 second ago)
-draw-2                                            Done/True (1 second ago)
-draw-3                                            Done/True (1 second ago)
-draw-4                                            Done/True (1 second ago)
-[...]
-</pre>
+<p>you will see a description of the specified command.
+This is necessary because many commands can accept optional arguments.</p>
+<p>This is the same information that you can find on the page <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
 </div>
-<p><strong>``config``</strong></p>
-<p>To show all configuration switches, use:</p>
+<div class="section" id="the-config-command">
+<h3>The <tt class="docutils literal"><span class="pre">config</span></tt> command<a class="headerlink" href="#the-config-command" title="Permalink to this headline">¶</a></h3>
+<p>To see all configuration switches, use:</p>
 <div class="highlight-python"><pre>@&gt; config</pre>
 </div>
 <p>To set a configuration switch, use:</p>
@@ -165,12 +175,35 @@ draw-4                                            Done/True (1 second ago)
 </div>
 <p>For example, the following command suppresses echoing of the
 jobs&#8217; stdout to the console:</p>
-<div class="highlight-python"><pre>@&gt; config &lt;name&gt; &lt;value&gt;</pre>
+<div class="highlight-python"><pre>@&gt; config echo_stdout False</pre>
 </div>
-<p>TO WRITE</p>
 </div>
-<div class="section" id="advanced-console-usage">
-<h2>Advanced console usage<a class="headerlink" href="#advanced-console-usage" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="advanced-console-syntax">
+<h2>Advanced console syntax<a class="headerlink" href="#advanced-console-syntax" title="Permalink to this headline">¶</a></h2>
+<p>Most of compmake&#8217;s commands work on jobs and are invoked as &#8220;&lt;command&gt; &lt;list of jobs&gt;&#8221;.
+There are several shortcuts available to specify lists of jobs.</p>
+<ul>
+<li><p class="first"><strong>Wildcards.</strong> In the previous section, we have seen the use of wildcards:</p>
+<div class="highlight-python"><pre>@&gt; list  *-drawing    # list all jobs that and with "-drawing"
+@&gt; list  *            # list all jobs</pre>
+</div>
+</li>
+<li><p class="first"><strong>Selection by state.</strong> We can select jobs based on their computational state.
+(see <em class="xref ref">job_states</em> for a complete description of the meaning of these states):</p>
+<div class="highlight-python"><pre>@&gt; list  done         # list all completed jobs
+@&gt; list  failed       # list all failed jobs
+@&gt; list  in_progress  # list all jobs currently in progress</pre>
+</div>
+</li>
+<li><p class="first"><strong>Selection by function name. &#8211; TO BE IMPLEMENTED</strong></p>
+</li>
+<li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a mini-language to compose
+sets of jobs. The following commands:</p>
+<div class="highlight-python"><pre>@&gt; list  not failed in func1()  # list all failed jobs</pre>
+</div>
+</li>
+</ul>
 </div>
 </div>
 

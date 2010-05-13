@@ -8,8 +8,8 @@ Using the console
 -----------------
 
 Compmake can be used both in batch mode (like make) and interactively with a
-console. The console allows to inspect the status of the jobs, manually
-add some for execution, and related task.
+console. The console allows to inspect the status of the jobs, start/stop jobs,
+set configuration, and other related tasks.
 
 To use the batch mode, invoke compmake as ``$ compmake [MODULE] [COMMAND]``. 
 If you do not specify a command, then you will enter the console mode.
@@ -19,39 +19,33 @@ see:
 .. literalinclude:: example1/prompt.txt
 
 The compmake console is designed to be friendly. You can use auto-completion 
-with ``<tab>``. The complete list of the console commands is in the  section :ref:`commands`.
+with ``<tab>``.
+In the previous section, we discussed the commands ``make``, ``clean`` and ``list``.
+Here we discuss several of the other most useful commands.
+The complete list of the console commands is in the  section :ref:`commands`.
 
-**``help``**
+The ``help`` command
+^^^^^^^^^^^^^^^^^^^^
 
 If you write::
 
     @> help
 
 you will see a list of all the available commands.
+If you write::
 
-This is the same information in the page :ref:`commands`.
+    @> help <command>
 
-**``make``, ``clean``**
+you will see a description of the specified command. 
+This is necessary because many commands can accept optional arguments.
 
-
-
-**``list``**
-
-In the console, you can see the status of the computation.
-For example, the command "list" shows a list of the jobs with relative status.
-If you run it before running ``make``, you will see an output similar to this:
-
-.. literalinclude:: example1/list_before.txt
-
-After running ``make``, the output will be:
-
-.. literalinclude:: example1/list_after.txt
+This is the same information that you can find on the page :ref:`commands`.
 
 
+The ``config`` command
+^^^^^^^^^^^^^^^^^^^^
 
-**``config``**
-
-To show all configuration switches, use::
+To see all configuration switches, use::
 
     @> config 
 
@@ -62,13 +56,36 @@ To set a configuration switch, use::
 For example, the following command suppresses echoing of the 
 jobs' stdout to the console::
 
-
-    @> config <name> <value>
-
+    @> config echo_stdout False
 
 
-TO WRITE
+Advanced console syntax
+-----------------------
 
-Advanced console usage
-----------------------
+Most of compmake's commands work on jobs and are invoked as "<command> <list of jobs>".
+There are several shortcuts available to specify lists of jobs.
+
+* **Wildcards.** In the previous section, we have seen the use of wildcards::
+
+  	@> list  *-drawing    # list all jobs that and with "-drawing"
+  	@> list  *            # list all jobs
+  	
+
+* **Selection by state.** We can select jobs based on their computational state.
+  (see :ref:`job_states` for a complete description of the meaning of these states)::
+
+  	@> list  done         # list all completed jobs
+  	@> list  failed       # list all failed jobs
+  	@> list  in_progress  # list all jobs currently in progress
+
+* **Selection by function name. -- TO BE IMPLEMENTED** 
+
+
+* **Use of logical operator**. Compmake implements a mini-language to compose
+  sets of jobs. The following commands::
+
+
+  	@> list  not failed in func1()  # list all failed jobs
+
+
 
