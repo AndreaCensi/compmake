@@ -30,7 +30,9 @@
 	 
 	
    <style type="text/css">
-   .pagetoc { display: block; float: right; margin-left: 3em}
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
    </style>
 
    <style type="text/css">
@@ -83,6 +85,11 @@
 	h3 { font-size: 125%;}
 	
 		body { font-size: 120%; font-family: Georgia,Serif !important;}
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
    </style>
 
 <script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
@@ -196,14 +203,26 @@ There are several shortcuts available to specify lists of jobs.</p>
 @&gt; list  in_progress  # list all jobs currently in progress</pre>
 </div>
 </li>
-<li><p class="first"><strong>Selection by function name. &#8211; TO BE IMPLEMENTED</strong></p>
+<li><p class="first"><strong>Selection by function name</strong>  &#8211; <strong>TO BE IMPLEMENTED</strong></p>
+<blockquote>
+<p>&#64;&gt; list  f1()        # all jobs that use the function f1()</p>
+</blockquote>
 </li>
-<li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a mini-language to compose
-sets of jobs. The following commands:</p>
-<div class="highlight-python"><pre>@&gt; list  not failed in func1()  # list all failed jobs</pre>
+<li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
+defining sets of jobs. Some examples The following commands:</p>
+<div class="highlight-python"><pre>@&gt; list  not failed in func1()   # list all func1() instances that did not fail
+@&gt; list  *drawing except *p1=2*  # list those that match *drawing but not *p1=2</pre>
 </div>
 </li>
 </ul>
+<blockquote>
+<p>There are three keywords: <tt class="docutils literal"><span class="pre">in</span></tt> (intersection), <tt class="docutils literal"><span class="pre">except</span></tt> (set difference), and <tt class="docutils literal"><span class="pre">not</span></tt>
+(complement). Their effect are defined as follows:</p>
+<div class="highlight-python"><pre>[job list A] except [job list B]   ==  jobs in A that are not in B
+[job list A] in [job list B]       ==  jobs both in A and B
+not [job list A]                   ==  all jobs except those in A</pre>
+</div>
+</blockquote>
 </div>
 </div>
 

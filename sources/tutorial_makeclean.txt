@@ -78,14 +78,30 @@ There are several shortcuts available to specify lists of jobs.
   	@> list  failed       # list all failed jobs
   	@> list  in_progress  # list all jobs currently in progress
 
-* **Selection by function name. -- TO BE IMPLEMENTED** 
+* **Selection by function name**  -- **TO BE IMPLEMENTED** 
+
+  	@> list  f1()        # all jobs that use the function f1()
 
 
-* **Use of logical operator**. Compmake implements a mini-language to compose
-  sets of jobs. The following commands::
+* **Use of logical operator**. Compmake implements a simple syntax for 
+  defining sets of jobs. Some examples The following commands::
+
+ 	@> list  not failed in func1()   # list all func1() instances that did not fail
+ 	@> list  *drawing except *p1=2*  # list those that match *drawing but not *p1=2
+
+ There are three keywords: ``in`` (intersection), ``except`` (set difference), and ``not``
+ (complement). Their effect are defined as follows::
+
+     [job list A] except [job list B]   ==  jobs in A that are not in B
+     [job list A] in [job list B]       ==  jobs both in A and B
+     not [job list A]                   ==  all jobs except those in A 
+
+     
 
 
-  	@> list  not failed in func1()  # list all failed jobs
+
+
+
 
 
 
