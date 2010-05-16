@@ -90,7 +90,7 @@ class Manager:
                 
             progress(job_id, None, None)
             
-            info('Job %s instantiated (more=%s)' % (job_id, make_more))
+            # info('Job %s instantiated (more=%s)' % (job_id, make_more))
         
             
         
@@ -205,8 +205,8 @@ class Manager:
             
             self.write_status()
             self.loop_until_something_finishes()
-            self.write_status()
-            
+           
+ 
         self.process_finished()
 
             

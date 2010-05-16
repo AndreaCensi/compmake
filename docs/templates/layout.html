@@ -21,7 +21,9 @@
 	{{ super() }}
 	
    <style type="text/css">
-   .pagetoc { display: block; float: right; margin-left: 3em}
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
    </style>
 
    <style type="text/css">
@@ -49,7 +51,59 @@
 		margin: 1em;
 		max-width: 90%;
 	}
+	
+	.header h2 {
+		color: orange !important;
+		font-size: 200% !important;
+	}
+	.content {
+		padding-left: 5em;
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+		body { font-size: 120%; font-family: Georgia,Serif !important;}
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
    </style>
+
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+
 
 
 {% endblock %}

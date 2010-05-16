@@ -6,6 +6,7 @@ from compmake.structures import Cache, UserError, CompmakeSyntaxError
 from compmake.ui.ui import comp, parse_job_list
 
 from compmake.storage import use_filesystem
+import sys
 
 
 def dummy():
@@ -70,7 +71,9 @@ class Test1(TestCase):
         a = expand_to_set(A)
         b = expand_to_set(B)
         
-        self.assertEqual(a, b, msg="Failed %s == %s" % (A, B))
+        sys.stdout.write('Comparing:\n\t- %s\n\t- %s. \n' % (A, B))
+        
+        self.assertEqual(a, b)
     
     def syntaxError(self, s):
         self.assertRaises(CompmakeSyntaxError, parse_job_list, s)
@@ -102,16 +105,25 @@ class Test1(TestCase):
     
     def testNot(self):
         self.expandsTo('not failed',
-                       lambda job, state: state != Cache.FAILED)
+                       lambda job, state: state != Cache.FAILED) #@UnusedVariable
         self.expandsTo('all except failed',
-                       lambda job, state: state != Cache.FAILED)
+                       lambda job, state: state != Cache.FAILED) #@UnusedVariable
 
-        all_not_e = self.selection(lambda job, state: job != 'e')
+        all_not_e = self.selection(lambda job, state: job != 'e') #@UnusedVariable
         self.expandsTo('not e', all_not_e)
         self.expandsTo('not e*', all_not_e)
         self.expandsTo('all except e', all_not_e)
         self.expandsTo('not not e', ['e'])
-    
+        self.expandsTo('not not all', 'all')
+        self.expandsTo('not all', [])
+        self.expandsTo('not all except all', [])
+        self.expandsTo('not e except not e', [])
+        self.expandsTo('not a b c except not a b c', [])
+        self.expandsTo('not c except a ', 'not a c')
+        self.expandsTo('a in c  ', [])
+        self.expandsTo('a in all  ', 'a')
+        self.expandsTo('all in all  ', 'all')
+        
     
     def testIntersection(self):    
         self.expandsTo('a b in a b c', ['a', 'b'])

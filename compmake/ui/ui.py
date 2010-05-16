@@ -88,8 +88,10 @@ def comp(command, *args, **kwargs):
     job_id_key = 'job_id'
     if job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
-        available = command.func_code.co_varnames
-        if job_id_key in available:
+        #available = command.func_code.co_varnames
+        argspec = inspect.getargspec(command)
+        
+        if job_id_key in argspec.args:
             raise UserError('You cannot define the job id in this way ' + 
                 'because "job_id" is already a parameter of this function')    
         
@@ -129,8 +131,7 @@ def comp(command, *args, **kwargs):
 
                      
 # TODO: FEATURE: add aliases 
-#  command  alias aliasname job...
-# TODO: special targets $top $bottom $all
+#  command  alias aliasname job... 
 # TODO: feature: target by class
   
 
