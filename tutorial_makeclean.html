@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The compmake console, more about jobs &mdash; Compmake make for batch Python processes</title>
+    <title>The compmake console &mdash; Compmake make for batch Python processes</title>
     <link rel="stylesheet" href="static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
@@ -120,7 +120,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>The compmake console, more about jobs</span></h2>
+        <h2 class="heading"><span>The compmake console</span></h2>
       </div>
       <div class="topnav">
       
@@ -136,10 +136,19 @@ Y.Remarkbox.render();
       <div class="content">
         
         
-  <div class="section" id="the-compmake-console-more-about-jobs">
-<span id="tutorial1"></span><h1>The compmake console, more about jobs<a class="headerlink" href="#the-compmake-console-more-about-jobs" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="using-the-console">
-<h2>Using the console<a class="headerlink" href="#using-the-console" title="Permalink to this headline">¶</a></h2>
+  <div class="contents pagetoc topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#the-compmake-console" id="id1">The compmake console</a><ul>
+<li><a class="reference internal" href="#the-help-command" id="id2">The <tt class="docutils literal"><span class="pre">help</span></tt> command</a></li>
+<li><a class="reference internal" href="#the-config-command" id="id3">The <tt class="docutils literal"><span class="pre">config</span></tt> command</a></li>
+<li><a class="reference internal" href="#advanced-console-syntax" id="id4">Advanced console syntax</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="the-compmake-console">
+<span id="tutorial1"></span><h1><a class="toc-backref" href="#id1">The compmake console</a><a class="headerlink" href="#the-compmake-console" title="Permalink to this headline">¶</a></h1>
 <p>Compmake can be used both in batch mode (like make) and interactively with a
 console. The console allows to inspect the status of the jobs, start/stop jobs,
 set configuration, and other related tasks.</p>
@@ -160,7 +169,7 @@ In the previous section, we discussed the commands <tt class="docutils literal">
 Here we discuss several of the other most useful commands.
 The complete list of the console commands is in the  section <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
 <div class="section" id="the-help-command">
-<h3>The <tt class="docutils literal"><span class="pre">help</span></tt> command<a class="headerlink" href="#the-help-command" title="Permalink to this headline">¶</a></h3>
+<h2><a class="toc-backref" href="#id2">The <tt class="docutils literal"><span class="pre">help</span></tt> command</a><a class="headerlink" href="#the-help-command" title="Permalink to this headline">¶</a></h2>
 <p>If you write:</p>
 <div class="highlight-python"><pre>@&gt; help</pre>
 </div>
@@ -173,7 +182,7 @@ This is necessary because many commands can accept optional arguments.</p>
 <p>This is the same information that you can find on the page <a class="reference external" href="commands.html#commands"><em>Compmake commands reference</em></a>.</p>
 </div>
 <div class="section" id="the-config-command">
-<h3>The <tt class="docutils literal"><span class="pre">config</span></tt> command<a class="headerlink" href="#the-config-command" title="Permalink to this headline">¶</a></h3>
+<h2><a class="toc-backref" href="#id3">The <tt class="docutils literal"><span class="pre">config</span></tt> command</a><a class="headerlink" href="#the-config-command" title="Permalink to this headline">¶</a></h2>
 <p>To see all configuration switches, use:</p>
 <div class="highlight-python"><pre>@&gt; config</pre>
 </div>
@@ -185,9 +194,8 @@ jobs&#8217; stdout to the console:</p>
 <div class="highlight-python"><pre>@&gt; config echo_stdout False</pre>
 </div>
 </div>
-</div>
 <div class="section" id="advanced-console-syntax">
-<h2>Advanced console syntax<a class="headerlink" href="#advanced-console-syntax" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Advanced console syntax</a><a class="headerlink" href="#advanced-console-syntax" title="Permalink to this headline">¶</a></h2>
 <p>Most of compmake&#8217;s commands work on jobs and are invoked as &#8220;&lt;command&gt; &lt;list of jobs&gt;&#8221;.
 There are several shortcuts available to specify lists of jobs.</p>
 <ul>
@@ -198,29 +206,31 @@ There are several shortcuts available to specify lists of jobs.</p>
 </li>
 <li><p class="first"><strong>Selection by state.</strong> We can select jobs based on their computational state.
 (see <em class="xref ref">job_states</em> for a complete description of the meaning of these states):</p>
-<div class="highlight-python"><pre>@&gt; list  done         # list all completed jobs
-@&gt; list  failed       # list all failed jobs
-@&gt; list  in_progress  # list all jobs currently in progress</pre>
+<div class="highlight-python"><pre>@&gt; list done         # list all completed jobs
+@&gt; list failed       # list all failed jobs
+@&gt; list in_progress  # list all jobs currently in progress</pre>
 </div>
 </li>
-<li><p class="first"><strong>Selection by function name</strong>  &#8211; <strong>TO BE IMPLEMENTED</strong></p>
-<blockquote>
-<p>&#64;&gt; list  f1()        # all jobs that use the function f1()</p>
-</blockquote>
+<li><p class="first"><strong>Selection by function name</strong>  &#8211; <strong>TO BE IMPLEMENTED</strong>:</p>
+<div class="highlight-python"><pre>@&gt; list f1()        # all jobs that use the function f1()</pre>
+</div>
 </li>
 <li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
 defining sets of jobs. Some examples The following commands:</p>
-<div class="highlight-python"><pre>@&gt; list  not failed in func1()   # list all func1() instances that did not fail
-@&gt; list  *drawing except *p1=2*  # list those that match *drawing but not *p1=2</pre>
+<div class="highlight-python"><pre>@&gt; list not failed in func1()   # list all func1() instances that did not fail
+@&gt; list *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
+@&gt; list all except job1 job2    # list all except "job1" and "job2"</pre>
 </div>
 </li>
 </ul>
 <blockquote>
 <p>There are three keywords: <tt class="docutils literal"><span class="pre">in</span></tt> (intersection), <tt class="docutils literal"><span class="pre">except</span></tt> (set difference), and <tt class="docutils literal"><span class="pre">not</span></tt>
-(complement). Their effect are defined as follows:</p>
-<div class="highlight-python"><pre>[job list A] except [job list B]   ==  jobs in A that are not in B
-[job list A] in [job list B]       ==  jobs both in A and B
-not [job list A]                   ==  all jobs except those in A</pre>
+(complement). Their semantics are defined as follows. (Here, <tt class="docutils literal"><span class="pre">A</span></tt> and <tt class="docutils literal"><span class="pre">B</span></tt> are
+job lists):</p>
+<div class="highlight-python"><pre>[A] except [B]   ==  jobs in A that are not in B
+[A] in [B]       ==  jobs both in A and B
+not [A]          ==  all jobs except those in A
+                     (equivalent to "all except [A]")</pre>
 </div>
 </blockquote>
 </div>

@@ -1,11 +1,10 @@
+.. contents::
+   :class: pagetoc
+
 .. _tutorial1:
 
-The compmake console, more about jobs
-=====================================
-
-
-Using the console
------------------
+The compmake console
+====================
 
 Compmake can be used both in batch mode (like make) and interactively with a
 console. The console allows to inspect the status of the jobs, start/stop jobs,
@@ -43,7 +42,7 @@ This is the same information that you can find on the page :ref:`commands`.
 
 
 The ``config`` command
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 To see all configuration switches, use::
 
@@ -60,7 +59,7 @@ jobs' stdout to the console::
 
 
 Advanced console syntax
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Most of compmake's commands work on jobs and are invoked as "<command> <list of jobs>".
 There are several shortcuts available to specify lists of jobs.
@@ -69,33 +68,34 @@ There are several shortcuts available to specify lists of jobs.
 
   	@> list  *-drawing    # list all jobs that and with "-drawing"
   	@> list  *            # list all jobs
-  	
 
 * **Selection by state.** We can select jobs based on their computational state.
   (see :ref:`job_states` for a complete description of the meaning of these states)::
 
-  	@> list  done         # list all completed jobs
-  	@> list  failed       # list all failed jobs
-  	@> list  in_progress  # list all jobs currently in progress
+  	@> list done         # list all completed jobs
+  	@> list failed       # list all failed jobs
+  	@> list in_progress  # list all jobs currently in progress
 
-* **Selection by function name**  -- **TO BE IMPLEMENTED** 
+* **Selection by function name**  -- **TO BE IMPLEMENTED**::
 
-  	@> list  f1()        # all jobs that use the function f1()
+  	@> list f1()        # all jobs that use the function f1()
 
 
 * **Use of logical operator**. Compmake implements a simple syntax for 
   defining sets of jobs. Some examples The following commands::
 
- 	@> list  not failed in func1()   # list all func1() instances that did not fail
- 	@> list  *drawing except *p1=2*  # list those that match *drawing but not *p1=2
+ 	@> list not failed in func1()   # list all func1() instances that did not fail
+ 	@> list *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
+ 	@> list all except job1 job2    # list all except "job1" and "job2"
 
  There are three keywords: ``in`` (intersection), ``except`` (set difference), and ``not``
- (complement). Their effect are defined as follows::
+ (complement). Their semantics are defined as follows. (Here, ``A`` and ``B`` are
+ job lists)::
 
-     [job list A] except [job list B]   ==  jobs in A that are not in B
-     [job list A] in [job list B]       ==  jobs both in A and B
-     not [job list A]                   ==  all jobs except those in A 
-
+     [A] except [B]   ==  jobs in A that are not in B
+     [A] in [B]       ==  jobs both in A and B
+     not [A]          ==  all jobs except those in A 
+                          (equivalent to "all except [A]")
      
 
 
