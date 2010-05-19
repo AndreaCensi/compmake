@@ -1,9 +1,7 @@
 import sys
 import pickle
 from StringIO import StringIO
-from redis import Redis #@UnresolvedImport
 from compmake.structures import ParsimException, KeyNotFound
-from redis.exceptions import ConnectionError
 
 
 class RedisInterface:
@@ -126,6 +124,9 @@ def rediskey2key(key):
 redis = None
 
 def get_redis(force=False):
+    
+    from redis import Redis #@UnresolvedImport
+    from redis.exceptions import ConnectionError
     global redis
     if redis is None or force:
         #sys.stderr.write("Opening connection to Redis (host=%s)... " % 
