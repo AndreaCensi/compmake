@@ -1,9 +1,8 @@
 from setuptools import setup
 
-import compmake
 
 setup(name='compmake',
-      version=compmake.version,
+      version="1.0",
       py_modules=['compmake'],
       entry_points={
          'console_scripts': [
