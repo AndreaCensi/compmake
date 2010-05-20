@@ -63,7 +63,7 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 	* :ref:`features`
 
 	**Tutorial**
-
+	
 	* :ref:`tutorial0`
 	* :ref:`tutorial1`
 	* :ref:`tutorial2`
@@ -86,6 +86,7 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 	* :ref:`developer`
 	* :ref:`extending`
+	* :ref:`building_docs`
 
 .. raw:: html
 

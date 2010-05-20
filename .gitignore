@@ -8,3 +8,4 @@ compmake_update_others.sh
 compmake/jobs/syntax/test1_db/
 test1_db
 Simple_db
+.DS_Store

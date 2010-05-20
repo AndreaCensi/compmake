@@ -1,26 +1,32 @@
+from collections import namedtuple
 
-# event    compmake-init
-# event    compmake-closing
 
-# event    job-instanced       job_id  host
-# event    job-succeeded       job_id  host  
-# event    job-failed          job_id  host reason
-# event    job-interrupted     job_id  host reason
-# event    job-starting        job_id  host
-# event    job-finished        job_id  host
-# event    job-now-ready       job_id  
-# event    job-progress        job_id  host done progress goal
-# event    job-stdout          job_id  host lines
-# event    job-stderr          job_id  host lines
+''' This is a specification of the events that can be generated '''
+EventSpec = namedtuple('EventSpec', 'name attrs desc')
+''' This, instead, is an event itself '''
+Event = namedtuple('Event', 'name attrs origin time')
 
-# event    command-starting    command
-# event    command-failed      command retcode reason
-# event    command-succeeded   command 
-# event    command-interrupted command reason
+# event  { 'name': 'compmake-init' }
+# event  { 'name': 'compmake-closing' }
 
-# event    make-progress       targets todo failed ready processing 
-# event    make-finished       targets todo failed ready processing 
-# event    make-failed         targets todo failed ready processing reason
-# event    make-interrupted    targets todo failed ready processing reason
+# event  { 'name': 'job-instanced', 'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason'] }
+# event  { 'name': 'job-starting',  'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-finished',  'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-now-ready', 'attrs': ['job_id'] }
+# event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
+# event  { 'name': 'job-stdout',    'attrs': ['job_id', 'host', 'lines'] }
+# event  { 'name': 'job-stderr',    'attrs': ['job_id', 'host', 'lines'] }
 
-# event    cluster-host-failed  ssh_retcode
+## event    command-starting    command
+## event    command-failed      command retcode reason
+## event    command-succeeded   command 
+## event    command-interrupted command reason
+#
+## event    make-progress       targets todo failed ready processing 
+## event    make-finished       targets todo failed ready processing 
+## event    make-failed         targets todo failed ready processing reason
+## event    make-interrupted    targets todo failed ready processing reason
+#
+## event    cluster-host-failed  ssh_retcode

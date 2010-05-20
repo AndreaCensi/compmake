@@ -77,7 +77,8 @@ def get_job_cache(job_id):
         return cache
     else:
         # make sure this is a valid job_id
-        assert(job_id in all_jobs()) 
+        # XXX expensive
+        assert job_id in all_jobs(), "invalid job %s" % job_id 
         #computation = Computation.id2computations[job_id]
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
