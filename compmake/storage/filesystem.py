@@ -79,16 +79,28 @@ class StorageFilesystem:
     # TODO change key
     def keys(pattern):
         filename = filename_for_key(pattern)
-        basekeys = [ splitext(basename(x))[0] for x in glob(filename)]
-        return basekeys
+        basenames = [ splitext(basename(x))[0] for x in glob(filename)]
+        return [filename2key(b) for b in basenames]
     
+
+dangerous_chars = {
+   '/': 'CMSLASH',
+   '.': 'CMDOT',
+   '~': 'CMHOME'
+}
 
 def key2filename(key):
     '''turns a key into a reasonable filename'''
-    key = key.replace('/', '|')
-    key = key.replace('.', 'D')
-    key = key.replace('~', 'HOME')
+    for char, replacement in dangerous_chars.items():
+        key = key.replace(char, replacement)
     return key
+
+def filename2key(key):
+    ''' Undoes key2filename '''
+    for char, replacement in dangerous_chars.items():
+        key = key.replace(replacement, char)
+    return key
+
 
 def get_computations_root():  
     basepath = expandvars(expanduser(StorageFilesystem.basepath))
