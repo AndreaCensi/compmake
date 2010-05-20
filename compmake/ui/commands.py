@@ -25,6 +25,7 @@ import sys
 from compmake.config.config_html import create_config_html
 from compmake.ui.commands_html import create_commands_html
 from compmake import RET_CODE_JOB_FAILED
+import os
 
 
 class ShellExitRequested(Exception):
@@ -139,7 +140,9 @@ def clustmake(job_list):
         job_list = top_targets()
     
     cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
-    
+
+    if not os.path.exists(cluster_conf):
+        raise UserError('Configuration file "%s" does not exist.' % cluster_conf)    
     hosts = parse_yaml_configuration(open(cluster_conf))
     manager = ClusterManager(hosts)
     manager.add_targets(job_list)

@@ -8,6 +8,9 @@ class KeyNotFound(ParsimException):
 class UserError(ParsimException):
     pass
 
+class CompmakeSyntaxError(UserError):
+    pass
+
 class JobFailed(ParsimException):
     ''' This signals that some job has failed '''
     pass

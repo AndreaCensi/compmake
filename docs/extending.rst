@@ -1,4 +1,5 @@
-.. contents:
+.. contents::
+   :class: pagetoc
 
 .. _`extending`:
 
@@ -11,11 +12,11 @@ Extending compmake
 How to organize the code
 ------------------------
 
-Use --plugin to add/remove plugins:
+Use --plugin to add/remove plugins::
 
     compmake --plugin +mymodule,-dump
 
-Load your plugin
+Load your plugin::
 
 	from compmake import *
 
@@ -59,11 +60,11 @@ Creating a new host scheduler
 TO WRITE::
 
     def my_scheduler(cluster_manager):
-		pass
+        pass
 
     register_host_scheduler(my_scheduler, name='random_scheduler', desc='Random scheduler takes a job at random')
 
-Then run:
+Then run::
 
 	compmake --host_scheduler random_scheduler
 

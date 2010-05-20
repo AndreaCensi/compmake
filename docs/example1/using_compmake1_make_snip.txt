@@ -1,0 +1,11 @@
+done    0 | failed    0 | todo   27 | ready    9 | processing    0 
+done    0 | failed    0 | todo   27 | ready    8 | processing    1 
+jobs:  -- No jobs active -- done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+done    1 | failed    0 | todo   26 | ready    9 | processing    0 
+done    1 | failed    0 | todo   26 | ready    8 | processing    1 
+    [...] 
+done   25 | failed    0 | todo    2 | ready    1 | processing    1 
+jobs:  -- No jobs active -- done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+done   26 | failed    0 | todo    1 | ready    1 | processing    0 
+done   26 | failed    0 | todo    1 | ready    0 | processing    1 
+jobs:  -- No jobs active -- done   27 | failed    0 | todo    0 | ready    0 | processing    0 

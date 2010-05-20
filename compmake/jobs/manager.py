@@ -90,7 +90,7 @@ class Manager:
                 
             progress(job_id, None, None)
             
-            info('Job %s instantiated (more=%s)' % (job_id, make_more))
+            # info('Job %s instantiated (more=%s)' % (job_id, make_more))
         
             
         
@@ -182,6 +182,10 @@ class Manager:
                     raise ParsimException('Processing interrupted by user')
 
     def process(self):
+        if not self.todo:
+            info('Nothing to do.')
+            return
+        
         self.process_init()
         
         progress_reset_cache()
@@ -201,15 +205,15 @@ class Manager:
             
             self.write_status()
             self.loop_until_something_finishes()
-            self.write_status()
-            
+           
+ 
         self.process_finished()
 
             
     def write_status(self):
         # TODO add color
         sys.stderr.write(
-         ("parmake: done %4d | failed %4d | todo %4d " + 
+         ("done %4d | failed %4d | todo %4d " + 
          "| ready %4d | processing %4d \n") % (
                 len(self.done), len(self.failed), len(self.todo),
                 len(self.ready_todo), len(self.processing)))

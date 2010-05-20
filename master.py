@@ -10,7 +10,7 @@ from compmake.structures import UserError
 from compmake.jobs.storage import remove_all_jobs, set_namespace
 from compmake.ui.ui import set_slave_mode
 from compmake.ui.console import interactive_console
-from compmake import  version, stats
+from compmake import  version 
 from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
 
@@ -26,11 +26,7 @@ def main():
     parser.add_option("--path", dest="path",
             help="[filesystem db] Path to directory for filesystem storage",
             default=None)
-    
-#parser.add_option("--host hostname[:port]", dest="hostname",
-#                      help="[redis db] Hostname for redis server",
-#                      default='localhost')
-    
+     
     parser.add_option("--slave", action="store_true", dest="slave",
                       default=False,
                       help="Runs compmake in slave mode.")

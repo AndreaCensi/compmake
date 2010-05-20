@@ -51,17 +51,19 @@ batch processes. It assumes that the computational layout is fixed and that
 all intermediate results can be cached to disk. If these two conditions are met,
 you can use compmake to gain considerable peace of mind.
 
-Still interested? Please read along:
+Still interested? Read along. Start with the tutorial :ref:`tutorial0`.
+And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 .. container:: col1
 
 	**Getting started**
 
 	* :ref:`install`
+	* :ref:`limitations`
 	* :ref:`features`
 
 	**Tutorial**
-
+	
 	* :ref:`tutorial0`
 	* :ref:`tutorial1`
 	* :ref:`tutorial2`
@@ -84,6 +86,7 @@ Still interested? Please read along:
 
 	* :ref:`developer`
 	* :ref:`extending`
+	* :ref:`building_docs`
 
 .. raw:: html
 
@@ -135,10 +138,5 @@ Please use the `issue tracker on github`_ for bugs and requested features.
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
