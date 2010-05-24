@@ -7,8 +7,17 @@ from compmake import compmake_copyright, version, compmake_issues_url
 from compmake.structures import UserError, ParsimException
 from compmake.ui.commands import ShellExitRequested, stats
 from compmake.ui.misc import get_banner
+from compmake.events.registrar import publish
+
+# event  { 'name': 'console-starting' }
+# event  { 'name': 'console-ending' }
+# event  { 'name': 'command-starting',  'attrs': ['command'] }
+# event  { 'name': 'command-failed',  'attrs': ['command','retcode','reason'] }
+# event  { 'name': 'command-succeeded',  'attrs': ['command'] }
+# event  { 'name': 'command-interrupted',  'attrs': ['command','reason'] }
 
 def interactive_console():
+    publish('console-starting')
     # starting console
     banner = get_banner()
     print "%s %s - ``%s''     %s " % (
@@ -24,13 +33,19 @@ def interactive_console():
                 commands = line.strip().split()
                 if commands:
                     try:
+                        publish('command-starting', command=commands)
                         interpret_commands(commands)
+                        publish('command-succeeded', command=commands)
                     except UserError as e:
+                        publish('command-failed', command=commands, reason=e)
                         user_error(e)
                     except ParsimException as e:
+                        publish('command-failed', command=commands, reason=e)
                         # Added this for KeyboardInterrupt
                         error(e)
                     except KeyboardInterrupt:
+                        publish('command-interrupted',
+                                command=commands, reason='keyboard')
                         user_error('Execution of "%s" interrupted' % line)
                     except ShellExitRequested:
                         exit_requested = True
@@ -44,6 +59,9 @@ def interactive_console():
             exit_requested = True
     print "Thanks for using compmake. Problems? Suggestions? \
 Praise? Go to %s" % colored(compmake_issues_url, attrs=['bold'])
+
+    publish('console-ending')
+    
     return
 
 

@@ -58,9 +58,9 @@ def list_jobs(job_list):
         color_args = state2color[k]
         s += colored(tag, **color_args)
         if cache.state == Cache.DONE and cache.done_iterations > 1:
-            s += ' %d iterations completed ' % cache.done_iterations 
+            s += ' %s iterations completed ' % cache.done_iterations 
         if cache.state == Cache.IN_PROGRESS:
-            s += ' (%d/%d iterations in progress) ' % \
+            s += ' (%s/%s iterations in progress) ' % \
                 (cache.iterations_in_progress, cache.iterations_goal)
         if up:
             when = duration_human(time() - cache.timestamp)

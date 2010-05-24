@@ -136,16 +136,14 @@ def comp(command, *args, **kwargs):
   
 
 def interpret_commands(commands):
-    ui_commands = get_commands()
-    
-    
+    ui_commands = get_commands() 
     
     command_name = commands[0]
+    # Check if this is an alias
     if command_name in alias2name:
         command_name = alias2name[command_name]
     if not command_name in ui_commands.keys():
         raise UserError("Uknown command '%s' (try 'help') " % command_name)
-        
         
     cmd = ui_commands[command_name]
     function = cmd.function 
@@ -180,7 +178,7 @@ def interpret_commands(commands):
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    raise UserError('Could not parse %s=%s as %s' % 
+                    raise UserError('Could not parse %s=%s as %s.' % 
                                     (k, v, type(default_value)))
                 
                 #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
@@ -194,7 +192,9 @@ def interpret_commands(commands):
 
     if 'non_empty_job_list' in function_args:
         if not args:
-            raise UserError("Command %s requires arguments" % command_name)
+            raise UserError(
+                "The command '%s' requires a list of jobs as argument." % \
+                command_name)
             
         kwargs['non_empty_job_list'] = parse_job_list(args)
         

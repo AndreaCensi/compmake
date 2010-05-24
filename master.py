@@ -14,18 +14,38 @@ from compmake import  version
 from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
 
-
-def main():             
-    parser = OptionParser(version=version)
-
+def initialize_backend():
     allowed_db = ['filesystem', 'redis']
-    parser.add_option("--db", dest="db",
-                      help="Specifies db backend. Options: %s" % 
-                      allowed_db, default=allowed_db[0])
+
+    if not compmake_config.db in allowed_db: #@UndefinedVariable
+        user_error('Backend name "%s" not valid. I was expecting one in %s.' % 
+              (options.db, allowed_db))
+        sys.exit(-1)
     
-    parser.add_option("--path", dest="path",
-            help="[filesystem db] Path to directory for filesystem storage",
-            default=None)
+    if compmake_config.db == 'redis':
+        hostname = compmake_config.redis_host #@UndefinedVariable
+        if ':' in hostname:
+            # XXX this should be done elsewhere
+            hostname, port = hostname.split(':')
+        else:
+            port = None
+        use_redis(hostname, port)        
+        
+    elif compmake_config.db == 'filesystem':
+        use_filesystem(compmake_config.path) #@UndefinedVariable
+    else: 
+        assert(False)
+
+    from compmake.storage import db
+    if not db:
+        error('There was some error in initializing db.')
+        sys.exit(-54)
+
+
+
+def main():        
+    
+    parser = OptionParser(version=version)
      
     parser.add_option("--slave", action="store_true", dest="slave",
                       default=False,
@@ -34,31 +54,13 @@ def main():
     
     config_populate_optparser(parser)
     
-    
     (options, args) = parser.parse_args()
-
-    if not options.db in allowed_db:
-        user_error('DB name "%s" not valid I was expecting one in %s' % 
-              (options.db, allowed_db))
-        sys.exit(-1)
     
-    if options.db == 'redis':
-        hostname = compmake_config.redis_host #@UndefinedVariable
-        if ':' in hostname:
-            hostname, port = hostname.split(':')
-        else:
-            port = None
-        use_redis(hostname, port)        
-        
-    elif options.db == 'filesystem':
-        use_filesystem(options.path)
-    else: 
-        assert(False)
+    initialize_backend()
 
-    from compmake.storage import db
-    if not db:
-        error('There was some error in initializing db.')
-        sys.exit(-54)
+    # We load plugins after we parsed the configuration
+    from compmake import plugins
+
     
     if not options.slave:
         # XXX make sure this is the default

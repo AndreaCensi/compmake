@@ -23,6 +23,7 @@ from compmake.utils.capture import OutputCapture
 from compmake.utils.visualization import colored
 from compmake.config import compmake_config
 from traceback import print_exc
+from compmake.events.registrar import publish
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -82,8 +83,20 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     cache.backtrace = backtrace
     set_job_cache(job_id, cache)
         
+# event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
+# event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason'] }
+# event  { 'name': 'job-instanced', 'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-starting',  'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-finished',  'attrs': ['job_id', 'host'] }
+# event  { 'name': 'job-interrupted',  'attrs': ['job_id', 'host', 'reason'] }
+# event  { 'name': 'job-now-ready', 'attrs': ['job_id'] }
+
+
 def make(job_id, more=False):
     """ Makes a single job. Returns the user-object or raises JobFailed """
+    host = compmake_config.hostname #@UndefinedVariable
+    
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id) #@UnusedVariable
     cache = get_job_cache(job_id)
@@ -152,6 +165,9 @@ def make(job_id, more=False):
                                                       'should be a tuple with 3 elemnts.' + 
                                                       'Got: %s' % str(next))
                             user_object, num, total = next
+
+                            publish('job-progress', job_id=job_id, host=host,
+                                    done=None, progress=num, goal=total)
                             progress(job_id, num, total)
                             if compmake_config.save_progress: #@UndefinedVariable
                                 set_job_tmpobject(job_id, user_object)
@@ -160,9 +176,15 @@ def make(job_id, more=False):
                     pass
             else:
                 progress(job_id, 1, 1)
+                publish('job-progress', job_id=job_id, host='XXX',
+                        done=1, progress=1, goal=1)
+
                 user_object = result
+
         
         except KeyboardInterrupt:
+                    
+
             # TODO: clear progress cache
             # Save the current progress:
             cache.iterations_in_progress = num
@@ -174,6 +196,8 @@ def make(job_id, more=False):
 
             # clear progress cache
             progress(job_id, 1, 1)
+            
+            publish('job-interrupted', job_id=job_id, host=host)
             raise JobInterrupted('Keyboard interrupt')
         
         except Exception as e:
@@ -189,6 +213,7 @@ def make(job_id, more=False):
             # clear progress cache
             progress(job_id, 1, 1)
             
+            publish('job-failed', job_id=job_id, host=host, reason=e)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
     
         finally:
@@ -205,6 +230,7 @@ def make(job_id, more=False):
             # We only have onw with yeld
             delete_job_tmpobject(job_id)
         
+            
         cache.state = Cache.DONE
         cache.timestamp = time()
         walltime = cache.timestamp - cache.time_start 
@@ -217,106 +243,8 @@ def make(job_id, more=False):
         
         set_job_cache(job_id, cache)
         
+        publish('job-succeeded', job_id=job_id, host=host)
+
         # TODO: clear these records in other place
         return user_object
         
-        
-def make_targets(targets, more=False):
-    ''' Takes care of the serial execution of a set of targets. 
-        Calls make() to make a single target '''
-    # todo: jobs which we need to do, eventually
-    # ready_todo: jobs which are ready to do (dependencies satisfied)
-    todo = list_todo_targets(targets)    
-    if more:
-        todo = todo.union(targets)
-    ready_todo = set([job_id for job_id in todo 
-                      if dependencies_up_to_date(job_id)])
-
-    # jobs currently in processing
-    processing = set()
-    # jobs which have failed
-    failed = set()
-    # jobs completed successfully
-    done = set()
-
-    # TODO: return 
-    def write_status():
-        if processing:
-            proc = list(processing)[0]
-        else:
-            proc = '0'
-        if failed:
-            fail = colored('failed %4d' % len(failed), 'red')
-        else:
-            fail = 'failed %4d' % 0
-        
-        sys.stderr.write(
-         ("compmake: done %4d | %s | todo %4d " + 
-         "| ready %4d | %s \r") % (
-                len(done), fail, len(todo),
-                len(ready_todo), proc))
-
-    assert(ready_todo.issubset(todo))
-    
-    # Until we have something to do
-    while todo:
-        # single thread, we do one thing at a time
-        assert(not processing)
-        # Unless there are circular references,
-        # something should always be ready to do
-        assert(ready_todo)
-        
-        
-        # todo: add task priority
-        job_id = ready_todo.pop()
-        
-        processing.add(job_id)
-        
-        write_status()
-        
-        try:
-            do_more = more and job_id in targets
-            # try to do the job
-            make(job_id, more=do_more)
-            # if we succeed, mark as done
-            done.add(job_id)
-            # now look for its parents
-            parent_jobs = direct_parents(job_id)
-            for opportunity in todo.intersection(set(parent_jobs)):
-                # opportunity is a parent that we should do
-                # if its dependencies are satisfied, we can put it 
-                #  in the ready_todo list
-                if dependencies_up_to_date(opportunity):
-                    # print "Now I can make %s" % opportunity
-                    ready_todo.add(opportunity)
-            
-        except Exception as e:
-            # get backtrace
-            sio = StringIO()
-            traceback.print_exc(file=sio)
-            bt = sio.getvalue()
-            # mark as failed
-            mark_as_failed(job_id, exception=e, backtrace=bt)
-            failed.add(job_id)
-
-            its_parents = set(parents(job_id))
-            for p in its_parents:
-                mark_as_failed(p, 'Failure of dependency %s' % job_id)
-                if p in todo:
-                    todo.remove(p)
-                    failed.add(p)
-                    if p in ready_todo:
-                        ready_todo.remove(p)
-            
-            # write something 
-            error("Job %s failed: %s" % (job_id, e))
-            error(bt)
-            
-        finally:
-            # in any case, we remove the job from the todo list
-            todo.remove(job_id)
-            processing.remove(job_id)
-        
-    write_status()
-    sys.stderr.write('\n')
- 

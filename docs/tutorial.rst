@@ -1,3 +1,4 @@
+.. include:: definitions.txt
 
 .. contents::
    :class: pagetoc
@@ -7,13 +8,13 @@
 Basic compmake usage
 ====================
 
-This tutorial gives some motivation for using ``compmake`` and explain the basic usage.
+This tutorial gives some motivation for using |compmake| and explains the basic usage.
 
 
-Why using  ``compmake``
+Why using  compmake
 -------------------------
 
-This section explains why you would want to use compmake. If you already know why, skip ahead to
+This section explains why you would want to use |compmake|. If you already know why, skip ahead to
 :ref:`preparing`.
 
 Suppose that you are working on this simple program:
@@ -62,18 +63,18 @@ This is a very simple program. Suppose, however, that the functions ``func1()``,
 
 In short, writing computationally intensive batch processes, (especially simulations), presents
 some common problems. In isolation, each of them could be overcome by writing ad hoc code.
-**Compmake helps you** by solving each of these problems (and more) in a robust way, once and for all.
+**|compmake| helps you** by solving each of these problems (and more) in a robust way, once and for all.
 The price you have to pay is a slight modification of the source code, as explained in the following section.
 
 .. _preparing:
 
-Preparing your programs for  ``compmake``
+Preparing your programs for  compmake
 -----------------------------------------
 
 The basic idea is that now your source code will just *describe* your computation, without actually
 executing it. 
 
-In practice, to use ``compmake``, you have to modify 
+In practice, to use |compmake|, you have to modify 
 each function call of interest by wrapping it with the ``comp()`` function.
 It's easy: each fragment of the form::
 
@@ -86,7 +87,7 @@ becomes::
 The function ``comp()`` does not actually run the computation ``func1(param1)``, but rather it
 puts this "job" in the job database. It returns (immediately) a `promise`_ representing
 the delayed result. You can use this value in successive calls to ``comp()`` (but not directly).
-In this way, compmake learns the computational structure of your program.
+In this way, |compmake| learns the computational structure of your program.
 
 .. _`promise`: http://en.wikipedia.org/wiki/Promise_%28programming%29
 
@@ -94,7 +95,7 @@ In this example, the source code becomes (file ``using_compmake.py``):
 
 .. literalinclude:: example1/using_compmake1.py
 
-When this file is passed to ``compmake``, the following computational structure
+When this file is passed to |compmake|, the following computational structure
 is discovered:
 
 .. image:: example1/graph_before.png
@@ -102,7 +103,7 @@ is discovered:
 
 (This is the output of the `graph command`_)
 
-The next section shows how to run ``compmake`` once you have modified your source code.
+The next section shows how to run |compmake| once you have modified your source code.
 
 .. _`graph command`: commands.html
 
@@ -129,7 +130,7 @@ However, the second time, the output will be:
 
 .. literalinclude:: example1/using_compmake1_make2.txt
 
-because compmake has cached the results of the computation.
+because |compmake| has cached the results of the computation.
 	
 
 **Cleaning up**: Use the command ``clean`` to clean::

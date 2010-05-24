@@ -1,7 +1,7 @@
 from sys import stderr
 from multiprocessing import TimeoutError 
 from compmake.structures import  ParsimException, JobFailed, \
-    JobInterrupted
+    JobInterrupted, HostFailed
 from compmake.stats import   progress_reset_cache, progress_string, progress
 from compmake.utils import error
 from compmake.jobs.actions import  mark_as_failed
@@ -113,18 +113,20 @@ class Manager:
         except JobFailed:
             self.job_failed(job_id)
             return True
-        except KeyboardInterrupt:
-            # XXX I'm not sure this is ok
-            self.job_interrupted(job_id) 
-            return True
-        except JobInterrupted:
+        except HostFailed:
             # the execution has been interrupted, but not failed
-            self.job_interrupted(job_id) 
+            self.host_failed(job_id) 
             return True
+        except KeyboardInterrupt:
+            raise JobInterrupted('Keyboard interrupt')
+        except JobInterrupted:
+            raise JobInterrupted('Interrupted')
+            #self.job_interrupted(job_id) 
+            #return True
     
 
-    def job_interrupted(self, job_id):
-        error('Job %s has been interrupted ' % job_id)
+    def host_failed(self, job_id):
+        error('Job %s: host failed' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
@@ -163,10 +165,12 @@ class Manager:
             if dependencies_up_to_date(opportunity):
                 self.ready_todo.add(opportunity)
                 
-                           
+    def event_check(self):
+        pass
+    
     def loop_until_something_finishes(self):
         while True:
-            stderr.write("jobs: %s\r" % progress_string())
+            #stderr.write("jobs: %s\n" % progress_string())
             
             received = False
             # We make a copy because processing is updated during the loop
@@ -176,11 +180,14 @@ class Manager:
                 break
             else:
                 try:
-                    time.sleep(1)
+                    time.sleep(0.5)
                 except KeyboardInterrupt:
                     # XXX make sure that the pool close
-                    raise ParsimException('Processing interrupted by user')
+                    # raise ParsimException('Processing interrupted by user')
+                    raise KeyboardInterrupt
 
+            self.event_check()
+            
     def process(self):
         if not self.todo:
             info('Nothing to do.')
@@ -188,29 +195,37 @@ class Manager:
         
         self.process_init()
         
-        progress_reset_cache()
         # XXX when make is in slave mode it should not update the cache
-        while self.todo:
-            assert self.ready_todo or self.processing 
-            assert not self.failed.intersection(self.todo)
-    
-            self.write_status()
-            self.instance_some_jobs()
-            self.write_status()
-            if self.ready_todo and not self.processing:
-                # XXX - what kind of error should we throw?
-                error('Cannot find computing resources -- giving up')
-                return False
-                #raise ParsimException('Cannot find computing resources') 
-            
-            self.write_status()
-            self.loop_until_something_finishes()
-           
- 
-        self.process_finished()
+        progress_reset_cache()
+        
+        try:
+            while self.todo:
+                assert self.ready_todo or self.processing 
+                assert not self.failed.intersection(self.todo)
+        
+                self.write_status()
+                self.instance_some_jobs()
+                self.write_status()
+                if self.ready_todo and not self.processing:
+                    # XXX - what kind of error should we throw?
+                    error('Cannot find computing resources -- giving up')
+                    return False
+                    #raise ParsimException('Cannot find computing resources') 
+                
+                self.write_status()
+                self.loop_until_something_finishes()
+               
+            self.process_finished()
+            return True
+        except JobInterrupted:
+            # XXX I'm getting confused
+            raise KeyboardInterrupt
+            #error('Computation interrupted by user')
+            #return False
 
             
     def write_status(self):
+        return # XXX
         # TODO add color
         sys.stderr.write(
          ("done %4d | failed %4d | todo %4d " + 

@@ -1,5 +1,7 @@
 ''' Routines for discovering events scattered in the compmake source '''
-from compmake.events import EventSpec
+from collections import namedtuple
+EventSpec = namedtuple('EventSpec', 'name attrs desc')
+
 import sys
 
 EVENT_SPEC_PREFIX = '# event'

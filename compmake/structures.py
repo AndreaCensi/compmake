@@ -16,6 +16,10 @@ class JobFailed(ParsimException):
     pass
 
 class JobInterrupted(ParsimException):
+    ''' User requested to interrupt job'''
+    pass
+
+class HostFailed(ParsimException):
     ''' The job has been interrupted and must be redone (it has not faile though) '''
     pass
 

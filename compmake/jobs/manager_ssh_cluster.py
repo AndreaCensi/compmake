@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 
-from compmake.structures import UserError, JobFailed, JobInterrupted
+from compmake.structures import UserError, JobFailed, JobInterrupted, HostFailed
 from compmake.storage.redisdb import RedisInterface
 from compmake.utils.visualization import info, setproctitle, error
 from compmake.jobs.manager import Manager
@@ -63,8 +63,8 @@ class ClusterManager(Manager):
         Manager.job_failed(self, job_id)
         self.release(job_id)
         
-    def job_interrupted(self, job_id):
-        Manager.job_interrupted(self, job_id)
+    def host_failed(self, job_id):
+        Manager.host_failed(self, job_id)
         host = self.processing2host[job_id]
         self.host_failed(host)
         self.release(job_id)
@@ -111,7 +111,7 @@ def cluster_job(config, job_id, more=False):
     nice = compmake_config.cluster_nice #@UndefinedVariable
     
     compmake_cmd = \
-    'nice -n %d compmake --hostname=%s --db=redis --redis_host=localhost:%s --slave  %s --save_progress=False\
+    'nice -n %d compmake --hostname=%s --db=redis --redis_events --redis_host=localhost:%s --slave  %s --save_progress=False\
      make_single more=%s %s' % \
             (nice, hostname_no_instance, proxy_port, get_namespace(), more, job_id)
             
@@ -136,7 +136,7 @@ def cluster_job(config, job_id, more=False):
         raise JobFailed('Job %s failed' % job_id)
     
     if ret != 0:
-        raise JobInterrupted('Job %s interrupted (line: "%s", ret=%s)' % 
+        raise HostFailed('Job %s: host failed: (line: "%s", ret=%s)' % 
                              (job_id, " ".join(args), ret))
         
     return ret
