@@ -9,7 +9,7 @@ from compmake.jobs.storage import get_namespace
 from compmake.jobs.cluster_conf import Host
 from compmake import RET_CODE_JOB_FAILED
 from compmake.config import compmake_config
-from compmake.events.registrar import publish
+from compmake.events.registrar import publish, broadcast_event
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -53,7 +53,8 @@ class ClusterManager(Manager):
         # only one job at a time
         return self.hosts_ready 
 
-    def host_failed(self, host):
+    # XXX some confusion with names
+    def my_host_failed(self, host):
         self.failed_hosts.add(host)
         while host in self.hosts_ready:
             self.hosts_ready.remove(host)
@@ -67,7 +68,7 @@ class ClusterManager(Manager):
     def host_failed(self, job_id):
         Manager.host_failed(self, job_id)
         host = self.processing2host[job_id]
-        self.host_failed(host)
+        self.my_host_failed(host)
         self.release(job_id)
             
     def job_succeeded(self, job_id):
@@ -104,7 +105,7 @@ class ClusterManager(Manager):
         events = RedisInterface.events_read()
         for event in events:
             event.kwargs['remote'] = True
-            publish(event)
+            broadcast_event(event)
         
 
     
