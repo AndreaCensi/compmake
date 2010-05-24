@@ -101,7 +101,25 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
 #        for k in keys:
 #            res = get_redis().delete(k)
 #        return keys
-
+ 
+    @staticmethod
+    def events_push(event):
+        ''' Pushes an event over the queue '''
+        r = get_redis()
+        r.rpush('compmake-events', object2string(event))
+    
+    @staticmethod
+    def events_read():
+        ''' Returns a list of events '''
+        events = []
+        r = get_redis()
+        while True:
+            event_string = r.lpop('compmake-events')
+            if not event_string:
+                break
+            events.append(string2object(event_string))
+        return events
+        
 # Other utilities
 
 # Serialization device

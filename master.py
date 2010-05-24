@@ -13,6 +13,7 @@ from compmake.ui.console import interactive_console
 from compmake import  version 
 from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
+from compmake.events.registrar import remove_all_handlers, register_handler
 
 def initialize_backend():
     allowed_db = ['filesystem', 'redis']
@@ -47,9 +48,14 @@ def main():
     
     parser = OptionParser(version=version)
      
-    parser.add_option("--slave", action="store_true", dest="slave",
-                      default=False,
-                      help="Runs compmake in slave mode.")
+    parser.add_option("--slave", action="store_true",
+                      default=False, dest="slave",
+                      help="[internal] Runs compmake in slave mode.")
+    
+    parser.add_option("--redis_events", action="store_true",
+                      default=False, dest="redis_events",
+                      help="[internal] Relays events using Redis.")
+    
     
     
     config_populate_optparser(parser)
@@ -60,6 +66,21 @@ def main():
 
     # We load plugins after we parsed the configuration
     from compmake import plugins
+    
+    if options.redis_events:
+        if not compmake_config.db == 'redis': #@UndefinedVariable
+            error('Cannot use redis_events without redis.')
+            sys.exit(-2)
+        
+        from compmake.storage.redisdb import RedisInterface
+
+        # register an handler that will capture all events    
+        def handler(event):
+            RedisInterface.events_push(event) 
+    
+        remove_all_handlers()    
+        register_handler("*", handler)
+
 
     
     if not options.slave:

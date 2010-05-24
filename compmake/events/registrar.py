@@ -36,7 +36,7 @@ def publish(event_name, **kwargs):
     for key in kwargs.keys():
         if not key in spec.attrs:
             raise ParsimException('Passed attribute "%s" for event type "%s" \
-but only found %s ' % (key, event_name, spec.args))
+but only found %s ' % (key, event_name, spec.attrs))
     event = Event(event_name, **kwargs)
     broadcast_event(event)
     

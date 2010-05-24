@@ -9,6 +9,7 @@ from compmake.jobs.storage import get_namespace
 from compmake.jobs.cluster_conf import Host
 from compmake import RET_CODE_JOB_FAILED
 from compmake.config import compmake_config
+from compmake.events.registrar import publish
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -98,6 +99,13 @@ class ClusterManager(Manager):
             async_result = FakeAsync(cluster_job, host_config, job_id, more)
         
         return async_result 
+    
+    def event_check(self):
+        events = RedisInterface.events_read()
+        for event in events:
+            event.kwargs['remote'] = True
+            publish(event)
+        
 
     
 import subprocess

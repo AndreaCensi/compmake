@@ -13,7 +13,7 @@ compmake_registered_events["job-starting"] = EventSpec(name='job-starting', attr
 compmake_registered_events["job-finished"] = EventSpec(name='job-finished', attrs=['job_id', 'host'], desc=None)
 compmake_registered_events["job-interrupted"] = EventSpec(name='job-interrupted', attrs=['job_id', 'host', 'reason'], desc=None)
 compmake_registered_events["job-now-ready"] = EventSpec(name='job-now-ready', attrs=['job_id'], desc=None)
-compmake_registered_events["worker-status"] = EventSpec(name='worker-status', attrs=['status'], desc=None)
+compmake_registered_events["worker-status"] = EventSpec(name='worker-status', attrs=['status', 'job_id'], desc=None)
 compmake_registered_events["console-starting"] = EventSpec(name='console-starting', attrs=[], desc=None)
 compmake_registered_events["console-ending"] = EventSpec(name='console-ending', attrs=[], desc=None)
 compmake_registered_events["command-starting"] = EventSpec(name='command-starting', attrs=['command'], desc=None)
