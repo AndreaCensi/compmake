@@ -54,7 +54,7 @@ def parmake_job2(job_id, more):
     register_handler("*", handler)
     
     def proctitle(event):
-        stat = '[%s/%s %s]' % (event.progress, event.goal, event.job_id)
+        stat = '[%s/%s %s] (compmake)' % (event.progress, event.goal, event.job_id)
         setproctitle(stat)
     register_handler("job-progress", proctitle)
         

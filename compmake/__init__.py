@@ -16,7 +16,7 @@ compmake_status_embedded = 'embedded'
 compmake_status = compmake_status_embedded
 
 def set_compmake_status(s):
-    import compmake  
+    import compmake  #@UnresolvedImport
     compmake.compmake_status = s
 
 

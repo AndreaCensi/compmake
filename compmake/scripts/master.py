@@ -46,6 +46,7 @@ def initialize_backend():
 
 
 def main():        
+    setproctitle('compmake')
     
     parser = OptionParser(version=version)
      
