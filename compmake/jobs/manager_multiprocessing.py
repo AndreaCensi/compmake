@@ -6,6 +6,7 @@ from compmake.events.registrar import register_handler, broadcast_event, \
     remove_all_handlers, publish
 from multiprocessing.queues import Queue
 from Queue import Empty 
+from compmake.utils.visualization import setproctitle
 
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
 
@@ -51,6 +52,12 @@ def parmake_job2(job_id, more):
     
     remove_all_handlers()    
     register_handler("*", handler)
+    
+    def proctitle(event):
+        stat = '[%s/%s %s]' % (event.progress, event.goal, event.job_id)
+        setproctitle(stat)
+    register_handler("job-progress", proctitle)
+        
     
     publish('worker-status', job_id=job_id, status='started')
 

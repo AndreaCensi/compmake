@@ -9,12 +9,12 @@ def console_write(s):
     cols = 80
     s = string.ljust(s, cols)
     stream.write(s)
-    # stream.write('\r')
-    stream.write('\n')
+    stream.write('\r')
+    #stream.write('\n')
     
 def job_redefined(event): #@UnusedVariable
     #stream.write('\n')
-    stream.write(colored('Redefined %s\n' % event.job_id, 'yellow', attrs=['bold']))
+    stream.write(colored('Redefined %s\r' % event.job_id, 'yellow', attrs=['bold']))
     stream.write(colored(event.reason, 'yellow'))
     #stream.write('\n')
 
