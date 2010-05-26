@@ -1,11 +1,11 @@
-
-from collections import namedtuple
-''' This is a specification of the events that can be generated '''
 import time
-EventSpec = namedtuple('EventSpec', 'name attrs desc')
-''' This, instead, is an event itself '''
+from collections import namedtuple
+
+''' This is a specification of the events that can be generated '''
+EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 
 class Event:
+    ''' This, instead, is an event itself '''
     def __init__(self, name, **kwargs):
         self.name = name
         self.__dict__.update(kwargs)
@@ -19,9 +19,5 @@ class Event:
 # event  { 'name': 'job-stderr',    'attrs': ['job_id', 'host', 'lines'] }
 
 #
-## event    make-progress       targets todo failed ready processing 
-## event    make-finished       targets todo failed ready processing 
-## event    make-failed         targets todo failed ready processing reason
-## event    make-interrupted    targets todo failed ready processing reason
 #
 ## event    cluster-host-failed  ssh_retcode

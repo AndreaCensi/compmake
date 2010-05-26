@@ -5,31 +5,24 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
+
+import sys, os
 from compmake.ui.helpers import   ui_section, ui_command, \
-    GENERAL, ACTIONS, VISUALIZATION, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
+    GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
     COMMANDS_CLUSTER
-from compmake.ui.commands_impl import list_jobs 
 from compmake.jobs import make_sure_cache_is_sane, \
     clean_target, mark_remake, mark_more, top_targets    
-from compmake.jobs.storage import get_job_cache, all_jobs 
-from compmake.structures import  Cache, UserError, JobFailed
-from compmake.config import compmake_config, show_config, config_switches, \
-    set_config_from_strings
+from compmake.jobs.storage import  all_jobs 
+from compmake.structures import   UserError, JobFailed, ShellExitRequested
+from compmake.config import compmake_config 
 
 from compmake.jobs.cluster_conf import parse_yaml_configuration
 from compmake.utils.visualization import info
 from compmake.jobs.manager_local import ManagerLocal
 from compmake.jobs.manager_multiprocessing import MultiprocessingManager
 from compmake.jobs.manager_ssh_cluster import ClusterManager
-import sys
-from compmake.config.config_html import create_config_html
-from compmake.ui.commands_html import create_commands_html
 from compmake import RET_CODE_JOB_FAILED
-import os
 
-
-class ShellExitRequested(Exception):
-    pass
 
 
 ui_section(GENERAL)
@@ -66,19 +59,7 @@ def clean(job_list):
     for job_id in job_list:
         clean_target(job_id)
    
-
-@ui_command(section=VISUALIZATION)
-def list_failed(job_list):
-    '''Lists the jobs that have failed. '''
-    if not job_list:
-        job_list = all_jobs()
-    job_list.sort()
-    
-    job_list = [job_id for job_id in job_list \
-                if get_job_cache(job_id).state == Cache.FAILED]
-    
-    list_jobs(job_list)
-      
+ 
 @ui_command(section=ACTIONS)
 def make(job_list):
     '''Makes selected targets; or all targets if none specified ''' 
@@ -111,7 +92,7 @@ def make_single(job_list, more=False):
     except JobFailed:
         return RET_CODE_JOB_FAILED
 
-
+# TODO: add num processors
 @ui_command(section=PARALLEL_ACTIONS)
 def parmake(job_list):
     '''Parallel equivalent of "make".
@@ -179,9 +160,6 @@ def clustmore(non_empty_job_list, loop=1):
         
     return 0
 
-
-
-
 @ui_command(section=ACTIONS)
 def remake(non_empty_job_list):  
     '''Remake the selected targets (equivalent to clean and make). '''
@@ -232,9 +210,6 @@ def more(non_empty_job_list, loop=1):
 
     return 0
 
-    
-        #make_targets(non_empty_job_list, more=True)
-
 @ui_command(section=PARALLEL_ACTIONS)
 def parmore(non_empty_job_list, loop=1):
     '''Parallel equivalent of "more". '''
@@ -256,48 +231,5 @@ def parmore(non_empty_job_list, loop=1):
             return RET_CODE_JOB_FAILED
 
     return 0
-   
-@ui_command(section=VISUALIZATION)
-def stats():
-    '''Prints statistics about the jobs loaded'''
-    njobs = len(all_jobs())
-    print("%d jobs loaded." % njobs)
-    # TODO: Add class report    
-
-
-@ui_command(section=GENERAL)
-def config(args):
-    ''' Get/set configuration parameters '''    
-    if not args:
-        # show
-        show_config(sys.stdout)
-        return
-        
-    name = args.pop(0)
-    if not args:
-        if not name in config_switches:
-            raise UserError("I don't know the switch '%s'." % name)
-        info('config %s %s' % (name, compmake_config.__dict__[name]))
-        return
-        
-    set_config_from_strings(name, args)
-
-
-@ui_command(section=COMMANDS_ADVANCED)
-def config_html(output_file=''):
-    ''' Dumps the config description in html on the specified file '''
-    if output_file:
-        f = open(output_file, 'w')
-    else:
-        f = sys.stdout
-    create_config_html(f)
     
 
-@ui_command(section=COMMANDS_ADVANCED)
-def commands_html(output_file=''):
-    ''' Dumps the commands description in html on the specified file '''
-    if output_file:
-        f = open(output_file, 'w')
-    else:
-        f = sys.stdout
-    create_commands_html(f)

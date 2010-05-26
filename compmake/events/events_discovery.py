@@ -1,6 +1,9 @@
 ''' Routines for discovering events scattered in the compmake source '''
 from collections import namedtuple
-EventSpec = namedtuple('EventSpec', 'name attrs desc')
+import time
+
+''' This is a specification of the events that can be generated '''
+EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 
 import sys
 
@@ -11,14 +14,23 @@ def discover_events(filename):
     Returns a list of EventSpec.
     '''
     with open(filename) as f:
+        k = 0
         for line in f:
+            k += 1
             if line.startswith(EVENT_SPEC_PREFIX):
                 line = line[len(EVENT_SPEC_PREFIX):]
-                spec = eval(line)
+                try:
+                    spec = eval(line)
+                except SyntaxError as e:
+                    sys.stderr.write("Could not decipher line %s at file %s\n" % 
+                                     (k, filename))
+                    raise e
                 if not 'desc' in spec:
                     spec['desc'] = None
                 if not 'attrs' in spec:
                     spec['attrs'] = []
+                spec['file'] = filename
+                spec['line'] = k
                 yield EventSpec(**spec)
                     
                     

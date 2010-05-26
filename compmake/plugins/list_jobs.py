@@ -7,9 +7,10 @@ from compmake.utils.visualization import duration_human, colored
 from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache, all_jobs
 from compmake.jobs.uptodate import up_to_date
-from compmake.ui.helpers import padleft, ui_command, VISUALIZATION
+from compmake.ui.helpers import  ui_command, VISUALIZATION
 import sys
 from compmake.jobs.syntax.parsing import parse_job_list
+from string import rjust
 
          
 @ui_command(section=VISUALIZATION, alias='ls')
@@ -78,7 +79,7 @@ def list_job_detail(job_id):
     up, reason = up_to_date(job_id)
 
     red = lambda x: colored(x, 'red')
-    bold = lambda x:  colored(padleft(15, x + ' '), attrs=['bold'])
+    bold = lambda x:  colored(rjust(x + ' ', 15), attrs=['bold'])
     
     
     try:

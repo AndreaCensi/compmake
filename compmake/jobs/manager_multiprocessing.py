@@ -17,10 +17,10 @@ class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
         
     def process_init(self):
-        from compmake.storage import db
-        if not db.supports_concurrency():
-            raise UserError("I cannot do multiprocessing using %s \
-backend (use redis) " % db)
+        #from compmake.storage import db
+#        if not db.supports_concurrency():
+            #raise UserError("I cannot do multiprocessing using %s \
+#backend (use redis) " % db)
         
         self.pool = Pool(processes=cpu_count() + 1)
         self.max_num_processing = cpu_count() + 1

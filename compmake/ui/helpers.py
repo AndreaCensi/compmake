@@ -3,6 +3,7 @@ from collections import namedtuple
 from compmake.utils.visualization import colored
 import types
 from compmake.structures import UserError
+from string import ljust
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
@@ -137,16 +138,12 @@ def list_commands_with_sections(file=sys.stdout):
             cmd = commands[name]
             short_doc = cmd.doc.split('\n')[0].strip()
             file.write("  | %s  %s\n" % 
-                       (colored(padleft(max_len, name), attrs=['bold']), short_doc))
+                       (colored(ljust(name, max_len), attrs=['bold']), short_doc))
 
-
-def padleft(n, s):
-    return " " * (n - len(s)) + s
 
 # FIXME: put this somewhere else
 import compmake.ui.commands #@UnusedImport
-import compmake.plugins.dump #@UnusedImport
-import compmake.plugins.graph #@UnusedImport
-import compmake.plugins.credits #@UnusedImport
-    
+import compmake.ui.commands_html #@UnusedImport
+import compmake.config.ui #@UnusedImport
+
     

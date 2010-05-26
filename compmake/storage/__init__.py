@@ -1,4 +1,6 @@
 import os
+from compmake.utils.visualization import info
+from compmake.config import compmake_config
 
 db = None
 
@@ -18,7 +20,7 @@ def use_redis(host=None, port=None):
 
 def use_filesystem(directory=None):
     if directory is None:
-        directory = 'compmake_storage'
+        directory = compmake_config.path #@UndefinedVariable
         
     from compmake.storage.filesystem import StorageFilesystem
     global db
@@ -26,10 +28,9 @@ def use_filesystem(directory=None):
     db.basepath = directory
     
     if not os.path.exists(directory):
-        print "Creating storage directory %s" % directory
+        info("Creating storage directory %s" % directory)
         os.makedirs(directory)
 
-#use_filesystem()
 #use_redis()
-
+use_filesystem()
 

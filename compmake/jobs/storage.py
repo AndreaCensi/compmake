@@ -12,10 +12,12 @@ These are all wrappers around the raw methods in storage
 from compmake.structures import Cache, Computation, ParsimException
 from compmake import storage
 import compmake
+from compmake.utils.visualization import info
 
 namespace = 'default'
 
 def set_namespace(n):
+    info('Using namespace %s' % n) 
     compmake.jobs.namespace = n
 
 def get_namespace():

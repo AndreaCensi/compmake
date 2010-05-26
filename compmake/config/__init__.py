@@ -2,6 +2,7 @@ import sys
 from collections import namedtuple
 from compmake.structures import UserError
 from compmake.utils.values_interpretation import interpret_strings_like
+from string import rjust
 
 ConfigSwitch = namedtuple('ConfigSwitch',
                           'name default_value desc section order allowed')
@@ -52,7 +53,6 @@ def add_config_section(name, desc=None, order=0):
     
 
 def show_config(file):
-    from compmake.ui.helpers import  padleft
     from compmake.utils.visualization import colored
 
     ordered_sections = sorted(config_sections.values(),
@@ -79,10 +79,9 @@ def show_config(file):
             desc = str(switch.desc)
             
             file.write("  | %s  %s  %s\n" % 
-                       (colored(padleft(max_len_name, name), attrs=['bold']),
-                        colored(padleft(max_len_val, value), attrs=attrs),
+                       (colored(rjust(name, max_len_name), attrs=['bold']),
+                        colored(rjust(value, max_len_val), attrs=attrs),
                         desc))
-
 
 
 import config_list

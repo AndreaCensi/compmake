@@ -8,9 +8,9 @@ from compmake.storage import use_redis, use_filesystem
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
 from compmake.jobs.storage import remove_all_jobs, set_namespace
-from compmake.ui.ui import set_slave_mode
 from compmake.ui.console import interactive_console
-from compmake import  version 
+from compmake import  version , compmake_status_slave, set_compmake_status, \
+    compmake_status_interactive
 from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
 from compmake.events.registrar import remove_all_handlers, register_handler
@@ -18,12 +18,13 @@ from compmake.events.registrar import remove_all_handlers, register_handler
 def initialize_backend():
     allowed_db = ['filesystem', 'redis']
 
-    if not compmake_config.db in allowed_db: #@UndefinedVariable
+    chosen_db = compmake_config.db #@UndefinedVariable
+    if not chosen_db in allowed_db:
         user_error('Backend name "%s" not valid. I was expecting one in %s.' % 
-              (options.db, allowed_db))
+              (chosen_db, allowed_db))
         sys.exit(-1)
     
-    if compmake_config.db == 'redis':
+    if compmake_config.db == 'redis': #@UndefinedVariable
         hostname = compmake_config.redis_host #@UndefinedVariable
         if ':' in hostname:
             # XXX this should be done elsewhere
@@ -32,7 +33,7 @@ def initialize_backend():
             port = None
         use_redis(hostname, port)        
         
-    elif compmake_config.db == 'filesystem':
+    elif compmake_config.db == 'filesystem': #@UndefinedVariable
         use_filesystem(compmake_config.path) #@UndefinedVariable
     else: 
         assert(False)
@@ -56,8 +57,6 @@ def main():
                       default=False, dest="redis_events",
                       help="[internal] Relays events using Redis.")
     
-    
-    
     config_populate_optparser(parser)
     
     (options, args) = parser.parse_args()
@@ -65,7 +64,7 @@ def main():
     initialize_backend()
 
     # We load plugins after we parsed the configuration
-    from compmake import plugins
+    from compmake import plugins #@UnusedImport
     
     if options.redis_events:
         if not compmake_config.db == 'redis': #@UndefinedVariable
@@ -85,7 +84,8 @@ def main():
     
     if not options.slave:
         # XXX make sure this is the default
-        set_slave_mode(False)
+        set_compmake_status(compmake_status_interactive)
+        
         # TODO: add command namespace
         # TODO: add command "load"
         if not args:
@@ -103,8 +103,8 @@ def main():
             warning('However, I need a module name. I will try with "%s".' % 
                     module_name)
         
-        set_namespace(module_name)
-        remove_all_jobs()    
+        # set_namespace(module_name)
+        # remove_all_jobs()    
         try:
             __import__(module_name)
         except Exception as e:
@@ -112,17 +112,22 @@ def main():
                   (module_name, e)) 
             traceback.print_exc(file=sys.stderr)
             sys.exit(-5)
+            
+        # TODO: BUG: XXX: remove old jobs those in defined_this_section
     else:
+        set_compmake_status(compmake_status_slave)
+        
         if not args:
             user_error('I expect at least one parameter (namespace name)')
             sys.exit(-2)
         
         module_name = args.pop(0)
-        set_namespace(module_name)
-        set_slave_mode(True)
+        #set_namespace(module_name)
+        
              
     if args:
         try:
+            # XXX is this redudant?
             compmake_config.interactive = False
             retcode = interpret_commands(args)
             # print "Exiting with retcode %s" % retcode

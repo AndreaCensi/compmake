@@ -6,7 +6,7 @@ setup(name='compmake',
       py_modules=['compmake'],
       entry_points={
          'console_scripts': [
-           'compmake = master:main'
+           'compmake = compmake.scripts.master:main'
         ]
       },
       install_requires=['termcolor', 'setproctitle', 'readline'],

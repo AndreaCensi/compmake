@@ -1,5 +1,3 @@
-import sys
-import traceback
 from StringIO import StringIO
 from time import time, clock
 from types import GeneratorType
@@ -12,15 +10,12 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, \
     is_job_userobject_available, delete_job_userobject, \
     is_job_tmpobject_available, delete_job_tmpobject, get_job_tmpobject, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_computation
-from compmake.jobs.uptodate import up_to_date, dependencies_up_to_date, \
-    list_todo_targets
-from compmake.jobs.queries import parents, direct_parents    
+from compmake.jobs.uptodate import up_to_date 
+    
 from compmake.structures import Cache, Computation, ParsimException, UserError, \
     JobFailed, JobInterrupted
 from compmake.utils import error
-from compmake.stats import progress
-from compmake.utils.capture import OutputCapture
-from compmake.utils.visualization import colored
+from compmake.utils.capture import OutputCapture 
 from compmake.config import compmake_config
 from traceback import print_exc
 from compmake.events.registrar import publish
@@ -82,7 +77,8 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     cache.exception = exception
     cache.backtrace = backtrace
     set_job_cache(job_id, cache)
-        
+
+# DO NOT DELETE: THESE DECLARATIONS ARE PARSED       
 # event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
 # event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
 # event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason'] }
@@ -147,8 +143,7 @@ def make(job_id, more=False):
         
         num, total = 0, None
         user_object = None
-        progress(job_id, num, total)
-        
+
         capture = OutputCapture(prefix=job_id,
             echo_stdout=compmake_config.echo_stdout, #@UndefinedVariable
             echo_stderr=compmake_config.echo_stderr) #@UndefinedVariable
@@ -168,14 +163,12 @@ def make(job_id, more=False):
 
                             publish('job-progress', job_id=job_id, host=host,
                                     done=None, progress=num, goal=total)
-                            progress(job_id, num, total)
                             if compmake_config.save_progress: #@UndefinedVariable
                                 set_job_tmpobject(job_id, user_object)
                             
                 except StopIteration:
                     pass
             else:
-                progress(job_id, 1, 1)
                 publish('job-progress', job_id=job_id, host='XXX',
                         done=1, progress=1, goal=1)
 
@@ -195,8 +188,6 @@ def make(job_id, more=False):
             set_job_cache(job_id, cache)
 
             # clear progress cache
-            progress(job_id, 1, 1)
-            
             publish('job-interrupted', job_id=job_id, host=host)
             raise JobInterrupted('Keyboard interrupt')
         
@@ -211,8 +202,6 @@ def make(job_id, more=False):
             mark_as_failed(job_id, e, bt)
             
             # clear progress cache
-            progress(job_id, 1, 1)
-            
             publish('job-failed', job_id=job_id, host=host, reason=e)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
     

@@ -15,19 +15,22 @@ add_config_section(name=CONFIG_CLUSTER, desc='', order=2)
 add_config_section(name=CONFIG_FS, desc='', order=2.2)
 
 
+add_config_switch('check_params', False,
+        desc="If true, erases the cache if job parameters appear to change.\
+ Very useful but you need to define __eq__() in all the objects you use as \
+ parameters.", section=CONFIG_GENERAL)
+
 add_config_switch('db', 'filesystem',
         desc="Specifies db backend. Options: 'filesystem', 'redis'. \
 XXX: so far, only honored at startup time.",
         section=CONFIG_GENERAL)
     
-    
 add_config_switch('path', 'compmake_storage',
-            desc="[filesystem db] Path to directory for filesystem storage",
+            desc="[filesystem db] Path to directory for filesystem storage.",
             section=CONFIG_FS)    
 
-
 add_config_switch('interactive', True,
-       desc="Whether we are in interactive mode (e.g., ask confirmations)",
+       desc="Whether we are in interactive mode (e.g., ask confirmations).",
        section=CONFIG_GENERAL)
 
 add_config_switch('echo_stdout', True,

@@ -1,12 +1,16 @@
-import re
+
+
 from compmake.structures import Computation, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import exists_computation, \
-    get_computation, all_jobs, set_computation 
-import compmake
+    get_computation, set_computation 
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.jobs.syntax.parsing import parse_job_list
+from compmake import compmake_status, compmake_status_slave, set_compmake_status
+from compmake.events.registrar import publish
+import compmake
+from compmake.config import compmake_config
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -41,14 +45,13 @@ def generate_job_id(command):
     base = str(command)
     if type(command) == type(comp):
         base = command.func_name
-
         
     if job_prefix:
         job_id = '%s-%s' % (job_prefix, base)
-        if not exists_computation(job_id):
+        if not job_id in jobs_defined_in_this_session:
             return job_id
     else:
-        if not exists_computation(base):
+        if not base in jobs_defined_in_this_session:
             return base
 
     for i in xrange(1000000):
@@ -57,19 +60,19 @@ def generate_job_id(command):
         else:
             job_id = '%s-%d' % (base, i)
             
-        if not exists_computation(job_id):
+        if not job_id in jobs_defined_in_this_session:
             return job_id
 
     assert(False)
 
 compmake_slave_mode = False 
+ 
+# event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined'}
+# event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
+# event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
 
-def is_slave_mode():
-    return compmake.ui.ui.compmake_slave_mode #@UndefinedVariable
 
-def set_slave_mode(mode=True):
-    global compmake_slave_mode
-    compmake.ui.ui.compmake_slave_mode = mode
+jobs_defined_in_this_session = set()
 
 def comp(command, *args, **kwargs):
     ''' Main method to define a computation.
@@ -80,7 +83,7 @@ def comp(command, *args, **kwargs):
         :arg:job_id:   sets the job id (respects job_prefix)
         :arg:extra_dep: extra dependencies (not passed as arguments)
     '''
-    if is_slave_mode():
+    if compmake.compmake_status == compmake_status_slave:
         return None
     
     args = list(args) # args is a non iterable tuple
@@ -99,19 +102,20 @@ def comp(command, *args, **kwargs):
         if job_prefix:
             job_id = '%s-%s' % (job_prefix, job_id)
         del kwargs[job_id_key]
-        if exists_computation(job_id):
+        
+        if job_id in jobs_defined_in_this_session:
             raise UserError('Computation %s already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
-        
+    
+    jobs_defined_in_this_session.add(job_id)
+     
     if 'extra_dep' in kwargs:
         extra_dep = collect_dependencies(kwargs['extra_dep'])
         del kwargs['extra_dep']
     else:
         extra_dep = set()
         
-    assert(not exists_computation(job_id))
-
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
     
@@ -125,8 +129,44 @@ def comp(command, *args, **kwargs):
             child_comp.parents.append(job_id)
             set_computation(child, child_comp)
     
-    set_computation(job_id, c)
+    if exists_computation(job_id):
+        # OK, this is going to be black magic.
+        # We want to load the previous job definition,
+        # however, by unpickling(), it will start
+        # __import__()ing the modules, perhaps
+        # even the one that is calling us.
+        # What happens, then is that it will try to 
+        # add another time this computation recursively.
+        # What we do, is that we temporarely switch to 
+        # slave mode, so that recursive calls to comp() 
+        # are disabled.
         
+        if compmake_config.check_params: #@UndefinedVariable
+            old_status = compmake_status
+            set_compmake_status(compmake_status_slave) 
+            old_computation = get_computation(job_id)
+            set_compmake_status(old_status)
+            
+            same, reason = old_computation.same_computation(c)
+            
+            if not same:
+                set_computation(job_id, c)
+                publish('job-redefined', job_id=job_id , reason=reason)
+                # XXX TODO clean the cache
+            else:
+                publish('job-already-defined', job_id=job_id)
+        else:
+            # We assume everything's ok
+            set_computation(job_id, c)
+            publish('job-defined', job_id=job_id)
+    
+        assert exists_computation(job_id)
+    else:    
+    #    print "Job %s did not exist" % job_id
+        set_computation(job_id, c)
+        publish('job-defined', job_id=job_id)
+        
+    assert exists_computation(job_id)
     return c 
 
                      
@@ -136,6 +176,9 @@ def comp(command, *args, **kwargs):
   
 
 def interpret_commands(commands):
+    if isinstance(commands, str):
+        commands = commands.split()
+    
     ui_commands = get_commands() 
     
     command_name = commands[0]

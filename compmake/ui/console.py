@@ -3,10 +3,8 @@ from compmake.ui.helpers import get_commands
 from compmake.jobs.storage import all_jobs
 from compmake.ui import  interpret_commands
 from compmake.utils.visualization import colored, user_error, error
-from compmake import compmake_copyright, version, compmake_issues_url
 from compmake.structures import UserError, ParsimException
-from compmake.ui.commands import ShellExitRequested, stats
-from compmake.ui.misc import get_banner
+from compmake.ui.commands import ShellExitRequested
 from compmake.events.registrar import publish
 
 # event  { 'name': 'console-starting' }
@@ -17,15 +15,7 @@ from compmake.events.registrar import publish
 # event  { 'name': 'command-interrupted',  'attrs': ['command','reason'] }
 
 def interactive_console():
-    publish('console-starting')
-    # starting console
-    banner = get_banner()
-    print "%s %s - ``%s''     %s " % (
-        colored('Compmake', attrs=['bold']),
-        version, banner, compmake_copyright)
-    print "Welcome to the compmake console. " + \
-            "('help' for a list of commands)"
-    stats()
+    publish('console-starting') 
     exit_requested = False
     while not exit_requested:
         try:
@@ -57,11 +47,8 @@ def interactive_console():
             # EOFerror in interpret_commands
             print "(end of input detected)"
             exit_requested = True
-    print "Thanks for using compmake. Problems? Suggestions? \
-Praise? Go to %s" % colored(compmake_issues_url, attrs=['bold'])
-
-    publish('console-ending')
     
+    publish('console-ending')
     return
 
 

@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 
-from compmake.structures import UserError, JobFailed, JobInterrupted, HostFailed
+from compmake.structures import UserError, JobFailed, HostFailed
 from compmake.storage.redisdb import RedisInterface
 from compmake.utils.visualization import info, setproctitle, error
 from compmake.jobs.manager import Manager
@@ -9,7 +9,7 @@ from compmake.jobs.storage import get_namespace
 from compmake.jobs.cluster_conf import Host
 from compmake import RET_CODE_JOB_FAILED
 from compmake.config import compmake_config
-from compmake.events.registrar import publish, broadcast_event
+from compmake.events.registrar import broadcast_event
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -32,7 +32,7 @@ class ClusterManager(Manager):
     def process_init(self):
         from compmake.storage import db
         if not db.supports_concurrency():
-            raise UserError("")
+            raise UserError("This backend does not support concurrency")
         
         self.failed_hosts = set()
         self.hosts_processing = []
@@ -91,12 +91,13 @@ class ClusterManager(Manager):
         slave = self.hosts_ready.pop() 
         self.processing2host[job_id] = slave
 
-        # info("scheduling job %s on host %s" % (job_id, slave))
         host_config = self.hosts[slave]
         if 1:
             async_result = self.pool.apply_async(cluster_job,
                                                  [host_config, job_id, more])
         else:
+            # Useful for debugging the logic: run serially instead of 
+            # in parallel
             async_result = FakeAsync(cluster_job, host_config, job_id, more)
         
         return async_result 
@@ -131,7 +132,8 @@ def cluster_job(config, job_id, more=False):
     else:
         connection_string = config.host
         
-    args = ['ssh', connection_string, '-R',
+    # TODO: make additional switches configurable
+    args = ['ssh', connection_string, '-X', '-R',
             '%s:%s:%s' % (proxy_port, redis_host, redis_port),
             '%s' % compmake_cmd]
     

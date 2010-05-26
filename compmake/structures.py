@@ -1,4 +1,8 @@
 
+
+class ShellExitRequested(Exception):
+    pass
+
 class ParsimException(Exception):
     pass
 
@@ -129,9 +133,55 @@ class Computation:
         args = substitute_dependencies(self.args)
         kwargs = substitute_dependencies(kwargs)
         return self.command(*args, **kwargs)
+    
+    # XXX do a "promise" class
+    def __eq__(self, other):
+        ''' Note, this comparison has the semantics of "same promise" '''
+        ''' Use same_computation() for serious comparison '''
+        return self.job_id == other.job_id
+    
+    
+    def same_computation(self, other):
+        ''' Returns boolean, string tuple '''
         
+        equal_command = self.command == other.command
+        equal_args = self.args == other.args
+        equal_kwargs = self.kwargs == other.kwargs
+        
+        equal = equal_args and equal_kwargs and equal_command
+        if not equal:
+            reason = ""
     
-    
+            if self.command != other.command:
+                reason += '* function changed \n'
+                reason += '  - old: %s \n' % self.command
+                reason += '  - new: %s \n' % other.command
+                
+                # TODO: can we check the actual code?
+        
+            warn = ' (or you did not implement proper __eq__)'
+            if len(self.args) != len(other.args):
+                reason += '* different number of arguments (%d -> %d)\n' % \
+                    (len(self.args), len(other.args))
+            else:
+                for i, ob in enumerate(self.args):
+                    if ob != other.args[i]:
+                        reason += '* arg #%d changed %s \n' % (i, warn)
+                        reason += '  - old: %s\n' % ob
+                        reason += '  - old: %s\n' % other.args[i]
+                
+            for key, value in self.kwargs.items():
+                if key not in other.kwargs:
+                    reason += '* kwarg "%s" not found\n' % key
+                elif  value != other.kwargs[key]:
+                    reason += '* argument "%s" changed %s \n' % (key, warn)
+                    reason += '  - old: %s \n' % value
+                    reason += '  - new: %s \n' % other.kwargs[key]
+        
+            return False, reason 
+        else:
+            return True, None
+        
 class Cache:
     
     NOT_STARTED = 0

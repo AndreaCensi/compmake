@@ -1,6 +1,7 @@
 from collections import namedtuple
+import string
 
-banner = """\  
+banner = """\
                                            _        
                                           | |       
   ___ ___  _ __ ___  _ __  _ __ ___   __ _| | _____ 
@@ -27,14 +28,9 @@ def credits():
     '''Shows the credits'''
     print(banner)
     
-    if 0:
-        print "Compmake brought to you by:"
-        table = Table()
-        table.headers('Name', 'Contribution')
-        for credits in contributors:
-            table.row([credits.name, credits.what]) 
-            
-        print table.format_text()
+    print "Compmake brought to you by:\n"
+    for credits in contributors:
+        print string.rjust(credits.name, 30) + (" " * 10) + credits.what
 
 
 add_credits(

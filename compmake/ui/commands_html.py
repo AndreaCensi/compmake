@@ -1,5 +1,6 @@
 import sys
-from compmake.ui.helpers import sections, commands
+from compmake.ui.helpers import sections, commands, COMMANDS_ADVANCED, \
+    ui_command
 
   
 def create_commands_html(file=sys.stdout):
@@ -30,3 +31,13 @@ def create_commands_html(file=sys.stdout):
     file.write("</table>\n")
 
 
+
+
+@ui_command(section=COMMANDS_ADVANCED)
+def commands_html(output_file=''):
+    ''' Dumps the commands description in html on the specified file '''
+    if output_file:
+        f = open(output_file, 'w')
+    else:
+        f = sys.stdout
+    create_commands_html(f)
