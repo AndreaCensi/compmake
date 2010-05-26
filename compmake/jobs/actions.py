@@ -19,6 +19,7 @@ from compmake.utils.capture import OutputCapture
 from compmake.config import compmake_config
 from traceback import print_exc
 from compmake.events.registrar import publish
+from compmake.utils.visualization import setproctitle
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -93,6 +94,8 @@ def make(job_id, more=False):
     """ Makes a single job. Returns the user-object or raises JobFailed """
     host = compmake_config.hostname #@UndefinedVariable
     
+    setproctitle(job_id)
+     
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id) #@UnusedVariable
     cache = get_job_cache(job_id)

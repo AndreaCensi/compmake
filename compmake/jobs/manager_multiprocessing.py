@@ -1,6 +1,5 @@
 from multiprocessing import  cpu_count, Pool
 
-from compmake.structures import UserError
 from compmake.jobs.actions import mark_more, make
 from compmake.jobs.manager import Manager
 from compmake.events.registrar import register_handler, broadcast_event, \
@@ -11,7 +10,7 @@ from Queue import Empty
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
 
 
-event_queue = Queue(1)
+event_queue = Queue(cpu_count())
 
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
