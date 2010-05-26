@@ -14,6 +14,7 @@ from compmake import  version , compmake_status_slave, set_compmake_status, \
 from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
 from compmake.events.registrar import remove_all_handlers, register_handler
+from compmake.utils.visualization import setproctitle
 
 def initialize_backend():
     allowed_db = ['filesystem', 'redis']
@@ -46,6 +47,7 @@ def initialize_backend():
 
 
 def main():        
+    
     setproctitle('compmake')
     
     parser = OptionParser(version=version)
