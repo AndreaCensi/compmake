@@ -65,7 +65,7 @@
 		font-size: 200% !important;
 	}
 	.content {
-		padding-left: 5em;
+/*		padding-left: 5em; */
 	}
 	.content p, .content p {
 		max-width: 40em;
@@ -112,13 +112,20 @@ div.header h2 {
 
 /* On the first page */
 
-.col1 strong, .col2 strong { font-family: "Lobster", serif; color: orange;text-shadow: 6px 6px 6px #ccc;
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: orange;text-shadow: 6px 6px 6px #ccc;
+	font-size: 120%;
  }
-   </style>
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+}
+
+</style>
 
 <link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
 <link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
-<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
 
 
 <script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
@@ -200,18 +207,18 @@ new TWTR.Widget({
 </div>
 <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
-<p><tt class="docutils literal"><span class="pre">compmake</span></tt> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.
+<p><span class="compmake-brand">compmake</span> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.
 It is a non-obtrusive module that provides:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
 including caching of temporary results. That is, you can do a CTRL+C, and then
-restart compmake without losing data. You can clean and redo selectively
+restart <span class="compmake-brand">compmake</span> without losing data. You can clean and redo selectively
 part of the computation.</li>
 <li>Single-host parallelization (using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module).</li>
 <li>Multiple-host parallelization (using ssh-spawned slaves).</li>
 </ul>
-<p>To use compmake, you have to minimally modify your Python program,
-such that compmake can understand the processing layout and
+<p>To use <span class="compmake-brand">compmake</span>, you have to minimally modify your Python program,
+such that <span class="compmake-brand">compmake</span> can understand the processing layout and
 the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
 <p>After that, you are ready to run your computation using:</p>
@@ -224,7 +231,7 @@ suppose that you modify the <tt class="docutils literal"><span class="pre">draw(
 rerun the last step. If now you use the command:</p>
 <div class="highlight-python"><pre>$ compmake example remake "draw*"</pre>
 </div>
-<p>then compmake will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
+<p>then <span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.
 Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
 console that allows you to inspect the status of the computations,
@@ -232,15 +239,15 @@ cleaning/remaking jobs, etc.</p>
 <p>Compmake has been designed primarily for handling long computational-intensive
 batch processes. It assumes that the computational layout is fixed and that
 all intermediate results can be cached to disk. If these two conditions are met,
-you can use compmake to gain considerable peace of mind.</p>
+you can use <span class="compmake-brand">compmake</span> to gain considerable peace of mind.</p>
 <p>Still interested? Read along. Start with the tutorial <a class="reference external" href="tutorial.html#tutorial0"><em>Basic compmake usage</em></a>.
 And check out <a class="reference external" href="limitations.html#limitations"><em>Limitations and assumptions</em></a> to see if <tt class="docutils literal"><span class="pre">compmake</span></tt> can help you.</p>
 <div class="col1 container">
 <p><strong>Getting started</strong></p>
 <ul class="simple">
 <li><a class="reference external" href="install.html#install"><em>Installation notes</em></a></li>
+<li><em class="xref ref">why</em></li>
 <li><a class="reference external" href="limitations.html#limitations"><em>Limitations and assumptions</em></a></li>
-<li><a class="reference external" href="features.html#features"><em>Features and limitations</em></a></li>
 </ul>
 <p><strong>Tutorial</strong></p>
 <ul class="simple">
@@ -274,7 +281,7 @@ And check out <a class="reference external" href="limitations.html#limitations">
 <p>The quick install is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
 </div>
-<p>This will allow you to run <tt class="docutils literal"><span class="pre">compmake</span></tt> on a single host.
+<p>This will allow you to run <span class="compmake-brand">compmake</span> on a single host.
 However, there are also separate dependencies to install for some
 advanced features such as multiprocessing. See <a class="reference external" href="install.html#install"><em>Installation notes</em></a> for more information.</p>
 <div class="section" id="source-download">
