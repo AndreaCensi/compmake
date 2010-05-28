@@ -7,7 +7,7 @@ for module in using_compmake1 using_compmake2 using_compmake3; do
 
 	bname=`basename ${module} .py`
 	output=${bname}_list_before.txt
-	echo "@: list" > $output
+	echo "$ compmake example list" > $output
 	compmake --colorize False   ${module} list | head -n 6 >> $output
 	echo "    [...]" >> $output
 	
@@ -29,14 +29,14 @@ done
 module=using_compmake1
 
 compmake ${module} clean
-echo "@: list" > list_before.txt
+echo "$ compmake example list" > list_before.txt
 compmake --colorize False   ${module} list | head -n 6 >> list_before.txt
 echo "[...]" >> list_before.txt
 compmake  ${module} graph filename=graph_before
 compmake  ${module} graph compact=1 filename=graph_before_compact
 
 compmake  ${module} make 
-echo "@: list" > list_after.txt
+echo "$ compmake example list" > list_after.txt
 compmake --colorize False   ${module} list | head -n 6 >> list_after.txt
 echo "[...]" >> list_after.txt
 compmake  ${module} graph filename=graph_after

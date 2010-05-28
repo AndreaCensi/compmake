@@ -13,10 +13,9 @@
 Compmake
 =========
 
-|compmake| is ``make`` for batch python processes. 
-It is a non-obtrusive module that provides:
+|compmake| is a non-obtrusive module that provides:
 
-* ``make``--like facilities to your computations (``make``, ``clean``, etc.),
+* ``make``--like facilities to your Python computations (``make``, ``clean``, etc.),
   including caching of temporary results. That is, you can do a CTRL+C, and then 
   restart |compmake| without losing data. You can clean and redo selectively
   part of the computation.
@@ -61,8 +60,8 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 	**Getting started**
 
 	* :ref:`install`
+	* :ref:`why`
 	* :ref:`limitations`
-	* :ref:`features`
 
 	**Tutorial**
 	

@@ -5,7 +5,7 @@
 
 .. _tutorial4:
 
-Naming jobs; the compmake console
+To be defined
 =================================
 
 (to write)

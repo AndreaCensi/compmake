@@ -1,4 +1,4 @@
-@: list
+$ compmake example list
 draw                                              Not started/False
 draw-0                                            Not started/False
 draw-1                                            Not started/False
