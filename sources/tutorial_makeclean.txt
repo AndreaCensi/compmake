@@ -98,6 +98,7 @@ There are several shortcuts available to specify lists of jobs.
                           (equivalent to "all except [A]")
      
 
+* Go on to the next chapter :ref:`tutorial2`.
 
 
 
