@@ -61,7 +61,7 @@
 	}
 	
 	.header h2 {
-		color: orange !important;
+		color: #990033 !important;
 		font-size: 200% !important;
 	}
 	.content {
@@ -113,12 +113,17 @@ div.header h2 {
 /* On the first page */
 
 .col1 strong, .col2 strong { 
-	font-family: "Lobster", serif; color: orange;text-shadow: 6px 6px 6px #ccc;
-	font-size: 180%;
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
  }
 
 .compmake-brand {
 	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
 }
 
 </style>
@@ -207,10 +212,9 @@ new TWTR.Widget({
 </div>
 <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
-<p><span class="compmake-brand">compmake</span> is <tt class="docutils literal"><span class="pre">make</span></tt> for batch python processes.
-It is a non-obtrusive module that provides:</p>
+<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
+<li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your Python computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
 including caching of temporary results. That is, you can do a CTRL+C, and then
 restart <span class="compmake-brand">compmake</span> without losing data. You can clean and redo selectively
 part of the computation.</li>
