@@ -15,6 +15,8 @@ add_config_section(name=CONFIG_CLUSTER, desc='', order=2)
 add_config_section(name=CONFIG_FS, desc='', order=2.2)
 
 
+# TODO: make syntax similar to events
+
 add_config_switch('check_params', False,
         desc="If true, erases the cache if job parameters appear to change.\
  Very useful but you need to define __eq__() in all the objects you use as \

@@ -30,6 +30,7 @@ RET_CODE_JOB_FAILED = 113
 from compmake.ui import comp, comp_prefix
 from compmake.storage import use_redis, use_filesystem
 from compmake.config import compmake_config
+from compmake.jobs.storage import set_namespace
 
 def batch_command(s):
     ''' executes one command '''

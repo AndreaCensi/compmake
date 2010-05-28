@@ -82,9 +82,9 @@ COMMANDS_CLUSTER = 'Cluster commands'
 
 ui_section(GENERAL, order=0)
 ui_section(ACTIONS, order=1)
-ui_section(VISUALIZATION, order=1.5)
+ui_section(VISUALIZATION, order=2.7)
 ui_section(PARALLEL_ACTIONS,
-           'Note that redis must be used as backend.', 2)
+           '', 2)
 ui_section(COMMANDS_CLUSTER,
            'These assume that you have a cluster configuration file as \
 explained in the documentation.', 2.5)

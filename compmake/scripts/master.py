@@ -45,6 +45,7 @@ def initialize_backend():
         sys.exit(-54)
 
 
+# TODO: make everythin an exception instead of sys.exit()
 
 def main():        
     
