@@ -32,15 +32,27 @@ from compmake.storage import use_redis, use_filesystem
 from compmake.config import compmake_config
 from compmake.jobs.storage import set_namespace
 
+
+# Note: we wrap these in shallow functions because we don't want
+# to import other things.
 def batch_command(s):
     ''' executes one command '''
-    from compmake.ui.ui import interpret_commands
-
-    # ignore if interactive
+# ignore if interactive
     if compmake_status == compmake_status_interactive:
         return
+
+    from compmake.ui.ui import interpret_commands
     
     interpret_commands(s)
+    
+def compmake_console():
+    ''' Runs the compmake console. Ignore if we are embedded. '''
+    if compmake_status != compmake_status_embedded:
+        return
+    
+    from compmake.ui.console import interactive_console
+    interactive_console()
+    
     
 # We always want this one
 from compmake.plugins import console_status
