@@ -1,3 +1,5 @@
+.. include:: definitions.txt
+
 .. contents::
    :class: pagetoc
 
@@ -6,18 +8,18 @@
 The compmake console
 ====================
 
-Compmake can be used both in batch mode (like make) and interactively with a
+|compmake| can be used both in batch mode (like make) and interactively with a
 console. The console allows to inspect the status of the jobs, start/stop jobs,
 set configuration, and other related tasks.
 
-To use the batch mode, invoke compmake as ``$ compmake [MODULE] [COMMAND]``. 
+To use the batch mode, invoke |compmake| as ``$ compmake [MODULE] [COMMAND]``. 
 If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called ``example.py``, you will
 see:
 
 .. literalinclude:: example1/prompt.txt
 
-The compmake console is designed to be friendly. You can use auto-completion 
+The |compmake| console is designed to be friendly. You can use auto-completion 
 with ``<tab>``.
 In the previous section, we discussed the commands ``make``, ``clean`` and ``list``.
 Here we discuss several of the other most useful commands.
@@ -61,7 +63,7 @@ jobs' stdout to the console::
 Advanced console syntax
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Most of compmake's commands work on jobs and are invoked as "<command> <list of jobs>".
+Most of |compmake|'s commands work on jobs and are invoked as "<command> <list of jobs>".
 There are several shortcuts available to specify lists of jobs.
 
 * **Wildcards.** In the previous section, we have seen the use of wildcards::
