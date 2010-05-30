@@ -2,6 +2,28 @@ import sys
 from compmake.utils.visualization import colored
 from StringIO import StringIO
 
+class LineSplitter:
+    def __init__(self):
+        self.current = ''
+        self.current_lines = []
+        
+    def append_chars(self, s):
+        # TODO: make this faster
+        s = str(s)
+        for char in s:
+            if char == '\n':
+                self.current_lines.append(self.current)
+                self.current = ''
+            else:
+                self.current += char
+            
+            
+    def lines(self):
+        ''' Returns a list of line; empties the buffer '''
+        l = list(self.current_lines)
+        self.current_lines = []
+        return l
+
 
 class StreamCapture:
     def __init__(self, transform=None, dest=None):
@@ -9,23 +31,16 @@ class StreamCapture:
         self.buffer = StringIO()
         self.dest = dest
         self.transform = transform
+        self.line_splitter = LineSplitter()
         
     def write(self, s):
         self.buffer.write(s)
         if self.dest:
-            if s.find('\n') != (len(s) - 1):
-                lines = s.split('\n')
-                for line in lines:
-                    # XXX I'm not sure why we get empty lines here
-                    if line:
-                        if self.transform:
-                            line = self.transform(line)
-                        self.dest.write(line)
-                        self.dest.write('\n')
-            else:
+            self.line_splitter.append_chars(s)
+            for line in self.line_splitter.lines():
                 if self.transform:
-                    s = self.transform(s)       
-                self.dest.write(s)
+                    line = self.transform(line)       
+                self.dest.write(line)
                 self.dest.write('\n')
             self.dest.flush()
         
