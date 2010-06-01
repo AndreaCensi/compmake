@@ -12,7 +12,7 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_computation
 from compmake.jobs.uptodate import up_to_date 
     
-from compmake.structures import Cache, Computation, ParsimException, UserError, \
+from compmake.structures import Cache, Computation, CompmakeException, UserError, \
     JobFailed, JobInterrupted
 from compmake.utils import error
 from compmake.utils.capture import OutputCapture 
@@ -159,7 +159,7 @@ def make(job_id, more=False):
                         next = result.next()
                         if isinstance(next, tuple):
                             if len(next) != 3:
-                                raise ParsimException('If computation yields a tuple, ' + 
+                                raise CompmakeException('If computation yields a tuple, ' + 
                                                       'should be a tuple with 3 elemnts.' + 
                                                       'Got: %s' % str(next))
                             user_object, num, total = next

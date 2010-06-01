@@ -11,7 +11,7 @@
 
 import  time
 from multiprocessing import TimeoutError 
-from compmake.structures import  ParsimException, JobFailed, \
+from compmake.structures import  CompmakeException, JobFailed, \
     JobInterrupted, HostFailed
 
 from compmake.utils import error
@@ -61,10 +61,10 @@ class Manager:
     
     def can_accept_job(self):
         ''' Return true if a new job can be accepted right away'''
-        raise ParsimException('Implement this method')    
+        raise CompmakeException('Implement this method')    
     
     def instance_job(self, job_id, more):
-        raise ParsimException('Implement this method')
+        raise CompmakeException('Implement this method')
             
 ### 
 
@@ -199,7 +199,7 @@ class Manager:
                     time.sleep(0.5)
                 except KeyboardInterrupt:
                     # XXX make sure that the pool close
-                    # raise ParsimException('Processing interrupted by user')
+                    # raise CompmakeException('Processing interrupted by user')
                     raise KeyboardInterrupt
 
             self.event_check()
@@ -225,7 +225,7 @@ class Manager:
                         todo=self.todo, failed=self.failed, ready=self.ready_todo,
                         processing=self.processing, all_targets=self.all_targets)
         
-                    raise ParsimException('Cannot find computing resources, givin up') 
+                    raise CompmakeException('Cannot find computing resources, givin up') 
                 
                 self.publish_progress()
                 self.loop_until_something_finishes()

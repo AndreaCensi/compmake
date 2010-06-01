@@ -3,7 +3,7 @@ from compmake.ui.helpers import get_commands
 from compmake.jobs.storage import all_jobs
 from compmake.ui import  interpret_commands
 from compmake.utils.visualization import colored, user_error, error
-from compmake.structures import UserError, ParsimException
+from compmake.structures import UserError, CompmakeException
 from compmake.ui.commands import ShellExitRequested
 from compmake.events.registrar import publish
 
@@ -29,7 +29,7 @@ def interactive_console():
                     except UserError as e:
                         publish('command-failed', command=commands, reason=e)
                         user_error(e)
-                    except ParsimException as e:
+                    except CompmakeException as e:
                         publish('command-failed', command=commands, reason=e)
                         # Added this for KeyboardInterrupt
                         error(e)

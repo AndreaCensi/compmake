@@ -9,7 +9,7 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 These are all wrappers around the raw methods in storage
 '''
 
-from compmake.structures import Cache, Computation, ParsimException
+from compmake.structures import Cache, Computation, CompmakeException
 from compmake import storage
 import compmake
 from compmake.utils.visualization import info
@@ -84,7 +84,7 @@ def get_job_cache(job_id):
         if not job_id in known:
             print "invalid job %s" % job_id
             print "I know of %s " % known
-            raise ParsimException("invalid job %s" % job_id) 
+            raise CompmakeException("invalid job %s" % job_id) 
         #computation = Computation.id2computations[job_id]
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent

@@ -6,7 +6,7 @@ from os.path import expanduser, dirname, join, expandvars, \
     splitext, exists, basename
 from StringIO import StringIO
 
-from compmake.structures import ParsimException 
+from compmake.structures import CompmakeException 
 
 class StorageFilesystem:
     basepath = '~/compmake'
@@ -22,7 +22,7 @@ class StorageFilesystem:
     @staticmethod
     def get_cache(key):
         if not StorageFilesystem.is_cache_available(key):
-            raise ParsimException('Could not find job %s' % key)
+            raise CompmakeException('Could not find job %s' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
             file = open(filename, 'r')

@@ -3,27 +3,27 @@
 class ShellExitRequested(Exception):
     pass
 
-class ParsimException(Exception):
+class CompmakeException(Exception):
     pass
 
-class KeyNotFound(ParsimException):
+class KeyNotFound(CompmakeException):
     pass
 
-class UserError(ParsimException):
+class UserError(CompmakeException):
     pass
 
 class CompmakeSyntaxError(UserError):
     pass
 
-class JobFailed(ParsimException):
+class JobFailed(CompmakeException):
     ''' This signals that some job has failed '''
     pass
 
-class JobInterrupted(ParsimException):
+class JobInterrupted(CompmakeException):
     ''' User requested to interrupt job'''
     pass
 
-class HostFailed(ParsimException):
+class HostFailed(CompmakeException):
     ''' The job has been interrupted and must be redone (it has not faile though) '''
     pass
 
@@ -124,7 +124,7 @@ class Computation:
             available = self.command.func_code.co_varnames
             
             if not kw in available:
-                raise ParsimException(('Function does not have a "%s" argument, necessary' + 
+                raise CompmakeException(('Function does not have a "%s" argument, necessary' + 
                                   'for makemore (args: %s)') % (kw, available))
             kwargs[kw] = previous_result
             

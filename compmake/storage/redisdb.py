@@ -1,7 +1,7 @@
 import sys
 import pickle
 from StringIO import StringIO
-from compmake.structures import ParsimException, KeyNotFound
+from compmake.structures import CompmakeException, KeyNotFound
 
 
 class RedisInterface:
@@ -34,7 +34,7 @@ class RedisInterface:
             raise KeyNotFound('Key %s does not exist anymore' % name)
         
         if not isinstance(s, str):
-            raise ParsimException('I usually put string-string values in\
+            raise CompmakeException('I usually put string-string values in\
 the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         try:
             value = string2object(s)
@@ -63,7 +63,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
     @staticmethod
     def set_cache(name, value, precious=False):
         if not isinstance(name, str):
-            raise ParsimException(
+            raise CompmakeException(
                 'Panic: received %s (%s) as a key. I want strings.' % 
                 (name, type(name)))
         k = key2rediskey(name)
@@ -152,6 +152,6 @@ def get_redis(force=False):
         try:
             redis = Redis(host=RedisInterface.host, port=RedisInterface.port)
         except ConnectionError as e:
-            raise ParsimException(str(e))
+            raise CompmakeException(str(e))
         #sys.stderr.write("done.\n")
     return redis
