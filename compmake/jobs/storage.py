@@ -38,26 +38,22 @@ def all_jobs():
     ''' Returns the list of all jobs '''
     # XXX we should check we don't return subsidiaries
     keys = storage.db.keys(job2key('*'))
-    return map(key2job, keys)
-    #return Job.id2computation.keys()
+    return map(key2job, keys) 
 
 def get_computation(job_id):
     key = job2key(job_id)
     computation = storage.db.get_cache(key)
     assert(isinstance(computation, Job))
-    return computation
-    #return Job.id2computation[job_id]
+    return computation 
 
 def exists_computation(job_id):
     key = job2key(job_id)
     return storage.db.is_cache_available(key)
-    #return job_id in Job.id2computation
 
 def set_computation(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
-    # Job.id2computation[job_id] = computation
     storage.db.set_cache(key, computation)
         
 def remove_computation(job_id):
@@ -85,7 +81,6 @@ def get_job_cache(job_id):
             print "invalid job %s" % job_id
             print "I know of %s " % known
             raise CompmakeException("invalid job %s" % job_id) 
-        #computation = Job.id2computations[job_id]
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set_cache(cache_key, cache)
