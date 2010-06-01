@@ -28,7 +28,7 @@ class HostFailed(CompmakeException):
     pass
 
 '''
-    A Computation represents the computation as passed by the user.
+    A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
     
     The state of the computation is represented by a Cache object.
@@ -78,7 +78,7 @@ class HostFailed(CompmakeException):
     
     DB Layout:
     
-        'job_id:computation'       Computation object
+        'job_id:computation'       Job object
         'job_id:cache'             Cache object
         'job_id:user_object'       Result of the computation
         'job_id:user_object_tmp'   
@@ -102,7 +102,7 @@ class HostFailed(CompmakeException):
 '''
 
 
-class Computation:
+class Job:
     
     def __init__(self, job_id, command, args, kwargs, yields=False):
         self.job_id = job_id

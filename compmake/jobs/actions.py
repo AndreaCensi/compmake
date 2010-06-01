@@ -12,7 +12,7 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_computation
 from compmake.jobs.uptodate import up_to_date 
     
-from compmake.structures import Cache, Computation, CompmakeException, UserError, \
+from compmake.structures import Cache, Job, CompmakeException, UserError, \
     JobFailed, JobInterrupted
 from compmake.utils import error
 from compmake.utils.capture import OutputCapture 
@@ -67,7 +67,7 @@ def substitute_dependencies(a):
     if isinstance(a, list):
         for i, v in enumerate(a):
             a[i] = substitute_dependencies(v)
-    if isinstance(a, Computation):
+    if isinstance(a, Job):
         a = get_job_userobject(a.job_id)
     return a
 

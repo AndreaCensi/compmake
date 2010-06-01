@@ -1,6 +1,6 @@
 
 
-from compmake.structures import Computation, UserError  
+from compmake.structures import Job, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import exists_computation, \
     get_computation, set_computation 
@@ -19,7 +19,7 @@ def make_sure_pickable(obj):
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., strings objects that
         are mentioned somewhere in the structure '''  
-    if isinstance(ob, Computation):
+    if isinstance(ob, Job):
         return set([ob.job_id])
     else:
         depends = set()
@@ -104,7 +104,7 @@ def comp(command, *args, **kwargs):
         del kwargs[job_id_key]
         
         if job_id in jobs_defined_in_this_session:
-            raise UserError('Computation %s already defined.' % job_id)
+            raise UserError('Job %s already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
     
@@ -119,7 +119,7 @@ def comp(command, *args, **kwargs):
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
     
-    c = Computation(job_id=job_id, command=command, args=args, kwargs=kwargs)
+    c = Job(job_id=job_id, command=command, args=args, kwargs=kwargs)
     c.children = list(children)
     # TODO: check for loops     
             

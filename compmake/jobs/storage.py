@@ -1,7 +1,7 @@
 '''
 Compmake stores 4 kind of data, all of them indexed by a job_id string.
 
-    1) Computation objects
+    1) Job objects
     2) Cache objects.
     3) user_object (any type)
     4) tmp_object (any type)
@@ -9,7 +9,7 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 These are all wrappers around the raw methods in storage
 '''
 
-from compmake.structures import Cache, Computation, CompmakeException
+from compmake.structures import Cache, Job, CompmakeException
 from compmake import storage
 import compmake
 from compmake.utils.visualization import info
@@ -39,25 +39,25 @@ def all_jobs():
     # XXX we should check we don't return subsidiaries
     keys = storage.db.keys(job2key('*'))
     return map(key2job, keys)
-    #return Computation.id2computation.keys()
+    #return Job.id2computation.keys()
 
 def get_computation(job_id):
     key = job2key(job_id)
     computation = storage.db.get_cache(key)
-    assert(isinstance(computation, Computation))
+    assert(isinstance(computation, Job))
     return computation
-    #return Computation.id2computation[job_id]
+    #return Job.id2computation[job_id]
 
 def exists_computation(job_id):
     key = job2key(job_id)
     return storage.db.is_cache_available(key)
-    #return job_id in Computation.id2computation
+    #return job_id in Job.id2computation
 
 def set_computation(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
-    assert(isinstance(computation, Computation))
-    # Computation.id2computation[job_id] = computation
+    assert(isinstance(computation, Job))
+    # Job.id2computation[job_id] = computation
     storage.db.set_cache(key, computation)
         
 def remove_computation(job_id):
@@ -85,7 +85,7 @@ def get_job_cache(job_id):
             print "invalid job %s" % job_id
             print "I know of %s " % known
             raise CompmakeException("invalid job %s" % job_id) 
-        #computation = Computation.id2computations[job_id]
+        #computation = Job.id2computations[job_id]
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set_cache(cache_key, cache)
