@@ -42,8 +42,10 @@ def batch_command(s):
         return
 
     from compmake.ui.ui import interpret_commands
-    
-    interpret_commands(s)
+    try:
+        return interpret_commands(s)
+    except KeyboardInterrupt:
+        pass
     
 def compmake_console():
     ''' Runs the compmake console. Ignore if we are embedded. '''
