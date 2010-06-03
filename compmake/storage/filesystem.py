@@ -20,8 +20,8 @@ class StorageFilesystem:
         return False
     
     @staticmethod
-    def get_cache(key):
-        if not StorageFilesystem.is_cache_available(key):
+    def get(key):
+        if not StorageFilesystem.exists(key):
             raise CompmakeException('Could not find job %s' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
@@ -36,14 +36,14 @@ class StorageFilesystem:
             raise  EOFError("Could not unpickle file %s" % file) 
     
     @staticmethod
-    def delete_cache(key):
+    def delete(key):
         filename = StorageFilesystem.filename_for_key(key)
         assert os.path.exists(filename), \
             'I expected path %s to exist before deleting' % filename
         os.remove(filename)
         
     @staticmethod
-    def is_cache_available(key):  
+    def exists(key):  
         filename = StorageFilesystem.filename_for_key(key)
         it_is = exists(filename)
 #        if not it_is:
@@ -51,7 +51,7 @@ class StorageFilesystem:
         return it_is
     
     @staticmethod
-    def set_cache(key, value):
+    def set(key, value):
         filename = StorageFilesystem.filename_for_key(key)
         
         sio = StringIO()

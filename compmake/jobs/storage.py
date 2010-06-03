@@ -42,23 +42,23 @@ def all_jobs():
 
 def get_computation(job_id):
     key = job2key(job_id)
-    computation = storage.db.get_cache(key)
+    computation = storage.db.get(key)
     assert(isinstance(computation, Job))
     return computation 
 
 def exists_computation(job_id):
     key = job2key(job_id)
-    return storage.db.is_cache_available(key)
+    return storage.db.exists(key)
 
 def set_computation(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
-    storage.db.set_cache(key, computation)
+    storage.db.set(key, computation)
         
 def remove_computation(job_id):
     key = job2key(job_id)
-    storage.db.delete_cache(key)
+    storage.db.delete(key)
 
 #
 # Cache objects
@@ -69,8 +69,8 @@ def job2cachekey(job_id):
 
 def get_job_cache(job_id):
     cache_key = job2cachekey(job_id)
-    if storage.db.is_cache_available(cache_key):
-        cache = storage.db.get_cache(cache_key)
+    if storage.db.exists(cache_key):
+        cache = storage.db.get(cache_key)
         assert(isinstance(cache, Cache))
         return cache
     else:
@@ -83,17 +83,17 @@ def get_job_cache(job_id):
             raise CompmakeException("invalid job %s" % job_id) 
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
-        # storage.db.set_cache(cache_key, cache)
+        # storage.db.set(cache_key, cache)
         return cache 
 
 def set_job_cache(job_id, cache):
     assert(isinstance(cache, Cache))
     cache_key = job2cachekey(job_id)
-    storage.db.set_cache(cache_key, cache)
+    storage.db.set(cache_key, cache)
     
 def delete_job_cache(job_id):
     cache_key = job2cachekey(job_id)
-    storage.db.delete_cache(cache_key)
+    storage.db.delete(cache_key)
     
 #
 # User objects
@@ -105,19 +105,19 @@ def job2userobjectkey(job_id):
 def get_job_userobject(job_id):
     assert(is_job_userobject_available(job_id))
     key = job2userobjectkey(job_id)
-    return storage.db.get_cache(key)
+    return storage.db.get(key)
 
 def is_job_userobject_available(job_id):
     key = job2userobjectkey(job_id)
-    return storage.db.is_cache_available(key)
+    return storage.db.exists(key)
 
 def set_job_userobject(job_id, obj):
     key = job2userobjectkey(job_id)
-    storage.db.set_cache(key, obj)
+    storage.db.set(key, obj)
     
 def delete_job_userobject(job_id):
     key = job2userobjectkey(job_id)
-    storage.db.delete_cache(key)
+    storage.db.delete(key)
     
 #
 # Temporary objects
@@ -132,17 +132,17 @@ def job2tmpobjectkey(job_id):
 def get_job_tmpobject(job_id):
     assert(is_job_tmpobject_available(job_id))
     key = job2tmpobjectkey(job_id)
-    return storage.db.get_cache(key)
+    return storage.db.get(key)
 
 def is_job_tmpobject_available(job_id):
     key = job2tmpobjectkey(job_id)
-    return storage.db.is_cache_available(key)
+    return storage.db.exists(key)
 
 def set_job_tmpobject(job_id, obj):
     key = job2tmpobjectkey(job_id)
-    storage.db.set_cache(key, obj)
+    storage.db.set(key, obj)
     
 def delete_job_tmpobject(job_id):
     key = job2tmpobjectkey(job_id)
-    storage.db.delete_cache(key)
+    storage.db.delete(key)
 

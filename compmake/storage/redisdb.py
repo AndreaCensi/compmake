@@ -21,7 +21,7 @@ class RedisInterface:
         
     # Storage public interface
     @staticmethod
-    def get_cache(name):
+    def get(name):
         #
         if RedisInterface.local_cache.has_key(name):
             sys.stderr.write('+')
@@ -51,17 +51,17 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         return value
     
     @staticmethod
-    def delete_cache(name):
+    def delete(name):
         k = key2rediskey(name)
         get_redis().delete(k)
         
     @staticmethod
-    def is_cache_available(name):
+    def exists(name):
         k = key2rediskey(name)
         return get_redis().exists(k)
     
     @staticmethod
-    def set_cache(name, value, precious=False):
+    def set(name, value, precious=False):
         if not isinstance(name, str):
             raise CompmakeException(
                 'Panic: received %s (%s) as a key. I want strings.' % 
@@ -92,15 +92,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
     def reopen_after_fork():
         global redis
         redis = None
-        get_redis(force=True)
-        
-#    @staticmethod   
-#    def reset_cache():
-#        """ reset the whole cache """
-#        keys = get_redis().keys(pattern = key2rediskey('*') ).split()
-#        for k in keys:
-#            res = get_redis().delete(k)
-#        return keys
+        get_redis(force=True) 
  
     @staticmethod
     def events_push(event):

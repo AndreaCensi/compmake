@@ -12,28 +12,28 @@ class Simple(unittest.TestCase):
         remove_all_jobs()
             
     def testExists1(self):
-        assert(not storage.db.is_cache_available('not-existent'))
+        assert(not storage.db.exists('not-existent'))
     
     def testExists2(self):
         k = 'ciao'
         v = {'complex': 123}
-        if storage.db.is_cache_available(k):
-            storage.db.delete_cache(k)
-        self.assertFalse(storage.db.is_cache_available(k))
-        storage.db.set_cache(k, v)
-        self.assertTrue(storage.db.is_cache_available(k))
-        storage.db.delete_cache(k)
-        self.assertFalse(storage.db.is_cache_available(k))
-        storage.db.set_cache(k, v)
-        storage.db.delete_cache(k)
-        self.assertFalse(storage.db.is_cache_available(k))
+        if storage.db.exists(k):
+            storage.db.delete(k)
+        self.assertFalse(storage.db.exists(k))
+        storage.db.set(k, v)
+        self.assertTrue(storage.db.exists(k))
+        storage.db.delete(k)
+        self.assertFalse(storage.db.exists(k))
+        storage.db.set(k, v)
+        storage.db.delete(k)
+        self.assertFalse(storage.db.exists(k))
         
     def testSearch(self):
         for key in storage.db.keys('*'):
-            storage.db.delete_cache(key)
+            storage.db.delete(key)
         self.assertEqual([], storage.db.keys('*'))
-        storage.db.set_cache('key1', 1)
-        storage.db.set_cache('key2', 1)
+        storage.db.set('key1', 1)
+        storage.db.set('key2', 1)
         self.assertEqual([], storage.db.keys('ciao*'))
         self.assertEqual(['key1'], storage.db.keys('key1'))
         self.assertEqual(['key1'], storage.db.keys('*1'))
