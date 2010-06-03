@@ -28,6 +28,46 @@ except:
         ''' emulation of the setproctitle interface '''
         pass
     
+screen_columns = None
+def get_screen_columns():
+    import compmake
+    if compmake.utils.visualization.screen_columns is None:
+        max_x, max_y = getTerminalSize()
+        compmake.utils.visualization.screen_columns = max_x
+        
+    return compmake.utils.visualization.screen_columns
+
+def getTerminalSize():
+    import os
+    def ioctl_GWINSZ(fd):
+        try:
+            import fcntl, termios, struct
+            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
+        '1234'))
+        except:
+            return None
+        return cr
+    cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+    if not cr:
+        try:
+            fd = os.open(os.ctermid(), os.O_RDONLY)
+            cr = ioctl_GWINSZ(fd)
+            os.close(fd)
+        except:
+            pass
+    if not cr:
+        try:
+            cr = (env['LINES'], env['COLUMNS'])
+        except:
+            cr = (25, 80)
+    return int(cr[1]), int(cr[0])
+
+    
+def clean_console_line(stream):
+    s = '\r' + (' ' *  (get_screen_columns() - 2)) + '|\r'
+    stream.write(s)
+    pass
+    
 def warning(string):
     write_message(string, lambda x: colored(x, 'magenta'))
     
@@ -46,6 +86,8 @@ def debug(string):
 def write_message(string, formatting):
     string = str(string)
     sys.stdout.flush()
+    
+    clean_console_line(sys.stderr)
     lines = string.split('\n')
     if len(lines) == 1:
         sys.stderr.write(formatting(lines[0]) + '\n')

@@ -8,7 +8,14 @@ from compmake.config.config_html import create_config_html
 
 @ui_command(section=GENERAL)
 def config(args):
-    ''' Get/set configuration parameters '''    
+    ''' Get/set configuration parameters.
+
+Call like:
+
+    @> config  <switch>  <value>
+         
+Without arguments, shows all configuration switches.
+ '''    
     if not args:
         # show
         show_config(sys.stdout)
@@ -26,7 +33,7 @@ def config(args):
 
 @ui_command(section=COMMANDS_ADVANCED)
 def config_html(output_file=''):
-    ''' Dumps the config description in html on the specified file '''
+    ''' Dumps the config description in html on the specified file. '''
     if output_file:
         f = open(output_file, 'w')
     else:

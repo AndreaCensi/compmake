@@ -69,5 +69,5 @@ add_config_switch('cluster_show_cmd', True,
                   section=CONFIG_CLUSTER)
 
 add_config_switch('redis_host', 'localhost',
-                  desc='Hostname[:port] for Redis host',
+                  desc='Hostname[:port] for Redis host.',
                   section=CONFIG_REDIS)

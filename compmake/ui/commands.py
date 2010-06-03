@@ -33,14 +33,14 @@ def exit():
     raise ShellExitRequested()
 
 #@ui_command(section=ACTIONS)
-def check():
-    '''Makes sure that the cache is sane '''
-    make_sure_cache_is_sane()
+#def check():
+#    '''Makes sure that the cache is sane. '''
+#    make_sure_cache_is_sane()
 
 @ui_command(section=ACTIONS)
 def clean(job_list):
     '''Cleans the result of the selected computation \
-(or everything is nothing specified) '''
+(or everything is nothing specified). '''
     if not job_list: 
         job_list = all_jobs()
         
@@ -62,7 +62,7 @@ def clean(job_list):
  
 @ui_command(section=ACTIONS)
 def make(job_list):
-    '''Makes selected targets; or all targets if none specified ''' 
+    '''Makes selected targets; or all targets if none specified. ''' 
     if not job_list:
         job_list = top_targets()
         
@@ -78,7 +78,7 @@ def make(job_list):
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
 def make_single(job_list, more=False):
-    ''' Makes a single job -- not for users, but for slave mode '''
+    ''' Makes a single job -- not for users, but for slave mode. '''
     if len(job_list) > 1:
         raise UserError("I want only one job")
     
