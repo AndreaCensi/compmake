@@ -47,8 +47,8 @@ In this example, the source code becomes (file ``using_compmake.py``):
 When this file is passed to |compmake|, the following computational structure
 is discovered:
 
-.. image:: example1/graph_before_compact.png
-   :width: 100%
+.. image:: example1/graph_before.png
+   :width: 70%
 
 (This is the output of the `graph command`_)
 
@@ -71,13 +71,9 @@ The following are some examples.
 
 	$ compmake example make
 
-The first time you run this, you will see an output like the following:
+The first time you run this, you will see the names of the jobs being executed scrolling by. However, the second time, the output will be something like:
 
-.. literalinclude:: example1/using_compmake1_make_snip.txt
-
-However, the second time, the output will be:
-
-.. literalinclude:: example1/using_compmake1_make2.txt
+	Nothing to do.
 
 because |compmake| has cached the results of the computation.
 	

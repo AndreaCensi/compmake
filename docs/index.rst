@@ -36,7 +36,7 @@ You would run the modified program using::
 
 You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
-rerun only the last step. You can achieve that by 
+rerun only the last step. You can achieve that by::
 
     $ compmake example remake "draw*"
 
