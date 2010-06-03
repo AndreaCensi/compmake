@@ -1,19 +1,23 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-setup(name='compmake',
-      version="1.0",
-      py_modules=['compmake'],
-      entry_points={
-         'console_scripts': [
-           'compmake = compmake.scripts.master:main'
-        ]
-      },
-      install_requires=['termcolor', 'setproctitle', 'readline'],
-      extras_require={
-        'multiprocessing':  ['redis']
-        # TODO: learn how to use this feature
-        # TODO: add gvgen
+setup(
+    name='compmake',
+    author = "Andrea Censi",
+    author_email = "andrea@cds.caltech.edu",
+    url='http://compmake.org',
+    version="0.9",
+    packages=find_packages(),
+    entry_points={
+     'console_scripts': [
+       'compmake = compmake.scripts.master:main'
+       ]
+       },
+    install_requires=['termcolor', 'setproctitle', 'readline'],
+    extras_require={
+    'multiprocessing':  ['redis']
+    # TODO: learn how to use this feature
+    # TODO: add gvgen
     }
 )
 

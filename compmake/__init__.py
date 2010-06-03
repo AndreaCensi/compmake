@@ -1,5 +1,5 @@
 # constants
-version = '1.0'
+version = '0.9'
 
 # Compmake can be run in different "states"
 
@@ -38,6 +38,11 @@ from compmake.jobs.storage import set_namespace
 def batch_command(s):
     ''' executes one command '''
 # ignore if interactive
+
+    # we assume that we are done with defining jobs
+    from compmake.ui.ui import clean_other_jobs
+    clean_other_jobs()
+
     if compmake_status == compmake_status_interactive:
         return
 
@@ -52,6 +57,10 @@ def compmake_console():
     if compmake_status != compmake_status_embedded:
         return
     
+    # we assume that we are done with defining jobs
+    from compmake.ui.ui import clean_other_jobs
+    clean_other_jobs()
+
     from compmake.ui.console import interactive_console
     interactive_console()
     
