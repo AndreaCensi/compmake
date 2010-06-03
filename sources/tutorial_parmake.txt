@@ -7,14 +7,17 @@
 Single-host multiprocessing
 ===========================
 
-
-Parallel commands
------------------
+It is easy to
 
 
+(Setting up cluster )
 
-Troubleshooting
---------------------------------
+
+
+Troubleshooting problems
+------------------------
+
+|compmake| uses 
 
 Some libraries don't like this. Run "make" before.
 
