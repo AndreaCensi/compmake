@@ -235,7 +235,7 @@ In this way, <span class="compmake-brand">compmake</span> learns the computation
 </div>
 <p>When this file is passed to <span class="compmake-brand">compmake</span>, the following computational structure
 is discovered:</p>
-<img alt="images/graph_before_compact.png" src="images/graph_before_compact.png" style="width: 100%;" />
+<img alt="images/graph_before.png" src="images/graph_before.png" style="width: 70%;" />
 <p>(This is the output of the <a class="reference external" href="commands.html">graph command</a>)</p>
 <p>The next section shows how to run <span class="compmake-brand">compmake</span> once you have modified your source code.</p>
 </div>
@@ -249,41 +249,9 @@ Now, you have to use the syntax:</p>
 <p><strong>Making</strong>: The command &#8220;make [jobs]&#8221; runs the computation in series:</p>
 <div class="highlight-python"><pre>$ compmake example make</pre>
 </div>
-<p>The first time you run this, you will see an output like the following:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="p">[</span><span class="o">...</span><span class="p">]</span> 
-</pre></div>
-</div>
-<p>However, the second time, the output will be:</p>
-<div class="highlight-python"><pre>Defining job func1                                                              
-Defining job func2                                                              
-Defining job draw                                                               
-Defining job func1-0                                                            
-Defining job func2-0                                                            
-Defining job draw-0                                                             
-Defining job func1-1                                                            
-Defining job func2-1                                                            
-Defining job draw-1                                                             
-Defining job func1-2                                                            
-Defining job func2-2                                                            
-Defining job draw-2                                                             
-Defining job func1-3                                                            
-Defining job func2-3                                                            
-Defining job draw-3                                                             
-Defining job func1-4                                                            
-Defining job func2-4                                                            
-Defining job draw-4                                                             
-Defining job func1-5                                                            
-Defining job func2-5                                                            
-Defining job draw-5                                                             
-Defining job func1-6                                                            
-Defining job func2-6                                                            
-Defining job draw-6                                                             
-Defining job func1-7                                                            
-Defining job func2-7                                                            
-Defining job draw-7                                                             
-Nothing to do.
-</pre>
-</div>
+<p>The first time you run this, you will see the names of the jobs being executed scrolling by. However, the second time, the output will be something like:</p>
+<blockquote>
+Nothing to do.</blockquote>
 <p>because <span class="compmake-brand">compmake</span> has cached the results of the computation.</p>
 <p><strong>Cleaning up</strong>: Use the command <tt class="docutils literal"><span class="pre">clean</span></tt> to clean:</p>
 <div class="highlight-python"><pre>$ compmake example clean</pre>
@@ -330,12 +298,12 @@ where we presumably want to group the functions by the parameters:</p>
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
 <div class="highlight-python"><pre>$ compmake example list
-draw                                              Not started/False
-draw-0                                            Not started/False
-draw-1                                            Not started/False
-draw-2                                            Not started/False
-draw-3                                            Not started/False
-draw-4                                            Not started/False
+p1=1-p2=10-draw                                   Not started/False
+p1=1-p2=10-func1                                  Not started/False
+p1=1-p2=10-func2                                  Not started/False
+p1=1-p2=11-draw                                   Not started/False
+p1=1-p2=11-func1                                  Not started/False
+p1=1-p2=11-func2                                  Not started/False
     [...]
 </pre>
 </div>
@@ -355,12 +323,12 @@ draw-4                                            Not started/False
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
 <div class="highlight-python"><pre>$ compmake example list
-draw                                              Not started/False
-draw-0                                            Not started/False
-draw-1                                            Not started/False
-draw-2                                            Not started/False
-draw-3                                            Not started/False
-draw-4                                            Not started/False
+p1=1-p2=10-computing                              Not started/False
+p1=1-p2=10-drawing                                Not started/False
+p1=1-p2=10-preparing                              Not started/False
+p1=1-p2=11-computing                              Not started/False
+p1=1-p2=11-drawing                                Not started/False
+p1=1-p2=11-preparing                              Not started/False
     [...]
 </pre>
 </div>

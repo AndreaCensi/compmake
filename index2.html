@@ -231,9 +231,9 @@ $ compmake example clustmake  # runs on a cluster</pre>
 </div>
 <p>You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
-rerun only the last step. You can achieve that by</p>
-<blockquote>
-$ compmake example remake &#8220;draw*&#8221;</blockquote>
+rerun only the last step. You can achieve that by:</p>
+<div class="highlight-python"><pre>$ compmake example remake "draw*"</pre>
+</div>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.</p>
 <p>Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
