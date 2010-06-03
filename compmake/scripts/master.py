@@ -107,7 +107,7 @@ def main():
             warning('However, I need a module name. I will try with "%s".' % 
                     module_name)
         
-        # set_namespace(module_name)
+        set_namespace(module_name)
         # remove_all_jobs()    
         try:
             __import__(module_name)
@@ -126,8 +126,7 @@ def main():
             sys.exit(-2)
         
         module_name = args.pop(0)
-        #set_namespace(module_name)
-        
+        set_namespace(module_name)
              
     if args:
         try:

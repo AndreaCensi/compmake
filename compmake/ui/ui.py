@@ -3,7 +3,7 @@
 from compmake.structures import Job, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import exists_computation, \
-    get_computation, set_computation 
+    get_computation, set_computation , all_jobs
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.jobs.syntax.parsing import parse_job_list
@@ -71,8 +71,17 @@ compmake_slave_mode = False
 # event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
 # event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
 
-
 jobs_defined_in_this_session = set()
+
+def clean_other_jobs():
+    ''' Cleans jobs not defined in the session '''
+    
+    all = all_jobs()
+    
+    for job_id in all:
+        if not job_id in  jobs_defined_in_this_session:
+            print "Found spurious job %s" % job_id
+
 
 def comp(command, *args, **kwargs):
     ''' Main method to define a computation.

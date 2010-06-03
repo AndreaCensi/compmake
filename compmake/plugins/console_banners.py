@@ -1,7 +1,7 @@
 ''' Implements the initial and final banner '''
 from compmake.events.registrar import register_handler
 from compmake.utils.visualization import colored
-from compmake.jobs.storage import all_jobs
+from compmake.jobs.storage import all_jobs, get_namespace
 from compmake import version
 
 compmake_copyright = '(c) 2010, Andrea Censi, Caltech'
@@ -17,7 +17,7 @@ def console_starting(event): #@UnusedVariable
     print "Welcome to the compmake console. " + \
             "('help' for a list of commands)"
     njobs = len(all_jobs())
-    print("%d jobs loaded." % njobs)
+    print("%d jobs loaded; using namespace '%s'." % (njobs, get_namespace()))
     
 def console_ending(event): #@UnusedVariable
     print "Thanks for using compmake. Problems? Suggestions? \

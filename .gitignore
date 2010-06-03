@@ -9,3 +9,5 @@ compmake/jobs/syntax/test1_db/
 test1_db
 Simple_db
 .DS_Store
+gpg
+dist
