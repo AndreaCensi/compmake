@@ -73,6 +73,11 @@ compmake_slave_mode = False
 
 jobs_defined_in_this_session = set()
 
+def reset_jobs_definition_set():
+    ''' Valid only for unit tests '''
+    global jobs_defined_in_this_session
+    jobs_defined_in_this_session = set()
+    
 def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
     
@@ -113,7 +118,7 @@ def comp(command, *args, **kwargs):
         del kwargs[job_id_key]
         
         if job_id in jobs_defined_in_this_session:
-            raise UserError('Job %s already defined.' % job_id)
+            raise UserError('Job "%s" already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
     

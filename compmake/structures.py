@@ -1,3 +1,6 @@
+from collections import namedtuple
+
+
 
 
 class ShellExitRequested(Exception):
@@ -219,3 +222,6 @@ class Cache:
         self.captured_stdout = None
         self.captured_stderr = None
         
+
+
+ProgressStage = namedtuple('ProgressStage', 'stage iterations goal', verbose=True)

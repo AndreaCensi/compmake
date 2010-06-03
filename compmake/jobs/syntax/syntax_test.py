@@ -1,9 +1,9 @@
 
 from unittest import TestCase
 from compmake.jobs.storage import set_namespace, remove_all_jobs, get_job_cache, \
-    set_job_cache
+    set_job_cache, all_jobs
 from compmake.structures import Cache, UserError, CompmakeSyntaxError
-from compmake.ui.ui import comp, parse_job_list
+from compmake.ui.ui import comp, parse_job_list, reset_jobs_definition_set
 
 from compmake.storage import use_filesystem
 import sys
@@ -19,6 +19,8 @@ class Test1(TestCase):
         set_namespace('Test1')
         remove_all_jobs()
 
+        reset_jobs_definition_set()
+        
         self.jobs = [
                 ('a', Cache.DONE),
                 ('b', Cache.FAILED),

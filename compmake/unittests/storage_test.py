@@ -29,6 +29,9 @@ class Simple(unittest.TestCase):
         self.assertFalse(storage.db.is_cache_available(k))
         
     def testSearch(self):
+        for key in storage.db.keys('*'):
+            storage.db.delete_cache(key)
+        self.assertEqual([], storage.db.keys('*'))
         storage.db.set_cache('key1', 1)
         storage.db.set_cache('key2', 1)
         self.assertEqual([], storage.db.keys('ciao*'))
