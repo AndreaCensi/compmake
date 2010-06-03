@@ -16,20 +16,19 @@ Compmake
 |compmake| is a non-obtrusive module that provides:
 
 * ``make``--like facilities to your Python computations (``make``, ``clean``, etc.),
-  including caching of temporary results. That is, you can do a CTRL+C, and then 
-  restart |compmake| without losing data. You can clean and redo selectively
-  part of the computation.
-* Single-host parallelization (using the ``multiprocessing`` module).
-* Multiple-host parallelization (using ssh-spawned slaves).
+  including caching of temporary results (that is, you can interrupt your program, and restart it without losing  (much) data.)
+* A console for inspecting failures and partial completion.
+* Single-host (using the ``multiprocessing`` module) and multiple-host parallelization (using ssh-spawned slaves).
+* Peace of mind!
 
 To use |compmake|, you have to minimally modify your Python program,
-such that |compmake| can understand the processing layout and
+such that it can understand the processing layout and
 the opportunities for parallelization.
 
 .. image:: initial.png 
    :class: bigpicture
 
-After that, you are ready to run your computation using::
+You would run the modified program using::
 
     $ compmake example make       # runs locally
     $ compmake example parmake    # runs locally in parallel
@@ -37,20 +36,23 @@ After that, you are ready to run your computation using::
 
 You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
-rerun the last step. If now you use the command::
+rerun only the last step. You can achieve that by 
 
     $ compmake example remake "draw*"
 
-then |compmake| will reuse part of the computations (``func1`` and ``func2``)
+|compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
+
 Moreover, by running ``compmake example`` only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.
 
-Compmake has been designed primarily for handling long computational-intensive
+|compmake| has been designed primarily for handling long computational-intensive
 batch processes. It assumes that the computational layout is fixed and that 
 all intermediate results can be cached to disk. If these two conditions are met,
 you can use |compmake| to gain considerable peace of mind.
+
+Still not convinced? Read :ref:`why`.
 
 Still interested? Read along. Start with the tutorial :ref:`tutorial0`.
 And check out :ref:`limitations` to see if ``compmake`` can help you.
