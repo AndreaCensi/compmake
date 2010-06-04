@@ -26,6 +26,8 @@ class Tracker:
     
     def event_job_progress_plus(self, event):
         self.status_plus[event.job_id] = event.stack
+        stat = '%s/%s' % event.stack[0].iterations
+        self.status[event.job_id] = stat
         
     def event_manager_progress(self, event):
         ''' Receive progress message (updates processing) '''

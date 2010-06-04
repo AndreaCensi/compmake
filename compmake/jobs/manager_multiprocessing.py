@@ -15,15 +15,22 @@ event_queue = Queue(cpu_count())
 
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
+    
+    def __init__(self, num_processes=None):
+        Manager.__init__(self)
+        self.num_processes = num_processes
         
     def process_init(self):
         #from compmake.storage import db
 #        if not db.supports_concurrency():
             #raise UserError("I cannot do multiprocessing using %s \
 #backend (use redis) " % db)
+
+        if self.num_processes is None:
+            self.num_processes = cpu_count() + 1
         
-        self.pool = Pool(processes=cpu_count() + 1)
-        self.max_num_processing = cpu_count() + 1
+        self.pool = Pool(processes=self.num_processes)
+        self.max_num_processing = self. num_processes
         
         
     def can_accept_job(self):

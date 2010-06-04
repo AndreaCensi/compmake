@@ -94,15 +94,17 @@ def make_single(job_list, more=False):
 
 # TODO: add num processors
 @ui_command(section=PARALLEL_ACTIONS)
-def parmake(job_list):
+def parmake(job_list, n=None):
     '''Parallel equivalent of "make".
 
-       Note: you should use the Redis backend to use multiprocessing.
+Usage:
+       
+       parmake [n=<num>] [joblist]
  '''
     if not job_list:
         job_list = top_targets()
     
-    manager = MultiprocessingManager()
+    manager = MultiprocessingManager(n)
     manager.add_targets(job_list, more=False)
     manager.process()
     

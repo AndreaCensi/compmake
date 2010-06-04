@@ -34,9 +34,8 @@ def handle_event(event): #@UnusedVariable
         s += ' [%s]' % status
         
         
-    rows, cols = getTerminalSize() #@UnusedVariable
+    cols, rows = getTerminalSize() #@UnusedVariable
     
-    #print rows, cols, len(s_extra), len(s_long)
     if len(s_extra) <= cols:
         w = s_extra
     elif len(s_long) <= cols:
@@ -44,8 +43,7 @@ def handle_event(event): #@UnusedVariable
     else:
         w = s
     w = string.ljust(w, cols)
-    
-    w = s_extra
+     
     stream.write(w)
     stream.write('\r')
     
