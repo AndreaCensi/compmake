@@ -1,1 +1,5 @@
-README.md
+Compmake
+========
+
+See <http://compmake.org> for documentation.
+
