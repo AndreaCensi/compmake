@@ -31,6 +31,7 @@ from compmake.ui import comp, comp_prefix
 from compmake.storage import use_redis, use_filesystem
 from compmake.config import compmake_config
 from compmake.jobs.storage import set_namespace
+from compmake.jobs.progress import progress
 
 
 # Note: we wrap these in shallow functions because we don't want

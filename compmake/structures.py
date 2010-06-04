@@ -223,5 +223,12 @@ class Cache:
         self.captured_stderr = None
         
 
-
-ProgressStage = namedtuple('ProgressStage', 'stage iterations goal', verbose=True)
+class ProgressStage:
+    def __init__(self, name, iterations, iteration_desc):
+        self.name = name
+        self.iterations = iterations
+        self.iteration_desc = iteration_desc
+        
+    def __str__(self):
+        return "[%s %s %s]" % (self.name, self.iterations, self.iteration_desc)
+    

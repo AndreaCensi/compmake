@@ -20,6 +20,7 @@ from compmake.config import compmake_config
 from traceback import print_exc
 from compmake.events.registrar import publish
 from compmake.utils.visualization import setproctitle
+from compmake.jobs.progress import init_progress_tracking
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
@@ -81,6 +82,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
 
 # DO NOT DELETE: THESE DECLARATIONS ARE PARSED       
 # event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
+# event  { 'name': 'job-progress-plus',  'attrs': ['job_id', 'host', 'stack'] }
 # event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
 # event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason'] }
 # event  { 'name': 'job-instanced', 'attrs': ['job_id', 'host'] }
@@ -143,6 +145,11 @@ def make(job_id, more=False):
         cache.time_start = time()
         cpu_start = clock()
         set_job_cache(job_id, cache)
+        
+        def progress_callback(stack):
+            publish('job-progress-plus', job_id=job_id, host=host, stack=stack)
+        
+        init_progress_tracking(progress_callback)
         
         num, total = 0, None
         user_object = None
