@@ -9,7 +9,7 @@ from compmake.jobs.storage import delete_job_cache, get_job_cache, \
     set_job_cache, \
     is_job_userobject_available, delete_job_userobject, \
     is_job_tmpobject_available, delete_job_tmpobject, get_job_tmpobject, \
-    get_job_userobject, set_job_tmpobject, set_job_userobject, get_computation
+    get_job_userobject, set_job_tmpobject, set_job_userobject, get_job
 from compmake.jobs.uptodate import up_to_date 
     
 from compmake.structures import Cache, Job, CompmakeException, UserError, \
@@ -108,7 +108,7 @@ def make(job_id, more=False):
         # if up and (more and want_more): # XXX review the logic 
         #    reason = 'want more'
         # print "Making %s (%s)" % (job_id, reason)
-        computation = get_computation(job_id)
+        computation = get_job(job_id)
         
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                                Cache.MORE_REQUESTED, Cache.DONE, Cache.FAILED])

@@ -9,7 +9,8 @@ class Simple(unittest.TestCase):
     def setUp(self):
         use_filesystem('Simple_db')
         set_namespace('Simple')
-        remove_all_jobs()
+        for key in storage.db.keys('*'):
+            storage.db.delete(key)
             
     def testExists1(self):
         assert(not storage.db.exists('not-existent'))
@@ -29,8 +30,6 @@ class Simple(unittest.TestCase):
         self.assertFalse(storage.db.exists(k))
         
     def testSearch(self):
-        for key in storage.db.keys('*'):
-            storage.db.delete(key)
         self.assertEqual([], storage.db.keys('*'))
         storage.db.set('key1', 1)
         storage.db.set('key2', 1)

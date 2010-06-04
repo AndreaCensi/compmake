@@ -22,7 +22,7 @@
 
 import re
 from compmake.structures import UserError, Cache, CompmakeSyntaxError
-from compmake.jobs.storage import exists_computation, all_jobs, get_computation, \
+from compmake.jobs.storage import job_exists, all_jobs, get_job, \
     get_job_cache
 import types
 
@@ -99,7 +99,7 @@ def expand_job_list_token(token):
     else:
         # interpret as a job id
         job_id = token
-        if not exists_computation(job_id):
+        if not job_exists(job_id):
             raise UserError('Job or expression "%s" not found ' % job_id) 
         return [job_id]
     

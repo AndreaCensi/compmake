@@ -24,7 +24,7 @@ def get_namespace():
     return compmake.jobs.namespace
 
 def remove_all_jobs():
-    map(remove_computation, all_jobs())
+    map(delete_job, all_jobs())
     
 def job2key(job_id):
     prefix = 'compmake:%s:job:' % get_namespace()
@@ -40,23 +40,23 @@ def all_jobs():
     keys = storage.db.keys(job2key('*'))
     return map(key2job, keys) 
 
-def get_computation(job_id):
+def get_job(job_id):
     key = job2key(job_id)
     computation = storage.db.get(key)
     assert(isinstance(computation, Job))
     return computation 
 
-def exists_computation(job_id):
+def job_exists(job_id):
     key = job2key(job_id)
     return storage.db.exists(key)
 
-def set_computation(job_id, computation):
+def set_job(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
     storage.db.set(key, computation)
         
-def remove_computation(job_id):
+def delete_job(job_id):
     key = job2key(job_id)
     storage.db.delete(key)
 

@@ -2,8 +2,8 @@
 
 from compmake.structures import Job, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
-from compmake.jobs.storage import exists_computation, \
-    get_computation, set_computation , all_jobs
+from compmake.jobs.storage import job_exists, \
+    get_job, set_job , all_jobs
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.jobs.syntax.parsing import parse_job_list
@@ -138,12 +138,12 @@ def comp(command, *args, **kwargs):
     # TODO: check for loops     
             
     for child in children:
-        child_comp = get_computation(child)
+        child_comp = get_job(child)
         if not job_id in child_comp.parents:
             child_comp.parents.append(job_id)
-            set_computation(child, child_comp)
+            set_job(child, child_comp)
     
-    if exists_computation(job_id):
+    if job_exists(job_id):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
         # however, by unpickling(), it will start
@@ -158,29 +158,29 @@ def comp(command, *args, **kwargs):
         if compmake_config.check_params: #@UndefinedVariable
             old_status = compmake_status
             set_compmake_status(compmake_status_slave) 
-            old_computation = get_computation(job_id)
+            old_computation = get_job(job_id)
             set_compmake_status(old_status)
             
             same, reason = old_computation.same_computation(c)
             
             if not same:
-                set_computation(job_id, c)
+                set_job(job_id, c)
                 publish('job-redefined', job_id=job_id , reason=reason)
                 # XXX TODO clean the cache
             else:
                 publish('job-already-defined', job_id=job_id)
         else:
             # We assume everything's ok
-            set_computation(job_id, c)
+            set_job(job_id, c)
             publish('job-defined', job_id=job_id)
     
-        assert exists_computation(job_id)
+        assert job_exists(job_id)
     else:    
     #    print "Job %s did not exist" % job_id
-        set_computation(job_id, c)
+        set_job(job_id, c)
         publish('job-defined', job_id=job_id)
         
-    assert exists_computation(job_id)
+    assert job_exists(job_id)
     return c 
 
                      

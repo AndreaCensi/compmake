@@ -1,5 +1,5 @@
 ''' Contains queries of the job DB. '''
-from compmake.jobs.storage import get_computation, all_jobs
+from compmake.jobs.storage import get_job, all_jobs
 
 
 
@@ -7,13 +7,13 @@ def direct_parents(job_id):
     ''' Returns the direct parents of the specified job.
         (Jobs that depend directly on this one) '''
     assert(isinstance(job_id, str))
-    computation = get_computation(job_id)
+    computation = get_job(job_id)
     return computation.parents
     
 def direct_children(job_id):
     ''' Returns the direct children (dependences) of the specified job '''
     assert(isinstance(job_id, str))
-    computation = get_computation(job_id)
+    computation = get_job(job_id)
     return computation.children
 
 def top_targets():
