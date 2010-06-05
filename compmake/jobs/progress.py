@@ -1,7 +1,5 @@
 from compmake.structures import ProgressStage
 
-
-
 stack = []
 callback = None
 
@@ -21,9 +19,11 @@ def progress(name, iterations, iteration_desc=None):
             stage.iterations = iterations
             stage.iteration_desc = iteration_desc
             found = True
+            # TODO: only send every once in a while
+            global callback
+            callback(stack)
             break
     if not found:
         stack.append(ProgressStage(name, iterations, iteration_desc))
-        
-    global callback
-    callback(stack)
+        global callback
+        callback(stack)

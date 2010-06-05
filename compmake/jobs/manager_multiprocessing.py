@@ -11,7 +11,7 @@ from compmake.utils.visualization import setproctitle
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
 
 
-event_queue = Queue(cpu_count())
+event_queue = Queue(cpu_count()*5)
 
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
@@ -19,6 +19,7 @@ class MultiprocessingManager(Manager):
     def __init__(self, num_processes=None):
         Manager.__init__(self)
         self.num_processes = num_processes
+        
         
     def process_init(self):
         #from compmake.storage import db
@@ -31,7 +32,9 @@ class MultiprocessingManager(Manager):
         
         self.pool = Pool(processes=self.num_processes)
         self.max_num_processing = self. num_processes
-        
+        #global event_queue
+        #event_queue = Queue(self.num_processes)
+
         
     def can_accept_job(self):
         # only one job at a time

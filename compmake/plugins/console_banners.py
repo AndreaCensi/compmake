@@ -4,18 +4,18 @@ from compmake.utils.visualization import colored
 from compmake.jobs.storage import all_jobs, get_namespace
 from compmake import version
 
-compmake_copyright = '(c) 2010, Andrea Censi, Caltech'
 compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
+banner = "Tame your Python computations!"
+banner2 = ""
 
 def console_starting(event): #@UnusedVariable
     # starting console
-    banner = "Tame your Python computation!"
-    print "%s %s - ``%s''     %s " % (
+    print "%s %s -- ``%s,, -- %s " % (
         colored('Compmake', attrs=['bold']),
-        version, banner, compmake_copyright)
+        version, banner, banner2)
     print "Welcome to the compmake console. " + \
-            "('help' for a list of commands)"
+            "(write 'help' for a list of commands)"
     njobs = len(all_jobs())
     print("%d jobs loaded; using namespace '%s'." % (njobs, get_namespace()))
     

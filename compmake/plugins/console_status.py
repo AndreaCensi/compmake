@@ -13,16 +13,12 @@ def handle_event(event): #@UnusedVariable
     if tracker.failed:
         s += colored(" Failed %s" % len(tracker.failed), 'red')
     
-    s_extra = str(s)
-    s_extra_plus = str(s)
-    s_long = str(s)
-    
     def get_string(level):
         X = []
         for job_id, status in tracker.status.items():
             x = []
             if level >= 1:
-                x += [job_id]
+                x += [job_id + ":"]
             if level <= 1 or not job_id in tracker.status_plus:
                 x += [status]
                 
@@ -36,7 +32,7 @@ def handle_event(event): #@UnusedVariable
                         x += ["%s/%s" % frame.iterations] 
                         
                     if level >= 4 and frame.iteration_desc is not None:
-                        x += [frame.iteration_desc]
+                        x += ["(" + frame.iteration_desc + ")"]
                     
                     if i < len(stack) - 1:
                         x += ['>>']       
@@ -48,9 +44,9 @@ def handle_event(event): #@UnusedVariable
     
     choice = '%d processing' % len(tracker.status)
     for level in [4, 3, 2, 1, 0]:
-        s = get_string(level)
-        if len(s) <= cols:
-            choice = s
+        x = s + get_string(level)
+        if len(x) <= cols:
+            choice = x
             break
     
     choice = string.ljust(choice, cols - 1)
