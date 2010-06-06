@@ -3,7 +3,7 @@
 from compmake.structures import Job, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import job_exists, \
-    get_job, set_job , all_jobs
+    get_job, set_job , all_jobs, delete_job
 import inspect
 from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.jobs.syntax.parsing import parse_job_list
@@ -11,6 +11,7 @@ from compmake import compmake_status, compmake_status_slave, set_compmake_status
 from compmake.events.registrar import publish
 import compmake
 from compmake.config import compmake_config
+from compmake.jobs.actions import clean_target
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -85,8 +86,9 @@ def clean_other_jobs():
     
     for job_id in all:
         if not job_id in  jobs_defined_in_this_session:
-            print "Found spurious job %s" % job_id
-
+            print "Found spurious job %s; cleaning" % job_id
+            clean_target(job_id)
+            delete_job(job_id)
 
 def comp(command, *args, **kwargs):
     ''' Main method to define a computation.
