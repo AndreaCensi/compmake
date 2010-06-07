@@ -9,6 +9,7 @@ stream = sys.stderr
 tracker = Tracker()    
     
 def handle_event(event): #@UnusedVariable
+    # FIXME bug
     s = "Done %s/%s " % (len(tracker.done), len(tracker.all_targets))
     if tracker.failed:
         s += colored(" Failed %s" % len(tracker.failed), 'red')

@@ -8,6 +8,16 @@ from StringIO import StringIO
 
 from compmake.structures import CompmakeException 
 
+def try_to_unpickle_string(s):
+    ''' Tries to unpickle the string, raises an exception if not possible.'''
+  #  try:
+    sio = StringIO(s)
+    state = pickle.load(sio)
+    return state
+#    except Exception, e:
+ #       raise CompmakeException("Could not unpickle string")
+
+
 class StorageFilesystem:
     basepath = '~/compmake'
     
@@ -32,8 +42,8 @@ class StorageFilesystem:
             sio = StringIO(content)
             state = pickle.load(sio)
             return state
-        except EOFError:
-            raise  EOFError("Could not unpickle file %s" % file) 
+        except Exception, e:
+            raise CompmakeException("Could not unpickle file %s (%s)" % (filename,e)) 
     
     @staticmethod
     def delete(key):
@@ -57,6 +67,12 @@ class StorageFilesystem:
         sio = StringIO()
         pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
         content = sio.getvalue()
+
+        try:    
+            try_to_unpickle_string(content)
+        except Exception, e:
+            raise Exception('Could not deserialize key %s: %s \n%s ' % (key,e,value))
+            
     
         file = open(filename, 'w')
         file.write(content)
