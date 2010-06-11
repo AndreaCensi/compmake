@@ -65,7 +65,11 @@ def compmake_console():
     from compmake.ui.console import interactive_console
     interactive_console()
     
-    
+is_it_time = False
+def time_to_define_jobs():
+    import compmake
+    return compmake.is_it_time
+
 # We always want this one
 from compmake.plugins import console_status
     

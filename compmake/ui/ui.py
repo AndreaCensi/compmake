@@ -81,12 +81,31 @@ def reset_jobs_definition_set():
     
 def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
-    
+    if compmake.compmake_status == compmake_status_slave:
+        return
+    from compmake.ui.console import ask_question
+
     all = all_jobs()
+    
+    answers = {'a':'a', 'n':'n', 'y':'y', 'N':'N'}
+    clean_all = False
     
     for job_id in all:
         if not job_id in  jobs_defined_in_this_session:
-            print "Found spurious job %s; cleaning" % job_id
+            if not clean_all:
+                answer = ask_question(
+                "Found spurious job %s; cleaning? [y]es, [a]ll, [n]o, [N]one " \
+                    % job_id, allowed=answers)
+                
+                if answer == 'n':
+                    continue
+                
+                if answer == 'N':
+                    break
+                
+                if answer == 'a':
+                    clean_all = True
+                
             clean_target(job_id)
             delete_job(job_id)
 

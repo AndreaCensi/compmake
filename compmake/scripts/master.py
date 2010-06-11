@@ -15,6 +15,7 @@ from compmake.config.config_optparse import config_populate_optparser
 from compmake.config import compmake_config
 from compmake.events.registrar import remove_all_handlers, register_handler
 from compmake.utils.visualization import setproctitle
+import compmake
 
 def initialize_backend():
     allowed_db = ['filesystem', 'redis']
@@ -107,8 +108,8 @@ def main():
             warning('However, I need a module name. I will try with "%s".' % 
                     module_name)
         
-        set_namespace(module_name)
-        # remove_all_jobs()    
+        set_namespace(module_name) 
+        compmake.is_it_time = True
         try:
             __import__(module_name)
         except Exception as e:

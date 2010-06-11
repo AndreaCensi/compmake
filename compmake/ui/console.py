@@ -78,9 +78,11 @@ def compmake_console():
         yield line
     
 
-def ask_question(question):
+def ask_question(question, allowed=None):
     ''' Asks a yes/no question to the user '''
-    allowed = {
+    
+    if allowed is None:
+        allowed = {
                'y': True,
                'Y': True,
                'yes': True,
@@ -89,7 +91,8 @@ def ask_question(question):
                'no': False
                }
     while True:
-        line = raw_input(question + ' [y/n] ')
+        line = raw_input(question)
         line = line.strip().lower()
         if line in allowed:
             return allowed[line]
+
