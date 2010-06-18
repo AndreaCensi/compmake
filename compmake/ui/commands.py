@@ -10,8 +10,7 @@ import sys, os
 from compmake.ui.helpers import   ui_section, ui_command, \
     GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
     COMMANDS_CLUSTER
-from compmake.jobs import make_sure_cache_is_sane, \
-    clean_target, mark_remake, mark_more, top_targets    
+from compmake.jobs import clean_target, mark_remake, mark_more, top_targets    
 from compmake.jobs.storage import  all_jobs 
 from compmake.structures import   UserError, JobFailed, ShellExitRequested
 from compmake.config import compmake_config 
@@ -50,7 +49,7 @@ def clean(job_list):
     from compmake.ui.console import ask_question
     
     if compmake_config.interactive: #@UndefinedVariable
-        question = "Should I clean %d jobs?" % len(job_list)
+        question = "Should I clean %d jobs? [y/n] " % len(job_list)
         answer = ask_question(question)
         if not answer:
             info('Not cleaned.')
