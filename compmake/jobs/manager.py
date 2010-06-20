@@ -72,7 +72,6 @@ class Manager:
         ''' Returns one job from the ready_todo list 
             (and removes it from there)'''
         return self.ready_todo.pop()
-    
 
     def add_targets(self, targets, more=False):
         self.targets.update(targets)
@@ -88,7 +87,6 @@ class Manager:
             
         self.ready_todo = set([job_id for job_id in self.todo 
                       if dependencies_up_to_date(job_id)])
-
 
     def instance_some_jobs(self):
         ''' Instances some of the jobs. Uses the
@@ -107,8 +105,6 @@ class Manager:
                 self.instance_job(job_id, make_more)
             
             # info('Job %s instantiated (more=%s)' % (job_id, make_more))
-        
-            
         
     def check_job_finished(self, job_id):
         ''' Checks that the job finished. Returns true if that's the case.
@@ -140,7 +136,6 @@ class Manager:
             #self.job_interrupted(job_id) 
             #return True
     
-
     def host_failed(self, job_id):
         error('Job %s: host failed' % job_id)
         self.processing.remove(job_id)
@@ -166,7 +161,6 @@ class Manager:
                 if p in self.ready_todo:
                     self.ready_todo.remove(p)
                     
-
     def job_succeeded(self, job_id):
         #info('Job %s succeded ' % job_id)
         ''' The specified job as succeeded. Update the structures,
