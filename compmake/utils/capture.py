@@ -1,8 +1,12 @@
-import sys
-from compmake.utils.visualization import colored
+import sys, re
+from compmake.utils.visualization import colored, getTerminalSize
 from StringIO import StringIO
 
 class LineSplitter:
+    ''' A simple utility to split an incoming sequence of chars
+        in lines. Push characters using append_chars() and 
+        get the completed lines using lines(). '''
+        
     def __init__(self):
         self.current = ''
         self.current_lines = []
@@ -16,7 +20,6 @@ class LineSplitter:
                 self.current = ''
             else:
                 self.current += char
-            
             
     def lines(self):
         ''' Returns a list of line; empties the buffer '''
@@ -40,12 +43,34 @@ class StreamCapture:
             for line in self.line_splitter.lines():
                 if self.transform:
                     line = self.transform(line)       
-                self.dest.write(line)
-                self.dest.write('\n')
+                self.dest.write("%s\n" % line)
             self.dest.flush()
         
     def flush(self):
         pass
+
+
+def remove_escapes(s):
+    escape = re.compile('\x1b\[..?m')
+    return escape.sub("",s)
+
+def pad_to_screen(s):
+    ''' Pads a string to the terminal size.
+    The string length is computed after removing shell 
+    escape sequences. '''
+    
+    current_size = len(remove_escapes(s))
+    cols, rows = getTerminalSize() #@UnusedVariable
+    desired_size = cols - 1 
+    
+    pad_char = " "
+    # pad_char = "_" # useful for debugging
+    
+    if current_size < desired_size:
+        s += pad_char * (desired_size - current_size)
+        
+    return s
+    
 
 class OutputCapture:
     
@@ -53,13 +78,15 @@ class OutputCapture:
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
         t = lambda s: '%s| %s' % (prefix, colored(s, 'cyan', attrs=['dark']))
+        t2 = lambda s: pad_to_screen(t(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]     
-        self.stdout_replacement = StreamCapture(transform=t, dest=dest)
+        self.stdout_replacement = StreamCapture(transform=t2, dest=dest)
         sys.stdout = self.stdout_replacement
         
         t = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
+        t2 = lambda s: pad_to_screen(t(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]      
-        self.stderr_replacement = StreamCapture(transform=t, dest=dest)
+        self.stderr_replacement = StreamCapture(transform=t2, dest=dest)
         sys.stderr = self.stderr_replacement
         
     def deactivate(self):

@@ -1,5 +1,3 @@
-
-
 from compmake.structures import Job, UserError  
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import job_exists, \
@@ -271,10 +269,14 @@ def interpret_commands(commands):
     if 'non_empty_job_list' in function_args:
         if not args:
             raise UserError(
-                "The command '%s' requires a list of jobs as argument." % \
+                "The command '%s' requires a non empty list of jobs as argument." % \
                 command_name)
             
-        kwargs['non_empty_job_list'] = parse_job_list(args)
+        job_list = parse_job_list(args) 
+        
+        # TODO: check non empty
+        
+        kwargs['non_empty_job_list'] = job_list
         
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)

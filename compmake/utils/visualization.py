@@ -37,6 +37,9 @@ def get_screen_columns():
     return compmake.utils.visualization.screen_columns
 
 def getTerminalSize():
+    '''
+    max_x, max_y = getTerminalSize()
+    '''
     import os
     def ioctl_GWINSZ(fd):
         try:
