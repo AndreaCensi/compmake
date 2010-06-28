@@ -1,5 +1,5 @@
 # constants
-version = '0.9'
+version = '0.9.1'
 
 # Compmake can be run in different "states"
 

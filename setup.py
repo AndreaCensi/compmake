@@ -6,7 +6,7 @@ setup(
     author = "Andrea Censi",
     author_email = "andrea@cds.caltech.edu",
     url='http://compmake.org',
-    version="0.9",
+    version="0.9.1",
     packages=find_packages(),
     entry_points={
      'console_scripts': [
