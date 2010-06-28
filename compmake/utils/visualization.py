@@ -3,7 +3,6 @@ from math import ceil
 from compmake.config import compmake_config
 
 try:
-    # TODO: add option to disable colored output 
     from termcolor import colored as termcolor_colored #@UnresolvedImport
 except:
     sys.stderr.write('compmake can make use of the package "termcolor".\

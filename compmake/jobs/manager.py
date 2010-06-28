@@ -219,7 +219,7 @@ class Manager:
                         todo=self.todo, failed=self.failed, ready=self.ready_todo,
                         processing=self.processing, all_targets=self.all_targets)
         
-                    raise CompmakeException('Cannot find computing resources, givin up') 
+                    raise CompmakeException('Cannot find computing resources, giving up.') 
                 
                 self.publish_progress()
                 self.loop_until_something_finishes()
