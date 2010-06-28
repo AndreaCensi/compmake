@@ -3,8 +3,6 @@ from time import time, clock
 from types import GeneratorType
 from copy import deepcopy
 
-# FEATURE: clean confirmation if interactive 
-
 from compmake.jobs.storage import delete_job_cache, get_job_cache, \
     set_job_cache, \
     is_job_userobject_available, delete_job_userobject, \
@@ -185,9 +183,7 @@ def make(job_id, more=False):
                 user_object = result
 
         
-        except KeyboardInterrupt:
-                    
-
+        except KeyboardInterrupt: 
             # TODO: clear progress cache
             # Save the current progress:
             cache.iterations_in_progress = num
@@ -229,7 +225,6 @@ def make(job_id, more=False):
             # We only have onw with yeld
             delete_job_tmpobject(job_id)
         
-            
         cache.state = Cache.DONE
         cache.timestamp = time()
         walltime = cache.timestamp - cache.time_start 

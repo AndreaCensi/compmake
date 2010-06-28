@@ -66,7 +66,7 @@ def getTerminalSize():
 
     
 def clean_console_line(stream):
-    s = '\r' + (' ' *  (get_screen_columns() - 2)) + '|\r'
+    s = '\r' + (' ' *  (get_screen_columns() - 2)) + '\r'
     stream.write(s)
     pass
     

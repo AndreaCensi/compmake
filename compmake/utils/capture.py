@@ -1,5 +1,6 @@
 import sys, re
-from compmake.utils.visualization import colored, getTerminalSize
+from compmake.utils.visualization import colored, getTerminalSize,\
+    get_screen_columns
 from StringIO import StringIO
 
 class LineSplitter:
@@ -49,7 +50,6 @@ class StreamCapture:
     def flush(self):
         pass
 
-
 def remove_escapes(s):
     escape = re.compile('\x1b\[..?m')
     return escape.sub("",s)
@@ -60,8 +60,7 @@ def pad_to_screen(s):
     escape sequences. '''
     
     current_size = len(remove_escapes(s))
-    cols, rows = getTerminalSize() #@UnusedVariable
-    desired_size = cols - 1 
+    desired_size = get_screen_columns() - 1 
     
     pad_char = " "
     # pad_char = "_" # useful for debugging
@@ -70,23 +69,22 @@ def pad_to_screen(s):
         s += pad_char * (desired_size - current_size)
         
     return s
-    
 
 class OutputCapture:
     
     def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-        t = lambda s: '%s| %s' % (prefix, colored(s, 'cyan', attrs=['dark']))
-        t2 = lambda s: pad_to_screen(t(s))
+        t1 = lambda s: '%s| %s' % (prefix, colored(s, 'cyan', attrs=['dark']))
+        t2 = lambda s: pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]     
         self.stdout_replacement = StreamCapture(transform=t2, dest=dest)
         sys.stdout = self.stdout_replacement
         
-        t = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
-        t2 = lambda s: pad_to_screen(t(s))
+        t3 = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
+        t4 = lambda s: pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]      
-        self.stderr_replacement = StreamCapture(transform=t2, dest=dest)
+        self.stderr_replacement = StreamCapture(transform=t4, dest=dest)
         sys.stderr = self.stderr_replacement
         
     def deactivate(self):
