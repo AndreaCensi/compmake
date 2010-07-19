@@ -14,9 +14,13 @@ Clustering works by spawning compmake processes on other hosts.
 Configuration
 -------------------------------------------
 
+(**VERY IMPORTANT SECTION MISSING**)
 
 The details of how compmake uses clustering
 -------------------------------------------
+
+This is an explanation (for developers) of how 
+|compmake| spawns processes on a cluster.
 
 What happens is that compmake is spawned using a command line similar to this::
 
