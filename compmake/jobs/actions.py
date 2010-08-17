@@ -219,8 +219,8 @@ def make(job_id, more=False):
             cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
             set_job_cache(job_id, cache)
             
-        
         set_job_userobject(job_id, user_object)
+                
         if is_job_tmpobject_available(job_id):
             # We only have onw with yeld
             delete_job_tmpobject(job_id)

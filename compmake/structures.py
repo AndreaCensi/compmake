@@ -15,6 +15,10 @@ class KeyNotFound(CompmakeException):
 class UserError(CompmakeException):
     pass
 
+class SerializationError(UserError):
+    ''' Something cannot be serialized (function or function result).'''
+    pass
+
 class CompmakeSyntaxError(UserError):
     pass
 

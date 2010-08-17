@@ -42,6 +42,10 @@ def interactive_console():
                     except ShellExitRequested:
                         exit_requested = True
                         break
+                    except Exception as e:
+                        error('Warning, I got this exception, while it should have'
+                              ' been filtered out already: %s' % e)
+                        
         except KeyboardInterrupt:  # CTRL-C
             print "\nPlease use 'exit' to quit."
         except EOFError: # CTRL-D

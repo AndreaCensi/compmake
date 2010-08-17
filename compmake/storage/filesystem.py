@@ -6,7 +6,7 @@ from os.path import expanduser, dirname, join, expandvars, \
     splitext, exists, basename
 from StringIO import StringIO
 
-from compmake.structures import CompmakeException 
+from compmake.structures import CompmakeException , SerializationError
 
 def try_to_unpickle_string(s):
     ''' Tries to unpickle the string, raises an exception if not possible.'''
@@ -43,7 +43,7 @@ class StorageFilesystem:
             state = pickle.load(sio)
             return state
         except Exception, e:
-            raise CompmakeException("Could not unpickle file %s (%s)" % (filename,e)) 
+            raise CompmakeException("Could not unpickle file %s (%s)" % (filename, e)) 
     
     @staticmethod
     def delete(key):
@@ -65,13 +65,17 @@ class StorageFilesystem:
         filename = StorageFilesystem.filename_for_key(key)
         
         sio = StringIO()
-        pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
+        try:
+            pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            raise SerializationError('Cannot set key %s: cannot pickle object '
+                    'of class %s: %s' % (key, value.__class__.__name__, e))
         content = sio.getvalue()
 
         try:    
             try_to_unpickle_string(content)
         except Exception, e:
-            raise Exception('Could not deserialize key %s: %s \n%s ' % (key,e,value))
+            raise Exception('Could not deserialize key %s: %s \n%s ' % (key, e, value))
             
     
         file = open(filename, 'w')

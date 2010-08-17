@@ -1,7 +1,8 @@
 import sys
 import pickle
 from StringIO import StringIO
-from compmake.structures import CompmakeException, KeyNotFound
+from compmake.structures import CompmakeException, KeyNotFound, \
+    SerializationError
 
 
 class RedisInterface:
@@ -117,7 +118,11 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
 # Serialization device
 def object2string(obj):
     sio = StringIO()
-    pickle.dump(obj, sio, pickle.HIGHEST_PROTOCOL)
+    try:
+        pickle.dump(obj, sio, pickle.HIGHEST_PROTOCOL)
+    except Exception as e:
+        raise SerializationError('Cannot pickle object '
+                    'of class %s: %s' % (obj.__class__.__name__, e))
     return sio.getvalue()
 
 def string2object(s):

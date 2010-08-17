@@ -1,4 +1,5 @@
-from compmake.structures import Job, UserError  
+from compmake.structures import Job, UserError  , CompmakeException, \
+    SerializationError
 from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import job_exists, \
     get_job, set_job , all_jobs, delete_job
@@ -10,6 +11,7 @@ from compmake.events.registrar import publish
 import compmake
 from compmake.config import compmake_config
 from compmake.jobs.actions import clean_target
+import pickle
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -118,6 +120,14 @@ def comp(command, *args, **kwargs):
     '''
     if compmake.compmake_status == compmake_status_slave:
         return None
+    
+    # Check that this is a pickable function
+    try:
+        pickle.dumps(command)
+    except:
+        raise SerializationError('Cannot pickle "%s". Make sure it is not a '
+                                'lambda function or a nested function. '
+                                '(This is a limitation of Python)' % command)
     
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments

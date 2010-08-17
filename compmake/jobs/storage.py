@@ -78,9 +78,7 @@ def get_job_cache(job_id):
         # XXX expensive
         known = all_jobs()
         if not job_id in known:
-            print "invalid job %s" % job_id
-            print "I know of %s " % known
-            raise CompmakeException("invalid job %s" % job_id) 
+            raise CompmakeException("invalid job %s, I know %s" % (job_id, known)) 
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set(cache_key, cache)
