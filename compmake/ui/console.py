@@ -8,6 +8,7 @@ from compmake.structures import UserError, CompmakeException
 from compmake.ui.commands import ShellExitRequested
 from compmake.events.registrar import publish
 import sys
+import traceback
 
 # event  { 'name': 'console-starting' }
 # event  { 'name': 'console-ending' }
@@ -43,8 +44,10 @@ def interactive_console():
                         exit_requested = True
                         break
                     except Exception as e:
+                        traceback.print_exc()
                         error('Warning, I got this exception, while it should have'
-                              ' been filtered out already: %s' % e)
+                              ' been filtered out already. This is a compmake BUG '
+                              ' that should be reported:  %s' % e)
                         
         except KeyboardInterrupt:  # CTRL-C
             print "\nPlease use 'exit' to quit."
