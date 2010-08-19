@@ -1,5 +1,5 @@
 import os 
-import pickle
+import cPickle as pickle
 from glob import glob
 from os import makedirs
 from os.path import expanduser, dirname, join, expandvars, \
@@ -7,6 +7,9 @@ from os.path import expanduser, dirname, join, expandvars, \
 from StringIO import StringIO
 
 from compmake.structures import CompmakeException , SerializationError
+import time
+
+PRINT_STATS = False
 
 def try_to_unpickle_string(s):
     ''' Tries to unpickle the string, raises an exception if not possible.'''
@@ -35,12 +38,17 @@ class StorageFilesystem:
             raise CompmakeException('Could not find job %s' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
+            start = time.time()
             file = open(filename, 'r')
             content = file.read()
             file.close()
             # print "R %s len %d" % (key, len(content))
             sio = StringIO(content)
             state = pickle.load(sio)
+            
+            duration = time.time() - start
+            if PRINT_STATS:
+                print "Getting %s\t%.2f seconds" % (key, duration)
             return state
         except Exception, e:
             raise CompmakeException("Could not unpickle file %s (%s)" % (filename, e)) 
@@ -63,6 +71,7 @@ class StorageFilesystem:
     @staticmethod
     def set(key, value):
         filename = StorageFilesystem.filename_for_key(key)
+        start = time.time()
         
         sio = StringIO()
         try:
@@ -72,18 +81,22 @@ class StorageFilesystem:
                     'of class %s: %s' % (key, value.__class__.__name__, e))
         content = sio.getvalue()
 
-        try:    
-            try_to_unpickle_string(content)
-        except Exception, e:
-            raise Exception('Could not deserialize key %s: %s \n%s ' % (key, e, value))
+#        try:    
+#            try_to_unpickle_string(content)
+#        except Exception, e:
+#            raise Exception('Could not deserialize key %s: %s \n%s ' % (key, e, value))
             
     
         file = open(filename, 'w')
         file.write(content)
         file.flush()
-        os.fsync(file) # XXX I'm desperate
+        #os.fsync(file) # XXX I'm desperate
         file.close()
 
+        duration = time.time() - start
+        if PRINT_STATS:
+            print "Set %s: \t%.2f seconds" % (key, duration)
+        
     @staticmethod
     # TODO change key
     def keys(pattern):

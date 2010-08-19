@@ -1,5 +1,5 @@
 import sys
-import pickle
+import cPickle as pickle
 from StringIO import StringIO
 from compmake.structures import CompmakeException, KeyNotFound, \
     SerializationError

@@ -5,6 +5,7 @@ from compmake.jobs.queries import direct_children
     
 # XXX not used for now
 up_to_date_cache = set()
+
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
@@ -29,7 +30,6 @@ def up_to_date(job_id):
     if cache.state == Cache.NOT_STARTED:
         return False, 'Not started'
         
-    #computation = get_computation(job_id)
     for child in direct_children(job_id):
         child_up, why = up_to_date(child) #@UnusedVariable
         if not child_up:
