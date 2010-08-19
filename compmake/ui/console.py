@@ -72,7 +72,14 @@ def tab_completion2(text, state):
         response = None
     return response
 
+COMPMAKE_HISTORY_FILENAME = '.compmake_history.txt'
+
 def compmake_console():
+    try:
+        readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
+    except:
+        pass
+    readline.set_history_length(300) # small enough to be saved every time
     readline.set_completer(tab_completion2)
     readline.set_completer_delims(" ")
     readline.parse_and_bind('tab: complete')
@@ -82,6 +89,7 @@ def compmake_console():
         # FIXME: not reliable if colored
         # line = raw_input(colored('@: ', 'cyan'))
         line = raw_input('@: ')
+        readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
         yield line
     
 
