@@ -102,7 +102,7 @@ def make(job_id, more=False):
     want_more = cache.state == Cache.MORE_REQUESTED
     if up and not (more and want_more):
         # print "%s is up to date" % job_id
-        assert(is_job_userobject_available(job_id))
+        assert is_job_userobject_available(job_id)
         return get_job_userobject(job_id)
     else:
         # if up and (more and want_more): # XXX review the logic 

@@ -1,4 +1,5 @@
 from collections import namedtuple
+import pickle
 
 
 
@@ -131,15 +132,23 @@ class Job:
             available = self.command.func_code.co_varnames
             
             if not kw in available:
-                raise CompmakeException(('Function does not have a "%s" argument, necessary' + 
-                                  'for makemore (args: %s)') % (kw, available))
+                raise CompmakeException(
+                    'Function does not have a "%s" argument, necessary' \
+                  'for makemore (args: %s)' % (kw, available))
             kwargs[kw] = previous_result
             
         from compmake.jobs import substitute_dependencies
         # TODO: move this to jobs.actions?
         args = substitute_dependencies(self.args)
         kwargs = substitute_dependencies(kwargs)
-        return self.command(*args, **kwargs)
+        
+        command = self.command
+        # We can make sure we have the latest version (in case of reload)
+        # by dumping and loading again the function handle.
+        command = pickle.loads(pickle.dumps(command)) 
+        if command != self.command:
+            print "\nDetected updated command %s\n" % command
+        return command(*args, **kwargs)
     
     # XXX do a "promise" class
     def __eq__(self, other):
