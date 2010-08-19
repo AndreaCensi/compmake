@@ -242,18 +242,25 @@ def interpret_commands(commands):
     other = []
     kwargs = {}
     argspec = inspect.getargspec(function)
+
+    if argspec.defaults:
+        num_args_with_default = len(argspec.defaults)
+    else:
+        num_args_with_default = 0
+    num_args = len(argspec.args)
+    num_args_without_default = num_args - num_args_with_default
+
+    args_without_default = argspec.args[0:num_args_without_default]
+
     for a in args:
         if a.find('=') > 0:
             k, v = a.split('=')
         
             if not k in argspec.args:
-                raise UserError(("You passed the argument '%s' for command" + 
-                "'%s'  but the only available arguments are %s") % (
+                raise UserError("You passed the argument '%s' for command" 
+                " '%s', but the only available arguments are %s." % (
                             k, cmd.name, function_args))
             # look if we have a default value
-            num_args_with_default = len(argspec.defaults)
-            num_args = len(argspec.args)
-            num_args_without_default = num_args - num_args_with_default
             index = argspec.args.index(k)
             if index < num_args_without_default:
                 # no default, pass as string
@@ -291,5 +298,11 @@ def interpret_commands(commands):
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
         
+    #print 'Passing kwargs = %s' % kwargs
+    
+    for x in args_without_default:
+        if not x in kwargs:
+            raise UserError('Required argument "%s" not given.' % x)
+    
     return function(**kwargs)
 
