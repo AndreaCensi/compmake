@@ -107,7 +107,9 @@ def ask_question(question, allowed=None):
                }
     while True:
         line = raw_input(question)
-        line = line.strip().lower()
+        line = line.strip()
+
         if line in allowed:
             return allowed[line]
+
 
