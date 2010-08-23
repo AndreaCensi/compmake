@@ -20,6 +20,7 @@ def reload(module):
         except:
             dave = 'Dave'
         user_error("I'm sorry, %s. I'm afraid I can't do that." % dave)
+        return
         
     try:     
         m = __import__(module)
