@@ -54,7 +54,7 @@ you can use |compmake| to gain considerable peace of mind.
 
 Still not convinced? Read :ref:`why`.
 
-Still interested? Read along. Start with the tutorial :ref:`tutorial0`.
+Still interested? Read along. Start with the tutorial :ref:`tutorial_basic`.
 And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 
@@ -78,18 +78,18 @@ get support and influence |compmake|'s evolution!
 
 	**Tutorial**
 	
-	* :ref:`tutorial0`
-	* :ref:`tutorial1`
-	* :ref:`tutorial2`
-	* :ref:`tutorial3`
-	* :ref:`tutorial4`
+	* :ref:`tutorial_basic`
+	* :ref:`tutorial_console`
+	* :ref:`tutorial_parmake`
+	* :ref:`tutorial_embedding`
 
 .. container:: col2
 
 	**Advanced usage**
 
-	* :ref:`advanced0`
-	* :ref:`advanced1`
+	* :ref:`tutorial_cluster`
+	* :ref:`tutorial_suspend`
+	* :ref:`tutorial_more`
 
 	**Reference**
 
@@ -145,7 +145,6 @@ Please use the `issue tracker on github`_ for bugs and requested features.
    install*
    features*
    tutorial*
-   advanced*
    config*
    commands*
    *

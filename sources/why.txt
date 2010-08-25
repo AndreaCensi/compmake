@@ -61,5 +61,5 @@ some common problems. In isolation, each of them could be overcome by writing ad
 The price you have to pay is a slight modification of the source code, as explained in the following section.
 
 
-* Interested in using |compmake|? Read the first part of the tutorial: :ref:`tutorial0`.
+* Interested in using |compmake|? Read the first part of the tutorial: :ref:`tutorial_basic`.
 

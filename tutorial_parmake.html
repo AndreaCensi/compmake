@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
-    <link rel="next" title="Suspending and resuming computation" href="tutorial_yield.html" />
-    <link rel="prev" title="To be defined" href="tutorial_naming.html" />
+    <link rel="next" title="Suspending and resuming computation" href="tutorial_suspend.html" />
+    <link rel="prev" title="Making more of the same thing" href="tutorial_more.html" />
 	 
 	
    <style type="text/css">
@@ -133,7 +133,7 @@ a.reference em, a.external em {
 <link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
 <!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
 
-
+<!-- 
 <script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
 <script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
@@ -154,7 +154,7 @@ Y.Remarkbox.remarktype.allowanonymous("true");
 Y.Remarkbox.render();
 });
 </script>
-
+-->
 
 
 
@@ -167,11 +167,11 @@ Y.Remarkbox.render();
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="tutorial_naming.html">To be defined</a>
+        «&#160;&#160;<a href="tutorial_more.html">Making more of the same thing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_yield.html">Suspending and resuming computation</a>&#160;&#160;»
+        <a href="tutorial_suspend.html">Suspending and resuming computation</a>&#160;&#160;»
         </p>
 
       </div>
@@ -181,27 +181,43 @@ Y.Remarkbox.render();
   <div class="contents pagetoc topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#single-host-multiprocessing" id="id3">Single-host multiprocessing</a><ul>
-<li><a class="reference internal" href="#troubleshooting-problems" id="id4">Troubleshooting problems</a></li>
-<li><a class="reference internal" href="#what-s-happening-under-the-hood" id="id5">What&#8217;s happening under the hood</a></li>
+<li><a class="reference external" href="#single-host-multiprocessing" id="id1">Single-host multiprocessing</a><ul>
+<li><a class="reference external" href="#troubleshooting-problems" id="id2">Troubleshooting problems</a><ul>
+<li><a class="reference external" href="#some-libraries-are-picky" id="id3">Some libraries are picky</a></li>
+<li><a class="reference external" href="#don-t-use-shared-state" id="id4">Don&#8217;t use shared state</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="single-host-multiprocessing">
-<span id="tutorial2"></span><h1><a class="toc-backref" href="#id3">Single-host multiprocessing</a><a class="headerlink" href="#single-host-multiprocessing" title="Permalink to this headline">¶</a></h1>
-<p>It is easy to</p>
-<p>(Setting up cluster )</p>
-<div class="section" id="troubleshooting-problems">
-<h2><a class="toc-backref" href="#id4">Troubleshooting problems</a><a class="headerlink" href="#troubleshooting-problems" title="Permalink to this headline">¶</a></h2>
-<p><a href="#id1"><span class="problematic" id="id2">|compmake|</span></a> uses</p>
-<p>Some libraries don&#8217;t like this. Run &#8220;make&#8221; before.</p>
+<span id="tutorial-parmake"></span><h1><a class="toc-backref" href="#id1">Single-host multiprocessing</a><a class="headerlink" href="#single-host-multiprocessing" title="Permalink to this headline">¶</a></h1>
+<p>To use single-host multiprocessing, instead of using <tt class="docutils literal"><span class="pre">make</span></tt>, simply use <tt class="docutils literal"><span class="pre">parmake</span></tt>:</p>
+<div class="highlight-python"><pre>@&gt; parmake  [jobs]</pre>
 </div>
-<div class="section" id="what-s-happening-under-the-hood">
-<h2><a class="toc-backref" href="#id5">What&#8217;s happening under the hood</a><a class="headerlink" href="#what-s-happening-under-the-hood" title="Permalink to this headline">¶</a></h2>
+<p>Optionally, you can specify the number of processes to spawn:</p>
+<div class="highlight-python"><pre>@&gt; parmake n=11  [jobs]</pre>
+</div>
+<p>If you don&#8217;t specify a number, <span class="compmake-brand">compmake</span> will use the number of detected processors.
+If your jobs are <a class="reference external" href="http://en.wikipedia.org/wiki/I/O_bound">IO-bound</a> rather than <a class="reference external" href="http://en.wikipedia.org/wiki/CPU_bound">CPU-bound</a>, you should specify a larger number.</p>
+<p>What&#8217;s happening under the hood is that <span class="compmake-brand">compmake</span> spawns <tt class="docutils literal"><span class="pre">n</span></tt> workers thread using
+the <a class="reference external" href="http://docs.python.org/library/multiprocessing.html#module-multiprocessing" title="(in Python v2.7)"><tt class="docutils literal"><span class="pre">multiprocessing</span></tt></a> module. So be aware that each job will run in a different
+process.</p>
+<div class="section" id="troubleshooting-problems">
+<h2><a class="toc-backref" href="#id2">Troubleshooting problems</a><a class="headerlink" href="#troubleshooting-problems" title="Permalink to this headline">¶</a></h2>
+<p><span class="compmake-brand">compmake</span> turns your original program into a parallel program. For you, it is almost as easy as it could ever get. However, there might be some issues to be aware about that are documented here.</p>
+<div class="section" id="some-libraries-are-picky">
+<h3><a class="toc-backref" href="#id3">Some libraries are picky</a><a class="headerlink" href="#some-libraries-are-picky" title="Permalink to this headline">¶</a></h3>
+<p>Some libraries don&#8217;t like to run in child processes. For example, <tt class="docutils literal"><span class="pre">matplotlib</span></tt> on OS X will complain and not work properly. The solution is to divide your tasks in  processing tasks and visualization tasks. Use <tt class="docutils literal"><span class="pre">parmake</span></tt> to run the former group, and then run <tt class="docutils literal"><span class="pre">make</span></tt> for the latter.</p>
+</div>
+<div class="section" id="don-t-use-shared-state">
+<h3><a class="toc-backref" href="#id4">Don&#8217;t use shared state</a><a class="headerlink" href="#don-t-use-shared-state" title="Permalink to this headline">¶</a></h3>
+<p>Remember that jobs run on different <a class="reference external" href="http://en.wikipedia.org/wiki/Process_%28computing%29">processes</a> &#8211; not <a class="reference external" href="http://en.wikipedia.org/wiki/Thread_%28computer_science%29">threads</a>. This means that the global state (global module variables, etc.) is not share among the different processes.</p>
 <ul class="simple">
-<li>Go on to the next chapter <a class="reference external" href="tutorial_yield.html#tutorial3"><em>Suspending and resuming computation</em></a>.</li>
+<li>Go on to the next chapter <a class="reference internal" href="tutorial_embedding.html#tutorial-embedding"><em>Embedding compmake in your application</em></a>.</li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -210,11 +226,11 @@ Y.Remarkbox.render();
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="tutorial_naming.html">To be defined</a>
+        «&#160;&#160;<a href="tutorial_more.html">Making more of the same thing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_yield.html">Suspending and resuming computation</a>&#160;&#160;»
+        <a href="tutorial_suspend.html">Suspending and resuming computation</a>&#160;&#160;»
         </p>
 
       </div>
@@ -222,7 +238,7 @@ Y.Remarkbox.render();
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0pre.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
 	
 	<script type="text/javascript">

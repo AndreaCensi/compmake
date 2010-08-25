@@ -3,7 +3,7 @@
 .. contents::
    :class: pagetoc
 
-.. _tutorial1:
+.. _tutorial_console:
 
 The compmake console
 ====================
@@ -100,7 +100,7 @@ There are several shortcuts available to specify lists of jobs.
                           (equivalent to "all except [A]")
      
 
-* Go on to the next chapter :ref:`tutorial2`.
+* Go on to the next chapter :ref:`tutorial_embedding`.
 
 
 

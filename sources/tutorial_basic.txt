@@ -3,7 +3,7 @@
 .. contents::
    :class: pagetoc
 
-.. _tutorial0:
+.. _tutorial_basic:
 
 Basic compmake usage
 ====================
@@ -141,4 +141,4 @@ of the parameters. Or, you can remake the last stage of the computation::
 As you can see, compmake gives you peace of mind and a sense of empowerment.
 
 
-* Go on to the next chapter :ref:`tutorial1`.
+* Go on to the next chapter :ref:`tutorial_console`.
