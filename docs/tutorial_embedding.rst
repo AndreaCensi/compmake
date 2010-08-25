@@ -5,7 +5,7 @@
 
 
 
-.. _tutorial4:
+.. _tutorial_embedding:
 
 Embedding compmake in your application
 ======================================

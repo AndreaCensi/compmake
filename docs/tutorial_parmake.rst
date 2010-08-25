@@ -3,7 +3,7 @@
 .. contents::
    :class: pagetoc
 
-.. _tutorial2:
+.. _tutorial_parmake:
 
 Single-host multiprocessing
 ===========================
@@ -54,4 +54,4 @@ Remember that jobs run on different processes_ -- not threads_. This means that 
 
 
 
-* Go on to the next chapter :ref:`tutorial3`.
+* Go on to the next chapter :ref:`tutorial_embedding`.

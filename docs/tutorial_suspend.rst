@@ -3,7 +3,7 @@
 .. contents::
    :class: pagetoc
 
-.. _tutorial3:
+.. _tutorial_suspend:
 
 Suspending and resuming computation
 ===================================

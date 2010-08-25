@@ -80,7 +80,7 @@ get support and influence |compmake|'s evolution!
 	
 	* :ref:`tutorial_basic`
 	* :ref:`tutorial_console`
-	* :ref:`tutorial_multiprocessing`
+	* :ref:`tutorial_parmake`
 	* :ref:`tutorial_embedding`
 
 .. container:: col2
@@ -145,7 +145,6 @@ Please use the `issue tracker on github`_ for bugs and requested features.
    install*
    features*
    tutorial*
-   advanced*
    config*
    commands*
    *
