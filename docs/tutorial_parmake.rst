@@ -22,7 +22,7 @@ If your jobs are IO-bound_ rather than CPU-bound_, you should specify a larger n
 
 What's happening under the hood is that |compmake| spawns ``n`` workers thread using
 the :py:mod:`multiprocessing` module. So be aware that each job will run in a different
-process 
+process.
 
 
 .. _IO-bound: http://en.wikipedia.org/wiki/I/O_bound
