@@ -1,3 +1,8 @@
 .. |compmake| raw:: html
       
       <span class="compmake-brand">compmake</span>
+
+
+.. |towrite| raw:: html
+
+     <span style="font-weight:bold">This section must still be written.</span>

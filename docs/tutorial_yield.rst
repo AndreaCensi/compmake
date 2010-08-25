@@ -1,3 +1,5 @@
+.. include:: definitions.txt
+
 .. contents::
    :class: pagetoc
 
@@ -6,8 +8,7 @@
 Suspending and resuming computation
 ===================================
 
-
-(to write)
+|towrite|
 
 
 * Go on to the next chapter :ref:`tutorial4`.

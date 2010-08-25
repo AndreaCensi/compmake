@@ -78,18 +78,18 @@ get support and influence |compmake|'s evolution!
 
 	**Tutorial**
 	
-	* :ref:`tutorial0`
-	* :ref:`tutorial1`
-	* :ref:`tutorial2`
-	* :ref:`tutorial3`
-	* :ref:`tutorial4`
+	* :ref:`tutorial_basic`
+	* :ref:`tutorial_console`
+	* :ref:`tutorial_multiprocessing`
+	* :ref:`tutorial_embedding`
 
 .. container:: col2
 
 	**Advanced usage**
 
-	* :ref:`advanced0`
-	* :ref:`advanced1`
+	* :ref:`tutorial_cluster`
+	* :ref:`tutorial_suspend`
+	* :ref:`tutorial_more`
 
 	**Reference**
 

@@ -1,3 +1,5 @@
+.. include:: definitions.txt
+
 .. contents::
    :class: pagetoc
 
@@ -5,7 +7,7 @@
 
 .. _tutorial4:
 
-To be defined
-=================================
+Embedding compmake in your application
+======================================
 
-(to write)
+|towrite|
