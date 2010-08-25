@@ -54,7 +54,7 @@ you can use |compmake| to gain considerable peace of mind.
 
 Still not convinced? Read :ref:`why`.
 
-Still interested? Read along. Start with the tutorial :ref:`tutorial0`.
+Still interested? Read along. Start with the tutorial :ref:`tutorial_basic`.
 And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 

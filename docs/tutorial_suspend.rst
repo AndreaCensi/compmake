@@ -11,4 +11,4 @@ Suspending and resuming computation
 |towrite|
 
 
-* Go on to the next chapter :ref:`tutorial4`.
+* Go on to the next chapter :ref:`tutorial_more`.
