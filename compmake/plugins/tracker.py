@@ -1,7 +1,8 @@
 from compmake.events.registrar import register_handler
 
 class Tracker:
-    ''' This class keeps track of the status of the computation '''
+    ''' This class keeps track of the status of the computation.
+        It listens to progress events. '''
 
     def __init__(self):
         register_handler('job-progress', self.event_job_progress)
@@ -26,7 +27,8 @@ class Tracker:
     
     def event_job_progress_plus(self, event):
         self.status_plus[event.job_id] = event.stack
-        stat = '%s/%s' % event.stack[0].iterations
+        i, n = event.stack[0].iterations
+        stat = '%s/%s' % (i + 1, n)
         self.status[event.job_id] = stat
         
     def event_manager_progress(self, event):

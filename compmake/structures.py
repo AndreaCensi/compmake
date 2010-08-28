@@ -1,5 +1,6 @@
 from collections import namedtuple
 import pickle
+import time
 
 
 
@@ -241,6 +242,8 @@ class ProgressStage:
         self.name = name
         self.iterations = iterations
         self.iteration_desc = iteration_desc
+        # We keep track of when to send the event
+        self.last_broadcast = None
         
     def __str__(self):
         return "[%s %s %s]" % (self.name, self.iterations, self.iteration_desc)

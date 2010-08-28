@@ -40,7 +40,14 @@ Troubleshooting problems
 Some libraries are picky
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some libraries don't like to run in child processes. For example, ``matplotlib`` on OS X will complain and not work properly. The solution is to divide your tasks in  processing tasks and visualization tasks. Use ``parmake`` to run the former group, and then run ``make`` for the latter.
+Some libraries don't like to run in child processes. For example, ``matplotlib`` on OS X will complain and not work properly. The errors might mention ``exec()``. For example, this is thrown by ``matplotlib``: ::
+
+	The process has forked and you cannot use this CoreFoundation functionality safely. You MUST exec().
+	Break on __THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__() to debug.
+
+The solution is to divide your tasks in  processing tasks and visualization tasks. Use ``parmake`` to run the former group, and then run ``make`` for the latter.
+
+
 
 Don't use shared state
 ^^^^^^^^^^^^^^^^^^^^^^

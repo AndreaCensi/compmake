@@ -1,4 +1,5 @@
 from compmake.structures import ProgressStage
+import time
 
 stack = []
 callback = None
@@ -12,16 +13,17 @@ def init_progress_tracking(my_callback):
 def progress(taskname, iterations, iteration_desc=None):
     '''Function used by the user to describe the state of the computation.
     
-       Arguments:
+       Parameters
+       ---------
     
-       - name: must be a string, describing the current task.
+       - ``name``: must be a string, describing the current task.
        
-       - iterations: must be a tuple of two integers (k,N), meaning
-        that the current iteration is the k-th out of N.
-        
-       - iteration_desc: an optional string describing the current iteration.
+       - ``iterations``: must be a tuple of two integers (k,N), meaning
+          that the current iteration is the k-th out of N.
+         
+       - ``iteration_desc``: an optional string describing the current iteration.
        
-       Example::
+       Example: ::
     
             for i in range(n):
                 progress('Reading files', (i,n), 'processing file %s' % file[i])
@@ -51,20 +53,29 @@ def progress(taskname, iterations, iteration_desc=None):
     if iterations[1] < iterations[0]:
         raise ValueError('Invalid iteration tuple: %s' % str(iterations))
        
+    BROADCAST_INTERVAL = 0.5
+    
+    is_last = iterations[0] == iterations[1] - 1 
     global stack
 
-    found = False
     for i, stage in enumerate(stack):
         if stage.name == taskname:
+            # remove children
+            has_children = i < len(stack) - 1
             stack[i + 1:] = []
             stage.iterations = iterations
             stage.iteration_desc = iteration_desc
-            found = True
             # TODO: only send every once in a while
-            global callback
-            callback(stack)
+            if is_last or has_children or \
+                stage.last_broadcast is None or \
+                time.time() - stage.last_broadcast > BROADCAST_INTERVAL:   
+                global callback
+                callback(stack)
+                stage.last_broadcast = time.time()
+            if stage.last_broadcast is None:
+                stage.last_broadcast = time.time()
             break
-    if not found:
+    else:
         stack.append(ProgressStage(taskname, iterations, iteration_desc))
         global callback
         callback(stack)
