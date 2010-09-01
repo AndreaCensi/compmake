@@ -70,8 +70,14 @@ def job2cachekey(job_id):
 def get_job_cache(job_id):
     cache_key = job2cachekey(job_id)
     if storage.db.exists(cache_key):
-        cache = storage.db.get(cache_key)
-        assert(isinstance(cache, Cache))
+        try:
+            cache = storage.db.get(cache_key)
+            assert(isinstance(cache, Cache))
+        except Exception as e:
+            storage.db.delete(cache_key)
+            # also remove user object?
+            raise CompmakeException('Could not read Cache object for job "%s":'
+                                    ' %s; deleted.' % (job_id, e))
         return cache
     else:
         # make sure this is a valid job_id
