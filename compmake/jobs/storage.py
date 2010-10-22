@@ -17,7 +17,7 @@ from compmake.utils.visualization import info
 namespace = 'default'
 
 def set_namespace(n):
-    info('Using namespace %s' % n) 
+    info('Using namespace "%s".' % n) 
     compmake.jobs.storage.namespace = n
 
 def get_namespace():
