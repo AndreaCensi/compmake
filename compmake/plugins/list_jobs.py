@@ -50,9 +50,13 @@ def list_jobs(job_list):
     for job_id in job_list:
         up, reason = up_to_date(job_id)
         s = job_id
-        s += " " * (50 - len(s))
+        s += " " + (" " * (60 - len(s)))
         cache = get_job_cache(job_id)
-        tag = '%s/%s' % (Cache.state2desc[cache.state], up) 
+        
+        tag =  Cache.state2desc[cache.state]
+        
+        if not up:
+            tag += ' (needs update)' 
         
         k = (cache.state, up)
         assert k in state2color, "I found strange state %s" % k
