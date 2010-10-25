@@ -141,6 +141,12 @@ def select_state(state):
             for job_id in all_jobs() 
             if get_job_cache(job_id).state == state]
     
+    
+def ready_jobs():
+    from compmake.jobs.uptodate import dependencies_up_to_date
+    return [job_id for job_id in all_jobs() if dependencies_up_to_date(job_id)]
+    
+    
 def parse_job_list(tokens): 
     '''
         Parses a job list. tokens can be:
@@ -154,6 +160,7 @@ def parse_job_list(tokens):
     
     add_alias('all', all_jobs)
     add_alias('failed', lambda: select_state(Cache.FAILED))
+    add_alias('ready', ready_jobs)
     add_alias('done', lambda: select_state(Cache.DONE))
     add_alias('in_progress', lambda: select_state(Cache.IN_PROGRESS))
     add_alias('not_started', lambda: select_state(Cache.NOT_STARTED))
