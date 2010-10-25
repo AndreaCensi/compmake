@@ -28,11 +28,14 @@ def progress(taskname, iterations, iteration_desc=None):
             for i in range(n):
                 progress('Reading files', (i,n), 'processing file %s' % file[i])
     '''
+    global stack
+    global callback
     
     if not isinstance(taskname, str):
         raise ValueError('The first argument to progress() is the task name ' + 
                          'and must be a string; you passed a %s.' % 
                          taskname.__class__.__name__)
+    
     if not isinstance(iterations, tuple):
         raise ValueError('The second argument to progress() must be a tuple,' + 
                          ' you passed a %s.' % iterations.__class__.__name__)
@@ -56,7 +59,6 @@ def progress(taskname, iterations, iteration_desc=None):
     BROADCAST_INTERVAL = 0.5
     
     is_last = iterations[0] == iterations[1] - 1 
-    global stack
 
     for i, stage in enumerate(stack):
         if stage.name == taskname:
@@ -69,13 +71,19 @@ def progress(taskname, iterations, iteration_desc=None):
             if is_last or has_children or \
                 stage.last_broadcast is None or \
                 time.time() - stage.last_broadcast > BROADCAST_INTERVAL:   
-                global callback
                 callback(stack)
                 stage.last_broadcast = time.time()
             if stage.last_broadcast is None:
                 stage.last_broadcast = time.time()
             break
     else:
+        # If we are here, we haven't found taskname in the stack.
+        # This means that it is either a child or a brother (next task)
+        # We check that the last stage was over
+        while stack and stack[-1].was_finished():
+            stack.pop()
+            # treat it as a brother
+        
         stack.append(ProgressStage(taskname, iterations, iteration_desc))
-        global callback
+        
         callback(stack)

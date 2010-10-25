@@ -248,3 +248,11 @@ class ProgressStage:
     def __str__(self):
         return "[%s %s %s]" % (self.name, self.iterations, self.iteration_desc)
     
+    def was_finished(self):
+        # allow off-by-one conventions
+        
+        # (self.iterations[0] == self.iterations[1]) or \
+        return  (self.iterations[0] >= self.iterations[1]-1)
+             
+        
+        
