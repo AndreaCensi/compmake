@@ -2,7 +2,8 @@ import os, imp, pwd
 
 from compmake.ui.helpers import GENERAL, ui_command
 from compmake.structures import UserError
-from compmake.utils.visualization import user_error
+from compmake.utils.visualization import user_error, info, warning
+import mamarama_analysis
 
 @ui_command(section=GENERAL)
 def reload(module):
@@ -23,12 +24,17 @@ def reload(module):
         return
         
     try:     
-        m = __import__(module)
+        # otherwise import("A.B") returns A instead of A.B
+        m = __import__(module, fromlist=['dummy'])
     except Exception as e:
-        raise UserError('Cannot find module "%s": %s' % (module, e))
+        raise UserError('Cannot find module "%s": %s.' % (module, e))
+        
+    try: 
+        imp.reload(m)
+    except Exception as e:
+        raise UserError('Obtained this exception while reloading the module:'
+                        ' %s' % e)
     
-    imp.reload(m)
-    
-    print "Reloaded %s." % module
-    print "(Note that at this point, compmake does not update "\
-          "the function handles  you passed to comp() -- complain with the author.)"
+    info("Reloaded module %s." % module)
+    warning("(Note that at this point, compmake does not update "
+    "the function handles you passed to comp() -- complain with the author.)")
