@@ -137,21 +137,33 @@ class Operators:
     
     
 def select_state(state):
+    ''' Returns a list of jobs in the given state. '''
     return [job_id 
             for job_id in all_jobs() 
             if get_job_cache(job_id).state == state]
     
     
 def ready_jobs():
+    ''' Returns a list of jobs that can be done now,
+        as their dependencies are up-to-date. '''
     from compmake.jobs.uptodate import dependencies_up_to_date
     return [job_id for job_id in all_jobs() if dependencies_up_to_date(job_id)]
+
+
+def todo_jobs():
+    ''' Returns a list of jobs that haven't been DONE. '''
+    return [job_id 
+            for job_id in all_jobs() 
+            if get_job_cache(job_id).state != Cache.DONE]
     
+
     
 def parse_job_list(tokens): 
     '''
         Parses a job list. tokens can be:
-        1) a string, in that case it is split()
-        2) a list, in which case each element is treated as a token.
+        
+        1. a string, in that case it is split()
+        2. a list, in which case each element is treated as a token.
          
         Returns a list of strings.
     '''
@@ -161,6 +173,7 @@ def parse_job_list(tokens):
     add_alias('all', all_jobs)
     add_alias('failed', lambda: select_state(Cache.FAILED))
     add_alias('ready', ready_jobs)
+    add_alias('todo', todo_jobs)
     add_alias('done', lambda: select_state(Cache.DONE))
     add_alias('in_progress', lambda: select_state(Cache.IN_PROGRESS))
     add_alias('not_started', lambda: select_state(Cache.NOT_STARTED))
