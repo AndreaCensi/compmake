@@ -2,8 +2,7 @@ import os, imp, pwd
 
 from compmake.ui.helpers import GENERAL, ui_command
 from compmake.structures import UserError
-from compmake.utils.visualization import user_error, info, warning
-import mamarama_analysis
+from compmake.utils.visualization import user_error, info
 
 @ui_command(section=GENERAL)
 def reload(module):
@@ -35,6 +34,5 @@ def reload(module):
         raise UserError('Obtained this exception while reloading the module:'
                         ' %s' % e)
     
-    info("Reloaded module %s." % module)
-    warning("(Note that at this point, compmake does not update "
-    "the function handles you passed to comp() -- complain with the author.)")
+    info('Reloaded module "%s".' % module)
+    
