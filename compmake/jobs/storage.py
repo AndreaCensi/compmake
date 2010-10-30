@@ -9,9 +9,9 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 These are all wrappers around the raw methods in storage
 '''
 
+import compmake
 from compmake.structures import Cache, Job, CompmakeException
 from compmake import storage
-import compmake
 from compmake.utils.visualization import info
 
 namespace = 'default'
@@ -82,9 +82,9 @@ def get_job_cache(job_id):
     else:
         # make sure this is a valid job_id
         # XXX expensive
-        known = all_jobs()
-        if not job_id in known:
-            raise CompmakeException("invalid job %s, I know %s" % (job_id, known)) 
+        # known = all_jobs()
+        # if not job_id in known:
+        #     raise CompmakeException("invalid job %s, I know %s" % (job_id, known)) 
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set(cache_key, cache)

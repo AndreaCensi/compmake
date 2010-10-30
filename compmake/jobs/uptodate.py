@@ -6,6 +6,9 @@ from compmake.jobs.queries import direct_children
 # XXX not used for now
 up_to_date_cache = set()
 
+#def invalidate_uptodate_cache():
+    
+
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:

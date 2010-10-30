@@ -29,7 +29,7 @@ if not specified).
     if len(job_list) == 1:
         list_job_detail(job_list[0])
     else:
-        list_jobs(job_list)        
+        list_jobs(job_list)         
 
 state2color = {
         # The ones commented out are not possible
@@ -53,13 +53,13 @@ def list_jobs(job_list):
         s += " " + (" " * (60 - len(s)))
         cache = get_job_cache(job_id)
         
-        tag =  Cache.state2desc[cache.state]
+        tag = Cache.state2desc[cache.state]
         
-        if not up:
-            tag += ' (needs update)' 
+        #if not up:
+        #    tag += ' (needs update)' 
         
         k = (cache.state, up)
-        assert k in state2color, "I found strange state %s" % k
+        assert k in state2color, "I found strange state %s" % str(k)
         color_args = state2color[k]
         s += colored(tag, **color_args)
         if cache.state == Cache.DONE and cache.done_iterations > 1:
