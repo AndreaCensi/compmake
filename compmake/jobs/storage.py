@@ -37,8 +37,8 @@ def key2job(key):
 def all_jobs():
     ''' Returns the list of all jobs '''
     # XXX we should check we don't return subsidiaries
-    keys = storage.db.keys(job2key('*'))
-    return map(key2job, keys) 
+    for key in storage.db.keys(job2key('*')):
+        yield key2job(key) 
 
 def get_job(job_id):
     key = job2key(job_id)

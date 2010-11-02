@@ -26,6 +26,7 @@ from compmake.jobs.storage import job_exists, all_jobs, get_job, \
     get_job_cache
 import types
 
+
 aliases = {}
 
 def add_alias(alias, value):
@@ -57,6 +58,7 @@ def eval_alias(alias):
     alias = alias.lower()
     assert is_alias(alias)
     value = aliases[alias]
+    
     if isinstance(value, str):
         return list([value]) 
     elif isinstance(value, list):
@@ -64,7 +66,7 @@ def eval_alias(alias):
         return value
     elif isinstance(value, types.FunctionType):
         result = value()
-        assert_list_of_strings(result)
+        # can be generator; no assert_list_of_strings(result)
         return result
     else:
         raise ValueError('I cannot interpret alias "%s" -> "%s"' % 
@@ -82,10 +84,13 @@ def expand_wildcard(wildcard, universe):
      '''
     assert wildcard.find('*') > -1
     regexp = wildcard_to_regexp(wildcard)
-    matches = [x for x in universe if regexp.match(x) ]
-    if not matches:
+    num_matches = 0
+    for x in universe:
+        if regexp.match(x):
+            num_matches += 1
+            yield x
+    if  num_matches == 0:
         raise UserError('Could not find matches for pattern "%s"' % wildcard)
-    return matches
  
 def expand_job_list_token(token):
     ''' Parses a token (string). Returns list of jobs.
@@ -106,10 +111,9 @@ def expand_job_list_token(token):
 def expand_job_list_tokens(tokens):
     ''' Expands a list of tokens using expand_job_list_token(). 
         Returns a list. '''
-    jobs = []
     for token in tokens:
-        jobs.extend(expand_job_list_token(token))
-    return jobs
+        for job in expand_job_list_token(token):
+            yield job
 
 class Operators:
     NOT = 0
@@ -136,26 +140,39 @@ class Operators:
         return map(token2op, tokens)
     
     
-def select_state(state):
+def list_jobs_with_state(state):
     ''' Returns a list of jobs in the given state. '''
-    return [job_id 
-            for job_id in all_jobs() 
-            if get_job_cache(job_id).state == state]
+    for job_id in all_jobs(): 
+        if get_job_cache(job_id).state == state:
+            yield job_id
     
-    
-def ready_jobs():
+def list_ready_jobs():
     ''' Returns a list of jobs that can be done now,
         as their dependencies are up-to-date. '''
     from compmake.jobs.uptodate import dependencies_up_to_date
-    return [job_id for job_id in all_jobs() if dependencies_up_to_date(job_id)]
+    for job_id in all_jobs(): 
+        if dependencies_up_to_date(job_id):
+            yield job_id
 
-
-def todo_jobs():
+def list_todo_jobs():
     ''' Returns a list of jobs that haven't been DONE. '''
-    return [job_id 
-            for job_id in all_jobs() 
-            if get_job_cache(job_id).state != Cache.DONE]
+    for job_id in all_jobs(): 
+        if get_job_cache(job_id).state != Cache.DONE:
+            yield job_id
     
+def list_top_jobs():
+    ''' Returns a list of jobs that are top-level targets.  '''
+    from compmake.jobs.queries import direct_parents
+    for job_id in all_jobs(): 
+        if not direct_parents(job_id):
+            yield job_id
+
+def list_bottom_jobs():
+    ''' Returns a list of jobs that do not depend on anything else. '''
+    from compmake.jobs.queries import direct_children
+    for job_id in all_jobs(): 
+        if not direct_children(job_id):
+            yield job_id
 
     
 def parse_job_list(tokens): 
@@ -171,19 +188,21 @@ def parse_job_list(tokens):
         tokens = tokens.strip().split()
     
     add_alias('all', all_jobs)
-    add_alias('failed', lambda: select_state(Cache.FAILED))
-    add_alias('ready', ready_jobs)
-    add_alias('todo', todo_jobs)
-    add_alias('done', lambda: select_state(Cache.DONE))
-    add_alias('in_progress', lambda: select_state(Cache.IN_PROGRESS))
-    add_alias('not_started', lambda: select_state(Cache.NOT_STARTED))
+    add_alias('failed', lambda: list_jobs_with_state(Cache.FAILED))
+    add_alias('ready', list_ready_jobs)
+    add_alias('todo', list_todo_jobs)
+    add_alias('top', list_top_jobs)
+    add_alias('bottom', list_bottom_jobs)
+    add_alias('done', lambda: list_jobs_with_state(Cache.DONE))
+    add_alias('in_progress', lambda: list_jobs_with_state(Cache.IN_PROGRESS))
+    add_alias('not_started', lambda: list_jobs_with_state(Cache.NOT_STARTED))
     
     # First we look for operators 
     ops = Operators.parse(tokens)
     
     result = eval_ops(ops)
     
-    # print " %s => %s" % (tokens, result)
+    print " %s => %s" % (tokens, result)
     
     return result
     
@@ -233,5 +252,5 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
         return [x for x in all if x not in right]
     
     # no operators: simple list
-    assert_list_of_strings(ops)
+    # cannot do this anymore, now it's a generator. assert_list_of_strings(ops)
     return expand_job_list_tokens(ops)

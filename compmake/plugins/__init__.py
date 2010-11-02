@@ -7,6 +7,7 @@ import job_definition_status
 import console_banners
 import credits
 import list_jobs
+import details
 import reload_module
 
 # Useful for debugging remote events

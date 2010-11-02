@@ -16,7 +16,7 @@ def console_starting(event): #@UnusedVariable
         version, banner, banner2)
     print "Welcome to the compmake console. " + \
             "(write 'help' for a list of commands)"
-    njobs = len(all_jobs())
+    njobs = len(list(all_jobs()))
     print("%d jobs loaded; using namespace '%s'." % (njobs, get_namespace()))
     
 def console_ending(event): #@UnusedVariable

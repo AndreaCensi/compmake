@@ -101,9 +101,10 @@ class StorageFilesystem:
     # TODO change key
     def keys(pattern):
         filename = StorageFilesystem.filename_for_key(pattern)
-        basenames = [ splitext(basename(x))[0] for x in glob(filename)]
-        return [StorageFilesystem.filename2key(b) for b in basenames]
-    
+        for x in glob(filename):
+            b = splitext(basename(x))[0]
+            yield StorageFilesystem.filename2key(b)
+
     @staticmethod
     def reopen_after_fork():
         pass

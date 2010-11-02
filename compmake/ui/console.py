@@ -64,7 +64,7 @@ def interactive_console():
 
 def tab_completion2(text, state):
     available = get_commands().keys()
-    available.extend(all_jobs())
+    available.extend(list(all_jobs())) # give it a list
     matches = sorted(x for x in available if x.startswith(text))
     try:
         response = matches[state]
