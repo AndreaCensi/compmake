@@ -31,9 +31,9 @@ add_config_switch('path', 'compmake_storage',
             desc="[filesystem db] Path to directory for filesystem storage.",
             section=CONFIG_FS)    
 
-add_config_switch('interactive', True,
-       desc="Whether we are in interactive mode (e.g., ask confirmations).",
-       section=CONFIG_GENERAL)
+#add_config_switch('interactive', True,
+#       desc="Whether we are in interactive mode (e.g., ask confirmations).",
+#       section=CONFIG_GENERAL)
 
 add_config_switch('echo_stdout', True,
        desc="If true, the job output to stdout is shown.",
