@@ -42,7 +42,10 @@ def clean(job_list):
 (or everything is nothing specified). '''
     if not job_list: 
         job_list = all_jobs()
-        
+    
+    # convert to list
+    job_list = list(job_list)
+    
     if not job_list:
         return 
     

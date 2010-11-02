@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 from compmake.jobs.storage import set_namespace, remove_all_jobs, get_job_cache, \
-    set_job_cache, all_jobs
+    set_job_cache
 from compmake.structures import Cache, UserError, CompmakeSyntaxError
 from compmake.ui.ui import comp, parse_job_list, reset_jobs_definition_set
 
@@ -78,19 +78,22 @@ class Test1(TestCase):
         self.assertEqual(a, b)
     
     def syntaxError(self, s):
-        self.assertRaises(CompmakeSyntaxError, parse_job_list, s)
+        def f(s): # it's a generator, you should try to read it
+            return list(parse_job_list(s))
+        
+        self.assertRaises(CompmakeSyntaxError, f, s)
     
     def userError(self, s):
         self.assertRaises(UserError, parse_job_list, s)
     
     def testCatchErrors(self): 
         self.syntaxError('not')    
-        self.syntaxError('all not e')
         self.syntaxError('all not')
         self.syntaxError('all not')    
         self.syntaxError('all in')
         self.syntaxError('in $all')
-
+        self.syntaxError('all not e')
+        
     def testSpecial(self):
         ''' Test that the special variables work'''
         self.expandsTo('  ', set())

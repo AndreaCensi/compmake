@@ -21,10 +21,14 @@
 '''
 
 import re
+import types
+from collections import namedtuple
+
 from compmake.structures import UserError, Cache, CompmakeSyntaxError
 from compmake.jobs.storage import job_exists, all_jobs, get_job, \
     get_job_cache
-import types
+import sys
+
 
 
 aliases = {}
@@ -89,12 +93,15 @@ def expand_wildcard(wildcard, universe):
         if regexp.match(x):
             num_matches += 1
             yield x
-    if  num_matches == 0:
+    if num_matches == 0:
         raise UserError('Could not find matches for pattern "%s"' % wildcard)
  
 def expand_job_list_token(token):
-    ''' Parses a token (string). Returns list of jobs.
+    ''' Parses a token (string). Returns a generator of jobs.
         Raises UserError, CompmakeSyntaxError '''
+    print token    
+    assert isinstance(token, str)
+    
     if token.find('*') > -1:
         return expand_wildcard(token, all_jobs())
     elif is_alias(token):
@@ -110,15 +117,19 @@ def expand_job_list_token(token):
     
 def expand_job_list_tokens(tokens):
     ''' Expands a list of tokens using expand_job_list_token(). 
-        Returns a list. '''
+        yields job_id '''
     for token in tokens:
+        if not isinstance(token, str):
+            print tokens
         for job in expand_job_list_token(token):
             yield job
 
 class Operators:
-    NOT = 0
-    DIFFERENCE = 1
-    INTERSECTION = 2    
+    Op = namedtuple('Op', 'name') 
+    
+    NOT = Op('not')
+    DIFFERENCE = Op('difference')
+    INTERSECTION = Op('intersection')
 
     translation = { 
         'not': NOT,
@@ -200,9 +211,11 @@ def parse_job_list(tokens):
     # First we look for operators 
     ops = Operators.parse(tokens)
     
+    # print " %s => %s" % (tokens, ops)
+    
     result = eval_ops(ops)
     
-    print " %s => %s" % (tokens, result)
+    #print " %s => %s" % (tokens, result)
     
     return result
     
@@ -210,6 +223,7 @@ def eval_ops(ops):
     ''' Evaluates an expression. 
       ops: list of strings and int representing operators '''
     assert isinstance(ops, list)
+    
     
     def list_split(l, index):
         ''' Splits a list in two '''
@@ -227,10 +241,12 @@ def eval_ops(ops):
 argument. Interpreting "%s" INTERSECTION "%s". ''' % 
 (' '.join(left), ' '.join(right)))
         left = eval_ops(left)
-        right = eval_ops(right)
-        return [x for x in left if x in right]
+        right = set(eval_ops(right))
+        for x in left:
+            if x in right:
+                yield x
 
-    if Operators.DIFFERENCE in ops:
+    elif Operators.DIFFERENCE in ops:
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
         if not left or not right:
             raise CompmakeSyntaxError(''' EXCEPT requires a left and right \
@@ -238,19 +254,24 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
 (' '.join(left), ' '.join(right)))
 
         left = eval_ops(left)
-        right = eval_ops(right)
-        return [x for x in left if x not in right]
+        right = set(eval_ops(right))
+        for x in left:
+            if x not in right:
+                yield x
 
-    if Operators.NOT in ops:
+    elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
-        if left or not right:
+        if left or not right: # forbid left, require right
             raise CompmakeSyntaxError(\
 ''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' % 
 (' '.join(left), ' '.join(right)))
         all = all_jobs()
-        right = eval_ops(right)
-        return [x for x in all if x not in right]
-    
-    # no operators: simple list
-    # cannot do this anymore, now it's a generator. assert_list_of_strings(ops)
-    return expand_job_list_tokens(ops)
+        right = set(eval_ops(right))
+        for x in all:
+            if x not in right:
+                yield x
+    else:
+        # no operators: simple list
+        # cannot do this anymore, now it's a generator. assert_list_of_strings(ops)
+        for x in expand_job_list_tokens(ops):
+            yield x
