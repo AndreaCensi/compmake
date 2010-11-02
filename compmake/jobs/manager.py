@@ -20,6 +20,7 @@ from compmake.jobs.queries import  parents, direct_parents
 from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
 from compmake.utils.visualization import info 
 from compmake.events.registrar import publish
+from compmake.jobs.priority import compute_priorities
 
 
 class AsyncResultInterface:
@@ -46,6 +47,10 @@ class Manager:
         self.more = set()
         self.ready_todo = set()
         
+        # contains job_id -> priority
+        # computed by precompute_priorities() called by process()
+        self.priorities = {}
+        
         # this hash contains  job_id -> async result
         self.processing2result = {}
          
@@ -70,8 +75,13 @@ class Manager:
 
     def next_job(self):
         ''' Returns one job from the ready_todo list 
-            (and removes it from there)'''
-        return self.ready_todo.pop()
+            (and removes it from there). Uses self.priorities
+            to decide which job to use. '''
+        ordered = sorted(self.ready_todo, key=lambda job: self.priorities[job])
+        best = ordered[-1]
+        self.ready_todo.remove(best)
+        return best
+        #return self.ready_todo.pop()
 
     def add_targets(self, targets, more=False):
         self.targets.update(targets)
@@ -199,6 +209,11 @@ class Manager:
             self.event_check()
             
     def process(self):
+        ''' Start processing jobs. '''
+        
+        # precompute job priorities
+        self.priorities = compute_priorities(self.all_targets)
+        
         if not self.todo:
             info('Nothing to do.')
             return True

@@ -14,3 +14,5 @@ dist
 git-changelog
 build
 .compmake_history.txt
+priorities
+unpickable
