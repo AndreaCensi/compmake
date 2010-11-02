@@ -28,4 +28,4 @@ class TestUnpickable(unittest.TestCase):
         comp(function)
         
         batch_command('clean')
-        batch_command('make')
+        batch_command('make all')
