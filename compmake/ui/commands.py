@@ -42,7 +42,10 @@ def clean(job_list):
 (or everything is nothing specified). '''
     if not job_list: 
         job_list = all_jobs()
-        
+    
+    # convert to list
+    job_list = list(job_list)
+    
     if not job_list:
         return 
     
@@ -65,6 +68,8 @@ def make(job_list):
     if not job_list:
         job_list = top_targets()
         
+    job_list = list(job_list)
+    
     manager = ManagerLocal()
     manager.add_targets(job_list)
     manager.process()
@@ -102,6 +107,9 @@ Usage:
  '''
     if not job_list:
         job_list = top_targets()
+        
+    job_list = list(job_list)
+    
     
     manager = MultiprocessingManager(n)
     manager.add_targets(job_list, more=False)
@@ -120,7 +128,9 @@ def clustmake(job_list):
  '''
     if not job_list:
         job_list = top_targets()
-    
+
+    job_list = list(job_list)
+        
     cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
 
     if not os.path.exists(cluster_conf):

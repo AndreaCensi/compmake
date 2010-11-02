@@ -2,7 +2,7 @@ import unittest
 
 from compmake import storage
 from compmake.storage import use_filesystem
-from compmake.jobs.storage import set_namespace, remove_all_jobs
+from compmake.jobs.storage import set_namespace
 
 class Simple(unittest.TestCase):
     
@@ -30,11 +30,13 @@ class Simple(unittest.TestCase):
         self.assertFalse(storage.db.exists(k))
         
     def testSearch(self):
-        self.assertEqual([], storage.db.keys('*'))
+        search = lambda pattern: list(storage.db.keys(pattern))
+        
+        self.assertEqual([], search('*'))
         storage.db.set('key1', 1)
         storage.db.set('key2', 1)
-        self.assertEqual([], storage.db.keys('ciao*'))
-        self.assertEqual(['key1'], storage.db.keys('key1'))
-        self.assertEqual(['key1'], storage.db.keys('*1'))
-        self.assertEqual([], storage.db.keys('d*1'))
+        self.assertEqual([], search('ciao*'))
+        self.assertEqual(['key1'], search('key1'))
+        self.assertEqual(['key1'], search('*1'))
+        self.assertEqual([], search('d*1'))
            
