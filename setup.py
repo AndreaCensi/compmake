@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 
 setup(
     name='compmake',
-    author = "Andrea Censi",
-    author_email = "andrea@cds.caltech.edu",
+    author="Andrea Censi",
+    author_email="andrea@cds.caltech.edu",
     url='http://compmake.org',
-    version="0.9.4",
+    version="0.9.5",
     packages=find_packages(),
     entry_points={
      'console_scripts': [
