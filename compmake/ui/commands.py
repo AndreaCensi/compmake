@@ -20,7 +20,8 @@ from compmake.utils.visualization import info
 from compmake.jobs.manager_local import ManagerLocal
 from compmake.jobs.manager_multiprocessing import MultiprocessingManager
 from compmake.jobs.manager_ssh_cluster import ClusterManager
-from compmake import RET_CODE_JOB_FAILED
+from compmake import RET_CODE_JOB_FAILED, get_compmake_status, \
+    compmake_status_interactive
 
 
 
@@ -40,18 +41,18 @@ def exit():
 def clean(job_list):
     '''Cleans the result of the selected computation \
 (or everything is nothing specified). '''
-    if not job_list: 
-        job_list = all_jobs()
-    
-    # convert to list
+
     job_list = list(job_list)
     
+    if not job_list:
+        job_list = list(all_jobs())
+        
     if not job_list:
         return 
     
     from compmake.ui.console import ask_question
     
-    if compmake_config.interactive: #@UndefinedVariable
+    if get_compmake_status() == compmake_status_interactive: 
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
         answer = ask_question(question)
         if not answer:
@@ -65,10 +66,10 @@ def clean(job_list):
 @ui_command(section=ACTIONS)
 def make(job_list):
     '''Makes selected targets; or all targets if none specified. ''' 
-    if not job_list:
-        job_list = top_targets()
-        
     job_list = list(job_list)
+    
+    if not job_list:
+        job_list = list(top_targets())
     
     manager = ManagerLocal()
     manager.add_targets(job_list)
@@ -105,11 +106,10 @@ Usage:
        
        parmake [n=<num>] [joblist]
  '''
-    if not job_list:
-        job_list = top_targets()
-        
     job_list = list(job_list)
     
+    if not job_list:
+        job_list = list(top_targets())
     
     manager = MultiprocessingManager(n)
     manager.add_targets(job_list, more=False)
@@ -126,10 +126,11 @@ def clustmake(job_list):
 
        Note: you should use the Redis backend to use multiprocessing.
  '''
-    if not job_list:
-        job_list = top_targets()
-
+    
     job_list = list(job_list)
+    
+    if not job_list:
+        job_list = list(top_targets())    
         
     cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
 
@@ -189,6 +190,9 @@ def remake(non_empty_job_list):
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
     '''Parallel equivalent of "remake". '''
+    
+    non_empty_job_list = list(non_empty_job_list)
+    
     for job in non_empty_job_list:
         mark_remake(job)
         
@@ -204,6 +208,9 @@ def parremake(non_empty_job_list):
 @ui_command(section=ACTIONS) 
 def more(non_empty_job_list, loop=1):
     '''Makes more of the selected targets. '''
+    
+    non_empty_job_list = list(non_empty_job_list)
+    
     
     for x in range(int(loop)):
         if loop > 1:
@@ -224,6 +231,9 @@ def more(non_empty_job_list, loop=1):
 @ui_command(section=PARALLEL_ACTIONS)
 def parmore(non_empty_job_list, loop=1):
     '''Parallel equivalent of "more". '''
+    
+    non_empty_job_list = list(non_empty_job_list)
+    
     for job in non_empty_job_list:
         mark_more(job)
         

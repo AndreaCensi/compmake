@@ -1,10 +1,11 @@
 # constants
-version = '0.9.4'
+version = '0.9.5'
 
+# Statuses ------------------------------------------------
 # Compmake can be run in different "states"
-
 # If run as an interactive session ("compmake module")
-# - command() is ignored
+# - command() is ignored (?)
+# - confirmation is asked for dangerous operations such as clean
 compmake_status_interactive = 'interactive' 
 # If run as a ssh-spawned slave session.
 # - Jobs cannot be created 
@@ -18,6 +19,10 @@ compmake_status = compmake_status_embedded
 def set_compmake_status(s):
     import compmake  #@UnresolvedImport
     compmake.compmake_status = s
+
+def get_compmake_status():
+    import compmake  #@UnresolvedImport
+    return compmake.compmake_status 
 
 
 # Compmake returns:
@@ -58,12 +63,16 @@ def compmake_console():
     if compmake_status != compmake_status_embedded:
         return
     
+    set_compmake_status(compmake_status_interactive)
+    
     # we assume that we are done with defining jobs
     from compmake.ui.ui import clean_other_jobs
     clean_other_jobs()
 
     from compmake.ui.console import interactive_console
     interactive_console()
+    
+    set_compmake_status(compmake_status_embedded)
     
 is_it_time = False
 def time_to_define_jobs():

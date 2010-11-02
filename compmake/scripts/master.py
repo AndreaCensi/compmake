@@ -7,7 +7,7 @@ from compmake.ui import interpret_commands
 from compmake.storage import use_redis, use_filesystem 
 from compmake.utils import error, user_error, warning
 from compmake.structures import UserError
-from compmake.jobs.storage import remove_all_jobs, set_namespace
+from compmake.jobs.storage import  set_namespace
 from compmake.ui.console import interactive_console
 from compmake import  version , compmake_status_slave, set_compmake_status, \
     compmake_status_interactive
@@ -132,7 +132,7 @@ def main():
     if args:
         try:
             # XXX is this redudant?
-            compmake_config.interactive = False
+            # compmake_config.interactive = False
             retcode = interpret_commands(args)
             # print "Exiting with retcode %s" % retcode
             sys.exit(retcode)

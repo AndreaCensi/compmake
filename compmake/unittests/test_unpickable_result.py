@@ -2,7 +2,7 @@ import unittest
 from compmake.structures import SerializationError
 from compmake.storage import use_filesystem
 from compmake.jobs.storage import set_namespace
-from compmake import storage
+from compmake import storage, compmake_status_embedded, set_compmake_status
 
 
 def f1():
@@ -12,6 +12,7 @@ def f1():
 class TestUnpickable(unittest.TestCase):
     
     def setUp(self):
+        set_compmake_status(compmake_status_embedded)
         use_filesystem('unpickable')
         set_namespace('unpickable')
         for key in storage.db.keys('*'):
@@ -28,4 +29,4 @@ class TestUnpickable(unittest.TestCase):
         comp(function)
         
         batch_command('clean')
-        batch_command('make all')
+        batch_command('make')
