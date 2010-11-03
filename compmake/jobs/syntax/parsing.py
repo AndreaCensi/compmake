@@ -94,8 +94,26 @@ def expand_wildcard(wildcard, universe):
             num_matches += 1
             yield x
     if num_matches == 0:
-        raise UserError('Could not find matches for pattern "%s"' % wildcard)
- 
+        raise UserError('Could not find matches for pattern "%s".' % wildcard)
+
+def list_matching_functions(token):
+    assert token.endswith('()')
+    if len(token) < 3:
+        raise UserError('Malformed token "%s".' % token)
+    
+    function_id = token[:-2] 
+
+    num_matches = 0
+    for job_id in all_jobs():
+        if function_id.lower() == get_job(job_id).command.__name__.lower():
+            yield job_id
+            num_matches += 1 
+
+    if num_matches == 0:
+        raise UserError('Could not find matches for function "%s()".' % 
+                        function_id)
+
+
 def expand_job_list_token(token):
     ''' Parses a token (string). Returns a generator of jobs.
         Raises UserError, CompmakeSyntaxError '''
@@ -107,7 +125,8 @@ def expand_job_list_token(token):
     elif is_alias(token):
         return eval_alias(token)
     elif token.endswith('()'):
-        raise UserError('Syntax reserved but not used yet. ("%s")' % token)
+        return list_matching_functions(token)
+        #raise UserError('Syntax reserved but not used yet. ("%s")' % token)
     else:
         # interpret as a job id
         job_id = token
