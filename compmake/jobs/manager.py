@@ -212,9 +212,9 @@ class Manager:
         ''' Start processing jobs. '''
         
         # precompute job priorities
-        print "Computing priorities..."
+        #print "Computing priorities..."
         self.priorities = compute_priorities(self.all_targets)
-        print "... done"
+        #print "... done"
         
         if not self.todo:
             info('Nothing to do.')
