@@ -1,4 +1,4 @@
-''' These are all the functionalities that build on the api '''
+''' These are all the functionalities that build on the api. '''
 
 import dump
 import graph
@@ -9,6 +9,7 @@ import credits
 import list_jobs
 import details
 import reload_module
+import stats
 
 # Useful for debugging remote events
 # import event_debugger

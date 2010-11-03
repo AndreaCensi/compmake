@@ -3,14 +3,10 @@ from time import time
 
 from compmake.structures import Cache
 from compmake.utils.visualization import duration_human, colored
-
-from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache, all_jobs
 from compmake.jobs.uptodate import up_to_date
 from compmake.ui.helpers import  ui_command, VISUALIZATION
-import sys
 from compmake.jobs.syntax.parsing import parse_job_list
-from string import rjust
 
          
 @ui_command(section=VISUALIZATION, alias='ls')
@@ -24,13 +20,6 @@ if not specified).
     else:
         job_list = parse_job_list(args)
       
-    # no -- for performance reasons  
-    # job_list.sort()
-    
-#    if len(job_list) == 1:
-#        list_job_detail(job_list[0])
-#    else:
-    # print "obtained", job_list
     list_jobs(job_list)         
 
 state2color = {
