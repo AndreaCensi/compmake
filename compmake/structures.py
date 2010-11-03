@@ -39,8 +39,7 @@ class HostFailed(CompmakeException):
 '''
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
-    
-    The state of the computation is represented by a Cache object.
+    (The state of the computation is represented by a Cache object.)
     
     A Cache object can be in one of the following states:
     
@@ -252,7 +251,7 @@ class ProgressStage:
         # allow off-by-one conventions
         
         # (self.iterations[0] == self.iterations[1]) or \
-        return  (self.iterations[0] >= self.iterations[1]-1)
+        return  (self.iterations[0] >= self.iterations[1] - 1)
              
         
         

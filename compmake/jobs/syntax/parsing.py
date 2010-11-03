@@ -99,7 +99,7 @@ def expand_wildcard(wildcard, universe):
 def expand_job_list_token(token):
     ''' Parses a token (string). Returns a generator of jobs.
         Raises UserError, CompmakeSyntaxError '''
-    print token    
+        
     assert isinstance(token, str)
     
     if token.find('*') > -1:

@@ -6,7 +6,7 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
 
-import sys, os
+import os
 from compmake.ui.helpers import   ui_section, ui_command, \
     GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
     COMMANDS_CLUSTER
@@ -70,6 +70,8 @@ def make(job_list):
     
     if not job_list:
         job_list = list(top_targets())
+    
+    #print "Making %d jobs" % len(job_list)
     
     manager = ManagerLocal()
     manager.add_targets(job_list)

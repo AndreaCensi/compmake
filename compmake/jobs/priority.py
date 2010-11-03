@@ -15,15 +15,17 @@ def compute_priority(job_id, priorities, targets):
         return priorities[job_id]
     
     parents = set(direct_parents(job_id))
-    parents_which_are_targets = parents.intersection(targets)
+    parents_which_are_targets = [x for x in parents if x in targets]
     
     if not parents_which_are_targets:
         return 0
     
-    return - 1 + max(map(lambda p: compute_priority(p, priorities, targets),
+    priority = -1 + max(map(lambda p: compute_priority(p, priorities, targets),
                          parents_which_are_targets))
     
+    priorities[job_id] = priority
     
+    return priority
     
     
     
