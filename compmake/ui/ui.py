@@ -85,7 +85,7 @@ def clean_other_jobs():
         return
     from compmake.ui.console import ask_question
 
-    all = all_jobs()
+    all = list(all_jobs())
     
     answers = {'a':'a', 'n':'n', 'y':'y', 'N':'N'}
     clean_all = False

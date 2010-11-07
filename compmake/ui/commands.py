@@ -177,6 +177,9 @@ def clustmore(non_empty_job_list, loop=1):
 @ui_command(section=ACTIONS)
 def remake(non_empty_job_list):  
     '''Remake the selected targets (equivalent to clean and make). '''
+    
+    non_empty_job_list = list(non_empty_job_list) 
+        
     for job in non_empty_job_list:
         mark_remake(job)
     
