@@ -21,7 +21,7 @@ from compmake.jobs.manager_local import ManagerLocal
 from compmake.jobs.manager_multiprocessing import MultiprocessingManager
 from compmake.jobs.manager_ssh_cluster import ClusterManager
 from compmake import RET_CODE_JOB_FAILED, get_compmake_status, \
-    compmake_status_interactive
+    compmake_status_interactive 
 
 
 
@@ -179,6 +179,16 @@ def remake(non_empty_job_list):
     '''Remake the selected targets (equivalent to clean and make). '''
     
     non_empty_job_list = list(non_empty_job_list) 
+        
+    
+    from compmake.ui.console import ask_question
+    if get_compmake_status() == compmake_status_interactive: 
+        question = "Should I clean and remake %d jobs? [y/n] " % \
+            len(non_empty_job_list)
+        answer = ask_question(question)
+        if not answer:
+            info('Not cleaned.')
+            return
         
     for job in non_empty_job_list:
         mark_remake(job)
