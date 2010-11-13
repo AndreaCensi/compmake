@@ -30,7 +30,8 @@ def handle_event(event): #@UnusedVariable
                         x += [frame.name]
                     
                     if level >= 2:
-                        x += ["%s/%s" % (frame.iterations[0] + 1, frame.iterations)] 
+                        x += ["%s/%s" % (frame.iterations[0] + 1,
+                                         frame.iterations[1])] 
                         
                     if level >= 4 and frame.iteration_desc is not None:
                         x += ["(" + frame.iteration_desc + ")"]
