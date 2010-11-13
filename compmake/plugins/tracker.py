@@ -27,8 +27,11 @@ class Tracker:
     
     def event_job_progress_plus(self, event):
         self.status_plus[event.job_id] = event.stack
-        i, n = event.stack[0].iterations
-        stat = '%s/%s' % (i + 1, n)
+        if len(event.stack) > 0:
+            i, n = event.stack[0].iterations
+            stat = '%s/%s' % (i + 1, n)
+        else:
+            stat = '-'
         self.status[event.job_id] = stat
         
     def event_manager_progress(self, event):
