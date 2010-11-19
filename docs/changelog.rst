@@ -4,6 +4,10 @@ Changelog
 Development version (0.9.5)
 --------------------------
 
+* Added confirmation before cleaning and remake jobs.
+
+* Fixed bug in display of "done" jobs.
+
 * Added two new job classes: ``top`` and ``bottom``.
 
 * Also implemented selection by function name. Example: ::
@@ -15,7 +19,7 @@ Development version (0.9.5)
 
 * Implemented two new visualization commands: ``details`` and ``stats``.
 
-* Optimized console performance. Now job enumeration is now done using generator,
+* Optimized console performance. Now job enumeration is now done using generators,
   allowing processing at the same time we get data from the DB.
 
 * Removed O(n^2) step inside the "list" command, from the old debugging days.
