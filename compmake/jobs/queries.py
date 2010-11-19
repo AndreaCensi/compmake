@@ -16,6 +16,7 @@ def direct_children(job_id):
     computation = get_job(job_id)
     return computation.children
 
+# XXX: these are redundant
 def top_targets():
     """ Returns a list of all jobs which are not needed by anybody """
     return [x for x in all_jobs() if not direct_parents(x)]

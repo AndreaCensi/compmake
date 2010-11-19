@@ -2,6 +2,7 @@ import inspect
 import pickle
 
 import compmake
+
 from compmake import compmake_status, compmake_status_slave, set_compmake_status
 from compmake.structures import Job, UserError, SerializationError
 from compmake.ui.helpers import get_commands, alias2name 
@@ -12,6 +13,9 @@ from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.events.registrar import publish
 from compmake.config import compmake_config
 
+
+# static storage
+job_prefix = None
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -32,8 +36,6 @@ def collect_dependencies(ob):
                 depends.update(collect_dependencies(child))
         return depends
 
-
-job_prefix = None
 
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
@@ -75,7 +77,7 @@ compmake_slave_mode = False
 jobs_defined_in_this_session = set()
 
 def reset_jobs_definition_set():
-    ''' Valid only for unit tests '''
+    ''' Useful only for unit tests '''
     global jobs_defined_in_this_session
     jobs_defined_in_this_session = set()
     
@@ -85,12 +87,10 @@ def clean_other_jobs():
         return
     from compmake.ui.console import ask_question
 
-    all = list(all_jobs())
-    
     answers = {'a':'a', 'n':'n', 'y':'y', 'N':'N'}
     clean_all = False
     
-    for job_id in all:
+    for job_id in all_jobs(force_db=True):
         if not job_id in  jobs_defined_in_this_session:
             if not clean_all:
                 answer = ask_question(

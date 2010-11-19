@@ -8,7 +8,6 @@ up_to_date_cache = set()
 
 #def invalidate_uptodate_cache():
     
-
 def up_to_date(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
@@ -17,7 +16,7 @@ def up_to_date(job_id):
     OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
     2) the children are up to date AND
-    3) the children timestamp is older than this timestamp AND
+    3) the children timestamp is older than this timestamp 
     
     Returns:
     
@@ -58,16 +57,22 @@ def up_to_date(job_id):
     return True, ''
 
 def list_todo_targets(jobs):
-    """ returns set:
-         todo:  set of job ids to do (children that are not up to date) """
+    """ returns a tuple (todo, jobs_done):
+         todo:  set of job ids to do (children that are not up to date) 
+         done:  top level targets (in jobs) that are already done. 
+    """
     todo = set()
+    done = set()
     for job_id in jobs:
         up, reason = up_to_date(job_id) #@UnusedVariable
         if not up:
             todo.add(job_id)
             children_id = direct_children(job_id)
-            todo.update(list_todo_targets(children_id))
-    return todo
+            todo.update(list_todo_targets(children_id)[0])
+        else:
+            done.add(job_id)
+            
+    return todo, done
 
 def dependencies_up_to_date(job_id):
     ''' Returns true if all the dependencies are up to date '''

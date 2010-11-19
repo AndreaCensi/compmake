@@ -9,6 +9,7 @@ def init_progress_tracking(my_callback):
     global callback
     stack = []
     callback = my_callback 
+    callback(stack)
     
 def progress(taskname, iterations, iteration_desc=None):
     '''Function used by the user to describe the state of the computation.
@@ -27,7 +28,7 @@ def progress(taskname, iterations, iteration_desc=None):
     
             for i in range(n):
                 progress('Reading files', (i,n), 'processing file %s' % file[i])
-    '''
+    '''    
     global stack
     global callback
     
@@ -36,13 +37,15 @@ def progress(taskname, iterations, iteration_desc=None):
                          'and must be a string; you passed a %s.' % 
                          taskname.__class__.__name__)
     
+    
     if not isinstance(iterations, tuple):
         raise ValueError('The second argument to progress() must be a tuple,' + 
                          ' you passed a %s.' % iterations.__class__.__name__)
     if not len(iterations) == 2:
         raise ValueError('The second argument to progress() must be a tuple ' + 
                          ' of length 2, not of length %s.' % len(iterations))
-    
+     
+
     if not isinstance(iterations[0], int):
         raise ValueError('The first element of the tuple passed to progress ' + 
                          'must be  an integer, not a %s.' % 
@@ -59,7 +62,7 @@ def progress(taskname, iterations, iteration_desc=None):
     BROADCAST_INTERVAL = 0.5
     
     is_last = iterations[0] == iterations[1] - 1 
-
+ 
     for i, stage in enumerate(stack):
         if stage.name == taskname:
             # remove children
@@ -70,7 +73,7 @@ def progress(taskname, iterations, iteration_desc=None):
             # TODO: only send every once in a while
             if is_last or has_children or \
                 stage.last_broadcast is None or \
-                time.time() - stage.last_broadcast > BROADCAST_INTERVAL:   
+                time.time() - stage.last_broadcast > BROADCAST_INTERVAL:
                 callback(stack)
                 stage.last_broadcast = time.time()
             if stage.last_broadcast is None:
@@ -85,5 +88,6 @@ def progress(taskname, iterations, iteration_desc=None):
             # treat it as a brother
         
         stack.append(ProgressStage(taskname, iterations, iteration_desc))
-        
         callback(stack)
+        
+

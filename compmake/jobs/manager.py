@@ -17,7 +17,7 @@ from compmake.structures import  CompmakeException, JobFailed, \
 from compmake.utils import error
 from compmake.jobs.actions import  mark_as_failed
 from compmake.jobs.queries import  parents, direct_parents
-from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets
+from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets 
 from compmake.utils.visualization import info 
 from compmake.events.registrar import publish
 from compmake.jobs.priority import compute_priorities
@@ -84,12 +84,17 @@ class Manager:
         #return self.ready_todo.pop()
 
     def add_targets(self, targets, more=False):
+        # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
-        dependencies = list_todo_targets(targets)
+
+        targets_todo_plus_deps, targets_done = list_todo_targets(targets)        
         
-        self.all_targets.update(targets)
-        self.all_targets.update(dependencies)
-        self.todo.update(dependencies)   
+        # both done and todo jobs are added to self.all_targets
+        self.all_targets.update(targets_todo_plus_deps)
+        self.all_targets.update(targets_done)
+        # however, we will only do the ones needed 
+        self.todo.update(targets_todo_plus_deps) 
+        self.done.update(targets_done)  
         
         if more:
             self.more.update(targets)

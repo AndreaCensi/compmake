@@ -14,6 +14,7 @@ from compmake.structures import Cache, Job, CompmakeException
 from compmake import storage
 from compmake.utils.visualization import info
 
+# XXX: local storage, put it in a common place
 namespace = 'default'
 
 def set_namespace(n):
@@ -34,11 +35,21 @@ def key2job(key):
     prefix = 'compmake:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
 
-def all_jobs():
-    ''' Returns the list of all jobs '''
-    # XXX we should check we don't return subsidiaries
+def all_jobs(force_db=False):
+    ''' Returns the list of all jobs.
+        If force_db is True, read jobs from DB.
+        Otherwise, use local cache.
+     '''
+#    if force_db:
+        # XXX we should check we don't return subsidiaries
     for key in storage.db.keys(job2key('*')):
-        yield key2job(key) 
+        yield key2job(key)
+#    else:
+        # XXX FIXME does not work when compmake is called by itself
+#        from compmake.ui.ui import jobs_defined_in_this_session
+
+#        for job in jobs_defined_in_this_session:
+#            yield job 
 
 def get_job(job_id):
     key = job2key(job_id)
