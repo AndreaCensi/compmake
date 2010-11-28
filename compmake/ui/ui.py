@@ -125,7 +125,7 @@ def comp(command, *args, **kwargs):
     try:
         pickle.dumps(command)
     except:
-        raise SerializationError('Cannot pickle "%s". Make sure it is not a '
+        raise SerializationError('Cannot pickle %r. Make sure it is not a '
                                 'lambda function or a nested function. '
                                 '(This is a limitation of Python)' % command)
     
@@ -229,7 +229,7 @@ def interpret_commands(commands):
     if command_name in alias2name:
         command_name = alias2name[command_name]
     if not command_name in ui_commands.keys():
-        raise UserError("Uknown command '%s' (try 'help') " % command_name)
+        raise UserError("Unknown command %r (try 'help'). " % command_name)
         
     cmd = ui_commands[command_name]
     function = cmd.function 
