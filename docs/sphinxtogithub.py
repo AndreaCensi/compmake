@@ -219,7 +219,7 @@ class LayoutFactory(object):
         # Build list of files that are in those directories
         replacers = []
         for handler in underscore_directories:
-            for directory, dirs, files in self.dir_helper.walk(handler.path()):
+            for directory, dirs, files in self.dir_helper.walk(handler.path()): #@UnusedVariable
                 for f in files:
                     replacers.append(
                             self.operations_factory.create_replacer(
@@ -230,7 +230,7 @@ class LayoutFactory(object):
 
         # Build list of handlers to process all files
         filelist = []
-        for root, dirs, files in self.dir_helper.walk(path):
+        for root, dirs, files in self.dir_helper.walk(path): #@UnusedVariable
             for f in files:
                 if f.endswith(".html"):
                     filelist.append(

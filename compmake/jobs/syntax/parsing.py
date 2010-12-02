@@ -20,14 +20,14 @@
          
 '''
 
-import re
-import types
+import re, types
+
 from collections import namedtuple
 
 from compmake.structures import UserError, Cache, CompmakeSyntaxError
 from compmake.jobs.storage import job_exists, all_jobs, get_job, \
     get_job_cache
-import sys
+
 
 
 

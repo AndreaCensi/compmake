@@ -8,8 +8,8 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 
 These are all wrappers around the raw methods in storage
 '''
+import sys
 
-import compmake
 from compmake.structures import Cache, Job, CompmakeException
 from compmake import storage
 from compmake.utils.visualization import info
@@ -19,10 +19,10 @@ namespace = 'default'
 
 def set_namespace(n):
     info('Using namespace "%s".' % n) 
-    compmake.jobs.storage.namespace = n
+    sys.modules[__package__].namespace = n
 
 def get_namespace():
-    return compmake.jobs.storage.namespace
+    return sys.modules[__package__].namespace
 
 def remove_all_jobs():
     map(delete_job, all_jobs())

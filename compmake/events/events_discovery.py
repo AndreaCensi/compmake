@@ -1,11 +1,11 @@
 ''' Routines for discovering events scattered in the compmake source '''
+import sys
 from collections import namedtuple
-import time
 
 ''' This is a specification of the events that can be generated '''
 EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 
-import sys
+
 
 EVENT_SPEC_PREFIX = '# event'
 

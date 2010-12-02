@@ -1,8 +1,6 @@
 '''This plugin dumps all events received'''
-from compmake.utils.visualization import info
+import sys, time
 from compmake.events.registrar import register_handler
-import sys
-import time
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr

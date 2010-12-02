@@ -29,12 +29,12 @@ except:
     
 screen_columns = None
 def get_screen_columns():
-    import compmake
-    if compmake.utils.visualization.screen_columns is None:
-        max_x, max_y = getTerminalSize()
-        compmake.utils.visualization.screen_columns = max_x
+    m = sys.modules[__package__]
+    if m.screen_columns is None:
+        max_x, max_y = getTerminalSize() #@UnusedVariable
+        m.screen_columns = max_x
         
-    return compmake.utils.visualization.screen_columns
+    return m.screen_columns
 
 def getTerminalSize():
     '''
@@ -59,6 +59,7 @@ def getTerminalSize():
             pass
     if not cr:
         try:
+            env = os.environ
             cr = (env['LINES'], env['COLUMNS'])
         except:
             cr = (25, 80)

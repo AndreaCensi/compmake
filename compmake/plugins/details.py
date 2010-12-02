@@ -1,5 +1,6 @@
 ''' The actual interface of some commands in commands.py '''
-from time import time
+import sys
+from string import rjust
 
 from compmake.structures import Cache
 from compmake.utils.visualization import  colored
@@ -8,8 +9,6 @@ from compmake.jobs.queries import direct_parents, direct_children
 from compmake.jobs.storage import get_job_cache
 from compmake.jobs.uptodate import up_to_date
 from compmake.ui.helpers import  ui_command, VISUALIZATION
-import sys
-from string import rjust
 
          
 @ui_command(section=VISUALIZATION, alias='lsl')

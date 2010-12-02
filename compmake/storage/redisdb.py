@@ -141,7 +141,7 @@ redis = None
 def get_redis(force=False):
     
     from redis import Redis #@UnresolvedImport
-    from redis.exceptions import ConnectionError
+    from redis.exceptions import ConnectionError #@UnresolvedImport
     global redis
     if redis is None or force:
         #sys.stderr.write("Opening connection to Redis (host=%s)... " % 

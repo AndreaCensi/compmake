@@ -1,5 +1,4 @@
 import unittest
-from compmake.structures import SerializationError
 from compmake.storage import use_filesystem
 from compmake.jobs.storage import set_namespace
 from compmake import storage, compmake_status_embedded, set_compmake_status

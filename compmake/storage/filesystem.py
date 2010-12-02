@@ -13,12 +13,12 @@ PRINT_STATS = False
 
 def try_to_unpickle_string(s):
     ''' Tries to unpickle the string, raises an exception if not possible.'''
-  #  try:
+#  try:
     sio = StringIO(s)
     state = pickle.load(sio)
     return state
 #    except Exception, e:
- #       raise CompmakeException("Could not unpickle string")
+#       raise CompmakeException("Could not unpickle string")
 
 
 class StorageFilesystem:

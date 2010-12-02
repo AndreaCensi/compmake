@@ -1,4 +1,5 @@
 # constants
+import sys
 version = '0.9.5'
 
 # Statuses ------------------------------------------------
@@ -76,8 +77,9 @@ def compmake_console():
     
 is_it_time = False
 def time_to_define_jobs():
-    import compmake
-    return compmake.is_it_time
+    # XXX: get rid of this?
+    m = sys.modules[__package__]
+    return m.is_it_time
 
 # We always want this one
 from compmake.plugins import console_status

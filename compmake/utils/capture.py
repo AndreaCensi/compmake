@@ -1,6 +1,5 @@
 import sys, re
-from compmake.utils.visualization import colored, getTerminalSize,\
-    get_screen_columns
+from compmake.utils.visualization import colored, get_screen_columns
 from StringIO import StringIO
 
 class LineSplitter:

@@ -3,7 +3,7 @@ from optparse import OptionValueError
 
 
 def config_populate_optparser(parser):
-    for name, switch in config_switches.items():
+    for name, switch in config_switches.items(): #@UnusedVariable
 #        ConfigSwitch = namedtuple('ConfigSwitch',
 #                          'name default_value desc section order allowed')
         command = '--%s' % switch.name

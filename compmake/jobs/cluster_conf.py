@@ -31,7 +31,7 @@ def parse_yaml_configuration(file):
     default_type = types.get('default', {})
     fill_in(default_type, default_conf)
     
-    for compname, config in types.items():
+    for compname, config in types.items(): #@UnusedVariable
         fill_in(config, default_type)
 
     
