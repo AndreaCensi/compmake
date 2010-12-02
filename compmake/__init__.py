@@ -38,6 +38,7 @@ from compmake.storage import use_redis, use_filesystem
 from compmake.config import compmake_config
 from compmake.jobs.storage import set_namespace
 from compmake.jobs.progress import progress
+from compmake.jobs.syntax.parsing import parse_job_list
 
 
 # Note: we wrap these in shallow functions because we don't want
