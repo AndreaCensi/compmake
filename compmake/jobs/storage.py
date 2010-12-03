@@ -19,10 +19,10 @@ namespace = 'default'
 
 def set_namespace(n):
     info('Using namespace "%s".' % n) 
-    sys.modules[__package__].namespace = n
+    sys.modules["compmake.jobs.storage"].namespace = n
 
 def get_namespace():
-    return sys.modules[__package__].namespace
+    return sys.modules["compmake.jobs.storage"].namespace
 
 def remove_all_jobs():
     map(delete_job, all_jobs())

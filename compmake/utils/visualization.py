@@ -29,7 +29,8 @@ except:
     
 screen_columns = None
 def get_screen_columns():
-    m = sys.modules[__package__]
+    # m = sys.modules[__package__] -> compmake.utils
+    m = sys.modules['compmake.utils.visualization']
     if m.screen_columns is None:
         max_x, max_y = getTerminalSize() #@UnusedVariable
         m.screen_columns = max_x
