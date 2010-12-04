@@ -7,7 +7,7 @@ from compmake import storage, compmake_status_embedded, set_compmake_status
 
 def f1():
     print "done"
-    return lambda x: None
+    return lambda x: None #@UnusedVariable
 
 class TestUnpickable(unittest.TestCase):
     

@@ -35,7 +35,7 @@ def key2job(key):
     prefix = 'compmake:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
 
-def all_jobs(force_db=False):
+def all_jobs(force_db=False): #@UnusedVariable
     ''' Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.

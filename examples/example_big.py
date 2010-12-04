@@ -5,13 +5,13 @@ def fail_randomly():
     if numpy.random.rand() < 0.01:
         raise Exception('Unlucky')
 
-def first(children=[]):
+def first(children=[]): #@UnusedVariable
     fail_randomly()
 
-def second(children=[]):
+def second(children=[]): #@UnusedVariable
     fail_randomly()
 
-def third(children=[]):
+def third(children=[]): #@UnusedVariable
     fail_randomly()
 
 

@@ -9,7 +9,7 @@ def bottom():
 def bottom2():
     TestOrder.order.append('bottom2')
 
-def top(x):
+def top(x): #@UnusedVariable
     TestOrder.order.append('top')
 
 class TestOrder(unittest.TestCase):

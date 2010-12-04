@@ -21,7 +21,7 @@ class TestProgress(unittest.TestCase):
     
     def test_hierarchy_flat(self):
         ''' Testing basic case. '''        
-        init_progress_tracking(lambda stack:None)
+        init_progress_tracking(lambda stack:None) #@UnusedVariable
         self.assert_stack_len(0)
         progress('A', (0, 2))
         self.assert_stack_len(1)
