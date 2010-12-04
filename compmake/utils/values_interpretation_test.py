@@ -1,5 +1,5 @@
-
 from unittest import TestCase
+
 from compmake.utils.values_interpretation import interpret_strings_like
 
 class InterpretTest(TestCase):

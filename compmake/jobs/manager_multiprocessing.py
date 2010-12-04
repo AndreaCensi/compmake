@@ -1,11 +1,11 @@
 from multiprocessing import  cpu_count, Pool
-
-from compmake.jobs.actions import mark_more, make
-from compmake.jobs.manager import Manager
-from compmake.events.registrar import register_handler, broadcast_event, \
-    remove_all_handlers, publish
 from multiprocessing.queues import Queue
 from Queue import Empty 
+
+from  .actions import mark_more, make
+from .manager import Manager
+from compmake.events.registrar import register_handler, broadcast_event, \
+    remove_all_handlers, publish
 from compmake.utils.visualization import setproctitle
 
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }

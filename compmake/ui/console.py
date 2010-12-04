@@ -1,13 +1,13 @@
-import readline
-from compmake.ui.helpers import get_commands 
+import readline, sys, traceback
+
 from compmake.jobs.storage import all_jobs
-from compmake.ui import  interpret_commands
 from compmake.utils.visualization import user_error, error, clean_console_line
 from compmake.structures import UserError, CompmakeException
-from compmake.ui.commands import ShellExitRequested
 from compmake.events.registrar import publish
-import sys
-import traceback
+
+from .commands import ShellExitRequested
+from .ui import interpret_commands
+from .helpers import get_commands 
 
 # event  { 'name': 'console-starting' }
 # event  { 'name': 'console-ending' }
@@ -85,7 +85,7 @@ def compmake_console():
     
     while True:
         clean_console_line(sys.stdout)
-        # FIXME: not reliable if colored
+        # TODO: find alternative, not reliable if colored
         # line = raw_input(colored('@: ', 'cyan'))
         line = raw_input('@: ')
         readline.write_history_file(COMPMAKE_HISTORY_FILENAME)

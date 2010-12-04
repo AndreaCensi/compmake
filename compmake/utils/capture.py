@@ -1,6 +1,7 @@
 import sys, re
-from compmake.utils.visualization import colored, get_screen_columns
 from StringIO import StringIO
+
+from compmake.utils.visualization import colored, get_screen_columns
 
 class LineSplitter:
     ''' A simple utility to split an incoming sequence of chars
@@ -51,7 +52,7 @@ class StreamCapture:
 
 def remove_escapes(s):
     escape = re.compile('\x1b\[..?m')
-    return escape.sub("",s)
+    return escape.sub("", s)
 
 def pad_to_screen(s):
     ''' Pads a string to the terminal size.

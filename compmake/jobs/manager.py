@@ -15,12 +15,12 @@ from compmake.structures import  CompmakeException, JobFailed, \
     JobInterrupted, HostFailed
 
 from compmake.utils import error
-from compmake.jobs.actions import  mark_as_failed
-from compmake.jobs.queries import  parents, direct_parents
-from compmake.jobs.uptodate import dependencies_up_to_date, list_todo_targets 
+from .actions import  mark_as_failed
+from .queries import  parents, direct_parents
+from .uptodate import dependencies_up_to_date, list_todo_targets 
 from compmake.utils.visualization import info 
 from compmake.events.registrar import publish
-from compmake.jobs.priority import compute_priorities
+from .priority import compute_priorities
 
 
 class AsyncResultInterface:

@@ -5,7 +5,6 @@ import compmake
 
 from compmake import compmake_status, compmake_status_slave, set_compmake_status
 from compmake.structures import Job, UserError, SerializationError
-from compmake.ui.helpers import get_commands, alias2name 
 from compmake.jobs.storage import job_exists, get_job, set_job , all_jobs, delete_job
 from compmake.jobs.actions import clean_target
 from compmake.jobs.syntax.parsing import parse_job_list
@@ -13,6 +12,7 @@ from compmake.utils.values_interpretation import interpret_strings_like
 from compmake.events.registrar import publish
 from compmake.config import compmake_config
 
+from .helpers import get_commands, alias2name 
 
 # static storage
 job_prefix = None

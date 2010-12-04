@@ -1,4 +1,4 @@
-import os 
+import os, time 
 import cPickle as pickle
 from glob import glob
 from os import makedirs
@@ -7,7 +7,7 @@ from os.path import expanduser, dirname, join, expandvars, \
 from StringIO import StringIO
 
 from compmake.structures import CompmakeException , SerializationError
-import time
+
 
 PRINT_STATS = False
 

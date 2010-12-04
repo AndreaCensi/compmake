@@ -1,7 +1,7 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
 from compmake.structures import Cache
-from compmake.jobs.storage import get_job_cache
-from compmake.jobs.queries import direct_children
+from .storage import get_job_cache
+from .queries import direct_children
     
 # XXX not used for now
 up_to_date_cache = set()

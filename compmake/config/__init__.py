@@ -1,9 +1,11 @@
 import sys
 from collections import namedtuple
-from compmake.structures import UserError
-from compmake.utils.values_interpretation import interpret_strings_like
 from string import rjust
 
+from compmake.structures import UserError
+from compmake.utils.values_interpretation import interpret_strings_like
+
+# move to structurespy?
 ConfigSwitch = namedtuple('ConfigSwitch',
                           'name default_value desc section order allowed')
 ConfigSection = namedtuple('ConfigSection', 'name desc order switches')

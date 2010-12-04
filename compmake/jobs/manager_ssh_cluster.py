@@ -3,10 +3,10 @@ from multiprocessing import Pool
 from compmake.structures import UserError, JobFailed, HostFailed
 from compmake.storage.redisdb import RedisInterface
 from compmake.utils.visualization import info, setproctitle, error
-from compmake.jobs.manager import Manager
-from compmake.jobs.manager_local import FakeAsync
-from compmake.jobs.storage import get_namespace
-from compmake.jobs.cluster_conf import Host
+from .manager import Manager
+from .manager_local import FakeAsync
+from .storage import get_namespace
+from .cluster_conf import Host
 from compmake import RET_CODE_JOB_FAILED
 from compmake.config import compmake_config
 from compmake.events.registrar import broadcast_event

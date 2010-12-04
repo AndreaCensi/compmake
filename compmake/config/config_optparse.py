@@ -1,5 +1,6 @@
-from compmake.config import config_switches, set_config_from_strings
 from optparse import OptionValueError
+
+from compmake.config import config_switches, set_config_from_strings
 
 
 def config_populate_optparser(parser):

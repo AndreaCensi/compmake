@@ -1,8 +1,9 @@
 import sys
 import cPickle as pickle
 from StringIO import StringIO
+
 from compmake.structures import CompmakeException, KeyNotFound, \
-    SerializationError
+                                SerializationError
 
 
 class RedisInterface:

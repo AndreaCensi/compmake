@@ -1,7 +1,6 @@
 import sys
-from compmake.ui.helpers import sections, commands, COMMANDS_ADVANCED, \
-    ui_command
 
+from .helpers import sections, commands, COMMANDS_ADVANCED, ui_command
   
 def create_commands_html(file=sys.stdout):
     ordered_sections = sorted(sections.values(),

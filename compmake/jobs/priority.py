@@ -1,4 +1,4 @@
-from compmake.jobs.queries import direct_parents
+from .queries import direct_parents
 
 def compute_priorities(all_targets):
     ''' Computes the priority for all_targets. '''

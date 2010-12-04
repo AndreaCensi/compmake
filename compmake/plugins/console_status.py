@@ -1,7 +1,8 @@
-from compmake.plugins.tracker import Tracker
-from compmake.events.registrar import register_handler
 import sys
 import string
+
+from .tracker import Tracker
+from compmake.events.registrar import register_handler
 from compmake.utils.visualization import colored, getTerminalSize
 
 stream = sys.stderr

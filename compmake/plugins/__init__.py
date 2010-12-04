@@ -13,3 +13,5 @@ import stats
 
 # Useful for debugging remote events
 # import event_debugger
+
+# TODO: mail, html_status

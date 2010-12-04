@@ -1,9 +1,9 @@
-import sys
-from collections import namedtuple 
-from compmake.utils.visualization import colored
-import types
-from compmake.structures import UserError
+import sys, types
+from collections import namedtuple
 from string import ljust
+ 
+from compmake.utils.visualization import colored
+from compmake.structures import UserError
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')

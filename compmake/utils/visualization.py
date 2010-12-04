@@ -1,5 +1,6 @@
 import sys
 from math import ceil
+
 from compmake.config import compmake_config
 
 try:

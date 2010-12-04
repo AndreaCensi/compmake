@@ -2,23 +2,22 @@ from StringIO import StringIO
 from time import time, clock
 from types import GeneratorType
 from copy import deepcopy
+from traceback import print_exc
 
-from compmake.jobs.storage import delete_job_cache, get_job_cache, \
-    set_job_cache, \
+from .storage import delete_job_cache, get_job_cache, set_job_cache, \
     is_job_userobject_available, delete_job_userobject, \
     is_job_tmpobject_available, delete_job_tmpobject, get_job_tmpobject, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_job
-from compmake.jobs.uptodate import up_to_date 
+from .uptodate import up_to_date 
     
 from compmake.structures import Cache, Job, CompmakeException, UserError, \
     JobFailed, JobInterrupted
 from compmake.utils import error
 from compmake.utils.capture import OutputCapture 
 from compmake.config import compmake_config
-from traceback import print_exc
 from compmake.events.registrar import publish
 from compmake.utils.visualization import setproctitle
-from compmake.jobs.progress import init_progress_tracking
+from .progress import init_progress_tracking
 
 def make_sure_cache_is_sane():
     # TODO write new version of this

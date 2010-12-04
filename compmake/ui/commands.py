@@ -7,9 +7,6 @@ There are 3 special variables:
 ''' 
 
 import os
-from compmake.ui.helpers import   ui_section, ui_command, \
-    GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
-    COMMANDS_CLUSTER
 from compmake.jobs import clean_target, mark_remake, mark_more, top_targets    
 from compmake.jobs.storage import  all_jobs 
 from compmake.structures import   UserError, JobFailed, ShellExitRequested
@@ -23,6 +20,9 @@ from compmake.jobs.manager_ssh_cluster import ClusterManager
 from compmake import RET_CODE_JOB_FAILED, get_compmake_status, \
     compmake_status_interactive 
 
+from .helpers import   ui_section, ui_command, \
+    GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
+    COMMANDS_CLUSTER
 
 
 ui_section(GENERAL)

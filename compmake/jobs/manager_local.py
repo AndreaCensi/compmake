@@ -1,5 +1,5 @@
-from compmake.jobs.manager import Manager
-from compmake.jobs.actions import make
+from .manager import Manager
+from .actions import make
 
 
 class ManagerLocal(Manager):

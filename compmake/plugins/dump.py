@@ -1,5 +1,4 @@
-import pickle
-import os
+import cPickle as pickle, os
 
 from compmake.utils import  info, user_error
 from compmake.ui.helpers import   INPUT_OUTPUT, ui_section, ui_command
