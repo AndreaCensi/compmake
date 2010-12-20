@@ -5,18 +5,3 @@ Please see
 for current issues.
 
 
-
-TODO
-----
-
-* Finish writing documentation.
-
-* Peter's  comments:
-
-1. The css for the commenting popup on the LHS of the screen is shown
-partly hidden under the left edge of the screen.
-2. The comment popup looks a bit ugly (buttons outside of the
-background box etc). (Both of these issues observed in Chrome)
-3. Markdown formatting seems broken for
-http://compmake.org/install.html#install as I can see "##"'s instead
-of sections.
