@@ -221,7 +221,7 @@ def make(job_id, more=False):
         set_job_userobject(job_id, user_object)
                 
         if is_job_tmpobject_available(job_id):
-            # We only have onw with yeld
+            # We only have one with yield
             delete_job_tmpobject(job_id)
         
         cache.state = Cache.DONE
