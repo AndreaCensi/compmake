@@ -205,7 +205,6 @@ def comp(command, *args, **kwargs):
     
         assert job_exists(job_id)
     else:    
-    #    print "Job %s did not exist" % job_id
         set_job(job_id, c)
         publish('job-defined', job_id=job_id)
         

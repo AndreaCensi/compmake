@@ -10,12 +10,14 @@ def use_redis(host=None, port=None):
         host = 'localhost'
     if port is None:
         port = 6379
+    else:
+        port = int(port)
         
     from compmake.storage.redisdb import RedisInterface, get_redis
     global db
     db = RedisInterface
     db.host = host
-    db.port = int(port)
+    db.port = port
     
     get_redis()
 

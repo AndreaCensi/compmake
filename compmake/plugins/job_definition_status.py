@@ -5,13 +5,14 @@ from compmake.utils.visualization import colored, get_screen_columns
 
 stream = sys.stderr
 
+counter = 0
+
 def console_write(s):
     ''' Writes a line that will be erased. '''
     cols = get_screen_columns()
     s = string.ljust(s, cols)
     stream.write(s)
     stream.write('\r')
-    #stream.write('\n')
     
 def job_redefined(event): #@UnusedVariable
     #stream.write('\n')
@@ -20,7 +21,9 @@ def job_redefined(event): #@UnusedVariable
     #stream.write('\n')
 
 def job_defined(event):
-    console_write('Defining job %s' % event.job_id)
+    global counter
+    counter += 1
+    console_write('compmake: defining job #%d %s' % (counter, event.job_id))
     
     
 register_handler('job-redefined', job_redefined)

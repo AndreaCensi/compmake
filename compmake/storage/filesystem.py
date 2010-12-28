@@ -35,7 +35,7 @@ class StorageFilesystem:
     @staticmethod
     def get(key):
         if not StorageFilesystem.exists(key):
-            raise CompmakeException('Could not find job %s' % key)
+            raise CompmakeException('Could not find key %s' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
             start = time.time()
@@ -89,8 +89,7 @@ class StorageFilesystem:
     
         file = open(filename, 'w')
         file.write(content)
-        file.flush()
-        #os.fsync(file) # XXX I'm desperate
+        file.flush() 
         file.close()
 
         duration = time.time() - start
