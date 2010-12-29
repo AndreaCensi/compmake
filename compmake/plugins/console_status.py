@@ -20,12 +20,12 @@ def handle_event(event): #@UnusedVariable
         for job_id, status in tracker.status.items():
             x = []
             if level >= 1:
-                x += [job_id ]
+                x += [job_id ] # + ':'
                 
             if level <= 1 or not job_id in tracker.status_plus:
-                x += [":" + status]
+                x += [ status]
             elif job_id in tracker.status_plus:
-                x += [":"]
+                x += []
                 stack = tracker.status_plus[job_id]
                 for i, frame in enumerate(stack):
                     if level >= 3:
