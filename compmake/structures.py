@@ -1,5 +1,6 @@
 import pickle
 
+
 class ShellExitRequested(Exception):
     pass
 
@@ -104,24 +105,28 @@ class HostFailed(CompmakeException):
     
 '''
 
-
-class Job:
-    
-    def __init__(self, job_id, command, args, kwargs, yields=False):
+class Promise(object):
+    def __init__(self, job_id):
         self.job_id = job_id
-        #self.depends = depends
-        #self.needed_by = []
-        self.parents = []
-        self.children = []
         
-        self.command = command
-        self.kwargs = kwargs 
-        self.args = args
-        self.yields = yields
+    def __repr__(self):
+        return 'Promise(%r)' % self.job_id
+    
+class Job(object):
+    
+    def __init__(self, job_id, children, yields=False):
+        self.job_id = job_id
+        self.children = children
+        self.parents = []
+        self.yields = yields # XXX
         
     def compute(self, previous_result=None):
+        from compmake.jobs.storage import get_job_args
+        job_args = get_job_args(self.job_id)
+        command, args, kwargs = job_args
+        
         ### XXX move this somewhere else
-        kwargs = dict(**self.kwargs)
+        kwargs = dict(**kwargs)
         if previous_result is not None:
             kw = 'previous_result'
             available = self.command.func_code.co_varnames
@@ -134,15 +139,9 @@ class Job:
             
         from compmake.jobs import substitute_dependencies
         # TODO: move this to jobs.actions?
-        args = substitute_dependencies(self.args)
+        args = substitute_dependencies(args)
         kwargs = substitute_dependencies(kwargs)
         
-        command = self.command
-        # We can make sure we have the latest version (in case of reload)
-        # by dumping and loading again the function handle.
-        command = pickle.loads(pickle.dumps(command)) 
-        if command != self.command:
-            print "\nDetected updated command %s\n" % command
         return command(*args, **kwargs)
     
     # XXX do a "promise" class
@@ -154,7 +153,7 @@ class Job:
     
     def same_computation(self, other):
         ''' Returns boolean, string tuple '''
-        
+        assert False, 'Outdated function'
         equal_command = self.command == other.command
         equal_args = self.args == other.args
         equal_kwargs = self.kwargs == other.kwargs

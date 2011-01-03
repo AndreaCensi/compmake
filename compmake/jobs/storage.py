@@ -18,7 +18,7 @@ from compmake.utils.visualization import info
 namespace = 'default'
 
 def set_namespace(n):
-    info('Using namespace "%s".' % n) 
+    info('Using namespace %r.' % n) 
     sys.modules["compmake.jobs.storage"].namespace = n
 
 def get_namespace():
@@ -134,6 +134,10 @@ def delete_job_userobject(job_id):
     key = job2userobjectkey(job_id)
     storage.db.delete(key)
     
+    
+    
+    
+    
 #
 # Temporary objects
 #
@@ -160,4 +164,52 @@ def set_job_tmpobject(job_id, obj):
 def delete_job_tmpobject(job_id):
     key = job2tmpobjectkey(job_id)
     storage.db.delete(key)
+
+
+def job2jobargskey(job_id):
+    prefix = 'compmake:%s:jobargs:' % get_namespace()
+    return '%s%s' % (prefix, job_id) 
+
+def get_job_args(job_id):
+    assert job_args_exists(job_id)
+    key = job2jobargskey(job_id)
+    return storage.db.get(key)
+
+def job_args_exists(job_id):
+    key = job2jobargskey(job_id)
+    return storage.db.exists(key)
+
+def set_job_args(job_id, obj):
+    key = job2jobargskey(job_id)
+    storage.db.set(key, obj)
+    
+def delete_job_args(job_id):
+    key = job2jobargskey(job_id)
+    storage.db.delete(key)
+
+#        
+#    return f
+#    
+#def job2userobjectkey(job_id):
+#    prefix = 'compmake:%s:userobject:' % get_namespace()
+#    return '%s%s' % (prefix, job_id) 
+#
+#def get_job_userobject(job_id):
+#    assert(is_job_userobject_available(job_id))
+#    key = job2userobjectkey(job_id)
+#    return storage.db.get(key)
+#
+#def is_job_userobject_available(job_id):
+#    key = job2userobjectkey(job_id)
+#    return storage.db.exists(key)
+#
+#def set_job_userobject(job_id, obj):
+#    key = job2userobjectkey(job_id)
+#    storage.db.set(key, obj)
+#    
+#def delete_job_userobject(job_id):
+#    key = job2userobjectkey(job_id)
+#    storage.db.delete(key)
+    
+    
 

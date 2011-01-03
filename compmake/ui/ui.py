@@ -4,8 +4,9 @@ import pickle
 import compmake
 
 from compmake import compmake_status, compmake_status_slave, set_compmake_status
-from compmake.structures import Job, UserError, SerializationError
-from compmake.jobs.storage import job_exists, get_job, set_job , all_jobs, delete_job
+from compmake.structures import Job, UserError, SerializationError, Promise
+from compmake.jobs.storage import job_exists, get_job, set_job , all_jobs, delete_job, \
+    set_job_args, job_args_exists
 from compmake.jobs.actions import clean_target
 from compmake.jobs.syntax.parsing import parse_job_list
 from compmake.utils.values_interpretation import interpret_strings_like
@@ -24,7 +25,7 @@ def make_sure_pickable(obj):
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., Job objects that
         are mentioned somewhere in the structure '''  
-    if isinstance(ob, Job):
+    if isinstance(ob, Promise):
         return set([ob.job_id])
     else:
         depends = set()
@@ -138,7 +139,7 @@ def comp(command, *args, **kwargs):
         argspec = inspect.getargspec(command)
         
         if job_id_key in argspec.args:
-            raise UserError('You cannot define the job id in this way ' + 
+            raise UserError('You cannot define the job id in this way '  
                 'because "job_id" is already a parameter of this function')    
         
         job_id = kwargs[job_id_key]
@@ -147,7 +148,7 @@ def comp(command, *args, **kwargs):
         del kwargs[job_id_key]
         
         if job_id in jobs_defined_in_this_session:
-            raise UserError('Job "%s" already defined.' % job_id)
+            raise UserError('Job %r already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
     
@@ -162,8 +163,8 @@ def comp(command, *args, **kwargs):
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
     
-    c = Job(job_id=job_id, command=command, args=args, kwargs=kwargs)
-    c.children = list(children)
+    all_args = (command, args, kwargs) 
+    c = Job(job_id=job_id, children=list(children))
     # TODO: check for loops     
             
     for child in children:
@@ -190,10 +191,12 @@ def comp(command, *args, **kwargs):
             old_computation = get_job(job_id)
             set_compmake_status(old_status)
             
+            assert False, 'update for job_args'
             same, reason = old_computation.same_computation(c)
             
             if not same:
                 set_job(job_id, c)
+                set_job_args(job_id, all_args)
                 publish('job-redefined', job_id=job_id , reason=reason)
                 # XXX TODO clean the cache
             else:
@@ -201,15 +204,18 @@ def comp(command, *args, **kwargs):
         else:
             # We assume everything's ok
             set_job(job_id, c)
+            set_job_args(job_id, all_args)
             publish('job-defined', job_id=job_id)
     
-        assert job_exists(job_id)
     else:    
         set_job(job_id, c)
+        set_job_args(job_id, all_args)
         publish('job-defined', job_id=job_id)
         
     assert job_exists(job_id)
-    return c 
+    assert job_args_exists(job_id)
+
+    return Promise(job_id)
 
                      
 # TODO: FEATURE: add aliases 
@@ -230,6 +236,7 @@ def interpret_commands(commands):
     if not command_name in ui_commands.keys():
         raise UserError("Unknown command %r (try 'help'). " % command_name)
         
+    # XXX: use more elegant method
     cmd = ui_commands[command_name]
     function = cmd.function 
     function_args = \

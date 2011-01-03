@@ -10,19 +10,13 @@ from compmake.structures import CompmakeException , SerializationError
 
 
 PRINT_STATS = False
-
-def try_to_unpickle_string(s):
-    ''' Tries to unpickle the string, raises an exception if not possible.'''
-#  try:
-    sio = StringIO(s)
-    state = pickle.load(sio)
-    return state
-#    except Exception, e:
-#       raise CompmakeException("Could not unpickle string")
+def print_stats(method, key, length, duration):
+    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
 
 
 class StorageFilesystem:
-    basepath = '~/compmake'
+    basepath = 'compmake_storage'
+    checked_existence = False
     
     @staticmethod
     def __str__():
@@ -35,11 +29,11 @@ class StorageFilesystem:
     @staticmethod
     def get(key):
         if not StorageFilesystem.exists(key):
-            raise CompmakeException('Could not find key %s' % key)
+            raise CompmakeException('Could not find key %r.' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
             start = time.time()
-            file = open(filename, 'r')
+            file = open(filename, 'rb')
             content = file.read()
             file.close()
             # print "R %s len %d" % (key, len(content))
@@ -48,11 +42,39 @@ class StorageFilesystem:
             
             duration = time.time() - start
             if PRINT_STATS:
-                print "Getting %s\t%.2f seconds" % (key, duration)
+                length = len(content)
+                print_stats('get    ', key, length, duration)
             return state
-        except Exception, e:
-            raise CompmakeException("Could not unpickle file %s (%s)" % (filename, e)) 
-    
+        except Exception as e:
+            msg = "Could not unpickle file %r: %s" % (filename, e)
+            raise CompmakeException(msg) 
+        
+    @staticmethod
+    def set(key, value):
+        if not StorageFilesystem.checked_existence:
+            StorageFilesystem.checked_existence = True
+            if not os.path.exists(StorageFilesystem.basepath):
+                os.makedirs(StorageFilesystem.basepath)
+            
+        filename = StorageFilesystem.filename_for_key(key)
+        start = time.time()
+        
+        sio = StringIO()
+        try:
+            pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            raise SerializationError('Cannot set key %s: cannot pickle object '
+                    'of class %s: %s' % (key, value.__class__.__name__, e))
+        
+        content = sio.getvalue()
+        with open(filename, 'wb') as f:
+            f.write(content)
+
+        duration = time.time() - start
+        if PRINT_STATS:
+            length = len(content)
+            print_stats('    set', key, length, duration)
+        
     @staticmethod
     def delete(key):
         filename = StorageFilesystem.filename_for_key(key)
@@ -63,39 +85,8 @@ class StorageFilesystem:
     @staticmethod
     def exists(key):  
         filename = StorageFilesystem.filename_for_key(key)
-        it_is = exists(filename)
-#        if not it_is:
-#            print "File %s not found" % filename
-        return it_is
-    
-    @staticmethod
-    def set(key, value):
-        filename = StorageFilesystem.filename_for_key(key)
-        start = time.time()
-        
-        sio = StringIO()
-        try:
-            pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
-        except Exception as e:
-            raise SerializationError('Cannot set key %s: cannot pickle object '
-                    'of class %s: %s' % (key, value.__class__.__name__, e))
-        content = sio.getvalue()
+        return os.path.exists(filename)
 
-#        try:    
-#            try_to_unpickle_string(content)
-#        except Exception, e:
-#            raise Exception('Could not deserialize key %s: %s \n%s ' % (key, e, value))
-            
-    
-        file = open(filename, 'w')
-        file.write(content)
-        file.flush() 
-        file.close()
-
-        duration = time.time() - start
-        if PRINT_STATS:
-            print "Set %s: \t%.2f seconds" % (key, duration)
-        
     @staticmethod
     # TODO change key
     def keys(pattern):
@@ -131,9 +122,6 @@ class StorageFilesystem:
     @staticmethod
     def filename_for_key(key):
         """ Returns the pickle storage filename corresponding to the job id """
-        basepath = expandvars(expanduser(StorageFilesystem.basepath))
-        filename = join(basepath, StorageFilesystem.key2filename(key) + '.pickle')
-        directory = dirname(filename)
-        if not exists(directory):
-            makedirs(directory)
-        return filename
+        return os.path.join(StorageFilesystem.basepath,
+                            StorageFilesystem.key2filename(key) + '.pickle')
+        

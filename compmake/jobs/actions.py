@@ -11,7 +11,7 @@ from .storage import delete_job_cache, get_job_cache, set_job_cache, \
 from .uptodate import up_to_date 
     
 from compmake.structures import Cache, Job, CompmakeException, UserError, \
-    JobFailed, JobInterrupted
+    JobFailed, JobInterrupted, Promise
 from compmake.utils import error
 from compmake.utils.capture import OutputCapture 
 from compmake.config import compmake_config
@@ -65,7 +65,7 @@ def substitute_dependencies(a):
     if isinstance(a, list):
         for i, v in enumerate(a):
             a[i] = substitute_dependencies(v)
-    if isinstance(a, Job):
+    if isinstance(a, Promise):
         a = get_job_userobject(a.job_id)
     return a
 
