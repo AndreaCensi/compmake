@@ -114,9 +114,10 @@ class Promise(object):
     
 class Job(object):
     
-    def __init__(self, job_id, children, yields=False):
+    def __init__(self, job_id, children, command_desc, yields=False):
         self.job_id = job_id
         self.children = children
+        self.command_desc = command_desc
         self.parents = []
         self.yields = yields # XXX
         

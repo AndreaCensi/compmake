@@ -43,7 +43,7 @@ def display_stats(job_list):
         states2count[cache.state] += 1
         total += 1
         
-        function_id = get_job(job_id).command.__name__
+        function_id = get_job(job_id).command_desc
         # initialize record if not present
         if not function_id in function2state2count:
             function2state2count[function_id] = dict(map(lambda x: (x, 0), states_order) + 
@@ -52,10 +52,10 @@ def display_stats(job_list):
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1
         
-        if total == 100:
+        if total == 100: # XXX: use standard method
             info("Loading a large number of jobs...")
     
-    print "Found %s jobs in total. Summary by state:" % total
+    print("Found %s jobs in total. Summary by state:" % total)
         
     for state in states_order:
         desc = "%30s" % Cache.state2desc[state]
@@ -64,9 +64,9 @@ def display_stats(job_list):
 
         num = states2count[state]
         if num > 0:
-            print "%s: %5d" % (desc, num)
+            print("%s: %5d" % (desc, num))
           
-    print "Summary by function:"
+    print("Summary by function:")
 
     for function_id, function_stats in function2state2count.items():
         ndone = function_stats[Cache.DONE]
@@ -77,7 +77,7 @@ def display_stats(job_list):
             failed_s = colored(failed_s, color='red')
         s = "%5d done, %s, %5d to do." % (ndone, failed_s, nrest)
         
-        print " %30s(): %s" % (function_id, s) 
+        print(" %30s(): %s" % (function_id, s)) 
         
         
         

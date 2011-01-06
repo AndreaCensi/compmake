@@ -126,9 +126,9 @@ def comp(command, *args, **kwargs):
     try:
         pickle.dumps(command)
     except:
-        raise SerializationError('Cannot pickle %r. Make sure it is not a '
-                                'lambda function or a nested function. '
-                                '(This is a limitation of Python)' % command)
+        msg = ('Cannot pickle %r. Make sure it is not a lambda function or a '
+              'nested function. (This is a limitation of Python)' % command)
+        raise SerializationError(msg)
     
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments
@@ -139,8 +139,9 @@ def comp(command, *args, **kwargs):
         argspec = inspect.getargspec(command)
         
         if job_id_key in argspec.args:
-            raise UserError('You cannot define the job id in this way '  
-                'because "job_id" is already a parameter of this function')    
+            msg = ("You cannot define the job id in this way because 'job_id' " 
+                   "is already a parameter of this function.")
+            raise UserError(msg)    
         
         job_id = kwargs[job_id_key]
         if job_prefix:
@@ -164,7 +165,10 @@ def comp(command, *args, **kwargs):
     children.update(extra_dep)
     
     all_args = (command, args, kwargs) 
-    c = Job(job_id=job_id, children=list(children))
+    
+    command_desc = command.__name__
+    
+    c = Job(job_id=job_id, children=list(children), command_desc=command_desc)
     # TODO: check for loops     
             
     for child in children:
@@ -263,9 +267,9 @@ def interpret_commands(commands):
             k, v = a.split('=')
         
             if not k in argspec.args:
-                raise UserError("You passed the argument '%s' for command" 
-                " '%s', but the only available arguments are %s." % (
-                            k, cmd.name, function_args))
+                msg = ("You passed the argument %r for command %r, but the only "
+                       "available arguments are %s." % (k, cmd.name, function_args))
+                raise UserError(msg)
             # look if we have a default value
             index = argspec.args.index(k)
             if index < num_args_without_default:
@@ -277,8 +281,8 @@ def interpret_commands(commands):
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    raise UserError('Could not parse %s=%s as %s.' % 
-                                    (k, v, type(default_value)))
+                    msg = 'Could not parse %s=%s as %s.' % (k, v, type(default_value))
+                    raise UserError(msg)
                 
                 #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
                 
@@ -291,9 +295,10 @@ def interpret_commands(commands):
 
     if 'non_empty_job_list' in function_args:
         if not args:
-            raise UserError(
-                "The command '%s' requires a non empty list of jobs as argument." % \
-                command_name)
+            msg = ("The command %r requires a non empty list of jobs as "
+                   "argument." % command_name) 
+            raise UserError(msg)
+
             
         job_list = parse_job_list(args) 
         
@@ -303,12 +308,10 @@ def interpret_commands(commands):
         
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
-        
-    #print 'Passing kwargs = %s' % kwargs
-    
+         
     for x in args_without_default:
         if not x in kwargs:
-            raise UserError('Required argument "%s" not given.' % x)
+            raise UserError('Required argument %r not given.' % x)
     
     return function(**kwargs)
 
