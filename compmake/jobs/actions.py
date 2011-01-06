@@ -73,7 +73,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     ''' Marks job_id and its parents as failed '''
     cache = get_job_cache(job_id)
     cache.state = Cache.FAILED
-    cache.exception = exception
+    cache.exception = str(exception)
     cache.backtrace = backtrace
     set_job_cache(job_id, cache)
 
