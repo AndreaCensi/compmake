@@ -1,5 +1,3 @@
-import pickle
-
 
 class ShellExitRequested(Exception):
     pass

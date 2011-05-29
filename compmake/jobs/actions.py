@@ -10,7 +10,7 @@ from .storage import delete_job_cache, get_job_cache, set_job_cache, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_job
 from .uptodate import up_to_date 
     
-from compmake.structures import Cache, Job, CompmakeException, UserError, \
+from compmake.structures import Cache, CompmakeException, UserError, \
     JobFailed, JobInterrupted, Promise
 from compmake.utils import error
 from compmake.utils.capture import OutputCapture 

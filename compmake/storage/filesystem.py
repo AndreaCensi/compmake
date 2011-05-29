@@ -1,12 +1,10 @@
 import os, time 
 import cPickle as pickle
 from glob import glob
-from os import makedirs
-from os.path import expanduser, dirname, join, expandvars, \
-    splitext, exists, basename
+from os.path import  splitext, basename
 from StringIO import StringIO
 
-from compmake.structures import CompmakeException , SerializationError
+from compmake.structures import CompmakeException, SerializationError
 
 
 PRINT_STATS = False
