@@ -10,13 +10,13 @@ from .storage import delete_job_cache, get_job_cache, set_job_cache, \
     get_job_userobject, set_job_tmpobject, set_job_userobject, get_job
 from .uptodate import up_to_date 
     
-from compmake.structures import Cache, CompmakeException, UserError, \
+from ..structures import Cache, CompmakeException, UserError, \
     JobFailed, JobInterrupted, Promise
-from compmake.utils import error
-from compmake.utils.capture import OutputCapture 
-from compmake.config import compmake_config
-from compmake.events.registrar import publish
-from compmake.utils.visualization import setproctitle
+from ..utils import error
+from ..utils.capture import OutputCapture 
+from ..config import compmake_config
+from ..events.registrar import publish
+from ..utils.visualization import setproctitle
 from .progress import init_progress_tracking
 
 def make_sure_cache_is_sane():
