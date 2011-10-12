@@ -1,6 +1,7 @@
 # constants
 import sys
-version = '0.9.5'
+version = '1.0'
+__version__ = version
 
 # Statuses ------------------------------------------------
 # Compmake can be run in different "states"

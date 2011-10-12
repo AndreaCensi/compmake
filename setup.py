@@ -4,11 +4,15 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+version = "1.0"
+
+
 setup(
     name='compmake',
     author="Andrea Censi",
     author_email="andrea@cds.caltech.edu",
     url='http://compmake.org',
+    version=version, 
 
     description = 
         "Compmake is a non-obtrusive module that provides "
@@ -31,7 +35,6 @@ setup(
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',        
     ],
       
-    version="0.9.5",
     packages=find_packages(),
     entry_points={
      'console_scripts': [
