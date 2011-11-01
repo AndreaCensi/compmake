@@ -1,8 +1,8 @@
 import sys
 
-from .helpers import sections, commands, COMMANDS_ADVANCED, ui_command
+from . import sections, commands, COMMANDS_ADVANCED, ui_command
   
-def create_commands_html(file=sys.stdout):
+def create_commands_html(file=sys.stdout): #@ReservedAssignment
     ordered_sections = sorted(sections.values(),
                               key=lambda section: section.order)
     

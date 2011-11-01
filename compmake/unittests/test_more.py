@@ -1,8 +1,7 @@
-from compmake import comp
-from compmake.structures import  UserError
-from compmake.jobs import make
+from .. import comp
+from ..jobs import direct_children, direct_parents, make
+from ..structures import UserError
 import unittest
-from compmake.jobs.queries import direct_children, direct_parents
 
 
 def f1(*arg, **kwargs):

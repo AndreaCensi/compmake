@@ -1,7 +1,7 @@
 import unittest
 
-from compmake import comp
-from compmake.structures import UserError
+from .. import comp
+from ..structures import UserError
 
 
 def uses_nested():

@@ -1,7 +1,9 @@
 import sys, re
 from StringIO import StringIO
 
-from compmake.utils.visualization import colored, get_screen_columns
+from . import colored, get_screen_columns
+from termcolor import RESET
+
 
 class LineSplitter:
     ''' A simple utility to split an incoming sequence of chars
@@ -30,22 +32,32 @@ class LineSplitter:
 
 
 class StreamCapture:
-    def __init__(self, transform=None, dest=None):
+    def __init__(self, transform=None, dest=None, after_lines=None):
         ''' dest has write() and flush() '''
         self.buffer = StringIO()
         self.dest = dest
         self.transform = transform
         self.line_splitter = LineSplitter()
+        self.after_lines = after_lines
         
     def write(self, s):
         self.buffer.write(s)
+        self.line_splitter.append_chars(s)
+        lines = self.line_splitter.lines()
+
         if self.dest:
-            self.line_splitter.append_chars(s)
-            for line in self.line_splitter.lines():
+            # XXX: this has a problem with colorized things over multiple lines
+            for line in lines:
                 if self.transform:
                     line = self.transform(line)       
                 self.dest.write("%s\n" % line)
+
+#            self.dest.write(self.transform(s))
             self.dest.flush()
+            
+            if self.after_lines is not None:
+                self.after_lines(lines)  
+            
         
     def flush(self):
         pass
@@ -63,28 +75,42 @@ def pad_to_screen(s):
     desired_size = get_screen_columns() - 1 
     
     pad_char = " "
-    # pad_char = "_" # useful for debugging
+#    pad_char = "_" # useful for debugging
     
     if current_size < desired_size:
         s += pad_char * (desired_size - current_size)
         
     return s
 
+# TODO: this thing does not work with logging enabled
 class OutputCapture:
     
     def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-        t1 = lambda s: '%s| %s' % (prefix, colored(s, 'cyan', attrs=['dark']))
-        t2 = lambda s: pad_to_screen(t1(s))
+        
+        from ..events import publish
+        
+        def publish_stdout(lines):
+            publish('job-stdout')
+        
+        def publish_stderr(lines):
+            publish('job-stderr')
+        
+        #t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
+        t1 = lambda s: '%s|%s' % (colored(prefix, attrs=['dark']), s)
+        t2 = lambda s: RESET + pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]     
-        self.stdout_replacement = StreamCapture(transform=t2, dest=dest)
+        self.stdout_replacement = StreamCapture(transform=t2, dest=dest,
+                                                after_lines=publish_stdout)
         sys.stdout = self.stdout_replacement
         
-        t3 = lambda s: '%s| %s' % (prefix, colored(s, 'red', attrs=['dark']))
-        t4 = lambda s: pad_to_screen(t3(s))
+        #t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
+        t3 = lambda s: '%s|%s' % (colored(prefix, 'red', attrs=['dark']), s)
+        t4 = lambda s: RESET + pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]      
-        self.stderr_replacement = StreamCapture(transform=t4, dest=dest)
+        self.stderr_replacement = StreamCapture(transform=t4, dest=dest,
+                                                after_lines=publish_stderr)
         sys.stderr = self.stderr_replacement
         
     def deactivate(self):

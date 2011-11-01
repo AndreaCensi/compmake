@@ -1,5 +1,5 @@
 ''' Contains queries of the job DB. '''
-from compmake.jobs.storage import get_job, all_jobs
+from ..jobs import get_job, all_jobs
 
 
 

@@ -1,18 +1,14 @@
+from ..jobs import direct_children, get_job_cache, top_targets, tree
+from ..structures import UserError, Cache
+from ..ui import ui_section, VISUALIZATION, ui_command
+from ..utils import info
 import os
-
-from compmake.jobs import top_targets, tree
-
-from compmake.jobs.storage import get_job_cache 
-from compmake.structures import UserError, Cache
-from compmake.ui.helpers import ui_section, VISUALIZATION, ui_command
-from compmake.utils import  info
-from compmake.jobs.queries import direct_children
 
 ui_section(VISUALIZATION)
 
 @ui_command
 def graph(job_list, filename='compmake', compact=0,
-          filter='dot', format='png'):
+          filter='dot', format='png'): #@ReservedAssignment
     '''Creates a graph of the given targets and dependencies 
     
         graph filename=filename compact=0,1 format=png,...
@@ -35,8 +31,8 @@ def graph(job_list, filename='compmake', compact=0,
         import gvgen #@UnresolvedImport
     except:
         gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen' 
-        raise UserError('To use the "graph" command' + 
-                        ' you have to install the "gvgen" package from %s' % 
+        raise UserError(('To use the "graph" command' 
+                        ' you have to install the "gvgen" package from %s') % 
                         gvgen_url)
         
     graph = gvgen.GvGen() 

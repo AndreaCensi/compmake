@@ -1,6 +1,6 @@
 import unittest
-from compmake import progress
-from compmake.jobs.progress import init_progress_tracking
+from .. import progress
+from ..jobs import init_progress_tracking
 
 class TestProgress(unittest.TestCase):
     

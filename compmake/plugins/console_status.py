@@ -2,18 +2,18 @@ import sys
 import string
 
 from .tracker import Tracker
-from compmake.events.registrar import register_handler
-from compmake.utils.visualization import colored, getTerminalSize
+from ..events import register_handler
+from ..utils import colored, getTerminalSize
 
 stream = sys.stderr
 
 tracker = Tracker()    
     
 def handle_event(event): #@UnusedVariable
-    # FIXME bug
-    s = "Done %s/%s " % (len(tracker.done), len(tracker.all_targets))
+    s = colored("%d" % len(tracker.done), attrs=['bold'])
+    s += "/%s " % (len(tracker.all_targets)) 
     if tracker.failed:
-        s += colored("Failed %s " % len(tracker.failed), 'red')
+        s += colored(" failed %s " % len(tracker.failed), 'red')
     
     def get_string(level):
         X = []
@@ -53,7 +53,8 @@ def handle_event(event): #@UnusedVariable
             choice = x
             break
     
-    choice = string.ljust(choice, cols - 1)
+    choice = string.rjust(choice, cols)
+    
     stream.write(choice)
     stream.write('\r')
     
@@ -61,4 +62,7 @@ def handle_event(event): #@UnusedVariable
 register_handler('manager-progress', handle_event)
 register_handler('job-progress', handle_event)
 register_handler('job-progress-plus', handle_event)
+register_handler('job-stdout', handle_event)
+register_handler('job-stderr', handle_event)
+
 

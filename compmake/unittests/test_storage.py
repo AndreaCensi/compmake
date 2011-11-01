@@ -1,8 +1,8 @@
 import unittest
 
-from compmake import storage
-from compmake.storage import use_filesystem
-from compmake.jobs.storage import set_namespace
+from .. import storage
+from ..storage import use_filesystem
+from ..jobs import set_namespace
 
 class Simple(unittest.TestCase):
     

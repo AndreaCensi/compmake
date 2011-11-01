@@ -1,14 +1,12 @@
 ''' The actual interface of some commands in commands.py '''
-import sys
+from ..jobs import direct_parents, direct_children, get_job_cache, up_to_date
+from ..structures import Cache
+from ..ui import ui_command, VISUALIZATION
+from ..utils import colored
 from string import rjust
+import sys
 
-from compmake.structures import Cache
-from compmake.utils.visualization import  colored
 
-from compmake.jobs.queries import direct_parents, direct_children
-from compmake.jobs.storage import get_job_cache
-from compmake.jobs.uptodate import up_to_date
-from compmake.ui.helpers import  ui_command, VISUALIZATION
 
          
 @ui_command(section=VISUALIZATION, alias='lsl')
@@ -36,6 +34,7 @@ def list_job_detail(job_id):
     
     
     try:
+        # TODO: make it work in Python3K
         print bold('Job ID:') + '%s' % job_id 
         print bold('Status:') + '%s' % Cache.state2desc[cache.state]
         print bold('Uptodate:') + '%s (%s)' % (up, reason)
@@ -57,7 +56,7 @@ def list_job_detail(job_id):
             print red(cache.exception)
             print red(cache.backtrace)
             
-        def display_with_prefix(buffer, prefix,
+        def display_with_prefix(buffer, prefix, #@ReservedAssignment
                                 transform=lambda x:x, out=sys.stdout):
             for line in buffer.split('\n'):
                 out.write('%s%s\n' % (prefix, transform(line)))

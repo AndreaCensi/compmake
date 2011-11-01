@@ -1,10 +1,7 @@
-import sys
-import cPickle as pickle
+from ..structures import CompmakeException, KeyNotFound, SerializationError
 from StringIO import StringIO
-
-from compmake.structures import CompmakeException, KeyNotFound, \
-                                SerializationError
-
+import cPickle as pickle
+import sys
 
 class RedisInterface:
     host = 'localhost'
@@ -63,7 +60,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         return get_redis().exists(k)
     
     @staticmethod
-    def set(name, value, precious=False):
+    def set(name, value, precious=False): #@ReservedAssignment
         if not isinstance(name, str):
             raise CompmakeException(
                 'Panic: received %s (%s) as a key. I want strings.' % 

@@ -1,13 +1,13 @@
-import readline, sys, traceback
+from . import ShellExitRequested, get_commands, interpret_commands
+from ..events import publish
+from ..jobs import all_jobs
+from ..structures import UserError, CompmakeException
+from ..utils import user_error, error, clean_console_line
+import readline
+import sys
+import traceback
 
-from compmake.jobs.storage import all_jobs
-from compmake.utils.visualization import user_error, error, clean_console_line
-from compmake.structures import UserError, CompmakeException
-from compmake.events.registrar import publish
 
-from .commands import ShellExitRequested
-from .ui import interpret_commands
-from .helpers import get_commands 
 
 # event  { 'name': 'console-starting' }
 # event  { 'name': 'console-ending' }
@@ -38,7 +38,7 @@ def interactive_console():
                     except KeyboardInterrupt:
                         publish('command-interrupted',
                                 command=commands, reason='keyboard')
-                        user_error('Execution of "%s" interrupted' % line)
+                        user_error('Execution of "%s" interrupted.' % line)
                     except ShellExitRequested:
                         exit_requested = True
                         break
@@ -49,11 +49,11 @@ def interactive_console():
                               ' that should be reported:  %s' % e)
                         
         except KeyboardInterrupt:  # CTRL-C
-            print "\nPlease use 'exit' to quit."
+            print("\nPlease use 'exit' to quit.")
         except EOFError: # CTRL-D
             # TODO maybe make loop different? we don't want to catch
             # EOFerror in interpret_commands
-            print "(end of input detected)"
+            print("(end of input detected)")
             exit_requested = True
     
     publish('console-ending')

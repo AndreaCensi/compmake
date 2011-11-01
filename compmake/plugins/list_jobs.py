@@ -1,16 +1,16 @@
 ''' The actual interface of some commands in commands.py '''
 from time import time
 
-from compmake.structures import Cache
-from compmake.utils.visualization import duration_human, colored
-from compmake.jobs.storage import get_job_cache, all_jobs
-from compmake.jobs.uptodate import up_to_date
-from compmake.ui.helpers import  ui_command, VISUALIZATION
-from compmake.jobs.syntax.parsing import parse_job_list
+from ..structures import Cache
+from ..utils import duration_human, colored
+from ..jobs.storage import get_job_cache, all_jobs
+from ..jobs.uptodate import up_to_date
+from ..ui.helpers import  ui_command, VISUALIZATION
+from ..jobs.syntax.parsing import parse_job_list
 
          
 @ui_command(section=VISUALIZATION, alias='ls')
-def list(args):
+def list(args): #@ReservedAssignment
     '''Lists the status of the selected targets (or all targets \
 if not specified).
     

@@ -1,18 +1,19 @@
 import sys
 from math import ceil
 
-from compmake.config import compmake_config
+
 
 try:
     from termcolor import colored as termcolor_colored #@UnresolvedImport
 except:
-    sys.stderr.write('compmake can make use of the package "termcolor".\
- Please install it.\n')
+    sys.stderr.write('compmake can make use of the package "termcolor".'
+                     ' Please install it.\n')
     def termcolor_colored(x, color=None, on_color=None, attrs=None): #@UnusedVariable
         ''' emulation of the termcolor interface '''
         return x
 
 def colored(x, color=None, on_color=None, attrs=None):
+    from ..config import compmake_config
     if compmake_config.colorize: #@UndefinedVariable
         return termcolor_colored(x, color, on_color, attrs)
     else:
@@ -22,17 +23,17 @@ def colored(x, color=None, on_color=None, attrs=None):
 try:
     from setproctitle import setproctitle #@UnresolvedImport @UnusedImport
 except:
-    sys.stderr.write('compmake can make use of the package "setproctitle".\
- Please install it.\n')
+    sys.stderr.write('compmake can make use of the package "setproctitle". '
+                    'Please install it.\n')
     def setproctitle(x):
         ''' emulation of the setproctitle interface '''
         pass
     
 screen_columns = None
 def get_screen_columns():
-    # m = sys.modules[__package__] -> compmake.utils
-    m = sys.modules['compmake.utils.visualization']
-    if m.screen_columns is None:
+    m = sys.modules['compmake.utils.visualization'] # FIXME
+#    if m.screen_columns is None:
+    if True: # XXX: slower but more responsive
         max_x, max_y = getTerminalSize() #@UnusedVariable
         m.screen_columns = max_x
         
@@ -69,7 +70,7 @@ def getTerminalSize():
 
     
 def clean_console_line(stream):
-    s = '\r' + (' ' *  (get_screen_columns() - 2)) + '\r'
+    s = '\r' + (' ' * (get_screen_columns() - 0)) + '\r' # was : 2
     stream.write(s)
     pass
     

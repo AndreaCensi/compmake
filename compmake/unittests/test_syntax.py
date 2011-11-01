@@ -1,12 +1,11 @@
 
+from ..jobs import set_namespace, remove_all_jobs, get_job_cache, set_job_cache
+from ..storage import use_filesystem
+from ..structures import Cache, UserError, CompmakeSyntaxError
+from ..ui import comp, parse_job_list, reset_jobs_definition_set
 from unittest import TestCase
-from compmake.jobs.storage import set_namespace, remove_all_jobs, get_job_cache, \
-    set_job_cache
-from compmake.structures import Cache, UserError, CompmakeSyntaxError
-from compmake.ui.ui import comp, parse_job_list, reset_jobs_definition_set
-
-from compmake.storage import use_filesystem
 import sys
+
 
 
 def dummy():
@@ -42,14 +41,14 @@ class Test1(TestCase):
             set_job_cache(job_id, cache)
 
         self.all = set([job_id for job_id, state in self.jobs])
-        select = lambda S: set([id for id, state in self.jobs if state == S])
+        select = lambda S: set([id for id, state in self.jobs if state == S]) #@ReservedAssignment
         self.failed = select(Cache.FAILED)
         self.done = select(Cache.DONE)
         self.in_progress = select(Cache.IN_PROGRESS)
         self.not_started = select(Cache.NOT_STARTED)
          
     def selection(self, crit):
-        return set([id for id, state in self.jobs if crit(id, state) ])
+        return set([id for id, state in self.jobs if crit(id, state) ]) #@ReservedAssignment
     
     def expandsTo(self, A, B):
         ''' A, B can be:

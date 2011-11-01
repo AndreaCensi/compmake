@@ -1,6 +1,6 @@
-from compmake.config import config_sections, config_switches
+from . import config_sections, config_switches
 
-def create_config_html(file):
+def create_config_html(file): #@ReservedAssignment
     # TODO: HTML escaping?
     ordered_sections = sorted(config_sections.values(),
                               key=lambda section: section.order)

@@ -1,7 +1,7 @@
 import unittest
-from compmake.storage import use_filesystem
-from compmake.jobs.storage import set_namespace
-from compmake import storage, compmake_status_embedded, set_compmake_status
+from ..storage import use_filesystem
+from ..jobs import set_namespace
+from .. import storage, compmake_status_embedded, set_compmake_status
 
 def bottom():
     TestOrder.order.append('bottom')

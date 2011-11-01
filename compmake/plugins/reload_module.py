@@ -1,11 +1,11 @@
 import os, imp, pwd
 
-from compmake.ui.helpers import GENERAL, ui_command
-from compmake.structures import UserError
-from compmake.utils.visualization import user_error, info
+from ..ui.helpers import GENERAL, ui_command
+from ..structures import UserError
+from ..utils.visualization import user_error, info
 
 @ui_command(section=GENERAL)
-def reload(module):
+def reload(module): #@ReservedAssignment
     ''' Reloads a module.
     
         Usage::

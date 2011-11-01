@@ -1,6 +1,6 @@
 # constants
 import sys
-version = '1.0'
+version = '1.1'
 __version__ = version
 
 # Statuses ------------------------------------------------
@@ -34,12 +34,12 @@ def get_compmake_status():
 RET_CODE_JOB_FAILED = 113
 
 # This is the module's public interface
-from compmake.ui import comp, comp_prefix
-from compmake.storage import use_redis, use_filesystem
-from compmake.config import compmake_config
-from compmake.jobs.storage import set_namespace
-from compmake.jobs.progress import progress
-from compmake.jobs.syntax.parsing import parse_job_list
+from .ui import comp, comp_prefix
+from .storage import use_redis, use_filesystem
+from .config import compmake_config
+from .jobs.storage import set_namespace
+from .jobs.progress import progress
+from .jobs.syntax.parsing import parse_job_list
 
 
 # Note: we wrap these in shallow functions because we don't want
@@ -84,6 +84,6 @@ def time_to_define_jobs():
     return m.is_it_time
 
 # We always want this one
-from compmake.plugins import console_status
+from .plugins import console_status
     
 

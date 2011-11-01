@@ -1,5 +1,8 @@
 
-from .structures import EventSpec, Event
+from .structures import *
+from .registered_events import *
+from .registrar import *
+
 
         
 # DO NOT DELETE: these are parsed 

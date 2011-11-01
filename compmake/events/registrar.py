@@ -1,8 +1,7 @@
-from compmake.structures import CompmakeException
-from compmake.jobs.syntax.parsing import wildcard_to_regexp
+from . import Event, compmake_registered_events
+from ..utils import wildcard_to_regexp
+from ..structures import CompmakeException
 
-from .registered_events import compmake_registered_events
-from .structures import Event
 
 handlers = {}
 

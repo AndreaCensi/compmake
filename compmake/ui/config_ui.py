@@ -1,11 +1,10 @@
+from . import GENERAL, ui_command, COMMANDS_ADVANCED
+from ..config import (create_config_html, show_config, config_switches,
+    compmake_config, set_config_from_strings)
+from ..structures import UserError
+from ..utils import info
 import sys
 
-from compmake.ui.helpers import GENERAL, ui_command, COMMANDS_ADVANCED
-from compmake.config import show_config, config_switches, compmake_config, \
-    set_config_from_strings
-from compmake.config.config_html import create_config_html
-from compmake.structures import UserError
-from compmake.utils.visualization import info
 
 @ui_command(section=GENERAL)
 def config(args):

@@ -1,8 +1,8 @@
 ''' Implements the initial and final banner '''
-from compmake.events.registrar import register_handler
-from compmake.utils.visualization import colored
-from compmake.jobs.storage import all_jobs, get_namespace
-from compmake import version
+from .. import version
+from ..events import register_handler
+from ..jobs import all_jobs, get_namespace
+from ..utils import colored
 
 compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'

@@ -1,5 +1,4 @@
-from .manager import Manager
-from .actions import make
+from . import Manager, make
 
 
 class ManagerLocal(Manager):

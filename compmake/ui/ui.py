@@ -1,19 +1,14 @@
+from . import get_commands, alias2name
+from .. import compmake_status, compmake_status_slave, set_compmake_status
+from ..config import compmake_config
+from ..events import publish
+from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
+    delete_job, set_job_args, job_args_exists, parse_job_list)
+from ..structures import Job, UserError, SerializationError, Promise
+from ..utils import interpret_strings_like
+import compmake # XXX
 import inspect
 import pickle
-
-import compmake
-
-from compmake import compmake_status, compmake_status_slave, set_compmake_status
-from compmake.structures import Job, UserError, SerializationError, Promise
-from compmake.jobs.storage import job_exists, get_job, set_job , all_jobs, delete_job, \
-    set_job_args, job_args_exists
-from compmake.jobs.actions import clean_target
-from compmake.jobs.syntax.parsing import parse_job_list
-from compmake.utils.values_interpretation import interpret_strings_like
-from compmake.events.registrar import publish
-from compmake.config import compmake_config
-
-from .helpers import get_commands, alias2name 
 
 # static storage
 job_prefix = None
@@ -243,8 +238,8 @@ def interpret_commands(commands):
     # XXX: use more elegant method
     cmd = ui_commands[command_name]
     function = cmd.function 
-    function_args = \
-        function.func_code.co_varnames[:function.func_code.co_argcount]
+    function_args = (
+        function.func_code.co_varnames[:function.func_code.co_argcount])
     
     args = commands[1:]
     

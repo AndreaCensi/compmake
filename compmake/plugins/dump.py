@@ -1,10 +1,8 @@
-import cPickle as pickle, os
-
-from compmake.utils import  info, user_error
-from compmake.ui.helpers import   INPUT_OUTPUT, ui_section, ui_command
-
-from compmake.jobs.storage import \
-    get_job_userobject, is_job_userobject_available
+from ..jobs import get_job_userobject, is_job_userobject_available
+from ..ui import INPUT_OUTPUT, ui_section, ui_command
+from ..utils import info, user_error
+import cPickle as pickle
+import os
 
 
 ui_section(INPUT_OUTPUT)

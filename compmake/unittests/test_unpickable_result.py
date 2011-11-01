@@ -1,12 +1,12 @@
+from .. import storage, compmake_status_embedded, set_compmake_status
+from ..jobs import set_namespace
+from ..storage import use_filesystem
+from ..structures import SerializationError
 import unittest
-from compmake.structures import SerializationError
-from compmake.storage import use_filesystem
-from compmake.jobs.storage import set_namespace
-from compmake import storage, compmake_status_embedded, set_compmake_status
 
 
 def f1():
-    print "done"
+    print("done")
     return lambda x: None #@UnusedVariable
 
 class TestUnpickable(unittest.TestCase):

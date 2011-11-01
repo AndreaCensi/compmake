@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from compmake.utils.values_interpretation import interpret_strings_like
+from . import interpret_strings_like
 
 class InterpretTest(TestCase):
     def test_bool(self):

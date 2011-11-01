@@ -10,9 +10,9 @@ These are all wrappers around the raw methods in storage
 '''
 import sys
 
-from compmake.structures import Cache, Job, CompmakeException
-from compmake import storage
-from compmake.utils.visualization import info
+from ..structures import Cache, Job, CompmakeException
+from .. import storage # FIXME
+from ..utils import info
 
 # XXX: local storage, put it in a common place
 namespace = 'default'

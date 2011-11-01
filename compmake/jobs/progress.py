@@ -1,4 +1,4 @@
-from compmake.structures import ProgressStage
+from ..structures import ProgressStage
 import time
 
 stack = []

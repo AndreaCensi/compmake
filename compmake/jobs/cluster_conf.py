@@ -6,7 +6,7 @@ from collections import namedtuple
 Host = namedtuple('Host', 'name host username processors init test type instance')
 
 
-def parse_yaml_configuration(file):
+def parse_yaml_configuration(file): #@ReservedAssignment
     
     def fill_in(config, defaults):
         for k, v in defaults.items():

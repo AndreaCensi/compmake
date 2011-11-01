@@ -1,4 +1,4 @@
-from compmake.config import add_config_section, add_config_switch
+from . import add_config_section, add_config_switch
 
 CONFIG_GENERAL = 'General configuration'
 CONFIG_JOB_EXEC = 'Job execution'

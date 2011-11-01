@@ -1,17 +1,16 @@
-from multiprocessing import  cpu_count, Pool
+from . import mark_more, make, Manager
+from ..events import (register_handler, broadcast_event, remove_all_handlers,
+    publish)
+from ..utils import setproctitle
+from Queue import Empty
+from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
-from Queue import Empty 
 
-from  .actions import mark_more, make
-from .manager import Manager
-from compmake.events.registrar import register_handler, broadcast_event, \
-    remove_all_handlers, publish
-from compmake.utils.visualization import setproctitle
 
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
 
 
-event_queue = Queue(cpu_count()*5)
+event_queue = Queue(cpu_count() * 5)
 
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''

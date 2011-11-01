@@ -1,10 +1,11 @@
-import os, time 
-import cPickle as pickle
-from glob import glob
-from os.path import  splitext, basename
+from ..structures import CompmakeException, SerializationError
 from StringIO import StringIO
+from glob import glob
+from os.path import splitext, basename
+import cPickle as pickle
+import os
+import time
 
-from compmake.structures import CompmakeException, SerializationError
 
 
 PRINT_STATS = False
@@ -31,7 +32,7 @@ class StorageFilesystem:
         filename = StorageFilesystem.filename_for_key(key)
         try:
             start = time.time()
-            file = open(filename, 'rb')
+            file = open(filename, 'rb') #@ReservedAssignment
             content = file.read()
             file.close()
             # print "R %s len %d" % (key, len(content))
@@ -48,7 +49,7 @@ class StorageFilesystem:
             raise CompmakeException(msg) 
         
     @staticmethod
-    def set(key, value):
+    def set(key, value): #@ReservedAssignment
         if not StorageFilesystem.checked_existence:
             StorageFilesystem.checked_existence = True
             if not os.path.exists(StorageFilesystem.basepath):

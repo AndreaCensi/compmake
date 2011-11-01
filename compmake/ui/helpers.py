@@ -2,8 +2,8 @@ import sys, types
 from collections import namedtuple
 from string import ljust
  
-from compmake.utils.visualization import colored
-from compmake.structures import UserError
+from ..utils import colored
+from ..structures import UserError
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
@@ -90,12 +90,12 @@ ui_section(COMMANDS_CLUSTER,
 explained in the documentation.', 2.5)
 ui_section(INPUT_OUTPUT, 'Ways to get data out of compmake.', 3)
 
-ui_section(COMMANDS_ADVANCED, 'Advanced commands not for general use', 4)
+ui_section(COMMANDS_ADVANCED, 'Advanced commands not for general use.', 4)
 
 
 
 @ui_command(section=GENERAL)
-def help(args):
+def help(args): #@ReservedAssignment
     '''Prints help about the other commands. (try 'help help')
     
     Usage:
@@ -114,7 +114,7 @@ def help(args):
     
         c = args[0]
         if not c in commands.keys():
-            raise UserError('Command %s not found' % c)
+            raise UserError('Command %r not found.' % c)
      
         cmd = commands[c] #@UnusedVariable
         
@@ -124,7 +124,7 @@ def help(args):
         print cmd.doc
 
   
-def list_commands_with_sections(file=sys.stdout):
+def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
     ordered_sections = sorted(sections.values(),
                               key=lambda section: section.order)
     
@@ -141,9 +141,5 @@ def list_commands_with_sections(file=sys.stdout):
                        (colored(ljust(name, max_len), attrs=['bold']), short_doc))
 
 
-# FIXME: put this somewhere else
-import compmake.ui.commands #@UnusedImport
-import compmake.ui.commands_html #@UnusedImport
-import compmake.config.ui #@UnusedImport
 
     

@@ -1,9 +1,9 @@
 ''' The actual interface of some commands in commands.py '''
-from compmake.structures import Cache
-from compmake.utils.visualization import  colored, info
-from compmake.jobs.storage import get_job_cache, all_jobs, get_job
-from compmake.ui.helpers import  ui_command, VISUALIZATION
-from compmake.jobs.syntax.parsing import parse_job_list 
+from ..structures import Cache
+from ..utils import  colored, info
+from ..jobs.storage import get_job_cache, all_jobs, get_job
+from ..ui.helpers import  ui_command, VISUALIZATION
+from ..jobs.syntax.parsing import parse_job_list 
 
 
 state2color = {

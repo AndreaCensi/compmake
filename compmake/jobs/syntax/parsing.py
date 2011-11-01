@@ -20,14 +20,11 @@
          
 '''
 
-import re, types
-
+from .. import job_exists, all_jobs, get_job, get_job_cache
+from ...structures import UserError, Cache, CompmakeSyntaxError
+from ...utils import expand_wildcard
 from collections import namedtuple
-
-from compmake.structures import UserError, Cache, CompmakeSyntaxError
-from compmake.jobs.storage import job_exists, all_jobs, get_job, \
-    get_job_cache
-
+import types
 
 
 
@@ -40,7 +37,7 @@ def add_alias(alias, value):
 
 def assert_list_of_strings(l):
     assert all([isinstance(x, str) for x in l]), \
-            'Expected list of strings: %s' % str(l)
+            'Expected list of strings: %s.' % str(l)
     
 def is_alias(alias):
     return alias.lower() in aliases
@@ -73,28 +70,9 @@ def eval_alias(alias):
         # can be generator; no assert_list_of_strings(result)
         return result
     else:
-        raise ValueError('I cannot interpret alias "%s" -> "%s"' % 
+        raise ValueError('I cannot interpret alias "%s" -> "%s".' % 
                          (alias, value))
 
-
-def wildcard_to_regexp(arg):
-    """ Returns a regular expression from a shell wildcard expression. """
-    return re.compile('\A' + arg.replace('*', '.*') + '\Z')
-
-def expand_wildcard(wildcard, universe):
-    ''' Expands a wildcard expression against the given list.
-        wildcard: string with '*' 
-        universe: list of strings
-     '''
-    assert wildcard.find('*') > -1
-    regexp = wildcard_to_regexp(wildcard)
-    num_matches = 0
-    for x in universe:
-        if regexp.match(x):
-            num_matches += 1
-            yield x
-    if num_matches == 0:
-        raise UserError('Could not find matches for pattern "%s".' % wildcard)
 
 def list_matching_functions(token):
     assert token.endswith('()')
@@ -131,7 +109,7 @@ def expand_job_list_token(token):
         # interpret as a job id
         job_id = token
         if not job_exists(job_id):
-            raise UserError('Job or expression "%s" not found ' % job_id) 
+            raise UserError('Job or expression "%s" not found.' % job_id) 
         return [job_id]
     
 def expand_job_list_tokens(tokens):
@@ -284,9 +262,9 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
             raise CompmakeSyntaxError(\
 ''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' % 
 (' '.join(left), ' '.join(right)))
-        all = all_jobs()
+        
         right = set(eval_ops(right))
-        for x in all:
+        for x in all_jobs():
             if x not in right:
                 yield x
     else:

@@ -2,8 +2,9 @@ import sys
 from collections import namedtuple
 from string import rjust
 
-from compmake.structures import UserError
-from compmake.utils.values_interpretation import interpret_strings_like
+from ..structures import UserError
+
+# TODO: move all of this in some file
 
 # move to structurespy?
 ConfigSwitch = namedtuple('ConfigSwitch',
@@ -36,7 +37,9 @@ def set_config_from_strings(name, args):
     ''' Sets config from an array of arguments '''
     if not name in config_switches:
         raise UserError("I don't know config switch '%s'" % name)
-    
+
+    from ..utils import interpret_strings_like # XXX initializtion order
+        
     switch = config_switches[name]
     try:
         value = interpret_strings_like(args, switch.default_value)
@@ -54,7 +57,7 @@ def add_config_section(name, desc=None, order=0):
                                           order=order, switches=[])
     
 
-def show_config(file):
+def show_config(file): #@ReservedAssignment
     from compmake.utils.visualization import colored
 
     ordered_sections = sorted(config_sections.values(),
@@ -85,7 +88,7 @@ def show_config(file):
                         colored(rjust(value, max_len_val), attrs=attrs),
                         desc))
 
-
-import config_list
-
+from .config_list import *
+from .config_html import *
+from .config_optparse import *
 

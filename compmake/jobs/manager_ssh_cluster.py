@@ -1,15 +1,13 @@
+from . import FakeAsync, Host, Manager, get_namespace
+from .. import RET_CODE_JOB_FAILED
+from ..config import compmake_config
+from ..events import broadcast_event
+from ..storage.redisdb import RedisInterface
+from ..structures import UserError, JobFailed, HostFailed
+from ..utils import info, setproctitle, error
 from multiprocessing import Pool
+import subprocess
 
-from compmake.structures import UserError, JobFailed, HostFailed
-from compmake.storage.redisdb import RedisInterface
-from compmake.utils.visualization import info, setproctitle, error
-from .manager import Manager
-from .manager_local import FakeAsync
-from .storage import get_namespace
-from .cluster_conf import Host
-from compmake import RET_CODE_JOB_FAILED
-from compmake.config import compmake_config
-from compmake.events.registrar import broadcast_event
 
 class ClusterManager(Manager):
     def __init__(self, hosts):
@@ -110,7 +108,6 @@ class ClusterManager(Manager):
         
 
     
-import subprocess
 
 def cluster_job(config, job_id, more=False):
     setproctitle('%s %s' % (job_id, config.name))

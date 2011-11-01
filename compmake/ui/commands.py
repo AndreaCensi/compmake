@@ -6,29 +6,27 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
 
+from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
+    COMMANDS_ADVANCED, COMMANDS_CLUSTER)
+from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
+    compmake_status_interactive)
+from ..config import compmake_config
+from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
+    MultiprocessingManager, clean_target, mark_remake, mark_more, top_targets,
+    parse_yaml_configuration)
+from ..structures import UserError, JobFailed, ShellExitRequested
+from ..utils import info
 import os
-from compmake.jobs import clean_target, mark_remake, mark_more, top_targets    
-from compmake.jobs.storage import  all_jobs 
-from compmake.structures import   UserError, JobFailed, ShellExitRequested
-from compmake.config import compmake_config 
+from . import ui_section
 
-from compmake.jobs.cluster_conf import parse_yaml_configuration
-from compmake.utils.visualization import info
-from compmake.jobs.manager_local import ManagerLocal
-from compmake.jobs.manager_multiprocessing import MultiprocessingManager
-from compmake.jobs.manager_ssh_cluster import ClusterManager
-from compmake import RET_CODE_JOB_FAILED, get_compmake_status, \
-    compmake_status_interactive 
 
-from .helpers import   ui_section, ui_command, \
-    GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED, \
-    COMMANDS_CLUSTER
+
 
 
 ui_section(GENERAL)
 
 @ui_command(alias='quit')
-def exit():
+def exit(): #@ReservedAssignment
     '''Exits the shell.'''
     raise ShellExitRequested()
 
@@ -50,7 +48,7 @@ def clean(job_list):
     if not job_list:
         return 
     
-    from compmake.ui.console import ask_question
+    from ..ui.console import ask_question
     
     if get_compmake_status() == compmake_status_interactive: 
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
@@ -181,7 +179,7 @@ def remake(non_empty_job_list):
     non_empty_job_list = list(non_empty_job_list) 
         
     
-    from compmake.ui.console import ask_question
+    from ..ui.console import ask_question
     if get_compmake_status() == compmake_status_interactive: 
         question = "Should I clean and remake %d jobs? [y/n] " % \
             len(non_empty_job_list)
