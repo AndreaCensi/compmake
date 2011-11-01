@@ -2,8 +2,7 @@ import sys, re
 from StringIO import StringIO
 
 from . import colored, get_screen_columns
-from termcolor import RESET
-
+RESET = '\033[0m' # XXX
 
 class LineSplitter:
     ''' A simple utility to split an incoming sequence of chars
