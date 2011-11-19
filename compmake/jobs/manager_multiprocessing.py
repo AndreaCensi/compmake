@@ -30,9 +30,7 @@ class MultiprocessingManager(Manager):
             self.num_processes = cpu_count() + 1
         
         self.pool = Pool(processes=self.num_processes)
-        self.max_num_processing = self. num_processes
-        #global event_queue
-        #event_queue = Queue(self.num_processes)
+        self.max_num_processing = self. num_processes 
 
         
     def can_accept_job(self):
