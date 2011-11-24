@@ -8,7 +8,7 @@ from ..structures import Job, UserError, SerializationError, Promise
 from ..utils import interpret_strings_like
 import compmake # XXX
 import inspect
-import pickle
+import cPickle as pickle
 
 # static storage
 job_prefix = None

@@ -6,8 +6,8 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
 
-from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
-    COMMANDS_ADVANCED, COMMANDS_CLUSTER)
+from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
+    COMMANDS_CLUSTER, ui_section)
 from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
     compmake_status_interactive)
 from ..config import compmake_config
@@ -17,7 +17,6 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..utils import info
 import os
-from . import ui_section
 
 
 

@@ -1,9 +1,11 @@
-import sys, types
+from ..structures import UserError
+from ..utils import colored
+
 from collections import namedtuple
 from string import ljust
+import sys
+import types
  
-from ..utils import colored
-from ..structures import UserError
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
