@@ -6,8 +6,8 @@ from collections import namedtuple
 EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 
 
-
 EVENT_SPEC_PREFIX = '# event'
+
 
 def discover_events(filename): 
     ''' Parses the file for lines starting with ``# event``. 

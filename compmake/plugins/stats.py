@@ -7,13 +7,14 @@ from ..jobs.syntax.parsing import parse_job_list
 
 
 state2color = {
-    Cache.NOT_STARTED:  {'attrs':['dark']},
-    Cache.IN_PROGRESS: {'color':'yellow'},
+    Cache.NOT_STARTED: {'attrs': ['dark']},
+    Cache.IN_PROGRESS: {'color': 'yellow'},
     Cache.MORE_REQUESTED: {'color': 'blue'},
-    Cache.MORE_REQUESTED: {'color':'green', 'on_color':'on_red'},
-    Cache.FAILED: {'color':'red'},
-    Cache.DONE: {'color':'green'},
+    Cache.MORE_REQUESTED: {'color': 'green', 'on_color': 'on_red'},
+    Cache.FAILED: {'color': 'red'},
+    Cache.DONE: {'color': 'green'},
 }
+
          
 @ui_command(section=VISUALIZATION)
 def stats(args):

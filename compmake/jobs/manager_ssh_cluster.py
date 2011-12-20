@@ -25,8 +25,7 @@ class ClusterManager(Manager):
                 newhosts[newname] = Host(**h)
                 
         self.hosts = newhosts
-
-       
+ 
     def process_init(self):
         from compmake.storage import db
         if not db.supports_concurrency():
@@ -106,8 +105,6 @@ class ClusterManager(Manager):
             event.kwargs['remote'] = True
             broadcast_event(event)
         
-
-    
 
 def cluster_job(config, job_id, more=False):
     setproctitle('%s %s' % (job_id, config.name))

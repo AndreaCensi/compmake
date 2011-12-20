@@ -6,9 +6,10 @@ import os
 
 ui_section(VISUALIZATION)
 
+
 @ui_command
 def graph(job_list, filename='compmake', compact=0,
-          filter='dot', format='png'): #@ReservedAssignment
+          filter='dot', format='png'):  # @ReservedAssignment
     '''Creates a graph of the given targets and dependencies 
     
         graph filename=filename compact=0,1 format=png,...
@@ -28,7 +29,7 @@ def graph(job_list, filename='compmake', compact=0,
     job_list = tree(job_list)
     
     try:
-        import gvgen #@UnresolvedImport
+        import gvgen  # @UnresolvedImport
     except:
         gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen' 
         raise UserError(('To use the "graph" command' 
@@ -72,6 +73,6 @@ def graph(job_list, filename='compmake', compact=0,
         os.system(cmd_line)
     except:
         raise UserError("Could not run dot (cmdline='%s')\
-Make sure graphviz is installed" % cmd_line) # XXX maybe not UserError
+Make sure graphviz is installed" % cmd_line)  # XXX maybe not UserError
 
     info("Written output on files %s, %s." % (filename, output))

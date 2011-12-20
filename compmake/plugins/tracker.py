@@ -1,4 +1,5 @@
-from compmake.events.registrar import register_handler
+from ..events import register_handler
+
 
 class Tracker:
     ''' This class keeps track of the status of the computation.

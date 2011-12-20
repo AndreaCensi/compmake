@@ -23,6 +23,7 @@ config_switches = {}
 # section name -> ConfigSection
 config_sections = {}
 
+
 def add_config_switch(name, default_value, allowed=None,
                       desc=None, section=None, order=0):
     assert not name in config_switches, 'Switch %s already defined' % name
@@ -33,12 +34,13 @@ def add_config_switch(name, default_value, allowed=None,
     assert section in config_sections, 'Section %s not defined' % section
     config_sections[section].switches.append(name)
     
+    
 def set_config_from_strings(name, args):
     ''' Sets config from an array of arguments '''
     if not name in config_switches:
         raise UserError("I don't know config switch '%s'" % name)
 
-    from ..utils import interpret_strings_like # XXX initializtion order
+    from ..utils import interpret_strings_like  # XXX initializtion order
         
     switch = config_switches[name]
     try:
@@ -57,7 +59,7 @@ def add_config_section(name, desc=None, order=0):
                                           order=order, switches=[])
     
 
-def show_config(file): #@ReservedAssignment
+def show_config(file):  # @ReservedAssignment
     from compmake.utils.visualization import colored
 
     ordered_sections = sorted(config_sections.values(),

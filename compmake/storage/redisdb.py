@@ -3,6 +3,7 @@ from StringIO import StringIO
 import cPickle as pickle
 import sys
 
+
 class RedisInterface:
     host = 'localhost'
     port = 6379
@@ -21,7 +22,6 @@ class RedisInterface:
     # Storage public interface
     @staticmethod
     def get(name):
-        #
         if RedisInterface.local_cache.has_key(name):
             sys.stderr.write('+')
             return RedisInterface.local_cache[name]
@@ -60,7 +60,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         return get_redis().exists(k)
     
     @staticmethod
-    def set(name, value, precious=False): #@ReservedAssignment
+    def set(name, value, precious=False):  # @ReservedAssignment
         if not isinstance(name, str):
             raise CompmakeException(
                 'Panic: received %s (%s) as a key. I want strings.' % 
@@ -113,6 +113,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
         
 # Other utilities
 
+
 # Serialization device
 def object2string(obj):
     sio = StringIO()
@@ -123,18 +124,21 @@ def object2string(obj):
                     'of class %s: %s' % (obj.__class__.__name__, e))
     return sio.getvalue()
 
+
 def string2object(s):
     sio = StringIO(s)
     return pickle.load(sio)
 
-# 
+
 def key2rediskey(s):
     return "compmake:%s" % s
+
 
 def rediskey2key(key):
     return key.replace('compmake:', '', 1)
 
 redis = None
+
 
 def get_redis(force=False):
     

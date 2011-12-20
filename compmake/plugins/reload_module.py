@@ -1,11 +1,13 @@
-import os, imp, pwd
-
-from ..ui.helpers import GENERAL, ui_command
 from ..structures import UserError
-from ..utils.visualization import user_error, info
+from ..ui import GENERAL, ui_command
+from ..utils import user_error, info
+import os
+import imp
+import pwd
+
 
 @ui_command(section=GENERAL)
-def reload(module): #@ReservedAssignment
+def reload(module):  # @ReservedAssignment
     ''' Reloads a module.
     
         Usage::

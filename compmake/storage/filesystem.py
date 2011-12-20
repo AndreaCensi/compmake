@@ -7,8 +7,9 @@ import os
 import time
 
 
-
 PRINT_STATS = False
+
+
 def print_stats(method, key, length, duration):
     print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
 
@@ -32,7 +33,7 @@ class StorageFilesystem:
         filename = StorageFilesystem.filename_for_key(key)
         try:
             start = time.time()
-            file = open(filename, 'rb') #@ReservedAssignment
+            file = open(filename, 'rb')  # @ReservedAssignment
             content = file.read()
             file.close()
             # print "R %s len %d" % (key, len(content))
@@ -49,7 +50,7 @@ class StorageFilesystem:
             raise CompmakeException(msg) 
         
     @staticmethod
-    def set(key, value): #@ReservedAssignment
+    def set(key, value):  # @ReservedAssignment
         if not StorageFilesystem.checked_existence:
             StorageFilesystem.checked_existence = True
             if not os.path.exists(StorageFilesystem.basepath):

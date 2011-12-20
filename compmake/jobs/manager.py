@@ -21,7 +21,6 @@ from multiprocessing import TimeoutError
 import time
 
 
-
 class AsyncResultInterface:
     def get(self, timeout=0):
         ''' Either:

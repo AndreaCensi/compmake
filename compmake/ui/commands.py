@@ -5,9 +5,8 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 ''' 
-
-from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
-    COMMANDS_CLUSTER, ui_section)
+from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
+               COMMANDS_ADVANCED, COMMANDS_CLUSTER, ui_section)
 from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
     compmake_status_interactive)
 from ..config import compmake_config
@@ -19,13 +18,11 @@ from ..utils import info
 import os
 
 
-
-
-
 ui_section(GENERAL)
 
+
 @ui_command(alias='quit')
-def exit(): #@ReservedAssignment
+def exit():  # @ReservedAssignment
     '''Exits the shell.'''
     raise ShellExitRequested()
 
@@ -33,6 +30,7 @@ def exit(): #@ReservedAssignment
 #def check():
 #    '''Makes sure that the cache is sane. '''
 #    make_sure_cache_is_sane()
+
 
 @ui_command(section=ACTIONS)
 def clean(job_list):
@@ -79,6 +77,7 @@ def make(job_list):
     else:
         return 0
 
+
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
 def make_single(job_list, more=False):
@@ -95,6 +94,7 @@ def make_single(job_list, more=False):
         return 0
     except JobFailed:
         return RET_CODE_JOB_FAILED
+
 
 # TODO: add num processors
 @ui_command(section=PARALLEL_ACTIONS)
@@ -119,6 +119,7 @@ Usage:
     else:
         return 0
 
+
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):
     '''Cluster equivalent of "make".
@@ -131,10 +132,11 @@ def clustmake(job_list):
     if not job_list:
         job_list = list(top_targets())    
         
-    cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
+    cluster_conf = compmake_config.cluster_conf  # @UndefinedVariable
 
     if not os.path.exists(cluster_conf):
-        raise UserError('Configuration file "%s" does not exist.' % cluster_conf)    
+        raise UserError('Configuration file "%s" does not exist.' 
+                        % cluster_conf)    
     hosts = parse_yaml_configuration(open(cluster_conf))
     manager = ClusterManager(hosts)
     manager.add_targets(job_list)
@@ -152,7 +154,7 @@ def clustmore(non_empty_job_list, loop=1):
 
        Note: you should use the Redis backend to use multiprocessing.
  ''' 
-    cluster_conf = compmake_config.cluster_conf #@UndefinedVariable
+    cluster_conf = compmake_config.cluster_conf  # @UndefinedVariable
     hosts = parse_yaml_configuration(open(cluster_conf))
     
     for x in range(int(loop)):
@@ -171,13 +173,13 @@ def clustmore(non_empty_job_list, loop=1):
         
     return 0
 
+
 @ui_command(section=ACTIONS)
 def remake(non_empty_job_list):  
     '''Remake the selected targets (equivalent to clean and make). '''
     
     non_empty_job_list = list(non_empty_job_list) 
-        
-    
+            
     from ..ui.console import ask_question
     if get_compmake_status() == compmake_status_interactive: 
         question = "Should I clean and remake %d jobs? [y/n] " % \
@@ -199,6 +201,7 @@ def remake(non_empty_job_list):
     else:
         return 0
 
+
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
     '''Parallel equivalent of "remake". '''
@@ -217,12 +220,12 @@ def parremake(non_empty_job_list):
     else:
         return 0
 
+
 @ui_command(section=ACTIONS) 
 def more(non_empty_job_list, loop=1):
     '''Makes more of the selected targets. '''
     
     non_empty_job_list = list(non_empty_job_list)
-    
     
     for x in range(int(loop)):
         if loop > 1:
@@ -239,6 +242,7 @@ def more(non_empty_job_list, loop=1):
             return RET_CODE_JOB_FAILED
 
     return 0
+
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parmore(non_empty_job_list, loop=1):

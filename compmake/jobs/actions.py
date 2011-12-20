@@ -1,6 +1,8 @@
 from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_tmpobject,
+    is_job_userobject_available, delete_job_userobject,
+    is_job_tmpobject_available,
+    delete_job_tmpobject, get_job_tmpobject, get_job_userobject,
+    set_job_tmpobject,
     set_job_userobject, get_job, init_progress_tracking, up_to_date)
 from ..config import compmake_config
 from ..events import publish
@@ -13,13 +15,13 @@ from time import time, clock
 from traceback import print_exc
 from types import GeneratorType
 import logging
-from compmake.utils.visualization import colored
+from ..utils import colored
 
-    
 
 def make_sure_cache_is_sane():
     # TODO write new version of this
     return
+
 
 def clean_target(job_id):
     # TODO: think of the difference between this and mark_remake
@@ -37,6 +39,7 @@ def mark_more(job_id):
                         (job_id, Cache.state2desc[cache.state]))
     cache.state = Cache.MORE_REQUESTED
     set_job_cache(job_id, cache)
+
 
 def mark_remake(job_id):
     ''' Delets and invalidates the cache for this object '''
@@ -67,6 +70,7 @@ def substitute_dependencies(a):
         a = get_job_userobject(a.job_id)
     return a
 
+
 def mark_as_failed(job_id, exception=None, backtrace=None):
     ''' Marks job_id and its parents as failed '''
     cache = get_job_cache(job_id)
@@ -89,12 +93,12 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
 
 def make(job_id, more=False):
     """ Makes a single job. Returns the user-object or raises JobFailed """
-    host = compmake_config.hostname #@UndefinedVariable
+    host = compmake_config.hostname  # @UndefinedVariable
     
     setproctitle(job_id)
      
     # TODO: should we make sure we are up to date???
-    up, reason = up_to_date(job_id) #@UnusedVariable
+    up, reason = up_to_date(job_id)  # @UnusedVariable
     cache = get_job_cache(job_id)
     want_more = cache.state == Cache.MORE_REQUESTED
     if up and not (more and want_more):
@@ -150,8 +154,8 @@ def make(job_id, more=False):
         user_object = None
 
         capture = OutputCapture(prefix=job_id,
-            echo_stdout=compmake_config.echo_stdout, #@UndefinedVariable
-            echo_stderr=compmake_config.echo_stderr) #@UndefinedVariable
+            echo_stdout=compmake_config.echo_stdout, # @UndefinedVariable
+            echo_stderr=compmake_config.echo_stderr)  # @UndefinedVariable
         
         # TODO: add whether we should just capture and not echo
         old_emit = logging.StreamHandler.emit
@@ -172,7 +176,7 @@ def make(job_id, more=False):
             if type(result) == GeneratorType:
                 try:
                     while True:
-                        next = result.next() #@ReservedAssignment
+                        next = result.next()  # @ReservedAssignment
                         if isinstance(next, tuple):
                             if len(next) != 3:
                                 raise CompmakeException(('If computation yields a tuple, ' 
@@ -182,7 +186,7 @@ def make(job_id, more=False):
 
                             publish('job-progress', job_id=job_id, host=host,
                                     done=None, progress=num, goal=total)
-                            if compmake_config.save_progress: #@UndefinedVariable
+                            if compmake_config.save_progress:  # @UndefinedVariable
                                 set_job_tmpobject(job_id, user_object)
                             
                 except StopIteration:

@@ -6,8 +6,6 @@ from ..utils import colored
 from string import rjust
 import sys
 
-
-
          
 @ui_command(section=VISUALIZATION, alias='lsl')
 def details(non_empty_job_list):
@@ -19,7 +17,6 @@ def details(non_empty_job_list):
             print '-' * 74
         list_job_detail(job_id)
         num += 1
-        
         
         
 def list_job_detail(job_id):

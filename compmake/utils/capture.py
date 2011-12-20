@@ -1,8 +1,10 @@
-import sys, re
-from StringIO import StringIO
-
 from . import colored, get_screen_columns
-RESET = '\033[0m' # XXX
+from StringIO import StringIO
+import sys
+import re
+
+RESET = '\033[0m'  # XXX
+
 
 class LineSplitter:
     ''' A simple utility to split an incoming sequence of chars
@@ -57,13 +59,14 @@ class StreamCapture:
             if self.after_lines is not None:
                 self.after_lines(lines)  
             
-        
     def flush(self):
         pass
+
 
 def remove_escapes(s):
     escape = re.compile('\x1b\[..?m')
     return escape.sub("", s)
+
 
 def pad_to_screen(s):
     ''' Pads a string to the terminal size.
@@ -81,6 +84,7 @@ def pad_to_screen(s):
         
     return s
 
+
 # TODO: this thing does not work with logging enabled
 class OutputCapture:
     
@@ -90,10 +94,10 @@ class OutputCapture:
         
         from ..events import publish
         
-        def publish_stdout(lines):
+        def publish_stdout(lines):  # @UnusedVariable
             publish('job-stdout')
         
-        def publish_stderr(lines):
+        def publish_stderr(lines):  # @UnusedVariable
             publish('job-stderr')
         
         #t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))

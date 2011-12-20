@@ -9,7 +9,8 @@ stream = sys.stderr
 
 tracker = Tracker()    
     
-def handle_event(event): #@UnusedVariable
+    
+def handle_event(event):  # @UnusedVariable
     s = colored("%d" % len(tracker.done), attrs=['bold'])
     s += "/%s " % (len(tracker.all_targets)) 
     if tracker.failed:
@@ -20,10 +21,11 @@ def handle_event(event): #@UnusedVariable
         for job_id, status in tracker.status.items():
             x = []
             if level >= 1:
-                x += [job_id ] # + ':'
+                x += [job_id]  
+                # + ':'
                 
             if level <= 1 or not job_id in tracker.status_plus:
-                x += [ status]
+                x += [status]
             elif job_id in tracker.status_plus:
                 x += []
                 stack = tracker.status_plus[job_id]
@@ -40,11 +42,10 @@ def handle_event(event): #@UnusedVariable
                     
                     if i < len(stack) - 1:
                         x += ['>>']       
-            X += ["[" + " ".join(x) + "]" ]
+            X += ["[" + " ".join(x) + "]"]
         return " ".join(X) 
     
-    
-    cols, rows = getTerminalSize() #@UnusedVariable
+    cols, rows = getTerminalSize()  # @UnusedVariable
     
     choice = '%d processing' % len(tracker.status)
     for level in [4, 3, 2, 1, 0]:

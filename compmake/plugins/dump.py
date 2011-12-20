@@ -7,6 +7,7 @@ import os
 
 ui_section(INPUT_OUTPUT)
 
+
 @ui_command
 def dump(non_empty_job_list, directory='.'):
     '''Dumps the content of jobs as pickle files.

@@ -26,6 +26,7 @@ sections = {}
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
 
+
 def ui_command(name=None, alias=[], section=None):    
     def wrap(func, name, alias, section):
         ''' Decorator for a UI command -- wrapper for register_command '''

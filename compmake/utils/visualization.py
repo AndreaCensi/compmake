@@ -2,53 +2,62 @@ import sys
 from math import ceil
 
 
-
 try:
-    from termcolor import colored as termcolor_colored #@UnresolvedImport
+    from termcolor import colored as termcolor_colored  # @UnresolvedImport
 except:
     sys.stderr.write('compmake can make use of the package "termcolor".'
                      ' Please install it.\n')
-    def termcolor_colored(x, color=None, on_color=None, attrs=None): #@UnusedVariable
+    
+    def termcolor_colored(x, color=None, on_color=None, attrs=None):  # @UnusedVariable
         ''' emulation of the termcolor interface '''
         return x
 
+
 def colored(x, color=None, on_color=None, attrs=None):
     from ..config import compmake_config
-    if compmake_config.colorize: #@UndefinedVariable
+    if compmake_config.colorize:  # @UndefinedVariable
         return termcolor_colored(x, color, on_color, attrs)
     else:
         return x
 
 
 try:
-    from setproctitle import setproctitle #@UnresolvedImport @UnusedImport
+    from setproctitle import setproctitle  # @UnresolvedImport @UnusedImport
 except:
     sys.stderr.write('compmake can make use of the package "setproctitle". '
                     'Please install it.\n')
+    
     def setproctitle(x):
         ''' emulation of the setproctitle interface '''
         pass
     
+    
 screen_columns = None
+
+
 def get_screen_columns():
-    m = sys.modules['compmake.utils.visualization'] # FIXME
+    m = sys.modules['compmake.utils.visualization']  # FIXME
 #    if m.screen_columns is None:
-    if True: # XXX: slower but more responsive
-        max_x, max_y = getTerminalSize() #@UnusedVariable
+    if True:  # XXX: slower but more responsive
+        max_x, max_y = getTerminalSize()  # @UnusedVariable
         m.screen_columns = max_x
         
     return m.screen_columns
+
 
 def getTerminalSize():
     '''
     max_x, max_y = getTerminalSize()
     '''
     import os
+    
     def ioctl_GWINSZ(fd):
         try:
-            import fcntl, termios, struct
+            import fcntl
+            import termios
+            import struct
             cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-        '1234'))
+                                                 '1234'))
         except:
             return None
         return cr
@@ -70,24 +79,30 @@ def getTerminalSize():
 
     
 def clean_console_line(stream):
-    s = '\r' + (' ' * (get_screen_columns() - 0)) + '\r' # was : 2
+    s = '\r' + (' ' * (get_screen_columns() - 0)) + '\r'  # was : 2
     stream.write(s)
     pass
+
     
 def warning(string):
     write_message(string, lambda x: colored(x, 'magenta'))
+
     
 def error(string):
     write_message(string, lambda x: colored(x, 'red'))
+
     
 def user_error(string):
     write_message(string, lambda x: colored(x, 'red'))
+
     
 def info(string):
     write_message(string, lambda x: colored(x, 'green'))
+
     
 def debug(string):
     write_message(string, lambda x: colored(x, 'cyan', attr=['dark']))
+
     
 def write_message(string, formatting):
     string = str(string)

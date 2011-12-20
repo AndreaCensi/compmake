@@ -1,11 +1,13 @@
-import sys, string
-
-from ..events.registrar import register_handler
+from ..events import register_handler
 from ..utils import colored, get_screen_columns
+import sys
+import string
+
 
 stream = sys.stderr
 
 counter = 0
+
 
 def console_write(s):
     ''' Writes a line that will be erased. '''
@@ -14,11 +16,14 @@ def console_write(s):
     stream.write(s)
     stream.write('\r')
     
-def job_redefined(event): #@UnusedVariable
+    
+def job_redefined(event):  # @UnusedVariable
     #stream.write('\n')
-    stream.write(colored('Redefined %s\r' % event.job_id, 'yellow', attrs=['bold']))
+    stream.write(colored('Redefined %s\r' % event.job_id, 'yellow',
+                         attrs=['bold']))
     stream.write(colored(event.reason, 'yellow'))
     #stream.write('\n')
+
 
 def job_defined(event):
     global counter
