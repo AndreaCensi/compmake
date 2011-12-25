@@ -13,22 +13,24 @@ import cPickle as pickle
 # static storage
 job_prefix = None
 
+
 def make_sure_pickable(obj):
     # TODO write this function
     pass
 
+
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., Job objects that
-        are mentioned somewhere in the structure '''  
+        are mentioned somewhere in the structure '''
     if isinstance(ob, Promise):
         return set([ob.job_id])
     else:
         depends = set()
         if isinstance(ob, list):
-            for child in ob: 
+            for child in ob:
                 depends.update(collect_dependencies(child))
         if isinstance(ob, dict):
-            for child in ob.values(): 
+            for child in ob.values():
                 depends.update(collect_dependencies(child))
         return depends
 
@@ -36,7 +38,8 @@ def collect_dependencies(ob):
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
     global job_prefix
-    job_prefix = prefix 
+    job_prefix = prefix
+
 
 def generate_job_id(command):
     ''' Generates a unique job_id for the specified commmand.
@@ -44,7 +47,7 @@ def generate_job_id(command):
     base = str(command)
     if type(command) == type(comp):
         base = command.func_name
-        
+
     if job_prefix:
         job_id = '%s-%s' % (job_prefix, base)
         if not job_id in jobs_defined_in_this_session:
@@ -58,55 +61,59 @@ def generate_job_id(command):
             job_id = '%s-%s-%d' % (job_prefix, base, i)
         else:
             job_id = '%s-%d' % (base, i)
-            
+
         if not job_id in jobs_defined_in_this_session:
             return job_id
 
     assert(False)
 
-compmake_slave_mode = False 
- 
+compmake_slave_mode = False
+
 # event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined'}
 # event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
 # event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
 
 jobs_defined_in_this_session = set()
 
+
 def reset_jobs_definition_set():
     ''' Useful only for unit tests '''
     global jobs_defined_in_this_session
     jobs_defined_in_this_session = set()
-    
+
+
 def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
     if compmake.compmake_status == compmake_status_slave:
         return
     from compmake.ui.console import ask_question
 
-    answers = {'a':'a', 'n':'n', 'y':'y', 'N':'N'}
+    answers = {'a': 'a', 'n': 'n', 'y': 'y', 'N': 'N'}
     clean_all = False
-    
+
     for job_id in all_jobs(force_db=True):
         if not job_id in  jobs_defined_in_this_session:
             if not clean_all:
                 answer = ask_question(
-                "Found spurious job %s; cleaning? [y]es, [a]ll, [n]o, [N]one " \
+                "Found spurious job %s; cleaning? [y]es, [a]ll, [n]o, [N]one "
                     % job_id, allowed=answers)
-                
+
                 if answer == 'n':
                     continue
-                
+
                 if answer == 'N':
                     break
-                
+
                 if answer == 'a':
                     clean_all = True
-                
+
             clean_target(job_id)
             delete_job(job_id)
 
+
 def comp(command, *args, **kwargs):
-    ''' Main method to define a computation.
+    ''' 
+        Main method to define a computation.
     
     
         Extra arguments:
@@ -116,7 +123,7 @@ def comp(command, *args, **kwargs):
     '''
     if compmake.compmake_status == compmake_status_slave:
         return None
-    
+
     # Check that this is a pickable function
     try:
         pickle.dumps(command)
@@ -124,7 +131,7 @@ def comp(command, *args, **kwargs):
         msg = ('Cannot pickle %r. Make sure it is not a lambda function or a '
               'nested function. (This is a limitation of Python)' % command)
         raise SerializationError(msg)
-    
+
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments
     job_id_key = 'job_id'
@@ -132,46 +139,46 @@ def comp(command, *args, **kwargs):
         # make sure that command does not have itself a job_id key
         #available = command.func_code.co_varnames
         argspec = inspect.getargspec(command)
-        
+
         if job_id_key in argspec.args:
-            msg = ("You cannot define the job id in this way because 'job_id' " 
+            msg = ("You cannot define the job id in this way because 'job_id' "
                    "is already a parameter of this function.")
-            raise UserError(msg)    
-        
+            raise UserError(msg)
+
         job_id = kwargs[job_id_key]
         if job_prefix:
             job_id = '%s-%s' % (job_prefix, job_id)
         del kwargs[job_id_key]
-        
+
         if job_id in jobs_defined_in_this_session:
             raise UserError('Job %r already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
-    
+
     jobs_defined_in_this_session.add(job_id)
-     
+
     if 'extra_dep' in kwargs:
         extra_dep = collect_dependencies(kwargs['extra_dep'])
         del kwargs['extra_dep']
     else:
         extra_dep = set()
-        
+
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
-    
-    all_args = (command, args, kwargs) 
-    
+
+    all_args = (command, args, kwargs)
+
     command_desc = command.__name__
-    
+
     c = Job(job_id=job_id, children=list(children), command_desc=command_desc)
     # TODO: check for loops     
-            
+
     for child in children:
         child_comp = get_job(child)
         if not job_id in child_comp.parents:
             child_comp.parents.append(job_id)
             set_job(child, child_comp)
-    
+
     if job_exists(job_id):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
@@ -183,16 +190,16 @@ def comp(command, *args, **kwargs):
         # What we do, is that we temporarely switch to 
         # slave mode, so that recursive calls to comp() 
         # are disabled.
-        
+
         if compmake_config.check_params: #@UndefinedVariable
             old_status = compmake_status
-            set_compmake_status(compmake_status_slave) 
+            set_compmake_status(compmake_status_slave)
             old_computation = get_job(job_id)
             set_compmake_status(old_status)
-            
+
             assert False, 'update for job_args'
             same, reason = old_computation.same_computation(c)
-            
+
             if not same:
                 set_job(job_id, c)
                 set_job_args(job_id, all_args)
@@ -205,44 +212,44 @@ def comp(command, *args, **kwargs):
             set_job(job_id, c)
             set_job_args(job_id, all_args)
             publish('job-defined', job_id=job_id)
-    
-    else:    
+
+    else:
         set_job(job_id, c)
         set_job_args(job_id, all_args)
         publish('job-defined', job_id=job_id)
-        
+
     assert job_exists(job_id)
     assert job_args_exists(job_id)
 
     return Promise(job_id)
 
-                     
+
 # TODO: FEATURE: add aliases 
 #  command  alias aliasname job... 
 # TODO: feature: target by class
-  
+
 
 def interpret_commands(commands):
     if isinstance(commands, str):
         commands = commands.split()
-    
-    ui_commands = get_commands() 
-    
+
+    ui_commands = get_commands()
+
     command_name = commands[0]
     # Check if this is an alias
     if command_name in alias2name:
         command_name = alias2name[command_name]
     if not command_name in ui_commands.keys():
         raise UserError("Unknown command %r (try 'help'). " % command_name)
-        
+
     # XXX: use more elegant method
     cmd = ui_commands[command_name]
-    function = cmd.function 
+    function = cmd.function
     function_args = (
         function.func_code.co_varnames[:function.func_code.co_argcount])
-    
+
     args = commands[1:]
-    
+
     # look for  key=value pairs 
     other = []
     kwargs = {}
@@ -260,7 +267,7 @@ def interpret_commands(commands):
     for a in args:
         if a.find('=') > 0:
             k, v = a.split('=')
-        
+
             if not k in argspec.args:
                 msg = ("You passed the argument %r for command %r, but the only "
                        "available arguments are %s." % (k, cmd.name, function_args))
@@ -278,35 +285,34 @@ def interpret_commands(commands):
                 except ValueError:
                     msg = 'Could not parse %s=%s as %s.' % (k, v, type(default_value))
                     raise UserError(msg)
-                
+
                 #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
-                
+
         else:
             other.append(a)
     args = other
-    
+
     if 'args' in function_args:
         kwargs['args'] = args
 
     if 'non_empty_job_list' in function_args:
         if not args:
             msg = ("The command %r requires a non empty list of jobs as "
-                   "argument." % command_name) 
+                   "argument." % command_name)
             raise UserError(msg)
 
-            
-        job_list = parse_job_list(args) 
-        
+        job_list = parse_job_list(args)
+
         # TODO: check non empty
-        
+
         kwargs['non_empty_job_list'] = job_list
-        
+
     if 'job_list' in function_args:
         kwargs['job_list'] = parse_job_list(args)
-         
+
     for x in args_without_default:
         if not x in kwargs:
             raise UserError('Required argument %r not given.' % x)
-    
+
     return function(**kwargs)
 

@@ -1,9 +1,8 @@
 ''' The actual interface of some commands in commands.py '''
+from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
-from ..utils import  colored, info
-from ..jobs.storage import get_job_cache, all_jobs, get_job
-from ..ui.helpers import  ui_command, VISUALIZATION
-from ..jobs.syntax.parsing import parse_job_list 
+from ..ui import ui_command, VISUALIZATION
+from ..utils import colored, info
 
 
 state2color = {
@@ -15,7 +14,7 @@ state2color = {
     Cache.DONE: {'color': 'green'},
 }
 
-         
+
 @ui_command(section=VISUALIZATION)
 def stats(args):
     '''Displays a coarse summary of the jobs state. '''
@@ -23,12 +22,12 @@ def stats(args):
         job_list = all_jobs()
     else:
         job_list = parse_job_list(args)
-    
+
     display_stats(job_list)
-    
-    
+
+
 def display_stats(job_list):
-    
+
     states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
               Cache.MORE_REQUESTED, Cache.FAILED,
               Cache.DONE]
@@ -37,27 +36,27 @@ def display_stats(job_list):
 
     function2state2count = {}
     total = 0
-    
+
     for job_id in job_list:
-        
-        cache = get_job_cache(job_id)   
+
+        cache = get_job_cache(job_id)
         states2count[cache.state] += 1
         total += 1
-        
+
         function_id = get_job(job_id).command_desc
         # initialize record if not present
         if not function_id in function2state2count:
-            function2state2count[function_id] = dict(map(lambda x: (x, 0), states_order) + 
+            function2state2count[function_id] = dict(map(lambda x: (x, 0), states_order) +
                                                      [('all', 0)])
         # update
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1
-        
+
         if total == 100: # XXX: use standard method
             info("Loading a large number of jobs...")
-    
+
     print("Found %s jobs in total. Summary by state:" % total)
-        
+
     for state in states_order:
         desc = "%30s" % Cache.state2desc[state]
         # colorize output
@@ -66,7 +65,7 @@ def display_stats(job_list):
         num = states2count[state]
         if num > 0:
             print("%s: %5d" % (desc, num))
-          
+
     print("Summary by function:")
 
     for function_id, function_stats in function2state2count.items():
@@ -77,9 +76,9 @@ def display_stats(job_list):
         if nfailed > 0:
             failed_s = colored(failed_s, color='red')
         s = "%5d done, %s, %5d to do." % (ndone, failed_s, nrest)
-        
-        print(" %30s(): %s" % (function_id, s)) 
-        
-        
-        
-         
+
+        print(" %30s(): %s" % (function_id, s))
+
+
+
+

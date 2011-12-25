@@ -29,8 +29,8 @@ class AsyncResultInterface:
             - raises TimeoutError (not ready)
         '''
         pass
-    
-    
+
+
 class Manager:
     def __init__(self):
         # top-level targets
@@ -41,34 +41,33 @@ class Manager:
         self.done = set()
         self.failed = set()
         self.processing = set()
-        
+
         self.more = set()
         self.ready_todo = set()
-        
+
         # contains job_id -> priority
         # computed by precompute_priorities() called by process()
         self.priorities = {}
-        
+
         # this hash contains  job_id -> async result
         self.processing2result = {}
-         
 
 ### Derived class interface 
     def process_init(self):
         ''' Called before processing '''
         pass
-    
+
     def process_finished(self):
         ''' Called after processing '''
         pass
-    
+
     def can_accept_job(self):
         ''' Return true if a new job can be accepted right away'''
-        raise CompmakeException('Implement this method')    
-    
+        raise CompmakeException('Implement this method')
+
     def instance_job(self, job_id, more):
         raise CompmakeException('Implement this method')
-            
+
 ### 
 
     def next_job(self):
@@ -85,20 +84,20 @@ class Manager:
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
-        targets_todo_plus_deps, targets_done = list_todo_targets(targets)        
-        
+        targets_todo_plus_deps, targets_done = list_todo_targets(targets)
+
         # both done and todo jobs are added to self.all_targets
         self.all_targets.update(targets_todo_plus_deps)
         self.all_targets.update(targets_done)
         # however, we will only do the ones needed 
-        self.todo.update(targets_todo_plus_deps) 
-        self.done.update(targets_done)  
-        
+        self.todo.update(targets_todo_plus_deps)
+        self.done.update(targets_done)
+
         if more:
             self.more.update(targets)
             self.todo.update(targets)
-            
-        self.ready_todo = set([job_id for job_id in self.todo 
+
+        self.ready_todo = set([job_id for job_id in self.todo
                       if dependencies_up_to_date(job_id)])
 
     def instance_some_jobs(self):
@@ -110,24 +109,24 @@ class Manager:
             job_id = self.next_job()
             assert job_id in self.todo and not job_id in self.ready_todo
             assert dependencies_up_to_date(job_id)
-            
+
             self.processing.add(job_id)
             make_more = job_id in self.more
-            
+
             self.processing2result[job_id] = \
                 self.instance_job(job_id, make_more)
-            
+
             # info('Job %s instantiated (more=%s)' % (job_id, make_more))
-        
+
     def check_job_finished(self, job_id):
         ''' Checks that the job finished. Returns true if that's the case.
             Handles update of various sets '''
         assert job_id in self.processing
         assert job_id in self.todo
         assert not job_id in self.ready_todo
-        
+
         async_result = self.processing2result[job_id]
-        
+
         try:
             async_result.get(timeout=0.01)
             self.job_succeeded(job_id)
@@ -140,7 +139,7 @@ class Manager:
             return True
         except HostFailed:
             # the execution has been interrupted, but not failed
-            self.host_failed(job_id) 
+            self.host_failed(job_id)
             return True
         except KeyboardInterrupt:
             raise JobInterrupted('Keyboard interrupt')
@@ -148,18 +147,18 @@ class Manager:
             raise JobInterrupted('Interrupted')
             #self.job_interrupted(job_id) 
             #return True
-    
+
     def host_failed(self, job_id):
         error('Job %s: host failed' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
         self.ready_todo.add(job_id)
-        
+
     def job_failed(self, job_id):
         ''' The specified job has failed. Update the structures,
             mark any parent as failed as well. '''
-        error('Job %s failed ' % job_id)
+        #error('Job %s failed ' % job_id)
         self.failed.add(job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
@@ -173,31 +172,31 @@ class Manager:
                 self.failed.add(p)
                 if p in self.ready_todo:
                     self.ready_todo.remove(p)
-                    
+
     def job_succeeded(self, job_id):
         #info('Job %s succeded ' % job_id)
         ''' The specified job as succeeded. Update the structures,
-            mark any parents which are ready as ready_todo. '''            
-        del self.processing2result[job_id]         
+            mark any parents which are ready as ready_todo. '''
+        del self.processing2result[job_id]
         self.done.add(job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
-                 
+
         parent_jobs = direct_parents(job_id)
         for opportunity in self.todo.intersection(set(parent_jobs)):
             if dependencies_up_to_date(opportunity):
                 self.ready_todo.add(opportunity)
-                
+
     def event_check(self):
         pass
-    
+
     def loop_until_something_finishes(self):
         while True:
             #stderr.write("jobs: %s\n" % progress_string())
-            
+
             received = False
             # We make a copy because processing is updated during the loop
-            for job_id in self.processing.copy(): 
+            for job_id in self.processing.copy():
                 received = received or self.check_job_finished(job_id)
             if received:
                 break
@@ -210,26 +209,26 @@ class Manager:
                     raise KeyboardInterrupt
 
             self.event_check()
-            
+
     def process(self):
         ''' Start processing jobs. '''
-        
+
         # precompute job priorities
         #print "Computing priorities..."
         self.priorities = compute_priorities(self.all_targets)
         #print "... done"
-        
+
         if not self.todo:
             info('Nothing to do.')
             return True
-        
+
         self.process_init()
-        
+
         try:
             while self.todo:
-                assert self.ready_todo or self.processing 
+                assert self.ready_todo or self.processing
                 assert not self.failed.intersection(self.todo)
-        
+
                 self.publish_progress()
                 self.instance_some_jobs()
                 self.publish_progress()
@@ -238,14 +237,14 @@ class Manager:
                         targets=self.targets, done=self.done,
                         todo=self.todo, failed=self.failed, ready=self.ready_todo,
                         processing=self.processing, all_targets=self.all_targets)
-        
-                    raise CompmakeException('Cannot find computing resources, giving up.') 
-                
+
+                    raise CompmakeException('Cannot find computing resources, giving up.')
+
                 self.publish_progress()
                 self.loop_until_something_finishes()
-               
+
             self.process_finished()
-        
+
             publish('manager-succeeded',
                 targets=self.targets, done=self.done, all_targets=self.all_targets,
                 todo=self.todo, failed=self.failed, ready=self.ready_todo,
@@ -259,9 +258,9 @@ class Manager:
             #error('Computation interrupted by user')
             #return False
 
-            
+
     def publish_progress(self):
         publish('manager-progress', targets=self.targets, done=self.done,
                 all_targets=self.all_targets, todo=self.todo, failed=self.failed, ready=self.ready_todo,
                 processing=self.processing)
-         
+

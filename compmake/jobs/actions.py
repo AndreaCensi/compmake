@@ -1,21 +1,18 @@
 from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject,
-    is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject, get_job_userobject,
-    set_job_tmpobject,
+    is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
+    delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_tmpobject,
     set_job_userobject, get_job, init_progress_tracking, up_to_date)
 from ..config import compmake_config
 from ..events import publish
 from ..structures import (Cache, CompmakeException, UserError, JobFailed,
     JobInterrupted, Promise)
-from ..utils import OutputCapture, error, setproctitle
+from ..utils import OutputCapture, setproctitle, colored
 from StringIO import StringIO
 from copy import deepcopy
 from time import time, clock
 from traceback import print_exc
 from types import GeneratorType
 import logging
-from ..utils import colored
 
 
 def make_sure_cache_is_sane():
@@ -30,12 +27,12 @@ def clean_target(job_id):
     # Removes also the Cache object 
     delete_job_cache(job_id)
 
-    
+
 def mark_more(job_id):
     cache = get_job_cache(job_id)
     if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
-        raise UserError(('I cannot make more of job %s because I did not even ' 
-                        'complete one iteration (state: %s)') % 
+        raise UserError(('I cannot make more of job %s because I did not even '
+                        'complete one iteration (state: %s)') %
                         (job_id, Cache.state2desc[cache.state]))
     cache.state = Cache.MORE_REQUESTED
     set_job_cache(job_id, cache)
@@ -83,7 +80,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
 # event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
 # event  { 'name': 'job-progress-plus',  'attrs': ['job_id', 'host', 'stack'] }
 # event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
-# event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason'] }
+# event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason', 'bt'] }
 # event  { 'name': 'job-instanced', 'attrs': ['job_id', 'host'] }
 # event  { 'name': 'job-starting',  'attrs': ['job_id', 'host'] }
 # event  { 'name': 'job-finished',  'attrs': ['job_id', 'host'] }
@@ -94,9 +91,9 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
 def make(job_id, more=False):
     """ Makes a single job. Returns the user-object or raises JobFailed """
     host = compmake_config.hostname  # @UndefinedVariable
-    
+
     setproctitle(job_id)
-     
+
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id)  # @UnusedVariable
     cache = get_job_cache(job_id)
@@ -110,10 +107,10 @@ def make(job_id, more=False):
         #    reason = 'want more'
         # print "Making %s (%s)" % (job_id, reason)
         computation = get_job(job_id)
-        
+
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                                Cache.MORE_REQUESTED, Cache.DONE, Cache.FAILED])
-        
+
         if cache.state == Cache.NOT_STARTED:
             previous_user_object = None
             cache.state = Cache.IN_PROGRESS
@@ -139,48 +136,50 @@ def make(job_id, more=False):
             previous_user_object = None
         else:
             assert(False)
-        
+
         # update state
         cache.time_start = time()
         cpu_start = clock()
         set_job_cache(job_id, cache)
-        
+
         def progress_callback(stack):
             publish('job-progress-plus', job_id=job_id, host=host, stack=stack)
-        
+
         init_progress_tracking(progress_callback)
-        
+
         num, total = 0, None
         user_object = None
 
         capture = OutputCapture(prefix=job_id,
-            echo_stdout=compmake_config.echo_stdout, # @UndefinedVariable
-            echo_stderr=compmake_config.echo_stderr)  # @UndefinedVariable
-        
+            echo_stdout=False,
+            echo_stderr=False)
+#            echo_stdout=compmake_config.echo_stdout, # @UndefinedVariable
+#            echo_stderr=compmake_config.echo_stderr)  # @UndefinedVariable
+
         # TODO: add whether we should just capture and not echo
         old_emit = logging.StreamHandler.emit
-        
+
         def my_emit(_, log_record):
             msg = colorize_loglevel(log_record.levelno, log_record.msg)
 #            levelname = log_record.levelname
             name = log_record.name
-            
+
             #print('%s:%s:%s' % (name, levelname, msg)) 
             print('%s:%s' % (name, msg))
-            
+
         logging.StreamHandler.emit = my_emit
-         
-        try: 
+
+        try:
             result = computation.compute(previous_user_object)
-            
+
             if type(result) == GeneratorType:
                 try:
                     while True:
                         next = result.next()  # @ReservedAssignment
                         if isinstance(next, tuple):
                             if len(next) != 3:
-                                raise CompmakeException(('If computation yields a tuple, ' 
-                                                      'should be a tuple with 3 elemnts.'  
+                                raise CompmakeException(('If computation yields a tuple, '
+                                                      'should be a tuple with 3 elemnts.'
                                                       'Got: %s') % str(next))
                             user_object, num, total = next
 
@@ -188,7 +187,7 @@ def make(job_id, more=False):
                                     done=None, progress=num, goal=total)
                             if compmake_config.save_progress:  # @UndefinedVariable
                                 set_job_tmpobject(job_id, user_object)
-                            
+
                 except StopIteration:
                     pass
             else:
@@ -197,35 +196,34 @@ def make(job_id, more=False):
 
                 user_object = result
 
-        
-        except KeyboardInterrupt: 
+        except KeyboardInterrupt:
             # TODO: clear progress cache
             # Save the current progress:
             cache.iterations_in_progress = num
             cache.iterations_goal = total
             if user_object:
                 set_job_tmpobject(job_id, user_object)
-            
+
             set_job_cache(job_id, cache)
 
             # clear progress cache
             publish('job-interrupted', job_id=job_id, host=host)
             raise JobInterrupted('Keyboard interrupt')
-        
+
         except Exception as e:
             sio = StringIO()
             print_exc(file=sio)
             bt = sio.getvalue()
-            
-            error("Job %s failed: %s" % (job_id, e))
-            error(bt)
-            
+
+            #error("Job %s failed: %s" % (job_id, e))
+            #error(bt)
+
             mark_as_failed(job_id, e, bt)
-            
+
             # clear progress cache
-            publish('job-failed', job_id=job_id, host=host, reason=e)
+            publish('job-failed', job_id=job_id, host=host, reason=e, bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
-    
+
         finally:
             capture.deactivate()
             # even if we send an error, let's save the output of the process
@@ -233,32 +231,33 @@ def make(job_id, more=False):
             cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
             cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
             set_job_cache(job_id, cache)
-            
+
             logging.StreamHandler.emit = old_emit
-            
+
         set_job_userobject(job_id, user_object)
-                
+
         if is_job_tmpobject_available(job_id):
             # We only have one with yield
             delete_job_tmpobject(job_id)
-        
+
         cache.state = Cache.DONE
         cache.timestamp = time()
-        walltime = cache.timestamp - cache.time_start 
+        walltime = cache.timestamp - cache.time_start
         cputime = clock() - cpu_start
         # FIXME walltime/cputime not precise (especially for "more" computation)
         cache.walltime_used = walltime
         cache.cputime_used = cputime
         cache.done_iterations = num # XXX not true
         cache.host = compmake_config.hostname #@UndefinedVariable
-        
+
         set_job_cache(job_id, cache)
-        
+
         publish('job-succeeded', job_id=job_id, host=host)
 
         # TODO: clear these records in other place
         return user_object
-        
+
+
 def colorize_loglevel(levelno, msg):
     # TODO: use Compmake's way
     if(levelno >= 50):
@@ -268,10 +267,10 @@ def colorize_loglevel(levelno, msg):
     elif(levelno >= 30):
         return colored(msg, 'yellow')
     elif(levelno >= 20):
-        return colored(msg, 'green') 
+        return colored(msg, 'green')
     elif(levelno >= 10):
         return colored(msg, 'cyan')
     else:
         return msg
-        
-    
+
+
