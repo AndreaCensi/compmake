@@ -1,20 +1,20 @@
+from .. import storage
+from ..jobs import set_namespace
+from ..storage import use_filesystem
 import unittest
 
-from .. import storage
-from ..storage import use_filesystem
-from ..jobs import set_namespace
 
 class Simple(unittest.TestCase):
-    
+
     def setUp(self):
         use_filesystem('Simple_db')
         set_namespace('Simple')
         for key in storage.db.keys('*'):
             storage.db.delete(key)
-            
+
     def testExists1(self):
         assert(not storage.db.exists('not-existent'))
-    
+
     def testExists2(self):
         k = 'ciao'
         v = {'complex': 123}
@@ -28,10 +28,10 @@ class Simple(unittest.TestCase):
         storage.db.set(k, v)
         storage.db.delete(k)
         self.assertFalse(storage.db.exists(k))
-        
+
     def testSearch(self):
         search = lambda pattern: list(storage.db.keys(pattern))
-        
+
         self.assertEqual([], search('*'))
         storage.db.set('key1', 1)
         storage.db.set('key2', 1)
@@ -39,4 +39,4 @@ class Simple(unittest.TestCase):
         self.assertEqual(['key1'], search('key1'))
         self.assertEqual(['key1'], search('*1'))
         self.assertEqual([], search('d*1'))
-           
+

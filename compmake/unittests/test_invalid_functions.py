@@ -7,11 +7,12 @@ from ..structures import UserError
 def uses_nested():
     def f1():
         pass
-    
+
     comp(f1)
 
+
 def uses_lambda():
-    
+
     comp(lambda x: x, 1)
 
 

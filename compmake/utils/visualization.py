@@ -8,7 +8,8 @@ except:
     sys.stderr.write('compmake can make use of the package "termcolor".'
                      ' Please install it.\n')
 
-    def termcolor_colored(x, color=None, on_color=None, attrs=None):  # @UnusedVariable
+    def termcolor_colored(x,
+                color=None, on_color=None, attrs=None):  # @UnusedVariable
         ''' emulation of the termcolor interface '''
         return x
 
@@ -108,6 +109,8 @@ original_stdout = sys.stdout
 original_stderr = sys.stderr
 
 def write_message(string, formatting):
+    from ..utils import pad_to_screen
+
     string = str(string)
     original_stdout.flush()
 
@@ -118,7 +121,8 @@ def write_message(string, formatting):
         original_stderr.write(formatting(lines[0]) + '\n')
     else:
         for l in lines:
-            original_stderr.write(formatting(l))
+            l = formatting(l)
+            original_stderr.write(pad_to_screen(l))
             original_stderr.write('\n')
 
     original_stderr.flush()

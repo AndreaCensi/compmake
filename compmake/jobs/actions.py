@@ -178,9 +178,10 @@ def make(job_id, more=False):
                         next = result.next()  # @ReservedAssignment
                         if isinstance(next, tuple):
                             if len(next) != 3:
-                                raise CompmakeException(('If computation yields a tuple, '
-                                                      'should be a tuple with 3 elemnts.'
-                                                      'Got: %s') % str(next))
+                                msg = ('If computation yields a tuple, '
+                                        'should be a tuple with 3 elemnts.'
+                                          'Got: %s') % str(next)
+                                raise CompmakeException(msg)
                             user_object, num, total = next
 
                             publish('job-progress', job_id=job_id, host=host,
@@ -228,8 +229,10 @@ def make(job_id, more=False):
             capture.deactivate()
             # even if we send an error, let's save the output of the process
             cache = get_job_cache(job_id)
-            cache.captured_stderr = capture.stderr_replacement.buffer.getvalue()
-            cache.captured_stdout = capture.stdout_replacement.buffer.getvalue()
+            cache.captured_stderr = \
+                capture.stderr_replacement.buffer.getvalue()
+            cache.captured_stdout = \
+                capture.stdout_replacement.buffer.getvalue()
             set_job_cache(job_id, cache)
 
             logging.StreamHandler.emit = old_emit
@@ -244,7 +247,7 @@ def make(job_id, more=False):
         cache.timestamp = time()
         walltime = cache.timestamp - cache.time_start
         cputime = clock() - cpu_start
-        # FIXME walltime/cputime not precise (especially for "more" computation)
+        # FIXME walltime/cputime not precise (especially for "more" computation
         cache.walltime_used = walltime
         cache.cputime_used = cputime
         cache.done_iterations = num # XXX not true

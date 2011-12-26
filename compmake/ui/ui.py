@@ -69,7 +69,7 @@ def generate_job_id(command):
 
 compmake_slave_mode = False
 
-# event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined'}
+# event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined' }
 # event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
 # event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
 
@@ -203,7 +203,7 @@ def comp(command, *args, **kwargs):
             if not same:
                 set_job(job_id, c)
                 set_job_args(job_id, all_args)
-                publish('job-redefined', job_id=job_id , reason=reason)
+                publish('job-redefined', job_id=job_id, reason=reason)
                 # XXX TODO clean the cache
             else:
                 publish('job-already-defined', job_id=job_id)
@@ -269,8 +269,10 @@ def interpret_commands(commands):
             k, v = a.split('=')
 
             if not k in argspec.args:
-                msg = ("You passed the argument %r for command %r, but the only "
-                       "available arguments are %s." % (k, cmd.name, function_args))
+                msg = ("You passed the argument %r for command %r, "
+                       "but the only "
+                       "available arguments are %s." %
+                        (k, cmd.name, function_args))
                 raise UserError(msg)
             # look if we have a default value
             index = argspec.args.index(k)
@@ -283,7 +285,8 @@ def interpret_commands(commands):
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = 'Could not parse %s=%s as %s.' % (k, v, type(default_value))
+                    msg = ('Could not parse %s=%s as %s.' %
+                            (k, v, type(default_value)))
                     raise UserError(msg)
 
                 #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))

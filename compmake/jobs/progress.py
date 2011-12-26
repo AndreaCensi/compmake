@@ -24,12 +24,14 @@ def progress(taskname, iterations, iteration_desc=None):
        - ``iterations``: must be a tuple of two integers (k,N), meaning
           that the current iteration is the k-th out of N.
          
-       - ``iteration_desc``: an optional string describing the current iteration.
+       - ``iteration_desc``: an optional string describing the current i
+          teration
        
        Example: ::
     
             for i in range(n):
-                progress('Reading files', (i,n), 'processing file %s' % file[i])
+                progress('Reading files', (i,n), 
+                         'processing file %s' % file[i])
     '''
     global stack
     global callback
@@ -46,14 +48,13 @@ def progress(taskname, iterations, iteration_desc=None):
         raise ValueError('The second argument to progress() must be a tuple ' +
                          ' of length 2, not of length %s.' % len(iterations))
 
-
     if not isinstance(iterations[0], int):
         raise ValueError('The first element of the tuple passed to progress ' +
                          'must be  an integer, not a %s.' %
                          iterations[0].__class__.__name__)
 
     if not iterations[1] is None and not isinstance(iterations[1], int):
-        raise ValueError('The second element of the tuple passed to progress ' +
+        raise ValueError('The second element of the tuple passed to progress '
                          'must be either None or an integer, not a %s.' %
                          iterations[1].__class__.__name__)
 
@@ -72,9 +73,9 @@ def progress(taskname, iterations, iteration_desc=None):
             stage.iterations = iterations
             stage.iteration_desc = iteration_desc
             # TODO: only send every once in a while
-            if is_last or has_children or \
-                stage.last_broadcast is None or \
-                time.time() - stage.last_broadcast > BROADCAST_INTERVAL:
+            if ((is_last or has_children) or
+                (stage.last_broadcast is None) or
+                (time.time() - stage.last_broadcast > BROADCAST_INTERVAL)):
                 callback(stack)
                 stage.last_broadcast = time.time()
             if stage.last_broadcast is None:

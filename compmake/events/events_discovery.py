@@ -9,7 +9,7 @@ EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 EVENT_SPEC_PREFIX = '# event'
 
 
-def discover_events(filename): 
+def discover_events(filename):
     ''' Parses the file for lines starting with ``# event``. 
     Returns a list of EventSpec.
     '''
@@ -22,8 +22,9 @@ def discover_events(filename):
                 try:
                     spec = eval(line)
                 except SyntaxError as e:
-                    sys.stderr.write("Could not decipher line %s at file %s\n" % 
+                    msg = ("Could not decipher line %s at file %s\n" %
                                      (k, filename))
+                    sys.stderr.write(msg)
                     raise e
                 if not 'desc' in spec:
                     spec['desc'] = None
@@ -32,8 +33,8 @@ def discover_events(filename):
                 spec['file'] = filename
                 spec['line'] = k
                 yield EventSpec(**spec)
-                    
-                    
+
+
 if __name__ == '__main__':
     print "# Warning: this is an auto-generated file"
     print "from compmake.events import EventSpec"
@@ -41,4 +42,4 @@ if __name__ == '__main__':
     for filename in sys.argv[1:]:
         for spec in discover_events(filename):
             print 'compmake_registered_events["%s"] = %s' % (spec.name, spec)
-    
+

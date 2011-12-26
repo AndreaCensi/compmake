@@ -8,11 +8,11 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 
 These are all wrappers around the raw methods in storage
 '''
+from .. import storage # FIXME
+from ..structures import Cache, Job, CompmakeException
+from ..utils import info
 import sys
 
-from ..structures import Cache, Job, CompmakeException
-from .. import storage # FIXME
-from ..utils import info
 
 # XXX: local storage, put it in a common place
 namespace = 'default'
@@ -89,6 +89,7 @@ def job2cachekey(job_id):
     prefix = 'compmake:%s:cache:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
+
 def get_job_cache(job_id):
     cache_key = job2cachekey(job_id)
     if storage.db.exists(cache_key):
@@ -106,7 +107,8 @@ def get_job_cache(job_id):
         # XXX expensive
         # known = all_jobs()
         # if not job_id in known:
-        #     raise CompmakeException("invalid job %s, I know %s" % (job_id, known)) 
+        #     raise CompmakeException("invalid job %s, I know %s" 
+        # % (job_id, known)) 
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # storage.db.set(cache_key, cache)
@@ -137,44 +139,47 @@ def get_job_userobject(job_id):
     key = job2userobjectkey(job_id)
     return storage.db.get(key)
 
+
 def is_job_userobject_available(job_id):
     key = job2userobjectkey(job_id)
     return storage.db.exists(key)
+
 
 def set_job_userobject(job_id, obj):
     key = job2userobjectkey(job_id)
     storage.db.set(key, obj)
 
+
 def delete_job_userobject(job_id):
     key = job2userobjectkey(job_id)
     storage.db.delete(key)
-
-
-
-
 
 #
 # Temporary objects
 #
 
-# TODO: add function 2key
 
+# TODO: add function 2key
 def job2tmpobjectkey(job_id):
     prefix = 'compmake:%s:tmpobject:' % get_namespace()
     return '%s%s' % (prefix, job_id)
+
 
 def get_job_tmpobject(job_id):
     assert(is_job_tmpobject_available(job_id))
     key = job2tmpobjectkey(job_id)
     return storage.db.get(key)
 
+
 def is_job_tmpobject_available(job_id):
     key = job2tmpobjectkey(job_id)
     return storage.db.exists(key)
 
+
 def set_job_tmpobject(job_id, obj):
     key = job2tmpobjectkey(job_id)
     storage.db.set(key, obj)
+
 
 def delete_job_tmpobject(job_id):
     key = job2tmpobjectkey(job_id)
@@ -185,18 +190,22 @@ def job2jobargskey(job_id):
     prefix = 'compmake:%s:jobargs:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
+
 def get_job_args(job_id):
     assert job_args_exists(job_id)
     key = job2jobargskey(job_id)
     return storage.db.get(key)
 
+
 def job_args_exists(job_id):
     key = job2jobargskey(job_id)
     return storage.db.exists(key)
 
+
 def set_job_args(job_id, obj):
     key = job2jobargskey(job_id)
     storage.db.set(key, obj)
+
 
 def delete_job_args(job_id):
     key = job2jobargskey(job_id)
