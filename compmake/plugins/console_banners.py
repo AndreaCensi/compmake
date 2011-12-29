@@ -3,11 +3,14 @@ from .. import version
 from ..events import register_handler
 from ..jobs import all_jobs, get_namespace
 from ..utils import colored, pad_to_screen
+import random
 
 compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
 name = 'compmake'
-banner = "   ``Tame your Python computations!,,"
+banners = [
+           "Tame your Python computations!",
+           "Keep calm and carry on"]
 
 
 def console_starting(event):
@@ -15,6 +18,8 @@ def console_starting(event):
     def printb(s):
         print(pad_to_screen(s))
 
+    random_banner = random.choice(banners)
+    banner = "   ``%s,," % random_banner
     printb("%s %s%s" % (
         colored(name, attrs=['bold']),
         colored(version, 'green'),

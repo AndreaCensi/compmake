@@ -18,7 +18,7 @@ def handle_event(event, is_stderr):
 
     Storage.max_len = max(Storage.max_len, len(job_id))
 
-    for i, line in enumerate(lines):
+    for line in lines:
 
         formats = '%%%ds' % Storage.max_len
 
