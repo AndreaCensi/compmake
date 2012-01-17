@@ -1,9 +1,11 @@
-import sys, types
+from ..structures import UserError
+from ..utils import colored
+
 from collections import namedtuple
 from string import ljust
+import sys
+import types
  
-from ..utils import colored
-from ..structures import UserError
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
@@ -23,6 +25,7 @@ sections = {}
 # This is a decorator with arguments -- 
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
+
 
 def ui_command(name=None, alias=[], section=None):    
     def wrap(func, name, alias, section):

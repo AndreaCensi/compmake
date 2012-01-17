@@ -1,4 +1,4 @@
-from ..structures import CompmakeException 
+from ..structures import CompmakeException
 from StringIO import StringIO
 from glob import glob
 from os.path import splitext, basename
@@ -6,62 +6,64 @@ import cPickle
 import os
 from compmake.utils.debug_pickler import find_pickling_error
 from compmake.utils.visualization import error
-
+import time
 
 pickle = cPickle
-        
+
+PRINT_STATS = False
 
 
-#PRINT_STATS = False # XXX: remove this
-#def print_stats(method, key, length, duration):
-#    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
+def print_stats(method, key, length, duration):
+    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
 
 
 class StorageFilesystem:
     basepath = 'compmake_storage'
     checked_existence = False
-    
+
     @staticmethod
     def __str__():
         return "Filesystem backend"
-    
+
     @staticmethod
     def supports_concurrency():
         return False
-    
+
     @staticmethod
     def get(key):
         if not StorageFilesystem.exists(key):
             raise CompmakeException('Could not find key %r.' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
-#            start = time.time()
             file = open(filename, 'rb') #@ReservedAssignment
+            start = time.time()
+            file = open(filename, 'rb')  # @ReservedAssignment
+
             content = file.read()
             file.close()
             # print "R %s len %d" % (key, len(content))
             sio = StringIO(content)
             state = pickle.load(sio)
-            
-#            duration = time.time() - start
-#            if PRINT_STATS:
-#                length = len(content)
-#                print_stats('get    ', key, length, duration)
+
+            duration = time.time() - start
+            if PRINT_STATS:
+                length = len(content)
+                print_stats('get    ', key, length, duration)
             return state
         except Exception as e:
             msg = "Could not unpickle file %r: %s" % (filename, e)
-            raise CompmakeException(msg) 
-        
+            raise CompmakeException(msg)
+
     @staticmethod
-    def set(key, value): #@ReservedAssignment
+    def set(key, value):  # @ReservedAssignment
         if not StorageFilesystem.checked_existence:
             StorageFilesystem.checked_existence = True
             if not os.path.exists(StorageFilesystem.basepath):
                 os.makedirs(StorageFilesystem.basepath)
-            
+
         filename = StorageFilesystem.filename_for_key(key)
 #        start = time.time()
-        
+
         sio = StringIO()
         try:
             pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
@@ -70,8 +72,8 @@ class StorageFilesystem:
                     'of class %s: %s' % (key, value.__class__.__name__, e))
             msg += '\n%s' % find_pickling_error(value)
             error(msg)
-            raise 
-        
+            raise
+
         content = sio.getvalue()
         # TODO: safe write
         with open(filename, 'wb') as f:
@@ -81,16 +83,16 @@ class StorageFilesystem:
 #        if PRINT_STATS:
 #            length = len(content)
 #            print_stats('    set', key, length, duration)
-        
+
     @staticmethod
     def delete(key):
         filename = StorageFilesystem.filename_for_key(key)
         assert os.path.exists(filename), \
             'I expected path %s to exist before deleting' % filename
         os.remove(filename)
-        
+
     @staticmethod
-    def exists(key):  
+    def exists(key):
         filename = StorageFilesystem.filename_for_key(key)
         return os.path.exists(filename)
 
@@ -105,30 +107,30 @@ class StorageFilesystem:
     @staticmethod
     def reopen_after_fork():
         pass
-    
+
     dangerous_chars = {
        '/': 'CMSLASH',
        '..': 'CMDOT',
        '~': 'CMHOME'
     }
-    
+
     @staticmethod
     def key2filename(key):
         '''turns a key into a reasonable filename'''
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
-    
+
     @staticmethod
     def filename2key(key):
         ''' Undoes key2filename '''
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key
-    
+
     @staticmethod
     def filename_for_key(key):
         """ Returns the pickle storage filename corresponding to the job id """
         return os.path.join(StorageFilesystem.basepath,
                             StorageFilesystem.key2filename(key) + '.pickle')
-        
+

@@ -3,14 +3,18 @@ from ..storage import use_filesystem
 from ..jobs import set_namespace
 from .. import storage, compmake_status_embedded, set_compmake_status
 
+
 def bottom():
     TestOrder.order.append('bottom')
+
 
 def bottom2():
     TestOrder.order.append('bottom2')
 
-def top(x): #@UnusedVariable
+
+def top(x):  # @UnusedVariable
     TestOrder.order.append('top')
+
 
 class TestOrder(unittest.TestCase):
     
@@ -38,7 +42,6 @@ class TestOrder(unittest.TestCase):
 
         self.assertEqual(['bottom', 'top', 'bottom', 'top'], TestOrder.order)
 
-
     def test_order_2(self):
         from compmake import comp, batch_command
         # choose wisely here
@@ -49,7 +52,8 @@ class TestOrder(unittest.TestCase):
         batch_command('clean')
         batch_command('make')
 
-        self.assertEqual(['bottom2', 'bottom', 'top', 'bottom', 'top'], TestOrder.order)
+        self.assertEqual(['bottom2', 'bottom', 'top', 'bottom', 'top'],
+                         TestOrder.order)
         
     def test_order_3(self):
         from compmake import comp, batch_command
@@ -61,4 +65,5 @@ class TestOrder(unittest.TestCase):
         batch_command('clean')
         batch_command('make')
 
-        self.assertEqual(['bottom', 'bottom2', 'top', 'bottom2', 'top'], TestOrder.order)
+        self.assertEqual(['bottom', 'bottom2', 'top', 'bottom2', 'top'],
+                         TestOrder.order)

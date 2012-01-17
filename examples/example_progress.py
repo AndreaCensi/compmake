@@ -1,10 +1,11 @@
-from compmake import comp, progress
+from compmake import comp, progress, compmake_console
 import time
 
+
 def mylongfunction():
-    
     directories = ['a', 'b', 'c', 'd', 'e']
     n = len(directories)
+
     for i, d in enumerate(directories):
         progress('Processing directories (first)', (i, n), 'Directory %s' % d)
         
@@ -23,5 +24,8 @@ def mylongfunction():
             
             time.sleep(1)
             
-            
+           
 comp(mylongfunction)
+
+print('This is an example of how to use the "progress" function.')
+compmake_console()

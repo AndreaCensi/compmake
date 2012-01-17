@@ -5,6 +5,7 @@ from ..config import compmake_config
 
 db = None
 
+
 def use_redis(host=None, port=None):
     if host is None:
         host = 'localhost'
@@ -20,10 +21,11 @@ def use_redis(host=None, port=None):
     db.port = port
     
     get_redis()
+    
 
 def use_filesystem(directory=None):
     if directory is None:
-        directory = compmake_config.path #@UndefinedVariable
+        directory = compmake_config.path  # @UndefinedVariable
     directory = os.path.expandvars(directory)
     directory = os.path.expanduser(directory)
     

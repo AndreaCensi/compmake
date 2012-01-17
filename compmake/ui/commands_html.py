@@ -2,7 +2,8 @@ import sys
 
 from . import sections, commands, COMMANDS_ADVANCED, ui_command
   
-def create_commands_html(file=sys.stdout): #@ReservedAssignment
+  
+def create_commands_html(file=sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(sections.values(),
                               key=lambda section: section.order)
     
@@ -28,8 +29,6 @@ def create_commands_html(file=sys.stdout): #@ReservedAssignment
                        (name, params, short_doc))
             
     file.write("</table>\n")
-
-
 
 
 @ui_command(section=COMMANDS_ADVANCED)

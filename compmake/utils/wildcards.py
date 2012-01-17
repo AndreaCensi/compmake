@@ -1,9 +1,11 @@
 import re
 from ..structures import UserError
 
+
 def wildcard_to_regexp(arg):
     """ Returns a regular expression from a shell wildcard expression. """
     return re.compile('\A' + arg.replace('*', '.*') + '\Z')
+
 
 def expand_wildcard(wildcard, universe):
     ''' Expands a wildcard expression against the given list.

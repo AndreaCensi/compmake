@@ -6,6 +6,7 @@ import time
 # This is a specification of the events that can be generated 
 EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
 
+
 class Event:
     ''' This, instead, is an event itself '''
     def __init__(self, name, **kwargs):

@@ -2,6 +2,7 @@ import unittest
 from .. import progress
 from ..jobs import init_progress_tracking
 
+
 class TestProgress(unittest.TestCase):
     
     def stack_update(self, stack):
@@ -18,10 +19,9 @@ class TestProgress(unittest.TestCase):
         ''' Many ways to call it in the wrong way. '''
         self.assertRaises(ValueError, progress, 'task', 1)
     
-    
     def test_hierarchy_flat(self):
         ''' Testing basic case. '''        
-        init_progress_tracking(lambda stack:None) #@UnusedVariable
+        init_progress_tracking(lambda stack:None)  # @UnusedVariable
         self.assert_stack_len(0)
         progress('A', (0, 2))
         self.assert_stack_len(1)

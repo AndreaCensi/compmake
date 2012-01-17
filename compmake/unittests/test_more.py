@@ -8,18 +8,20 @@ def f1(*arg, **kwargs):
     ''' Generic function '''
     pass
 
+
 def f2(*arg, **kwargs):
     ''' Generic function '''
     pass
+
 
 def failing():
     ''' A function that raises an exception '''
     raise TypeError()
 
+
 def uses_id(a, b, job_id):
     ''' A function with a job_id arguement '''
-    pass
-    
+    pass    
 
 
 class Test1(unittest.TestCase):
@@ -65,7 +67,8 @@ class Test1(unittest.TestCase):
         self.assertTrue(cf2.job_id in direct_parents(cf1.job_id))
       
     def testJOBparam(self):
-        ''' We should issue a warning if job_id is used as a parameter in the function '''
+        ''' We should issue a warning if job_id is used 
+            as a parameter in the function '''
         comp(uses_id)
         self.assertRaises(UserError, comp, uses_id, job_id='myjobid')
         

@@ -1,33 +1,43 @@
 
+
 class ShellExitRequested(Exception):
     pass
+
 
 class CompmakeException(Exception):
     pass
 
+
 class KeyNotFound(CompmakeException):
     pass
 
+
 class UserError(CompmakeException):
     pass
+
 
 class SerializationError(UserError):
     ''' Something cannot be serialized (function or function result).'''
     pass
 
+
 class CompmakeSyntaxError(UserError):
     pass
+
 
 class JobFailed(CompmakeException):
     ''' This signals that some job has failed '''
     pass
 
+
 class JobInterrupted(CompmakeException):
     ''' User requested to interrupt job'''
     pass
 
+
 class HostFailed(CompmakeException):
-    ''' The job has been interrupted and must be redone (it has not faile though) '''
+    ''' The job has been interrupted and must 
+        be redone (it has not failed, though) '''
     pass
 
 '''
@@ -103,12 +113,14 @@ class HostFailed(CompmakeException):
     
 '''
 
+
 class Promise(object):
     def __init__(self, job_id):
         self.job_id = job_id
         
     def __repr__(self):
         return 'Promise(%r)' % self.job_id
+    
     
 class Job(object):
     
@@ -117,7 +129,7 @@ class Job(object):
         self.children = children
         self.command_desc = command_desc
         self.parents = []
-        self.yields = yields # XXX
+        self.yields = yields  # XXX
         
     def compute(self, previous_result=None):
         from compmake.jobs.storage import get_job_args
@@ -148,7 +160,6 @@ class Job(object):
         ''' Note, this comparison has the semantics of "same promise" '''
         ''' Use same_computation() for serious comparison '''
         return self.job_id == other.job_id
-    
     
     def same_computation(self, other):
         ''' Returns boolean, string tuple '''
@@ -190,6 +201,7 @@ class Job(object):
             return False, reason 
         else:
             return True, None
+        
         
 class Cache:
     

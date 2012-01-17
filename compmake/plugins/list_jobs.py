@@ -1,16 +1,14 @@
 ''' The actual interface of some commands in commands.py '''
+from ..jobs import get_job_cache, all_jobs, up_to_date
+from ..jobs.syntax.parsing import parse_job_list
+from ..structures import Cache
+from ..ui import ui_command, VISUALIZATION
+from ..utils import duration_human, colored
 from time import time
 
-from ..structures import Cache
-from ..utils import duration_human, colored
-from ..jobs.storage import get_job_cache, all_jobs
-from ..jobs.uptodate import up_to_date
-from ..ui.helpers import  ui_command, VISUALIZATION
-from ..jobs.syntax.parsing import parse_job_list
 
-         
 @ui_command(section=VISUALIZATION, alias='ls')
-def list(args): #@ReservedAssignment
+def list(args):  # @ReservedAssignment
     '''Lists the status of the selected targets (or all targets \
 if not specified).
     
@@ -25,15 +23,16 @@ if not specified).
 state2color = {
         # The ones commented out are not possible
         # (Cache.NOT_STARTED, True): None,
-        (Cache.NOT_STARTED, False): {'attrs':['dark']},
+        (Cache.NOT_STARTED, False): {'attrs': ['dark']},
         # (Cache.IN_PROGRESS, True): None,
-        (Cache.IN_PROGRESS, False): {'color':'yellow'},
+        (Cache.IN_PROGRESS, False): {'color': 'yellow'},
         (Cache.MORE_REQUESTED, True): {'color': 'blue'},
-        (Cache.MORE_REQUESTED, False): {'color':'green', 'on_color':'on_red'},
+        (Cache.MORE_REQUESTED, False): {'color': 'green',
+                                        'on_color': 'on_red'},
         #(Cache.FAILED, True): None,
-        (Cache.FAILED, False): {'color':'red'},
-        (Cache.DONE, True): {'color':'green'},
-        (Cache.DONE, False): {'color':'magenta'},
+        (Cache.FAILED, False): {'color': 'red'},
+        (Cache.DONE, True): {'color': 'green'},
+        (Cache.DONE, False): {'color': 'magenta'},
 }
 
 

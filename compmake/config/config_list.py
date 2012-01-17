@@ -65,7 +65,8 @@ add_config_switch('cluster_nice', 0,
                   section=CONFIG_CLUSTER)
 
 add_config_switch('cluster_show_cmd', True,
-                  desc='If true, it shows the connection string to the slaves.',
+                  desc='If true, it shows the connection '
+                        'string to the slaves.',
                   section=CONFIG_CLUSTER)
 
 add_config_switch('redis_host', 'localhost',

@@ -1,9 +1,10 @@
 import sys
 
 
-inPy2 = sys.version_info[0] == 2    
+inPy2 = sys.version_info[0] == 2
 if inPy2:
     from types import ClassType
+
 
 def clipped_repr(x, clip):
     s = "{0!r}".format(x)
@@ -15,8 +16,10 @@ def clipped_repr(x, clip):
 
 # TODO: add checks for these functions
 
+
 def remove_newlines(s):
     return s.replace('\n', ' ')
+
 
 def describe_type(x):
     ''' Returns a friendly description of the type of x. '''
@@ -43,6 +46,6 @@ def describe_value(x, clip=50):
         class_name = describe_type(x)
         desc = 'Instance of %s: ' % class_name
         final = desc + clipped_repr(x, clip - len(desc))
-        return remove_newlines(final) 
+        return remove_newlines(final)
 
-    
+

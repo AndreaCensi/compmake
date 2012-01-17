@@ -2,6 +2,7 @@ from . import describe_type
 from StringIO import StringIO
 from pickle import Pickler, SETITEM, MARK, SETITEMS
 
+
 def find_pickling_error(obj):
     sio = StringIO()
     pickler = MyPickler(sio)
@@ -11,12 +12,13 @@ def find_pickling_error(obj):
         return pickler.get_stack_description()
     else:
         raise Exception('We could pickle this object.')
-    
+
+
 class MyPickler (Pickler):
     def __init__(self, *args, **kargs):
         Pickler.__init__(self, *args, **kargs)
         self.stack = []
-        
+
     def save(self, obj):
         desc = '%30s' % (describe_type(obj))
         #, describe_value(obj, 100))
@@ -24,19 +26,19 @@ class MyPickler (Pickler):
         self.stack.append(desc)
         Pickler.save(self, obj)
         self.stack.pop()
-    
+
     def get_stack_description(self):
         s = 'Pickling error occurred at:'
         for context in self.stack:
             s += '- %s\n' % context
         return s
-    
+
     def save_pair(self, k, v):
         self.save(k)
         self.stack.append('key %r' % k)
         self.save(v)
         self.stack.pop()
-        
+
     def _batch_setitems(self, items):
         # Helper to batch up SETITEMS sequences; proto >= 1 only
         #save = self.save

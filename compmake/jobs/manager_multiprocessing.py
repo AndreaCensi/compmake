@@ -12,13 +12,13 @@ from multiprocessing.queues import Queue
 
 event_queue = Queue(cpu_count() * 5)
 
+
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
     
     def __init__(self, num_processes=None):
         Manager.__init__(self)
         self.num_processes = num_processes
-        
         
     def process_init(self):
         #from compmake.storage import db
@@ -30,18 +30,14 @@ class MultiprocessingManager(Manager):
             self.num_processes = cpu_count() + 1
         
         self.pool = Pool(processes=self.num_processes)
-        self.max_num_processing = self. num_processes
-        #global event_queue
-        #event_queue = Queue(self.num_processes)
-
+        self.max_num_processing = self. num_processes 
         
     def can_accept_job(self):
         # only one job at a time
         return len(self.processing) < self.max_num_processing 
 
     def instance_job(self, job_id, more):
-        async_result = self.pool.apply_async(parmake_job2,
-                                     [ job_id, more])
+        async_result = self.pool.apply_async(parmake_job2, [job_id, more])
         return async_result
         
     def event_check(self): 
@@ -53,6 +49,7 @@ class MultiprocessingManager(Manager):
         except Empty:
             pass 
     
+    
 def parmake_job2(job_id, more):
     # We register an handler for the events to be passed back 
     # to the main process
@@ -63,10 +60,10 @@ def parmake_job2(job_id, more):
     register_handler("*", handler)
     
     def proctitle(event):
-        stat = '[%s/%s %s] (compmake)' % (event.progress, event.goal, event.job_id)
+        stat = '[%s/%s %s] (compmake)' % (event.progress,
+                                          event.goal, event.job_id)
         setproctitle(stat)
     register_handler("job-progress", proctitle)
-        
     
     publish('worker-status', job_id=job_id, status='started')
 
@@ -77,7 +74,8 @@ def parmake_job2(job_id, more):
 
     publish('worker-status', job_id=job_id, status='connected')
 
-    if more: # XXX this should not be necessary
+    # XXX this should not be necessary
+    if more:
         mark_more(job_id)
     make(job_id, more)
 

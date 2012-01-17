@@ -1,10 +1,12 @@
 '''This plugin dumps all events received'''
-import sys, time
 from ..events import register_handler
+import sys
+import time
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr
 other_stream = sys.stdout
+
 
 def print_event(event):
     other_stream.flush()
