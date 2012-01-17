@@ -13,7 +13,7 @@ from time import time, clock
 from traceback import print_exc
 from types import GeneratorType
 import logging
-from compmake.utils.visualization import colored
+from ..utils import colored
 
     
 
@@ -208,7 +208,7 @@ def make(job_id, more=False):
             publish('job-interrupted', job_id=job_id, host=host)
             raise JobInterrupted('Keyboard interrupt')
         
-        except Exception as e:
+        except (Exception, SystemExit) as e:
             sio = StringIO()
             print_exc(file=sio)
             bt = sio.getvalue()

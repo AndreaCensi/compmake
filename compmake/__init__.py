@@ -3,6 +3,8 @@ import sys
 version = '1.1'
 __version__ = version
 
+from .constants import *
+
 # Statuses ------------------------------------------------
 # Compmake can be run in different "states"
 # If run as an interactive session ("compmake module")

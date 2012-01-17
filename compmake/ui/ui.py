@@ -1,17 +1,22 @@
 from . import get_commands, alias2name
-from .. import compmake_status, compmake_status_slave, set_compmake_status
+from .. import (CompmakeConstants, compmake_status, compmake_status_slave,
+    set_compmake_status)
 from ..config import compmake_config
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
-from ..structures import Job, UserError, SerializationError, Promise
-from ..utils import interpret_strings_like
+from ..structures import Job, UserError, Promise
+from ..utils import interpret_strings_like, error
 import compmake # XXX
 import inspect
 import pickle
 
-# static storage
+
+# static storage # XXX: put it somewhere
 job_prefix = None
+compmake_slave_mode = False 
+jobs_defined_in_this_session = set()
+
 
 def make_sure_pickable(obj):
     # TODO write this function
@@ -35,7 +40,7 @@ def collect_dependencies(ob):
 
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
-    global job_prefix
+    global job_prefix # XXX
     job_prefix = prefix 
 
 def generate_job_id(command):
@@ -64,13 +69,11 @@ def generate_job_id(command):
 
     assert(False)
 
-compmake_slave_mode = False 
  
+# Do not erase -- it is read
 # event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined'}
 # event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
 # event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
-
-jobs_defined_in_this_session = set()
 
 def reset_jobs_definition_set():
     ''' Useful only for unit tests '''
@@ -106,8 +109,8 @@ def clean_other_jobs():
             delete_job(job_id)
 
 def comp(command, *args, **kwargs):
-    ''' Main method to define a computation.
-    
+    ''' 
+        Main method to define a computation step.
     
         Extra arguments:
     
@@ -121,27 +124,27 @@ def comp(command, *args, **kwargs):
     try:
         pickle.dumps(command)
     except:
-        msg = ('Cannot pickle %r. Make sure it is not a lambda function or a '
+        msg = ('Cannot pickle function %r. Make sure it is not a lambda function or a '
               'nested function. (This is a limitation of Python)' % command)
-        raise SerializationError(msg)
+        error(msg)
+        raise
     
     args = list(args) # args is a non iterable tuple
     # Get job id from arguments
-    job_id_key = 'job_id'
-    if job_id_key in kwargs:
+    if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
         #available = command.func_code.co_varnames
         argspec = inspect.getargspec(command)
         
-        if job_id_key in argspec.args:
+        if CompmakeConstants.job_id_key in argspec.args:
             msg = ("You cannot define the job id in this way because 'job_id' " 
                    "is already a parameter of this function.")
             raise UserError(msg)    
         
-        job_id = kwargs[job_id_key]
+        job_id = kwargs[CompmakeConstants.job_id_key]
         if job_prefix:
             job_id = '%s-%s' % (job_prefix, job_id)
-        del kwargs[job_id_key]
+        del kwargs[CompmakeConstants.job_id_key]
         
         if job_id in jobs_defined_in_this_session:
             raise UserError('Job %r already defined.' % job_id)
@@ -149,10 +152,11 @@ def comp(command, *args, **kwargs):
         job_id = generate_job_id(command)
     
     jobs_defined_in_this_session.add(job_id)
+    
      
-    if 'extra_dep' in kwargs:
-        extra_dep = collect_dependencies(kwargs['extra_dep'])
-        del kwargs['extra_dep']
+    if CompmakeConstants.extra_dep_key in kwargs: # TODO: add in constants
+        extra_dep = collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
+        del kwargs[CompmakeConstants.extra_dep_key]
     else:
         extra_dep = set()
         
@@ -164,7 +168,6 @@ def comp(command, *args, **kwargs):
     command_desc = command.__name__
     
     c = Job(job_id=job_id, children=list(children), command_desc=command_desc)
-    # TODO: check for loops     
             
     for child in children:
         child_comp = get_job(child)
@@ -233,7 +236,8 @@ def interpret_commands(commands):
     if command_name in alias2name:
         command_name = alias2name[command_name]
     if not command_name in ui_commands.keys():
-        raise UserError("Unknown command %r (try 'help'). " % command_name)
+        msg = "Unknown command %r (try 'help'). " % command_name
+        raise UserError(msg)
         
     # XXX: use more elegant method
     cmd = ui_commands[command_name]

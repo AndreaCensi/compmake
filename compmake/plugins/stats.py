@@ -1,9 +1,8 @@
 ''' The actual interface of some commands in commands.py '''
+from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
-from ..utils import  colored, info
-from ..jobs.storage import get_job_cache, all_jobs, get_job
-from ..ui.helpers import  ui_command, VISUALIZATION
-from ..jobs.syntax.parsing import parse_job_list 
+from ..ui import ui_command, VISUALIZATION
+from ..utils import colored, info
 
 
 state2color = {

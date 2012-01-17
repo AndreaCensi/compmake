@@ -4,7 +4,12 @@ from math import ceil
 
 
 try:
-    from termcolor import colored as termcolor_colored #@UnresolvedImport
+    from termcolor import colored as t_colored
+    
+    def termcolor_colored(x, color=None, on_color=None, attrs=None):
+        return "\n".join(t_colored(x, color, on_color, attrs) for x in
+                         x.split("\n"))
+    
 except:
     sys.stderr.write('compmake can make use of the package "termcolor".'
                      ' Please install it.\n')

@@ -1,16 +1,20 @@
-from ..structures import CompmakeException, SerializationError
+from ..structures import CompmakeException 
 from StringIO import StringIO
 from glob import glob
 from os.path import splitext, basename
-import cPickle as pickle
+import cPickle
 import os
-import time
+from compmake.utils.debug_pickler import find_pickling_error
+from compmake.utils.visualization import error
 
 
+pickle = cPickle
+        
 
-PRINT_STATS = False
-def print_stats(method, key, length, duration):
-    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
+
+#PRINT_STATS = False # XXX: remove this
+#def print_stats(method, key, length, duration):
+#    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
 
 
 class StorageFilesystem:
@@ -31,7 +35,7 @@ class StorageFilesystem:
             raise CompmakeException('Could not find key %r.' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
-            start = time.time()
+#            start = time.time()
             file = open(filename, 'rb') #@ReservedAssignment
             content = file.read()
             file.close()
@@ -39,10 +43,10 @@ class StorageFilesystem:
             sio = StringIO(content)
             state = pickle.load(sio)
             
-            duration = time.time() - start
-            if PRINT_STATS:
-                length = len(content)
-                print_stats('get    ', key, length, duration)
+#            duration = time.time() - start
+#            if PRINT_STATS:
+#                length = len(content)
+#                print_stats('get    ', key, length, duration)
             return state
         except Exception as e:
             msg = "Could not unpickle file %r: %s" % (filename, e)
@@ -56,23 +60,27 @@ class StorageFilesystem:
                 os.makedirs(StorageFilesystem.basepath)
             
         filename = StorageFilesystem.filename_for_key(key)
-        start = time.time()
+#        start = time.time()
         
         sio = StringIO()
         try:
             pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
-            raise SerializationError('Cannot set key %s: cannot pickle object '
+            msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
+            msg += '\n%s' % find_pickling_error(value)
+            error(msg)
+            raise 
         
         content = sio.getvalue()
+        # TODO: safe write
         with open(filename, 'wb') as f:
             f.write(content)
 
-        duration = time.time() - start
-        if PRINT_STATS:
-            length = len(content)
-            print_stats('    set', key, length, duration)
+#        duration = time.time() - start
+#        if PRINT_STATS:
+#            length = len(content)
+#            print_stats('    set', key, length, duration)
         
     @staticmethod
     def delete(key):
