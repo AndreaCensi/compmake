@@ -218,10 +218,10 @@ def make(job_id, more=False):
             #error("Job %s failed: %s" % (job_id, e))
             #error(bt)
 
-            mark_as_failed(job_id, e, bt)
+            mark_as_failed(job_id, str(e), bt)
 
             # clear progress cache
-            publish('job-failed', job_id=job_id, host=host, reason=e, bt=bt)
+            publish('job-failed', job_id=job_id, host=host, reason=str(e), bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
 
         finally:
