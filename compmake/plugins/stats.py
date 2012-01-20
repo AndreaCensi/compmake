@@ -3,10 +3,11 @@ from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
 from ..utils import colored, info
+from compmake.utils.capture import pad_to_screen
 
 
 state2color = {
-    Cache.NOT_STARTED: {'attrs': ['dark']},
+    Cache.NOT_STARTED: {'color': 'yellow'}, #{'attrs': ['dark']},
     Cache.IN_PROGRESS: {'color': 'yellow'},
     Cache.MORE_REQUESTED: {'color': 'blue'},
     Cache.MORE_REQUESTED: {'color': 'green', 'on_color': 'on_red'},
@@ -53,9 +54,13 @@ def display_stats(job_list):
         function2state2count[function_id]['all'] += 1
 
         if total == 100: # XXX: use standard method
-            info("Loading a large number of jobs...")
+            print("Loading a large number of jobs...\r")
 
-    print("Found %s jobs in total. Summary by state:" % total)
+    if total == 0:
+        print(pad_to_screen('No jobs found.'))
+        return
+
+    print("Found %s jobs in total. Summary by state:    " % total)
 
     for state in states_order:
         desc = "%30s" % Cache.state2desc[state]
@@ -72,10 +77,20 @@ def display_stats(job_list):
         ndone = function_stats[Cache.DONE]
         nfailed = function_stats[Cache.FAILED]
         nrest = function_stats['all'] - ndone - nfailed
+
+        done_s = "%5d done" % ndone
+        if ndone > 0:
+            done_s = colored(done_s, **state2color[Cache.DONE])
+
         failed_s = "%5d failed" % nfailed
         if nfailed > 0:
-            failed_s = colored(failed_s, color='red')
-        s = "%5d done, %s, %5d to do." % (ndone, failed_s, nrest)
+            failed_s = colored(failed_s, **state2color[Cache.FAILED])
+
+        rest_s = "%5d to do" % nrest
+        if nrest > 0:
+            rest_s = colored(rest_s, **state2color[Cache.NOT_STARTED])
+
+        s = "%s, %s, %s." % (done_s, failed_s, rest_s)
 
         print(" %30s(): %s" % (function_id, s))
 

@@ -28,7 +28,11 @@ def console_starting(event):
     printb(("Welcome to the compmake console. " +
             "(write 'help' for a list of commands)"))
     njobs = len(list(all_jobs()))
-    printb("%d jobs loaded; using namespace '%s'." % (njobs, get_namespace()))
+
+    if get_namespace() != 'default':
+        printb("%d jobs loaded in namespace '%s'." % (njobs, get_namespace()))
+    else:
+        printb("%d jobs loaded." % njobs)
 
 
 def console_ending(event):
