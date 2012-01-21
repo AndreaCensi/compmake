@@ -1,6 +1,6 @@
 # constants
 import sys
-version = '1.1'
+version = '1.2'
 __version__ = version
 
 from .constants import *
@@ -57,7 +57,7 @@ def batch_command(s):
     clean_other_jobs()
 
     if compmake_status == compmake_status_interactive:
-        return
+        return # XXX not sure 
 
     from compmake.ui.ui import interpret_commands
     try:
@@ -86,6 +86,7 @@ def compmake_console():
 is_it_time = False
 
 
+# TODO: remove this
 def time_to_define_jobs():
     # XXX: get rid of this?
     m = sys.modules[__package__]

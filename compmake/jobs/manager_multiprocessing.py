@@ -5,8 +5,6 @@ from ..utils import setproctitle
 from Queue import Empty
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
-from compmake.utils.describe import describe_type
-from compmake.utils.pickling_utils import try_pickling
 
 
 # event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
