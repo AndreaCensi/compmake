@@ -117,68 +117,68 @@ class HostFailed(CompmakeException):
 class Promise(object):
     def __init__(self, job_id):
         self.job_id = job_id
-        
+
     def __repr__(self):
         return 'Promise(%r)' % self.job_id
-    
-    
+
+
 class Job(object):
-    
+
     def __init__(self, job_id, children, command_desc, yields=False):
         self.job_id = job_id
         self.children = children
         self.command_desc = command_desc
         self.parents = []
         self.yields = yields  # XXX
-        
+
     def compute(self, previous_result=None):
         from compmake.jobs.storage import get_job_args
         job_args = get_job_args(self.job_id)
         command, args, kwargs = job_args
-        
+
         ### XXX move this somewhere else
         kwargs = dict(**kwargs)
         if previous_result is not None:
             kw = 'previous_result'
             available = self.command.func_code.co_varnames
-            
+
             if not kw in available:
-                raise CompmakeException(
-                    'Function does not have a "%s" argument, necessary' \
-                  'for makemore (args: %s)' % (kw, available))
+                msg = ('Function does not have a %r argument, necessary'
+                       ' for makemore (args: %s)' % (kw, available))
+                raise CompmakeException(msg)
             kwargs[kw] = previous_result
-            
+
         from compmake.jobs import substitute_dependencies
         # TODO: move this to jobs.actions?
         args = substitute_dependencies(args)
         kwargs = substitute_dependencies(kwargs)
-        
+
         return command(*args, **kwargs)
-    
+
     # XXX do a "promise" class
     def __eq__(self, other):
         ''' Note, this comparison has the semantics of "same promise" '''
         ''' Use same_computation() for serious comparison '''
         return self.job_id == other.job_id
-    
+
     def same_computation(self, other):
         ''' Returns boolean, string tuple '''
         assert False, 'Outdated function'
         equal_command = self.command == other.command
         equal_args = self.args == other.args
         equal_kwargs = self.kwargs == other.kwargs
-        
+
         equal = equal_args and equal_kwargs and equal_command
         if not equal:
             reason = ""
-    
+
             if self.command != other.command:
                 reason += '* function changed \n'
                 reason += '  - old: %s \n' % self.command
                 reason += '  - new: %s \n' % other.command
-                
+
                 # TODO: can we check the actual code?
-        
+
             warn = ' (or you did not implement proper __eq__)'
             if len(self.args) != len(other.args):
                 reason += '* different number of arguments (%d -> %d)\n' % \
@@ -189,7 +189,7 @@ class Job(object):
                         reason += '* arg #%d changed %s \n' % (i, warn)
                         reason += '  - old: %s\n' % ob
                         reason += '  - old: %s\n' % other.args[i]
-                
+
             for key, value in self.kwargs.items():
                 if key not in other.kwargs:
                     reason += '* kwarg "%s" not found\n' % key
@@ -197,29 +197,30 @@ class Job(object):
                     reason += '* argument "%s" changed %s \n' % (key, warn)
                     reason += '  - old: %s \n' % value
                     reason += '  - new: %s \n' % other.kwargs[key]
-        
-            return False, reason 
+
+            return False, reason
         else:
             return True, None
-        
-        
+
+
 class Cache:
-    
+    # TODO: add blocked
+
     NOT_STARTED = 0
     IN_PROGRESS = 1
     MORE_REQUESTED = 2
     FAILED = 3
     DONE = 4
-    
+
     allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE]
-    
+
     state2desc = {
         NOT_STARTED: 'Not started',
         IN_PROGRESS: 'In progress',
         MORE_REQUESTED: 'Done (but more in progress)',
         FAILED: 'Failed',
         DONE: 'Done'}
-    
+
     def __init__(self, state):
         assert(state in Cache.allowed_states)
         self.state = state
@@ -228,18 +229,18 @@ class Cache:
         self.cputime_used = None
         self.walltime_used = None
         self.done_iterations = -1
-        
+
         # if IN_PROGRESS:
         self.iterations_in_progress = -1
         self.iterations_goal = -1
-        
+
         # in case of failure
         self.exception = None
         self.backtrace = None
         # 
         self.captured_stdout = None
         self.captured_stderr = None
-        
+
 
 class ProgressStage:
     def __init__(self, name, iterations, iteration_desc):
@@ -248,15 +249,15 @@ class ProgressStage:
         self.iteration_desc = iteration_desc
         # We keep track of when to send the event
         self.last_broadcast = None
-        
+
     def __str__(self):
         return "[%s %s %s]" % (self.name, self.iterations, self.iteration_desc)
-    
+
     def was_finished(self):
         # allow off-by-one conventions
-        
+
         # (self.iterations[0] == self.iterations[1]) or \
         return  (self.iterations[0] >= self.iterations[1] - 1)
-             
-        
-        
+
+
+

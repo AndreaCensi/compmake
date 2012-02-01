@@ -2,8 +2,7 @@
 from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
-from ..utils import colored, info
-from compmake.utils.capture import pad_to_screen
+from ..utils import colored, pad_to_screen
 
 
 state2color = {

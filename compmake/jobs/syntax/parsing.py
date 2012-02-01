@@ -86,7 +86,9 @@ def list_matching_functions(token):
 
     num_matches = 0
     for job_id in all_jobs():
-        if function_id.lower() == get_job(job_id).command.__name__.lower():
+        # command name (f.__name__)
+        command_desc = get_job(job_id).command_desc
+        if function_id.lower() == command_desc.lower():
             yield job_id
             num_matches += 1
 

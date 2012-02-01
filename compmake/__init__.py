@@ -41,9 +41,9 @@ RET_CODE_JOB_FAILED = 113
 from .ui import comp, comp_prefix
 from .storage import use_redis, use_filesystem
 from .config import compmake_config
-from .jobs.storage import set_namespace
-from .jobs.progress import progress
-from .jobs.syntax.parsing import parse_job_list
+from .jobs import set_namespace
+from .jobs import progress
+from .jobs import parse_job_list
 
 
 # Note: we wrap these in shallow functions because we don't want

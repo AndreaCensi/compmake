@@ -67,20 +67,37 @@ def remove_escapes(s):
     escape = re.compile('\x1b\[..?m')
     return escape.sub("", s)
 
+def get_length_on_screen(s):
+    """ Returns the length of s without the escapes """
+    return len(remove_escapes(s))
 
-def pad_to_screen(s):
+debug_padding = False
+
+def pad_to_screen(s, pad=" ", last=None):
     ''' Pads a string to the terminal size.
     The string length is computed after removing shell 
     escape sequences. '''
 
-    current_size = len(remove_escapes(s))
-    desired_size = get_screen_columns() - 1
+    total_screen_length = get_screen_columns()
 
-    pad_char = " "
-#    pad_char = "_" # useful for debugging
+    if debug_padding:
+        return pad_to_screen_length(s, total_screen_length, pad="-", last='|')
+    else:
+        return pad_to_screen_length(s, total_screen_length, pad=pad, last=last)
 
-    if current_size < desired_size:
-        s += pad_char * (desired_size - current_size)
+
+def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None):
+    ''' Pads a string so that it will appear of the given size on the terminal. '''
+    assert isinstance(desired_screen_length, int)
+    # todo: assert pad = 1
+    current_size = get_length_on_screen(s)
+
+    if last is None:
+        last = pad
+
+    if current_size < desired_screen_length:
+        nadd = (desired_screen_length - current_size)
+        s += (pad * (nadd - 1)) + last
 
     return s
 

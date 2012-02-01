@@ -1,7 +1,8 @@
 from . import Event, compmake_registered_events
 from ..utils import wildcard_to_regexp
 from ..structures import CompmakeException
-from compmake.utils.visualization import error
+from ..utils.visualization import error
+import traceback
 
 
 handlers = {}
@@ -35,7 +36,7 @@ def register_handler(event_name, handler):
 
 def publish(event_name, **kwargs):
     if not event_name in compmake_registered_events:
-        raise CompmakeException('Event "%s" not registered' % event_name)
+        raise CompmakeException('Event %r not registered' % event_name)
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
         if not key in spec.attrs:
@@ -53,6 +54,7 @@ def broadcast_event(event):
             handler(event)
             # TODO: do not catch interrupted, etc.
         except Exception as e:
-            error('Error in handler %s:\n%s' % (handler, e))
-            pass
+            e = traceback.format_exc(e)
+            error('compmake: Error in handler %s:\n%s\n' % (handler, e))
+
 
