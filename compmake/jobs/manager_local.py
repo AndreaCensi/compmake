@@ -6,8 +6,8 @@ class ManagerLocal(Manager):
 
     def can_accept_job(self):
         # only one job at a time
-        return not self.processing 
-    
+        return not self.processing
+
     def instance_job(self, job_id, more):
         return FakeAsync(make, job_id, more=more)
 
@@ -17,6 +17,17 @@ class FakeAsync:
         self.args = args
         self.kwargs = kwargs
         self.cmd = cmd
-        
+        self.done = False
+
+    def execute(self):
+        if not self.done:
+            self.result = self.cmd(*self.args, **self.kwargs)
+            self.done = True
+
+    def ready(self):
+        self.execute()
+        return True
+
     def get(self, timeout=0): #@UnusedVariable
-        self.cmd(*self.args, **self.kwargs)
+        self.execute()
+        return self.result

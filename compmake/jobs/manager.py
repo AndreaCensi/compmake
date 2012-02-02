@@ -19,6 +19,8 @@ from .queries import parents, direct_parents
 from .uptodate import dependencies_up_to_date, list_todo_targets
 from multiprocessing import TimeoutError
 import time
+from abc import ABCMeta, abstractmethod
+import traceback
 
 
 class AsyncResultInterface:
@@ -32,6 +34,9 @@ class AsyncResultInterface:
 
 
 class Manager:
+
+    __metaclass__ = ABCMeta
+
     def __init__(self):
         # top-level targets
         self.targets = set()
@@ -55,18 +60,21 @@ class Manager:
 ### Derived class interface 
     def process_init(self):
         ''' Called before processing '''
-        pass
 
     def process_finished(self):
-        ''' Called after processing '''
-        pass
+        ''' Called after successful processing (before cleanup) '''
 
+    @abstractmethod
     def can_accept_job(self):
         ''' Return true if a new job can be accepted right away'''
-        raise CompmakeException('Implement this method')
 
+    @abstractmethod
     def instance_job(self, job_id, more):
-        raise CompmakeException('Implement this method')
+        ''' Instances a job. '''
+
+    def cleanup(self):
+        ''' free up any resource '''
+        pass
 
 ### 
 
@@ -128,9 +136,10 @@ class Manager:
         async_result = self.processing2result[job_id]
 
         try:
-            async_result.get(timeout=0.01)
-            self.job_succeeded(job_id)
-            return True
+            if async_result.ready():
+                async_result.get()
+                self.job_succeeded(job_id)
+                return True
         except TimeoutError:
             # Result not ready yet
             return False
@@ -143,8 +152,8 @@ class Manager:
             return True
         except KeyboardInterrupt:
             raise JobInterrupted('Keyboard interrupt')
-        except JobInterrupted:
-            raise JobInterrupted('Interrupted')
+#        except JobInterrupted:
+#            raise JobInterrupted('Interrupted')
             #self.job_interrupted(job_id) 
             #return True
 
@@ -201,13 +210,14 @@ class Manager:
             if received:
                 break
             else:
-                try:
-                    time.sleep(0.5)
-                except KeyboardInterrupt:
-                    # XXX make sure that the pool close
-                    # raise CompmakeException('Processing interrupted by user')
-                    raise KeyboardInterrupt
+                #try:
+                time.sleep(0.05)
+#                except KeyboardInterrupt:
+#                    # XXX make sure that the pool close
+#                    # raise CompmakeException('Processing interrupted by user')
+#                    raise KeyboardInterrupt
 
+            # Process events
             self.event_check()
 
     def process(self):
@@ -241,7 +251,9 @@ class Manager:
                     raise CompmakeException('Cannot find computing resources, giving up.')
 
                 self.publish_progress()
+
                 self.loop_until_something_finishes()
+
 
             self.process_finished()
 
@@ -252,15 +264,19 @@ class Manager:
 
             return True
 
-        except JobInterrupted:
+        except JobInterrupted as e:
             # XXX I'm getting confused
-            raise KeyboardInterrupt
-            #error('Computation interrupted by user')
-            #return False
+            error('Received JobInterrupted: %s' % e)
+            raise
+        except KeyboardInterrupt: ### tmp - just understanding who raiss this
+            #error('Received KeyboardInterrupt at: %s' %
+            #      traceback.format_exc(e))
+            raise
+        finally:
+            self.cleanup()
 
 
     def publish_progress(self):
         publish('manager-progress', targets=self.targets, done=self.done,
                 all_targets=self.all_targets, todo=self.todo, failed=self.failed, ready=self.ready_todo,
                 processing=self.processing)
-

@@ -35,21 +35,23 @@ class StorageFilesystem:
             raise CompmakeException('Could not find key %r.' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
-            file = open(filename, 'rb') #@ReservedAssignment
             start = time.time()
-            file = open(filename, 'rb')  # @ReservedAssignment
+            if False:
+                file = open(filename, 'rb')  # @ReservedAssignment
+                content = file.read()
+                file.close()
+                # print "R %s len %d" % (key, len(content))
+                sio = StringIO(content)
+                state = pickle.load(sio)
 
-            content = file.read()
-            file.close()
-            # print "R %s len %d" % (key, len(content))
-            sio = StringIO(content)
-            state = pickle.load(sio)
-
-            duration = time.time() - start
-            if PRINT_STATS:
-                length = len(content)
-                print_stats('get    ', key, length, duration)
-            return state
+                duration = time.time() - start
+                if PRINT_STATS:
+                    length = len(content)
+                    print_stats('get    ', key, length, duration)
+                return state
+            else:
+                with open(filename, 'rb') as f:
+                    return pickle.load(f)
         except Exception as e:
             msg = "Could not unpickle file %r: %s" % (filename, e)
             raise CompmakeException(msg)

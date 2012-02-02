@@ -14,3 +14,6 @@ class Event:
         self.__dict__.update(kwargs)
         self.kwargs = kwargs
         self.timestamp = time.time()
+
+    def __str__(self):
+        return 'Event(%s, %s)' % (self.name, self.kwargs)
