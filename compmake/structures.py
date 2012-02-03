@@ -210,13 +210,16 @@ class Cache:
     IN_PROGRESS = 1
     MORE_REQUESTED = 2
     FAILED = 3
+    BLOCKED = 5
     DONE = 4
 
-    allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE]
+    allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE,
+                      BLOCKED]
 
     state2desc = {
         NOT_STARTED: 'Not started',
         IN_PROGRESS: 'In progress',
+        BLOCKED: 'Blocked by dependencies',
         MORE_REQUESTED: 'Done (but more in progress)',
         FAILED: 'Failed',
         DONE: 'Done'}

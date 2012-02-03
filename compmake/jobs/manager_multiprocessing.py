@@ -97,7 +97,12 @@ class MultiprocessingManager(Manager):
 
     def cleanup(self):
         if 'pool' in self.__dict__:
-            self.pool.terminate()
+            try:
+                self.pool.terminate()
+            except:
+                # multiprocessing/pool.py", line 478, in _terminate_pool
+                # assert result_handler.is_alive() or len(cache) == 0
+                pass
 
 
 def ignore_sigint():

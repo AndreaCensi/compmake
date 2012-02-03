@@ -20,7 +20,6 @@ from .uptodate import dependencies_up_to_date, list_todo_targets
 from multiprocessing import TimeoutError
 import time
 from abc import ABCMeta, abstractmethod
-import traceback
 
 
 class AsyncResultInterface:
@@ -245,10 +244,13 @@ class Manager:
                 if self.ready_todo and not self.processing:
                     publish('manager-failed', reason='No resources.',
                         targets=self.targets, done=self.done,
-                        todo=self.todo, failed=self.failed, ready=self.ready_todo,
-                        processing=self.processing, all_targets=self.all_targets)
+                        todo=self.todo, failed=self.failed,
+                        ready=self.ready_todo,
+                        processing=self.processing,
+                        all_targets=self.all_targets)
 
-                    raise CompmakeException('Cannot find computing resources, giving up.')
+                    msg = 'Cannot find computing resources, giving up.'
+                    raise CompmakeException(msg)
 
                 self.publish_progress()
 
