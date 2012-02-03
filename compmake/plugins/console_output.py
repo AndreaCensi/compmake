@@ -1,8 +1,7 @@
 from ..events import register_handler
+from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
+    error, colored, get_screen_columns)
 import sys
-from compmake.utils.capture import pad_to_screen, get_length_on_screen, \
-    pad_to_screen_length
-from compmake.utils.visualization import error, colored, get_screen_columns
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -58,6 +57,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
 
 debug_padding = False
 
+
 def write_screen_line(s):
     """ Writes and pads """
     # TODO: check that it is not too long
@@ -68,6 +68,7 @@ def write_screen_line(s):
     stream.write(s)
     stream.write('\n')
     stream.flush()
+
 
 def plot_normally(job_id, lines, is_stderr):
     for line in lines:
@@ -110,6 +111,7 @@ def pad_line_to_screen_length(prefix, line, postfix, max_size):
         lines.append(line)
     return lines
 
+
 def handle_event(event, is_stderr):
     job_id = event.kwargs['job_id']
     lines = event.kwargs['lines']
@@ -120,6 +122,7 @@ def handle_event(event, is_stderr):
         plot_with_prefix(job_id, lines, is_stderr)
     else:
         plot_normally(job_id, lines, is_stderr)
+
 
 # XXX: this might have problems with colored versions
 def clip_to_length(line, max_len):

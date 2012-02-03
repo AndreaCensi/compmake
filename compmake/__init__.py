@@ -1,6 +1,6 @@
 # constants
 import sys
-version = '1.2'
+version = '1.4'
 __version__ = version
 
 from .constants import *
@@ -41,9 +41,7 @@ RET_CODE_JOB_FAILED = 113
 from .ui import comp, comp_prefix
 from .storage import use_redis, use_filesystem
 from .config import compmake_config
-from .jobs import set_namespace
-from .jobs import progress
-from .jobs import parse_job_list
+from .jobs import set_namespace, progress
 
 
 # Note: we wrap these in shallow functions because we don't want
@@ -53,13 +51,13 @@ def batch_command(s):
 # ignore if interactive
 
     # we assume that we are done with defining jobs
-    from compmake.ui.ui import clean_other_jobs
+    from .ui import clean_other_jobs
     clean_other_jobs()
 
     if compmake_status == compmake_status_interactive:
         return # XXX not sure 
 
-    from compmake.ui.ui import interpret_commands
+    from .ui import interpret_commands
     try:
         return interpret_commands(s)
     except KeyboardInterrupt:
@@ -74,10 +72,10 @@ def compmake_console():
     set_compmake_status(compmake_status_interactive)
 
     # we assume that we are done with defining jobs
-    from compmake.ui.ui import clean_other_jobs
+    from .ui import clean_other_jobs
     clean_other_jobs()
 
-    from compmake.ui.console import interactive_console
+    from .ui import interactive_console
     interactive_console()
 
     set_compmake_status(compmake_status_embedded)

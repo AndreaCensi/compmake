@@ -1,31 +1,43 @@
 # Warning: this is an auto-generated file
-from compmake.events import EventSpec
-compmake_registered_events = {} 
-compmake_registered_events["compmake-init"] = EventSpec(name='compmake-init', attrs=[], desc=None, file='compmake/events/__init__.py', line=9)
-compmake_registered_events["compmake-closing"] = EventSpec(name='compmake-closing', attrs=[], desc=None, file='compmake/events/__init__.py', line=10)
-compmake_registered_events["job-stdout"] = EventSpec(name='job-stdout', attrs=['job_id', 'host', 'lines'], desc=None, file='compmake/events/__init__.py', line=11)
-compmake_registered_events["job-stderr"] = EventSpec(name='job-stderr', attrs=['job_id', 'host', 'lines'], desc=None, file='compmake/events/__init__.py', line=12)
-compmake_registered_events["job-progress"] = EventSpec(name='job-progress', attrs=['job_id', 'host', 'done', 'progress', 'goal'], desc=None, file='compmake/jobs/actions.py', line=80)
-compmake_registered_events["job-progress-plus"] = EventSpec(name='job-progress-plus', attrs=['job_id', 'host', 'stack'], desc=None, file='compmake/jobs/actions.py', line=81)
-compmake_registered_events["job-succeeded"] = EventSpec(name='job-succeeded', attrs=['job_id', 'host'], desc=None, file='compmake/jobs/actions.py', line=82)
-compmake_registered_events["job-failed"] = EventSpec(name='job-failed', attrs=['job_id', 'host', 'reason', 'bt'], desc=None, file='compmake/jobs/actions.py', line=83)
-compmake_registered_events["job-instanced"] = EventSpec(name='job-instanced', attrs=['job_id', 'host'], desc=None, file='compmake/jobs/actions.py', line=84)
-compmake_registered_events["job-starting"] = EventSpec(name='job-starting', attrs=['job_id', 'host'], desc=None, file='compmake/jobs/actions.py', line=85)
-compmake_registered_events["job-finished"] = EventSpec(name='job-finished', attrs=['job_id', 'host'], desc=None, file='compmake/jobs/actions.py', line=86)
-compmake_registered_events["job-interrupted"] = EventSpec(name='job-interrupted', attrs=['job_id', 'host', 'reason'], desc=None, file='compmake/jobs/actions.py', line=87)
-compmake_registered_events["job-now-ready"] = EventSpec(name='job-now-ready', attrs=['job_id'], desc=None, file='compmake/jobs/actions.py', line=88)
-compmake_registered_events["manager-init"] = EventSpec(name='manager-init', attrs=['targets', 'more'], desc=None, file='compmake/jobs/manager.py', line=4)
-compmake_registered_events["manager-progress"] = EventSpec(name='manager-progress', attrs=['targets', 'all_targets', 'done', 'todo', 'failed', 'ready', 'processing'], desc=None, file='compmake/jobs/manager.py', line=5)
-compmake_registered_events["manager-succeeded"] = EventSpec(name='manager-succeeded', attrs=['targets', 'all_targets', 'done', 'todo', 'failed', 'ready', 'processing'], desc=None, file='compmake/jobs/manager.py', line=6)
-compmake_registered_events["manager-interrupted"] = EventSpec(name='manager-interrupted', attrs=['targets', 'all_targets', 'done', 'todo', 'failed', 'ready', 'processing'], desc=None, file='compmake/jobs/manager.py', line=7)
-compmake_registered_events["manager-failed"] = EventSpec(name='manager-failed', attrs=['reason', 'targets', 'all_targets', 'done', 'todo', 'failed', 'ready', 'processing'], desc=None, file='compmake/jobs/manager.py', line=8)
-compmake_registered_events["worker-status"] = EventSpec(name='worker-status', attrs=['status', 'job_id'], desc=None, file='compmake/jobs/manager_multiprocessing.py', line=10)
-compmake_registered_events["console-starting"] = EventSpec(name='console-starting', attrs=[], desc=None, file='compmake/ui/console.py', line=10)
-compmake_registered_events["console-ending"] = EventSpec(name='console-ending', attrs=[], desc=None, file='compmake/ui/console.py', line=11)
-compmake_registered_events["command-starting"] = EventSpec(name='command-starting', attrs=['command'], desc=None, file='compmake/ui/console.py', line=12)
-compmake_registered_events["command-failed"] = EventSpec(name='command-failed', attrs=['command', 'retcode', 'reason'], desc=None, file='compmake/ui/console.py', line=13)
-compmake_registered_events["command-succeeded"] = EventSpec(name='command-succeeded', attrs=['command'], desc=None, file='compmake/ui/console.py', line=14)
-compmake_registered_events["command-interrupted"] = EventSpec(name='command-interrupted', attrs=['command', 'reason'], desc=None, file='compmake/ui/console.py', line=15)
-compmake_registered_events["job-defined"] = EventSpec(name='job-defined', attrs=['job_id'], desc='a new job is defined', file='compmake/ui/ui.py', line=69)
-compmake_registered_events["job-already-defined"] = EventSpec(name='job-already-defined', attrs=['job_id'], desc=None, file='compmake/ui/ui.py', line=70)
-compmake_registered_events["job-redefined"] = EventSpec(name='job-redefined', attrs=['job_id', 'reason'], desc=None, file='compmake/ui/ui.py', line=71)
+from . import EventSpec
+
+compmake_registered_events = {}
+
+
+def add(e):
+    compmake_registered_events[e.name] = e
+
+
+add(EventSpec('compmake-init'))
+add(EventSpec('compmake-closing'))
+add(EventSpec('job-stdout', ['job_id', 'host', 'lines']))
+add(EventSpec('job-stderr', ['job_id', 'host', 'lines']))
+add(EventSpec('job-progress', ['job_id', 'host', 'done', 'progress', 'goal']))
+add(EventSpec('job-progress-plus', ['job_id', 'host', 'stack']))
+add(EventSpec('job-succeeded', ['job_id', 'host']))
+add(EventSpec('job-failed', ['job_id', 'host', 'reason', 'bt']))
+add(EventSpec('job-instanced', ['job_id', 'host']))
+add(EventSpec('job-starting', ['job_id', 'host']))
+add(EventSpec('job-finished', ['job_id', 'host']))
+add(EventSpec('job-interrupted', ['job_id', 'host', 'reason']))
+add(EventSpec('job-now-ready', ['job_id']))
+add(EventSpec('manager-init', ['targets', 'more']))
+add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
+                                    'failed', 'ready', 'processing']))
+add(EventSpec('manager-succeeded', ['targets', 'all_targets', 'done', 'todo',
+                                     'failed', 'ready', 'processing']))
+add(EventSpec('manager-interrupted', ['targets', 'all_targets', 'done',
+                                    'todo', 'failed', 'ready', 'processing']))
+add(EventSpec('manager-failed', ['reason', 'targets', 'all_targets', 'done',
+                                  'todo', 'failed', 'ready', 'processing']))
+add(EventSpec('worker-status', ['status', 'job_id']))
+add(EventSpec('console-starting'))
+add(EventSpec('console-ending'))
+add(EventSpec('command-starting', ['command']))
+add(EventSpec('command-failed', ['command', 'retcode', 'reason']))
+add(EventSpec('command-succeeded', ['command']))
+add(EventSpec('command-interrupted', ['command', 'reason']))
+add(EventSpec('job-defined', ['job_id'],
+              desc='a new job is defined'))
+add(EventSpec('job-already-defined', ['job_id']))
+add(EventSpec('job-redefined', ['job_id', 'reason']))

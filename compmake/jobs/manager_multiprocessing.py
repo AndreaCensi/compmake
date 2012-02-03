@@ -38,11 +38,11 @@ class MultiprocessingManager(Manager):
         self.num_processes = num_processes
 
     def process_init(self):
-        signal.signal(signal.SIGCHLD, sig_child)
+        #signal.signal(signal.SIGCHLD, sig_child)
         #from compmake.storage import db
-#        if not db.supports_concurrency():
+        # if not db.supports_concurrency():
             #raise UserError("I cannot do multiprocessing using %s \
-#backend (use redis) " % db)
+            #backend (use redis) " % db)
 
         if self.num_processes is None:
             self.num_processes = cpu_count()
@@ -57,7 +57,7 @@ class MultiprocessingManager(Manager):
             kwargs['maxtasksperchild'] = 1
 
         self.pool = Pool(processes=self.num_processes,
-                         initializer=ignore_sigint,
+                         initializer=worker_initialization,
                          **kwargs)
         self.max_num_processing = self. num_processes
 
@@ -76,7 +76,7 @@ class MultiprocessingManager(Manager):
             #print('M queue size: %s' % event_queue.qsize())
             try:
                 event = Shared.event_queue.get(block=False)
-#                event = event_queue.get(block=True)
+                #  event = event_queue.get(block=True)
                 event.kwargs['remote'] = True
                 broadcast_event(event)
                 #num_processed += 1
@@ -105,7 +105,9 @@ class MultiprocessingManager(Manager):
                 pass
 
 
-def ignore_sigint():
+def worker_initialization():
+    setproctitle('compmake: worker just created')
+
     # http://stackoverflow.com/questions/1408356
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     # You can use this to see when a worker start
@@ -114,6 +116,7 @@ def ignore_sigint():
 
 def parmake_job2(job_id, more):
     #print('Process: starting job')
+    setproctitle('compmake:%s' % job_id)
 
     try:
 
@@ -122,7 +125,8 @@ def parmake_job2(job_id, more):
         def handler(event):
             try:
                 #print('size: %s putting %s' % (event_queue.qsize(), event))
-                Shared.event_queue.put(event, block=True, timeout=1)
+                #Shared.event_queue.put(event, block=True, timeout=1)
+                Shared.event_queue.put(event, block=False)
             except Full:
                 sys.stderr.write('job %s: Queue is full, message is lost.\n'
                                  % job_id)
@@ -169,7 +173,10 @@ def parmake_job2(job_id, more):
     #            raise
 
         publish('worker-status', job_id=job_id, status='ended')
+    except:
+        setproctitle('compmake:FAILED:%s' % job_id)
+        raise
     finally:
-        pass
-        #print('Finishing job')
+        setproctitle('compmake:DONE:%s' % job_id)
+
 

@@ -11,21 +11,21 @@ These are all wrappers around the raw methods in storage
 from .. import storage # FIXME
 from ..structures import Cache, Job, CompmakeException
 from ..utils import info
-import sys
 
 
 # XXX: local storage, put it in a common place
-namespace = 'default'
+class CompmakeSession:
+    namespace = 'default'
 
 
 def set_namespace(n):
     if n != 'default':
         info('Using namespace %r.' % n)
-    sys.modules["compmake.jobs.storage"].namespace = n
+    CompmakeSession.namespace = n
 
 
 def get_namespace():
-    return sys.modules["compmake.jobs.storage"].namespace
+    return CompmakeSession.namespace
 
 
 def remove_all_jobs():

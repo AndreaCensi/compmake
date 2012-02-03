@@ -210,7 +210,7 @@ class Cache:
     IN_PROGRESS = 1
     MORE_REQUESTED = 2
     FAILED = 3
-    BLOCKED = 5
+    BLOCKED = 3 # TODO, will add later
     DONE = 4
 
     allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE,

@@ -1,7 +1,6 @@
 from . import Event, compmake_registered_events
-from ..utils import wildcard_to_regexp
 from ..structures import CompmakeException
-from ..utils.visualization import error
+from ..utils import error, wildcard_to_regexp
 import traceback
 
 

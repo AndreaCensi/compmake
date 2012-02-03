@@ -8,54 +8,53 @@ import sys
 import traceback
 import os
 
-# event  { 'name': 'console-starting' }
-# event  { 'name': 'console-ending' }
-# event  { 'name': 'command-starting',  'attrs': ['command'] }
-# event  { 'name': 'command-failed',  'attrs': ['command','retcode','reason'] }
-# event  { 'name': 'command-succeeded',  'attrs': ['command'] }
-# event  { 'name': 'command-interrupted',  'attrs': ['command','reason'] }
-
 
 def interactive_console():
     publish('console-starting')
+
+    def handle_line(commands):
+        """ Returns False if we want to exit. """
+        try:
+            publish('command-starting', command=commands)
+            interpret_commands(commands)
+            publish('command-succeeded', command=commands)
+        except UserError as e:
+            publish('command-failed', command=commands, reason=e)
+            user_error(e)
+        except CompmakeException as e:
+            publish('command-failed', command=commands, reason=e)
+            # Added this for KeyboardInterrupt
+            error(e)
+        except KeyboardInterrupt:
+            publish('command-interrupted',
+                    command=commands, reason='keyboard')
+            user_error('Execution of "%s" interrupted.' % line)
+        except ShellExitRequested:
+            return False
+        except Exception as e:
+            traceback.print_exc()
+            error('Warning, I got this exception, while it should '
+                  'have been filtered out already. '
+                  'This is a compmake BUG '
+                  'that should be reported:  %s' % e)
+        return True
+
     exit_requested = False
     while not exit_requested:
         try:
             for line in compmake_console():
-                commands = line.strip().split()
-                if commands:
-                    try:
-                        publish('command-starting', command=commands)
-                        interpret_commands(commands)
-                        publish('command-succeeded', command=commands)
-                    except UserError as e:
-                        publish('command-failed', command=commands, reason=e)
-                        user_error(e)
-                    except CompmakeException as e:
-                        publish('command-failed', command=commands, reason=e)
-                        # Added this for KeyboardInterrupt
-                        error(e)
-                    except KeyboardInterrupt:
-                        publish('command-interrupted',
-                                command=commands, reason='keyboard')
-                        user_error('Execution of "%s" interrupted.' % line)
-                    except ShellExitRequested:
-                        exit_requested = True
-                        break
-                    except Exception as e:
-                        traceback.print_exc()
-                        error('Warning, I got this exception, while it should '
-                              'have been filtered out already. '
-                              'This is a compmake BUG '
-                              'that should be reported:  %s' % e)
+                if not handle_line(line): # Returns False if we want to exit
+                    exit_requested = True
+                    break
 
         except KeyboardInterrupt:  # CTRL-C
             print("\nPlease use 'exit' to quit.")
+
         except EOFError:  # CTRL-D
             # TODO maybe make loop different? we don't want to catch
             # EOFerror in interpret_commands
             print("(end of input detected)")
-            exit_requested = True
+            break
 
     publish('console-ending')
     return
@@ -75,8 +74,10 @@ COMPMAKE_HISTORY_FILENAME = '.compmake_history.txt'
 
 
 def compmake_console():
+    """ Returns lines with at least one character. """
     try:
         # Rewrite history
+        # TODO: use readline's support for history
         if os.path.exists(COMPMAKE_HISTORY_FILENAME):
             with open(COMPMAKE_HISTORY_FILENAME) as f:
                 lines = f.read().split('\n')
@@ -95,16 +96,22 @@ def compmake_console():
         readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
     except:
         pass
+
     readline.set_history_length(300)  # small enough to be saved every time
     readline.set_completer(tab_completion2)
     readline.set_completer_delims(" ")
     readline.parse_and_bind('tab: complete')
+
 
     while True:
         clean_console_line(sys.stdout)
         # TODO: find alternative, not reliable if colored
         # line = raw_input(colored('@: ', 'cyan'))
         line = raw_input('@: ')
+        line = line.strip()
+        if not line:
+            continue
+
         readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
         yield line
 
@@ -124,6 +131,11 @@ def ask_question(question, allowed=None):
     while True:
         line = raw_input(question)
         line = line.strip()
+
+        # we don't want these to go into the history
+        L = readline.get_current_history_length()
+        readline.remove_history_item(L - 1)
+        #print('size: %s there: %s' % (L, readline.get_history_item(L)))
 
         if line in allowed:
             return allowed[line]

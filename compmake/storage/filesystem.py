@@ -1,21 +1,16 @@
 from ..structures import CompmakeException
+from ..utils import TimeTrack, error, find_pickling_error, safe_write
 from StringIO import StringIO
 from glob import glob
 from os.path import splitext, basename
 import cPickle
 import os
-from compmake.utils.debug_pickler import find_pickling_error
-from compmake.utils.visualization import error
-import time
 
 pickle = cPickle
 
-PRINT_STATS = False
 
-
-def print_stats(method, key, length, duration):
-    print("stats: %10s  %8d bytes  %.2fs %s" % (method, length, duration, key))
-
+track_time = lambda x: x
+#track_time = TimeTrack.decorator
 
 class StorageFilesystem:
     basepath = 'compmake_storage'
@@ -30,12 +25,12 @@ class StorageFilesystem:
         return False
 
     @staticmethod
+    @track_time
     def get(key):
         if not StorageFilesystem.exists(key):
             raise CompmakeException('Could not find key %r.' % key)
         filename = StorageFilesystem.filename_for_key(key)
         try:
-            start = time.time()
             if False:
                 file = open(filename, 'rb')  # @ReservedAssignment
                 content = file.read()
@@ -43,11 +38,6 @@ class StorageFilesystem:
                 # print "R %s len %d" % (key, len(content))
                 sio = StringIO(content)
                 state = pickle.load(sio)
-
-                duration = time.time() - start
-                if PRINT_STATS:
-                    length = len(content)
-                    print_stats('get    ', key, length, duration)
                 return state
             else:
                 with open(filename, 'rb') as f:
@@ -57,6 +47,7 @@ class StorageFilesystem:
             raise CompmakeException(msg)
 
     @staticmethod
+    @track_time
     def set(key, value):  # @ReservedAssignment
         if not StorageFilesystem.checked_existence:
             StorageFilesystem.checked_existence = True
@@ -64,7 +55,6 @@ class StorageFilesystem:
                 os.makedirs(StorageFilesystem.basepath)
 
         filename = StorageFilesystem.filename_for_key(key)
-#        start = time.time()
 
         sio = StringIO()
         try:
@@ -77,16 +67,12 @@ class StorageFilesystem:
             raise
 
         content = sio.getvalue()
-        # TODO: safe write
-        with open(filename, 'wb') as f:
+
+        with safe_write(filename, 'wb') as f:
             f.write(content)
 
-#        duration = time.time() - start
-#        if PRINT_STATS:
-#            length = len(content)
-#            print_stats('    set', key, length, duration)
-
     @staticmethod
+    @track_time
     def delete(key):
         filename = StorageFilesystem.filename_for_key(key)
         assert os.path.exists(filename), \
@@ -94,17 +80,23 @@ class StorageFilesystem:
         os.remove(filename)
 
     @staticmethod
+    @track_time
     def exists(key):
         filename = StorageFilesystem.filename_for_key(key)
         return os.path.exists(filename)
 
     @staticmethod
     # TODO change key
-    def keys(pattern):
+    def keys_yield(pattern):
         filename = StorageFilesystem.filename_for_key(pattern)
         for x in glob(filename):
             b = splitext(basename(x))[0]
             yield StorageFilesystem.filename2key(b)
+
+    @staticmethod
+    @track_time
+    def keys(pattern):
+        return sorted(list(StorageFilesystem.keys_yield(pattern)))
 
     @staticmethod
     def reopen_after_fork():
@@ -135,4 +127,7 @@ class StorageFilesystem:
         """ Returns the pickle storage filename corresponding to the job id """
         return os.path.join(StorageFilesystem.basepath,
                             StorageFilesystem.key2filename(key) + '.pickle')
+
+
+
 

@@ -4,7 +4,7 @@ from math import ceil
 
 try:
     from termcolor import colored as t_colored
-    
+
     def termcolor_colored(x, color=None, on_color=None, attrs=None):
         return "\n".join(t_colored(x, color, on_color, attrs) for x in
                          x.split("\n"))
@@ -86,7 +86,6 @@ def getTerminalSize():
 def clean_console_line(stream):
     s = '\r' + (' ' * (get_screen_columns() - 0)) + '\r'  # was : 2
     stream.write(s)
-    pass
 
 
 def warning(string):

@@ -14,9 +14,8 @@ import cPickle as pickle
 
 # static storage # XXX: put it somewhere
 job_prefix = None
-compmake_slave_mode = False 
+compmake_slave_mode = False
 jobs_defined_in_this_session = set()
-
 
 
 def make_sure_pickable(obj):
@@ -43,7 +42,8 @@ def collect_dependencies(ob):
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
     global job_prefix # XXX
-    job_prefix = prefix 
+    job_prefix = prefix
+
 
 def generate_job_id(command):
     ''' Generates a unique job_id for the specified commmand.
@@ -70,13 +70,7 @@ def generate_job_id(command):
             return job_id
 
     assert(False)
- 
- 
-# Do not erase -- it is read
-# event { 'name': 'job-defined', 'attrs': ['job_id'], 'desc': 'a new job is defined'}
-# event { 'name': 'job-already-defined',  'attrs': ['job_id'] }
-# event { 'name': 'job-redefined',  'attrs': ['job_id', 'reason'] }
-  
+
 
 def reset_jobs_definition_set():
     ''' Useful only for unit tests '''
@@ -88,7 +82,7 @@ def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
     if compmake.compmake_status == compmake_status_slave:
         return
-    from compmake.ui.console import ask_question
+    from .console import ask_question
 
     answers = {'a': 'a', 'n': 'n', 'y': 'y', 'N': 'N'}
     clean_all = False
@@ -129,40 +123,41 @@ def comp(command, *args, **kwargs):
     try:
         pickle.dumps(command)
     except:
-        msg = ('Cannot pickle function %r. Make sure it is not a lambda function or a '
-              'nested function. (This is a limitation of Python)' % command)
-
+        msg = ('Cannot pickle function %r. Make sure it is not a lambda '
+               'function or a nested function. (This is a limitation of '
+               'Python)' % command)
         error(msg)
         raise
-        #raise SerializationError(msg)
 
     args = list(args) # args is a non iterable tuple
+
     # Get job id from arguments
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
         #available = command.func_code.co_varnames
         argspec = inspect.getargspec(command)
 
-        
         if CompmakeConstants.job_id_key in argspec.args:
-            msg = ("You cannot define the job id in this way because 'job_id' " 
-                   "is already a parameter of this function.")
-            raise UserError(msg)    
-        
+            msg = ("You cannot define the job id in this way because %r "
+                   "is already a parameter of this function." %
+                    CompmakeConstants.job_id_key)
+            raise UserError(msg)
+
         job_id = kwargs[CompmakeConstants.job_id_key]
         if job_prefix:
             job_id = '%s-%s' % (job_prefix, job_id)
         del kwargs[CompmakeConstants.job_id_key]
-        
+
         if job_id in jobs_defined_in_this_session:
             raise UserError('Job %r already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
 
     jobs_defined_in_this_session.add(job_id)
-     
+
     if CompmakeConstants.extra_dep_key in kwargs: # TODO: add in constants
-        extra_dep = collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
+        extra_dep = \
+            collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
         del kwargs[CompmakeConstants.extra_dep_key]
     else:
         extra_dep = set()
@@ -229,23 +224,38 @@ def comp(command, *args, **kwargs):
 
 # TODO: FEATURE: add aliases 
 #  command  alias aliasname job... 
-# TODO: feature: target by class
 
 
 def interpret_commands(commands):
-    if isinstance(commands, str):
-        commands = commands.split()
+    if not isinstance(commands, str):
+        raise ValueError('Expected a string')
+
+    commands = commands.split(';')
+    for cmd in commands:
+        cmd = cmd.strip() # "ls; stats" -> ['ls', ' stats']
+        last = interpret_single_command(cmd)
+        # not sure what happens if one cmd fails
+    return last
+
+
+def interpret_single_command(commands_line):
+    if not isinstance(commands_line, str):
+        raise ValueError('Expected a string')
 
     ui_commands = get_commands()
 
+    commands = commands_line.split()
+
     command_name = commands[0]
+
     # Check if this is an alias
     if command_name in alias2name:
         command_name = alias2name[command_name]
-    if not command_name in ui_commands.keys():
+
+    if not command_name in ui_commands:
         msg = "Unknown command %r (try 'help'). " % command_name
         raise UserError(msg)
-        
+
     # XXX: use more elegant method
     cmd = ui_commands[command_name]
     function = cmd.function

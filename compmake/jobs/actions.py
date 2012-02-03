@@ -1,17 +1,17 @@
 from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_tmpobject,
+    is_job_userobject_available, delete_job_userobject,
+    is_job_tmpobject_available,
+    delete_job_tmpobject, get_job_tmpobject,
+    get_job_userobject, set_job_tmpobject,
     set_job_userobject, get_job, init_progress_tracking, up_to_date)
 from ..config import compmake_config
 from ..events import publish
-from ..structures import (Cache, CompmakeException, UserError, JobFailed,
-    JobInterrupted, Promise)
+from ..structures import Cache, UserError, JobFailed, JobInterrupted, Promise
 from ..utils import OutputCapture, setproctitle, colored
 from StringIO import StringIO
 from copy import deepcopy
 from time import time, clock
 from traceback import print_exc
-from types import GeneratorType
 import logging
 
 
@@ -41,8 +41,8 @@ def mark_more(job_id):
 def mark_remake(job_id):
     ''' Delets and invalidates the cache for this object '''
     # TODO: think of the difference between this and clean_target
-    cache = get_job_cache(job_id)
-    cache.state = Cache.NOT_STARTED
+    # cache = get_job_cache(job_id)
+    cache = Cache(Cache.NOT_STARTED)
     set_job_cache(job_id, cache)
 
     if is_job_userobject_available(job_id):
@@ -68,24 +68,21 @@ def substitute_dependencies(a):
     return a
 
 
+def mark_as_blocked(job_id, dependency=None):
+    cache = Cache(Cache.BLOCKED)
+    cache.exception = "Failure of dependency %r" % job_id
+    cache.backtrace = ""
+    set_job_cache(job_id, cache)
+
+
 def mark_as_failed(job_id, exception=None, backtrace=None):
     ''' Marks job_id and its parents as failed '''
-    cache = get_job_cache(job_id)
-    cache.state = Cache.FAILED
+    # OK, it's night, but no need to query the DB to set the cache state
+    #cache = get_job_cache(job_id)
+    cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
     cache.backtrace = backtrace
     set_job_cache(job_id, cache)
-
-# DO NOT DELETE: THESE DECLARATIONS ARE PARSED       
-# event  { 'name': 'job-progress',  'attrs': ['job_id', 'host', 'done', 'progress', 'goal'] }
-# event  { 'name': 'job-progress-plus',  'attrs': ['job_id', 'host', 'stack'] }
-# event  { 'name': 'job-succeeded', 'attrs': ['job_id', 'host'] }
-# event  { 'name': 'job-failed',    'attrs': ['job_id', 'host', 'reason', 'bt'] }
-# event  { 'name': 'job-instanced', 'attrs': ['job_id', 'host'] }
-# event  { 'name': 'job-starting',  'attrs': ['job_id', 'host'] }
-# event  { 'name': 'job-finished',  'attrs': ['job_id', 'host'] }
-# event  { 'name': 'job-interrupted',  'attrs': ['job_id', 'host', 'reason'] }
-# event  { 'name': 'job-now-ready', 'attrs': ['job_id'] }
 
 
 def make(job_id, more=False):
@@ -172,30 +169,31 @@ def make(job_id, more=False):
         try:
             result = computation.compute(previous_user_object)
 
-            if type(result) == GeneratorType:
-                try:
-                    while True:
-                        next = result.next()  # @ReservedAssignment
-                        if isinstance(next, tuple):
-                            if len(next) != 3:
-                                msg = ('If computation yields a tuple, '
-                                        'should be a tuple with 3 elemnts.'
-                                          'Got: %s') % str(next)
-                                raise CompmakeException(msg)
-                            user_object, num, total = next
-
-                            publish('job-progress', job_id=job_id, host=host,
-                                    done=None, progress=num, goal=total)
-                            if compmake_config.save_progress:  # @UndefinedVariable
-                                set_job_tmpobject(job_id, user_object)
-
-                except StopIteration:
-                    pass
-            else:
-                publish('job-progress', job_id=job_id, host='XXX',
-                        done=1, progress=1, goal=1)
-
-                user_object = result
+#            # XXX: remove this logic
+#            if type(result) == GeneratorType:
+#                try:
+#                    while True:
+#                        next = result.next()  # @ReservedAssignment
+#                        if isinstance(next, tuple):
+#                            if len(next) != 3:
+#                                msg = ('If computation yields a tuple, '
+#                                        'should be a tuple with 3 elemnts.'
+#                                          'Got: %s') % str(next)
+#                                raise CompmakeException(msg)
+#                            user_object, num, total = next
+#
+#                            publish('job-progress', job_id=job_id, host=host,
+#                                    done=None, progress=num, goal=total)
+#                            if compmake_config.save_progress:
+#                                set_job_tmpobject(job_id, user_object)
+#
+#                except StopIteration:
+#                    pass
+#            else:
+#                #publish('job-progress', job_id=job_id, host='XXX',
+#                #        done=1, progress=1, goal=1)
+#
+            user_object = result
 
         except KeyboardInterrupt:
             # TODO: clear progress cache
@@ -207,7 +205,6 @@ def make(job_id, more=False):
 
             set_job_cache(job_id, cache)
 
-            # clear progress cache
             publish('job-interrupted', job_id=job_id, host=host)
             raise JobInterrupted('Keyboard interrupt')
         except (Exception, SystemExit) as e:
@@ -220,7 +217,6 @@ def make(job_id, more=False):
 
             mark_as_failed(job_id, str(e), bt)
 
-            # clear progress cache
             publish('job-failed', job_id=job_id,
                     host=host, reason=str(e), bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
@@ -229,10 +225,19 @@ def make(job_id, more=False):
             capture.deactivate()
             # even if we send an error, let's save the output of the process
             cache = get_job_cache(job_id)
+
             cache.captured_stderr = \
                 capture.stderr_replacement.buffer.getvalue()
             cache.captured_stdout = \
                 capture.stdout_replacement.buffer.getvalue()
+
+            # Do not save more than a few lines
+            max_lines = 10
+            cache.captured_stderr = limit_to_last_lines(cache.captured_stderr,
+                                                        max_lines)
+            cache.captured_stdout = limit_to_last_lines(cache.captured_stdout,
+                                                        max_lines)
+
             set_job_cache(job_id, cache)
 
             logging.StreamHandler.emit = old_emit
@@ -276,4 +281,11 @@ def colorize_loglevel(levelno, msg):
     else:
         return msg
 
+
+def limit_to_last_lines(s, max_lines):
+    """ Clips only the given number of lines. """
+    lines = s.split('\n')
+    if len(lines) > max_lines:
+        lines = lines[-max_lines:]
+    return '\n'.join(lines)
 

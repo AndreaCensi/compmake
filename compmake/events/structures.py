@@ -1,10 +1,13 @@
-from collections import namedtuple
 import time
 
-# TODO: put in main structures?
 
-# This is a specification of the events that can be generated 
-EventSpec = namedtuple('EventSpec', 'name attrs desc file line')
+class EventSpec:
+    ''' This is a specification of the events that can be generated '''
+
+    def __init__(self, name, attrs=[], desc=None):
+        self.name = name
+        self.attrs = attrs
+        self.desc = desc
 
 
 class Event:
@@ -17,3 +20,4 @@ class Event:
 
     def __str__(self):
         return 'Event(%s, %s)' % (self.name, self.kwargs)
+
