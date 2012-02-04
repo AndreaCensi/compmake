@@ -1,11 +1,10 @@
-from ..structures import CompmakeException
-from ..utils import error, find_pickling_error, safe_write
+from ..structures import CompmakeException, SerializationError
+from ..utils import find_pickling_error, safe_write
 from StringIO import StringIO
 from glob import glob
 from os.path import splitext, basename
 import cPickle
 import os
-from compmake.structures import SerializationError
 
 pickle = cPickle
 

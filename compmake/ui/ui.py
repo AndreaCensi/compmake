@@ -136,7 +136,6 @@ def comp(command, *args, **kwargs):
     # Get job id from arguments
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
-        #available = command.func_code.co_varnames
         argspec = inspect.getargspec(command)
 
         if CompmakeConstants.job_id_key in argspec.args:
@@ -232,9 +231,12 @@ def interpret_commands(commands):
     if not isinstance(commands, str):
         raise ValueError('Expected a string')
 
+    last = None
     commands = commands.split(';')
     for cmd in commands:
         cmd = cmd.strip() # "ls; stats" -> ['ls', ' stats']
+        if not cmd: # empty strig 'cmd1;;cmd2;'
+            continue
         last = interpret_single_command(cmd)
         # not sure what happens if one cmd fails
     return last
