@@ -7,7 +7,7 @@ from contracts import ContractNotRespected
 class TestProgress(unittest.TestCase):
 
     def stack_update(self, stack):
-        print "found %s" % stack
+        #print "found %s" % stack
         self.stack = stack
 
     def assert_stack_len(self, d):

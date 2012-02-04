@@ -10,6 +10,7 @@ from ..utils import interpret_strings_like
 import cPickle as pickle
 import compmake # XXX
 import inspect
+from types import NoneType
 
 
 # static storage # XXX: put it somewhere
@@ -227,22 +228,67 @@ def comp(command, *args, **kwargs):
 #  command  alias aliasname job... 
 
 
-def interpret_commands(commands):
+def interpret_commands(commands, separator=';'):
+    ''' 
+        Interprets what could possibly be a list of commands (separated by ";")
+        If one command fails, it returns its retcode, and then the rest 
+        are skipped.
+        
+        Returns 0 on success; else returns either an int or a string describing
+        what went wrong.
+    '''
+
     if not isinstance(commands, str):
         raise ValueError('Expected a string')
 
-    last = None
-    commands = commands.split(';')
+    # split with separator
+    commands = commands.split(separator)
+    # remove extra spaces
+    commands = [x.strip() for x in commands]
+    # filter dummy commands
+    commands = [x for x in commands if x]
+
+    if not commands:
+        # nothing to do
+        return 0
+
     for cmd in commands:
-        cmd = cmd.strip() # "ls; stats" -> ['ls', ' stats']
-        if not cmd: # empty strig 'cmd1;;cmd2;'
+        try:
+            publish('command-starting', command=cmd)
+            retcode = interpret_single_command(cmd)
+        except KeyboardInterrupt:
+            publish('command-interrupted', command=cmd,
+                    reason='KeyboardInterrupt')
+            raise
+        except UserError as e:
+            publish('command-failed', command=commands, reason=e)
+            raise
+        # TODO: all the rest is unexpected
+
+        if not isinstance(retcode, (int, NoneType, str)):
+            publish('compmake-bug', user_msg="",
+                    dev_msg="Command %r should return an integer, "
+                        "None, or a string describing the error, not %r." %
+                        (cmd, retcode))
+            retcode = 0
+
+        if retcode == 0 or retcode is None:
             continue
-        last = interpret_single_command(cmd)
+        else:
+            if isinstance(retcode, int):
+                publish('command-failed', command=cmd,
+                        reason='Return code %r' % retcode)
+                return retcode
+            else:
+                publish('command-failed', command=cmd, reason=retcode)
+                return retcode
+
         # not sure what happens if one cmd fails
-    return last
+    return 0
 
 
 def interpret_single_command(commands_line):
+    """ Returns 0/None for success, or error code. """
     if not isinstance(commands_line, str):
         raise ValueError('Expected a string')
 

@@ -5,6 +5,8 @@ __version__ = version
 
 from .constants import *
 
+# TODO: move everything in constants or globals
+
 # Statuses ------------------------------------------------
 # Compmake can be run in different "states"
 # If run as an interactive session ("compmake module")
@@ -72,12 +74,9 @@ def compmake_console():
     set_compmake_status(compmake_status_interactive)
 
     # we assume that we are done with defining jobs
-    from .ui import clean_other_jobs
+    from .ui import clean_other_jobs, interactive_console
     clean_other_jobs()
-
-    from .ui import interactive_console
     interactive_console()
-
     set_compmake_status(compmake_status_embedded)
 
 
@@ -90,7 +89,7 @@ def time_to_define_jobs():
     m = sys.modules[__package__]
     return m.is_it_time
 
-# We always want this one
-from .plugins import console_status
+
+from . import plugins
 
 

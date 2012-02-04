@@ -1,14 +1,12 @@
-from . import (dependencies_up_to_date, list_todo_targets,
+from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
     mark_as_blocked, parents, direct_parents)
 from ..events import publish
 from ..structures import (CompmakeException, JobFailed, JobInterrupted,
     HostFailed)
-from ..utils import error, info
+from ..utils import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
-from  . import compute_priorities
-from compmake.utils.visualization import debug
 
 
 class AsyncResultInterface:
@@ -145,7 +143,7 @@ class Manager:
             raise JobInterrupted('Keyboard interrupt')
 
     def host_failed(self, job_id):
-        error('Job %s: host failed' % job_id)
+        publish('manager-host-failed', job_id=job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
@@ -154,7 +152,8 @@ class Manager:
     def job_failed(self, job_id):
         ''' The specified job has failed. Update the structures,
             mark any parent as failed as well. '''
-        #error('Job %s failed ' % job_id)
+        publish('manager-job-failed', job_id=job_id)
+
         self.failed.add(job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
@@ -170,9 +169,9 @@ class Manager:
                     self.ready_todo.remove(p)
 
     def job_succeeded(self, job_id):
-        #info('Job %s succeded ' % job_id)
         ''' The specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''
+        publish('manager-job-succeeded', job_id=job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
         self.todo.remove(job_id)
@@ -206,17 +205,22 @@ class Manager:
         ''' Start processing jobs. '''
 
         # precompute job priorities
-        debug('Computing priorities...')
+        publish('manager-phase', phase='compute_priorities')
         self.priorities = compute_priorities(self.all_targets)
 
         if not self.todo:
-            info('Nothing to do.')
+            # info('Nothing to do.')
+            publish('manager-succeeded',
+                targets=self.targets, done=self.done, all_targets=self.all_targets,
+                todo=self.todo, failed=self.failed, ready=self.ready_todo,
+                processing=self.processing)
+
             return True
 
-        debug('Initiating process...')
+        publish('manager-phase', phase='init')
         self.process_init()
 
-        debug('Starting make loop...')
+        publish('manager-phase', phase='loop')
         try:
             while self.todo:
                 assert self.ready_todo or self.processing

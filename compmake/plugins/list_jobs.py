@@ -18,6 +18,8 @@ if not specified).
         job_list = parse_job_list(args)
 
     list_jobs(job_list)
+    return 0
+
 
 state2color = {
         # The ones commented out are not possible

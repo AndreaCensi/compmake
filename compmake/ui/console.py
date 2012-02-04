@@ -2,11 +2,11 @@ from . import ShellExitRequested, get_commands, interpret_commands
 from ..events import publish
 from ..jobs import all_jobs
 from ..structures import UserError, CompmakeException
-from ..utils import user_error, error, clean_console_line
+from ..utils import clean_console_line
+import os
 import readline
 import sys
 import traceback
-import os
 
 
 def interactive_console():
@@ -15,28 +15,38 @@ def interactive_console():
     def handle_line(commands):
         """ Returns False if we want to exit. """
         try:
-            publish('command-starting', command=commands)
-            interpret_commands(commands)
-            publish('command-succeeded', command=commands)
+            publish('command-line-starting', command=commands)
+            retcode = interpret_commands(commands)
+            if retcode == 0:
+                publish('command-line-succeeded', command=commands)
+            else:
+                if isinstance(retcode, int):
+                    publish('command-line-failed', command=commands,
+                        reason='Return code %d' % retcode)
+                else:
+                    publish('command-line-failed', command=commands,
+                            reason=retcode)
+
         except UserError as e:
-            publish('command-failed', command=commands, reason=e)
-            user_error(e)
+            publish('command-line-failed', command=commands, reason=e)
+            #user_error(e)
         except CompmakeException as e:
-            publish('command-failed', command=commands, reason=e)
+            publish('command-line-failed', command=commands, reason=e)
             # Added this for KeyboardInterrupt
-            error(e)
+            #error(e)
         except KeyboardInterrupt:
-            publish('command-interrupted',
-                    command=commands, reason='keyboard')
-            user_error('Execution of "%s" interrupted.' % line)
+            publish('command-line-interrupted',
+                    command=commands, reason='KeyboardInterrupt')
+            # user_error('Execution of "%s" interrupted.' % line) 
         except ShellExitRequested:
             return False
         except Exception as e:
             traceback.print_exc()
-            error('Warning, I got this exception, while it should '
+            msg = ('Warning, I got this exception, while it should '
                   'have been filtered out already. '
                   'This is a compmake BUG '
                   'that should be reported:  %s' % e)
+            publish('compmake-bug', user_msg=msg, dev_msg="") # XXX
         return True
 
     exit_requested = False
@@ -57,7 +67,7 @@ def interactive_console():
             break
 
     publish('console-ending')
-    return
+    return None
 
 
 def tab_completion2(text, state):

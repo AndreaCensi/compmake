@@ -21,6 +21,11 @@ add(EventSpec('job-starting', ['job_id', 'host']))
 add(EventSpec('job-finished', ['job_id', 'host']))
 add(EventSpec('job-interrupted', ['job_id', 'host', 'reason']))
 add(EventSpec('job-now-ready', ['job_id']))
+add(EventSpec('manager-phase', ['phase']))
+# These are called when the manager updates its data structure
+add(EventSpec('manager-job-failed', ['job_id']))
+add(EventSpec('manager-job-succeeded', ['job_id']))
+add(EventSpec('manager-host-failed', ['job_id']))
 add(EventSpec('manager-init', ['targets', 'more']))
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
                                     'failed', 'ready', 'processing']))
@@ -33,11 +38,24 @@ add(EventSpec('manager-failed', ['reason', 'targets', 'all_targets', 'done',
 add(EventSpec('worker-status', ['status', 'job_id']))
 add(EventSpec('console-starting'))
 add(EventSpec('console-ending'))
+
+# These are called for commands strings ("make;clean")
+add(EventSpec('command-line-starting', ['command']))
+add(EventSpec('command-line-failed', ['command', 'retcode', 'reason']))
+add(EventSpec('command-line-succeeded', ['command']))
+add(EventSpec('command-line-interrupted', ['command', 'reason']))
+
+
+# These are called when a single command is executed
 add(EventSpec('command-starting', ['command']))
 add(EventSpec('command-failed', ['command', 'retcode', 'reason']))
 add(EventSpec('command-succeeded', ['command']))
 add(EventSpec('command-interrupted', ['command', 'reason']))
-add(EventSpec('job-defined', ['job_id'],
-              desc='a new job is defined'))
+
+add(EventSpec('parmake-status', ['status']))
+
+add(EventSpec('job-defined', ['job_id'], desc='a new job is defined'))
 add(EventSpec('job-already-defined', ['job_id']))
 add(EventSpec('job-redefined', ['job_id', 'reason']))
+
+add(EventSpec('compmake-bug', ['user_msg', 'dev_msg']))

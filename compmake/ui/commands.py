@@ -10,11 +10,12 @@ from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
 from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
     compmake_status_interactive)
 from ..config import compmake_config
+from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     MultiprocessingManager, clean_target, mark_remake, mark_more, top_targets,
     parse_yaml_configuration)
 from ..structures import UserError, JobFailed, ShellExitRequested
-from ..utils import debug, error, info
+from ..utils import info
 import os
 
 
@@ -45,7 +46,7 @@ def clean(job_list):
     if not job_list:
         return
 
-    from ..ui.console import ask_question
+    from ..ui import ask_question
 
     if get_compmake_status() == compmake_status_interactive:
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
@@ -73,7 +74,7 @@ def make(job_list):
     manager.process()
 
     if manager.failed:
-        error('%d job(s) failed.' % len(manager.failed))
+#        error('%d job(s) failed.' % len(manager.failed))
         return RET_CODE_JOB_FAILED
     else:
         return 0
@@ -106,35 +107,24 @@ Usage:
        
        parmake [n=<num>] [joblist]
  '''
-    debug('Obtaining job list...')
+    publish('parmake-status', status='Obtaining job list')
     job_list = list(job_list)
 
     if not job_list:
         job_list = list(top_targets())
 
-#    def current():
-#        return ('parmake before: stdout %s stderr %s stdin %s' %
-#                (sys.stdout, sys.stderr, sys.stdin))
-#
-#    f1 = current()
-#
-#    try:
-    debug('Staring manager...')
+    publish('parmake-status',
+            status='Starting multiprocessing manager (forking)')
     manager = MultiprocessingManager(n)
+
+    publish('parmake-status', status='Adding targets')
     manager.add_targets(job_list, more=False)
-    debug('Processing...')
+
+    publish('parmake-status', status='Processing')
     manager.process()
-#    finally:
-#        f2 = current()
-#        s = 'Before:\n\t%s\nAfter:\n\t%s' % (f1, f2)
-#        sys.stdout.write('on stdout: %s' % s)
-#        sys.stdout.flush()
-#        sys.stderr.write('on stderr: %s' % s)
-#        sys.stderr.flush()
 
     if manager.failed:
-        error('%d job(s) failed.' % len(manager.failed))
-        return RET_CODE_JOB_FAILED
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
@@ -162,36 +152,35 @@ def clustmake(job_list):
     manager.process()
 
     if manager.failed:
-        error('%d job(s) failed.' % len(manager.failed))
-        return RET_CODE_JOB_FAILED
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
-
-
-@ui_command(section=COMMANDS_CLUSTER)
-def clustmore(non_empty_job_list, loop=1):
-    '''Cluster equivalent of "more".
-
-       Note: you should use the Redis backend to use multiprocessing.
- '''
-    cluster_conf = compmake_config.cluster_conf  # @UndefinedVariable
-    hosts = parse_yaml_configuration(open(cluster_conf))
-
-    for x in range(int(loop)):
-        if loop > 1:
-            info("------- more: iteration %d --- " % x)
-
-        for job in non_empty_job_list:
-            mark_more(job)
-
-            manager = ClusterManager(hosts)
-        manager.add_targets(non_empty_job_list, more=True)
-        manager.process()
-
-        if manager.failed:
-            return RET_CODE_JOB_FAILED
-
-    return 0
+#
+#
+#@ui_command(section=COMMANDS_CLUSTER)
+#def clustmore(non_empty_job_list, loop=1):
+#    '''Cluster equivalent of "more".
+#
+#       Note: you should use the Redis backend to use multiprocessing.
+# '''
+#    cluster_conf = compmake_config.cluster_conf  # @UndefinedVariable
+#    hosts = parse_yaml_configuration(open(cluster_conf))
+#
+#    for x in range(int(loop)):
+#        if loop > 1:
+#            info("------- more: iteration %d --- " % x)
+#
+#        for job in non_empty_job_list:
+#            mark_more(job)
+#
+#            manager = ClusterManager(hosts)
+#        manager.add_targets(non_empty_job_list, more=True)
+#        manager.process()
+#
+#        if manager.failed:
+#            return RET_CODE_JOB_FAILED
+#
+#    return 0
 
 
 @ui_command(section=ACTIONS)
@@ -217,8 +206,7 @@ def remake(non_empty_job_list):
     manager.process()
 
     if manager.failed:
-        error('%d job(s) failed.' % len(manager.failed))
-        return RET_CODE_JOB_FAILED
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
@@ -237,60 +225,57 @@ def parremake(non_empty_job_list):
     manager.process()
 
     if manager.failed:
-        error('%d job(s) failed.' % len(manager.failed))
-        return RET_CODE_JOB_FAILED
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
 
-@ui_command(section=ACTIONS)
-def more(non_empty_job_list, loop=1):
-    '''Makes more of the selected targets. '''
+#@ui_command(section=ACTIONS)
+#def more(non_empty_job_list, loop=1):
+#    '''Makes more of the selected targets. '''
+#
+#    non_empty_job_list = list(non_empty_job_list)
+#
+#    for x in range(int(loop)):
+#        if loop > 1:
+#            info("------- more: iteration %d --- " % x)
+#
+#        for job in non_empty_job_list:
+#            mark_more(job)
+#
+#        manager = ManagerLocal()
+#        manager.add_targets(non_empty_job_list, more=True)
+#        manager.process()
+#
+#        if manager.failed:
+#            return('%d job(s) failed.' % len(manager.failed))
+#
+#    return 0
 
-    non_empty_job_list = list(non_empty_job_list)
-
-    for x in range(int(loop)):
-        if loop > 1:
-            info("------- more: iteration %d --- " % x)
-
-        for job in non_empty_job_list:
-            mark_more(job)
-
-        manager = ManagerLocal()
-        manager.add_targets(non_empty_job_list, more=True)
-        manager.process()
-
-        if manager.failed:
-            error('%d job(s) failed.' % len(manager.failed))
-            return RET_CODE_JOB_FAILED
-
-    return 0
-
-
-@ui_command(section=PARALLEL_ACTIONS)
-def parmore(non_empty_job_list, loop=1):
-    '''Parallel equivalent of "more". '''
-
-    non_empty_job_list = list(non_empty_job_list)
-
-    for job in non_empty_job_list:
-        mark_more(job)
-
-    for x in range(int(loop)):
-        if loop > 1:
-            info("------- parmore: iteration %d --- " % x)
-
-        for job in non_empty_job_list:
-            mark_more(job)
-
-        manager = MultiprocessingManager()
-        manager.add_targets(non_empty_job_list, more=True)
-        manager.process()
-
-        if manager.failed:
-            error('%d job(s) failed.' % len(manager.failed))
-            return RET_CODE_JOB_FAILED
-
-    return 0
+#
+#@ui_command(section=PARALLEL_ACTIONS)
+#def parmore(non_empty_job_list, loop=1):
+#    '''Parallel equivalent of "more". '''
+#
+#    non_empty_job_list = list(non_empty_job_list)
+#
+#    for job in non_empty_job_list:
+#        mark_more(job)
+#
+#    for x in range(int(loop)):
+#        if loop > 1:
+#            info("------- parmore: iteration %d --- " % x)
+#
+#        for job in non_empty_job_list:
+#            mark_more(job)
+#
+#        manager = MultiprocessingManager()
+#        manager.add_targets(non_empty_job_list, more=True)
+#        manager.process()
+#
+#        if manager.failed:
+#            return('%d job(s) failed.' % len(manager.failed))
+#
+#    return 0
 
 
