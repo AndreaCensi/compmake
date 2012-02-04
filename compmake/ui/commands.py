@@ -74,8 +74,7 @@ def make(job_list):
     manager.process()
 
     if manager.failed:
-#        error('%d job(s) failed.' % len(manager.failed))
-        return RET_CODE_JOB_FAILED
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
