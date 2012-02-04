@@ -28,7 +28,7 @@ def clean_target(job_id):
     delete_job_cache(job_id)
 
 
-def mark_more(job_id):
+def mark_more(job_id): # TODO: remove
     cache = get_job_cache(job_id)
     if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
         raise UserError(('I cannot make more of job %s because I did not even '
@@ -78,7 +78,6 @@ def mark_as_blocked(job_id, dependency=None):
 def mark_as_failed(job_id, exception=None, backtrace=None):
     ''' Marks job_id and its parents as failed '''
     # OK, it's night, but no need to query the DB to set the cache state
-    #cache = get_job_cache(job_id)
     cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
     cache.backtrace = backtrace
@@ -158,7 +157,7 @@ def make(job_id, more=False):
 
         def my_emit(_, log_record):
             msg = colorize_loglevel(log_record.levelno, log_record.msg)
-#            levelname = log_record.levelname
+            #  levelname = log_record.levelname
             name = log_record.name
 
             #print('%s:%s:%s' % (name, levelname, msg)) 

@@ -1,16 +1,19 @@
 from ..structures import CompmakeException
-from ..utils import TimeTrack, error, find_pickling_error, safe_write
+from ..utils import error, find_pickling_error, safe_write
 from StringIO import StringIO
 from glob import glob
 from os.path import splitext, basename
 import cPickle
 import os
+from compmake.structures import SerializationError
 
 pickle = cPickle
 
-
-track_time = lambda x: x
-#track_time = TimeTrack.decorator
+if True:
+    track_time = lambda x: x
+else:
+    from ..utils import TimeTrack
+    track_time = TimeTrack.decorator
 
 class StorageFilesystem:
     basepath = 'compmake_storage'
@@ -63,13 +66,10 @@ class StorageFilesystem:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
             msg += '\n%s' % find_pickling_error(value)
-            error(msg)
-            raise
-
-        content = sio.getvalue()
+            raise SerializationError(msg)
 
         with safe_write(filename, 'wb') as f:
-            f.write(content)
+            f.write(sio.getvalue())
 
     @staticmethod
     @track_time

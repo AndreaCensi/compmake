@@ -1,20 +1,28 @@
 from ..structures import ProgressStage
+from contracts import contract
 import time
 
-stack = []
-callback = None
+
+class Globals:
+    stack = []
+    callbacks = []
+
+
+def progress_stack_updated():
+    for callback in Globals.callbacks:
+        callback(Globals.stack)
 
 
 def init_progress_tracking(my_callback):
-    global stack
-    global callback
-    stack = []
-    callback = my_callback
-    callback(stack)
+    Globals.stack = []
+    Globals.callbacks.append(my_callback)
+    progress_stack_updated()
 
 
+@contract(taskname='str', iterations='tuple(int,int)')
 def progress(taskname, iterations, iteration_desc=None):
-    '''Function used by the user to describe the state of the computation.
+    '''
+        Function used by the user to describe the state of the computation.
     
        Parameters
        ---------
@@ -33,8 +41,6 @@ def progress(taskname, iterations, iteration_desc=None):
                 progress('Reading files', (i,n), 
                          'processing file %s' % file[i])
     '''
-    global stack
-    global callback
 
     if not isinstance(taskname, str):
         raise ValueError('The first argument to progress() is the task name ' +
@@ -65,6 +71,8 @@ def progress(taskname, iterations, iteration_desc=None):
 
     is_last = iterations[0] == iterations[1] - 1
 
+    stack = Globals.stack
+
     for i, stage in enumerate(stack):
         if stage.name == taskname:
             # remove children
@@ -76,7 +84,8 @@ def progress(taskname, iterations, iteration_desc=None):
             if ((is_last or has_children) or
                 (stage.last_broadcast is None) or
                 (time.time() - stage.last_broadcast > BROADCAST_INTERVAL)):
-                callback(stack)
+
+                progress_stack_updated()
                 stage.last_broadcast = time.time()
             if stage.last_broadcast is None:
                 stage.last_broadcast = time.time()
@@ -90,6 +99,6 @@ def progress(taskname, iterations, iteration_desc=None):
             # treat it as a brother
 
         stack.append(ProgressStage(taskname, iterations, iteration_desc))
-        callback(stack)
+        progress_stack_updated()
 
 

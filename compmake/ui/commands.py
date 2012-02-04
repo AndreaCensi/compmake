@@ -6,8 +6,7 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 '''
 from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
-               COMMANDS_ADVANCED,
-    COMMANDS_CLUSTER, ui_section)
+               COMMANDS_ADVANCED, COMMANDS_CLUSTER, ui_section)
 from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
     compmake_status_interactive)
 from ..config import compmake_config
@@ -15,7 +14,7 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     MultiprocessingManager, clean_target, mark_remake, mark_more, top_targets,
     parse_yaml_configuration)
 from ..structures import UserError, JobFailed, ShellExitRequested
-from ..utils import error, info
+from ..utils import debug, error, info
 import os
 
 
@@ -107,14 +106,31 @@ Usage:
        
        parmake [n=<num>] [joblist]
  '''
+    debug('Obtaining job list...')
     job_list = list(job_list)
 
     if not job_list:
         job_list = list(top_targets())
 
+#    def current():
+#        return ('parmake before: stdout %s stderr %s stdin %s' %
+#                (sys.stdout, sys.stderr, sys.stdin))
+#
+#    f1 = current()
+#
+#    try:
+    debug('Staring manager...')
     manager = MultiprocessingManager(n)
     manager.add_targets(job_list, more=False)
+    debug('Processing...')
     manager.process()
+#    finally:
+#        f2 = current()
+#        s = 'Before:\n\t%s\nAfter:\n\t%s' % (f1, f2)
+#        sys.stdout.write('on stdout: %s' % s)
+#        sys.stdout.flush()
+#        sys.stderr.write('on stderr: %s' % s)
+#        sys.stderr.flush()
 
     if manager.failed:
         error('%d job(s) failed.' % len(manager.failed))

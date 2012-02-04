@@ -6,10 +6,10 @@ from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
 from ..structures import Job, UserError, Promise
-from ..utils import interpret_strings_like, error
+from ..utils import interpret_strings_like
+import cPickle as pickle
 import compmake # XXX
 import inspect
-import cPickle as pickle
 
 
 # static storage # XXX: put it somewhere
@@ -18,9 +18,12 @@ compmake_slave_mode = False
 jobs_defined_in_this_session = set()
 
 
-def make_sure_pickable(obj):
-    # TODO write this function
-    pass
+def is_pickable(x): # TODO: move away
+    try:
+        pickle.dumps(x)
+        return True
+    except (BaseException, TypeError):
+        return False
 
 
 def collect_dependencies(ob):
@@ -115,19 +118,18 @@ def comp(command, *args, **kwargs):
     
         :arg:job_id:   sets the job id (respects job_prefix)
         :arg:extra_dep: extra dependencies (not passed as arguments)
+        
+        Raises UserError if command is not pickable.
     '''
     if compmake.compmake_status == compmake_status_slave:
         return None
 
     # Check that this is a pickable function
-    try:
-        pickle.dumps(command)
-    except:
+    if not is_pickable(command):
         msg = ('Cannot pickle function %r. Make sure it is not a lambda '
                'function or a nested function. (This is a limitation of '
                'Python)' % command)
-        error(msg)
-        raise
+        raise UserError(msg)
 
     args = list(args) # args is a non iterable tuple
 

@@ -42,10 +42,11 @@ def handle_event(event):  # @UnusedVariable
 
                     if i < len(stack) - 1:
                         x += ['>>']
-            X += ["[" + " ".join(x) + "]"]
-        return " ".join(X)
+#            X += ["[" + " ".join(x) + "]"]
+            X += [" ".join(x)]
+        return "  " + ", ".join(X)
 
-    cols, rows = getTerminalSize()  # @UnusedVariable
+    cols, _ = getTerminalSize()
 
     choice = '%d processing' % len(tracker.status)
     for level in [4, 3, 2, 1, 0]:

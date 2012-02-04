@@ -8,9 +8,6 @@ from multiprocessing.queues import Queue
 import signal
 import sys
 
-# Do not erase:
-# event  { 'name': 'worker-status', 'attrs': ['status', 'job_id'] }
-
 
 if False:
     # Debug multiprocsssing

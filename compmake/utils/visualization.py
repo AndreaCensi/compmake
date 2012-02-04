@@ -89,14 +89,14 @@ def clean_console_line(stream):
 
 
 def warning(string):
-    write_message(string, lambda x: colored(x, 'magenta'))
+    write_message(string, lambda x: colored(x, 'yellow'))
 
 
 def error(string):
     write_message(string, lambda x: colored(x, 'red'))
 
 
-def user_error(string):
+def user_error(string): # XXX: what's the difference with above?
     write_message(string, lambda x: colored(x, 'red'))
 
 
@@ -105,7 +105,7 @@ def info(string):
 
 
 def debug(string): # XXX: never used?
-    write_message(string, lambda x: colored(x, 'cyan', attrs=['dark']))
+    write_message(string, lambda x: colored(x, 'magenta'))
 
 
 original_stdout = sys.stdout

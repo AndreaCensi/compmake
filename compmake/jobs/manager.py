@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
 from  . import compute_priorities
+from compmake.utils.visualization import debug
 
 
 class AsyncResultInterface:
@@ -205,14 +206,17 @@ class Manager:
         ''' Start processing jobs. '''
 
         # precompute job priorities
+        debug('Computing priorities...')
         self.priorities = compute_priorities(self.all_targets)
 
         if not self.todo:
             info('Nothing to do.')
             return True
 
+        debug('Initiating process...')
         self.process_init()
 
+        debug('Starting make loop...')
         try:
             while self.todo:
                 assert self.ready_todo or self.processing
