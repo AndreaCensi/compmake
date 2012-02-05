@@ -25,7 +25,7 @@ add(EventSpec('manager-phase', ['phase']))
 # These are called when the manager updates its data structure
 add(EventSpec('manager-job-failed', ['job_id']))
 add(EventSpec('manager-job-succeeded', ['job_id']))
-add(EventSpec('manager-host-failed', ['job_id']))
+add(EventSpec('manager-host-failed', ['job_id', 'reason']))
 add(EventSpec('manager-init', ['targets', 'more']))
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
                                     'failed', 'ready', 'processing']))

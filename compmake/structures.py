@@ -155,6 +155,17 @@ class Job(object):
 
         return command(*args, **kwargs)
 
+    def get_actual_command(self):
+        """ returns command, args, kwargs after deps subst."""
+        from compmake.jobs.storage import get_job_args
+        job_args = get_job_args(self.job_id)
+        command, args, kwargs = job_args
+        from compmake.jobs import substitute_dependencies
+        # TODO: move this to jobs.actions?
+        args = substitute_dependencies(args)
+        kwargs = substitute_dependencies(kwargs)
+        return command, args, kwargs
+
     # XXX do a "promise" class
     def __eq__(self, other):
         ''' Note, this comparison has the semantics of "same promise" '''

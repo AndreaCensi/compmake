@@ -1,12 +1,24 @@
-from . import FakeAsync, Host, Manager, get_namespace
-from .. import RET_CODE_JOB_FAILED
+from . import FakeAsync, Host, Manager
 from ..config import compmake_config
-from ..events import broadcast_event
-from ..storage.redisdb import RedisInterface
-from ..structures import UserError, JobFailed, HostFailed
+from ..jobs import mark_as_failed
+from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 from ..utils import info, setproctitle, error
+from cjson import encode, decode, EncodeError, DecodeError
+from ..jobs.storage import get_job, set_job_userobject, set_job_cache
 from multiprocessing import Pool
+import base64
+import pickle
 import subprocess
+import sys
+import time
+import traceback
+from compmake import RET_CODE_JOB_FAILED
+from ..events import remove_all_handlers, broadcast_event
+from ..events.registrar import register_handler
+import logging
+from ..utils.capture import OutputCapture
+from ..jobs.actions import colorize_loglevel
+#from ..storage.redisdb import RedisInterface
 
 
 class ClusterManager(Manager):
@@ -27,16 +39,9 @@ class ClusterManager(Manager):
         self.hosts = newhosts
 
     def process_init(self):
-        from compmake.storage import db
-        if not db.supports_concurrency():
-            raise UserError("This backend does not support concurrency")
-
         self.failed_hosts = set()
         self.hosts_processing = []
         self.hosts_ready = self.hosts.keys()
-
-#        print self.hosts_ready
-
         # job-id -> host
         self.processing2host = {}
         self.pool = Pool(processes=len(self.hosts_ready))
@@ -89,64 +94,221 @@ class ClusterManager(Manager):
         self.processing2host[job_id] = slave
 
         host_config = self.hosts[slave]
+
+        f = cluster_job
+        nice = None
+        fargs = job_id, host_config.name, host_config.username, nice
+
         if 1:
-            async_result = self.pool.apply_async(cluster_job,
-                                                 [host_config, job_id, more])
+            async_result = self.pool.apply_async(f, fargs)
         else:
             # Useful for debugging the logic: run serially instead of 
             # in parallel
-            async_result = FakeAsync(cluster_job, host_config, job_id, more)
+            async_result = FakeAsync(f, *fargs)
 
         return async_result
 
     def event_check(self):
-        events = RedisInterface.events_read()
-        for event in events:
-            event.kwargs['remote'] = True
-            broadcast_event(event)
+        pass
+#        events = RedisInterface.events_read()
+#        for event in events:
+#            event.kwargs['remote'] = True
+#            broadcast_event(event)
 
 
-def cluster_job(config, job_id, more=False):
-    setproctitle('%s %s' % (job_id, config.name))
+def compmake_slave():
+    s = StreamCon(sys.stdin, sys.stdout)
 
-    proxy_port = 13000 + config.instance
+    def msg(x):
+        sys.stderr.write('%s: %s' % ('slave', x))
+        sys.stderr.write('\n')
+        sys.stderr.flush()
 
-    hostname_no_instance = config.name.split(':')[0]
-    nice = compmake_config.cluster_nice #@UndefinedVariable
+    try:
+        job_id = s.read()
+        # note first, second ,third below
+        remove_all_handlers() # first
 
-    compmake_cmd = (
-    'nice -n %d compmake --hostname=%s '
-    '--db=redis --redis_events --redis_host=localhost:%s '
-    '--slave  %s --save_progress=False '
-    'make_single more=%s %s' %
-            (nice, hostname_no_instance, proxy_port,
-             get_namespace(), more, job_id)
-    )
+        capture = OutputCapture(prefix=job_id, # second
+                                echo_stdout=False, echo_stderr=False)
+        try:
+            actual = s.read()
+        except Exception as e:
+            msg = ('I could not deserialize the data or the function. '
+                   'Make sure that your package is on the python path. '
+                   'My python path is the following:\n%s'
+                    '\n\n\nA confusing message will appear next:\n\n%s' %
+                    (sys.path, traceback.format_exc(e)))
+            raise Exception(msg)
 
-    redis_host = RedisInterface.host
-    redis_port = RedisInterface.port
-    if config.username:
-        connection_string = '%s@%s' % (config.username, config.host)
+        #msg('Obtained: %s' % str(actual))
+        function, args, kwargs = actual
+
+        def handler(event):
+            s.write(('event', event))
+
+        register_handler("*", handler) # third (otherwise stdout dirty)
+
+        # TODO: add whether we should just capture and not echo
+        old_emit = logging.StreamHandler.emit
+
+        def my_emit(_, log_record):
+            msg = colorize_loglevel(log_record.levelno, log_record.msg)
+            #  levelname = log_record.levelname
+            name = log_record.name
+            #print('%s:%s:%s' % (name, levelname, msg))
+            # TODO: use special log event? 
+            sys.stderr.write('%s:%s\n' % (name, msg))
+
+        logging.StreamHandler.emit = my_emit
+
+        try:
+            result = function(*args, **kwargs)
+        except Exception as e:
+#            msg('Failure! %s' % bt)
+            s.write(('failure', (str(e), traceback.format_exc(e))))
+            return RET_CODE_JOB_FAILED
+        finally:
+            capture.deactivate()
+            logging.StreamHandler.emit = old_emit
+
+        #msg('Success! result is %s' % result)
+        s.write(('success', result))
+        #msg('Finished writing.')
+        return 0
+    except Exception as e:
+        s.write(('host-failure', (str(e), traceback.format_exc(e))))
+        msg('Emergency exit -- something wrong happened')
+        sys.exit(1)
+
+
+def cluster_job(job_id, hostname, username=None, nice=None):
+    setproctitle('%s %s' % (job_id, hostname))
+
+#    proxy_port = 13000 + config.instance
+
+#    hostname_no_instance = config.name.split(':')[0]
+#    nice = compmake_config.cluster_nice #@UndefinedVariable
+
+    if username:
+        connection_string = '%s@%s' % (username, hostname)
     else:
-        connection_string = config.host
+        connection_string = hostname
 
-    # TODO: make additional switches configurable
-    args = ['ssh', connection_string, '-X', '-R',
-            '%s:%s:%s' % (proxy_port, redis_host, redis_port),
-            '%s' % compmake_cmd]
+    command = ['ssh', connection_string,
+               #'-X', 
+               'compmake_slave']
 
-    if compmake_config.cluster_show_cmd: #@UndefinedVariable
-        print " ".join(args)
-    PIPE = subprocess.PIPE
-    p = subprocess.Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    ret = p.wait()
+    try:
+        PIPE = subprocess.PIPE
+        p = subprocess.Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
-    if ret == RET_CODE_JOB_FAILED:
-        raise JobFailed('Job %s failed' % job_id)
+        stream = StreamCon(p.stdout, p.stdin)
+        stream.write(job_id)
+        job = get_job(job_id)
+        stream.write(job.get_actual_command())
+        # todo: mark in progress?
+        while True:
+            what, result = stream.read()
 
-    if ret != 0:
-        raise HostFailed('Job %s: host failed: (line: "%s", ret=%s)' %
-                             (job_id, " ".join(args), ret))
+            if what == 'success' or what == 'failure':
+                if p.stderr is not None:
+                    st = p.stderr.read()
+                    if st:
+                        print('Warning, dirty stderr for ssh: %r' % st)
 
-    return ret
+            if what == 'success':
+                user_object = result
+                set_job_userobject(job_id, user_object)
+                cache = Cache(Cache.DONE)
+                cache.state = Cache.DONE
+                cache.timestamp = time.time()
+                walltime = 1 # FIXME
+                cputime = walltime # FIXME
+                cache.walltime_used = walltime
+                cache.cputime_used = cputime
+                cache.host = hostname
+                set_job_cache(job_id, cache)
+                return True
 
+            if what == 'failure':
+                error, error_bt = result
+                mark_as_failed(job_id, error, error_bt)
+                raise JobFailed('Job %r failed' % job_id)
+
+            if what == 'host-failure':
+                error, error_bt = result
+                raise HostFailed(error_bt)
+
+            if what == 'event':
+                event = result
+                event.kwargs['remote'] = True
+                broadcast_event(event)
+                continue
+
+            raise Exception('Unknown what: %r' % what)
+
+    except ComException as e:
+        raise HostFailed('Communication with host %s failed (%s)' %
+                         (hostname, e))
+    except HostFailed:
+        raise
+    except JobFailed:
+        raise
+    except Exception as e:
+        # TODO: different exception
+        bt = traceback.format_exc(e)
+        raise CompmakeException('BUG: strange exception %s' % bt)
+
+
+class ComException(Exception):
+    pass
+
+
+class StreamCon:
+
+    def __init__(self, stdin, stdout):
+        self.stdin = stdin
+        self.stdout = stdout
+
+    def close(self):
+        self.write_json({'method': 'bye'})
+        return self.expect_ok_status()
+
+    def write_json(self, dic):
+        try:
+            self.stdout.write(encode(dic))
+            self.stdout.write("\n")
+            self.stdout.flush()
+        except IOError, ex:
+            raise ComException("IOError while writing: %s" % ex)
+        except EncodeError, ex:
+            raise ComException("Cannot encode json. \n\t %s '''%s'''\n" %
+                                       (str(ex), dic))
+
+    def read_json(self):
+        try:
+            line = self.stdin.readline()
+            if not line:
+                raise ComException("Broken communication")
+            return decode(line)
+        except IOError, ex:
+            raise ComException("IOError while reading: %s" % ex)
+        except DecodeError, ex:
+            raise ComException("Cannot decode json: '%s' \n\t %s\n" %
+                               (line, str(ex)))
+
+    def write(self, ob):
+        binary = pickle.dumps(ob)
+        b64 = base64.b64encode(binary)
+        self.write_json({'method': 'pickle',
+                         'base64': b64})
+
+    def read(self):
+        response = self.read_json()
+        if response['method'] != 'pickle':
+            raise Exception('Expected pickle, got %r' % response)
+        b64 = response['base64']
+        binary = base64.b64decode(b64)
+        data = pickle.loads(binary)
+        return data

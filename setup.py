@@ -39,7 +39,8 @@ setup(
     packages=find_packages(),
     entry_points={
      'console_scripts': [
-       'compmake = compmake.scripts.master:main'
+       'compmake = compmake.scripts.master:main',
+       'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
       ]
     },
     install_requires=['termcolor', 'setproctitle', 'readline'],

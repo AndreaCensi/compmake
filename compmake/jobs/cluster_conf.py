@@ -3,10 +3,11 @@
 # v_rangefinder_nonunif-random_pose_simulation "
 import sys
 from collections import namedtuple
+from pprint import pprint
 
 
 Host = namedtuple('Host',
-                  'name host username processors init test type instance')
+                  'name host username processors init test instance')
 
 
 def parse_yaml_configuration(file): #@ReservedAssignment
@@ -18,9 +19,11 @@ def parse_yaml_configuration(file): #@ReservedAssignment
     import yaml
     configuration = yaml.load(file)
 
+    pprint(configuration)
+
     results = {}
 
-    types = configuration['types']
+    types = configuration.get('types', {})
     hosts = configuration['hosts']
 
     default_conf = {
@@ -33,6 +36,7 @@ def parse_yaml_configuration(file): #@ReservedAssignment
     }
     default_type = types.get('default', {})
     fill_in(default_type, default_conf)
+    types['default'] = default_type
 
     for compname, config in types.items(): #@UnusedVariable
         fill_in(config, default_type)
@@ -49,6 +53,7 @@ def parse_yaml_configuration(file): #@ReservedAssignment
 
         assert not hostname in results, 'Duplicated key'
 
+        pprint(config)
         results[hostname] = Host(**config)
 
     return results

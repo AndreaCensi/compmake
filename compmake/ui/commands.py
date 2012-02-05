@@ -143,8 +143,9 @@ def clustmake(job_list):
     cluster_conf = compmake_config.cluster_conf  # @UndefinedVariable
 
     if not os.path.exists(cluster_conf):
-        raise UserError('Configuration file "%s" does not exist.'
-                        % cluster_conf)
+        msg = ('Configuration file %r does not exist.' % cluster_conf)
+        raise UserError(msg)
+
     hosts = parse_yaml_configuration(open(cluster_conf))
     manager = ClusterManager(hosts)
     manager.add_targets(job_list)

@@ -80,7 +80,7 @@ def compmake_console():
     set_compmake_status(compmake_status_embedded)
 
 
-is_it_time = False
+is_it_time = False # XXX
 
 
 # TODO: remove this

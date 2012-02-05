@@ -135,15 +135,15 @@ class Manager:
         except JobFailed:
             self.job_failed(job_id)
             return True
-        except HostFailed:
+        except HostFailed as e:
             # the execution has been interrupted, but not failed
+            publish('manager-host-failed', job_id=job_id, reason=str(e))
             self.host_failed(job_id)
             return True
         except KeyboardInterrupt:
             raise JobInterrupted('Keyboard interrupt')
 
     def host_failed(self, job_id):
-        publish('manager-host-failed', job_id=job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
@@ -244,11 +244,11 @@ class Manager:
 
                 self.loop_until_something_finishes()
 
-
             self.process_finished()
 
             publish('manager-succeeded',
-                targets=self.targets, done=self.done, all_targets=self.all_targets,
+                targets=self.targets, done=self.done,
+                all_targets=self.all_targets,
                 todo=self.todo, failed=self.failed, ready=self.ready_todo,
                 processing=self.processing)
 
@@ -264,7 +264,6 @@ class Manager:
             raise
         finally:
             self.cleanup()
-
 
     def publish_progress(self):
         publish('manager-progress', targets=self.targets, done=self.done,

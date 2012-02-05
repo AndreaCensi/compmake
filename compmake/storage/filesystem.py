@@ -14,6 +14,7 @@ else:
     from ..utils import TimeTrack
     track_time = TimeTrack.decorator
 
+
 class StorageFilesystem:
     basepath = 'compmake_storage'
     checked_existence = False

@@ -19,7 +19,7 @@ def print_event(event):
 
     s = str(event.kwargs)
 #    print ('%r has len %d' % (s, len(s)))
-    MAX_LEN = 80 # TODO: 
+    MAX_LEN = 1000 # TODO: 
     # TODO: clip_to_length(s, ' [...]')
     if len(s) > MAX_LEN:
         suff = ' [...]'

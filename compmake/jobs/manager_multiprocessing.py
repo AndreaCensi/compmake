@@ -67,21 +67,13 @@ class MultiprocessingManager(Manager):
         return async_result
 
     def event_check(self):
-        #print('M looking at queue... size is %s ' % event_queue.qsize())
-        #num_processed = 0
         while True:
-            #print('M queue size: %s' % event_queue.qsize())
             try:
                 event = Shared.event_queue.get(block=False)
-                #  event = event_queue.get(block=True)
                 event.kwargs['remote'] = True
                 broadcast_event(event)
-                #num_processed += 1
             except Empty:
-                #                print('M Empty queue exception')
                 break
-
-        # print('M I processed %d' % num_processed)
 
     def process_finished(self):
         # Make sure that all the stuff is read from the queue
@@ -121,13 +113,10 @@ def parmake_job2(job_id, more):
         # to the main process
         def handler(event):
             try:
-                #print('size: %s putting %s' % (event_queue.qsize(), event))
-                #Shared.event_queue.put(event, block=True, timeout=1)
                 Shared.event_queue.put(event, block=False)
             except Full:
                 sys.stderr.write('job %s: Queue is full, message is lost.\n'
                                  % job_id)
-                #pass
 
         remove_all_handlers()
         register_handler("*", handler)
