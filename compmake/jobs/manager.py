@@ -211,7 +211,8 @@ class Manager:
         if not self.todo:
             # info('Nothing to do.')
             publish('manager-succeeded',
-                targets=self.targets, done=self.done, all_targets=self.all_targets,
+                targets=self.targets, done=self.done,
+                all_targets=self.all_targets,
                 todo=self.todo, failed=self.failed, ready=self.ready_todo,
                 processing=self.processing)
 

@@ -49,7 +49,7 @@ class Test1(TestCase):
         self.not_started = selectf(Cache.NOT_STARTED)
 
     def selection(self, crit):
-        return set([id for id, state in self.jobs if crit(id, state) ]) #@ReservedAssignment
+        return set([nid for nid, state in self.jobs if crit(nid, state)])
 
     def expandsTo(self, A, B):
         ''' A, B can be:
@@ -63,7 +63,7 @@ class Test1(TestCase):
                 return X
             elif isinstance(X, list):
                 return set(X)
-            elif isinstance(X, type(lambda:0)):
+            elif isinstance(X, type(lambda: 0)):
                 return self.selection(X)
             elif isinstance(X, str):
                 return set(parse_job_list(X))
@@ -109,12 +109,11 @@ class Test1(TestCase):
         self.expandsTo('e failed', self.failed.union('e'))
 
     def testNot(self):
-        self.expandsTo('not failed',
-                       lambda job, state: state != Cache.FAILED) #@UnusedVariable
+        self.expandsTo('not failed', lambda _, state: state != Cache.FAILED)
         self.expandsTo('all except failed',
-                       lambda job, state: state != Cache.FAILED) #@UnusedVariable
+                       lambda _, state: state != Cache.FAILED)
 
-        all_not_e = self.selection(lambda job, state: job != 'e') #@UnusedVariable
+        all_not_e = self.selection(lambda job, _: job != 'e')
         self.expandsTo('not e', all_not_e)
         self.expandsTo('not e*', all_not_e)
         self.expandsTo('all except e', all_not_e)
@@ -129,11 +128,9 @@ class Test1(TestCase):
         self.expandsTo('a in all  ', 'a')
         self.expandsTo('all in all  ', 'all')
 
-
     def testIntersection(self):
         self.expandsTo('a b in a b c', ['a', 'b'])
         self.expandsTo('a b c in d e f', [])
-
 
     def tearDown(self):
         pass

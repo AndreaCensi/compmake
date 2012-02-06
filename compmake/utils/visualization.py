@@ -111,6 +111,7 @@ def debug(string): # XXX: never used?
 original_stdout = sys.stdout
 original_stderr = sys.stderr
 
+
 def write_message(string, formatting):
     from ..utils import pad_to_screen
 
@@ -129,7 +130,6 @@ def write_message(string, formatting):
             original_stderr.write('\n')
 
     original_stderr.flush()
-
 
 
 def duration_human(seconds):

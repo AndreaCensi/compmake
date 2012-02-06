@@ -27,8 +27,7 @@ def list_job_detail(job_id):
     up, reason = up_to_date(job_id)
 
     red = lambda x: colored(x, 'red')
-    bold = lambda x:  colored(rjust(x + ' ', 15), attrs=['bold'])
-
+    bold = lambda x: colored(rjust(x + ' ', 15), attrs=['bold'])
 
     try:
         # TODO: make it work in Python3K
@@ -48,13 +47,12 @@ def list_job_detail(job_id):
             print(bold('Progress:') + '%s/%s' % \
                 (cache.iterations_in_progress, cache.iterations_goal))
 
-
         if cache.state == Cache.FAILED:
             print(red(cache.exception))
             print(red(cache.backtrace))
 
         def display_with_prefix(buffer, prefix, #@ReservedAssignment
-                                transform=lambda x:x, out=sys.stdout):
+                                transform=lambda x: x, out=sys.stdout):
             for line in buffer.split('\n'):
                 out.write('%s%s\n' % (prefix, transform(line)))
 

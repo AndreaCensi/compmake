@@ -17,7 +17,9 @@ def uses_lambda():
 
 
 class TestInvalidFunctions(unittest.TestCase):
+
     def test_invalid_function_nested(self):
         self.assertRaises(UserError, uses_nested)
+
     def test_invalid_function_lambda(self):
         self.assertRaises(UserError, uses_lambda)

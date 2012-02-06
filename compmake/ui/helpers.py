@@ -5,11 +5,11 @@ from collections import namedtuple
 from string import ljust
 import sys
 import types
- 
+
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
-    
+
 # name (string) -> tuple (function, name, docs, alias, section)
 commands = {}
 # holds alias -> name  (string->string) table
@@ -27,7 +27,7 @@ sections = {}
 # for an explanation. Also see for additional trick
 
 
-def ui_command(name=None, alias=[], section=None):    
+def ui_command(name=None, alias=[], section=None):
     def wrap(func, name, alias, section):
         ''' Decorator for a UI command -- wrapper for register_command '''
         if name is None:
@@ -36,24 +36,28 @@ def ui_command(name=None, alias=[], section=None):
         register_command(name=name, func=func, docs=docs,
                          alias=alias, section=section)
         return func
-    
+
     if type(name) is types.FunctionType:
         func = name
         return wrap(func, name=None, alias=[], section=None)
 
-    return lambda x : wrap(x, name, alias, section)
+    return lambda x: wrap(x, name, alias, section)
 
-last_section_name = None
+
+last_section_name = None # XXX
+
+
 def ui_section(section_name, desc=None, order=None):
     if not section_name in sections:
         sections[section_name] = Section(name=section_name, desc=desc,
                                          order=order, commands=[])
-    else: 
+    else:
         assert not desc and not order, \
-            'Description already given for section %s' % section_name 
-        
+            'Description already given for section %s' % section_name
+
     global last_section_name
     last_section_name = section_name
+
 
 def register_command(name, func, docs=None, alias=[], section=None):
     if isinstance(alias, str):
@@ -64,12 +68,13 @@ def register_command(name, func, docs=None, alias=[], section=None):
     commands[name] = Command(function=func, name=name, doc=docs,
                              alias=alias, section=section)
     assert section in sections, "Section '%s' not defined" % section
-    sections[section].commands.append(name) 
+    sections[section].commands.append(name)
     for a in alias:
         assert not a in alias2name, 'Alias "%s" already used' % a
         assert not a in commands, 'Alias "%s" is already a command' % a
         alias2name[a] = name
-    
+
+
 def get_commands():
     return commands
 
@@ -96,7 +101,6 @@ ui_section(INPUT_OUTPUT, 'Ways to get data out of compmake.', 3)
 ui_section(COMMANDS_ADVANCED, 'Advanced commands not for general use.', 4)
 
 
-
 @ui_command(section=GENERAL)
 def help(args): #@ReservedAssignment
     '''Prints help about the other commands. (try 'help help')
@@ -112,25 +116,26 @@ def help(args): #@ReservedAssignment
         list_commands_with_sections()
     else:
         if len(args) > 1:
-            raise UserError(
-                'The "help" command expects at most one parameter. (got: %s)' % args)
-    
+            msg = ('The "help" command expects at most one parameter.'
+                   ' (got: %s)' % args)
+            raise UserError(msg)
+
         c = args[0]
         if not c in commands.keys():
             raise UserError('Command %r not found.' % c)
-     
+
         cmd = commands[c] #@UnusedVariable
-        
+
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
-        print s 
+        print s
         print cmd.doc
 
-  
+
 def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
     ordered_sections = sorted(sections.values(),
                               key=lambda section: section.order)
-    
+
     max_len = 1 + max([len(cmd.name) for cmd in commands.values()])
     for section in ordered_sections:
         file.write("  ---- %s ----  \n" % section.name)
@@ -140,9 +145,10 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
         for name in section.commands:
             cmd = commands[name]
             short_doc = cmd.doc.split('\n')[0].strip()
-            file.write("  | %s  %s\n" % 
-                       (colored(ljust(name, max_len), attrs=['bold']), short_doc))
+            file.write("  | %s  %s\n" %
+                       (colored(ljust(name, max_len), attrs=['bold']),
+                        short_doc))
 
 
 
-    
+

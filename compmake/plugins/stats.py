@@ -46,8 +46,8 @@ def display_stats(job_list):
         function_id = get_job(job_id).command_desc
         # initialize record if not present
         if not function_id in function2state2count:
-            function2state2count[function_id] = dict(map(lambda x: (x, 0), states_order) +
-                                                     [('all', 0)])
+            function2state2count[function_id] = \
+                dict(map(lambda x: (x, 0), states_order) + [('all', 0)])
         # update
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1

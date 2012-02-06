@@ -1,24 +1,19 @@
 from . import FakeAsync, Host, Manager
-from ..config import compmake_config
-from ..jobs import mark_as_failed
+from ..events import register_handler, remove_all_handlers, broadcast_event
+from ..jobs import (colorize_loglevel, get_job, set_job_userobject,
+    set_job_cache, mark_as_failed)
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
-from ..utils import info, setproctitle, error
+from ..utils import OutputCapture, info, setproctitle, error
 from cjson import encode, decode, EncodeError, DecodeError
-from ..jobs.storage import get_job, set_job_userobject, set_job_cache
+from .. import RET_CODE_JOB_FAILED
 from multiprocessing import Pool
 import base64
+import logging
 import pickle
 import subprocess
 import sys
 import time
 import traceback
-from compmake import RET_CODE_JOB_FAILED
-from ..events import remove_all_handlers, broadcast_event
-from ..events.registrar import register_handler
-import logging
-from ..utils.capture import OutputCapture
-from ..jobs.actions import colorize_loglevel
-#from ..storage.redisdb import RedisInterface
 
 
 class ClusterManager(Manager):
@@ -99,21 +94,18 @@ class ClusterManager(Manager):
         nice = None
         fargs = job_id, host_config.name, host_config.username, nice
 
-        if 1:
+        debug = False
+        if not debug:
             async_result = self.pool.apply_async(f, fargs)
         else:
-            # Useful for debugging the logic: run serially instead of 
-            # in parallel
+            # Useful for debugging the logic: 
+            # run serially instead of in parallel
             async_result = FakeAsync(f, *fargs)
 
         return async_result
 
     def event_check(self):
         pass
-#        events = RedisInterface.events_read()
-#        for event in events:
-#            event.kwargs['remote'] = True
-#            broadcast_event(event)
 
 
 def compmake_slave():
@@ -126,12 +118,16 @@ def compmake_slave():
 
     try:
         job_id = s.read()
-        # note first, second ,third below
-        remove_all_handlers() # first
+        # Note the order of first, second, third below.
 
-        capture = OutputCapture(prefix=job_id, # second
+        # MUST BE first
+        remove_all_handlers()
+
+        # MUST BE second
+        capture = OutputCapture(prefix=job_id,
                                 echo_stdout=False, echo_stderr=False)
         try:
+            # MUST BE third
             actual = s.read()
         except Exception as e:
             msg = ('I could not deserialize the data or the function. '
@@ -141,7 +137,6 @@ def compmake_slave():
                     (sys.path, traceback.format_exc(e)))
             raise Exception(msg)
 
-        #msg('Obtained: %s' % str(actual))
         function, args, kwargs = actual
 
         def handler(event):
@@ -165,30 +160,25 @@ def compmake_slave():
         try:
             result = function(*args, **kwargs)
         except Exception as e:
-#            msg('Failure! %s' % bt)
             s.write(('failure', (str(e), traceback.format_exc(e))))
             return RET_CODE_JOB_FAILED
         finally:
             capture.deactivate()
             logging.StreamHandler.emit = old_emit
 
-        #msg('Success! result is %s' % result)
         s.write(('success', result))
-        #msg('Finished writing.')
-        return 0
+
     except Exception as e:
         s.write(('host-failure', (str(e), traceback.format_exc(e))))
         msg('Emergency exit -- something wrong happened')
         sys.exit(1)
 
+    sys.exit(0)
 
+
+# TODO: what about wrong hostname?
 def cluster_job(job_id, hostname, username=None, nice=None):
     setproctitle('%s %s' % (job_id, hostname))
-
-#    proxy_port = 13000 + config.instance
-
-#    hostname_no_instance = config.name.split(':')[0]
-#    nice = compmake_config.cluster_nice #@UndefinedVariable
 
     if username:
         connection_string = '%s@%s' % (username, hostname)
@@ -262,18 +252,22 @@ def cluster_job(job_id, hostname, username=None, nice=None):
 
 
 class ComException(Exception):
+    ''' Communication exception. '''
     pass
 
 
 class StreamCon:
+    ''' Simple communication stream. 
+    
+        It sends and receives python objects by enclosing them in a json
+        packet:
+        
+            object -> pickled -> base64 -> json packet
+    '''
 
     def __init__(self, stdin, stdout):
         self.stdin = stdin
         self.stdout = stdout
-
-    def close(self):
-        self.write_json({'method': 'bye'})
-        return self.expect_ok_status()
 
     def write_json(self, dic):
         try:

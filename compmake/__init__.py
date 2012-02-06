@@ -6,6 +6,8 @@ __version__ = version
 from .constants import *
 
 # TODO: move everything in constants or globals
+# TODO: default cluster.yaml
+# TODO: how to deal with KeyboardInterrupt in make? 
 
 # Statuses ------------------------------------------------
 # Compmake can be run in different "states"
@@ -59,9 +61,9 @@ def batch_command(s):
     if compmake_status == compmake_status_interactive:
         return # XXX not sure 
 
-    from .ui import interpret_commands
+    from .ui import interpret_commands_wrap
     try:
-        return interpret_commands(s)
+        return interpret_commands_wrap(s)
     except KeyboardInterrupt:
         pass
 

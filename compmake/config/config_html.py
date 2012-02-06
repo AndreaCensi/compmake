@@ -26,7 +26,6 @@ def create_config_html(file): #@ReservedAssignment
 
     file.write("</table>\n")
 
-
     file.write('''
     <style type="text/css">
     .config-value: { padding: 1em }

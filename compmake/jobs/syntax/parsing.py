@@ -227,11 +227,11 @@ def parse_job_list(tokens):
 
     return result
 
+
 def eval_ops(ops):
     ''' Evaluates an expression. 
       ops: list of strings and int representing operators '''
     assert isinstance(ops, list)
-
 
     def list_split(l, index):
         ''' Splits a list in two '''
@@ -280,6 +280,7 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
                 yield x
     else:
         # no operators: simple list
-        # cannot do this anymore, now it's a generator. assert_list_of_strings(ops)
+        # cannot do this anymore, now it's a generator. 
+        # assert_list_of_strings(ops)
         for x in expand_job_list_tokens(ops):
             yield x

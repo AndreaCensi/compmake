@@ -228,7 +228,7 @@ def comp(command, *args, **kwargs):
 #  command  alias aliasname job... 
 
 
-def interpret_commands(commands, separator=';'):
+def interpret_commands(commands_str, separator=';'):
     ''' 
         Interprets what could possibly be a list of commands (separated by ";")
         If one command fails, it returns its retcode, and then the rest 
@@ -238,11 +238,11 @@ def interpret_commands(commands, separator=';'):
         what went wrong.
     '''
 
-    if not isinstance(commands, str):
+    if not isinstance(commands_str, str):
         raise ValueError('Expected a string')
 
     # split with separator
-    commands = commands.split(separator)
+    commands = commands_str.split(separator)
     # remove extra spaces
     commands = [x.strip() for x in commands]
     # filter dummy commands
@@ -261,7 +261,7 @@ def interpret_commands(commands, separator=';'):
                     reason='KeyboardInterrupt')
             raise
         except UserError as e:
-            publish('command-failed', command=commands, reason=e)
+            publish('command-failed', command=cmd, reason=e)
             raise
         # TODO: all the rest is unexpected
 
