@@ -16,23 +16,24 @@ else:
 
 
 class StorageFilesystem:
-    basepath = 'compmake_storage'
-    checked_existence = False
 
-    @staticmethod
-    def __str__():
+    def __init__(self, basepath):
+        self.basepath = basepath
+        self.checked_existence = False
+
+    def __str__(self):
         return "Filesystem backend"
 
-    @staticmethod
-    def supports_concurrency():
+    def supports_concurrency(self):
         return False
 
-    @staticmethod
     @track_time
-    def get(key):
-        if not StorageFilesystem.exists(key):
+    def get(self, key):
+        self.check_existence()
+
+        if not self.exists(key):
             raise CompmakeException('Could not find key %r.' % key)
-        filename = StorageFilesystem.filename_for_key(key)
+        filename = self.filename_for_key(key)
         try:
             if False:
                 file = open(filename, 'rb')  # @ReservedAssignment
@@ -49,15 +50,18 @@ class StorageFilesystem:
             msg = "Could not unpickle file %r: %s" % (filename, e)
             raise CompmakeException(msg)
 
-    @staticmethod
-    @track_time
-    def set(key, value):  # @ReservedAssignment
-        if not StorageFilesystem.checked_existence:
-            StorageFilesystem.checked_existence = True
-            if not os.path.exists(StorageFilesystem.basepath):
-                os.makedirs(StorageFilesystem.basepath)
+    def check_existence(self):
+        if not self.checked_existence:
+            self.checked_existence = True
+            if not os.path.exists(self.basepath):
+                print('Creating basepath %r' % self.basepath)
+                os.makedirs(self.basepath)
 
-        filename = StorageFilesystem.filename_for_key(key)
+    @track_time
+    def set(self, key, value):  # @ReservedAssignment
+        self.check_existence()
+
+        filename = self.filename_for_key(key)
 
         sio = StringIO()
         try:
@@ -71,35 +75,30 @@ class StorageFilesystem:
         with safe_write(filename, 'wb') as f:
             f.write(sio.getvalue())
 
-    @staticmethod
     @track_time
-    def delete(key):
-        filename = StorageFilesystem.filename_for_key(key)
+    def delete(self, key):
+        filename = self.filename_for_key(key)
         assert os.path.exists(filename), \
             'I expected path %s to exist before deleting' % filename
         os.remove(filename)
 
-    @staticmethod
     @track_time
-    def exists(key):
-        filename = StorageFilesystem.filename_for_key(key)
+    def exists(self, key):
+        filename = self.filename_for_key(key)
         return os.path.exists(filename)
 
-    @staticmethod
     # TODO change key
-    def keys_yield(pattern):
-        filename = StorageFilesystem.filename_for_key(pattern)
+    def keys_yield(self, pattern):
+        filename = self.filename_for_key(pattern)
         for x in glob(filename):
             b = splitext(basename(x))[0]
-            yield StorageFilesystem.filename2key(b)
+            yield self.filename2key(b)
 
-    @staticmethod
     @track_time
-    def keys(pattern):
-        return sorted(list(StorageFilesystem.keys_yield(pattern)))
+    def keys(self, pattern):
+        return sorted(list(self.keys_yield(pattern)))
 
-    @staticmethod
-    def reopen_after_fork():
+    def reopen_after_fork(self):
         pass
 
     dangerous_chars = {
@@ -108,25 +107,21 @@ class StorageFilesystem:
        '~': 'CMHOME'
     }
 
-    @staticmethod
-    def key2filename(key):
+    def key2filename(self, key):
         '''turns a key into a reasonable filename'''
-        for char, replacement in StorageFilesystem.dangerous_chars.items():
+        for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
-    @staticmethod
-    def filename2key(key):
+    def filename2key(self, key):
         ''' Undoes key2filename '''
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key
 
-    @staticmethod
-    def filename_for_key(key):
+    def filename_for_key(self, key):
         """ Returns the pickle storage filename corresponding to the job id """
-        return os.path.join(StorageFilesystem.basepath,
-                            StorageFilesystem.key2filename(key) + '.pickle')
+        return os.path.join(self.basepath, self.key2filename(key) + '.pickle')
 
 
 

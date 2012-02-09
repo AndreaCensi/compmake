@@ -1,17 +1,18 @@
 ''' This is the executable '''
-from compmake import (version, compmake_status_slave, set_compmake_status,
-    compmake_status_interactive)
-from compmake.config import compmake_config, config_populate_optparser
-from compmake.events import remove_all_handlers, register_handler
-from compmake.jobs import set_namespace
-from compmake.storage import use_redis, use_filesystem
-from compmake.structures import UserError
-from compmake.ui import interactive_console, interpret_commands
-from compmake.utils import error, user_error, warning, setproctitle
+from .. import version, set_compmake_status, CompmakeConstants
+from ..config import compmake_config, config_populate_optparser
+from ..events import remove_all_handlers, register_handler
+from ..jobs import set_namespace
+from ..storage import use_redis, use_filesystem
+from ..structures import UserError
+from ..ui import interactive_console, interpret_commands
+from ..utils import error, user_error, warning, setproctitle
 from optparse import OptionParser
 import compmake
 import sys
 import traceback
+
+# TODO: revise all of this
 
 
 def initialize_backend():
@@ -36,11 +37,6 @@ def initialize_backend():
         use_filesystem(compmake_config.path) #@UndefinedVariable
     else:
         assert(False)
-
-    from compmake.storage import db
-    if not db:
-        error('There was some error in initializing db.')
-        sys.exit(-54)
 
 
 # TODO: make everythin an exception instead of sys.exit()
@@ -84,7 +80,7 @@ def main():
 
     if not options.slave:
         # XXX make sure this is the default
-        set_compmake_status(compmake_status_interactive)
+        set_compmake_status(CompmakeConstants.compmake_status_interactive)
 
         # TODO: add command namespace
         # TODO: add command "load"
@@ -115,7 +111,7 @@ def main():
 
         # TODO: BUG: XXX: remove old jobs those in defined_this_section
     else:
-        set_compmake_status(compmake_status_slave)
+        set_compmake_status(CompmakeConstants.compmake_status_slave)
 
         if not args:
             user_error('I expect at least one parameter (namespace name)')
@@ -128,7 +124,8 @@ def main():
         try:
             # XXX is this redudant?
             # compmake_config.interactive = False
-            retcode = interpret_commands(args)
+            commands_str = " ".join(args)
+            retcode = interpret_commands(commands_str)
             # print "Exiting with retcode %s" % retcode
             sys.exit(retcode)
         except UserError as e:

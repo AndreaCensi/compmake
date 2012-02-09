@@ -1,4 +1,6 @@
-from . import ShellExitRequested, get_commands, interpret_commands
+from . import (ShellExitRequested, get_commands, interpret_commands,
+    clean_other_jobs)
+from .. import CompmakeConstants, set_compmake_status, get_compmake_status
 from ..events import publish
 from ..jobs import all_jobs
 from ..structures import UserError, CompmakeException
@@ -62,7 +64,7 @@ def interactive_console():
     exit_requested = False
     while not exit_requested:
         try:
-            for line in compmake_console():
+            for line in compmake_console_lines():
                 interpret_commands_wrap(line)
         except ShellExitRequested:
             break
@@ -93,7 +95,7 @@ def tab_completion2(text, state):
 COMPMAKE_HISTORY_FILENAME = '.compmake_history.txt'
 
 
-def compmake_console():
+def compmake_console_lines():
     """ Returns lines with at least one character. """
 
     if use_readline:
@@ -178,4 +180,34 @@ def ask_question(question, allowed=None):
         if line in allowed:
             return allowed[line]
 
+
+# Note: we wrap these in shallow functions because we don't want
+# to import other things.
+def batch_command(s):
+    ''' executes one command '''
+    # ignore if interactive
+
+    # we assume that we are done with defining jobs
+    clean_other_jobs()
+
+    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
+        return # XXX not sure 
+
+    try:
+        return interpret_commands_wrap(s)
+    except KeyboardInterrupt:
+        pass
+
+
+def compmake_console():
+    ''' Runs the compmake console. Ignore if we are embedded. '''
+    if get_compmake_status() != CompmakeConstants.compmake_status_embedded:
+        return
+
+    set_compmake_status(CompmakeConstants.compmake_status_interactive)
+
+    # we assume that we are done with defining jobs
+    clean_other_jobs()
+    interactive_console()
+    set_compmake_status(CompmakeConstants.compmake_status_embedded)
 

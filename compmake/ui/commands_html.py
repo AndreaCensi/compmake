@@ -1,9 +1,9 @@
-from . import sections, commands, COMMANDS_ADVANCED, ui_command
+from . import COMMANDS_ADVANCED, ui_command, UIState
 import sys
 
 
 def create_commands_html(file=sys.stdout):  # @ReservedAssignment
-    ordered_sections = sorted(sections.values(),
+    ordered_sections = sorted(UIState.sections.values(),
                               key=lambda section: section.order)
 
     file.write("<table class='compmake-config'>\n")
@@ -16,7 +16,7 @@ def create_commands_html(file=sys.stdout):  # @ReservedAssignment
             file.write("<tr><td colspan='3'> %s </td></tr> \n" % section.desc)
 
         for name in section.commands:
-            cmd = commands[name]
+            cmd = UIState.commands[name]
             short_doc = cmd.doc.split('\n')[0]
 
             # TODO

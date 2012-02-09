@@ -7,8 +7,7 @@ There are 3 special variables:
 '''
 from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
                COMMANDS_ADVANCED, COMMANDS_CLUSTER, ui_section)
-from .. import (RET_CODE_JOB_FAILED, get_compmake_status,
-    compmake_status_interactive)
+from .. import (CompmakeConstants, get_compmake_status)
 from ..config import compmake_config
 from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
@@ -48,7 +47,7 @@ def clean(job_list):
 
     from ..ui import ask_question
 
-    if get_compmake_status() == compmake_status_interactive:
+    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
         answer = ask_question(question)
         if not answer:
@@ -94,7 +93,7 @@ def make_single(job_list, more=False):
         jobs.make(job_id, more)
         return 0
     except JobFailed:
-        return RET_CODE_JOB_FAILED
+        return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
 # TODO: add num processors
@@ -190,7 +189,7 @@ def remake(non_empty_job_list):
     non_empty_job_list = list(non_empty_job_list)
 
     from ..ui.console import ask_question
-    if get_compmake_status() == compmake_status_interactive:
+    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = "Should I clean and remake %d jobs? [y/n] " % \
             len(non_empty_job_list)
         answer = ask_question(question)

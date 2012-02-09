@@ -1,8 +1,7 @@
-from .. import storage, compmake_status_embedded, set_compmake_status
-from ..jobs import set_namespace
-from ..storage import use_filesystem
+from .. import set_compmake_status, CompmakeConstants
 from ..structures import SerializationError
-import unittest
+from .compmake_test import CompmakeTest
+from nose.tools import  istest
 
 
 def f1():
@@ -10,14 +9,12 @@ def f1():
     return lambda x: None #@UnusedVariable
 
 
-class TestUnpickable(unittest.TestCase):
+@istest
+class TestUnpickable(CompmakeTest):
 
-    def setUp(self):
-        set_compmake_status(compmake_status_embedded)
-        use_filesystem('unpickable')
-        set_namespace('unpickable')
-        for key in storage.db.keys('*'):
-            storage.db.delete(key)
+    def mySetUp(self):
+        # TODO: use tmp dir
+        set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
     def test_unpickable(self):
         self.assertRaises(SerializationError, self.add_and_execute, f1)

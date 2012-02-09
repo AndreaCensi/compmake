@@ -5,7 +5,7 @@ from ..jobs import (colorize_loglevel, get_job, set_job_userobject,
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 from ..utils import OutputCapture, info, setproctitle, error
 from cjson import encode, decode, EncodeError, DecodeError
-from .. import RET_CODE_JOB_FAILED
+from .. import CompmakeConstants
 from multiprocessing import Pool
 import base64
 import logging
@@ -161,7 +161,7 @@ def compmake_slave():
             result = function(*args, **kwargs)
         except Exception as e:
             s.write(('failure', (str(e), traceback.format_exc(e))))
-            return RET_CODE_JOB_FAILED
+            return CompmakeConstants.RET_CODE_JOB_FAILED
         finally:
             capture.deactivate()
             logging.StreamHandler.emit = old_emit

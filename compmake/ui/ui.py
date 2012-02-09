@@ -1,22 +1,19 @@
-from . import get_commands, alias2name
-from .. import (CompmakeConstants, compmake_status, compmake_status_slave,
-    set_compmake_status)
+from . import get_commands
+from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
+    CompmakeGlobalState)
 from ..config import compmake_config
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
 from ..structures import Job, UserError, Promise
-from ..utils import interpret_strings_like
-import cPickle as pickle
-import compmake # XXX
-import inspect
+from ..utils import describe_type, interpret_strings_like
 from types import NoneType
+import cPickle as pickle
+import inspect
+from compmake.ui.helpers import UIState
 
 
 # static storage # XXX: put it somewhere
-job_prefix = None
-compmake_slave_mode = False
-jobs_defined_in_this_session = set()
 
 
 def is_pickable(x): # TODO: move away
@@ -45,8 +42,8 @@ def collect_dependencies(ob):
 
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
-    global job_prefix # XXX
-    job_prefix = prefix
+    # TODO: check str
+    CompmakeGlobalState.job_prefix = prefix
 
 
 def generate_job_id(command):
@@ -56,21 +53,22 @@ def generate_job_id(command):
     if type(command) == type(comp):
         base = command.func_name
 
-    if job_prefix:
-        job_id = '%s-%s' % (job_prefix, base)
-        if not job_id in jobs_defined_in_this_session:
+    if CompmakeGlobalState.job_prefix:
+        job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, base)
+        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             return job_id
     else:
-        if not base in jobs_defined_in_this_session:
+        if not base in CompmakeGlobalState.jobs_defined_in_this_session:
             return base
 
     for i in xrange(1000000):
-        if job_prefix:
-            job_id = '%s-%s-%d' % (job_prefix, base, i)
+        if CompmakeGlobalState.job_prefix:
+            job_id = ('%s-%s-%d' %
+                      (CompmakeGlobalState.job_prefix, base, i))
         else:
             job_id = '%s-%d' % (base, i)
 
-        if not job_id in jobs_defined_in_this_session:
+        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             return job_id
 
     assert(False)
@@ -78,13 +76,12 @@ def generate_job_id(command):
 
 def reset_jobs_definition_set():
     ''' Useful only for unit tests '''
-    global jobs_defined_in_this_session
-    jobs_defined_in_this_session = set()
+    CompmakeGlobalState.jobs_defined_in_this_session = set()
 
 
 def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
-    if compmake.compmake_status == compmake_status_slave:
+    if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return
     from .console import ask_question
 
@@ -92,7 +89,7 @@ def clean_other_jobs():
     clean_all = False
 
     for job_id in all_jobs(force_db=True):
-        if not job_id in  jobs_defined_in_this_session:
+        if not job_id in  CompmakeGlobalState.jobs_defined_in_this_session:
             if not clean_all:
                 answer = ask_question(
                 "Found spurious job %s; cleaning? [y]es, [a]ll, [n]o, [N]one "
@@ -122,7 +119,7 @@ def comp(command, *args, **kwargs):
         
         Raises UserError if command is not pickable.
     '''
-    if compmake.compmake_status == compmake_status_slave:
+    if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
 
     # Check that this is a pickable function
@@ -146,16 +143,16 @@ def comp(command, *args, **kwargs):
             raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
-        if job_prefix:
-            job_id = '%s-%s' % (job_prefix, job_id)
+        if CompmakeGlobalState.job_prefix:
+            job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, job_id)
         del kwargs[CompmakeConstants.job_id_key]
 
-        if job_id in jobs_defined_in_this_session:
+        if job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             raise UserError('Job %r already defined.' % job_id)
     else:
         job_id = generate_job_id(command)
 
-    jobs_defined_in_this_session.add(job_id)
+    CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
 
     if CompmakeConstants.extra_dep_key in kwargs: # TODO: add in constants
         extra_dep = \
@@ -192,8 +189,8 @@ def comp(command, *args, **kwargs):
         # are disabled.
 
         if compmake_config.check_params: #@UndefinedVariable
-            old_status = compmake_status
-            set_compmake_status(compmake_status_slave)
+            old_status = get_compmake_status()
+            set_compmake_status(CompmakeConstants.compmake_status_slave)
             old_computation = get_job(job_id)
             set_compmake_status(old_status)
 
@@ -239,7 +236,8 @@ def interpret_commands(commands_str, separator=';'):
     '''
 
     if not isinstance(commands_str, str):
-        raise ValueError('Expected a string')
+        msg = 'I expected a string, got %s.' % describe_type(commands_str)
+        raise ValueError(msg)
 
     # split with separator
     commands = commands_str.split(separator)
@@ -299,8 +297,8 @@ def interpret_single_command(commands_line):
     command_name = commands[0]
 
     # Check if this is an alias
-    if command_name in alias2name:
-        command_name = alias2name[command_name]
+    if command_name in UIState.alias2name:
+        command_name = UIState.alias2name[command_name]
 
     if not command_name in ui_commands:
         msg = "Unknown command %r (try 'help'). " % command_name

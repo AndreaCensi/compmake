@@ -2,8 +2,10 @@ import unittest
 from .. import progress
 from ..jobs import init_progress_tracking
 from contracts import ContractNotRespected
+from nose.tools import istest
 
 
+@istest
 class TestProgress(unittest.TestCase):
 
     def stack_update(self, stack):

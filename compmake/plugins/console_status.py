@@ -44,7 +44,7 @@ def handle_event(event):  # @UnusedVariable
                         x += ['>>']
 #            X += ["[" + " ".join(x) + "]"]
             X += [" ".join(x)]
-        return "  " + ", ".join(X)
+        return " | " + " ".join(X)
 
     cols, _ = getTerminalSize()
 

@@ -36,8 +36,8 @@ def console_starting(event):
 
 
 def console_ending(event):
-    print "Thanks for using compmake. Problems? Suggestions? \
-Praise? Go to %s" % colored(compmake_issues_url, attrs=['bold'])
+    print("Thanks for using compmake. Problems? Suggestions? Praise? "
+          "Go to %s" % colored(compmake_issues_url, attrs=['bold']))
 
 
 register_handler('console-starting', console_starting)

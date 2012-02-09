@@ -37,17 +37,9 @@ except:
         pass
 
 
-screen_columns = None
-
-
 def get_screen_columns():
-    m = sys.modules['compmake.utils.visualization']  # FIXME
-#    if m.screen_columns is None:
-    if True:  # XXX: slower but more responsive
-        max_x, max_y = getTerminalSize()  # @UnusedVariable
-        m.screen_columns = max_x
-
-    return m.screen_columns
+    max_x, _ = getTerminalSize()  # @UnusedVariable
+    return max_x
 
 
 def getTerminalSize():
@@ -108,28 +100,28 @@ def debug(string): # XXX: never used?
     write_message(string, lambda x: colored(x, 'magenta'))
 
 
-original_stdout = sys.stdout
-original_stderr = sys.stderr
-
-
 def write_message(string, formatting):
     from ..utils import pad_to_screen
 
+    from .. import CompmakeGlobalState
+    stderr = CompmakeGlobalState.original_stderr
+    stdout = CompmakeGlobalState.original_stdout
+
     string = str(string)
-    original_stdout.flush()
+    stdout.flush()
 
     clean_console_line(sys.stderr)
     lines = string.rstrip().split('\n')
 
     if len(lines) == 1:
-        original_stderr.write(formatting(lines[0]) + '\n')
+        stderr.write(formatting(lines[0]) + '\n')
     else:
         for l in lines:
             l = formatting(l)
-            original_stderr.write(pad_to_screen(l))
-            original_stderr.write('\n')
+            stderr.write(pad_to_screen(l))
+            stderr.write('\n')
 
-    original_stderr.flush()
+    stderr.flush()
 
 
 def duration_human(seconds):

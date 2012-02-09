@@ -1,7 +1,8 @@
 from .. import comp
 from ..jobs import direct_children, direct_parents, make
 from ..structures import UserError
-import unittest
+from nose.tools import istest
+from .compmake_test import CompmakeTest
 
 
 def f1(*arg, **kwargs):
@@ -21,15 +22,19 @@ def failing():
 
 def uses_id(a, b, job_id):
     ''' A function with a job_id arguement '''
-    pass    
+    pass
 
 
-class Test1(unittest.TestCase):
-    
+@istest
+class Test1(CompmakeTest):
+
+    def mySetUp(self):
+        pass
+
     def testAdding(self):
         comp(f1)
         self.assertTrue(True)
-        
+
     def testID(self):
         ''' Check that the job id is correctly parsed '''
         job_id = 'terminus'
@@ -37,13 +42,13 @@ class Test1(unittest.TestCase):
         self.assertEqual(c.job_id, job_id)
         make(job_id)
         self.assertTrue(True)
-        
+
     def testID2(self):
         ''' Make sure we set up a warning if the job_id key
            is already used '''
         self.assertTrue(comp(f1, job_id='ciao'))
         self.assertRaises(UserError, comp, f1, job_id='ciao')
-        
+
     def testDep(self):
         ''' Testing advanced dependencies discovery '''
         cf1 = comp(f1)
@@ -58,19 +63,19 @@ class Test1(unittest.TestCase):
         self.assertTrue(cf1.job_id in direct_children(cf2.job_id))
         self.assertEqual(1, len(direct_children(cf2.job_id)))
         self.assertEqual(1, len(direct_parents(cf1.job_id)))
-        
+
     def testDep3(self):
         ''' Testing advanced dependencies discovery in dicts'''
         cf1 = comp(f1)
         cf2 = comp(f2, [1, {'ciao': cf1}])
         self.assertTrue(cf1.job_id in direct_children(cf2.job_id))
         self.assertTrue(cf2.job_id in direct_parents(cf1.job_id))
-      
+
     def testJOBparam(self):
         ''' We should issue a warning if job_id is used 
             as a parameter in the function '''
         comp(uses_id)
         self.assertRaises(UserError, comp, uses_id, job_id='myjobid')
-        
-        
-        
+
+
+

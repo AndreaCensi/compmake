@@ -47,6 +47,13 @@ def job_failed(event):
 register_handler('job-failed', job_failed)
 
 
+def compmake_bug(event):
+    error(event.kwargs['user_msg'])
+    error(event.kwargs['dev_msg'])
+
+register_handler('compmake-bug', compmake_bug)
+
+
 # We ignore some other events; otherwise they will be catched 
 # by the default handler
 def ignore(event):
@@ -62,7 +69,11 @@ register_handler('manager-phase', ignore)
 register_handler('parmake-status', ignore)
 
 register_handler('job-succeeded', ignore)
+register_handler('job-interrupted', ignore)
+
 register_handler('worker-status', ignore)
 register_handler('manager-job-succeeded', ignore)
+register_handler('manager-job-failed', ignore)
 register_handler('manager-succeeded', ignore) # TODO: maybe write sth
+
 

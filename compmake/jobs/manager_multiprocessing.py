@@ -7,6 +7,7 @@ from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
 import signal
 import sys
+from compmake.state import CompmakeGlobalState
 
 
 if False:
@@ -131,8 +132,7 @@ def parmake_job2(job_id, more):
 
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
-        from compmake.storage import db
-        db.reopen_after_fork()
+        CompmakeGlobalState.db.reopen_after_fork()
 
         publish('worker-status', job_id=job_id, status='connected')
 

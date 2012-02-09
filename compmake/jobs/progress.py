@@ -1,4 +1,5 @@
 from ..structures import ProgressStage
+from ..utils import describe_type
 from contracts import contract
 import time
 
@@ -45,11 +46,11 @@ def progress(taskname, iterations, iteration_desc=None):
     if not isinstance(taskname, str):
         raise ValueError('The first argument to progress() is the task name ' +
                          'and must be a string; you passed a %s.' %
-                         taskname.__class__.__name__)
+                         describe_type(taskname))
 
     if not isinstance(iterations, tuple):
         raise ValueError('The second argument to progress() must be a tuple,' +
-                         ' you passed a %s.' % iterations.__class__.__name__)
+                         ' you passed a %s.' % describe_type(iterations))
     if not len(iterations) == 2:
         raise ValueError('The second argument to progress() must be a tuple ' +
                          ' of length 2, not of length %s.' % len(iterations))
@@ -57,12 +58,12 @@ def progress(taskname, iterations, iteration_desc=None):
     if not isinstance(iterations[0], int):
         raise ValueError('The first element of the tuple passed to progress ' +
                          'must be  an integer, not a %s.' %
-                         iterations[0].__class__.__name__)
+                         describe_type(iterations[0]))
 
     if not iterations[1] is None and not isinstance(iterations[1], int):
         raise ValueError('The second element of the tuple passed to progress '
                          'must be either None or an integer, not a %s.' %
-                         iterations[1].__class__.__name__)
+                         describe_type(iterations[1]))
 
     if iterations[1] < iterations[0]:
         raise ValueError('Invalid iteration tuple: %s' % str(iterations))

@@ -9,23 +9,26 @@ import types
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
-
-# name (string) -> tuple (function, name, docs, alias, section)
-commands = {}
-# holds alias -> name  (string->string) table
-alias2name = {}
-
 # Storage for the sections
 Section = namedtuple('Section', 'name desc order commands')
 
-# section name
-# section name -> Section
-sections = {}
+
+class UIState:
+    # name (string) -> tuple (function, name, docs, alias, section)
+    commands = {}
+    # holds alias -> name  (string->string) table
+    alias2name = {}
+
+    # section name
+    # section name -> Section
+    sections = {}
+
+    last_section_name = None # XXX
+
 
 # This is a decorator with arguments -- 
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
-
 
 def ui_command(name=None, alias=[], section=None):
     def wrap(func, name, alias, section):
@@ -44,39 +47,37 @@ def ui_command(name=None, alias=[], section=None):
     return lambda x: wrap(x, name, alias, section)
 
 
-last_section_name = None # XXX
-
-
 def ui_section(section_name, desc=None, order=None):
-    if not section_name in sections:
-        sections[section_name] = Section(name=section_name, desc=desc,
+    if not section_name in UIState.sections:
+        UIState.sections[section_name] = Section(name=section_name, desc=desc,
                                          order=order, commands=[])
     else:
         assert not desc and not order, \
             'Description already given for section %s' % section_name
 
-    global last_section_name
-    last_section_name = section_name
+    UIState.last_section_name = section_name
 
 
 def register_command(name, func, docs=None, alias=[], section=None):
     if isinstance(alias, str):
             alias = [alias]
     if not section:
-        section = last_section_name
-    assert not name in commands, "Command '%s' already defined " % name
-    commands[name] = Command(function=func, name=name, doc=docs,
+        section = UIState.last_section_name
+    assert not name in UIState.commands, \
+        "Command '%r' already defined " % name
+    UIState.commands[name] = Command(function=func, name=name, doc=docs,
                              alias=alias, section=section)
-    assert section in sections, "Section '%s' not defined" % section
-    sections[section].commands.append(name)
+    assert section in UIState.sections, \
+        "Section '%s' not defined" % section
+    UIState.sections[section].commands.append(name)
     for a in alias:
-        assert not a in alias2name, 'Alias "%s" already used' % a
-        assert not a in commands, 'Alias "%s" is already a command' % a
-        alias2name[a] = name
+        assert not a in UIState.alias2name, 'Alias "%s" already used' % a
+        assert not a in UIState.commands, 'Alias "%s" is already a command' % a
+        UIState.alias2name[a] = name
 
 
 def get_commands():
-    return commands
+    return UIState.commands
 
 
 # Pre-defined sections
@@ -133,17 +134,17 @@ def help(args): #@ReservedAssignment
 
 
 def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
-    ordered_sections = sorted(sections.values(),
+    ordered_sections = sorted(UIState.sections.values(),
                               key=lambda section: section.order)
 
-    max_len = 1 + max([len(cmd.name) for cmd in commands.values()])
+    max_len = 1 + max([len(cmd.name) for cmd in UIState.commands.values()])
     for section in ordered_sections:
         file.write("  ---- %s ----  \n" % section.name)
         if section.desc:
             # XXX  multiline
             file.write("  | %s \n" % section.desc)
         for name in section.commands:
-            cmd = commands[name]
+            cmd = UIState.commands[name]
             short_doc = cmd.doc.split('\n')[0].strip()
             file.write("  | %s  %s\n" %
                        (colored(ljust(name, max_len), attrs=['bold']),

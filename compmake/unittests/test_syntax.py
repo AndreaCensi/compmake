@@ -1,8 +1,8 @@
-from ..jobs import set_namespace, remove_all_jobs, get_job_cache, set_job_cache
-from ..storage import use_filesystem
+from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache, UserError, CompmakeSyntaxError
 from ..ui import comp, parse_job_list, reset_jobs_definition_set
-from unittest import TestCase
+from .compmake_test import CompmakeTest
+from nose.tools import istest
 import sys
 
 
@@ -10,13 +10,16 @@ def dummy():
     pass
 
 
-class Test1(TestCase):
+@istest
+class Test1(CompmakeTest):
 
     def setUp(self):
-        use_filesystem('test1_db')
-        set_namespace('Test1')
-        remove_all_jobs()
+        print('------ init ---------')
+        CompmakeTest.setUp(self)
 
+    def mySetUp(self):
+        # Removed when refactoring
+        # remove_all_jobs()
         reset_jobs_definition_set()
 
         self.jobs = [
