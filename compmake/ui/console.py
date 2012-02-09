@@ -173,9 +173,12 @@ def ask_question(question, allowed=None):
 
         # we don't want these to go into the history
         if use_readline:
-            L = readline.get_current_history_length()
-            readline.remove_history_item(L - 1)
-        #print('size: %s there: %s' % (L, readline.get_history_item(L)))
+            try:
+                L = readline.get_current_history_length()
+                if L:
+                    readline.remove_history_item(L - 1)
+            except:
+                pass
 
         if line in allowed:
             return allowed[line]
@@ -185,18 +188,19 @@ def ask_question(question, allowed=None):
 # to import other things.
 def batch_command(s):
     ''' executes one command '''
-    # ignore if interactive
+#
+#    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
+#        return # XXX not sure 
 
+    set_compmake_status(CompmakeConstants.compmake_status_embedded)
+    # ignore if interactive
     # we assume that we are done with defining jobs
     clean_other_jobs()
 
-    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        return # XXX not sure 
-
-    try:
-        return interpret_commands_wrap(s)
-    except KeyboardInterrupt:
-        pass
+#    try:
+    return interpret_commands_wrap(s)
+#    except KeyboardInterrupt:
+#        pass
 
 
 def compmake_console():

@@ -26,7 +26,14 @@ class CompmakeGlobalState:
 
 
 def set_compmake_status(s):
+    print('Setting status to %r' % s)
     CompmakeGlobalState.compmake_status = s
+
+
+def is_interactive_session():
+    ''' If this is true, we will ask questions to the user. '''
+    return (get_compmake_status() ==
+             CompmakeConstants.compmake_status_interactive)
 
 
 def get_compmake_status():

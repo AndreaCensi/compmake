@@ -1,4 +1,4 @@
-from . import get_commands
+from . import UIState, get_commands
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     CompmakeGlobalState)
 from ..config import compmake_config
@@ -10,7 +10,7 @@ from ..utils import describe_type, interpret_strings_like
 from types import NoneType
 import cPickle as pickle
 import inspect
-from compmake.ui.helpers import UIState
+from compmake.state import is_interactive_session
 
 
 # static storage # XXX: put it somewhere
@@ -86,14 +86,18 @@ def clean_other_jobs():
     from .console import ask_question
 
     answers = {'a': 'a', 'n': 'n', 'y': 'y', 'N': 'N'}
-    clean_all = False
+
+    if is_interactive_session():
+        clean_all = False
+    else:
+        clean_all = True
 
     for job_id in all_jobs(force_db=True):
-        if not job_id in  CompmakeGlobalState.jobs_defined_in_this_session:
+        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             if not clean_all:
-                answer = ask_question(
-                "Found spurious job %s; cleaning? [y]es, [a]ll, [n]o, [N]one "
-                    % job_id, allowed=answers)
+                text = ('Found spurious job %s; cleaning? '
+                        '[y]es, [a]ll, [n]o, [N]one ' % job_id)
+                answer = ask_question(text, allowed=answers)
 
                 if answer == 'n':
                     continue
