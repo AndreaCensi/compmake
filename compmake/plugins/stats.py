@@ -3,6 +3,7 @@ from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
 from ..utils import colored, pad_to_screen
+import string
 
 
 state2color = {
@@ -10,6 +11,7 @@ state2color = {
     Cache.IN_PROGRESS: {'color': 'yellow'},
     Cache.MORE_REQUESTED: {'color': 'blue'},
     Cache.MORE_REQUESTED: {'color': 'green', 'on_color': 'on_red'},
+    Cache.BLOCKED: {'color': 'yellow'},
     Cache.FAILED: {'color': 'red'},
     Cache.DONE: {'color': 'green'},
 }
@@ -29,7 +31,7 @@ def stats(args):
 def display_stats(job_list):
 
     states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
-              Cache.MORE_REQUESTED, Cache.FAILED,
+              Cache.MORE_REQUESTED, Cache.FAILED, Cache.BLOCKED,
               Cache.DONE]
     # initialize counters to 0
     states2count = dict(map(lambda x: (x, 0), states_order))
@@ -72,26 +74,29 @@ def display_stats(job_list):
 
     print("Summary by function:")
 
+    flen = max(len(x) for x in function2state2count)
     for function_id, function_stats in function2state2count.items():
-        ndone = function_stats[Cache.DONE]
-        nfailed = function_stats[Cache.FAILED]
-        nrest = function_stats['all'] - ndone - nfailed
 
-        done_s = "%5d done" % ndone
-        if ndone > 0:
-            done_s = colored(done_s, **state2color[Cache.DONE])
+        states = [(Cache.DONE, 'done'),
+                  (Cache.FAILED, 'failed'),
+                  (Cache.BLOCKED, 'blocked'),
+                  #(Cache.MORE_REQUESTED, 'done'),
+                  (Cache.IN_PROGRESS, 'in progress'),
+                  (Cache.NOT_STARTED, 'to do'),
+                  ]
 
-        failed_s = "%5d failed" % nfailed
-        if nfailed > 0:
-            failed_s = colored(failed_s, **state2color[Cache.FAILED])
+        alls = []
+        for state, desc in states:
+            num = function_stats[state]
+            desc = Cache.state2desc[state]
+            s = '%5d %s' % (num, desc)
+            if num > 0:
+                s = colored(s, **state2color[state])
+            alls.append(s)
 
-        rest_s = "%5d to do" % nrest
-        if nrest > 0:
-            rest_s = colored(rest_s, **state2color[Cache.NOT_STARTED])
-
-        s = "%s, %s, %s." % (done_s, failed_s, rest_s)
-
-        print(" %30s(): %s" % (function_id, s))
+        s = ",".join(alls)
+        function_id_pad = string.rjust(function_id, flen)
+        print("    %s(): %s." % (function_id_pad, s))
 
 
 

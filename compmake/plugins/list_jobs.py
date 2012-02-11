@@ -4,6 +4,7 @@ from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
 from ..utils import duration_human, colored
 from time import time
+import string
 
 
 @ui_command(section=VISUALIZATION, alias='ls')
@@ -32,17 +33,29 @@ state2color = {
                                         'on_color': 'on_red'},
         #(Cache.FAILED, True): None,
         (Cache.FAILED, False): {'color': 'red'},
+        (Cache.BLOCKED, True): {'color': 'yellow'},
+        (Cache.BLOCKED, False): {'color': 'yellow'}, # XXX
         (Cache.DONE, True): {'color': 'green'},
         (Cache.DONE, False): {'color': 'magenta'},
 }
 
 
 def list_jobs(job_list):
+    job_list = [x for x in job_list]
+    #print('%s jobs in total' % len(job_list))
+    jlen = max(len(x) for x in job_list)
+
     for job_id in job_list:
         # TODO: only ask up_to_date if necessary
         up, reason = up_to_date(job_id)
-        s = job_id
-        s += " " + (" " * (60 - len(s)))
+
+        Mmin = 4
+        M = 40
+        if jlen < M:
+            indent = M - jlen
+        else:
+            indent = Mmin
+        s = " " * indent + string.ljust(job_id, jlen) + '    '
         cache = get_job_cache(job_id)
 
         tag = Cache.state2desc[cache.state]

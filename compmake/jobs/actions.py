@@ -105,12 +105,13 @@ def make(job_id, more=False):
         computation = get_job(job_id)
 
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
+                               Cache.BLOCKED,
                                Cache.MORE_REQUESTED, Cache.DONE, Cache.FAILED])
 
         if cache.state == Cache.NOT_STARTED:
             previous_user_object = None
             cache.state = Cache.IN_PROGRESS
-        if cache.state == Cache.FAILED:
+        if cache.state in [Cache.FAILED, Cache.BLOCKED]:
             previous_user_object = None
             cache.state = Cache.IN_PROGRESS
         elif cache.state == Cache.IN_PROGRESS:

@@ -26,7 +26,6 @@ class CompmakeGlobalState:
 
 
 def set_compmake_status(s):
-    print('Setting status to %r' % s)
     CompmakeGlobalState.compmake_status = s
 
 

@@ -221,19 +221,19 @@ class Cache:
     IN_PROGRESS = 1
     MORE_REQUESTED = 2
     FAILED = 3
-    BLOCKED = 3 # TODO, will add later
+    BLOCKED = 5 # TODO, will add later
     DONE = 4
 
     allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE,
                       BLOCKED]
 
     state2desc = {
-        NOT_STARTED: 'Not started',
-        IN_PROGRESS: 'In progress',
-        BLOCKED: 'Blocked by dependencies',
+        NOT_STARTED: 'not started',
+        IN_PROGRESS: 'in progress',
+        BLOCKED: 'blocked',
         MORE_REQUESTED: 'Done (but more in progress)',
-        FAILED: 'Failed',
-        DONE: 'Done'}
+        FAILED: 'failed',
+        DONE: 'done'}
 
     def __init__(self, state):
         assert(state in Cache.allowed_states)

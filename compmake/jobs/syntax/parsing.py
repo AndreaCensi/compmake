@@ -208,6 +208,7 @@ def parse_job_list(tokens):
 
     add_alias('all', all_jobs)
     add_alias('failed', lambda: list_jobs_with_state(Cache.FAILED))
+    add_alias('blocked', lambda: list_jobs_with_state(Cache.BLOCKED))
     add_alias('ready', list_ready_jobs)
     add_alias('todo', list_todo_jobs)
     add_alias('top', list_top_jobs)
