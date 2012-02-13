@@ -41,7 +41,6 @@ def main():
 
         comp(first, ijobs, job_id='%d' % i)
 
-
     compmake_console()
 
 if __name__ == '__main__':

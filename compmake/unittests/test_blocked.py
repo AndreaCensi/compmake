@@ -1,6 +1,6 @@
-from compmake.unittests.compmake_test import  compmake_environment
-from compmake.structures import Cache
-from compmake.jobs.storage import get_job_cache
+from .compmake_test import  compmake_environment
+from ..structures import Cache
+from ..jobs import get_job_cache
 
 
 def job_success(*args, **kwargs):
