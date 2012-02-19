@@ -1,12 +1,12 @@
 from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
     mark_as_blocked, parents, direct_parents)
 from ..events import publish
-from ..structures import (CompmakeException, JobFailed, JobInterrupted,
-    HostFailed)
+from ..structures import JobFailed, JobInterrupted, HostFailed
 from ..utils import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
+import traceback
 
 
 class AsyncResultInterface:
@@ -72,7 +72,8 @@ class Manager:
         ''' Returns one job from the ready_todo list 
             (and removes it from there). Uses self.priorities
             to decide which job to use. '''
-        ordered = sorted(self.ready_todo, key=lambda job: self.priorities[job])
+        ordered = sorted(self.ready_todo,
+                         key=lambda job: self.priorities[job])
         best = ordered[-1]
         self.ready_todo.remove(best)
         return best
@@ -104,20 +105,33 @@ class Manager:
         while self.ready_todo and self.can_accept_job():
             # todo: add task priority
             job_id = self.next_job()
-            assert job_id in self.todo and not job_id in self.ready_todo
-            assert dependencies_up_to_date(job_id)
+            self.start_job(job_id)
+            #info('Job %s instantiated (more=%s)' % (job_id, make_more))
 
-            self.processing.add(job_id)
-            make_more = job_id in self.more
+    def start_job(self, job_id):
+        assert job_id in self.todo and not job_id in self.ready_todo
+        assert not job_id in self.processing
+        assert not job_id in self.processing2result
+        assert dependencies_up_to_date(job_id)
 
-            self.processing2result[job_id] = \
-                self.instance_job(job_id, make_more)
-
-            # info('Job %s instantiated (more=%s)' % (job_id, make_more))
+        publish('manager-job-starting', job_id=job_id)
+        self.processing.add(job_id)
+        make_more = job_id in self.more
+        self.processing2result[job_id] = \
+            self.instance_job(job_id, make_more)
 
     def check_job_finished(self, job_id):
-        ''' Checks that the job finished. Returns true if that's the case.
-            Handles update of various sets '''
+        ''' 
+            Checks that the job finished succesfully or unsuccesfully. 
+            
+            Returns True if that's the case.
+            Captures HostFailed, JobFailed and returns True.
+            
+            Returns False if the job is still processing.
+            
+            Capture KeyboardInterrupt and raises JobInterrupted.
+            
+            Handles update of various sets. '''
         assert job_id in self.processing
         assert job_id in self.todo
         assert not job_id in self.ready_todo
@@ -137,17 +151,20 @@ class Manager:
             return True
         except HostFailed as e:
             # the execution has been interrupted, but not failed
-            publish('manager-host-failed', job_id=job_id, reason=str(e))
-            self.host_failed(job_id)
+            self.host_failed(job_id, str(e))
             return True
         except KeyboardInterrupt:
+            self.job_failed(job_id) # not sure
             raise JobInterrupted('Keyboard interrupt')
 
-    def host_failed(self, job_id):
+    def host_failed(self, job_id, reason):
+        publish('manager-host-failed', job_id=job_id, reason=reason)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
         self.ready_todo.add(job_id)
+
+        self.publish_progress()
 
     def job_failed(self, job_id):
         ''' The specified job has failed. Update the structures,
@@ -168,8 +185,10 @@ class Manager:
                 if p in self.ready_todo:
                     self.ready_todo.remove(p)
 
+        self.publish_progress()
+
     def job_succeeded(self, job_id):
-        ''' The specified job as succeeded. Update the structures,
+        ''' Mark the specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''
         publish('manager-job-succeeded', job_id=job_id)
         del self.processing2result[job_id]
@@ -182,11 +201,16 @@ class Manager:
             if dependencies_up_to_date(opportunity):
                 self.ready_todo.add(opportunity)
 
+        self.publish_progress()
+
+
     def event_check(self):
         pass
 
     def loop_until_something_finishes(self):
-        while True:
+        # TODO: this should be loop_a_bit_and_then_let's try to instantiate
+        # jobs in the ready queue
+        for _ in range(10): # XXX
             received = False
 
             # We make a copy because processing is updated during the loop
@@ -196,27 +220,33 @@ class Manager:
             if received:
                 break
             else:
-                time.sleep(0.05)
+                publish('manager-loop', processing=list(self.processing))
+                time.sleep(0.05) # TODO: make param
 
             # Process events
             self.event_check()
 
+#        print('processing: %d proc2result: %d' % (len(self.processing),
+#                                                  len(self.processing2result)))
+
     def process(self):
         ''' Start processing jobs. '''
-
-        # precompute job priorities
-        publish('manager-phase', phase='compute_priorities')
-        self.priorities = compute_priorities(self.all_targets)
 
         if not self.todo:
             # info('Nothing to do.')
             publish('manager-succeeded',
                 targets=self.targets, done=self.done,
                 all_targets=self.all_targets,
-                todo=self.todo, failed=self.failed, ready=self.ready_todo,
+                todo=self.todo, failed=self.failed,
+                ready=self.ready_todo,
                 processing=self.processing)
 
             return True
+
+        # precompute job priorities
+        publish('manager-phase', phase='compute_priorities')
+        self.priorities = compute_priorities(self.all_targets)
+
 
         publish('manager-phase', phase='init')
         self.process_init()
@@ -229,21 +259,30 @@ class Manager:
 
                 self.publish_progress()
                 self.instance_some_jobs()
-                self.publish_progress()
+                #self.publish_progress()
+
                 if self.ready_todo and not self.processing:
-                    publish('manager-failed', reason='No resources.',
-                        targets=self.targets, done=self.done,
-                        todo=self.todo, failed=self.failed,
-                        ready=self.ready_todo,
-                        processing=self.processing,
-                        all_targets=self.all_targets)
+                    # We time out as there are no resources
+                    publish('manager-phase', phase='wait')
+                    pass
+                    # TODO: make child raise exception if there are no
+                    # resources
+#                    publish('manager-waits')
+#                    publish('manager-failed', reason='No resources.',
+#                        targets=self.targets, done=self.done,
+#                        todo=self.todo, failed=self.failed,
+#                        ready=self.ready_todo,
+#                        processing=self.processing,
+#                        all_targets=self.all_targets)
+#
+#                    msg = 'Cannot find computing resources, giving up.'
+#                    raise CompmakeException(msg)
 
-                    msg = 'Cannot find computing resources, giving up.'
-                    raise CompmakeException(msg)
-
-                self.publish_progress()
+                #self.publish_progress()
 
                 self.loop_until_something_finishes()
+
+            self.publish_progress()
 
             self.process_finished()
 
@@ -256,18 +295,23 @@ class Manager:
             return True
 
         except JobInterrupted as e:
-            # XXX I'm getting confused
             error('Received JobInterrupted: %s' % e)
             raise
-        except KeyboardInterrupt: ### tmp - just understanding who raiss this
-            #error('Received KeyboardInterrupt at: %s' %
-            #      traceback.format_exc(e))
+        except KeyboardInterrupt as e:
+            ### Interrupt caught by manager outside of get()
+            # for example in sleep()
+#            error('Received KeyboardInterrupt at: %s' %
+#                  traceback.format_exc(e))
             raise
         finally:
             self.cleanup()
 
     def publish_progress(self):
-        publish('manager-progress', targets=self.targets, done=self.done,
-                all_targets=self.all_targets, todo=self.todo,
-                failed=self.failed, ready=self.ready_todo,
+        publish('manager-progress',
+                targets=self.targets,
+                done=self.done,
+                all_targets=self.all_targets,
+                todo=self.todo,
+                failed=self.failed,
+                ready=self.ready_todo,
                 processing=self.processing)

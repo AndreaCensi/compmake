@@ -91,10 +91,13 @@ def pad_to_screen(s, pad=" ", last=None):
         return pad_to_screen_length(s, total_screen_length, pad=pad, last=last)
 
 
-def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None):
+def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None,
+                         align_right=False):
     ''' 
         Pads a string so that it will appear of the given size 
-        on the terminal. 
+        on the terminal.
+        
+        align_right: aligns right instead of left (default) 
     '''
     assert isinstance(desired_screen_length, int)
     # todo: assert pad = 1
@@ -105,7 +108,11 @@ def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None):
 
     if current_size < desired_screen_length:
         nadd = (desired_screen_length - current_size)
-        s += (pad * (nadd - 1)) + last
+        padding = (pad * (nadd - 1))
+        if align_right:
+            s = last + padding + s
+        else:
+            s = s + padding + last
 
     return s
 

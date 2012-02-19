@@ -9,6 +9,7 @@ class Tracker:
         register_handler('job-progress', self.event_job_progress)
         register_handler('job-progress-plus', self.event_job_progress_plus)
         register_handler('manager-progress', self.event_manager_progress)
+        register_handler('manager-loop', self.event_manager_loop)
         self.processing = set()
         self.targets = set()
         self.all_targets = set()
@@ -19,6 +20,10 @@ class Tracker:
         # Status of jobs in "processing" state
         self.status = {}
         self.status_plus = {}
+        self.nloops = 0
+
+    def event_manager_loop(self, event):
+        self.nloops += 1
 
     def event_job_progress(self, event):
         ''' Receive news from the job '''

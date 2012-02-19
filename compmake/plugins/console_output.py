@@ -2,6 +2,7 @@ from ..events import register_handler
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
     error, colored, get_screen_columns)
 import sys
+from compmake.config import get_compmake_config
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -136,11 +137,13 @@ def clip_to_length(line, max_len):
 
 
 def handle_event_stdout(event):
-    handle_event(event, False)
+    if get_compmake_config('echo_stdout'):
+        handle_event(event, False)
 
 
 def handle_event_stderr(event):
-    handle_event(event, True)
+    if get_compmake_config('echo_stderr'):
+        handle_event(event, True)
 
 
 register_handler('job-stdout', handle_event_stdout)

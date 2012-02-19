@@ -22,7 +22,12 @@ add(EventSpec('job-finished', ['job_id', 'host']))
 add(EventSpec('job-interrupted', ['job_id', 'host', 'reason']))
 add(EventSpec('job-now-ready', ['job_id']))
 add(EventSpec('manager-phase', ['phase']))
+add(EventSpec('manager-loop', ['processing'],
+              desc='called each time the manager loops waiting for jobs'
+              'to finish. processing is the list of jobs currently processing.'
+              ))
 # These are called when the manager updates its data structure
+add(EventSpec('manager-job-starting', ['job_id']))
 add(EventSpec('manager-job-failed', ['job_id']))
 add(EventSpec('manager-job-succeeded', ['job_id']))
 add(EventSpec('manager-host-failed', ['job_id', 'reason']))

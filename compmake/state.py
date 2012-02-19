@@ -1,6 +1,7 @@
 from . import CompmakeConstants
 from .storage.filesystem import StorageFilesystem
 import sys
+from compmake.utils.system_stats import AvgSystemStats
 
 
 class CompmakeGlobalState:
@@ -23,6 +24,8 @@ class CompmakeGlobalState:
     job_prefix = None
     compmake_slave_mode = False
     jobs_defined_in_this_session = set()
+
+    system_stats = AvgSystemStats(interval=1, history_len=10)
 
 
 def set_compmake_status(s):

@@ -1,18 +1,15 @@
 from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject,
-    is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject,
-    get_job_userobject, set_job_tmpobject,
-    set_job_userobject, get_job, init_progress_tracking, up_to_date)
+    is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
+    delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_userobject,
+    get_job, init_progress_tracking, up_to_date)
 from ..config import compmake_config
 from ..events import publish
 from ..structures import Cache, UserError, JobFailed, JobInterrupted, Promise
 from ..utils import OutputCapture, setproctitle, colored
-from StringIO import StringIO
 from copy import deepcopy
 from time import time, clock
-from traceback import print_exc
 import logging
+import traceback
 
 
 def make_sure_cache_is_sane():
@@ -85,7 +82,11 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
 
 
 def make(job_id, more=False):
-    """ Makes a single job. Returns the user-object or raises JobFailed """
+    """ 
+        Makes a single job. Returns the user-object or raises JobFailed
+        or JobInterrupted. Also SystemExit and KeyboardInterrupt are 
+        captured.
+    """
     host = compmake_config.hostname  # @UndefinedVariable
 
     setproctitle(job_id)
@@ -197,30 +198,26 @@ def make(job_id, more=False):
 
         except KeyboardInterrupt:
             # TODO: clear progress cache
-            # Save the current progress:
-            cache.iterations_in_progress = num
-            cache.iterations_goal = total
-            if user_object:
-                set_job_tmpobject(job_id, user_object)
 
-            set_job_cache(job_id, cache)
+            # Save the current progress:
+#            cache.iterations_in_progress = num
+#            cache.iterations_goal = total
+#            if user_object:
+#                set_job_tmpobject(job_id, user_object)
+#
+#            set_job_cache(job_id, cache)
 
             publish('job-interrupted', job_id=job_id, host=host)
+            mark_as_failed(job_id, 'KeyboardInterrupt',
+                           traceback.format_exc())
             raise JobInterrupted('Keyboard interrupt')
         except (Exception, SystemExit) as e:
-            sio = StringIO()
-            print_exc(file=sio)
-            bt = sio.getvalue()
-
-            #error("Job %s failed: %s" % (job_id, e))
-            #error(bt)
-
+            bt = traceback.format_exc()
             mark_as_failed(job_id, str(e), bt)
 
             publish('job-failed', job_id=job_id,
                     host=host, reason=str(e), bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
-
         finally:
             capture.deactivate()
             # even if we send an error, let's save the output of the process

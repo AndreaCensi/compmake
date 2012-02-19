@@ -1,19 +1,23 @@
-from . import mark_more, make, Manager
+from . import make, Manager
+from .. import CompmakeGlobalState
+from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
 from ..utils import setproctitle
 from Queue import Empty, Full
+import multiprocessing
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
-import signal
 import sys
-from compmake.state import CompmakeGlobalState
+import time
+import traceback
+import random
+import signal
 
 
 if False:
     # Debug multiprocsssing
     import logging
-    import multiprocessing
     logger = multiprocessing.log_to_stderr(logging.DEBUG)
     logger.setLevel(multiprocessing.SUBDEBUG)
 
@@ -34,6 +38,7 @@ class MultiprocessingManager(Manager):
     def __init__(self, num_processes=None):
         Manager.__init__(self)
         self.num_processes = num_processes
+        self.last_accepted = 0
 
     def process_init(self):
         #signal.signal(signal.SIGCHLD, sig_child)
@@ -60,11 +65,55 @@ class MultiprocessingManager(Manager):
         self.max_num_processing = self. num_processes
 
     def can_accept_job(self):
+        # Scale up softly
+        time_from_last = time.time() - self.last_accepted
+        if time_from_last < get_compmake_config('min_proc_interval'):
+            #print('Too soon %s\n\n' % time_from_last)
+            return False
+
         # only one job at a time
-        return len(self.processing) < self.max_num_processing
+        process_limit_ok = len(self.processing) < self.max_num_processing
+        if not process_limit_ok:
+            return False
+
+        stats = CompmakeGlobalState.system_stats
+        if stats.available(): # psutil not installed   
+#            avg_cpu = stats.avg_cpu_percent()
+            max_cpu = stats.max_cpu_percent()
+            cur_mem = stats.cur_phymem_usage_percent()
+
+            ncpus = multiprocessing.cpu_count()
+            if ncpus > 2:
+                # Do this only for big machines
+                # XXX: assumes we are cpu-bound
+                estimated_cpu_increase = 1.0 / ncpus
+                estimated_cpu = max_cpu + estimated_cpu_increase
+                if estimated_cpu > get_compmake_config('max_cpu_load'):
+                    #print('Load too high: %s\n\n' % cpu_load)
+                    return False
+
+            if cur_mem > get_compmake_config('max_mem_load'):
+                #print('Memory load too high: %s\n\n' % cpu_load)
+                return False
+
+        # cooperating between parmake instances:
+        # to balance the jobs, accept with probability
+        # 1 / (1+n), where n is the number of current processes
+
+        n = len(self.processing)
+        probability = 1.0 / (1 + n)
+
+        if random.random() > probability:
+            # Unlucky, let's try next time
+            return False
+
+        self.last_accepted = time.time()
+        return True
 
     def instance_job(self, job_id, more):
+        publish('worker-status', job_id=job_id, status='apply_async')
         async_result = self.pool.apply_async(parmake_job2, [job_id, more])
+        publish('worker-status', job_id=job_id, status='apply_async_done')
         return async_result
 
     def event_check(self):
@@ -99,17 +148,18 @@ def worker_initialization():
     setproctitle('compmake: worker just created')
 
     # http://stackoverflow.com/questions/1408356
+    # XXX: temporary looking at interruptions
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     # You can use this to see when a worker start
     #print('Process: ignoring sigint')
 
 
-def parmake_job2(job_id, more):
+def parmake_job2(job_id, more): # TODO: remove "more"
     #print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
 
     try:
-
         # We register an handler for the events to be passed back 
         # to the main process
         def handler(event):
@@ -137,11 +187,13 @@ def parmake_job2(job_id, more):
         publish('worker-status', job_id=job_id, status='connected')
 
         # XXX this should not be necessary
-        if more:
-            mark_more(job_id)
+#        if more:
+#            mark_more(job_id)
 
     #    try:
         make(job_id, more)
+        publish('worker-status', job_id=job_id, status='ended')
+
     #    except Exception as e:
     #        publish('worker-status', job_id=job_id, status='exception')
     #
@@ -158,11 +210,13 @@ def parmake_job2(job_id, more):
     #            print('Pickling ok!')
     #            raise
 
-        publish('worker-status', job_id=job_id, status='ended')
-    except:
+    except KeyboardInterrupt:
+#        where = traceback.format_exc()
+        publish('worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
         raise
     finally:
+        publish('worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake:DONE:%s' % job_id)
 
 

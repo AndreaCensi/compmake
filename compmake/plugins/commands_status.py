@@ -71,9 +71,10 @@ register_handler('parmake-status', ignore)
 register_handler('job-succeeded', ignore)
 register_handler('job-interrupted', ignore)
 
-register_handler('worker-status', ignore)
-register_handler('manager-job-succeeded', ignore)
-register_handler('manager-job-failed', ignore)
+if True: # debugging
+    register_handler('worker-status', ignore)
+    register_handler('manager-job-succeeded', ignore)
+    register_handler('manager-job-failed', ignore)
 register_handler('manager-succeeded', ignore) # TODO: maybe write sth
 
 
