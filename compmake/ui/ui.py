@@ -1,7 +1,6 @@
 from . import UIState, get_commands
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     CompmakeGlobalState)
-from ..config import compmake_config
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
@@ -10,7 +9,7 @@ from ..utils import describe_type, interpret_strings_like
 from types import NoneType
 import cPickle as pickle
 import inspect
-from compmake.state import is_interactive_session
+from compmake.state import is_interactive_session, get_compmake_config
 
 
 # static storage # XXX: put it somewhere
@@ -192,7 +191,7 @@ def comp(command, *args, **kwargs):
         # slave mode, so that recursive calls to comp() 
         # are disabled.
 
-        if compmake_config.check_params: #@UndefinedVariable
+        if get_compmake_config('check_params'):
             old_status = get_compmake_status()
             set_compmake_status(CompmakeConstants.compmake_status_slave)
             old_computation = get_job(job_id)

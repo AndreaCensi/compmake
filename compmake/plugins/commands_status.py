@@ -1,4 +1,4 @@
-from ..utils import error
+from ..ui import error
 from ..events import register_handler
 
 
@@ -75,6 +75,8 @@ if True: # debugging
     register_handler('worker-status', ignore)
     register_handler('manager-job-succeeded', ignore)
     register_handler('manager-job-failed', ignore)
+    register_handler('manager-job-starting', ignore)
+
 register_handler('manager-succeeded', ignore) # TODO: maybe write sth
 
 

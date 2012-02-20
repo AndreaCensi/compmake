@@ -8,7 +8,7 @@ class Simple(CompmakeTest):
         pass
 
     def testExists1(self):
-        assert(not CompmakeGlobalState.db.exists('not-existent'))
+        assert(not CompmakeGlobalState.db.exists('not-existent')) #@UndefinedVariable
 
     def testExists2(self):
         k = 'ciao'

@@ -36,10 +36,9 @@ class AvgSystemStats:
         self._check_available()
         return self.mem.get_cur()
 
-
     def available(self):
         ''' returns false if psutil is not installed '''
-        return self.available
+        return self._available
 
     def _check_available(self):
         if not self._available:

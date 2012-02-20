@@ -1,7 +1,10 @@
-from . import config_sections, config_switches
+from .. import CompmakeGlobalState
 
 
 def create_config_html(file): #@ReservedAssignment
+    config_switches = CompmakeGlobalState.config_switches
+    config_sections = CompmakeGlobalState.config_sections
+
     # TODO: HTML escaping?
     ordered_sections = sorted(config_sections.values(),
                               key=lambda section: section.order)

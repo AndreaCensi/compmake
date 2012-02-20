@@ -1,7 +1,7 @@
 from ..jobs import direct_children, get_job_cache, top_targets, tree
 from ..structures import UserError, Cache
 from ..ui import ui_section, VISUALIZATION, ui_command
-from ..utils import info
+from ..ui import info
 import os
 
 ui_section(VISUALIZATION)
@@ -25,18 +25,18 @@ def graph(job_list, filename='compmake', compact=0,
     '''
     if not job_list:
         job_list = top_targets()
-    
+
     job_list = tree(job_list)
-    
+
     try:
         import gvgen  # @UnresolvedImport
     except:
-        gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen' 
-        raise UserError(('To use the "graph" command' 
-                        ' you have to install the "gvgen" package from %s') % 
+        gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen'
+        raise UserError(('To use the "graph" command'
+                        ' you have to install the "gvgen" package from %s') %
                         gvgen_url)
-        
-    graph = gvgen.GvGen() 
+
+    graph = gvgen.GvGen()
 
     state2color = {
         Cache.NOT_STARTED: 'grey',
@@ -56,19 +56,19 @@ def graph(job_list, filename='compmake', compact=0,
         graph.styleAppend(job_id, "style", "filled")
         graph.styleAppend(job_id, "fillcolor", state2color[cache.state])
         graph.styleApply(job_id, job2node[job_id])
-    
+
     for job_id in job_list:
         #c = get_computation(job_id)
         #children_id = [x.job_id for x in c.depends]
         for child in direct_children(job_id):
             graph.newLink(job2node[job_id], job2node[child])
-    
+
     # TODO: add check?
     with open(filename, 'w') as f:
-        graph.dot(f)    
-    
+        graph.dot(f)
+
     output = filename + '.' + format
-    cmd_line = '%s %s -T%s -o%s' % (filter, filename, format, output)    
+    cmd_line = '%s %s -T%s -o%s' % (filter, filename, format, output)
     try:
         os.system(cmd_line)
     except:

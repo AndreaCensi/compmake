@@ -1,7 +1,7 @@
 from . import CompmakeConstants
-from .storage.filesystem import StorageFilesystem
+from .utils import AvgSystemStats
+from collections import namedtuple
 import sys
-from compmake.utils.system_stats import AvgSystemStats
 
 
 class CompmakeGlobalState:
@@ -18,7 +18,8 @@ class CompmakeGlobalState:
         # list of handler, called when there is no other specialized handler
         fallback = []
 
-    db = StorageFilesystem(CompmakeConstants.default_path)
+    db = None
+    db = {} # for pydev
     namespace = CompmakeConstants.default_namespace
 
     job_prefix = None
@@ -26,6 +27,27 @@ class CompmakeGlobalState:
     jobs_defined_in_this_session = set()
 
     system_stats = AvgSystemStats(interval=1, history_len=10)
+
+    # Configuration vlues    
+    compmake_config = {}
+    # config name -> ConfigSwitch
+    config_switches = {}
+    # section name -> ConfigSection
+    config_sections = {}
+
+
+def get_compmake_config(key):
+    return CompmakeGlobalState.compmake_config[key]
+
+
+def set_compmake_config(key, value):
+    # TODO: check exists
+    CompmakeGlobalState.compmake_config[key] = value
+
+
+ConfigSwitch = namedtuple('ConfigSwitch',
+                          'name default_value desc section order allowed')
+ConfigSection = namedtuple('ConfigSection', 'name desc order switches')
 
 
 def set_compmake_status(s):

@@ -4,7 +4,7 @@ from .. import CompmakeConstants, set_compmake_status, get_compmake_status
 from ..events import publish
 from ..jobs import all_jobs
 from ..structures import UserError, CompmakeException
-from ..utils import clean_console_line
+from ..ui import clean_console_line
 import os
 import sys
 import traceback

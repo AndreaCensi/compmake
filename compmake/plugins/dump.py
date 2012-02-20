@@ -1,6 +1,5 @@
 from ..jobs import get_job_userobject, is_job_userobject_available
-from ..ui import INPUT_OUTPUT, ui_section, ui_command
-from ..utils import info, user_error
+from ..ui import INPUT_OUTPUT, ui_section, ui_command, info, user_error
 import cPickle as pickle
 import os
 
@@ -17,7 +16,7 @@ Arguments:
     
 '''
     for job_id in non_empty_job_list:
-        
+
         if is_job_userobject_available(job_id):
             user_object = get_job_userobject(job_id)
             filename = os.path.join(directory, job_id + '.pickle')
@@ -26,4 +25,4 @@ Arguments:
             info('Wrote %s' % filename)
         else:
             user_error('Job %s is not ready yet.' % job_id)
-        
+

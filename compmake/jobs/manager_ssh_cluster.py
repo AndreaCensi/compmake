@@ -3,7 +3,8 @@ from ..events import register_handler, remove_all_handlers, broadcast_event
 from ..jobs import (colorize_loglevel, get_job, set_job_userobject,
     set_job_cache, mark_as_failed)
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
-from ..utils import OutputCapture, info, setproctitle, error
+from ..utils import OutputCapture, setproctitle
+from ..ui import  info, error
 from cjson import encode, decode, EncodeError, DecodeError
 from .. import CompmakeConstants
 from multiprocessing import Pool

@@ -1,8 +1,9 @@
+from .. import get_compmake_config
 from ..events import register_handler
+from ..ui import error
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
-    error, colored, get_screen_columns)
+    colored, get_screen_columns)
 import sys
-from compmake.config import get_compmake_config
 
 # sys.stdout will be changed later
 stream = sys.stdout

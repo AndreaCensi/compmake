@@ -1,8 +1,11 @@
-from . import config_switches, set_config_from_strings
+from . import  set_config_from_strings
 from optparse import OptionValueError
+from compmake.state import CompmakeGlobalState
 
 
 def config_populate_optparser(parser):
+    config_switches = CompmakeGlobalState.config_switches
+
     for name, switch in config_switches.items():  # @UnusedVariable
         command = '--%s' % switch.name
 

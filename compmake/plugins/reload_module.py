@@ -1,6 +1,6 @@
 from ..structures import UserError
 from ..ui import GENERAL, ui_command
-from ..utils import user_error, info
+from ..ui import user_error, info
 import os
 import imp
 import pwd
@@ -23,18 +23,18 @@ def reload(module):  # @ReservedAssignment
             dave = 'Dave'
         user_error("I'm sorry, %s. I'm afraid I can't do that." % dave)
         return
-        
-    try:     
+
+    try:
         # otherwise import("A.B") returns A instead of A.B
         m = __import__(module, fromlist=['dummy'])
     except Exception as e:
         raise UserError('Cannot find module "%s": %s.' % (module, e))
-        
-    try: 
+
+    try:
         imp.reload(m)
     except Exception as e:
         raise UserError('Obtained this exception while reloading the module:'
                         ' %s' % e)
-    
+
     info('Reloaded module "%s".' % module)
-    
+

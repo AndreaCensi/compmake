@@ -1,8 +1,8 @@
 from . import GENERAL, ui_command, COMMANDS_ADVANCED
-from ..config import (create_config_html, show_config, config_switches,
-    compmake_config, set_config_from_strings)
+from .. import CompmakeGlobalState, get_compmake_config
+from ..config import create_config_html, show_config, set_config_from_strings
 from ..structures import UserError
-from ..utils import info
+from ..ui import info
 import sys
 
 
@@ -15,19 +15,20 @@ Call like:
     @> config  <switch>  <value>
          
 Without arguments, shows all configuration switches.
- '''    
+ '''
     if not args:
         # show
         show_config(sys.stdout)
         return
-        
+
     name = args.pop(0)
     if not args:
-        if not name in config_switches:
+        if not name in CompmakeGlobalState.config_switches:
             raise UserError("I don't know the switch '%s'." % name)
-        info('config %s %s' % (name, compmake_config.__dict__[name]))
+        value = get_compmake_config(name)
+        info('config %s %s' % (name, value))
         return
-        
+
     set_config_from_strings(name, args)
 
 
@@ -39,4 +40,4 @@ def config_html(output_file=''):
     else:
         f = sys.stdout
     create_config_html(f)
-    
+

@@ -2,11 +2,10 @@ from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
     mark_as_blocked, parents, direct_parents)
 from ..events import publish
 from ..structures import JobFailed, JobInterrupted, HostFailed
-from ..utils import error
+from ..ui import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
-import traceback
 
 
 class AsyncResultInterface:
@@ -203,7 +202,6 @@ class Manager:
 
         self.publish_progress()
 
-
     def event_check(self):
         pass
 
@@ -226,9 +224,6 @@ class Manager:
             # Process events
             self.event_check()
 
-#        print('processing: %d proc2result: %d' % (len(self.processing),
-#                                                  len(self.processing2result)))
-
     def process(self):
         ''' Start processing jobs. '''
 
@@ -246,7 +241,6 @@ class Manager:
         # precompute job priorities
         publish('manager-phase', phase='compute_priorities')
         self.priorities = compute_priorities(self.all_targets)
-
 
         publish('manager-phase', phase='init')
         self.process_init()

@@ -2,7 +2,7 @@ from . import (delete_job_cache, get_job_cache, set_job_cache,
     is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
     delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_userobject,
     get_job, init_progress_tracking, up_to_date)
-from ..config import compmake_config
+from .. import get_compmake_config
 from ..events import publish
 from ..structures import Cache, UserError, JobFailed, JobInterrupted, Promise
 from ..utils import OutputCapture, setproctitle, colored
@@ -87,7 +87,7 @@ def make(job_id, more=False):
         or JobInterrupted. Also SystemExit and KeyboardInterrupt are 
         captured.
     """
-    host = compmake_config.hostname  # @UndefinedVariable
+    host = get_compmake_config('hostname')
 
     setproctitle(job_id)
 
@@ -149,10 +149,8 @@ def make(job_id, more=False):
         user_object = None
 
         capture = OutputCapture(prefix=job_id,
-            echo_stdout=False,
-            echo_stderr=False)
-#            echo_stdout=compmake_config.echo_stdout, # @UndefinedVariable
-#            echo_stderr=compmake_config.echo_stderr)  # @UndefinedVariable
+                                echo_stdout=False,
+                                echo_stderr=False)
 
         # TODO: add whether we should just capture and not echo
         old_emit = logging.StreamHandler.emit
@@ -252,8 +250,8 @@ def make(job_id, more=False):
         # FIXME walltime/cputime not precise (especially for "more" computation
         cache.walltime_used = walltime
         cache.cputime_used = cputime
-        cache.done_iterations = num # XXX not true
-        cache.host = compmake_config.hostname #@UndefinedVariable
+        cache.done_iterations = num # XXX not true # TODO: remove
+        cache.host = get_compmake_config('hostname') # XXX
 
         set_job_cache(job_id, cache)
 
@@ -263,6 +261,7 @@ def make(job_id, more=False):
         return user_object
 
 
+# TODO: remove these
 def colorize_loglevel(levelno, msg):
     # TODO: use Compmake's way
     if(levelno >= 50):

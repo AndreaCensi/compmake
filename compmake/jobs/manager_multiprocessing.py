@@ -10,7 +10,6 @@ from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
 import sys
 import time
-import traceback
 import random
 import signal
 
@@ -182,7 +181,7 @@ def parmake_job2(job_id, more): # TODO: remove "more"
 
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
-        CompmakeGlobalState.db.reopen_after_fork()
+        CompmakeGlobalState.db.reopen_after_fork() #@UndefinedVariable
 
         publish('worker-status', job_id=job_id, status='connected')
 

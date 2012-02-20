@@ -10,7 +10,7 @@ These are all wrappers around the raw methods in storage
 '''
 from .. import CompmakeGlobalState
 from ..structures import Cache, Job, CompmakeException
-from ..utils import info
+from ..ui import  info
 
 
 def set_namespace(n):
