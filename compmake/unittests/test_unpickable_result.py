@@ -1,5 +1,4 @@
 from .. import set_compmake_status, CompmakeConstants
-from ..structures import SerializationError
 from .compmake_test import CompmakeTest
 from nose.tools import  istest
 
@@ -17,10 +16,11 @@ class TestUnpickable(CompmakeTest):
         set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
     def test_unpickable(self):
-        self.assertRaises(SerializationError, self.add_and_execute, f1)
+        res = self.add_and_execute(f1)
+        self.assertNotEqual(res, 0)
 
     def add_and_execute(self, function):
         from compmake import comp, batch_command
         comp(function)
         batch_command('clean')
-        batch_command('make')
+        return batch_command('make')

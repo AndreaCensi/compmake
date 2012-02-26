@@ -8,6 +8,7 @@ from ..ui import clean_console_line
 import os
 import sys
 import traceback
+from compmake.state import CompmakeGlobalState
 
 use_readline = True
 
@@ -82,16 +83,28 @@ def interactive_console():
     return None
 
 
+def get_completions():
+    if CompmakeGlobalState.cached_completions is None:
+        #print('Computing completions...')
+        available = get_commands().keys()
+        available.extend(list(all_jobs()))  # give it a list
+        # TODO: add function type "myfunc()" 
+        CompmakeGlobalState.cached_completions = available
+        #print('..done.')
+
+    return CompmakeGlobalState.cached_completions
+
+
 def tab_completion2(text, state):
-    available = get_commands().keys()
-    available.extend(list(all_jobs()))  # give it a list
-    matches = sorted(x for x in available if x.startswith(text))
+    completions = get_completions()
+    matches = sorted(x for x in completions if x.startswith(text))
     try:
         response = matches[state]
     except IndexError:
         response = None
     return response
 
+# TODO: move
 COMPMAKE_HISTORY_FILENAME = '.compmake_history.txt'
 
 
@@ -136,8 +149,8 @@ def compmake_console_lines():
         if False:
             # Trying to debug why there is no echo
             msg = 'stdin %s out %s err %s\n' % (sys.stdin.isatty(),
-                                                    sys.stdout.isatty(),
-                                                    sys.stderr.isatty())
+                                                sys.stdout.isatty(),
+                                                sys.stderr.isatty())
             for s in sys.stdout, sys.stderr:
                 s.write('%s:%s' % (s, msg))
                 s.flush()

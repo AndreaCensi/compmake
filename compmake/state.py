@@ -35,6 +35,9 @@ class CompmakeGlobalState:
     # section name -> ConfigSection
     config_sections = {}
 
+    # Cached list of options for completions in console
+    cached_completions = None
+
 
 def get_compmake_config(key):
     return CompmakeGlobalState.compmake_config[key]
