@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>compmake.plugins.job_definition_status</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="compmake-module.html">Package&nbsp;compmake</a> ::
+        <a href="compmake.plugins-module.html">Package&nbsp;plugins</a> ::
+        Module&nbsp;job_definition_status
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="compmake.plugins.job_definition_status-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="compmake.plugins.job_definition_status-module.html">Module compmake.plugins.job_definition_status</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Package compmake.events=compmake.events-module.html"><a title="compmake.events" class="py-name" href="#" onclick="return doclink('link-0', 'events', 'link-0');">events</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Function compmake.events.registrar.register_handler()=compmake.events.registrar-module.html#register_handler"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-1', 'register_handler', 'link-1');">register_handler</a></tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Package compmake.utils=compmake.utils-module.html"><a title="compmake.utils" class="py-name" href="#" onclick="return doclink('link-2', 'utils', 'link-2');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Function compmake.ui.visualization.colored()=compmake.ui.visualization-module.html#colored,Function compmake.utils.visualization.colored()=compmake.utils.visualization-module.html#colored"><a title="compmake.ui.visualization.colored
+compmake.utils.visualization.colored" class="py-name" href="#" onclick="return doclink('link-3', 'colored', 'link-3');">colored</a></tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name" targets="Function compmake.utils.terminal_size.get_screen_columns()=compmake.utils.terminal_size-module.html#get_screen_columns,Function compmake.utils.visualization.get_screen_columns()=compmake.utils.visualization-module.html#get_screen_columns"><a title="compmake.utils.terminal_size.get_screen_columns
+compmake.utils.visualization.get_screen_columns" class="py-name" href="#" onclick="return doclink('link-4', 'get_screen_columns', 'link-4');">get_screen_columns</a></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">string</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt id="link-5" class="py-name" targets="Variable compmake.plugins.console_output.stream=compmake.plugins.console_output-module.html#stream,Variable compmake.plugins.console_status.stream=compmake.plugins.console_status-module.html#stream,Variable compmake.plugins.event_debugger.stream=compmake.plugins.event_debugger-module.html#stream,Variable compmake.plugins.job_definition_status.stream=compmake.plugins.job_definition_status-module.html#stream"><a title="compmake.plugins.console_output.stream
+compmake.plugins.console_status.stream
+compmake.plugins.event_debugger.stream
+compmake.plugins.job_definition_status.stream" class="py-name" href="#" onclick="return doclink('link-5', 'stream', 'link-5');">stream</a></tt> <tt class="py-op">=</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">stderr</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt id="link-6" class="py-name" targets="Variable compmake.plugins.job_definition_status.counter=compmake.plugins.job_definition_status-module.html#counter"><a title="compmake.plugins.job_definition_status.counter" class="py-name" href="#" onclick="return doclink('link-6', 'counter', 'link-6');">counter</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"> </tt>
+<a name="console_write"></a><div id="console_write-def"><a name="L12"></a><tt class="py-lineno">12</tt> <a class="py-toggle" href="#" id="console_write-toggle" onclick="return toggle('console_write');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.job_definition_status-module.html#console_write">console_write</a><tt class="py-op">(</tt><tt class="py-param">s</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="console_write-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="console_write-expanded"><a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">    <tt class="py-docstring">''' Writes a line that will be erased. '''</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">    <tt class="py-name">cols</tt> <tt class="py-op">=</tt> <tt id="link-7" class="py-name"><a title="compmake.utils.terminal_size.get_screen_columns
+compmake.utils.visualization.get_screen_columns" class="py-name" href="#" onclick="return doclink('link-7', 'get_screen_columns', 'link-4');">get_screen_columns</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">    <tt class="py-name">s</tt> <tt class="py-op">=</tt> <tt class="py-name">string</tt><tt class="py-op">.</tt><tt class="py-name">ljust</tt><tt class="py-op">(</tt><tt class="py-name">s</tt><tt class="py-op">,</tt> <tt class="py-name">cols</tt><tt class="py-op">)</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">    <tt id="link-8" class="py-name"><a title="compmake.plugins.console_output.stream
+compmake.plugins.console_status.stream
+compmake.plugins.event_debugger.stream
+compmake.plugins.job_definition_status.stream" class="py-name" href="#" onclick="return doclink('link-8', 'stream', 'link-5');">stream</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Method compmake.jobs.manager_ssh_cluster.StreamCon.write()=compmake.jobs.manager_ssh_cluster.StreamCon-class.html#write,Method compmake.utils.capture.StreamCapture.write()=compmake.utils.capture.StreamCapture-class.html#write"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.write
+compmake.utils.capture.StreamCapture.write" class="py-name" href="#" onclick="return doclink('link-9', 'write', 'link-9');">write</a></tt><tt class="py-op">(</tt><tt class="py-name">s</tt><tt class="py-op">)</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">    <tt id="link-10" class="py-name"><a title="compmake.plugins.console_output.stream
+compmake.plugins.console_status.stream
+compmake.plugins.event_debugger.stream
+compmake.plugins.job_definition_status.stream" class="py-name" href="#" onclick="return doclink('link-10', 'stream', 'link-5');">stream</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.write
+compmake.utils.capture.StreamCapture.write" class="py-name" href="#" onclick="return doclink('link-11', 'write', 'link-9');">write</a></tt><tt class="py-op">(</tt><tt class="py-string">'\r'</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">     </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">     </tt>
+<a name="job_redefined"></a><div id="job_redefined-def"><a name="L20"></a><tt class="py-lineno">20</tt> <a class="py-toggle" href="#" id="job_redefined-toggle" onclick="return toggle('job_redefined');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.job_definition_status-module.html#job_redefined">job_redefined</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt>  <tt class="py-comment"># @UnusedVariable</tt> </tt>
+</div><a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">    <tt class="py-comment">#stream.write('\n')</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">    <tt id="link-12" class="py-name"><a title="compmake.plugins.console_output.stream
+compmake.plugins.console_status.stream
+compmake.plugins.event_debugger.stream
+compmake.plugins.job_definition_status.stream" class="py-name" href="#" onclick="return doclink('link-12', 'stream', 'link-5');">stream</a></tt><tt class="py-op">.</tt><tt id="link-13" class="py-name"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.write
+compmake.utils.capture.StreamCapture.write" class="py-name" href="#" onclick="return doclink('link-13', 'write', 'link-9');">write</a></tt><tt class="py-op">(</tt><tt id="link-14" class="py-name"><a title="compmake.ui.visualization.colored
+compmake.utils.visualization.colored" class="py-name" href="#" onclick="return doclink('link-14', 'colored', 'link-3');">colored</a></tt><tt class="py-op">(</tt><tt class="py-string">'Redefined %s\r'</tt> <tt class="py-op">%</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">job_id</tt><tt class="py-op">,</tt> <tt class="py-string">'yellow'</tt><tt class="py-op">,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">                         <tt class="py-name">attrs</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-string">'bold'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">    <tt id="link-15" class="py-name"><a title="compmake.plugins.console_output.stream
+compmake.plugins.console_status.stream
+compmake.plugins.event_debugger.stream
+compmake.plugins.job_definition_status.stream" class="py-name" href="#" onclick="return doclink('link-15', 'stream', 'link-5');">stream</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.write
+compmake.utils.capture.StreamCapture.write" class="py-name" href="#" onclick="return doclink('link-16', 'write', 'link-9');">write</a></tt><tt class="py-op">(</tt><tt id="link-17" class="py-name"><a title="compmake.ui.visualization.colored
+compmake.utils.visualization.colored" class="py-name" href="#" onclick="return doclink('link-17', 'colored', 'link-3');">colored</a></tt><tt class="py-op">(</tt><tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">reason</tt><tt class="py-op">,</tt> <tt class="py-string">'yellow'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">    <tt class="py-comment">#stream.write('\n')</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line"> </tt>
+<a name="job_defined"></a><div id="job_defined-def"><a name="L28"></a><tt class="py-lineno">28</tt> <a class="py-toggle" href="#" id="job_defined-toggle" onclick="return toggle('job_defined');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.job_definition_status-module.html#job_defined">job_defined</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="job_defined-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="job_defined-expanded"><a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-18" class="py-name"><a title="compmake.plugins.job_definition_status.counter" class="py-name" href="#" onclick="return doclink('link-18', 'counter', 'link-6');">counter</a></tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt id="link-19" class="py-name"><a title="compmake.plugins.job_definition_status.counter" class="py-name" href="#" onclick="return doclink('link-19', 'counter', 'link-6');">counter</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line">    <tt id="link-20" class="py-name" targets="Function compmake.plugins.job_definition_status.console_write()=compmake.plugins.job_definition_status-module.html#console_write"><a title="compmake.plugins.job_definition_status.console_write" class="py-name" href="#" onclick="return doclink('link-20', 'console_write', 'link-20');">console_write</a></tt><tt class="py-op">(</tt><tt class="py-string">'compmake: defining job #%d %s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt id="link-21" class="py-name"><a title="compmake.plugins.job_definition_status.counter" class="py-name" href="#" onclick="return doclink('link-21', 'counter', 'link-6');">counter</a></tt><tt class="py-op">,</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">job_id</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line">     </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">     </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"><tt id="link-22" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-22', 'register_handler', 'link-1');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job-redefined'</tt><tt class="py-op">,</tt> <tt id="link-23" class="py-name" targets="Function compmake.plugins.job_definition_status.job_redefined()=compmake.plugins.job_definition_status-module.html#job_redefined"><a title="compmake.plugins.job_definition_status.job_redefined" class="py-name" href="#" onclick="return doclink('link-23', 'job_redefined', 'link-23');">job_redefined</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line"><tt id="link-24" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-24', 'register_handler', 'link-1');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job-defined'</tt><tt class="py-op">,</tt> <tt id="link-25" class="py-name" targets="Function compmake.plugins.job_definition_status.job_defined()=compmake.plugins.job_definition_status-module.html#job_defined"><a title="compmake.plugins.job_definition_status.job_defined" class="py-name" href="#" onclick="return doclink('link-25', 'job_defined', 'link-25');">job_defined</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line"> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"><tt class="py-comment"># register_handler('job-already-defined', lambda event:</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line"><tt class="py-comment">#    console_write('Confirming job %s' % event.job_id))</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Feb 25 20:33:33 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

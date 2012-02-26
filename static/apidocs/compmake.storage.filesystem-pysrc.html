@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>compmake.storage.filesystem</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="compmake-module.html">Package&nbsp;compmake</a> ::
+        <a href="compmake.storage-module.html">Package&nbsp;storage</a> ::
+        Module&nbsp;filesystem
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="compmake.storage.filesystem-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="compmake.storage.filesystem-module.html">Module compmake.storage.filesystem</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Module compmake.events.structures=compmake.events.structures-module.html,Module compmake.structures=compmake.structures-module.html"><a title="compmake.events.structures
+compmake.structures" class="py-name" href="#" onclick="return doclink('link-0', 'structures', 'link-0');">structures</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class compmake.structures.CompmakeException=compmake.structures.CompmakeException-class.html"><a title="compmake.structures.CompmakeException" class="py-name" href="#" onclick="return doclink('link-1', 'CompmakeException', 'link-1');">CompmakeException</a></tt><tt class="py-op">,</tt> <tt id="link-2" class="py-name" targets="Class compmake.structures.SerializationError=compmake.structures.SerializationError-class.html"><a title="compmake.structures.SerializationError" class="py-name" href="#" onclick="return doclink('link-2', 'SerializationError', 'link-2');">SerializationError</a></tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name" targets="Package compmake.utils=compmake.utils-module.html"><a title="compmake.utils" class="py-name" href="#" onclick="return doclink('link-3', 'utils', 'link-3');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-4" class="py-name" targets="Function compmake.utils.debug_pickler.find_pickling_error()=compmake.utils.debug_pickler-module.html#find_pickling_error"><a title="compmake.utils.debug_pickler.find_pickling_error" class="py-name" href="#" onclick="return doclink('link-4', 'find_pickling_error', 'link-4');">find_pickling_error</a></tt><tt class="py-op">,</tt> <tt id="link-5" class="py-name" targets="Function compmake.utils.safe_write'.safe_write()=compmake.utils.safe_write%27-module.html#safe_write"><a title="compmake.utils.safe_write'.safe_write" class="py-name" href="#" onclick="return doclink('link-5', 'safe_write', 'link-5');">safe_write</a></tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">StringIO</tt> <tt class="py-keyword">import</tt> <tt class="py-name">StringIO</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">glob</tt> <tt class="py-keyword">import</tt> <tt class="py-name">glob</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt> <tt class="py-keyword">import</tt> <tt class="py-name">splitext</tt><tt class="py-op">,</tt> <tt class="py-name">basename</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">cPickle</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-name">pickle</tt> <tt class="py-op">=</tt> <tt class="py-name">cPickle</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line">    <tt id="link-6" class="py-name" targets="Function compmake.storage.filesystem.track_time()=compmake.storage.filesystem-module.html#track_time"><a title="compmake.storage.filesystem.track_time" class="py-name" href="#" onclick="return doclink('link-6', 'track_time', 'link-6');">track_time</a></tt> <tt class="py-op">=</tt> <tt class="py-keyword">lambda</tt> <tt class="py-name">x</tt><tt class="py-op">:</tt> <tt class="py-name">x</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-7" class="py-name"><a title="compmake.utils" class="py-name" href="#" onclick="return doclink('link-7', 'utils', 'link-3');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-8" class="py-name" targets="Class compmake.utils.time_track.TimeTrack=compmake.utils.time_track.TimeTrack-class.html"><a title="compmake.utils.time_track.TimeTrack" class="py-name" href="#" onclick="return doclink('link-8', 'TimeTrack', 'link-8');">TimeTrack</a></tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">    <tt id="link-9" class="py-name"><a title="compmake.storage.filesystem.track_time" class="py-name" href="#" onclick="return doclink('link-9', 'track_time', 'link-6');">track_time</a></tt> <tt class="py-op">=</tt> <tt id="link-10" class="py-name"><a title="compmake.utils.time_track.TimeTrack" class="py-name" href="#" onclick="return doclink('link-10', 'TimeTrack', 'link-8');">TimeTrack</a></tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Static Method compmake.utils.time_track.TimeTrack.decorator()=compmake.utils.time_track.TimeTrack-class.html#decorator"><a title="compmake.utils.time_track.TimeTrack.decorator" class="py-name" href="#" onclick="return doclink('link-11', 'decorator', 'link-11');">decorator</a></tt> </tt>
+<a name="StorageFilesystem"></a><div id="StorageFilesystem-def"><a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt> <a class="py-toggle" href="#" id="StorageFilesystem-toggle" onclick="return toggle('StorageFilesystem');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html">StorageFilesystem</a><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="StorageFilesystem-expanded"><a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.__init__"></a><div id="StorageFilesystem.__init__-def"><a name="L20"></a><tt class="py-lineno"> 20</tt> <a class="py-toggle" href="#" id="StorageFilesystem.__init__-toggle" onclick="return toggle('StorageFilesystem.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">basepath</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.__init__-expanded"><a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">basepath</tt> <tt class="py-op">=</tt> <tt class="py-name">basepath</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">checked_existence</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.__str__"></a><div id="StorageFilesystem.__str__-def"><a name="L24"></a><tt class="py-lineno"> 24</tt> <a class="py-toggle" href="#" id="StorageFilesystem.__str__-toggle" onclick="return toggle('StorageFilesystem.__str__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#__str__">__str__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.__str__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.__str__-expanded"><a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">"Filesystem backend"</tt> </tt>
+</div><a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.supports_concurrency"></a><div id="StorageFilesystem.supports_concurrency-def"><a name="L27"></a><tt class="py-lineno"> 27</tt> <a class="py-toggle" href="#" id="StorageFilesystem.supports_concurrency-toggle" onclick="return toggle('StorageFilesystem.supports_concurrency');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#supports_concurrency">supports_concurrency</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.supports_concurrency-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.supports_concurrency-expanded"><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">track_time</tt> </tt>
+<a name="StorageFilesystem.get"></a><div id="StorageFilesystem.get-def"><a name="L31"></a><tt class="py-lineno"> 31</tt> <a class="py-toggle" href="#" id="StorageFilesystem.get-toggle" onclick="return toggle('StorageFilesystem.get');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#get">get</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.get-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.get-expanded"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.check_existence()=compmake.storage.filesystem.StorageFilesystem-class.html#check_existence"><a title="compmake.storage.filesystem.StorageFilesystem.check_existence" class="py-name" href="#" onclick="return doclink('link-12', 'check_existence', 'link-12');">check_existence</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.exists()=compmake.storage.filesystem.StorageFilesystem-class.html#exists,Static Method compmake.storage.redisdb.RedisInterface.exists()=compmake.storage.redisdb.RedisInterface-class.html#exists"><a title="compmake.storage.filesystem.StorageFilesystem.exists
+compmake.storage.redisdb.RedisInterface.exists" class="py-name" href="#" onclick="return doclink('link-13', 'exists', 'link-13');">exists</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-14" class="py-name"><a title="compmake.structures.CompmakeException" class="py-name" href="#" onclick="return doclink('link-14', 'CompmakeException', 'link-1');">CompmakeException</a></tt><tt class="py-op">(</tt><tt class="py-string">'Could not find key %r.'</tt> <tt class="py-op">%</tt> <tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.filename_for_key()=compmake.storage.filesystem.StorageFilesystem-class.html#filename_for_key"><a title="compmake.storage.filesystem.StorageFilesystem.filename_for_key" class="py-name" href="#" onclick="return doclink('link-15', 'filename_for_key', 'link-15');">filename_for_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">False</tt><tt class="py-op">:</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">                <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-string">'rb'</tt><tt class="py-op">)</tt>  <tt class="py-comment"># @ReservedAssignment</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">                <tt class="py-name">content</tt> <tt class="py-op">=</tt> <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Method compmake.jobs.manager_ssh_cluster.StreamCon.read()=compmake.jobs.manager_ssh_cluster.StreamCon-class.html#read"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.read" class="py-name" href="#" onclick="return doclink('link-16', 'read', 'link-16');">read</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">                <tt class="py-name">file</tt><tt class="py-op">.</tt><tt class="py-name">close</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">                <tt class="py-comment"># print "R %s len %d" % (key, len(content))</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">                <tt class="py-name">sio</tt> <tt class="py-op">=</tt> <tt class="py-name">StringIO</tt><tt class="py-op">(</tt><tt class="py-name">content</tt><tt class="py-op">)</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">                <tt id="link-17" class="py-name" targets="Module compmake.state=compmake.state-module.html"><a title="compmake.state" class="py-name" href="#" onclick="return doclink('link-17', 'state', 'link-17');">state</a></tt> <tt class="py-op">=</tt> <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt class="py-name">load</tt><tt class="py-op">(</tt><tt class="py-name">sio</tt><tt class="py-op">)</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt id="link-18" class="py-name"><a title="compmake.state" class="py-name" href="#" onclick="return doclink('link-18', 'state', 'link-17');">state</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">            <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">                <tt class="py-keyword">with</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-string">'rb'</tt><tt class="py-op">)</tt> <tt class="py-keyword">as</tt> <tt class="py-name">f</tt><tt class="py-op">:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">                    <tt class="py-keyword">return</tt> <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt class="py-name">load</tt><tt class="py-op">(</tt><tt class="py-name">f</tt><tt class="py-op">)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">            <tt class="py-name">msg</tt> <tt class="py-op">=</tt> <tt class="py-string">"Could not unpickle file %r: %s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-19" class="py-name"><a title="compmake.structures.CompmakeException" class="py-name" href="#" onclick="return doclink('link-19', 'CompmakeException', 'link-1');">CompmakeException</a></tt><tt class="py-op">(</tt><tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.check_existence"></a><div id="StorageFilesystem.check_existence-def"><a name="L53"></a><tt class="py-lineno"> 53</tt> <a class="py-toggle" href="#" id="StorageFilesystem.check_existence-toggle" onclick="return toggle('StorageFilesystem.check_existence');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#check_existence">check_existence</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.check_existence-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.check_existence-expanded"><a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">checked_existence</tt><tt class="py-op">:</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">checked_existence</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.exists
+compmake.storage.redisdb.RedisInterface.exists" class="py-name" href="#" onclick="return doclink('link-20', 'exists', 'link-13');">exists</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">basepath</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">                <tt class="py-keyword">print</tt><tt class="py-op">(</tt><tt class="py-string">'Creating basepath %r'</tt> <tt class="py-op">%</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">basepath</tt><tt class="py-op">)</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">                <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">makedirs</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">basepath</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">track_time</tt> </tt>
+<a name="StorageFilesystem.set"></a><div id="StorageFilesystem.set-def"><a name="L61"></a><tt class="py-lineno"> 61</tt> <a class="py-toggle" href="#" id="StorageFilesystem.set-toggle" onclick="return toggle('StorageFilesystem.set');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#set">set</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">,</tt> <tt class="py-param">value</tt><tt class="py-op">)</tt><tt class="py-op">:</tt>  <tt class="py-comment"># @ReservedAssignment</tt> </tt>
+</div><a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.check_existence" class="py-name" href="#" onclick="return doclink('link-21', 'check_existence', 'link-12');">check_existence</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.filename_for_key" class="py-name" href="#" onclick="return doclink('link-22', 'filename_for_key', 'link-15');">filename_for_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">        <tt class="py-name">sio</tt> <tt class="py-op">=</tt> <tt class="py-name">StringIO</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">            <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Module compmake.plugins.dump=compmake.plugins.dump-module.html,Function compmake.plugins.dump.dump()=compmake.plugins.dump-module.html#dump"><a title="compmake.plugins.dump
+compmake.plugins.dump.dump" class="py-name" href="#" onclick="return doclink('link-23', 'dump', 'link-23');">dump</a></tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">,</tt> <tt class="py-name">sio</tt><tt class="py-op">,</tt> <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt class="py-name">HIGHEST_PROTOCOL</tt><tt class="py-op">)</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">            <tt class="py-name">msg</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-string">'Cannot set key %s: cannot pickle object '</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line">                    <tt class="py-string">'of class %s: %s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">,</tt> <tt class="py-name">value</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">            <tt class="py-name">msg</tt> <tt class="py-op">+=</tt> <tt class="py-string">'\n%s'</tt> <tt class="py-op">%</tt> <tt id="link-24" class="py-name"><a title="compmake.utils.debug_pickler.find_pickling_error" class="py-name" href="#" onclick="return doclink('link-24', 'find_pickling_error', 'link-4');">find_pickling_error</a></tt><tt class="py-op">(</tt><tt class="py-name">value</tt><tt class="py-op">)</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-25" class="py-name"><a title="compmake.structures.SerializationError" class="py-name" href="#" onclick="return doclink('link-25', 'SerializationError', 'link-2');">SerializationError</a></tt><tt class="py-op">(</tt><tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">        <tt class="py-keyword">with</tt> <tt id="link-26" class="py-name"><a title="compmake.utils.safe_write'.safe_write" class="py-name" href="#" onclick="return doclink('link-26', 'safe_write', 'link-5');">safe_write</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-string">'wb'</tt><tt class="py-op">)</tt> <tt class="py-keyword">as</tt> <tt class="py-name">f</tt><tt class="py-op">:</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">            <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name" targets="Method compmake.jobs.manager_ssh_cluster.StreamCon.write()=compmake.jobs.manager_ssh_cluster.StreamCon-class.html#write,Method compmake.utils.capture.StreamCapture.write()=compmake.utils.capture.StreamCapture-class.html#write"><a title="compmake.jobs.manager_ssh_cluster.StreamCon.write
+compmake.utils.capture.StreamCapture.write" class="py-name" href="#" onclick="return doclink('link-27', 'write', 'link-27');">write</a></tt><tt class="py-op">(</tt><tt class="py-name">sio</tt><tt class="py-op">.</tt><tt class="py-name">getvalue</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">track_time</tt> </tt>
+<a name="StorageFilesystem.delete"></a><div id="StorageFilesystem.delete-def"><a name="L79"></a><tt class="py-lineno"> 79</tt> <a class="py-toggle" href="#" id="StorageFilesystem.delete-toggle" onclick="return toggle('StorageFilesystem.delete');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#delete">delete</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.delete-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.delete-expanded"><a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.filename_for_key" class="py-name" href="#" onclick="return doclink('link-28', 'filename_for_key', 'link-15');">filename_for_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-keyword">assert</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt id="link-29" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.exists
+compmake.storage.redisdb.RedisInterface.exists" class="py-name" href="#" onclick="return doclink('link-29', 'exists', 'link-13');">exists</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> \ </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">            <tt class="py-string">'I expected path %s to exist before deleting'</tt> <tt class="py-op">%</tt> <tt class="py-name">filename</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">        <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">remove</tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">track_time</tt> </tt>
+<a name="StorageFilesystem.exists"></a><div id="StorageFilesystem.exists-def"><a name="L86"></a><tt class="py-lineno"> 86</tt> <a class="py-toggle" href="#" id="StorageFilesystem.exists-toggle" onclick="return toggle('StorageFilesystem.exists');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#exists">exists</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.exists-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.exists-expanded"><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-30" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.filename_for_key" class="py-name" href="#" onclick="return doclink('link-30', 'filename_for_key', 'link-15');">filename_for_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt id="link-31" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.exists
+compmake.storage.redisdb.RedisInterface.exists" class="py-name" href="#" onclick="return doclink('link-31', 'exists', 'link-13');">exists</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-comment"># TODO change key</tt> </tt>
+<a name="StorageFilesystem.keys_yield"></a><div id="StorageFilesystem.keys_yield-def"><a name="L91"></a><tt class="py-lineno"> 91</tt> <a class="py-toggle" href="#" id="StorageFilesystem.keys_yield-toggle" onclick="return toggle('StorageFilesystem.keys_yield');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#keys_yield">keys_yield</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">pattern</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.keys_yield-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.keys_yield-expanded"><a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.filename_for_key" class="py-name" href="#" onclick="return doclink('link-32', 'filename_for_key', 'link-15');">filename_for_key</a></tt><tt class="py-op">(</tt><tt class="py-name">pattern</tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">glob</tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">            <tt class="py-name">b</tt> <tt class="py-op">=</tt> <tt class="py-name">splitext</tt><tt class="py-op">(</tt><tt class="py-name">basename</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">            <tt class="py-keyword">yield</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.filename2key()=compmake.storage.filesystem.StorageFilesystem-class.html#filename2key"><a title="compmake.storage.filesystem.StorageFilesystem.filename2key" class="py-name" href="#" onclick="return doclink('link-33', 'filename2key', 'link-33');">filename2key</a></tt><tt class="py-op">(</tt><tt class="py-name">b</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">track_time</tt> </tt>
+<a name="StorageFilesystem.keys"></a><div id="StorageFilesystem.keys-def"><a name="L98"></a><tt class="py-lineno"> 98</tt> <a class="py-toggle" href="#" id="StorageFilesystem.keys-toggle" onclick="return toggle('StorageFilesystem.keys');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#keys">keys</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">pattern</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.keys-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.keys-expanded"><a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">sorted</tt><tt class="py-op">(</tt><tt id="link-34" class="py-name" targets="Function compmake.plugins.list_jobs.list()=compmake.plugins.list_jobs-module.html#list"><a title="compmake.plugins.list_jobs.list" class="py-name" href="#" onclick="return doclink('link-34', 'list', 'link-34');">list</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.keys_yield()=compmake.storage.filesystem.StorageFilesystem-class.html#keys_yield"><a title="compmake.storage.filesystem.StorageFilesystem.keys_yield" class="py-name" href="#" onclick="return doclink('link-35', 'keys_yield', 'link-35');">keys_yield</a></tt><tt class="py-op">(</tt><tt class="py-name">pattern</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.reopen_after_fork"></a><div id="StorageFilesystem.reopen_after_fork-def"><a name="L101"></a><tt class="py-lineno">101</tt> <a class="py-toggle" href="#" id="StorageFilesystem.reopen_after_fork-toggle" onclick="return toggle('StorageFilesystem.reopen_after_fork');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#reopen_after_fork">reopen_after_fork</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.reopen_after_fork-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.reopen_after_fork-expanded"><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">    <tt id="link-36" class="py-name" targets="Variable compmake.storage.filesystem.StorageFilesystem.dangerous_chars=compmake.storage.filesystem.StorageFilesystem-class.html#dangerous_chars"><a title="compmake.storage.filesystem.StorageFilesystem.dangerous_chars" class="py-name" href="#" onclick="return doclink('link-36', 'dangerous_chars', 'link-36');">dangerous_chars</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">       <tt class="py-string">'/'</tt><tt class="py-op">:</tt> <tt class="py-string">'CMSLASH'</tt><tt class="py-op">,</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">       <tt class="py-string">'..'</tt><tt class="py-op">:</tt> <tt class="py-string">'CMDOT'</tt><tt class="py-op">,</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">       <tt class="py-string">'~'</tt><tt class="py-op">:</tt> <tt class="py-string">'CMHOME'</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-op">}</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.key2filename"></a><div id="StorageFilesystem.key2filename-def"><a name="L110"></a><tt class="py-lineno">110</tt> <a class="py-toggle" href="#" id="StorageFilesystem.key2filename-toggle" onclick="return toggle('StorageFilesystem.key2filename');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#key2filename">key2filename</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.key2filename-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.key2filename-expanded"><a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-docstring">'''turns a key into a reasonable filename'''</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">char</tt><tt class="py-op">,</tt> <tt class="py-name">replacement</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-37" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.dangerous_chars" class="py-name" href="#" onclick="return doclink('link-37', 'dangerous_chars', 'link-36');">dangerous_chars</a></tt><tt class="py-op">.</tt><tt class="py-name">items</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">            <tt class="py-name">key</tt> <tt class="py-op">=</tt> <tt class="py-name">key</tt><tt class="py-op">.</tt><tt class="py-name">replace</tt><tt class="py-op">(</tt><tt class="py-name">char</tt><tt class="py-op">,</tt> <tt class="py-name">replacement</tt><tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">key</tt> </tt>
+</div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.filename2key"></a><div id="StorageFilesystem.filename2key-def"><a name="L116"></a><tt class="py-lineno">116</tt> <a class="py-toggle" href="#" id="StorageFilesystem.filename2key-toggle" onclick="return toggle('StorageFilesystem.filename2key');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#filename2key">filename2key</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.filename2key-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.filename2key-expanded"><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-docstring">''' Undoes key2filename '''</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">char</tt><tt class="py-op">,</tt> <tt class="py-name">replacement</tt> <tt class="py-keyword">in</tt> <tt id="link-38" class="py-name" targets="Class compmake.storage.filesystem.StorageFilesystem=compmake.storage.filesystem.StorageFilesystem-class.html"><a title="compmake.storage.filesystem.StorageFilesystem" class="py-name" href="#" onclick="return doclink('link-38', 'StorageFilesystem', 'link-38');">StorageFilesystem</a></tt><tt class="py-op">.</tt><tt id="link-39" class="py-name"><a title="compmake.storage.filesystem.StorageFilesystem.dangerous_chars" class="py-name" href="#" onclick="return doclink('link-39', 'dangerous_chars', 'link-36');">dangerous_chars</a></tt><tt class="py-op">.</tt><tt class="py-name">items</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">            <tt class="py-name">key</tt> <tt class="py-op">=</tt> <tt class="py-name">key</tt><tt class="py-op">.</tt><tt class="py-name">replace</tt><tt class="py-op">(</tt><tt class="py-name">replacement</tt><tt class="py-op">,</tt> <tt class="py-name">char</tt><tt class="py-op">)</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">key</tt> </tt>
+</div><a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="StorageFilesystem.filename_for_key"></a><div id="StorageFilesystem.filename_for_key-def"><a name="L122"></a><tt class="py-lineno">122</tt> <a class="py-toggle" href="#" id="StorageFilesystem.filename_for_key-toggle" onclick="return toggle('StorageFilesystem.filename_for_key');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.storage.filesystem.StorageFilesystem-class.html#filename_for_key">filename_for_key</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="StorageFilesystem.filename_for_key-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="StorageFilesystem.filename_for_key-expanded"><a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">        <tt class="py-docstring">""" Returns the pickle storage filename corresponding to the job id """</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">basepath</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-40" class="py-name" targets="Method compmake.storage.filesystem.StorageFilesystem.key2filename()=compmake.storage.filesystem.StorageFilesystem-class.html#key2filename"><a title="compmake.storage.filesystem.StorageFilesystem.key2filename" class="py-name" href="#" onclick="return doclink('link-40', 'key2filename', 'link-40');">key2filename</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">'.pickle'</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Feb 25 20:33:34 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

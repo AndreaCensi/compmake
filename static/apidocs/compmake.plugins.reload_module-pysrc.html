@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>compmake.plugins.reload_module</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="compmake-module.html">Package&nbsp;compmake</a> ::
+        <a href="compmake.plugins-module.html">Package&nbsp;plugins</a> ::
+        Module&nbsp;reload_module
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="compmake.plugins.reload_module-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="compmake.plugins.reload_module-module.html">Module compmake.plugins.reload_module</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Module compmake.events.structures=compmake.events.structures-module.html,Module compmake.structures=compmake.structures-module.html"><a title="compmake.events.structures
+compmake.structures" class="py-name" href="#" onclick="return doclink('link-0', 'structures', 'link-0');">structures</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class compmake.structures.UserError=compmake.structures.UserError-class.html"><a title="compmake.structures.UserError" class="py-name" href="#" onclick="return doclink('link-1', 'UserError', 'link-1');">UserError</a></tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Package compmake.ui=compmake.ui-module.html,Module compmake.ui.ui=compmake.ui.ui-module.html"><a title="compmake.ui
+compmake.ui.ui" class="py-name" href="#" onclick="return doclink('link-2', 'ui', 'link-2');">ui</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Variable compmake.plugins.credits.GENERAL=compmake.plugins.credits-module.html#GENERAL,Variable compmake.plugins.reload_module.GENERAL=compmake.plugins.reload_module-module.html#GENERAL,Variable compmake.ui.GENERAL=compmake.ui-module.html#GENERAL,Variable compmake.ui.commands.GENERAL=compmake.ui.commands-module.html#GENERAL,Variable compmake.ui.config_ui.GENERAL=compmake.ui.config_ui-module.html#GENERAL,Variable compmake.ui.helpers.GENERAL=compmake.ui.helpers-module.html#GENERAL"><a title="compmake.plugins.credits.GENERAL
+compmake.plugins.reload_module.GENERAL
+compmake.ui.GENERAL
+compmake.ui.commands.GENERAL
+compmake.ui.config_ui.GENERAL
+compmake.ui.helpers.GENERAL" class="py-name" href="#" onclick="return doclink('link-3', 'GENERAL', 'link-3');">GENERAL</a></tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name" targets="Function compmake.ui.helpers.ui_command()=compmake.ui.helpers-module.html#ui_command"><a title="compmake.ui.helpers.ui_command" class="py-name" href="#" onclick="return doclink('link-4', 'ui_command', 'link-4');">ui_command</a></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-5" class="py-name"><a title="compmake.ui
+compmake.ui.ui" class="py-name" href="#" onclick="return doclink('link-5', 'ui', 'link-2');">ui</a></tt> <tt class="py-keyword">import</tt> <tt id="link-6" class="py-name" targets="Function compmake.ui.visualization.user_error()=compmake.ui.visualization-module.html#user_error,Function compmake.utils.visualization.user_error()=compmake.utils.visualization-module.html#user_error"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-6', 'user_error', 'link-6');">user_error</a></tt><tt class="py-op">,</tt> <tt id="link-7" class="py-name" targets="Function compmake.ui.visualization.info()=compmake.ui.visualization-module.html#info,Function compmake.utils.visualization.info()=compmake.utils.visualization-module.html#info"><a title="compmake.ui.visualization.info
+compmake.utils.visualization.info" class="py-name" href="#" onclick="return doclink('link-7', 'info', 'link-7');">info</a></tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">imp</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">pwd</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt class="py-decorator">@</tt><tt class="py-decorator">ui_command</tt><tt class="py-op">(</tt><tt id="link-8" class="py-name" targets="Variable compmake.state.ConfigSwitch.section=compmake.state.ConfigSwitch-class.html#section,Variable compmake.ui.helpers.Command.section=compmake.ui.helpers.Command-class.html#section"><a title="compmake.state.ConfigSwitch.section
+compmake.ui.helpers.Command.section" class="py-name" href="#" onclick="return doclink('link-8', 'section', 'link-8');">section</a></tt><tt class="py-op">=</tt><tt id="link-9" class="py-name"><a title="compmake.plugins.credits.GENERAL
+compmake.plugins.reload_module.GENERAL
+compmake.ui.GENERAL
+compmake.ui.commands.GENERAL
+compmake.ui.config_ui.GENERAL
+compmake.ui.helpers.GENERAL" class="py-name" href="#" onclick="return doclink('link-9', 'GENERAL', 'link-3');">GENERAL</a></tt><tt class="py-op">)</tt> </tt>
+<a name="reload"></a><div id="reload-def"><a name="L10"></a><tt class="py-lineno">10</tt> <a class="py-toggle" href="#" id="reload-toggle" onclick="return toggle('reload');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.reload_module-module.html#reload">reload</a><tt class="py-op">(</tt><tt class="py-param">module</tt><tt class="py-op">)</tt><tt class="py-op">:</tt>  <tt class="py-comment"># @ReservedAssignment</tt> </tt>
+</div><a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line">    <tt class="py-docstring">''' Reloads a module.</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-docstring">        Usage::</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-docstring">            reload module=my_module</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">module</tt><tt class="py-op">.</tt><tt class="py-name">startswith</tt><tt class="py-op">(</tt><tt class="py-string">'compmake'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">            <tt class="py-name">dave</tt> <tt class="py-op">=</tt> <tt class="py-name">pwd</tt><tt class="py-op">.</tt><tt class="py-name">getpwuid</tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">getuid</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">            <tt class="py-name">dave</tt> <tt class="py-op">=</tt> <tt class="py-string">'Dave'</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">        <tt id="link-10" class="py-name"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-10', 'user_error', 'link-6');">user_error</a></tt><tt class="py-op">(</tt><tt class="py-string">"I'm sorry, %s. I'm afraid I can't do that."</tt> <tt class="py-op">%</tt> <tt class="py-name">dave</tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line">        <tt class="py-comment"># otherwise import("A.B") returns A instead of A.B</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">        <tt class="py-name">m</tt> <tt class="py-op">=</tt> <tt class="py-name">__import__</tt><tt class="py-op">(</tt><tt class="py-name">module</tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-string">'dummy'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-11" class="py-name"><a title="compmake.structures.UserError" class="py-name" href="#" onclick="return doclink('link-11', 'UserError', 'link-1');">UserError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Cannot find module "%s": %s.'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">module</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line"> </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line">        <tt class="py-name">imp</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Function compmake.plugins.reload_module.reload()=compmake.plugins.reload_module-module.html#reload"><a title="compmake.plugins.reload_module.reload" class="py-name" href="#" onclick="return doclink('link-12', 'reload', 'link-12');">reload</a></tt><tt class="py-op">(</tt><tt class="py-name">m</tt><tt class="py-op">)</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-13" class="py-name"><a title="compmake.structures.UserError" class="py-name" href="#" onclick="return doclink('link-13', 'UserError', 'link-1');">UserError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Obtained this exception while reloading the module:'</tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line">                        <tt class="py-string">' %s'</tt> <tt class="py-op">%</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line">    <tt id="link-14" class="py-name"><a title="compmake.ui.visualization.info
+compmake.utils.visualization.info" class="py-name" href="#" onclick="return doclink('link-14', 'info', 'link-7');">info</a></tt><tt class="py-op">(</tt><tt class="py-string">'Reloaded module "%s".'</tt> <tt class="py-op">%</tt> <tt class="py-name">module</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Feb 25 20:33:34 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

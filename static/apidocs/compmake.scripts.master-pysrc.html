@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>compmake.scripts.master</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="compmake-module.html">Package&nbsp;compmake</a> ::
+        <a href="compmake.scripts-module.html">Package&nbsp;scripts</a> ::
+        Module&nbsp;master
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="compmake.scripts.master-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="compmake.scripts.master-module.html">Module compmake.scripts.master</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">''' This is the executable '''</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt> <tt class="py-keyword">import</tt> <tt class="py-op">(</tt><tt id="link-0" class="py-name" targets="Function compmake.state.get_compmake_config()=compmake.state-module.html#get_compmake_config"><a title="compmake.state.get_compmake_config" class="py-name" href="#" onclick="return doclink('link-0', 'get_compmake_config', 'link-0');">get_compmake_config</a></tt><tt class="py-op">,</tt> <tt id="link-1" class="py-name" targets="Variable compmake.plugins.console_banners.version=compmake.plugins.console_banners-module.html#version,Variable compmake.scripts.master.version=compmake.scripts.master-module.html#version,Variable compmake.version=compmake-module.html#version"><a title="compmake.plugins.console_banners.version
+compmake.scripts.master.version
+compmake.version" class="py-name" href="#" onclick="return doclink('link-1', 'version', 'link-1');">version</a></tt><tt class="py-op">,</tt> <tt id="link-2" class="py-name" targets="Function compmake.state.set_compmake_status()=compmake.state-module.html#set_compmake_status"><a title="compmake.state.set_compmake_status" class="py-name" href="#" onclick="return doclink('link-2', 'set_compmake_status', 'link-2');">set_compmake_status</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line">    <tt id="link-3" class="py-name" targets="Class compmake.constants.CompmakeConstants=compmake.constants.CompmakeConstants-class.html"><a title="compmake.constants.CompmakeConstants" class="py-name" href="#" onclick="return doclink('link-3', 'CompmakeConstants', 'link-3');">CompmakeConstants</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-4" class="py-name" targets="Package compmake.config=compmake.config-module.html,Function compmake.ui.config_ui.config()=compmake.ui.config_ui-module.html#config"><a title="compmake.config
+compmake.ui.config_ui.config" class="py-name" href="#" onclick="return doclink('link-4', 'config', 'link-4');">config</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Function compmake.config.config_optparse.config_populate_optparser()=compmake.config.config_optparse-module.html#config_populate_optparser"><a title="compmake.config.config_optparse.config_populate_optparser" class="py-name" href="#" onclick="return doclink('link-5', 'config_populate_optparser', 'link-5');">config_populate_optparser</a></tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Package compmake.jobs=compmake.jobs-module.html"><a title="compmake.jobs" class="py-name" href="#" onclick="return doclink('link-6', 'jobs', 'link-6');">jobs</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Function compmake.jobs.storage.set_namespace()=compmake.jobs.storage-module.html#set_namespace"><a title="compmake.jobs.storage.set_namespace" class="py-name" href="#" onclick="return doclink('link-7', 'set_namespace', 'link-7');">set_namespace</a></tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-8" class="py-name" targets="Module compmake.jobs.storage=compmake.jobs.storage-module.html,Package compmake.storage=compmake.storage-module.html"><a title="compmake.jobs.storage
+compmake.storage" class="py-name" href="#" onclick="return doclink('link-8', 'storage', 'link-8');">storage</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Function compmake.storage.use_filesystem()=compmake.storage-module.html#use_filesystem"><a title="compmake.storage.use_filesystem" class="py-name" href="#" onclick="return doclink('link-9', 'use_filesystem', 'link-9');">use_filesystem</a></tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-10" class="py-name" targets="Module compmake.events.structures=compmake.events.structures-module.html,Module compmake.structures=compmake.structures-module.html"><a title="compmake.events.structures
+compmake.structures" class="py-name" href="#" onclick="return doclink('link-10', 'structures', 'link-10');">structures</a></tt> <tt class="py-keyword">import</tt> <tt id="link-11" class="py-name" targets="Class compmake.structures.UserError=compmake.structures.UserError-class.html"><a title="compmake.structures.UserError" class="py-name" href="#" onclick="return doclink('link-11', 'UserError', 'link-11');">UserError</a></tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Package compmake.ui=compmake.ui-module.html,Module compmake.ui.ui=compmake.ui.ui-module.html"><a title="compmake.ui
+compmake.ui.ui" class="py-name" href="#" onclick="return doclink('link-12', 'ui', 'link-12');">ui</a></tt> <tt class="py-keyword">import</tt> <tt class="py-op">(</tt><tt id="link-13" class="py-name" targets="Function compmake.ui.visualization.error()=compmake.ui.visualization-module.html#error,Function compmake.utils.visualization.error()=compmake.utils.visualization-module.html#error"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-13', 'error', 'link-13');">error</a></tt><tt class="py-op">,</tt> <tt id="link-14" class="py-name" targets="Function compmake.ui.visualization.user_error()=compmake.ui.visualization-module.html#user_error,Function compmake.utils.visualization.user_error()=compmake.utils.visualization-module.html#user_error"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-14', 'user_error', 'link-14');">user_error</a></tt><tt class="py-op">,</tt> <tt id="link-15" class="py-name" targets="Function compmake.ui.visualization.warning()=compmake.ui.visualization-module.html#warning,Function compmake.utils.visualization.warning()=compmake.utils.visualization-module.html#warning"><a title="compmake.ui.visualization.warning
+compmake.utils.visualization.warning" class="py-name" href="#" onclick="return doclink('link-15', 'warning', 'link-15');">warning</a></tt><tt class="py-op">,</tt> <tt id="link-16" class="py-name" targets="Function compmake.ui.console.interactive_console()=compmake.ui.console-module.html#interactive_console"><a title="compmake.ui.console.interactive_console" class="py-name" href="#" onclick="return doclink('link-16', 'interactive_console', 'link-16');">interactive_console</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line">    <tt id="link-17" class="py-name" targets="Function compmake.ui.ui.interpret_commands()=compmake.ui.ui-module.html#interpret_commands"><a title="compmake.ui.ui.interpret_commands" class="py-name" href="#" onclick="return doclink('link-17', 'interpret_commands', 'link-17');">interpret_commands</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Package compmake.utils=compmake.utils-module.html"><a title="compmake.utils" class="py-name" href="#" onclick="return doclink('link-18', 'utils', 'link-18');">utils</a></tt> <tt class="py-keyword">import</tt> <tt class="py-name">setproctitle</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">optparse</tt> <tt class="py-keyword">import</tt> <tt class="py-name">OptionParser</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-19" class="py-name" targets="Package compmake=compmake-module.html"><a title="compmake" class="py-name" href="#" onclick="return doclink('link-19', 'compmake', 'link-19');">compmake</a></tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">traceback</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># TODO: revise all of this</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"> </tt>
+<a name="initialize_backend"></a><div id="initialize_backend-def"><a name="L19"></a><tt class="py-lineno"> 19</tt> <a class="py-toggle" href="#" id="initialize_backend-toggle" onclick="return toggle('initialize_backend');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.scripts.master-module.html#initialize_backend">initialize_backend</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="initialize_backend-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="initialize_backend-expanded"><a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line">    <tt class="py-name">allowed_db</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-string">'filesystem'</tt><tt class="py-op">]</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">    <tt class="py-comment">#allowed_db = ['filesystem', 'redis']</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">    <tt class="py-name">chosen_db</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="compmake.state.get_compmake_config" class="py-name" href="#" onclick="return doclink('link-20', 'get_compmake_config', 'link-0');">get_compmake_config</a></tt><tt class="py-op">(</tt><tt class="py-string">'db'</tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">chosen_db</tt> <tt class="py-keyword">in</tt> <tt class="py-name">allowed_db</tt><tt class="py-op">:</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">        <tt id="link-21" class="py-name"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-21', 'user_error', 'link-14');">user_error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Backend name "%s" not valid. I was expecting one in %s.'</tt> <tt class="py-op">%</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">              <tt class="py-op">(</tt><tt class="py-name">chosen_db</tt><tt class="py-op">,</tt> <tt class="py-name">allowed_db</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">        <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Function compmake.ui.commands.exit()=compmake.ui.commands-module.html#exit"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-22', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-comment">#    if chosen_db == 'redis':</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-comment">#        hostname = compmake_config.redis_host</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-comment">#        if ':' in hostname:</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-comment">#            # XXX this should be done elsewhere</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-comment">#            hostname, port = hostname.split(':')</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-comment">#        else:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-comment">#            port = None</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-comment">#        use_redis(hostname, port)</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-comment">#    el</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">chosen_db</tt> <tt class="py-op">==</tt> <tt class="py-string">'filesystem'</tt><tt class="py-op">:</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">        <tt id="link-23" class="py-name"><a title="compmake.storage.use_filesystem" class="py-name" href="#" onclick="return doclink('link-23', 'use_filesystem', 'link-9');">use_filesystem</a></tt><tt class="py-op">(</tt><tt id="link-24" class="py-name"><a title="compmake.state.get_compmake_config" class="py-name" href="#" onclick="return doclink('link-24', 'get_compmake_config', 'link-0');">get_compmake_config</a></tt><tt class="py-op">(</tt><tt class="py-string">'path'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">        <tt class="py-keyword">assert</tt><tt class="py-op">(</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-comment"># TODO: make everythin an exception instead of sys.exit()</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"> </tt>
+<a name="main"></a><div id="main-def"><a name="L47"></a><tt class="py-lineno"> 47</tt> <a class="py-toggle" href="#" id="main-toggle" onclick="return toggle('main');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.scripts.master-module.html#main">main</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="main-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="main-expanded"><a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">    <tt class="py-name">setproctitle</tt><tt class="py-op">(</tt><tt class="py-string">'compmake'</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-name">parser</tt> <tt class="py-op">=</tt> <tt class="py-name">OptionParser</tt><tt class="py-op">(</tt><tt id="link-25" class="py-name"><a title="compmake.plugins.console_banners.version
+compmake.scripts.master.version
+compmake.version" class="py-name" href="#" onclick="return doclink('link-25', 'version', 'link-1');">version</a></tt><tt class="py-op">=</tt><tt id="link-26" class="py-name"><a title="compmake.plugins.console_banners.version
+compmake.scripts.master.version
+compmake.version" class="py-name" href="#" onclick="return doclink('link-26', 'version', 'link-1');">version</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">add_option</tt><tt class="py-op">(</tt><tt class="py-string">"--slave"</tt><tt class="py-op">,</tt> <tt class="py-name">action</tt><tt class="py-op">=</tt><tt class="py-string">"store_true"</tt><tt class="py-op">,</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">                      <tt class="py-name">default</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt> <tt class="py-name">dest</tt><tt class="py-op">=</tt><tt class="py-string">"slave"</tt><tt class="py-op">,</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">                      <tt id="link-27" class="py-name" targets="Function compmake.ui.helpers.help()=compmake.ui.helpers-module.html#help"><a title="compmake.ui.helpers.help" class="py-name" href="#" onclick="return doclink('link-27', 'help', 'link-27');">help</a></tt><tt class="py-op">=</tt><tt class="py-string">"[internal] Runs compmake in slave mode."</tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-comment">#    parser.add_option("--redis_events", action="store_true",</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-comment">#                      default=False, dest="redis_events",</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-comment">#                      help="[internal] Relays events using Redis.")</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt id="link-28" class="py-name"><a title="compmake.config.config_optparse.config_populate_optparser" class="py-name" href="#" onclick="return doclink('link-28', 'config_populate_optparser', 'link-5');">config_populate_optparser</a></tt><tt class="py-op">(</tt><tt class="py-name">parser</tt><tt class="py-op">)</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">    <tt class="py-op">(</tt><tt class="py-name">options</tt><tt class="py-op">,</tt> <tt class="py-name">args</tt><tt class="py-op">)</tt> <tt class="py-op">=</tt> <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt class="py-name">parse_args</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt id="link-29" class="py-name" targets="Function compmake.scripts.master.initialize_backend()=compmake.scripts.master-module.html#initialize_backend"><a title="compmake.scripts.master.initialize_backend" class="py-name" href="#" onclick="return doclink('link-29', 'initialize_backend', 'link-29');">initialize_backend</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-comment"># We load plugins after we parsed the configuration</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt id="link-30" class="py-name"><a title="compmake" class="py-name" href="#" onclick="return doclink('link-30', 'compmake', 'link-19');">compmake</a></tt> <tt class="py-keyword">import</tt> <tt id="link-31" class="py-name" targets="Package compmake.plugins=compmake.plugins-module.html"><a title="compmake.plugins" class="py-name" href="#" onclick="return doclink('link-31', 'plugins', 'link-31');">plugins</a></tt> <tt class="py-comment">#@UnusedImport</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-comment">#    if options.redis_events:</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-comment">#        if not compmake_config.db == 'redis':</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-comment">#            error('Cannot use redis_events without redis.')</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-comment">#            sys.exit(-2)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-comment">#        from compmake.storage.redisdb import RedisInterface</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-comment">#        # register an handler that will capture all events    </tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-comment">#        def handler(event):</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-comment">#            RedisInterface.events_push(event)</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-comment">#        remove_all_handlers()</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-comment">#        register_handler("*", handler)</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">options</tt><tt class="py-op">.</tt><tt class="py-name">slave</tt><tt class="py-op">:</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-comment"># XXX make sure this is the default</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt id="link-32" class="py-name"><a title="compmake.state.set_compmake_status" class="py-name" href="#" onclick="return doclink('link-32', 'set_compmake_status', 'link-2');">set_compmake_status</a></tt><tt class="py-op">(</tt><tt id="link-33" class="py-name"><a title="compmake.constants.CompmakeConstants" class="py-name" href="#" onclick="return doclink('link-33', 'CompmakeConstants', 'link-3');">CompmakeConstants</a></tt><tt class="py-op">.</tt><tt id="link-34" class="py-name" targets="Variable compmake.constants.CompmakeConstants.compmake_status_interactive=compmake.constants.CompmakeConstants-class.html#compmake_status_interactive"><a title="compmake.constants.CompmakeConstants.compmake_status_interactive" class="py-name" href="#" onclick="return doclink('link-34', 'compmake_status_interactive', 'link-34');">compmake_status_interactive</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-comment"># TODO: add command namespace</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">        <tt class="py-comment"># TODO: add command "load"</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">args</tt><tt class="py-op">:</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">            <tt id="link-35" class="py-name"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-35', 'user_error', 'link-14');">user_error</a></tt><tt class="py-op">(</tt><tt class="py-string">'I expect at least one parameter (module name)'</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">            <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-36" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-36', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">2</tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-name">module_name</tt> <tt class="py-op">=</tt> <tt class="py-name">args</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-name">args</tt> <tt class="py-op">=</tt> <tt class="py-name">args</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">:</tt><tt class="py-op">]</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">module_name</tt><tt class="py-op">.</tt><tt class="py-name">endswith</tt><tt class="py-op">(</tt><tt class="py-string">'.py'</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-op">(</tt><tt class="py-name">module_name</tt><tt class="py-op">.</tt><tt class="py-name">find</tt><tt class="py-op">(</tt><tt class="py-string">'/'</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">            <tt id="link-37" class="py-name"><a title="compmake.ui.visualization.warning
+compmake.utils.visualization.warning" class="py-name" href="#" onclick="return doclink('link-37', 'warning', 'link-15');">warning</a></tt><tt class="py-op">(</tt><tt class="py-string">'You passed a string "%s" which looks like a filename.'</tt> <tt class="py-op">%</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">                    <tt class="py-name">module_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">            <tt class="py-name">module_name</tt> <tt class="py-op">=</tt> <tt class="py-name">module_name</tt><tt class="py-op">.</tt><tt class="py-name">replace</tt><tt class="py-op">(</tt><tt class="py-string">'/'</tt><tt class="py-op">,</tt> <tt class="py-string">'.'</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">            <tt class="py-name">module_name</tt> <tt class="py-op">=</tt> <tt class="py-name">module_name</tt><tt class="py-op">.</tt><tt class="py-name">replace</tt><tt class="py-op">(</tt><tt class="py-string">'.py'</tt><tt class="py-op">,</tt> <tt class="py-string">''</tt><tt class="py-op">)</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">            <tt id="link-38" class="py-name"><a title="compmake.ui.visualization.warning
+compmake.utils.visualization.warning" class="py-name" href="#" onclick="return doclink('link-38', 'warning', 'link-15');">warning</a></tt><tt class="py-op">(</tt><tt class="py-string">'However, I need a module name. I will try with "%s".'</tt> <tt class="py-op">%</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">                    <tt class="py-name">module_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt id="link-39" class="py-name"><a title="compmake.jobs.storage.set_namespace" class="py-name" href="#" onclick="return doclink('link-39', 'set_namespace', 'link-7');">set_namespace</a></tt><tt class="py-op">(</tt><tt class="py-name">module_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt id="link-40" class="py-name"><a title="compmake" class="py-name" href="#" onclick="return doclink('link-40', 'compmake', 'link-19');">compmake</a></tt><tt class="py-op">.</tt><tt id="link-41" class="py-name" targets="Variable compmake.state.CompmakeGlobalState.is_it_time=compmake.state.CompmakeGlobalState-class.html#is_it_time"><a title="compmake.state.CompmakeGlobalState.is_it_time" class="py-name" href="#" onclick="return doclink('link-41', 'is_it_time', 'link-41');">is_it_time</a></tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">            <tt class="py-name">__import__</tt><tt class="py-op">(</tt><tt class="py-name">module_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">            <tt id="link-42" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-42', 'error', 'link-13');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Error while trying to import module "%s": %s'</tt> <tt class="py-op">%</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">                  <tt class="py-op">(</tt><tt class="py-name">module_name</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">            <tt class="py-name">traceback</tt><tt class="py-op">.</tt><tt class="py-name">print_exc</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">=</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">stderr</tt><tt class="py-op">)</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">            <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-43" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-43', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">5</tt><tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-comment"># TODO: BUG: XXX: remove old jobs those in defined_this_section</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt id="link-44" class="py-name"><a title="compmake.state.set_compmake_status" class="py-name" href="#" onclick="return doclink('link-44', 'set_compmake_status', 'link-2');">set_compmake_status</a></tt><tt class="py-op">(</tt><tt id="link-45" class="py-name"><a title="compmake.constants.CompmakeConstants" class="py-name" href="#" onclick="return doclink('link-45', 'CompmakeConstants', 'link-3');">CompmakeConstants</a></tt><tt class="py-op">.</tt><tt id="link-46" class="py-name" targets="Variable compmake.constants.CompmakeConstants.compmake_status_slave=compmake.constants.CompmakeConstants-class.html#compmake_status_slave"><a title="compmake.constants.CompmakeConstants.compmake_status_slave" class="py-name" href="#" onclick="return doclink('link-46', 'compmake_status_slave', 'link-46');">compmake_status_slave</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">args</tt><tt class="py-op">:</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">            <tt id="link-47" class="py-name"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-47', 'user_error', 'link-14');">user_error</a></tt><tt class="py-op">(</tt><tt class="py-string">'I expect at least one parameter (namespace name)'</tt><tt class="py-op">)</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">            <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-48" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-48', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">2</tt><tt class="py-op">)</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">        <tt class="py-name">module_name</tt> <tt class="py-op">=</tt> <tt class="py-name">args</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt id="link-49" class="py-name"><a title="compmake.jobs.storage.set_namespace" class="py-name" href="#" onclick="return doclink('link-49', 'set_namespace', 'link-7');">set_namespace</a></tt><tt class="py-op">(</tt><tt class="py-name">module_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">args</tt><tt class="py-op">:</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">            <tt class="py-comment"># XXX is this redudant?</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">            <tt class="py-comment"># compmake_config.interactive = False</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">            <tt class="py-name">commands_str</tt> <tt class="py-op">=</tt> <tt class="py-string">" "</tt><tt class="py-op">.</tt><tt class="py-name">join</tt><tt class="py-op">(</tt><tt class="py-name">args</tt><tt class="py-op">)</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">            <tt class="py-name">retcode</tt> <tt class="py-op">=</tt> <tt id="link-50" class="py-name"><a title="compmake.ui.ui.interpret_commands" class="py-name" href="#" onclick="return doclink('link-50', 'interpret_commands', 'link-17');">interpret_commands</a></tt><tt class="py-op">(</tt><tt class="py-name">commands_str</tt><tt class="py-op">)</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">            <tt class="py-comment"># print "Exiting with retcode %s" % retcode</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">            <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-51', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-name">retcode</tt><tt class="py-op">)</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt id="link-52" class="py-name"><a title="compmake.structures.UserError" class="py-name" href="#" onclick="return doclink('link-52', 'UserError', 'link-11');">UserError</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">            <tt id="link-53" class="py-name"><a title="compmake.ui.visualization.user_error
+compmake.utils.visualization.user_error" class="py-name" href="#" onclick="return doclink('link-53', 'user_error', 'link-14');">user_error</a></tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">            <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-54" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-54', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-op">-</tt><tt class="py-number">6</tt><tt class="py-op">)</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">        <tt class="py-name">retcode</tt> <tt class="py-op">=</tt> <tt id="link-55" class="py-name"><a title="compmake.ui.console.interactive_console" class="py-name" href="#" onclick="return doclink('link-55', 'interactive_console', 'link-16');">interactive_console</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">        <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt id="link-56" class="py-name"><a title="compmake.ui.commands.exit" class="py-name" href="#" onclick="return doclink('link-56', 'exit', 'link-22');">exit</a></tt><tt class="py-op">(</tt><tt class="py-name">retcode</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-comment"># FEATURE: history across iterations</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Feb 25 20:33:34 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

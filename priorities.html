@@ -1,0 +1,88 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Details on job execution &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
+    <link rel="next" title="&lt;no title&gt;" href="related.html" />
+    <link rel="prev" title="Parallel execution using multiprocessing" href="parallel.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>Details on job execution</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="parallel.html">Parallel execution using multiprocessing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="related.html">&lt;no title&gt;</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="details-on-job-execution">
+<h1>Details on job execution<a class="headerlink" href="#details-on-job-execution" title="Permalink to this headline">¶</a></h1>
+<p>Compmake uses a greedy approach to job scheduling. Define as &#8220;top targets&#8221; the jobs upon which there are no dependencies. the assumption is that the top target are the ones that the user is interested in. Therefore, at each time, compmake chooses to execute the readt job which is closer o a top target.</p>
+<p>More in detail, assume that each job has a <tt class="docutils literal"><span class="pre">priority</span></tt>, a nonpositive integer associated to it.
+This is defined as minus the distance of a job to a top target.</p>
+<p>We can compute the priority recursively as follows.
+For jobs without parents (top targets), we define the priority as 0:</p>
+<div class="highlight-python"><pre>parents(job) = []  =&gt;  priority(job) = 0</pre>
+</div>
+<p>For jobs with parents, we use the following formula:</p>
+<div class="highlight-python"><pre>priority(job) =  -1 + max_{p in parent(job)} (priority(p))</pre>
+</div>
+<p>Note that we take the max, because we want the shortest path to the top.</p>
+<p>Also note that we consider only the parents contained in targets.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="parallel.html">Parallel execution using multiprocessing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="related.html">&lt;no title&gt;</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

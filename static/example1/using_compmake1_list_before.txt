@@ -1,0 +1,8 @@
+$ compmake example list
+draw                                              Not started/False
+draw-0                                            Not started/False
+draw-1                                            Not started/False
+draw-2                                            Not started/False
+draw-3                                            Not started/False
+draw-4                                            Not started/False
+    [...]

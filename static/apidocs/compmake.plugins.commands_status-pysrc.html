@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>compmake.plugins.commands_status</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="compmake-module.html">Package&nbsp;compmake</a> ::
+        <a href="compmake.plugins-module.html">Package&nbsp;plugins</a> ::
+        Module&nbsp;commands_status
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="compmake.plugins.commands_status-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="compmake.plugins.commands_status-module.html">Module compmake.plugins.commands_status</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Package compmake.ui=compmake.ui-module.html,Module compmake.ui.ui=compmake.ui.ui-module.html"><a title="compmake.ui
+compmake.ui.ui" class="py-name" href="#" onclick="return doclink('link-0', 'ui', 'link-0');">ui</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Function compmake.ui.visualization.error()=compmake.ui.visualization-module.html#error,Function compmake.utils.visualization.error()=compmake.utils.visualization-module.html#error"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-1', 'error', 'link-1');">error</a></tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-op">.</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Package compmake.events=compmake.events-module.html"><a title="compmake.events" class="py-name" href="#" onclick="return doclink('link-2', 'events', 'link-2');">events</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Function compmake.events.registrar.register_handler()=compmake.events.registrar-module.html#register_handler"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-3', 'register_handler', 'link-3');">register_handler</a></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-comment"># TODO: command-succeeded: {'command': '</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-comment"># command-interrupted: {'reason': 'KeyboardInterrupt', 'command': 'ls todo'}</tt> </tt>
+<a name="command_interrupted"></a><div id="command_interrupted-def"><a name="L8"></a><tt class="py-lineno"> 8</tt> <a class="py-toggle" href="#" id="command_interrupted-toggle" onclick="return toggle('command_interrupted');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#command_interrupted">command_interrupted</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="command_interrupted-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="command_interrupted-expanded"><a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">    <tt id="link-4" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-4', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Command %r interrupted.'</tt> <tt class="py-op">%</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'command'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt id="link-5" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-5', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-interrupted'</tt><tt class="py-op">,</tt> <tt id="link-6" class="py-name" targets="Function compmake.plugins.commands_status.command_interrupted()=compmake.plugins.commands_status-module.html#command_interrupted"><a title="compmake.plugins.commands_status.command_interrupted" class="py-name" href="#" onclick="return doclink('link-6', 'command_interrupted', 'link-6');">command_interrupted</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"> </tt>
+<a name="command_failed"></a><div id="command_failed-def"><a name="L13"></a><tt class="py-lineno">13</tt> <a class="py-toggle" href="#" id="command_failed-toggle" onclick="return toggle('command_failed');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#command_failed">command_failed</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="command_failed-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="command_failed-expanded"><a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">    <tt id="link-7" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-7', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Command %r failed: %s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'command'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">                                      <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'reason'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt id="link-8" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-8', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-failed'</tt><tt class="py-op">,</tt> <tt id="link-9" class="py-name" targets="Function compmake.plugins.commands_status.command_failed()=compmake.plugins.commands_status-module.html#command_failed"><a title="compmake.plugins.commands_status.command_failed" class="py-name" href="#" onclick="return doclink('link-9', 'command_failed', 'link-9');">command_failed</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"> </tt>
+<a name="command_line_interrupted"></a><div id="command_line_interrupted-def"><a name="L19"></a><tt class="py-lineno">19</tt> <a class="py-toggle" href="#" id="command_line_interrupted-toggle" onclick="return toggle('command_line_interrupted');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#command_line_interrupted">command_line_interrupted</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="command_line_interrupted-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="command_line_interrupted-expanded"><a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line">    <tt class="py-comment"># Only write something if it is more than one</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">    <tt class="py-name">command</tt> <tt class="py-op">=</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'command'</tt><tt class="py-op">]</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-string">';'</tt> <tt class="py-keyword">in</tt> <tt class="py-name">command</tt><tt class="py-op">:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">    <tt id="link-10" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-10', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Command sequence %r interrupted.'</tt> <tt class="py-op">%</tt> <tt class="py-name">command</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"><tt id="link-11" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-11', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-interrupted'</tt><tt class="py-op">,</tt> <tt id="link-12" class="py-name" targets="Function compmake.plugins.commands_status.command_line_interrupted()=compmake.plugins.commands_status-module.html#command_line_interrupted"><a title="compmake.plugins.commands_status.command_line_interrupted" class="py-name" href="#" onclick="return doclink('link-12', 'command_line_interrupted', 'link-12');">command_line_interrupted</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line"> </tt>
+<a name="job_interrupted"></a><div id="job_interrupted-def"><a name="L28"></a><tt class="py-lineno">28</tt> <a class="py-toggle" href="#" id="job_interrupted-toggle" onclick="return toggle('job_interrupted');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#job_interrupted">job_interrupted</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="job_interrupted-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="job_interrupted-expanded"><a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">    <tt class="py-comment"># Only write something if it is more than one</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt id="link-13" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-13', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Job %r interrupted.'</tt> <tt class="py-op">%</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'job_id'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"><tt id="link-14" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-14', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job_interrupted'</tt><tt class="py-op">,</tt> <tt id="link-15" class="py-name" targets="Function compmake.plugins.commands_status.job_interrupted()=compmake.plugins.commands_status-module.html#job_interrupted"><a title="compmake.plugins.commands_status.job_interrupted" class="py-name" href="#" onclick="return doclink('link-15', 'job_interrupted', 'link-15');">job_interrupted</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line"> </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line"> </tt>
+<a name="command_line_failed"></a><div id="command_line_failed-def"><a name="L34"></a><tt class="py-lineno">34</tt> <a class="py-toggle" href="#" id="command_line_failed-toggle" onclick="return toggle('command_line_failed');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#command_line_failed">command_line_failed</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="command_line_failed-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="command_line_failed-expanded"><a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">    <tt class="py-comment"># Only write something if it is more than one</tt> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">    <tt class="py-name">command</tt> <tt class="py-op">=</tt> <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'command'</tt><tt class="py-op">]</tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-string">';'</tt> <tt class="py-keyword">in</tt> <tt class="py-name">command</tt><tt class="py-op">:</tt> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line">    <tt id="link-16" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-16', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Command sequence %r failed.'</tt> <tt class="py-op">%</tt> <tt class="py-name">command</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"><tt id="link-17" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-17', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-failed'</tt><tt class="py-op">,</tt> <tt id="link-18" class="py-name" targets="Function compmake.plugins.commands_status.command_line_failed()=compmake.plugins.commands_status-module.html#command_line_failed"><a title="compmake.plugins.commands_status.command_line_failed" class="py-name" href="#" onclick="return doclink('link-18', 'command_line_failed', 'link-18');">command_line_failed</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line"> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line"> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"><tt class="py-comment">#    add(EventSpec('job-failed', ['job_id', 'host', 'reason', 'bt']))</tt> </tt>
+<a name="job_failed"></a><div id="job_failed-def"><a name="L44"></a><tt class="py-lineno">44</tt> <a class="py-toggle" href="#" id="job_failed-toggle" onclick="return toggle('job_failed');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#job_failed">job_failed</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="job_failed-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="job_failed-expanded"><a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">    <tt id="link-19" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-19', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">'Job %r failed: %s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'job_id'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line">                                  <tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'reason'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line"><tt id="link-20" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-20', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job-failed'</tt><tt class="py-op">,</tt> <tt id="link-21" class="py-name" targets="Method compmake.jobs.manager.Manager.job_failed()=compmake.jobs.manager.Manager-class.html#job_failed,Method compmake.jobs.manager_ssh_cluster.ClusterManager.job_failed()=compmake.jobs.manager_ssh_cluster.ClusterManager-class.html#job_failed,Function compmake.plugins.commands_status.job_failed()=compmake.plugins.commands_status-module.html#job_failed"><a title="compmake.jobs.manager.Manager.job_failed
+compmake.jobs.manager_ssh_cluster.ClusterManager.job_failed
+compmake.plugins.commands_status.job_failed" class="py-name" href="#" onclick="return doclink('link-21', 'job_failed', 'link-21');">job_failed</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"> </tt>
+<a name="compmake_bug"></a><div id="compmake_bug-def"><a name="L50"></a><tt class="py-lineno">50</tt> <a class="py-toggle" href="#" id="compmake_bug-toggle" onclick="return toggle('compmake_bug');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#compmake_bug">compmake_bug</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="compmake_bug-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="compmake_bug-expanded"><a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line">    <tt id="link-22" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-22', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'user_msg'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">    <tt id="link-23" class="py-name"><a title="compmake.ui.visualization.error
+compmake.utils.visualization.error" class="py-name" href="#" onclick="return doclink('link-23', 'error', 'link-1');">error</a></tt><tt class="py-op">(</tt><tt class="py-name">event</tt><tt class="py-op">.</tt><tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'dev_msg'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line"> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line"><tt id="link-24" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-24', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'compmake-bug'</tt><tt class="py-op">,</tt> <tt id="link-25" class="py-name" targets="Function compmake.plugins.commands_status.compmake_bug()=compmake.plugins.commands_status-module.html#compmake_bug"><a title="compmake.plugins.commands_status.compmake_bug" class="py-name" href="#" onclick="return doclink('link-25', 'compmake_bug', 'link-25');">compmake_bug</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line"> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line"> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line"><tt class="py-comment"># We ignore some other events; otherwise they will be catched </tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line"><tt class="py-comment"># by the default handler</tt> </tt>
+<a name="ignore"></a><div id="ignore-def"><a name="L59"></a><tt class="py-lineno">59</tt> <a class="py-toggle" href="#" id="ignore-toggle" onclick="return toggle('ignore');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="compmake.plugins.commands_status-module.html#ignore">ignore</a><tt class="py-op">(</tt><tt class="py-param">event</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ignore-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="ignore-expanded"><a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line"> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line"><tt id="link-26" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-26', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-starting'</tt><tt class="py-op">,</tt> <tt id="link-27" class="py-name" targets="Function compmake.plugins.commands_status.ignore()=compmake.plugins.commands_status-module.html#ignore"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-27', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"><tt id="link-28" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-28', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-starting'</tt><tt class="py-op">,</tt> <tt id="link-29" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-29', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line"><tt id="link-30" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-30', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-failed'</tt><tt class="py-op">,</tt> <tt id="link-31" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-31', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line"><tt id="link-32" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-32', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-succeeded'</tt><tt class="py-op">,</tt> <tt id="link-33" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-33', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line"><tt id="link-34" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-34', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'command-line-interrupted'</tt><tt class="py-op">,</tt> <tt id="link-35" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-35', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line"><tt id="link-36" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-36', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'manager-phase'</tt><tt class="py-op">,</tt> <tt id="link-37" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-37', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line"> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line"><tt id="link-38" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-38', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'parmake-status'</tt><tt class="py-op">,</tt> <tt id="link-39" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-39', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line"> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line"><tt id="link-40" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-40', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job-succeeded'</tt><tt class="py-op">,</tt> <tt id="link-41" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-41', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line"><tt id="link-42" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-42', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'job-interrupted'</tt><tt class="py-op">,</tt> <tt id="link-43" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-43', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line"> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> <tt class="py-comment"># debugging</tt> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line">    <tt id="link-44" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-44', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'worker-status'</tt><tt class="py-op">,</tt> <tt id="link-45" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-45', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line">    <tt id="link-46" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-46', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'manager-job-succeeded'</tt><tt class="py-op">,</tt> <tt id="link-47" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-47', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">    <tt id="link-48" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-48', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'manager-job-failed'</tt><tt class="py-op">,</tt> <tt id="link-49" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-49', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line">    <tt id="link-50" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-50', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'manager-job-starting'</tt><tt class="py-op">,</tt> <tt id="link-51" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-51', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line"> </tt>
+<a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line"><tt id="link-52" class="py-name"><a title="compmake.events.registrar.register_handler" class="py-name" href="#" onclick="return doclink('link-52', 'register_handler', 'link-3');">register_handler</a></tt><tt class="py-op">(</tt><tt class="py-string">'manager-succeeded'</tt><tt class="py-op">,</tt> <tt id="link-53" class="py-name"><a title="compmake.plugins.commands_status.ignore" class="py-name" href="#" onclick="return doclink('link-53', 'ignore', 'link-27');">ignore</a></tt><tt class="py-op">)</tt> <tt class="py-comment"># TODO: maybe write sth</tt> </tt>
+<a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="compmake-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://github.com/AndreaCensi/compmake">Compmake</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sat Feb 25 20:33:34 2012
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
