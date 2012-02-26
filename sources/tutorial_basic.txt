@@ -47,7 +47,7 @@ In this example, the source code becomes (file ``using_compmake.py``):
 When this file is passed to |compmake|, the following computational structure
 is discovered:
 
-.. image:: example1/graph_before.png
+.. image:: static/example1/graph_before.png
    :width: 70%
 
 (This is the output of the `graph command`_)

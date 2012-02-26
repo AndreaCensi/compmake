@@ -10,22 +10,22 @@ $ compmake my_program diagram
 
 before running ``make`` you will see the following:
 
-.. image:: example1/graph_before.png
+.. image:: static/example1/graph_before.png
    :width: 100%
    
 The color grey means that the job has not started. After running ``make``, the output will be:
 
-.. image:: example1/graph_after.png
+.. image:: static/example1/graph_after.png
    :width: 100%
 
 Here, green means that the job is done.
 
 After we run 
 
-.. image:: example1/graph3.png
+.. image:: static/example1/graph3.png
    :width: 100%
 
 Here, green means that the job is done.
 
-The computation gra
+The computation graph... (to write)
 
