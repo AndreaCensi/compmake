@@ -44,7 +44,7 @@ def all_jobs(force_db=False): #@UnusedVariable
      '''
 #    if force_db:
         # XXX we should check we don't return subsidiaries
-    for key in CompmakeGlobalState.db.keys(job2key('*')):
+    for key in CompmakeGlobalState.db.keys(job2key('*')): #@UndefinedVariable
         yield key2job(key)
 #    else:
         # XXX FIXME does not work when compmake is called by itself

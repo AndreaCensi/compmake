@@ -35,9 +35,9 @@ test-failed:
 test-parallel:
 	$(nose) $(package) $(nose_parallel) $(NOSE_PARAMS)
 
+test-parallel-stop:
+	$(nose) $(package) $(nose_parallel) -x $(NOSE_PARAMS)
+
 test-coverage:
 	$(nose) $(package) $(nose_coverage) $(NOSE_PARAMS)
 
-
-print-config:
-	boot_olympics_print_config --outdir docs/source/my_static/config/

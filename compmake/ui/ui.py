@@ -1,6 +1,6 @@
 from . import UIState, get_commands
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
-    CompmakeGlobalState)
+    CompmakeGlobalState, is_interactive_session, get_compmake_config)
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
@@ -9,7 +9,6 @@ from ..utils import describe_type, interpret_strings_like
 from types import NoneType
 import cPickle as pickle
 import inspect
-from compmake.state import is_interactive_session, get_compmake_config
 
 
 # static storage # XXX: put it somewhere

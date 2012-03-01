@@ -33,13 +33,13 @@ add(EventSpec('manager-job-succeeded', ['job_id']))
 add(EventSpec('manager-host-failed', ['job_id', 'reason']))
 add(EventSpec('manager-init', ['targets', 'more']))
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
-                                    'failed', 'ready', 'processing']))
+                                    'failed', 'ready', 'processing', 'blocked']))
 add(EventSpec('manager-succeeded', ['targets', 'all_targets', 'done', 'todo',
-                                     'failed', 'ready', 'processing']))
+                                     'failed', 'ready', 'processing', 'blocked']))
 add(EventSpec('manager-interrupted', ['targets', 'all_targets', 'done',
-                                    'todo', 'failed', 'ready', 'processing']))
+                                    'todo', 'failed', 'ready', 'processing', 'blocked']))
 add(EventSpec('manager-failed', ['reason', 'targets', 'all_targets', 'done',
-                                  'todo', 'failed', 'ready', 'processing']))
+                                  'todo', 'failed', 'ready', 'processing', 'blocked']))
 add(EventSpec('worker-status', ['status', 'job_id']))
 add(EventSpec('console-starting'))
 add(EventSpec('console-ending'))

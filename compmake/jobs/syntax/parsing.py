@@ -201,10 +201,17 @@ def parse_job_list(tokens):
         1. a string, in that case it is split()
         2. a list, in which case each element is treated as a token.
          
+        NO(If tokens is not empty, then if it evaluates to empty,
+        an error is raised (e.g. "make failed" and no failed jobs will
+        throw an error).)
+         
         Returns a list of strings.
     '''
     if isinstance(tokens, str):
         tokens = tokens.strip().split()
+
+    if not tokens:
+        return []
 
     add_alias('all', all_jobs)
     add_alias('failed', lambda: list_jobs_with_state(Cache.FAILED))

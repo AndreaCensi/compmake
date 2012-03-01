@@ -16,6 +16,7 @@ class Tracker:
         self.todo = set()
         self.failed = set()
         self.ready = set()
+        self.blocked = set()
         self.done = set()
         # Status of jobs in "processing" state
         self.status = {}
@@ -50,6 +51,7 @@ class Tracker:
         self.failed = event.failed
         self.ready = event.ready
         self.done = event.done
+        self.blocked = event.blocked
 
         # Put unknown for new jobs
         for job_id in self.processing:

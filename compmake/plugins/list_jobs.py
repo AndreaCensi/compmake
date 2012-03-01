@@ -43,6 +43,10 @@ state2color = {
 def list_jobs(job_list):
     job_list = [x for x in job_list]
     #print('%s jobs in total' % len(job_list))
+    if not job_list:
+        print('No jobs found.')
+        return
+
     jlen = max(len(x) for x in job_list)
 
     cpu_total = 0

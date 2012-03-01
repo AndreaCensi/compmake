@@ -3,17 +3,25 @@
 .PHONY: all upload compile-website compile website only-upload
 	
 webdir=website
+source=source
+autogen=source/api
+
 
 # also change this in epydoc.cfg
 webgit=git --git-dir $(webdir)/.git --work-tree=$(webdir)/ 
 
 all: upload
 	
-compile-website: website epydoc
-	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html source $(webdir)
+compile-website: website epydoc generate
+	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)
 
-compile:
-	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -n -a -b html source $(webdir)
+generate:
+	#rm -rf $(autogen)
+	sphinx-autogen -o $(autogen) $(source)/*.rst
+	sphinx-apidoc  -o $(autogen) ../src
+	 
+compile: generate generate-custom
+	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)
 	
 website: distclean
 	# Check out the website

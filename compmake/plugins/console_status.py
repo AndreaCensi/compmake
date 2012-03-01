@@ -32,19 +32,26 @@ def spinner():
 def job_counts():
     done_style = dict(color='green')
     failed_style = dict(color='red')
+    blocked_style = dict()
     ready_style = dict(color='yellow')
     proc_style = dict(color='yellow')
     s = ""
     s += colored("%d done" % len(tracker.done), **done_style)
-    #s += "/%s" % (len(tracker.all_targets))
+
     if tracker.processing:
         s += colored(" %d proc" % len(tracker.processing), **proc_style)
-#    s += colored(" %d res" % len(tracker.), **proc_style)
+
     if tracker.failed:
         s += colored(" %d failed" % len(tracker.failed), **failed_style)
+
+    if tracker.blocked:
+        s += colored(" %d blocked" % len(tracker.blocked), **blocked_style)
+
     s += colored(" %d todo" % len(tracker.todo), **ready_style)
+
     if tracker.ready:
         s += colored(" (%d ready)" % len(tracker.ready), **ready_style)
+
     return s
 
 

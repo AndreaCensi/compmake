@@ -37,7 +37,8 @@ def clean(job_list):
     '''Cleans the result of the selected computation \
 (or everything is nothing specified). '''
 
-    job_list = list(job_list)
+    # job_list = list(job_list) # don't ask me why XXX
+    job_list = [x for x in job_list]
 
     if not job_list:
         job_list = list(all_jobs())
@@ -58,10 +59,12 @@ def clean(job_list):
         clean_target(job_id)
 
 
+# FIXME BUG: "make failed" == "make all" if no failed
 @ui_command(section=ACTIONS)
 def make(job_list):
     '''Makes selected targets; or all targets if none specified. '''
-    job_list = list(job_list)
+    # job_list = list(job_list) # don't ask me why XXX
+    job_list = [x for x in job_list]
 
     if not job_list:
         job_list = list(top_targets())
@@ -133,8 +136,8 @@ def clustmake(job_list):
 
        Note: you should use the Redis backend to use multiprocessing.
  '''
-
-    job_list = list(job_list)
+    # job_list = list(job_list) # don't ask me why XXX
+    job_list = [x for x in job_list]
 
     if not job_list:
         job_list = list(top_targets())

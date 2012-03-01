@@ -34,6 +34,7 @@ class Manager:
         self.todo = set()
         self.done = set()
         self.failed = set()
+        self.blocked = set()
         self.processing = set()
 
         self.more = set()
@@ -153,7 +154,9 @@ class Manager:
             self.host_failed(job_id, str(e))
             return True
         except KeyboardInterrupt:
-            self.job_failed(job_id) # not sure
+            # self.job_failed(job_id) # not sure
+            # No, don't mark as failed 
+            # (even though knowing where it was interrupted was good)
             raise JobInterrupted('Keyboard interrupt')
 
     def host_failed(self, job_id, reason):
@@ -180,7 +183,7 @@ class Manager:
             mark_as_blocked(p, job_id)
             if p in self.todo:
                 self.todo.remove(p)
-                self.failed.add(p)
+                self.blocked.add(p)
                 if p in self.ready_todo:
                     self.ready_todo.remove(p)
 
@@ -306,6 +309,7 @@ class Manager:
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
+                blocked=self.blocked,
                 failed=self.failed,
                 ready=self.ready_todo,
                 processing=self.processing)
