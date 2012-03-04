@@ -25,7 +25,7 @@ To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.
 
-.. image:: static/initial.png 
+.. image:: my_static/initial.png 
    :class: bigpicture
 
 You would run the modified program using::
@@ -82,15 +82,15 @@ get support and influence |compmake|'s evolution!
 	* :ref:`tutorial_console`
 	* :ref:`tutorial_parmake`
 	* :ref:`tutorial_embedding`
-
+	* :ref:`tutorial_cluster`
+	
 .. container:: col2
 
-	**Advanced usage**
-
-	* :ref:`tutorial_cluster`
-	* :ref:`tutorial_suspend`
-	* :ref:`tutorial_more`
-
+	.. **Advanced usage**
+	.. 
+	.. 	* :ref:`tutorial_suspend`
+	.. 	* :ref:`tutorial_more`
+	
 	**Reference**
 
 	* :ref:`commands`

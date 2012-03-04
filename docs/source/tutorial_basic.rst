@@ -38,16 +38,16 @@ In this way, |compmake| learns the computational structure of your program.
 
 For example, consider the source code:
 
-.. literalinclude:: example1/original.py
+.. literalinclude:: my_static/example1/original.py
 
 In this example, the source code becomes (file ``using_compmake.py``):
 
-.. literalinclude:: example1/using_compmake1.py
+.. literalinclude:: my_static/example1/using_compmake1.py
 
 When this file is passed to |compmake|, the following computational structure
-is discovered:
+is passed:
 
-.. image:: static/example1/graph_before.png
+.. image:: my_static/example1/graph_before.png
    :width: 70%
 
 (This is the output of the `graph command`_)
@@ -94,7 +94,7 @@ by the name of the function, with a progressive number postponed.
 You can use the command ``list`` to obtain a list of the jobs.
 For this example, the output would be:
 
-.. literalinclude:: example1/using_compmake1_list_before.txt
+.. literalinclude:: my_static/example1/using_compmake1_list_before.txt
 
 As you can see, the jobs are named ``func1-<n>``, ``func2-<n>``,
 ``draw-<n>``. 
@@ -105,19 +105,19 @@ which takes a string used as a prefix for the job ids generated.
 That command is particularly useful in scenarios like the example
 where we presumably want to group the functions by the parameters:
 
-.. literalinclude:: example1/using_compmake2.py
+.. literalinclude:: my_static/example1/using_compmake2.py
 
 Now the ``list`` command gives:
 
-.. literalinclude:: example1/using_compmake2_list_before.txt
+.. literalinclude:: my_static/example1/using_compmake2_list_before.txt
 
 Another method  is using the ``job_id`` keyword argument to ``comp()``.:
 
-.. literalinclude:: example1/using_compmake3.py
+.. literalinclude:: my_static/example1/using_compmake3.py
 
 Now the ``list`` command gives:
 
-.. literalinclude:: example1/using_compmake3_list_before.txt
+.. literalinclude:: my_static/example1/using_compmake3_list_before.txt
 
 
 Cleaning and remaking

@@ -1,8 +1,15 @@
 Changelog
 =========
 
+Beta version (1.5) - 2012-03-04
+-------------------------------
+
+Lots of changes happened in the last year; compmake became
+much more robust, and is almost ready for the public.
+
+
 Development version (0.9.5)
---------------------------
+-------------------------------
 
 * Added confirmation before cleaning and remake jobs.
 

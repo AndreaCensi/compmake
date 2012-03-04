@@ -35,6 +35,10 @@ generate: generate-custom
 compile: $(webdir) generate 
 	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)
 	
+recompile: $(webdir) 
+		PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)
+	
+	
 $(webdir):
 	@echo Checking out the website repository.
 	git clone $(github_repo) $@

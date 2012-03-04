@@ -17,7 +17,7 @@ If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called ``example.py``, you will
 see:
 
-.. literalinclude:: example1/prompt.txt
+.. literalinclude:: my_static/example1/prompt.txt
 
 The |compmake| console is designed to be friendly. You can use auto-completion 
 with ``<tab>``.
@@ -68,7 +68,7 @@ There are several shortcuts available to specify lists of jobs.
 
 * **Wildcards.** In the previous section, we have seen the use of wildcards::
 
-  	@> list  *-drawing    # list all jobs that and with "-drawing"
+  	@> list  *-drawing    # list all jobs that end with "-drawing"
   	@> list  *            # list all jobs
 
 * **Selection by state.** We can select jobs based on their computational state.
@@ -76,9 +76,9 @@ There are several shortcuts available to specify lists of jobs.
 
   	@> list done         # list all completed jobs
   	@> list failed       # list all failed jobs
-  	@> list in_progress  # list all jobs currently in progress
+  	@> list blocked      # list all blocked jobs (dependencies failed)
 
-* **Selection by function name**  -- **TO BE IMPLEMENTED**::
+* **Selection by function name**   ::
 
   	@> list f1()        # all jobs that use the function f1()
 

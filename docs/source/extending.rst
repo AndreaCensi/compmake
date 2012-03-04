@@ -1,48 +1,50 @@
+.. include:: definitions.txt
+
 .. contents::
    :class: pagetoc
 
 .. _`extending`:
 
 Extending compmake
-==================
+======================
 
-(to write)
+|towrite|
 
 
 How to organize the code
-------------------------
+----------------------------
 
-Use --plugin to add/remove plugins::
+Use --plugin to add/remove plugins: ::
 
     compmake --plugin +mymodule,-dump
 
-Load your plugin::
+Load your plugin: ::
 
 	from compmake import *
 
 
 Adding console commands
------------------------
+----------------------------------
 
 
 Adding configuration switches
------------------------------
+----------------------------------
 
 
 Creating a new visualization / notifier
 ---------------------------------------
 
-TO WRITE
+|towrite|
 
 Creating a new DB backend
--------------------------
+----------------------------------
 
-TO WRITE
+|towrite|
 
 Creating a new job scheduler
-----------------------------
+----------------------------------
 
-TO WRITE::
+|towrite| ::
 
     def my_scheduler(manager):
         return manager.ready_todo[rand]
@@ -55,9 +57,9 @@ Then run::
 
 
 Creating a new host scheduler
-----------------------------
+--------------------------------
 
-TO WRITE::
+|towrite| ::
 
     def my_scheduler(cluster_manager):
         pass
