@@ -1,0 +1,19 @@
+syntax Package
+==============
+
+:mod:`syntax` Package
+---------------------
+
+.. automodule:: compmake.jobs.syntax
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`parsing` Module
+---------------------
+
+.. automodule:: compmake.jobs.syntax.parsing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>syntax Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>syntax Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="syntax-package">
+<h1>syntax Package<a class="headerlink" href="#syntax-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">syntax</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.jobs.syntax"></span></div>
+<div class="section" id="module-compmake.jobs.syntax.parsing">
+<span id="parsing-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parsing</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.syntax.parsing" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Canonical forms:</dt>
+<dd>[A] except [B]     =&gt;   A minus the elements in B
+[A] in [B]         =&gt;   intersection of A and B</dd>
+<dt>Rewriting:</dt>
+<dd>not [job_list]     =&gt;   $all except [job_list]
+except [job_list]  =&gt;   $all except [job_list]</dd>
+</dl>
+<p>Association:</p>
+<blockquote>
+<div>[A] except [B] except [C] == [A] except ([B] except [C])
+[A] in [B] in [C] == [A] in ([B] in [C])</div></blockquote>
+<dl class="docutils">
+<dt>Priority:</dt>
+<dd>in &gt; except &gt; not</dd>
+</dl>
+<dl class="class">
+<dt id="compmake.jobs.syntax.parsing.Operators">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">Operators</tt><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.jobs.syntax.parsing.Operators.DIFFERENCE">
+<tt class="descname">DIFFERENCE</tt><em class="property"> = Op(name='difference')</em><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.DIFFERENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.syntax.parsing.Operators.INTERSECTION">
+<tt class="descname">INTERSECTION</tt><em class="property"> = Op(name='intersection')</em><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.INTERSECTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.syntax.parsing.Operators.NOT">
+<tt class="descname">NOT</tt><em class="property"> = Op(name='not')</em><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.NOT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="compmake.jobs.syntax.parsing.Operators.Op">
+<em class="property">class </em><tt class="descname">Op</tt><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.Op" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Op(name,)</p>
+<dl class="attribute">
+<dt id="compmake.jobs.syntax.parsing.Operators.Op.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.Op.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="compmake.jobs.syntax.parsing.Operators.parse">
+<em class="property">static </em><tt class="descclassname">Operators.</tt><tt class="descname">parse</tt><big>(</big><em>tokens</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a list of tokens for known operators.
+Returns a list where the operators are replaced by their codes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.syntax.parsing.Operators.translation">
+<tt class="descclassname">Operators.</tt><tt class="descname">translation</tt><em class="property"> = {'and': Op(name='intersection'), 'except': Op(name='difference'), 'but': Op(name='difference'), 'intersect': Op(name='intersection'), 'in': Op(name='intersection'), 'not': Op(name='not')}</em><a class="headerlink" href="#compmake.jobs.syntax.parsing.Operators.translation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.add_alias">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">add_alias</tt><big>(</big><em>alias</em>, <em>value</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.add_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the given alias to value. See eval_alias() for a discussion
+of the meaning of value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.assert_list_of_strings">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">assert_list_of_strings</tt><big>(</big><em>l</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.assert_list_of_strings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.eval_alias">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">eval_alias</tt><big>(</big><em>alias</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.eval_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the given alias. 
+Returns a list of job_id strings.</p>
+<p>The value can have several types:
+- if it is a string, it is interpreted as a job id
+- if it is a list, it must be a list of string, interpreted as a job id
+- if it is callable (FunctionType),</p>
+<blockquote>
+<div>it is called, and it must return a list of strings.</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.eval_ops">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">eval_ops</tt><big>(</big><em>ops</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.eval_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates an expression. 
+ops: list of strings and int representing operators</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.expand_job_list_token">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">expand_job_list_token</tt><big>(</big><em>token</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.expand_job_list_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a token (string). Returns a generator of jobs.
+Raises UserError, CompmakeSyntaxError</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.expand_job_list_tokens">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">expand_job_list_tokens</tt><big>(</big><em>tokens</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.expand_job_list_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expands a list of tokens using expand_job_list_token(). 
+yields job_id</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.is_alias">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">is_alias</tt><big>(</big><em>alias</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.is_alias" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_bottom_jobs">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_bottom_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_bottom_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of jobs that do not depend on anything else.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_jobs_with_state">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_jobs_with_state</tt><big>(</big><em>state</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_jobs_with_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of jobs in the given state.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_matching_functions">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_matching_functions</tt><big>(</big><em>token</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_matching_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_ready_jobs">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_ready_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_ready_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of jobs that can be done now,
+as their dependencies are up-to-date.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_todo_jobs">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_todo_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_todo_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of jobs that haven&#8217;t been DONE.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.list_top_jobs">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">list_top_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.list_top_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of jobs that are top-level targets.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.syntax.parsing.parse_job_list">
+<tt class="descclassname">compmake.jobs.syntax.parsing.</tt><tt class="descname">parse_job_list</tt><big>(</big><em>tokens</em><big>)</big><a class="headerlink" href="#compmake.jobs.syntax.parsing.parse_job_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a job list. tokens can be:</p>
+<ol class="arabic simple">
+<li>a string, in that case it is split()</li>
+<li>a list, in which case each element is treated as a token.</li>
+</ol>
+<p>NO(If tokens is not empty, then if it evaluates to empty,
+an error is raised (e.g. &#8220;make failed&#8221; and no failed jobs will
+throw an error).)</p>
+<p>Returns a list of strings.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

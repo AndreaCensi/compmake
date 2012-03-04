@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ui Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>ui Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="ui-package">
+<h1>ui Package<a class="headerlink" href="#ui-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">ui</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.ui"></span></div>
+<div class="section" id="module-compmake.ui.commands">
+<span id="commands-module"></span><h2><a class="reference external" href="http://docs.python.org/library/commands.html#commands" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">commands</span></tt></a> Module<a class="headerlink" href="#module-compmake.ui.commands" title="Permalink to this headline">¶</a></h2>
+<p>These are the commands available from the CLI.</p>
+<p>There are 3 special variables:
+- &#8216;args&#8217;: list of all command line arguments
+- &#8216;job_list&#8217;: the remaining argument parsed as a job list.
+- &#8216;non_empty_job_list&#8217;: same, but error if not specified.</p>
+<dl class="function">
+<dt id="compmake.ui.commands.clean">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">clean</tt><big>(</big><em>job_list</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleans the result of the selected computation (or everything is nothing specified).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.clustmake">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">clustmake</tt><big>(</big><em>job_list</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.clustmake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster equivalent of &#8220;make&#8221;.</p>
+<p>Note: you should use the Redis backend to use multiprocessing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.exit">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">exit</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.commands.exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exits the shell.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.make">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">make</tt><big>(</big><em>job_list</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.make" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes selected targets; or all targets if none specified.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.make_single">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">make_single</tt><big>(</big><em>job_list</em>, <em>more=False</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.make_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a single job &#8211; not for users, but for slave mode.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.parmake">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">parmake</tt><big>(</big><em>job_list</em>, <em>n=None</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.parmake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallel equivalent of &#8220;make&#8221;.</p>
+<p>Usage:</p>
+<blockquote>
+<div>parmake [n=&lt;num&gt;] [joblist]</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.parremake">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">parremake</tt><big>(</big><em>non_empty_job_list</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.parremake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallel equivalent of &#8220;remake&#8221;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands.remake">
+<tt class="descclassname">compmake.ui.commands.</tt><tt class="descname">remake</tt><big>(</big><em>non_empty_job_list</em><big>)</big><a class="headerlink" href="#compmake.ui.commands.remake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remake the selected targets (equivalent to clean and make).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.commands_html">
+<span id="commands-html-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">commands_html</span></tt> Module<a class="headerlink" href="#module-compmake.ui.commands_html" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.ui.commands_html.commands_html">
+<tt class="descclassname">compmake.ui.commands_html.</tt><tt class="descname">commands_html</tt><big>(</big><em>output_file=''</em><big>)</big><a class="headerlink" href="#compmake.ui.commands_html.commands_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps the commands description in html on the specified file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.commands_html.create_commands_html">
+<tt class="descclassname">compmake.ui.commands_html.</tt><tt class="descname">create_commands_html</tt><big>(</big><em>file=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x100260150&gt;</em><big>)</big><a class="headerlink" href="#compmake.ui.commands_html.create_commands_html" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.config_ui">
+<span id="config-ui-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">config_ui</span></tt> Module<a class="headerlink" href="#module-compmake.ui.config_ui" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.ui.config_ui.config">
+<tt class="descclassname">compmake.ui.config_ui.</tt><tt class="descname">config</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.ui.config_ui.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get/set configuration parameters.</p>
+<p>Call like:</p>
+<blockquote>
+<div>&#64;&gt; config  &lt;switch&gt;  &lt;value&gt;</div></blockquote>
+<p>Without arguments, shows all configuration switches.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.config_ui.config_html">
+<tt class="descclassname">compmake.ui.config_ui.</tt><tt class="descname">config_html</tt><big>(</big><em>output_file=''</em><big>)</big><a class="headerlink" href="#compmake.ui.config_ui.config_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps the config description in html on the specified file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.console">
+<span id="console-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">console</span></tt> Module<a class="headerlink" href="#module-compmake.ui.console" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.ui.console.ask_question">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">ask_question</tt><big>(</big><em>question</em>, <em>allowed=None</em><big>)</big><a class="headerlink" href="#compmake.ui.console.ask_question" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asks a yes/no question to the user</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.batch_command">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">batch_command</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.ui.console.batch_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>executes one command</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.compmake_console">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">compmake_console</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.console.compmake_console" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the compmake console. Ignore if we are embedded.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.compmake_console_lines">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">compmake_console_lines</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.console.compmake_console_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns lines with at least one character.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.get_completions">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">get_completions</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.console.get_completions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.interactive_console">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">interactive_console</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.console.interactive_console" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.interpret_commands_wrap">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">interpret_commands_wrap</tt><big>(</big><em>commands</em><big>)</big><a class="headerlink" href="#compmake.ui.console.interpret_commands_wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns False if we want to exit.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.console.tab_completion2">
+<tt class="descclassname">compmake.ui.console.</tt><tt class="descname">tab_completion2</tt><big>(</big><em>text</em>, <em>state</em><big>)</big><a class="headerlink" href="#compmake.ui.console.tab_completion2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.helpers">
+<span id="helpers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">helpers</span></tt> Module<a class="headerlink" href="#module-compmake.ui.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.ui.helpers.Command">
+<em class="property">class </em><tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">Command</tt><a class="headerlink" href="#compmake.ui.helpers.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Command(function, name, doc, alias, section)</p>
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Command.alias">
+<tt class="descname">alias</tt><a class="headerlink" href="#compmake.ui.helpers.Command.alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Command.doc">
+<tt class="descname">doc</tt><a class="headerlink" href="#compmake.ui.helpers.Command.doc" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Command.function">
+<tt class="descname">function</tt><a class="headerlink" href="#compmake.ui.helpers.Command.function" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Command.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.ui.helpers.Command.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Command.section">
+<tt class="descname">section</tt><a class="headerlink" href="#compmake.ui.helpers.Command.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.ui.helpers.Section">
+<em class="property">class </em><tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">Section</tt><a class="headerlink" href="#compmake.ui.helpers.Section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Section(name, desc, order, commands)</p>
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Section.commands">
+<tt class="descname">commands</tt><a class="headerlink" href="#compmake.ui.helpers.Section.commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Section.desc">
+<tt class="descname">desc</tt><a class="headerlink" href="#compmake.ui.helpers.Section.desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Section.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.ui.helpers.Section.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.Section.order">
+<tt class="descname">order</tt><a class="headerlink" href="#compmake.ui.helpers.Section.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.ui.helpers.UIState">
+<em class="property">class </em><tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">UIState</tt><a class="headerlink" href="#compmake.ui.helpers.UIState" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.ui.helpers.UIState.alias2name">
+<tt class="descname">alias2name</tt><em class="property"> = {'quit': 'exit', 'about': 'credits', 'ls': 'list', 'lsl': 'details'}</em><a class="headerlink" href="#compmake.ui.helpers.UIState.alias2name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.UIState.commands">
+<tt class="descname">commands</tt><em class="property"> = {'parremake': Command(function=&lt;function parremake at 0x104fba230&gt;, name='parremake', doc='Parallel equivalent of &quot;remake&quot;. ', alias=[], section='Parallel commands'), 'stats': Command(function=&lt;function stats at 0x104fc46e0&gt;, name='stats', doc='Displays a coarse summary of the jobs state. ', alias=[], section='Visualization and diagnostics'), 'help': Command(function=&lt;function help at 0x103531140&gt;, name='help', doc=&quot;Prints help about the other commands. (try 'help help')\n    \n    Usage:\n    \n       help [command]\n       \n    If command is given, extended help is printed about it.\n    &quot;, alias=[], section='General commands'), 'make_single': Command(function=&lt;function make_single at 0x104fba050&gt;, name='make_single', doc=' Makes a single job -- not for users, but for slave mode. ', alias=[], section='Advanced commands'), 'config_html': Command(function=&lt;function config_html at 0x104fb9050&gt;, name='config_html', doc=' Dumps the config description in html on the specified file. ', alias=[], section='Advanced commands'), 'clustmake': Command(function=&lt;function clustmake at 0x104fba140&gt;, name='clustmake', doc='Cluster equivalent of &quot;make&quot;.\n\n       Note: you should use the Redis backend to use multiprocessing.\n ', alias=[], section='Cluster commands'), 'config': Command(function=&lt;function config at 0x104fbaf50&gt;, name='config', doc=' Get/set configuration parameters.\n\nCall like:\n\n    &#64;&gt; config  &lt;switch&gt;  &lt;value&gt;\n         \nWithout arguments, shows all configuration switches.\n ', alias=[], section='General commands'), 'make': Command(function=&lt;function make at 0x104fb09b0&gt;, name='make', doc='Makes selected targets; or all targets if none specified. ', alias=[], section='Commands'), 'commands_html': Command(function=&lt;function commands_html at 0x104fba578&gt;, name='commands_html', doc=' Dumps the commands description in html on the specified file ', alias=[], section='Advanced commands'), 'list': Command(function=&lt;function list at 0x104fc1b90&gt;, name='list', doc='Lists the status of the selected targets (or all targets if not specified).\n    \n    If only one job is specified, then it is listed in more detail.  ', alias=['ls'], section='Visualization and diagnostics'), 'credits': Command(function=&lt;function credits at 0x104fc1668&gt;, name='credits', doc='Shows the credits for compmake.', alias=['about'], section='General commands'), 'exit': Command(function=&lt;function exit at 0x104fc5ed8&gt;, name='exit', doc='Exits the shell.', alias=['quit'], section='General commands'), 'graph': Command(function=&lt;function graph at 0x104fbf9b0&gt;, name='graph', doc=&quot;Creates a graph of the given targets and dependencies \n    \n        graph filename=filename compact=0,1 format=png,...\n         \n        Params:\n            filename:  name of generated filename in the dot format\n            compact=0: whether to include the job names in the nodes  \n            filter=[dot,circo,twopi,...]  which algorithm to use to arrange\n                       the nodes. This depends on the topology of your \n                       computation. The default is 'dot' \n                       (hierarchy top-bottom). \n            format=[png,...]  The output file format.\n    &quot;, alias=[], section='Visualization and diagnostics'), 'clean': Command(function=&lt;function clean at 0x104fb31b8&gt;, name='clean', doc='Cleans the result of the selected computation (or everything is nothing specified). ', alias=[], section='Commands'), 'remake': Command(function=&lt;function remake at 0x104fba1b8&gt;, name='remake', doc='Remake the selected targets (equivalent to clean and make). ', alias=[], section='Commands'), 'reload': Command(function=&lt;function reload at 0x104fc4410&gt;, name='reload', doc=' Reloads a module.\n    \n        Usage::\n        \n            reload module=my_module\n    \n    ', alias=[], section='General commands'), 'parmake': Command(function=&lt;function parmake at 0x104fba0c8&gt;, name='parmake', doc='Parallel equivalent of &quot;make&quot;.\n\nUsage:\n       \n       parmake [n=&lt;num&gt;] [joblist]\n ', alias=[], section='Parallel commands'), 'dump': Command(function=&lt;function dump at 0x104fbf848&gt;, name='dump', doc=&quot;Dumps the content of jobs as pickle files.\n\nArguments: \n    directory='.'   where to dump the files\n    \n&quot;, alias=[], section='Import / export'), 'details': Command(function=&lt;function details at 0x104fc4140&gt;, name='details', doc='Shows the details for the given jobs. ', alias=['lsl'], section='Visualization and diagnostics')}</em><a class="headerlink" href="#compmake.ui.helpers.UIState.commands" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.UIState.last_section_name">
+<tt class="descname">last_section_name</tt><em class="property"> = 'Visualization and diagnostics'</em><a class="headerlink" href="#compmake.ui.helpers.UIState.last_section_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.ui.helpers.UIState.sections">
+<tt class="descname">sections</tt><em class="property"> = {'Commands': Section(name='Commands', desc=None, order=1, commands=['clean', 'make', 'remake']), 'Visualization and diagnostics': Section(name='Visualization and diagnostics', desc=None, order=2.7000000000000002, commands=['graph', 'list', 'details', 'stats']), 'General commands': Section(name='General commands', desc=None, order=0, commands=['help', 'exit', 'config', 'credits', 'reload']), 'Cluster commands': Section(name='Cluster commands', desc='These assume that you have a cluster configuration file as explained in the documentation.', order=2.5, commands=['clustmake']), 'Import / export': Section(name='Import / export', desc='Ways to get data out of compmake.', order=3, commands=['dump']), 'Parallel commands': Section(name='Parallel commands', desc='', order=2, commands=['parmake', 'parremake']), 'Advanced commands': Section(name='Advanced commands', desc='Advanced commands not for general use.', order=4, commands=['make_single', 'commands_html', 'config_html'])}</em><a class="headerlink" href="#compmake.ui.helpers.UIState.sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.get_commands">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">get_commands</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.helpers.get_commands" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.help">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">help</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.ui.helpers.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints help about the other commands. (try &#8216;help help&#8217;)</p>
+<p>Usage:</p>
+<blockquote>
+<div>help [command]</div></blockquote>
+<p>If command is given, extended help is printed about it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.list_commands_with_sections">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">list_commands_with_sections</tt><big>(</big><em>file=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x100260150&gt;</em><big>)</big><a class="headerlink" href="#compmake.ui.helpers.list_commands_with_sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.register_command">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">register_command</tt><big>(</big><em>name</em>, <em>func</em>, <em>docs=None</em>, <em>alias=</em><span class="optional">[</span><span class="optional">]</span>, <em>section=None</em><big>)</big><a class="headerlink" href="#compmake.ui.helpers.register_command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.ui_command">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">ui_command</tt><big>(</big><em>name=None</em>, <em>alias=</em><span class="optional">[</span><span class="optional">]</span>, <em>section=None</em><big>)</big><a class="headerlink" href="#compmake.ui.helpers.ui_command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.helpers.ui_section">
+<tt class="descclassname">compmake.ui.helpers.</tt><tt class="descname">ui_section</tt><big>(</big><em>section_name</em>, <em>desc=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#compmake.ui.helpers.ui_section" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.ui">
+<span id="ui-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ui</span></tt> Module<a class="headerlink" href="#module-compmake.ui.ui" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.ui.ui.clean_other_jobs">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">clean_other_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.ui.clean_other_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleans jobs not defined in the session</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.collect_dependencies">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">collect_dependencies</tt><big>(</big><em>ob</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.collect_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of dependencies (i.e., Job objects that
+are mentioned somewhere in the structure</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.comp">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">comp</tt><big>(</big><em>command</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.comp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main method to define a computation step.</p>
+<p>Extra arguments:</p>
+<p>:arg:job_id:   sets the job id (respects job_prefix)
+:arg:extra_dep: extra dependencies (not passed as arguments)</p>
+<p>Raises UserError if command is not pickable.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.comp_prefix">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">comp_prefix</tt><big>(</big><em>prefix=None</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.comp_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the prefix for creating the subsequent job names.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.generate_job_id">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">generate_job_id</tt><big>(</big><em>command</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.generate_job_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a unique job_id for the specified commmand.
+Takes into account job_prefix if that&#8217;s defined</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.interpret_commands">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">interpret_commands</tt><big>(</big><em>commands_str</em>, <em>separator=';'</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.interpret_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interprets what could possibly be a list of commands (separated by &#8221;;&#8221;)
+If one command fails, it returns its retcode, and then the rest 
+are skipped.</p>
+<p>Returns 0 on success; else returns either an int or a string describing
+what went wrong.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.interpret_single_command">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">interpret_single_command</tt><big>(</big><em>commands_line</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.interpret_single_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns 0/None for success, or error code.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.is_pickable">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">is_pickable</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#compmake.ui.ui.is_pickable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.ui.reset_jobs_definition_set">
+<tt class="descclassname">compmake.ui.ui.</tt><tt class="descname">reset_jobs_definition_set</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.ui.ui.reset_jobs_definition_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful only for unit tests</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.ui.visualization">
+<span id="visualization-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">visualization</span></tt> Module<a class="headerlink" href="#module-compmake.ui.visualization" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.ui.visualization.clean_console_line">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">clean_console_line</tt><big>(</big><em>stream</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.clean_console_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.colored">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">colored</tt><big>(</big><em>x</em>, <em>color=None</em>, <em>on_color=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.colored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.debug">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">debug</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.error">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">error</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.info">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">info</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.user_error">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">user_error</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.user_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.warning">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">warning</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.warning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.ui.visualization.write_message">
+<tt class="descclassname">compmake.ui.visualization.</tt><tt class="descname">write_message</tt><big>(</big><em>string</em>, <em>formatting</em><big>)</big><a class="headerlink" href="#compmake.ui.visualization.write_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

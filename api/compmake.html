@@ -1,0 +1,761 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>compmake Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>compmake Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="compmake-package">
+<h1>compmake Package<a class="headerlink" href="#compmake-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-compmake" title="compmake"><tt class="xref py py-mod docutils literal"><span class="pre">compmake</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake"></span></div>
+<div class="section" id="module-compmake.constants">
+<span id="constants-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">constants</span></tt> Module<a class="headerlink" href="#module-compmake.constants" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.constants.CompmakeConstants">
+<em class="property">class </em><tt class="descclassname">compmake.constants.</tt><tt class="descname">CompmakeConstants</tt><a class="headerlink" href="#compmake.constants.CompmakeConstants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arbitrary constants used in the code.</p>
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.RET_CODE_JOB_FAILED">
+<tt class="descname">RET_CODE_JOB_FAILED</tt><em class="property"> = 113</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.RET_CODE_JOB_FAILED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.compmake_status_embedded">
+<tt class="descname">compmake_status_embedded</tt><em class="property"> = 'embedded'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.compmake_status_embedded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.compmake_status_interactive">
+<tt class="descname">compmake_status_interactive</tt><em class="property"> = 'interactive'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.compmake_status_interactive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.compmake_status_slave">
+<tt class="descname">compmake_status_slave</tt><em class="property"> = 'slave'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.compmake_status_slave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.db">
+<tt class="descname">db</tt><em class="property"> = &lt;compmake.storage.filesystem.StorageFilesystem instance at 0x104fbb710&gt;</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.default_namespace">
+<tt class="descname">default_namespace</tt><em class="property"> = 'default'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.default_namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.default_path">
+<tt class="descname">default_path</tt><em class="property"> = 'compmake_storage'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.default_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.extra_dep_key">
+<tt class="descname">extra_dep_key</tt><em class="property"> = 'extra_dep'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.extra_dep_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.constants.CompmakeConstants.job_id_key">
+<tt class="descname">job_id_key</tt><em class="property"> = 'job_id'</em><a class="headerlink" href="#compmake.constants.CompmakeConstants.job_id_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.state">
+<span id="state-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">state</span></tt> Module<a class="headerlink" href="#module-compmake.state" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.state.CompmakeGlobalState">
+<em class="property">class </em><tt class="descclassname">compmake.state.</tt><tt class="descname">CompmakeGlobalState</tt><a class="headerlink" href="#compmake.state.CompmakeGlobalState" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="compmake.state.CompmakeGlobalState.EventHandlers">
+<em class="property">class </em><tt class="descname">EventHandlers</tt><a class="headerlink" href="#compmake.state.CompmakeGlobalState.EventHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.EventHandlers.fallback">
+<tt class="descname">fallback</tt><em class="property"> = [&lt;function print_event at 0x1050701b8&gt;]</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.EventHandlers.fallback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.EventHandlers.handlers">
+<tt class="descname">handlers</tt><em class="property"> = {'compmake-bug': [&lt;function compmake_bug at 0x104fc7230&gt;], 'manager-loop': [&lt;bound method Tracker.event_manager_loop of &lt;compmake.plugins.tracker.Tracker instance at 0x105079368&gt;&gt;, &lt;function handle_event at 0x105070a28&gt;], 'manager-job-failed': [&lt;function ignore at 0x104fc7050&gt;], 'command-line-succeeded': [&lt;function ignore at 0x104fc7050&gt;], 'job_interrupted': [&lt;function job_interrupted at 0x104fc7500&gt;], 'job-succeeded': [&lt;function ignore at 0x104fc7050&gt;], 'job-failed': [&lt;function handle_job_failed at 0x104fc4578&gt;, &lt;function job_failed at 0x104fc7320&gt;], 'console-starting': [&lt;function console_starting at 0x104fbfe60&gt;], 'job-progress-plus': [&lt;bound method Tracker.event_job_progress_plus of &lt;compmake.plugins.tracker.Tracker instance at 0x105079368&gt;&gt;, &lt;function handle_event at 0x105070a28&gt;], 'command-line-interrupted': [&lt;function command_line_interrupted at 0x104fc75f0&gt;, &lt;function ignore at 0x104fc7050&gt;], 'manager-phase': [&lt;function ignore at 0x104fc7050&gt;], 'parmake-status': [&lt;function ignore at 0x104fc7050&gt;], 'command-starting': [&lt;function ignore at 0x104fc7050&gt;], 'command-interrupted': [&lt;function command_interrupted at 0x104fc77d0&gt;], 'command-line-starting': [&lt;function ignore at 0x104fc7050&gt;], 'job-progress': [&lt;bound method Tracker.event_job_progress of &lt;compmake.plugins.tracker.Tracker instance at 0x105079368&gt;&gt;, &lt;function handle_event at 0x105070a28&gt;], 'job-stdout': [&lt;function handle_event_stdout at 0x104fc4848&gt;, &lt;function handle_event at 0x105070a28&gt;], 'command-line-failed': [&lt;function command_line_failed at 0x104fc7410&gt;, &lt;function ignore at 0x104fc7050&gt;], 'job-interrupted': [&lt;function ignore at 0x104fc7050&gt;], 'manager-job-starting': [&lt;function ignore at 0x104fc7050&gt;], 'job-redefined': [&lt;function job_redefined at 0x104fbfb90&gt;], 'job-stderr': [&lt;function handle_event_stderr at 0x104fc4758&gt;, &lt;function handle_event at 0x105070a28&gt;], 'command-failed': [&lt;function command_failed at 0x104fc76e0&gt;], 'manager-succeeded': [&lt;function ignore at 0x104fc7050&gt;], 'job-defined': [&lt;function job_defined at 0x104fbfaa0&gt;], 'manager-progress': [&lt;bound method Tracker.event_manager_progress of &lt;compmake.plugins.tracker.Tracker instance at 0x105079368&gt;&gt;, &lt;function handle_event at 0x105070a28&gt;], 'worker-status': [&lt;function ignore at 0x104fc7050&gt;], 'console-ending': [&lt;function console_ending at 0x104fbfcf8&gt;], 'manager-job-succeeded': [&lt;function ignore at 0x104fc7050&gt;]}</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.EventHandlers.handlers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.cached_completions">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">cached_completions</tt><em class="property"> = None</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.cached_completions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.compmake_config">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">compmake_config</tt><em class="property"> = {'echo_stderr': True, 'echo_stdout': True, 'cluster_nice': 0, 'hostname': 'localhost', 'db': 'filesystem', 'check_params': False, 'cluster_conf': 'cluster.yaml', 'min_proc_interval': 0.5, 'max_mem_load': 90.0, 'max_cpu_load': 90.0, 'path': 'compmake_storage', 'cluster_show_cmd': True, 'colorize': True}</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.compmake_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.compmake_slave_mode">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">compmake_slave_mode</tt><em class="property"> = False</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.compmake_slave_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.compmake_status">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">compmake_status</tt><em class="property"> = 'embedded'</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.compmake_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.config_sections">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">config_sections</tt><em class="property"> = {'Storage setting backend': ConfigSection(name='Storage setting backend', desc='', order=1, switches=['db', 'path']), 'General configuration': ConfigSection(name='General configuration', desc='', order=0, switches=['check_params']), 'Appearance': ConfigSection(name='Appearance', desc='', order=2, switches=['echo_stdout', 'echo_stderr', 'colorize']), 'Cluster execution': ConfigSection(name='Cluster execution', desc='', order=4, switches=['cluster_conf', 'hostname', 'cluster_nice', 'cluster_show_cmd']), 'Multiprocessing': ConfigSection(name='Multiprocessing', desc='', order=3, switches=['max_mem_load', 'max_cpu_load', 'min_proc_interval'])}</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.config_sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.config_switches">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">config_switches</tt><em class="property"> = {'echo_stderr': ConfigSwitch(name='echo_stderr', default_value=True, desc='If true, the job output to stderr is shown.', section='Appearance', order=0, allowed=None), 'echo_stdout': ConfigSwitch(name='echo_stdout', default_value=True, desc='If true, the job output to stdout is shown.', section='Appearance', order=0, allowed=None), 'cluster_nice': ConfigSwitch(name='cluster_nice', default_value=0, desc='Nice level for spawned remote processes.', section='Cluster execution', order=0, allowed=None), 'hostname': ConfigSwitch(name='hostname', default_value='localhost', desc='Nickname for current host (set by compmake master).', section='Cluster execution', order=0, allowed=None), 'db': ConfigSwitch(name='db', default_value='filesystem', desc=&quot;Specifies db backend. XXX: so far, only 'filesystem' officially supported.&quot;, section='Storage setting backend', order=0, allowed=None), 'check_params': ConfigSwitch(name='check_params', default_value=False, desc='If true, erases the cache if job parameters appear to change.', section='General configuration', order=0, allowed=None), 'cluster_conf': ConfigSwitch(name='cluster_conf', default_value='cluster.yaml', desc='Location of cluster configuration file.', section='Cluster execution', order=0, allowed=None), 'min_proc_interval': ConfigSwitch(name='min_proc_interval', default_value=0.5, desc='Minimum interval between instantiating jobs.', section='Multiprocessing', order=0, allowed=None), 'max_mem_load': ConfigSwitch(name='max_mem_load', default_value=90.0, desc='Maximum physical memory load (%)', section='Multiprocessing', order=0, allowed=None), 'max_cpu_load': ConfigSwitch(name='max_cpu_load', default_value=90.0, desc='Maximum CPU load (%)', section='Multiprocessing', order=0, allowed=None), 'path': ConfigSwitch(name='path', default_value='compmake_storage', desc='[filesystem] Path to directory for filesystem storage.', section='Storage setting backend', order=0, allowed=None), 'cluster_show_cmd': ConfigSwitch(name='cluster_show_cmd', default_value=True, desc='If true, it shows the connection string to the slaves.', section='Cluster execution', order=0, allowed=None), 'colorize': ConfigSwitch(name='colorize', default_value=True, desc='Use colors in terminals if possible.', section='Appearance', order=0, allowed=None)}</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.config_switches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.db">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">db</tt><em class="property"> = {}</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.is_it_time">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">is_it_time</tt><em class="property"> = False</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.is_it_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.job_prefix">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">job_prefix</tt><em class="property"> = None</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.job_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.jobs_defined_in_this_session">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">jobs_defined_in_this_session</tt><em class="property"> = set([])</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.jobs_defined_in_this_session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.namespace">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">namespace</tt><em class="property"> = 'default'</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.original_stderr">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">original_stderr</tt><em class="property"> = &lt;open file '&lt;stderr&gt;', mode 'w' at 0x1002601e0&gt;</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.original_stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.original_stdout">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">original_stdout</tt><em class="property"> = &lt;open file '&lt;stdout&gt;', mode 'w' at 0x100260150&gt;</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.original_stdout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.CompmakeGlobalState.system_stats">
+<tt class="descclassname">CompmakeGlobalState.</tt><tt class="descname">system_stats</tt><em class="property"> = &lt;compmake.utils.system_stats.AvgSystemStats instance at 0x103506cb0&gt;</em><a class="headerlink" href="#compmake.state.CompmakeGlobalState.system_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.state.ConfigSection">
+<em class="property">class </em><tt class="descclassname">compmake.state.</tt><tt class="descname">ConfigSection</tt><a class="headerlink" href="#compmake.state.ConfigSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>ConfigSection(name, desc, order, switches)</p>
+<dl class="attribute">
+<dt id="compmake.state.ConfigSection.desc">
+<tt class="descname">desc</tt><a class="headerlink" href="#compmake.state.ConfigSection.desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSection.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.state.ConfigSection.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSection.order">
+<tt class="descname">order</tt><a class="headerlink" href="#compmake.state.ConfigSection.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSection.switches">
+<tt class="descname">switches</tt><a class="headerlink" href="#compmake.state.ConfigSection.switches" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.state.ConfigSwitch">
+<em class="property">class </em><tt class="descclassname">compmake.state.</tt><tt class="descname">ConfigSwitch</tt><a class="headerlink" href="#compmake.state.ConfigSwitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>ConfigSwitch(name, default_value, desc, section, order, allowed)</p>
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.allowed">
+<tt class="descname">allowed</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.default_value">
+<tt class="descname">default_value</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.default_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.desc">
+<tt class="descname">desc</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.order">
+<tt class="descname">order</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.state.ConfigSwitch.section">
+<tt class="descname">section</tt><a class="headerlink" href="#compmake.state.ConfigSwitch.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.get_compmake_config">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">get_compmake_config</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.state.get_compmake_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.get_compmake_status">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">get_compmake_status</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.state.get_compmake_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.is_interactive_session">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">is_interactive_session</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.state.is_interactive_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>If this is true, we will ask questions to the user.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.set_compmake_config">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">set_compmake_config</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#compmake.state.set_compmake_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.set_compmake_status">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">set_compmake_status</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.state.set_compmake_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.state.time_to_define_jobs">
+<tt class="descclassname">compmake.state.</tt><tt class="descname">time_to_define_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.state.time_to_define_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.structures">
+<span id="structures-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structures</span></tt> Module<a class="headerlink" href="#module-compmake.structures" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.structures.Cache">
+<em class="property">class </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">Cache</tt><big>(</big><em>state</em><big>)</big><a class="headerlink" href="#compmake.structures.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.structures.Cache.BLOCKED">
+<tt class="descname">BLOCKED</tt><em class="property"> = 5</em><a class="headerlink" href="#compmake.structures.Cache.BLOCKED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.DONE">
+<tt class="descname">DONE</tt><em class="property"> = 4</em><a class="headerlink" href="#compmake.structures.Cache.DONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.FAILED">
+<tt class="descname">FAILED</tt><em class="property"> = 3</em><a class="headerlink" href="#compmake.structures.Cache.FAILED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.IN_PROGRESS">
+<tt class="descname">IN_PROGRESS</tt><em class="property"> = 1</em><a class="headerlink" href="#compmake.structures.Cache.IN_PROGRESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.MORE_REQUESTED">
+<tt class="descname">MORE_REQUESTED</tt><em class="property"> = 2</em><a class="headerlink" href="#compmake.structures.Cache.MORE_REQUESTED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.NOT_STARTED">
+<tt class="descname">NOT_STARTED</tt><em class="property"> = 0</em><a class="headerlink" href="#compmake.structures.Cache.NOT_STARTED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.allowed_states">
+<tt class="descname">allowed_states</tt><em class="property"> = [0, 1, 2, 3, 4, 5]</em><a class="headerlink" href="#compmake.structures.Cache.allowed_states" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.structures.Cache.state2desc">
+<tt class="descname">state2desc</tt><em class="property"> = {0: 'not started', 1: 'in progress', 2: 'Done (but more in progress)', 3: 'failed', 4: 'done', 5: 'blocked'}</em><a class="headerlink" href="#compmake.structures.Cache.state2desc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.CompmakeException">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">CompmakeException</tt><a class="headerlink" href="#compmake.structures.CompmakeException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.CompmakeSyntaxError">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">CompmakeSyntaxError</tt><a class="headerlink" href="#compmake.structures.CompmakeSyntaxError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.UserError" title="compmake.structures.UserError"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.UserError</span></tt></a></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.HostFailed">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">HostFailed</tt><a class="headerlink" href="#compmake.structures.HostFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.CompmakeException" title="compmake.structures.CompmakeException"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.CompmakeException</span></tt></a></p>
+<p>The job has been interrupted and must 
+be redone (it has not failed, though)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.structures.Job">
+<em class="property">class </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">Job</tt><big>(</big><em>job_id</em>, <em>children</em>, <em>command_desc</em>, <em>yields=False</em><big>)</big><a class="headerlink" href="#compmake.structures.Job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="compmake.structures.Job.compute">
+<tt class="descname">compute</tt><big>(</big><em>previous_result=None</em><big>)</big><a class="headerlink" href="#compmake.structures.Job.compute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.structures.Job.get_actual_command">
+<tt class="descname">get_actual_command</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.structures.Job.get_actual_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns command, args, kwargs after deps subst.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.structures.Job.same_computation">
+<tt class="descname">same_computation</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#compmake.structures.Job.same_computation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns boolean, string tuple</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.JobFailed">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">JobFailed</tt><a class="headerlink" href="#compmake.structures.JobFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.CompmakeException" title="compmake.structures.CompmakeException"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.CompmakeException</span></tt></a></p>
+<p>This signals that some job has failed</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.JobInterrupted">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">JobInterrupted</tt><a class="headerlink" href="#compmake.structures.JobInterrupted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.CompmakeException" title="compmake.structures.CompmakeException"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.CompmakeException</span></tt></a></p>
+<p>User requested to interrupt job</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.KeyNotFound">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">KeyNotFound</tt><a class="headerlink" href="#compmake.structures.KeyNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.CompmakeException" title="compmake.structures.CompmakeException"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.CompmakeException</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.structures.ProgressStage">
+<em class="property">class </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">ProgressStage</tt><big>(</big><em>name</em>, <em>iterations</em>, <em>iteration_desc</em><big>)</big><a class="headerlink" href="#compmake.structures.ProgressStage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="compmake.structures.ProgressStage.was_finished">
+<tt class="descname">was_finished</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.structures.ProgressStage.was_finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.structures.Promise">
+<em class="property">class </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">Promise</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.structures.Promise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.SerializationError">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">SerializationError</tt><a class="headerlink" href="#compmake.structures.SerializationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.UserError" title="compmake.structures.UserError"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.UserError</span></tt></a></p>
+<p>Something cannot be serialized (function or function result).</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.ShellExitRequested">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">ShellExitRequested</tt><a class="headerlink" href="#compmake.structures.ShellExitRequested" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.structures.UserError">
+<em class="property">exception </em><tt class="descclassname">compmake.structures.</tt><tt class="descname">UserError</tt><a class="headerlink" href="#compmake.structures.UserError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.structures.CompmakeException" title="compmake.structures.CompmakeException"><tt class="xref py py-class docutils literal"><span class="pre">compmake.structures.CompmakeException</span></tt></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compmake.config.html">config Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.config.html#id1"><tt class="docutils literal"><span class="pre">config</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.config.html#module-compmake.config.config_html"><tt class="docutils literal"><span class="pre">config_html</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.config.html#module-compmake.config.config_list"><tt class="docutils literal"><span class="pre">config_list</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.config.html#module-compmake.config.config_optparse"><tt class="docutils literal"><span class="pre">config_optparse</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.config.html#module-compmake.config.structure"><tt class="docutils literal"><span class="pre">structure</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.events.html">events Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.events.html#id1"><tt class="docutils literal"><span class="pre">events</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.events.html#module-compmake.events.registered_events"><tt class="docutils literal"><span class="pre">registered_events</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.events.html#module-compmake.events.registrar"><tt class="docutils literal"><span class="pre">registrar</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.events.html#module-compmake.events.structures"><tt class="docutils literal"><span class="pre">structures</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.jobs.html">jobs Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#id1"><tt class="docutils literal"><span class="pre">jobs</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.actions"><tt class="docutils literal"><span class="pre">actions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.cluster_conf"><tt class="docutils literal"><span class="pre">cluster_conf</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.manager"><tt class="docutils literal"><span class="pre">manager</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.manager_local"><tt class="docutils literal"><span class="pre">manager_local</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.manager_multiprocessing"><tt class="docutils literal"><span class="pre">manager_multiprocessing</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.manager_ssh_cluster"><tt class="docutils literal"><span class="pre">manager_ssh_cluster</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.priority"><tt class="docutils literal"><span class="pre">priority</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.progress"><tt class="docutils literal"><span class="pre">progress</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.queries"><tt class="docutils literal"><span class="pre">queries</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.storage"><tt class="docutils literal"><span class="pre">storage</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#module-compmake.jobs.uptodate"><tt class="docutils literal"><span class="pre">uptodate</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="compmake.jobs.syntax.html">syntax Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="compmake.jobs.syntax.html#id1"><tt class="docutils literal"><span class="pre">syntax</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compmake.jobs.syntax.html#module-compmake.jobs.syntax.parsing"><tt class="docutils literal"><span class="pre">parsing</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.html">plugins Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#id1"><tt class="docutils literal"><span class="pre">plugins</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.commands_status"><tt class="docutils literal"><span class="pre">commands_status</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.console_banners"><tt class="docutils literal"><span class="pre">console_banners</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.console_output"><tt class="docutils literal"><span class="pre">console_output</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.console_status"><tt class="docutils literal"><span class="pre">console_status</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.credits"><tt class="docutils literal"><span class="pre">credits</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.details"><tt class="docutils literal"><span class="pre">details</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.dump"><tt class="docutils literal"><span class="pre">dump</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.event_debugger"><tt class="docutils literal"><span class="pre">event_debugger</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.graph"><tt class="docutils literal"><span class="pre">graph</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.job_definition_status"><tt class="docutils literal"><span class="pre">job_definition_status</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.list_jobs"><tt class="docutils literal"><span class="pre">list_jobs</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.reload_module"><tt class="docutils literal"><span class="pre">reload_module</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.stats"><tt class="docutils literal"><span class="pre">stats</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.html#module-compmake.plugins.tracker"><tt class="docutils literal"><span class="pre">tracker</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.scripts.html">scripts Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.scripts.html#module-compmake.scripts.master"><tt class="docutils literal"><span class="pre">master</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.storage.html">storage Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.storage.html#id1"><tt class="docutils literal"><span class="pre">storage</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.storage.html#module-compmake.storage.filesystem"><tt class="docutils literal"><span class="pre">filesystem</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.storage.html#module-compmake.storage.redisdb"><tt class="docutils literal"><span class="pre">redisdb</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.ui.html">ui Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#id1"><tt class="docutils literal"><span class="pre">ui</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.commands"><tt class="docutils literal"><span class="pre">commands</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.commands_html"><tt class="docutils literal"><span class="pre">commands_html</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.config_ui"><tt class="docutils literal"><span class="pre">config_ui</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.console"><tt class="docutils literal"><span class="pre">console</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.helpers"><tt class="docutils literal"><span class="pre">helpers</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.ui"><tt class="docutils literal"><span class="pre">ui</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.ui.html#module-compmake.ui.visualization"><tt class="docutils literal"><span class="pre">visualization</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.unittests.html">unittests Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.compmake_test"><tt class="docutils literal"><span class="pre">compmake_test</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#script-unpickable-result-module"><tt class="docutils literal"><span class="pre">script_unpickable_result</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_blocked"><tt class="docutils literal"><span class="pre">test_blocked</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_invalid_functions"><tt class="docutils literal"><span class="pre">test_invalid_functions</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_more"><tt class="docutils literal"><span class="pre">test_more</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_priorities"><tt class="docutils literal"><span class="pre">test_priorities</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_progress"><tt class="docutils literal"><span class="pre">test_progress</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_storage"><tt class="docutils literal"><span class="pre">test_storage</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_syntax"><tt class="docutils literal"><span class="pre">test_syntax</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.unittests.html#module-compmake.unittests.test_unpickable_result"><tt class="docutils literal"><span class="pre">test_unpickable_result</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.utils.html">utils Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#id1"><tt class="docutils literal"><span class="pre">utils</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.capture"><tt class="docutils literal"><span class="pre">capture</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.coloredterm"><tt class="docutils literal"><span class="pre">coloredterm</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.debug_pickler"><tt class="docutils literal"><span class="pre">debug_pickler</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.describe"><tt class="docutils literal"><span class="pre">describe</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.duration_hum"><tt class="docutils literal"><span class="pre">duration_hum</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.pickling_utils"><tt class="docutils literal"><span class="pre">pickling_utils</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.proctitle"><tt class="docutils literal"><span class="pre">proctitle</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.safe_write"><tt class="docutils literal"><span class="pre">safe_write</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.strings_with_escapes"><tt class="docutils literal"><span class="pre">strings_with_escapes</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.system_stats"><tt class="docutils literal"><span class="pre">system_stats</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.terminal_size"><tt class="docutils literal"><span class="pre">terminal_size</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.time_track"><tt class="docutils literal"><span class="pre">time_track</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.values_interpretation"><tt class="docutils literal"><span class="pre">values_interpretation</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.values_interpretation_test"><tt class="docutils literal"><span class="pre">values_interpretation_test</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.utils.html#module-compmake.utils.wildcards"><tt class="docutils literal"><span class="pre">wildcards</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

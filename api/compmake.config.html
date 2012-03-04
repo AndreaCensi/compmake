@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>config Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>config Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="config-package">
+<h1>config Package<a class="headerlink" href="#config-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">config</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.config"></span></div>
+<div class="section" id="module-compmake.config.config_html">
+<span id="config-html-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">config_html</span></tt> Module<a class="headerlink" href="#module-compmake.config.config_html" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.config.config_html.create_config_html">
+<tt class="descclassname">compmake.config.config_html.</tt><tt class="descname">create_config_html</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#compmake.config.config_html.create_config_html" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.config.config_list">
+<span id="config-list-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">config_list</span></tt> Module<a class="headerlink" href="#module-compmake.config.config_list" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-compmake.config.config_optparse">
+<span id="config-optparse-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">config_optparse</span></tt> Module<a class="headerlink" href="#module-compmake.config.config_optparse" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.config.config_optparse.config_populate_optparser">
+<tt class="descclassname">compmake.config.config_optparse.</tt><tt class="descname">config_populate_optparser</tt><big>(</big><em>parser</em><big>)</big><a class="headerlink" href="#compmake.config.config_optparse.config_populate_optparser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.config.structure">
+<span id="structure-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structure</span></tt> Module<a class="headerlink" href="#module-compmake.config.structure" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.config.structure.add_config_section">
+<tt class="descclassname">compmake.config.structure.</tt><tt class="descname">add_config_section</tt><big>(</big><em>name</em>, <em>desc=None</em>, <em>order=0</em><big>)</big><a class="headerlink" href="#compmake.config.structure.add_config_section" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.config.structure.add_config_switch">
+<tt class="descclassname">compmake.config.structure.</tt><tt class="descname">add_config_switch</tt><big>(</big><em>name</em>, <em>default_value</em>, <em>allowed=None</em>, <em>desc=None</em>, <em>section=None</em>, <em>order=0</em><big>)</big><a class="headerlink" href="#compmake.config.structure.add_config_switch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.config.structure.set_config_from_strings">
+<tt class="descclassname">compmake.config.structure.</tt><tt class="descname">set_config_from_strings</tt><big>(</big><em>name</em>, <em>args</em><big>)</big><a class="headerlink" href="#compmake.config.structure.set_config_from_strings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets config from an array of arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.config.structure.show_config">
+<tt class="descclassname">compmake.config.structure.</tt><tt class="descname">show_config</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#compmake.config.structure.show_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

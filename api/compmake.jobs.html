@@ -1,0 +1,1036 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>jobs Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>jobs Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="jobs-package">
+<h1>jobs Package<a class="headerlink" href="#jobs-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">jobs</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.jobs"></span></div>
+<div class="section" id="module-compmake.jobs.actions">
+<span id="actions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">actions</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.actions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.jobs.actions.clean_target">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">clean_target</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.clean_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.colorize_loglevel">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">colorize_loglevel</tt><big>(</big><em>levelno</em>, <em>msg</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.colorize_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.limit_to_last_lines">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">limit_to_last_lines</tt><big>(</big><em>s</em>, <em>max_lines</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.limit_to_last_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clips only the given number of lines.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.make">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">make</tt><big>(</big><em>job_id</em>, <em>more=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.make" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a single job. Returns the user-object or raises JobFailed
+or JobInterrupted. Also SystemExit and KeyboardInterrupt are 
+captured.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.make_sure_cache_is_sane">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">make_sure_cache_is_sane</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.actions.make_sure_cache_is_sane" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.mark_as_blocked">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_blocked</tt><big>(</big><em>job_id</em>, <em>dependency=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_blocked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.mark_as_failed">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_failed</tt><big>(</big><em>job_id</em>, <em>exception=None</em>, <em>backtrace=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_failed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks job_id and its parents as failed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.mark_more">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_more</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_more" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.mark_remake">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_remake</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_remake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delets and invalidates the cache for this object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.substitute_dependencies">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">substitute_dependencies</tt><big>(</big><em>a</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.substitute_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.cluster_conf">
+<span id="cluster-conf-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">cluster_conf</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.cluster_conf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.cluster_conf.Host">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.cluster_conf.</tt><tt class="descname">Host</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Host(name, host, username, processors, init, test, instance)</p>
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.host">
+<tt class="descname">host</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.init">
+<tt class="descname">init</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.instance">
+<tt class="descname">instance</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.processors">
+<tt class="descname">processors</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.processors" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.test">
+<tt class="descname">test</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.cluster_conf.Host.username">
+<tt class="descname">username</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.username" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.cluster_conf.parse_yaml_configuration">
+<tt class="descclassname">compmake.jobs.cluster_conf.</tt><tt class="descname">parse_yaml_configuration</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#compmake.jobs.cluster_conf.parse_yaml_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.manager">
+<span id="manager-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">manager</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.manager" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.manager.AsyncResultInterface">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager.</tt><tt class="descname">AsyncResultInterface</tt><a class="headerlink" href="#compmake.jobs.manager.AsyncResultInterface" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="compmake.jobs.manager.AsyncResultInterface.get">
+<tt class="descname">get</tt><big>(</big><em>timeout=0</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.AsyncResultInterface.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Either:
+- returns normally (value ignored)
+- raises JobFailed
+- raises TimeoutError (not ready)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.AsyncResultInterface.ready">
+<tt class="descname">ready</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.AsyncResultInterface.ready" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.jobs.manager.Manager">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager.</tt><tt class="descname">Manager</tt><a class="headerlink" href="#compmake.jobs.manager.Manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.add_targets">
+<tt class="descname">add_targets</tt><big>(</big><em>targets</em>, <em>more=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.add_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.can_accept_job">
+<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return true if a new job can be accepted right away</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.check_job_finished">
+<tt class="descname">check_job_finished</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_job_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that the job finished succesfully or unsuccesfully.</p>
+<p>Returns True if that&#8217;s the case.
+Captures HostFailed, JobFailed and returns True.</p>
+<p>Returns False if the job is still processing.</p>
+<p>Capture KeyboardInterrupt and raises JobInterrupted.</p>
+<p>Handles update of various sets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>free up any resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.event_check">
+<tt class="descname">event_check</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.event_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.host_failed">
+<tt class="descname">host_failed</tt><big>(</big><em>job_id</em>, <em>reason</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.host_failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.instance_job">
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.instance_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instances a job.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.instance_some_jobs">
+<tt class="descname">instance_some_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.instance_some_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instances some of the jobs. Uses the
+functions can_accept_job(), next_job(), and ...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.job_failed">
+<tt class="descname">job_failed</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.job_failed" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specified job has failed. Update the structures,
+mark any parent as failed as well.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.job_succeeded">
+<tt class="descname">job_succeeded</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.job_succeeded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark the specified job as succeeded. Update the structures,
+mark any parents which are ready as ready_todo.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.loop_until_something_finishes">
+<tt class="descname">loop_until_something_finishes</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.loop_until_something_finishes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.next_job">
+<tt class="descname">next_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.next_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns one job from the ready_todo list 
+(and removes it from there). Uses self.priorities
+to decide which job to use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing jobs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.process_finished">
+<tt class="descname">process_finished</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.process_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called after successful processing (before cleanup)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.process_init">
+<tt class="descname">process_init</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.process_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called before processing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.publish_progress">
+<tt class="descname">publish_progress</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.publish_progress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.start_job">
+<tt class="descname">start_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.start_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.manager_local">
+<span id="manager-local-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">manager_local</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.manager_local" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.manager_local.FakeAsync">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_local.</tt><tt class="descname">FakeAsync</tt><big>(</big><em>cmd</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.FakeAsync" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="compmake.jobs.manager_local.FakeAsync.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.FakeAsync.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_local.FakeAsync.get">
+<tt class="descname">get</tt><big>(</big><em>timeout=0</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.FakeAsync.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_local.FakeAsync.ready">
+<tt class="descname">ready</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.FakeAsync.ready" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.jobs.manager_local.ManagerLocal">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_local.</tt><tt class="descname">ManagerLocal</tt><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.jobs.manager.Manager" title="compmake.jobs.manager.Manager"><tt class="xref py py-class docutils literal"><span class="pre">compmake.jobs.manager.Manager</span></tt></a></p>
+<p>Specialization of manager for local execution</p>
+<dl class="method">
+<dt id="compmake.jobs.manager_local.ManagerLocal.can_accept_job">
+<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_local.ManagerLocal.instance_job">
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.instance_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.manager_multiprocessing">
+<span id="manager-multiprocessing-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">manager_multiprocessing</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.manager_multiprocessing" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">MultiprocessingManager</tt><big>(</big><em>num_processes=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.jobs.manager.Manager" title="compmake.jobs.manager.Manager"><tt class="xref py py-class docutils literal"><span class="pre">compmake.jobs.manager.Manager</span></tt></a></p>
+<p>Specialization of Manager for local multiprocessing</p>
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.can_accept_job">
+<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.event_check">
+<tt class="descname">event_check</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.event_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.instance_job">
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.instance_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.process_finished">
+<tt class="descname">process_finished</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.process_finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.process_init">
+<tt class="descname">process_init</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.process_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.jobs.manager_multiprocessing.Shared">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">Shared</tt><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.Shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shared storage with workers.</p>
+<dl class="attribute">
+<dt id="compmake.jobs.manager_multiprocessing.Shared.event_queue">
+<tt class="descname">event_queue</tt><em class="property"> = None</em><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.Shared.event_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.manager_multiprocessing.parmake_job2">
+<tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">parmake_job2</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.parmake_job2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.manager_multiprocessing.sig_child">
+<tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">sig_child</tt><big>(</big><em>signo</em>, <em>frame</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.sig_child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.manager_multiprocessing.worker_initialization">
+<tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">worker_initialization</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.worker_initialization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.manager_ssh_cluster">
+<span id="manager-ssh-cluster-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">manager_ssh_cluster</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.manager_ssh_cluster" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_ssh_cluster.</tt><tt class="descname">ClusterManager</tt><big>(</big><em>hosts</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.jobs.manager.Manager" title="compmake.jobs.manager.Manager"><tt class="xref py py-class docutils literal"><span class="pre">compmake.jobs.manager.Manager</span></tt></a></p>
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.can_accept_job">
+<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.event_check">
+<tt class="descname">event_check</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.event_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.host_failed">
+<tt class="descname">host_failed</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.host_failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.instance_job">
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.instance_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.job_failed">
+<tt class="descname">job_failed</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.job_failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.job_succeeded">
+<tt class="descname">job_succeeded</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.job_succeeded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.my_host_failed">
+<tt class="descname">my_host_failed</tt><big>(</big><em>host</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.my_host_failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.process_finished">
+<tt class="descname">process_finished</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.process_finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.process_init">
+<tt class="descname">process_init</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.process_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.release">
+<tt class="descname">release</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.release" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="compmake.jobs.manager_ssh_cluster.ComException">
+<em class="property">exception </em><tt class="descclassname">compmake.jobs.manager_ssh_cluster.</tt><tt class="descname">ComException</tt><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ComException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Communication exception.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.jobs.manager_ssh_cluster.StreamCon">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.manager_ssh_cluster.</tt><tt class="descname">StreamCon</tt><big>(</big><em>stdin</em>, <em>stdout</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.StreamCon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple communication stream.</p>
+<p>It sends and receives python objects by enclosing them in a json
+packet:</p>
+<blockquote>
+<div>object -&gt; pickled -&gt; base64 -&gt; json packet</div></blockquote>
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.StreamCon.read">
+<tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.StreamCon.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.StreamCon.read_json">
+<tt class="descname">read_json</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.StreamCon.read_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.StreamCon.write">
+<tt class="descname">write</tt><big>(</big><em>ob</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.StreamCon.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager_ssh_cluster.StreamCon.write_json">
+<tt class="descname">write_json</tt><big>(</big><em>dic</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.StreamCon.write_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.manager_ssh_cluster.cluster_job">
+<tt class="descclassname">compmake.jobs.manager_ssh_cluster.</tt><tt class="descname">cluster_job</tt><big>(</big><em>job_id</em>, <em>hostname</em>, <em>username=None</em>, <em>nice=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.cluster_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.manager_ssh_cluster.compmake_slave">
+<tt class="descclassname">compmake.jobs.manager_ssh_cluster.</tt><tt class="descname">compmake_slave</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.compmake_slave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.priority">
+<span id="priority-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">priority</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.priority" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.jobs.priority.compute_priorities">
+<tt class="descclassname">compmake.jobs.priority.</tt><tt class="descname">compute_priorities</tt><big>(</big><em>all_targets</em><big>)</big><a class="headerlink" href="#compmake.jobs.priority.compute_priorities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the priority for all_targets.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.priority.compute_priority">
+<tt class="descclassname">compmake.jobs.priority.</tt><tt class="descname">compute_priority</tt><big>(</big><em>job_id</em>, <em>priorities</em>, <em>targets</em><big>)</big><a class="headerlink" href="#compmake.jobs.priority.compute_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the priority for one job. It uses caching results in
+self.priorities if they are found.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.progress">
+<span id="progress-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">progress</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.progress" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.jobs.progress.Globals">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.progress.</tt><tt class="descname">Globals</tt><a class="headerlink" href="#compmake.jobs.progress.Globals" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.jobs.progress.Globals.callbacks">
+<tt class="descname">callbacks</tt><em class="property"> = []</em><a class="headerlink" href="#compmake.jobs.progress.Globals.callbacks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.progress.Globals.stack">
+<tt class="descname">stack</tt><em class="property"> = []</em><a class="headerlink" href="#compmake.jobs.progress.Globals.stack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.progress.init_progress_tracking">
+<tt class="descclassname">compmake.jobs.progress.</tt><tt class="descname">init_progress_tracking</tt><big>(</big><em>my_callback</em><big>)</big><a class="headerlink" href="#compmake.jobs.progress.init_progress_tracking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.progress.progress">
+<tt class="descclassname">compmake.jobs.progress.</tt><tt class="descname">progress</tt><big>(</big><em>taskname</em>, <em>iterations</em>, <em>iteration_desc=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.progress.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function used by the user to describe the state of the computation.</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">name</span></tt>: must be a string, describing the current task.</p>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">iterations</span></tt>: must be a tuple of two integers (k,N), meaning</dt>
+<dd><p class="first last">that the current iteration is the k-th out of N.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal"><span class="pre">iteration_desc</span></tt>: an optional string describing the current i</dt>
+<dd><p class="first last">teration</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">progress</span><span class="p">(</span><span class="s">&#39;Reading files&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">),</span> 
+             <span class="s">&#39;processing file </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">file</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>taskname</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </li>
+<li><strong>iterations</strong> (<tt class="docutils literal"><span class="pre">tuple(int,int)</span></tt>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.progress.progress_stack_updated">
+<tt class="descclassname">compmake.jobs.progress.</tt><tt class="descname">progress_stack_updated</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.progress.progress_stack_updated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.queries">
+<span id="queries-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">queries</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.queries" title="Permalink to this headline">¶</a></h2>
+<p>Contains queries of the job DB.</p>
+<dl class="function">
+<dt id="compmake.jobs.queries.bottom_targets">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">bottom_targets</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.queries.bottom_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all jobs with no dependencies</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.direct_children">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">direct_children</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.direct_children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the direct children (dependences) of the specified job</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.direct_parents">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">direct_parents</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.direct_parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the direct parents of the specified job.
+(Jobs that depend directly on this one)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.parents">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">parents</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the set of all the parents, grandparents, etc. 
+(does not include job_id)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.top_targets">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">top_targets</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.queries.top_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all jobs which are not needed by anybody</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.tree">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">tree</tt><big>(</big><em>jobs</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the tree of all dependencies of the jobs</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.storage">
+<span id="storage-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">storage</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.storage" title="Permalink to this headline">¶</a></h2>
+<p>Compmake stores 4 kind of data, all of them indexed by a job_id string.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Job objects</li>
+<li>Cache objects.</li>
+<li>user_object (any type)</li>
+<li>tmp_object (any type)</li>
+</ol>
+</div></blockquote>
+<p>These are all wrappers around the raw methods in storage</p>
+<dl class="function">
+<dt id="compmake.jobs.storage.all_jobs">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">all_jobs</tt><big>(</big><em>force_db=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.all_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of all jobs.
+If force_db is True, read jobs from DB.
+Otherwise, use local cache.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.delete_job">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">delete_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.delete_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.delete_job_args">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">delete_job_args</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.delete_job_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.delete_job_cache">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">delete_job_cache</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.delete_job_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.delete_job_tmpobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">delete_job_tmpobject</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.delete_job_tmpobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.delete_job_userobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">delete_job_userobject</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.delete_job_userobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_job">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_job_args">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_job_args</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_job_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_job_cache">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_job_cache</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_job_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_job_tmpobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_job_tmpobject</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_job_tmpobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_job_userobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_job_userobject</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_job_userobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.get_namespace">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">get_namespace</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.storage.get_namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.is_job_tmpobject_available">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">is_job_tmpobject_available</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.is_job_tmpobject_available" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.is_job_userobject_available">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">is_job_userobject_available</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.is_job_userobject_available" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job2cachekey">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job2cachekey</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job2cachekey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job2jobargskey">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job2jobargskey</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job2jobargskey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job2key">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job2key</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job2key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job2tmpobjectkey">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job2tmpobjectkey</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job2tmpobjectkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job2userobjectkey">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job2userobjectkey</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job2userobjectkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job_args_exists">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job_args_exists</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job_args_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.job_exists">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">job_exists</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.job_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.key2job">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">key2job</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.key2job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.remove_all_jobs">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">remove_all_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.storage.remove_all_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_job">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_job</tt><big>(</big><em>job_id</em>, <em>computation</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_job_args">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_job_args</tt><big>(</big><em>job_id</em>, <em>obj</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_job_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_job_cache">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_job_cache</tt><big>(</big><em>job_id</em>, <em>cache</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_job_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_job_tmpobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_job_tmpobject</tt><big>(</big><em>job_id</em>, <em>obj</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_job_tmpobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_job_userobject">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_job_userobject</tt><big>(</big><em>job_id</em>, <em>obj</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_job_userobject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.storage.set_namespace">
+<tt class="descclassname">compmake.jobs.storage.</tt><tt class="descname">set_namespace</tt><big>(</big><em>n</em><big>)</big><a class="headerlink" href="#compmake.jobs.storage.set_namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.jobs.uptodate">
+<span id="uptodate-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">uptodate</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.uptodate" title="Permalink to this headline">¶</a></h2>
+<p>Contains functions concerning the up-to-date status of jobs</p>
+<dl class="function">
+<dt id="compmake.jobs.uptodate.dependencies_up_to_date">
+<tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">dependencies_up_to_date</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if all the dependencies are up to date</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.uptodate.list_todo_targets">
+<tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">list_todo_targets</tt><big>(</big><em>jobs</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.list_todo_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a tuple (todo, jobs_done):
+todo:  set of job ids to do (children that are not up to date) 
+done:  top level targets (in jobs) that are already done.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.uptodate.up_to_date">
+<tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">up_to_date</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.up_to_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the job is up to date. 
+We are up to date if:
+<a href="#id2"><span class="problematic" id="id3">*</span></a>) we are in the up_to_date_cache</p>
+<blockquote>
+<div>(nothing uptodate can become not uptodate so this is generally safe)</div></blockquote>
+<p>OR
+1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+2) the children are up to date AND
+3) the children timestamp is older than this timestamp</p>
+<p>Returns:</p>
+<blockquote>
+<div>boolean, explanation</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compmake.jobs.syntax.html">syntax Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.syntax.html#id1"><tt class="docutils literal"><span class="pre">syntax</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.jobs.syntax.html#module-compmake.jobs.syntax.parsing"><tt class="docutils literal"><span class="pre">parsing</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>
