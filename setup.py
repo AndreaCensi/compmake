@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = "1.1"
+version = "1.5.0dev"
 
 
 setup(
@@ -36,14 +36,15 @@ setup(
         'Lesser General Public License (LGPL)',
     ],
 
-    packages=find_packages(),
+    package_dir={'':'src'},
+    packages=find_packages('src'),
     entry_points={
      'console_scripts': [
        'compmake = compmake.scripts.master:main',
        'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
       ]
     },
-    install_requires=['termcolor', 'setproctitle', 'readline'],
+    install_requires=['termcolor', 'setproctitle', 'readline', 'PyYaml'],
 
     tests_require=['nose']
     # extras_require={

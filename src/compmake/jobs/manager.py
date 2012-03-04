@@ -117,6 +117,11 @@ class Manager:
         publish('manager-job-starting', job_id=job_id)
         self.processing.add(job_id)
         make_more = job_id in self.more
+
+        # This is for the simple case of local processing, where
+        # the next line actually         
+        self.publish_progress()
+
         self.processing2result[job_id] = \
             self.instance_job(job_id, make_more)
 
@@ -174,7 +179,7 @@ class Manager:
         publish('manager-job-failed', job_id=job_id)
 
         self.failed.add(job_id)
-        self.todo.remove(job_id)
+        self.todo.remove(job_id) # XXX
         self.processing.remove(job_id)
         del self.processing2result[job_id]
 

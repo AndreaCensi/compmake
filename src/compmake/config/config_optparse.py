@@ -1,6 +1,6 @@
-from . import  set_config_from_strings
+from . import set_config_from_strings
+from .. import CompmakeGlobalState
 from optparse import OptionValueError
-from compmake.state import CompmakeGlobalState
 
 
 def config_populate_optparser(parser):

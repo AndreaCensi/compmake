@@ -49,7 +49,8 @@ def list_jobs(job_list):
 
     jlen = max(len(x) for x in job_list)
 
-    cpu_total = 0
+    cpu_total = []
+    wall_total = []
     for job_id in job_list:
         # TODO: only ask up_to_date if necessary
         up, reason = up_to_date(job_id)
@@ -82,8 +83,9 @@ def list_jobs(job_list):
 #                
             s += ' (in progress)'
         if up:
+            wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
-            cpu_total += cpu
+            cpu_total.append(cpu)
             s += ' %5.1f min.  ' % (cpu / 60.0)
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
@@ -91,5 +93,8 @@ def list_jobs(job_list):
             if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
                 s += " (needs update: %s)" % reason
         print(s)
-    print('Total computation time: %s' % duration_human(cpu_total))
+
+    if cpu_total:
+        print('  total  CPU time: %s.' % duration_human(sum(cpu_total)))
+        print('        wall time: %s.' % duration_human(sum(wall_total)))
 

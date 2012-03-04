@@ -1,7 +1,11 @@
 # constants
 import sys
-version = '1.5'
+version = '1.5.0dev'
 __version__ = version
+
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 from .constants import *
 from .state import *

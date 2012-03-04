@@ -16,6 +16,7 @@ def progress_stack_updated():
 
 def init_progress_tracking(my_callback):
     Globals.stack = []
+    Globals.callbacks = [] # OK, otherwise old callbacks will update status
     Globals.callbacks.append(my_callback)
     progress_stack_updated()
 

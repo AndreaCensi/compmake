@@ -69,3 +69,5 @@ class Tracker:
             if not job_id in self.processing:
                 del self.status_plus[job_id]
 
+#        print('Processing is now %r and status is %r %r' %
+#              (self.processing, self.status.keys(), self.status_plus.keys()))

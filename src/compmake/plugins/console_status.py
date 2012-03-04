@@ -52,6 +52,7 @@ def job_counts():
     if tracker.ready:
         s += colored(" (%d ready)" % len(tracker.ready), **ready_style)
 
+    #s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
     return s
 
 
@@ -80,8 +81,13 @@ def handle_event(event):  # @UnusedVariable
     s = ""
     s += spinner() + ' '
 
-    s += display_rotating([system_status(),
-                           job_counts()], [2, 5])
+    status = system_status()
+
+    if status: # available 
+        s += display_rotating([system_status(),
+                               job_counts()], [2, 5])
+    else:
+        s += job_counts()
 
     def get_string(level):
         if level == -2:
@@ -89,6 +95,7 @@ def handle_event(event):  # @UnusedVariable
         if level == -1:
             return '  %d proc.' % len(tracker.status)
         X = []
+
         for job_id, status in tracker.status.items():
             x = []
             if level >= 1:

@@ -2,6 +2,13 @@ import time
 
 __all__ = ['AvgSystemStats']
 
+try:
+    import psutil as test_import #@UnresolvedImport @UnusedImport
+except ImportError:
+    from .. import logger
+    logger.warning('Package "psutil" not found; load balancing '
+                   'and system stats (CPU, MEM) not available.')
+
 
 class AvgSystemStats:
     ''' Collects average statistics about the system using psutil. '''
