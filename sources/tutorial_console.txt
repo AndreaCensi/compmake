@@ -68,7 +68,7 @@ There are several shortcuts available to specify lists of jobs.
 
 * **Wildcards.** In the previous section, we have seen the use of wildcards::
 
-  	@> list  *-drawing    # list all jobs that and with "-drawing"
+  	@> list  *-drawing    # list all jobs that end with "-drawing"
   	@> list  *            # list all jobs
 
 * **Selection by state.** We can select jobs based on their computational state.
@@ -78,7 +78,7 @@ There are several shortcuts available to specify lists of jobs.
   	@> list failed       # list all failed jobs
   	@> list blocked      # list all blocked jobs (dependencies failed)
 
-* **Selection by function name**  
+* **Selection by function name**   ::
 
   	@> list f1()        # all jobs that use the function f1()
 

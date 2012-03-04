@@ -245,7 +245,7 @@ jobs&#8217; stdout to the console:</p>
 There are several shortcuts available to specify lists of jobs.</p>
 <ul>
 <li><p class="first"><strong>Wildcards.</strong> In the previous section, we have seen the use of wildcards:</p>
-<div class="highlight-python"><pre>@&gt; list  *-drawing    # list all jobs that and with "-drawing"
+<div class="highlight-python"><pre>@&gt; list  *-drawing    # list all jobs that end with "-drawing"
 @&gt; list  *            # list all jobs</pre>
 </div>
 </li>
@@ -257,9 +257,8 @@ There are several shortcuts available to specify lists of jobs.</p>
 </div>
 </li>
 <li><p class="first"><strong>Selection by function name</strong></p>
-<blockquote>
-<div><p>&#64;&gt; list f1()        # all jobs that use the function f1()</p>
-</div></blockquote>
+<div class="highlight-python"><pre>@&gt; list f1()        # all jobs that use the function f1()</pre>
+</div>
 </li>
 <li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
 defining sets of jobs. Some examples The following commands:</p>

@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>events Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>events Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="events-package">
+<h1>events Package<a class="headerlink" href="#events-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">events</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.events"></span></div>
+<div class="section" id="module-compmake.events.registered_events">
+<span id="registered-events-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">registered_events</span></tt> Module<a class="headerlink" href="#module-compmake.events.registered_events" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.events.registered_events.add">
+<tt class="descclassname">compmake.events.registered_events.</tt><tt class="descname">add</tt><big>(</big><em>e</em><big>)</big><a class="headerlink" href="#compmake.events.registered_events.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.events.registrar">
+<span id="registrar-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">registrar</span></tt> Module<a class="headerlink" href="#module-compmake.events.registrar" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.events.registrar.broadcast_event">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">broadcast_event</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.broadcast_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.events.registrar.publish">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">publish</tt><big>(</big><em>event_name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.publish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.events.registrar.register_fallback_handler">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">register_fallback_handler</tt><big>(</big><em>handler</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.register_fallback_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers an handler who is going to be called when no other handler
+can deal with an event. Useful to see if we are ignoring some event.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.events.registrar.register_handler">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">register_handler</tt><big>(</big><em>event_name</em>, <em>handler</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.register_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers an handler with an event name.
+The event name might contain asterisks. &#8220;*&#8221; matches 
+all.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.events.registrar.remove_all_handlers">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">remove_all_handlers</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.events.registrar.remove_all_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all event handlers. Useful when
+events must not be processed locally but routed
+to the original process.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.events.structures">
+<span id="structures-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structures</span></tt> Module<a class="headerlink" href="#module-compmake.events.structures" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.events.structures.Event">
+<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">Event</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.structures.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>This, instead, is an event itself</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="compmake.events.structures.EventSpec">
+<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">EventSpec</tt><big>(</big><em>name</em>, <em>attrs=</em><span class="optional">[</span><span class="optional">]</span>, <em>desc=None</em><big>)</big><a class="headerlink" href="#compmake.events.structures.EventSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a specification of the events that can be generated</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,75 @@
+unittests Package
+=================
+
+:mod:`compmake_test` Module
+---------------------------
+
+.. automodule:: compmake.unittests.compmake_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_blocked` Module
+--------------------------
+
+.. automodule:: compmake.unittests.test_blocked
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_invalid_functions` Module
+------------------------------------
+
+.. automodule:: compmake.unittests.test_invalid_functions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_more` Module
+-----------------------
+
+.. automodule:: compmake.unittests.test_more
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_priorities` Module
+-----------------------------
+
+.. automodule:: compmake.unittests.test_priorities
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_progress` Module
+---------------------------
+
+.. automodule:: compmake.unittests.test_progress
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_storage` Module
+--------------------------
+
+.. automodule:: compmake.unittests.test_storage
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_syntax` Module
+-------------------------
+
+.. automodule:: compmake.unittests.test_syntax
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`test_unpickable_result` Module
+------------------------------------
+
+.. automodule:: compmake.unittests.test_unpickable_result
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
