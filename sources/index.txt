@@ -82,15 +82,15 @@ get support and influence |compmake|'s evolution!
 	* :ref:`tutorial_console`
 	* :ref:`tutorial_parmake`
 	* :ref:`tutorial_embedding`
-
+	* :ref:`tutorial_cluster`
+	
 .. container:: col2
 
-	**Advanced usage**
-
-	* :ref:`tutorial_cluster`
-	* :ref:`tutorial_suspend`
-	* :ref:`tutorial_more`
-
+	.. **Advanced usage**
+	.. 
+	.. 	* :ref:`tutorial_suspend`
+	.. 	* :ref:`tutorial_more`
+	
 	**Reference**
 
 	* :ref:`commands`
