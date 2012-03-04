@@ -28,7 +28,138 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="#" />
-    <link rel="next" title="Installation notes" href="install.html" /> 
+    <link rel="next" title="Installation notes" href="install.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content p {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+</style>
+
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="#">
@@ -47,8 +178,41 @@
       <div class="content">
         
         
-  <div class="twitterbadge container">
-<strong>Latest news</strong></div>
+  <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<div class="twitterbadge container">
+<p><strong>Latest news</strong></p>
+<script src="http://widgets.twimg.com/j/2/widget.js"></script>
+<script>
+new TWTR.Widget({
+  version: 2,
+  type: 'profile',
+  rpp: 4,
+  interval: 6000,
+  width: 250,
+  height: 300,
+  theme: {
+    shell: {
+      background: '#f7ceac',
+      color: '#000000'
+    },
+    tweets: {
+      background: '#ffffff',
+      color: '#0d020d',
+      links: '#4aed05'
+    }
+  },
+  features: {
+    scrollbar: false,
+    loop: false,
+    live: false,
+    hashtags: true,
+    timestamp: true,
+    avatars: false,
+    behavior: 'all'
+  }
+}).render().setUser('compmake').start();
+</script>
+</div>
 <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
 <p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides:</p>
@@ -137,7 +301,22 @@ advanced features such as multiprocessing. See <a class="reference internal" hre
 <div class="section" id="source-download">
 <h3>Source download<a class="headerlink" href="#source-download" title="Permalink to this headline">¶</a></h3>
 <p>Development happens on github: <a class="reference external" href="http://github.com/AndreaCensi/compmake">http://github.com/AndreaCensi/compmake</a></p>
+
+<div style="float:right; margin-left: 2em" class="download">
+  <a href="http://github.com/AndreaCensi/compmake/zipball/master">
+    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+  <a href="http://github.com/AndreaCensi/compmake/tarball/master">
+    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
 </div>
+
+<p>
+  You can download this project in either
+  <a href="http://github.com/AndreaCensi/compmake/zipball/master">zip</a> or
+  <a href="http://github.com/AndreaCensi/compmake/tarball/master">tar</a> formats.
+  You can also clone the project with <a href="http://git-scm.com">Git</a>
+  by running:
+  <pre>$ git clone git://github.com/AndreaCensi/compmake</pre>
+</p></div>
 </div>
 <div class="section" id="feedback">
 <h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
@@ -163,9 +342,26 @@ advanced features such as multiprocessing. See <a class="reference internal" hre
 
       </div>
 
+	
     <div class="footer">
         &copy; Copyright .
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
   </body>
 </html>
