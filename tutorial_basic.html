@@ -216,9 +216,28 @@ puts this &#8220;job&#8221; in the job database. It returns (immediately) a <a c
 the delayed result. You can use this value in successive calls to <tt class="docutils literal"><span class="pre">comp()</span></tt> (but not directly).
 In this way, <span class="compmake-brand">compmake</span> learns the computational structure of your program.</p>
 <p>For example, consider the source code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">func2</span><span class="p">(</span><span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>In this example, the source code becomes (file <tt class="docutils literal"><span class="pre">using_compmake.py</span></tt>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>When this file is passed to <span class="compmake-brand">compmake</span>, the following computational structure
-is discovered:</p>
+is passed:</p>
 <img alt="static/example1/graph_before.png" src="static/example1/graph_before.png" style="width: 70%;" />
 <p>(This is the output of the <a class="reference external" href="commands.html">graph command</a>)</p>
 <p>The next section shows how to run <span class="compmake-brand">compmake</span> once you have modified your source code.</p>
@@ -256,9 +275,56 @@ two mechanisms to that effect. The first is the function <tt class="docutils lit
 which takes a string used as a prefix for the job ids generated.
 That command is particularly useful in scenarios like the example
 where we presumably want to group the functions by the parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_prefix</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="c"># Add a prefix to the job ids</span>
+        <span class="c"># for easy reference </span>
+        <span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
+                
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
+<div class="highlight-python"><pre>$ compmake example list
+p1=1-p2=10-draw                                   Not started/False
+p1=1-p2=10-func1                                  Not started/False
+p1=1-p2=10-func2                                  Not started/False
+p1=1-p2=11-draw                                   Not started/False
+p1=1-p2=11-func1                                  Not started/False
+p1=1-p2=11-func2                                  Not started/False
+    [...]
+</pre>
+</div>
 <p>Another method  is using the <tt class="docutils literal"><span class="pre">job_id</span></tt> keyword argument to <tt class="docutils literal"><span class="pre">comp()</span></tt>.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_prefix</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span> 
+        <span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
+        
+        <span class="c"># use job_id to override default naming</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
+        <span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;drawing&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
+<div class="highlight-python"><pre>$ compmake example list
+p1=1-p2=10-computing                              Not started/False
+p1=1-p2=10-drawing                                Not started/False
+p1=1-p2=10-preparing                              Not started/False
+p1=1-p2=11-computing                              Not started/False
+p1=1-p2=11-drawing                                Not started/False
+p1=1-p2=11-preparing                              Not started/False
+    [...]
+</pre>
+</div>
 </div>
 <div class="section" id="cleaning-and-remaking">
 <h2><a class="toc-backref" href="#id5">Cleaning and remaking</a><a class="headerlink" href="#cleaning-and-remaking" title="Permalink to this headline">¶</a></h2>

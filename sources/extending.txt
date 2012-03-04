@@ -10,7 +10,7 @@ Extending compmake
 
 
 How to organize the code
-------------------------
+----------------------------
 
 Use --plugin to add/remove plugins::
 
@@ -22,11 +22,11 @@ Load your plugin::
 
 
 Adding console commands
------------------------
+----------------------------------
 
 
 Adding configuration switches
------------------------------
+----------------------------------
 
 
 Creating a new visualization / notifier
@@ -35,12 +35,11 @@ Creating a new visualization / notifier
 TO WRITE
 
 Creating a new DB backend
--------------------------
-
+----------------------------------
 TO WRITE
 
 Creating a new job scheduler
-----------------------------
+----------------------------------
 
 TO WRITE::
 

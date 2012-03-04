@@ -9,14 +9,6 @@ unittests Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`script_unpickable_result` Module
---------------------------------------
-
-.. automodule:: compmake.unittests.script_unpickable_result
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`test_blocked` Module
 --------------------------
 
