@@ -28,7 +28,7 @@ Compmake is organized on the basic idea that all the jobs are described at
 the beginning, loaded into memory, and then processed.
 
 * If you need to conditionally add new jobs, compmake is not for you.
-* If you have to process an infinite amount of jobs coming from outside, 
+* If you have to process an infinite amount of jobs coming from outside, compmake is not for you.
 
 However, you could probably dig into the internals and use (undocumented) functions
 for adding and removing jobs.
