@@ -1,19 +1,17 @@
+.. include:: definitions.txt
+
 
 Job execution
-------------
+---------------
 
-
-
-
+|towrite|
 
 
 Case studies:
+
 - write something at the prompt
 
-
-
-
-Events:
+Events: ::
 
  console init
 

@@ -238,7 +238,7 @@ In this way, <span class="compmake-brand">compmake</span> learns the computation
 </div>
 <p>When this file is passed to <span class="compmake-brand">compmake</span>, the following computational structure
 is passed:</p>
-<img alt="static/example1/graph_before.png" src="static/example1/graph_before.png" style="width: 70%;" />
+<img alt="images/graph_before.png" src="images/graph_before.png" style="width: 70%;" />
 <p>(This is the output of the <a class="reference external" href="commands.html">graph command</a>)</p>
 <p>The next section shows how to run <span class="compmake-brand">compmake</span> once you have modified your source code.</p>
 </div>
@@ -268,6 +268,16 @@ Each job is described by a unique ID. By default, the ID is generated
 by the name of the function, with a progressive number postponed.
 You can use the command <tt class="docutils literal"><span class="pre">list</span></tt> to obtain a list of the jobs.
 For this example, the output would be:</p>
+<div class="highlight-python"><pre>$ compmake example list
+draw                                              Not started/False
+draw-0                                            Not started/False
+draw-1                                            Not started/False
+draw-2                                            Not started/False
+draw-3                                            Not started/False
+draw-4                                            Not started/False
+    [...]
+</pre>
+</div>
 <p>As you can see, the jobs are named <tt class="docutils literal"><span class="pre">func1-&lt;n&gt;</span></tt>, <tt class="docutils literal"><span class="pre">func2-&lt;n&gt;</span></tt>,
 <tt class="docutils literal"><span class="pre">draw-&lt;n&gt;</span></tt>.</p>
 <p>It is very useful to have distinctive names for the jobs. Compmake provides

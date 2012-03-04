@@ -13,7 +13,7 @@ This section explains why you would want to use |compmake|. If you already know 
 
 Suppose that you are working on this simple program:
 
-.. literalinclude:: example1/original.py
+.. literalinclude:: my_static/example1/original.py
 
 This is a very simple program. Suppose, however, that the functions ``func1()``, ``func2()`` are very computational expensive. If that's the case, you encounter several problems that slow down your progress.
 

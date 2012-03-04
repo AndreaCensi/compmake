@@ -47,7 +47,7 @@ In this example, the source code becomes (file ``using_compmake.py``):
 When this file is passed to |compmake|, the following computational structure
 is passed:
 
-.. image:: static/example1/graph_before.png
+.. image:: my_static/example1/graph_before.png
    :width: 70%
 
 (This is the output of the `graph command`_)
@@ -94,7 +94,7 @@ by the name of the function, with a progressive number postponed.
 You can use the command ``list`` to obtain a list of the jobs.
 For this example, the output would be:
 
-.. literalinclude:: example1/using_compmake1_list_before.txt
+.. literalinclude:: my_static/example1/using_compmake1_list_before.txt
 
 As you can see, the jobs are named ``func1-<n>``, ``func2-<n>``,
 ``draw-<n>``. 

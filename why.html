@@ -189,6 +189,15 @@ Y.Remarkbox.render();
 <p>This section explains why you would want to use <span class="compmake-brand">compmake</span>. If you already know why, skip ahead to
 <a class="reference internal" href="tutorial_basic.html#preparing"><em>Preparing your programs for  compmake</em></a>.</p>
 <p>Suppose that you are working on this simple program:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+
+<span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">func2</span><span class="p">(</span><span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>This is a very simple program. Suppose, however, that the functions <tt class="docutils literal"><span class="pre">func1()</span></tt>, <tt class="docutils literal"><span class="pre">func2()</span></tt> are very computational expensive. If that&#8217;s the case, you encounter several problems that slow down your progress.</p>
 <ul>
 <li><p class="first">Suppose you want to improve the function <tt class="docutils literal"><span class="pre">draw()</span></tt>. You find yourself running and running

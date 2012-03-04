@@ -201,6 +201,13 @@ set configuration, and other related tasks.</p>
 If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called <tt class="docutils literal"><span class="pre">example.py</span></tt>, you will
 see:</p>
+<div class="highlight-python"><pre>$ compmake example 
+Compmake 0.9 - ``Tame your Python computation!''     (c) 2010, Andrea Censi, Caltech 
+Welcome to the compmake console. ('help' for a list of commands)
+27 jobs loaded; using namespace 'using_compmake1'.
+@:
+</pre>
+</div>
 <p>The <span class="compmake-brand">compmake</span> console is designed to be friendly. You can use auto-completion
 with <tt class="docutils literal"><span class="pre">&lt;tab&gt;</span></tt>.
 In the previous section, we discussed the commands <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt> and <tt class="docutils literal"><span class="pre">list</span></tt>.
@@ -246,12 +253,13 @@ There are several shortcuts available to specify lists of jobs.</p>
 (see <em class="xref std std-ref">job_states</em> for a complete description of the meaning of these states):</p>
 <div class="highlight-python"><pre>@&gt; list done         # list all completed jobs
 @&gt; list failed       # list all failed jobs
-@&gt; list in_progress  # list all jobs currently in progress</pre>
+@&gt; list blocked      # list all blocked jobs (dependencies failed)</pre>
 </div>
 </li>
-<li><p class="first"><strong>Selection by function name</strong>  &#8211; <strong>TO BE IMPLEMENTED</strong>:</p>
-<div class="highlight-python"><pre>@&gt; list f1()        # all jobs that use the function f1()</pre>
-</div>
+<li><p class="first"><strong>Selection by function name</strong></p>
+<blockquote>
+<div><p>&#64;&gt; list f1()        # all jobs that use the function f1()</p>
+</div></blockquote>
 </li>
 <li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
 defining sets of jobs. Some examples The following commands:</p>
