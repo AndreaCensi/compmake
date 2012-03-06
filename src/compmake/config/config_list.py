@@ -57,6 +57,10 @@ add_config_switch('colorize', True,
        desc="Use colors in terminals if possible.",
        section=CONFIG_APPEARANCE)
 
+add_config_switch('verbose_definition', False,
+       desc="If true, log on stderr about job (re)definition.",
+       section=CONFIG_APPEARANCE)
+
 add_config_switch('cluster_conf', 'cluster.yaml',
                   desc='Location of cluster configuration file.',
                   section=CONFIG_CLUSTER)

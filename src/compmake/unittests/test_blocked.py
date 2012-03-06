@@ -1,4 +1,4 @@
-from .compmake_test import  compmake_environment
+from . import  compmake_environment
 from ..structures import Cache
 from ..jobs import get_job_cache
 

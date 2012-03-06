@@ -1,6 +1,7 @@
 from . import (ShellExitRequested, get_commands, interpret_commands,
     clean_other_jobs)
-from .. import CompmakeConstants, set_compmake_status, get_compmake_status
+from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
+    CompmakeGlobalState)
 from ..events import publish
 from ..jobs import all_jobs
 from ..structures import UserError, CompmakeException
@@ -8,7 +9,6 @@ from ..ui import clean_console_line
 import os
 import sys
 import traceback
-from compmake.state import CompmakeGlobalState
 
 use_readline = True
 

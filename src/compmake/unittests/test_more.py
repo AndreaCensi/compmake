@@ -1,8 +1,8 @@
+from . import CompmakeTest
 from .. import comp
 from ..jobs import direct_children, direct_parents, make
 from ..structures import UserError
 from nose.tools import istest
-from .compmake_test import CompmakeTest
 
 
 def f1(*arg, **kwargs):

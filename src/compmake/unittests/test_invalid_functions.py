@@ -1,7 +1,6 @@
-import unittest
-
 from .. import comp
 from ..structures import UserError
+import unittest
 
 
 def uses_nested():

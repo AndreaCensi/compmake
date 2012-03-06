@@ -2,6 +2,7 @@ from ..events import register_handler
 from ..utils import colored, get_screen_columns
 import sys
 import string
+from compmake.state import get_compmake_config
 
 
 stream = sys.stderr
@@ -15,10 +16,11 @@ def console_write(s):
     s = string.ljust(s, cols)
     stream.write(s)
     stream.write('\r')
-    
-    
+
+
 def job_redefined(event):  # @UnusedVariable
-    #stream.write('\n')
+    if not get_compmake_config('verbose_definition'):
+        return
     stream.write(colored('Redefined %s\r' % event.job_id, 'yellow',
                          attrs=['bold']))
     stream.write(colored(event.reason, 'yellow'))
@@ -26,16 +28,18 @@ def job_redefined(event):  # @UnusedVariable
 
 
 def job_defined(event):
+    if not get_compmake_config('verbose_definition'):
+        return
     global counter
     counter += 1
     console_write('compmake: defining job #%d %s' % (counter, event.job_id))
-    
-    
+
+
 register_handler('job-redefined', job_redefined)
 register_handler('job-defined', job_defined)
 
 # register_handler('job-already-defined', lambda event:
 #    console_write('Confirming job %s' % event.job_id))
-    
+
 
 

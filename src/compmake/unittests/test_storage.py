@@ -1,5 +1,5 @@
+from . import CompmakeTest
 from .. import CompmakeGlobalState
-from .compmake_test import CompmakeTest
 
 
 class Simple(CompmakeTest):

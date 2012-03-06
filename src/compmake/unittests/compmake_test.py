@@ -4,10 +4,12 @@ from tempfile import mkdtemp
 from shutil import rmtree
 from compmake.state import CompmakeGlobalState
 from compmake.storage import use_filesystem
+import functools
 
 
 def compmake_environment(f):
-    def wrapper_test():
+    @functools.wraps(f)
+    def wrapper():
         root = mkdtemp()
         use_filesystem(root)
         CompmakeGlobalState.jobs_defined_in_this_session = set()
@@ -20,8 +22,7 @@ def compmake_environment(f):
             f()
         finally:
             rmtree(root)
-
-    return wrapper_test
+    return wrapper
 
 
 class CompmakeTest(unittest.TestCase):
@@ -38,7 +39,6 @@ class CompmakeTest(unittest.TestCase):
 
         self.mySetUp()
 
-#    @abstractmethod
     def mySetUp(self):
         pass
 

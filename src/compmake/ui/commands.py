@@ -99,7 +99,6 @@ def make_single(job_list, more=False):
         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
-# TODO: add num processors
 @ui_command(section=PARALLEL_ACTIONS)
 def parmake(job_list, n=None):
     '''Parallel equivalent of "make".

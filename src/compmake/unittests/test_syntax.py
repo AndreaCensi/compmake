@@ -1,7 +1,7 @@
+from . import CompmakeTest
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache, UserError, CompmakeSyntaxError
 from ..ui import comp, parse_job_list, reset_jobs_definition_set
-from .compmake_test import CompmakeTest
 from nose.tools import istest
 import sys
 
