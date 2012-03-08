@@ -1,6 +1,8 @@
 from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject, is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject, get_job_userobject, set_job_userobject,
+    is_job_userobject_available, delete_job_userobject,
+    is_job_tmpobject_available,
+    delete_job_tmpobject, get_job_tmpobject, get_job_userobject,
+    set_job_userobject,
     get_job, init_progress_tracking, up_to_date)
 from .. import get_compmake_config
 from ..events import publish
@@ -145,7 +147,6 @@ def make(job_id, more=False):
 
         init_progress_tracking(progress_callback)
 
-        num, total = 0, None
         user_object = None
 
         capture = OutputCapture(prefix=job_id,
@@ -195,16 +196,6 @@ def make(job_id, more=False):
             user_object = result
 
         except KeyboardInterrupt:
-            # TODO: clear progress cache
-
-            # Save the current progress:
-#            cache.iterations_in_progress = num
-#            cache.iterations_goal = total
-#            if user_object:
-#                set_job_tmpobject(job_id, user_object)
-#
-#            set_job_cache(job_id, cache)
-
             publish('job-interrupted', job_id=job_id, host=host)
             mark_as_failed(job_id, 'KeyboardInterrupt',
                            traceback.format_exc())
@@ -250,7 +241,7 @@ def make(job_id, more=False):
         # FIXME walltime/cputime not precise (especially for "more" computation
         cache.walltime_used = walltime
         cache.cputime_used = cputime
-        cache.done_iterations = num # XXX not true # TODO: remove
+        #cache.done_iterations = 0 # XXX not true # TODO: remove
         cache.host = get_compmake_config('hostname') # XXX
 
         set_job_cache(job_id, cache)
