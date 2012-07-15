@@ -69,7 +69,7 @@ def substitute_dependencies(a):
 
 def mark_as_blocked(job_id, dependency=None):
     cache = Cache(Cache.BLOCKED)
-    cache.exception = "Failure of dependency %r" % job_id
+    cache.exception = "Failure of dependency %r" % job_id # XXX
     cache.backtrace = ""
     set_job_cache(job_id, cache)
 

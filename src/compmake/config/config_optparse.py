@@ -9,7 +9,7 @@ def config_populate_optparser(parser):
     for name, switch in config_switches.items():  # @UnusedVariable
         command = '--%s' % switch.name
 
-        def option_callback(option, opt, value, par, switch):
+        def option_callback(option, opt, value, par, switch): #@UnusedVariable
             try:
                 set_config_from_strings(switch.name, value)
             except:
