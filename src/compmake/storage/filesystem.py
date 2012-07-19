@@ -1,3 +1,4 @@
+from .. import logger
 from ..structures import CompmakeException, SerializationError
 from ..utils import find_pickling_error, safe_write
 from StringIO import StringIO
@@ -54,7 +55,7 @@ class StorageFilesystem:
         if not self.checked_existence:
             self.checked_existence = True
             if not os.path.exists(self.basepath):
-                print('Creating basepath %r' % self.basepath)
+                logger.info('Creating basepath %r' % self.basepath)
                 os.makedirs(self.basepath)
 
     @track_time
