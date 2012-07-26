@@ -68,7 +68,7 @@ class OutputCapture:
     def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-
+        
         from ..events import publish
 
         def publish_stdout(lines):  # @UnusedVariable
@@ -97,3 +97,10 @@ class OutputCapture:
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
 
+    def get_logged_stdout(self):
+        return self.stdout_replacement.buffer.getvalue()
+    
+    def get_logged_stderr(self):
+        return self.stderr_replacement.buffer.getvalue()
+    
+    

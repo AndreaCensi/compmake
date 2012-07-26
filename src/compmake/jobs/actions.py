@@ -82,6 +82,20 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     cache.backtrace = backtrace
     set_job_cache(job_id, cache)
 
+def mark_as_done(job_id):
+    # For now, only used explicitly by user
+    set_job_userobject(job_id, None)
+    cache = Cache(Cache.DONE)
+    cache.captured_stderr = ""
+    cache.captured_stdout = ""
+    cache.state = Cache.DONE
+    cache.timestamp = time()
+    cache.walltime_used = 0
+    cache.cputime_used = 0
+    cache.host = get_compmake_config('hostname') # XXX
+    set_job_cache(job_id, cache)
+    
+    
 
 def make(job_id, more=False):
     """ 
@@ -250,7 +264,6 @@ def make(job_id, more=False):
 
         # TODO: clear these records in other place
         return user_object
-
 
 # TODO: remove these
 def colorize_loglevel(levelno, msg):
