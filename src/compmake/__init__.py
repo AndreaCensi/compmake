@@ -1,7 +1,7 @@
 
 # constants
 import sys
-version = '1.5.0dev'
+version = '1.5.0'
 __version__ = version
 
 import logging

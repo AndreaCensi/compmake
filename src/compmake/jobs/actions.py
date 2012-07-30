@@ -31,7 +31,7 @@ def mark_more(job_id): # TODO: remove
     cache = get_job_cache(job_id)
     if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
         raise UserError(('I cannot make more of job %s because I did not even '
-                        'complete one iteration (state: %s)') %
+                        'complete one iteration (state: %s)') % 
                         (job_id, Cache.state2desc[cache.state]))
     cache.state = Cache.MORE_REQUESTED
     set_job_cache(job_id, cache)
@@ -80,9 +80,15 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
     cache.backtrace = backtrace
+    # TODO: clean user object
     set_job_cache(job_id, cache)
 
-def mark_as_done(job_id):
+def mark_as_notstarted(job_id):
+    cache = Cache(Cache.NOT_STARTED)
+    # TODO: clean user object
+    set_job_cache(job_id, cache)
+    
+def mark_as_done(job_id, walltime=1, cputime=1):
     # For now, only used explicitly by user
     set_job_userobject(job_id, None)
     cache = Cache(Cache.DONE)
@@ -90,10 +96,11 @@ def mark_as_done(job_id):
     cache.captured_stdout = ""
     cache.state = Cache.DONE
     cache.timestamp = time()
-    cache.walltime_used = 0
-    cache.cputime_used = 0
+    cache.walltime_used = walltime # XXX: use none?
+    cache.cputime_used = cputime 
     cache.host = get_compmake_config('hostname') # XXX
     set_job_cache(job_id, cache)
+    # TODO: add user object
     
     
 
