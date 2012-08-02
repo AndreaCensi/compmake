@@ -7,6 +7,8 @@ __version__ = version
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 from .constants import *
 from .state import *

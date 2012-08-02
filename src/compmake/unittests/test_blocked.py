@@ -15,7 +15,7 @@ def check_job_states(**expected):
     for job_id, expected_status in expected.items():
         status = get_job_cache(job_id).state
         if status != expected_status:
-            msg = ('For job %r I expected %s but got %s.' %
+            msg = ('For job %r I expected status %s but got status %s.' % 
                    (job_id, expected_status, status))
             raise Exception(msg)
 

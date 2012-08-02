@@ -11,6 +11,7 @@ These are all wrappers around the raw methods in storage
 from .. import CompmakeGlobalState
 from ..structures import Cache, Job, CompmakeException
 from ..ui import  info
+from ..utils import wildcard_to_regexp
 
 
 def set_namespace(n):
@@ -44,8 +45,12 @@ def all_jobs(force_db=False): #@UnusedVariable
      '''
 #    if force_db:
         # XXX we should check we don't return subsidiaries
-    for key in CompmakeGlobalState.db.keys(job2key('*')): #@UndefinedVariable
-        yield key2job(key)
+    pattern = job2key('*')
+    regexp = wildcard_to_regexp(pattern)
+    
+    for key in CompmakeGlobalState.db.keys():
+        if regexp.match(key):
+            yield key2job(key)
 #    else:
         # XXX FIXME does not work when compmake is called by itself
 #        from compmake.ui.ui import jobs_defined_in_this_session
@@ -56,26 +61,27 @@ def all_jobs(force_db=False): #@UnusedVariable
 
 def get_job(job_id):
     key = job2key(job_id)
-    computation = CompmakeGlobalState.db.get(key)
+    computation = CompmakeGlobalState.db[key]
     assert(isinstance(computation, Job))
     return computation
 
 
 def job_exists(job_id):
     key = job2key(job_id)
-    return CompmakeGlobalState.db.exists(key)
+    return key in CompmakeGlobalState.db
 
 
 def set_job(job_id, computation):
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
-    CompmakeGlobalState.db.set(key, computation)
+    CompmakeGlobalState.db[key] = computation 
 
 
 def delete_job(job_id):
     key = job2key(job_id)
-    CompmakeGlobalState.db.delete(key)
+#    CompmakeGlobalState.db.delete(key)
+    del CompmakeGlobalState.db[key]
 
 
 #
@@ -88,12 +94,12 @@ def job2cachekey(job_id):
 
 def get_job_cache(job_id):
     cache_key = job2cachekey(job_id)
-    if CompmakeGlobalState.db.exists(cache_key):
+    if cache_key in CompmakeGlobalState.db:
         try:
-            cache = CompmakeGlobalState.db.get(cache_key)
+            cache = CompmakeGlobalState.db[cache_key]
             assert(isinstance(cache, Cache))
         except Exception as e:
-            CompmakeGlobalState.db.delete(cache_key)
+            del CompmakeGlobalState.db[cache_key]
             # also remove user object?
             raise CompmakeException('Could not read Cache object for job "%s":'
                                     ' %s; deleted.' % (job_id, e))
@@ -114,12 +120,12 @@ def get_job_cache(job_id):
 def set_job_cache(job_id, cache):
     assert(isinstance(cache, Cache))
     cache_key = job2cachekey(job_id)
-    CompmakeGlobalState.db.set(cache_key, cache)
+    CompmakeGlobalState.db[cache_key] = cache
 
 
 def delete_job_cache(job_id):
     cache_key = job2cachekey(job_id)
-    CompmakeGlobalState.db.delete(cache_key)
+    del CompmakeGlobalState.db[cache_key]
 
 
 #
@@ -129,26 +135,21 @@ def job2userobjectkey(job_id):
     prefix = 'compmake:%s:userobject:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
-
 def get_job_userobject(job_id):
-    assert(is_job_userobject_available(job_id))
     key = job2userobjectkey(job_id)
-    return CompmakeGlobalState.db.get(key)
-
+    return CompmakeGlobalState.db[key]
 
 def is_job_userobject_available(job_id):
     key = job2userobjectkey(job_id)
-    return CompmakeGlobalState.db.exists(key)
-
+    return key in CompmakeGlobalState.db
 
 def set_job_userobject(job_id, obj):
     key = job2userobjectkey(job_id)
-    CompmakeGlobalState.db.set(key, obj)
-
+    CompmakeGlobalState.db[key] = obj
 
 def delete_job_userobject(job_id):
     key = job2userobjectkey(job_id)
-    CompmakeGlobalState.db.delete(key)
+    del CompmakeGlobalState.db[key] 
 
 #
 # Temporary objects
@@ -160,26 +161,22 @@ def job2tmpobjectkey(job_id):
     prefix = 'compmake:%s:tmpobject:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
-
 def get_job_tmpobject(job_id):
-    assert(is_job_tmpobject_available(job_id))
+    #assert(is_job_tmpobject_available(job_id))
     key = job2tmpobjectkey(job_id)
-    return CompmakeGlobalState.db.get(key)
-
+    return CompmakeGlobalState[key]
 
 def is_job_tmpobject_available(job_id):
     key = job2tmpobjectkey(job_id)
-    return CompmakeGlobalState.db.exists(key)
-
+    return key in CompmakeGlobalState.db
 
 def set_job_tmpobject(job_id, obj):
     key = job2tmpobjectkey(job_id)
-    CompmakeGlobalState.db.set(key, obj)
-
+    CompmakeGlobalState.db[key] = obj
 
 def delete_job_tmpobject(job_id):
     key = job2tmpobjectkey(job_id)
-    CompmakeGlobalState.db.delete(key)
+    del CompmakeGlobalState.db[key] 
 
 
 def job2jobargskey(job_id):
@@ -190,19 +187,18 @@ def job2jobargskey(job_id):
 def get_job_args(job_id):
     assert job_args_exists(job_id)
     key = job2jobargskey(job_id)
-    return CompmakeGlobalState.db.get(key)
+    return CompmakeGlobalState.db[key]
 
 
 def job_args_exists(job_id):
     key = job2jobargskey(job_id)
-    return CompmakeGlobalState.db.exists(key)
+    return key in CompmakeGlobalState.db
 
 
 def set_job_args(job_id, obj):
     key = job2jobargskey(job_id)
-    CompmakeGlobalState.db.set(key, obj)
-
+    CompmakeGlobalState.db[key] = obj 
 
 def delete_job_args(job_id):
     key = job2jobargskey(job_id)
-    CompmakeGlobalState.db.delete(key)
+    del CompmakeGlobalState.db[key]

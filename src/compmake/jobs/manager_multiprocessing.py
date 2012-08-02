@@ -210,7 +210,6 @@ def parmake_job2(job_id, more): # TODO: remove "more"
     #            raise
 
     except KeyboardInterrupt:
-#        where = traceback.format_exc()
         publish('worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
         raise

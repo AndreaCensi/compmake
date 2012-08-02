@@ -5,6 +5,7 @@ from shutil import rmtree
 from compmake.state import CompmakeGlobalState
 from compmake.storage import use_filesystem
 import functools
+from .. import logger
 
 
 def compmake_environment(f):
@@ -15,11 +16,17 @@ def compmake_environment(f):
         CompmakeGlobalState.jobs_defined_in_this_session = set()
         # make sure everything was clean
         db = CompmakeGlobalState.db
-        for key in db.keys('*'):
+        for key in db.keys():
             db.delete(key)
-
         try:
             f()
+        except:
+            s = 'Keys in DB:'
+            for key in db.keys():
+                s += ' %s\n' % key
+            logger.error('DB state after test %s' % f)
+            logger.error(s)
+            raise
         finally:
             rmtree(root)
     return wrapper
@@ -34,7 +41,7 @@ class CompmakeTest(unittest.TestCase):
 
         # make sure everything was clean
         db = CompmakeGlobalState.db
-        for key in db.keys('*'):
+        for key in db.keys():
             db.delete(key)
 
         self.mySetUp()
