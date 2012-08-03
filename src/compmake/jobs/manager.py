@@ -6,6 +6,7 @@ from ..ui import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
+from compmake.jobs.queries import direct_children
 
 
 class AsyncResultInterface:
@@ -47,6 +48,8 @@ class Manager:
         # this hash contains  job_id -> async result
         self.processing2result = {}
 
+        self.check_invariants()
+        
 ### Derived class interface 
     def process_init(self):
         ''' Called before processing '''
@@ -66,9 +69,10 @@ class Manager:
         ''' free up any resource '''
         pass
 
-### 
 
     def next_job(self):
+        self.check_invariants()
+        
         ''' Returns one job from the ready_todo list 
             (and removes it from there). Uses self.priorities
             to decide which job to use. '''
@@ -76,9 +80,13 @@ class Manager:
                          key=lambda job: self.priorities[job])
         best = ordered[-1]
         self.ready_todo.remove(best)
+        
+        self.check_invariants()
         return best
 
     def add_targets(self, targets, more=False):
+        self.check_invariants()
+        
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
@@ -98,32 +106,47 @@ class Manager:
         self.ready_todo = set([job_id for job_id in self.todo
                                if dependencies_up_to_date(job_id)])
 
+        self.check_invariants()
+
     def instance_some_jobs(self):
         ''' Instances some of the jobs. Uses the
             functions can_accept_job(), next_job(), and ... '''
         # add jobs up to saturations
+        self.check_invariants()
+        
         while self.ready_todo and self.can_accept_job():
             # todo: add task priority
             job_id = self.next_job()
             self.start_job(job_id)
             #info('Job %s instantiated (more=%s)' % (job_id, make_more))
 
+        self.check_invariants()
+        
     def start_job(self, job_id):
-        assert job_id in self.todo and not job_id in self.ready_todo
-        assert not job_id in self.processing
+        self.check_invariants()
+        
+        assert job_id in self.todo 
+        assert not job_id in self.ready_todo
         assert not job_id in self.processing2result
         assert dependencies_up_to_date(job_id)
+        if job_id in self.processing:
+            msg = "Something's wrong, the job %r should no be in processing." % job_id
+            msg += '\n' + self._get_situation_string()
+            assert False, msg
 
         publish('manager-job-starting', job_id=job_id)
         self.processing.add(job_id)
         make_more = job_id in self.more
 
         # This is for the simple case of local processing, where
-        # the next line actually         
+        # the next line actually does something now
         self.publish_progress()
 
         self.processing2result[job_id] = \
             self.instance_job(job_id, make_more)
+            
+        self.check_invariants()
+        
 
     def check_job_finished(self, job_id):
         ''' 
@@ -137,6 +160,8 @@ class Manager:
             Capture KeyboardInterrupt and raises JobInterrupted.
             
             Handles update of various sets. '''
+        self.check_invariants()
+
         assert job_id in self.processing
         assert job_id in self.todo
         assert not job_id in self.ready_todo
@@ -165,6 +190,8 @@ class Manager:
             raise JobInterrupted('Keyboard interrupt')
 
     def host_failed(self, job_id, reason):
+        self.check_invariants()
+        
         publish('manager-host-failed', job_id=job_id, reason=reason)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
@@ -172,10 +199,14 @@ class Manager:
         self.ready_todo.add(job_id)
 
         self.publish_progress()
+        
+        self.check_invariants()
 
     def job_failed(self, job_id):
         ''' The specified job has failed. Update the structures,
             mark any parent as failed as well. '''
+        self.check_invariants()
+        
         publish('manager-job-failed', job_id=job_id)
 
         self.failed.add(job_id)
@@ -193,27 +224,45 @@ class Manager:
                     self.ready_todo.remove(p)
 
         self.publish_progress()
+        self.check_invariants()
 
     def job_succeeded(self, job_id):
         ''' Mark the specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''
+        self.check_invariants()
         publish('manager-job-succeeded', job_id=job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
 
-        parent_jobs = direct_parents(job_id)
-        for opportunity in self.todo.intersection(set(parent_jobs)):
-            if dependencies_up_to_date(opportunity):
+        parent_jobs = set(direct_parents(job_id))
+        for opportunity in self.todo & parent_jobs:
+            assert opportunity not in self.processing
+            
+            for child in direct_children(opportunity):
+                # If child is part of all_targets, check that it is done
+                # otherwise check that it is done by the DB.
+                # Actually -- all children were put in all_targets
+                # so we just j
+                if not child in self.done:
+                    # still some dependency left
+                    break
+            else:
                 self.ready_todo.add(opportunity)
+            # this was a bug
+            #if dependencies_up_to_date(opportunity):
+            #    self.ready_todo.add(opportunity)
 
+        self.check_invariants()
         self.publish_progress()
 
     def event_check(self):
         pass
 
     def loop_until_something_finishes(self):
+        self.check_invariants()
+
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
         for _ in range(10): # XXX
@@ -222,6 +271,7 @@ class Manager:
             # We make a copy because processing is updated during the loop
             for job_id in self.processing.copy():
                 received = received or self.check_job_finished(job_id)
+                self.check_invariants()
 
             if received:
                 break
@@ -231,9 +281,12 @@ class Manager:
 
             # Process events
             self.event_check()
+            self.check_invariants()
+
 
     def process(self):
         ''' Start processing jobs. '''
+        self.check_invariants()
 
         if not self.todo:
             # info('Nothing to do.')
@@ -256,6 +309,8 @@ class Manager:
         publish('manager-phase', phase='loop')
         try:
             while self.todo:
+                self.check_invariants()
+
                 assert self.ready_todo or self.processing
                 assert not self.failed.intersection(self.todo)
 
@@ -283,6 +338,8 @@ class Manager:
                 #self.publish_progress()
 
                 self.loop_until_something_finishes()
+                self.check_invariants()
+
 
             self.publish_progress()
 
@@ -318,3 +375,40 @@ class Manager:
                 failed=self.failed,
                 ready=self.ready_todo,
                 processing=self.processing)
+        
+    def _get_situation_string(self):
+        """ Returns a string summarizing the current situation """
+        lists = dict(done=self.done,
+                   all_targets=self.all_targets,
+                   todo=self.todo,
+                    blocked=self.blocked,
+                    failed=self.failed,
+                    ready=self.ready_todo,
+                    processing=self.processing)
+        s = ""
+        for t, jobs in lists.items():
+            jobs = lists[t]
+            s += '- %12s: %d %s\n' % (t, len(jobs), jobs)
+        return s
+    
+    def check_invariants(self):
+        lists = dict(done=self.done,
+                     all_targets=self.all_targets,
+                     todo=self.todo,
+                     blocked=self.blocked,
+                     failed=self.failed,
+                     ready=self.ready_todo,
+                     processing=self.processing)
+        
+        def empty_intersection(a, b):
+            inter = lists[a] & lists[b]
+            if inter:
+                msg = 'There should be empty interesection in %r and %r' % (a, b)
+                msg += ' but found %s' % inter
+                msg += '\n' + self._get_situation_string()
+                assert False, msg
+        
+        empty_intersection('ready', 'processing')
+        
+        
+        

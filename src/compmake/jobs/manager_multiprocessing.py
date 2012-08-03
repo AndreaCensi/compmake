@@ -185,11 +185,11 @@ def worker_initialization():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     # You can use this to see when a worker start
-    #print('Process: ignoring sigint')
+    # print('Process: ignoring sigint')
 
 
 def parmake_job2(job_id, more): # TODO: remove "more"
-    #print('Process: starting job')
+    # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
 
     try:
