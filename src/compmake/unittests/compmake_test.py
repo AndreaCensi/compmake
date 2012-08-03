@@ -2,7 +2,7 @@ import unittest
 from abc import ABCMeta
 from tempfile import mkdtemp
 from shutil import rmtree
-from compmake.state import CompmakeGlobalState
+from compmake.state import CompmakeGlobalState, get_compmake_db
 from compmake.storage import use_filesystem
 import functools
 from .. import logger
@@ -15,7 +15,7 @@ def compmake_environment(f):
         use_filesystem(root)
         CompmakeGlobalState.jobs_defined_in_this_session = set()
         # make sure everything was clean
-        db = CompmakeGlobalState.db
+        db = get_compmake_db()
         for key in db.keys():
             db.delete(key)
         try:
@@ -40,7 +40,7 @@ class CompmakeTest(unittest.TestCase):
         use_filesystem(self.root)
 
         # make sure everything was clean
-        db = CompmakeGlobalState.db
+        db = get_compmake_db()
         for key in db.keys():
             db.delete(key)
 

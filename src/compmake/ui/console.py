@@ -173,13 +173,13 @@ def ask_question(question, allowed=None):
 
     if allowed is None:
         allowed = {
-               'y': True,
-               'Y': True,
-               'yes': True,
-               'n': False,
-               'N': False,
-               'no': False
-               }
+           'y': True,
+           'Y': True,
+           'yes': True,
+           'n': False,
+           'N': False,
+           'no': False
+        }
     while True:
         line = raw_input(question)
         line = line.strip()

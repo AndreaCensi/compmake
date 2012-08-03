@@ -1,6 +1,7 @@
 from . import CompmakeTest
 from .. import CompmakeGlobalState
 from compmake.utils.wildcards import wildcard_to_regexp
+from compmake.state import get_compmake_db
  
 
 class Simple(CompmakeTest):
@@ -9,14 +10,14 @@ class Simple(CompmakeTest):
         pass
 
     def testExists1(self):
-        db = CompmakeGlobalState.db
+        db = get_compmake_db()
         key = 'not-existent'
         assert(not key in db)
 
     def testExists2(self):
         k = 'ciao'
         v = {'complex': 123}
-        db = CompmakeGlobalState.db
+        db = get_compmake_db()
         if k in db:
             del db[k]
         self.assertFalse(k in db)
@@ -29,7 +30,7 @@ class Simple(CompmakeTest):
         self.assertFalse(k in db)
 
     def testSearch(self):
-        db = CompmakeGlobalState.db
+        db = get_compmake_db()
         
         def search(pattern):
             r = wildcard_to_regexp(pattern)

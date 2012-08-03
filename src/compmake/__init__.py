@@ -1,7 +1,7 @@
 
 # constants
 import sys
-version = '1.5.0'
+version = '2.0.0'
 __version__ = version
 
 import logging
@@ -26,4 +26,4 @@ from . import plugins
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
-CompmakeConstants.db = StorageFilesystem(CompmakeConstants.default_path)
+set_compmake_db(StorageFilesystem(CompmakeConstants.default_path))

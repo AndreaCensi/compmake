@@ -6,6 +6,7 @@ from glob import glob
 from os.path import splitext, basename
 import cPickle
 import os
+import traceback
 
 pickle = cPickle
 
@@ -42,7 +43,8 @@ class StorageFilesystem:
             with open(filename, 'rb') as f:
                 return pickle.load(f)
         except Exception as e:
-            msg = "Could not unpickle file %r: %s" % (filename, e)
+            msg = "Could not unpickle file %r." % (filename, e)
+            msg += "\n" + traceback.format_exc(e)
             raise CompmakeException(msg)
 
     def check_existence(self):
@@ -92,7 +94,8 @@ class StorageFilesystem:
     
     def keys(self):
         # slow process
-        return sorted(list(self.keys0()))
+        found = sorted(list(self.keys0()))
+        return found
 
 
     def reopen_after_fork(self):

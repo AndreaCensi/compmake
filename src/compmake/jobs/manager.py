@@ -96,7 +96,7 @@ class Manager:
             self.todo.update(targets)
 
         self.ready_todo = set([job_id for job_id in self.todo
-                      if dependencies_up_to_date(job_id)])
+                               if dependencies_up_to_date(job_id)])
 
     def instance_some_jobs(self):
         ''' Instances some of the jobs. Uses the
@@ -227,7 +227,7 @@ class Manager:
                 break
             else:
                 publish('manager-loop', processing=list(self.processing))
-                time.sleep(0.05) # TODO: make param
+                time.sleep(0.01) # TODO: make param
 
             # Process events
             self.event_check()

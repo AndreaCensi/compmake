@@ -6,6 +6,8 @@ from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list)
 from ..structures import Job, UserError, Promise
 from ..utils import describe_type, interpret_strings_like
+from compmake.jobs.storage import (is_job_userobject_available,
+    delete_job_userobject, delete_job_args)
 from types import NoneType
 import cPickle as pickle
 import inspect
@@ -61,7 +63,7 @@ def generate_job_id(command):
 
     for i in xrange(1000000):
         if CompmakeGlobalState.job_prefix:
-            job_id = ('%s-%s-%d' %
+            job_id = ('%s-%s-%d' % 
                       (CompmakeGlobalState.job_prefix, base, i))
         else:
             job_id = '%s-%d' % (base, i)
@@ -76,6 +78,9 @@ def reset_jobs_definition_set():
     ''' Useful only for unit tests '''
     CompmakeGlobalState.jobs_defined_in_this_session = set()
 
+def consider_jobs_as_defined_now(jobs):
+    CompmakeGlobalState.jobs_defined_in_this_session = jobs
+    
 
 def clean_other_jobs():
     ''' Cleans jobs not defined in the session '''
@@ -89,9 +94,19 @@ def clean_other_jobs():
         clean_all = False
     else:
         clean_all = True
-
+        
+    defined_now = CompmakeGlobalState.jobs_defined_in_this_session
+    
+    #logger.info('Cleaning all jobs not defined in this session.'
+    #                ' Previous: %d' % len(defined_now))
+    
+    jobs_in_db = 0
+    num_cleaned = 0
     for job_id in all_jobs(force_db=True):
-        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
+        #logger.info('Considering %s' % job_id)
+        jobs_in_db += 1
+        if not job_id in defined_now:
+            num_cleaned += 1
             if not clean_all:
                 text = ('Found spurious job %s; cleaning? '
                         '[y]es, [a]ll, [n]o, [N]one ' % job_id)
@@ -105,11 +120,20 @@ def clean_other_jobs():
 
                 if answer == 'a':
                     clean_all = True
-
+            else:
+                pass
+                #logger.info('Cleaning %r' % job_id)
+                
             clean_target(job_id)
             delete_job(job_id)
+            if is_job_userobject_available(job_id):
+                delete_job_userobject(job_id)
 
+            if job_args_exists(job_id):
+                delete_job_args(job_id)
 
+    #logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
+    
 def comp(command, *args, **kwargs):
     ''' 
         Main method to define a computation step.
@@ -140,7 +164,7 @@ def comp(command, *args, **kwargs):
 
         if CompmakeConstants.job_id_key in argspec.args:
             msg = ("You cannot define the job id in this way because %r "
-                   "is already a parameter of this function." %
+                   "is already a parameter of this function." % 
                     CompmakeConstants.job_id_key)
             raise UserError(msg)
 
@@ -268,7 +292,7 @@ def interpret_commands(commands_str, separator=';'):
         if not isinstance(retcode, (int, NoneType, str)):
             publish('compmake-bug', user_msg="",
                     dev_msg="Command %r should return an integer, "
-                        "None, or a string describing the error, not %r." %
+                        "None, or a string describing the error, not %r." % 
                         (cmd, retcode))
             retcode = 0
 
@@ -335,7 +359,7 @@ def interpret_single_command(commands_line):
             if not k in argspec.args:
                 msg = ("You passed the argument %r for command %r, "
                        "but the only "
-                       "available arguments are %s." %
+                       "available arguments are %s." % 
                         (k, cmd.name, function_args))
                 raise UserError(msg)
             # look if we have a default value
@@ -349,7 +373,7 @@ def interpret_single_command(commands_line):
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = ('Could not parse %s=%s as %s.' %
+                    msg = ('Could not parse %s=%s as %s.' % 
                             (k, v, type(default_value)))
                     raise UserError(msg)
 
