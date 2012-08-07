@@ -6,6 +6,7 @@ from glob import glob
 from os.path import splitext, basename
 import cPickle
 import os
+import traceback
 
 pickle = cPickle
 
@@ -29,26 +30,21 @@ class StorageFilesystem:
         return False
 
     @track_time
-    def get(self, key):
+    def __getitem__(self, key):
         self.check_existence()
-
-        if not self.exists(key):
-            raise CompmakeException('Could not find key %r.' % key)
+        
         filename = self.filename_for_key(key)
+        
+        if not os.path.exists(filename):
+            raise CompmakeException('Could not find key %r.' % key)
+        
         try:
-            if False:
-                file = open(filename, 'rb')  # @ReservedAssignment
-                content = file.read()
-                file.close()
-                # print "R %s len %d" % (key, len(content))
-                sio = StringIO(content)
-                state = pickle.load(sio)
-                return state
-            else:
-                with open(filename, 'rb') as f:
-                    return pickle.load(f)
+            # Use safe_pickle_load
+            with open(filename, 'rb') as f:
+                return pickle.load(f)
         except Exception as e:
-            msg = "Could not unpickle file %r: %s" % (filename, e)
+            msg = "Could not unpickle file %r." % (filename, e)
+            msg += "\n" + traceback.format_exc(e)
             raise CompmakeException(msg)
 
     def check_existence(self):
@@ -59,9 +55,9 @@ class StorageFilesystem:
                 os.makedirs(self.basepath)
 
     @track_time
-    def set(self, key, value):  # @ReservedAssignment
+    def __setitem__(self, key, value):  # @ReservedAssignment
         self.check_existence()
-
+        # TODO: use safe write
         filename = self.filename_for_key(key)
 
         sio = StringIO()
@@ -77,27 +73,30 @@ class StorageFilesystem:
             f.write(sio.getvalue())
 
     @track_time
-    def delete(self, key):
+    def __delitem__(self, key):
         filename = self.filename_for_key(key)
-        assert os.path.exists(filename), \
-            'I expected path %s to exist before deleting' % filename
+        if not os.path.exists(filename):
+            raise ValueError('I expected path %s to exist before deleting' % filename)
         os.remove(filename)
 
     @track_time
-    def exists(self, key):
+    def __contains__(self, key):
         filename = self.filename_for_key(key)
         return os.path.exists(filename)
+ 
 
-    # TODO change key
-    def keys_yield(self, pattern):
-        filename = self.filename_for_key(pattern)
+    @track_time
+    def keys0(self):
+        filename = self.filename_for_key('*')
         for x in glob(filename):
             b = splitext(basename(x))[0]
             yield self.filename2key(b)
+    
+    def keys(self):
+        # slow process
+        found = sorted(list(self.keys0()))
+        return found
 
-    @track_time
-    def keys(self, pattern):
-        return sorted(list(self.keys_yield(pattern)))
 
     def reopen_after_fork(self):
         pass

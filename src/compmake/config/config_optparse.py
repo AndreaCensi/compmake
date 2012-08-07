@@ -6,6 +6,7 @@ from optparse import OptionValueError
 def config_populate_optparser(parser):
     config_switches = CompmakeGlobalState.config_switches
 
+    # todo: make it pretty
     for name, switch in config_switches.items():  # @UnusedVariable
         command = '--%s' % switch.name
 

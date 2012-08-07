@@ -1,12 +1,14 @@
 
 # constants
 import sys
-version = '1.5.0dev'
+version = '2.0.0'
 __version__ = version
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 from .constants import *
 from .state import *
@@ -24,4 +26,4 @@ from . import plugins
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
-CompmakeConstants.db = StorageFilesystem(CompmakeConstants.default_path)
+set_compmake_db(StorageFilesystem(CompmakeConstants.default_path))

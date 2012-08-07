@@ -13,7 +13,13 @@ except ImportError:
 class AvgSystemStats:
     ''' Collects average statistics about the system using psutil. '''
 
-    def __init__(self, interval=1, history_len=10):
+    def __init__(self, interval, history_len):
+        '''
+        
+        :param interval: Collect statistics according to this interval.
+        :param history_len: Use this many to compute avg/max statistics.
+        '''
+        
         self.interval = interval
         self.history_len = history_len
         try:

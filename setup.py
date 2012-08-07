@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = "1.5.0dev"
+version = "1.5.0"
 
 
 setup(
@@ -44,7 +44,7 @@ setup(
        'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
       ]
     },
-    install_requires=['termcolor', 'setproctitle', 'readline', 'PyYaml'],
+    install_requires=['termcolor', 'setproctitle', 'readline', 'PyYaml', 'psutil'],
 
     tests_require=['nose']
     # extras_require={

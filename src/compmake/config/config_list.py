@@ -90,6 +90,10 @@ add_config_switch('max_cpu_load', 90.0,
        desc="Maximum CPU load (%)",
        section=CONFIG_PARALLEL)
 
+add_config_switch('autobal_after', 16,
+       desc="Autobalances after the given number of processes (%)",
+       section=CONFIG_PARALLEL)
+
 add_config_switch('min_proc_interval', 0.5,
                   desc='Minimum interval between instantiating jobs.',
                   section=CONFIG_PARALLEL)

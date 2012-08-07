@@ -1,12 +1,12 @@
 from . import FakeAsync, Host, Manager
-from ..events import register_handler, remove_all_handlers, broadcast_event
-from ..jobs import (colorize_loglevel, get_job, set_job_userobject,
-    set_job_cache, mark_as_failed)
-from ..structures import Cache, CompmakeException, JobFailed, HostFailed
-from ..utils import OutputCapture, setproctitle
-from ..ui import  info, error
-from cjson import encode, decode, EncodeError, DecodeError
 from .. import CompmakeConstants
+from ..events import register_handler, remove_all_handlers, broadcast_event
+from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cache,
+    mark_as_failed)
+from ..structures import Cache, CompmakeException, JobFailed, HostFailed
+from ..ui import info, error
+from ..utils import OutputCapture, setproctitle
+from cjson import encode, decode, EncodeError, DecodeError
 from multiprocessing import Pool
 import base64
 import logging
@@ -44,7 +44,7 @@ class ClusterManager(Manager):
 
     def process_finished(self):
         if self.failed_hosts:
-            error('The following hosts failed: %s.' %
+            error('The following hosts failed: %s.' % 
                   ", ".join(list(self.failed_hosts)))
 
     def can_accept_job(self):
@@ -56,7 +56,7 @@ class ClusterManager(Manager):
         self.failed_hosts.add(host)
         while host in self.hosts_ready:
             self.hosts_ready.remove(host)
-        info('Host %s failed, removing from stack (failed now %s)' %
+        info('Host %s failed, removing from stack (failed now %s)' % 
                  (host, self.failed_hosts))
 
     def job_failed(self, job_id):
@@ -134,7 +134,7 @@ def compmake_slave():
             msg = ('I could not deserialize the data or the function. '
                    'Make sure that your package is on the python path. '
                    'My python path is the following:\n%s'
-                    '\n\n\nA confusing message will appear next:\n\n%s' %
+                    '\n\n\nA confusing message will appear next:\n\n%s' % 
                     (sys.path, traceback.format_exc(e)))
             raise Exception(msg)
 
@@ -240,7 +240,7 @@ def cluster_job(job_id, hostname, username=None, nice=None):
             raise Exception('Unknown what: %r' % what)
 
     except ComException as e:
-        raise HostFailed('Communication with host %s failed (%s)' %
+        raise HostFailed('Communication with host %s failed (%s)' % 
                          (hostname, e))
     except HostFailed:
         raise
@@ -278,7 +278,7 @@ class StreamCon:
         except IOError, ex:
             raise ComException("IOError while writing: %s" % ex)
         except EncodeError, ex:
-            raise ComException("Cannot encode json. \n\t %s '''%s'''\n" %
+            raise ComException("Cannot encode json. \n\t %s '''%s'''\n" % 
                                        (str(ex), dic))
 
     def read_json(self):
@@ -290,7 +290,7 @@ class StreamCon:
         except IOError, ex:
             raise ComException("IOError while reading: %s" % ex)
         except DecodeError, ex:
-            raise ComException("Cannot decode json: '%s' \n\t %s\n" %
+            raise ComException("Cannot decode json: '%s' \n\t %s\n" % 
                                (line, str(ex)))
 
     def write(self, ob):

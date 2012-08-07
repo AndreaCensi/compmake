@@ -1,6 +1,8 @@
 from . import CompmakeTest
 from .. import CompmakeGlobalState
-
+from compmake.utils.wildcards import wildcard_to_regexp
+from compmake.state import get_compmake_db
+ 
 
 class Simple(CompmakeTest):
 
@@ -8,31 +10,39 @@ class Simple(CompmakeTest):
         pass
 
     def testExists1(self):
-        assert(not CompmakeGlobalState.db.exists('not-existent')) #@UndefinedVariable
+        db = get_compmake_db()
+        key = 'not-existent'
+        assert(not key in db)
 
     def testExists2(self):
         k = 'ciao'
         v = {'complex': 123}
-        db = CompmakeGlobalState.db
-        if db.exists(k):
-            db.delete(k)
-        self.assertFalse(db.exists(k))
-        db.set(k, v)
-        self.assertTrue(db.exists(k))
-        db.delete(k)
-        self.assertFalse(db.exists(k))
-        db.set(k, v)
-        db.delete(k)
-        self.assertFalse(db.exists(k))
+        db = get_compmake_db()
+        if k in db:
+            del db[k]
+        self.assertFalse(k in db)
+        db[k] = v
+        self.assertTrue(k in db)
+        del db[k]
+        self.assertFalse(k in db)
+        db[k] = v
+        del db[k]
+        self.assertFalse(k in db)
 
     def testSearch(self):
-        db = CompmakeGlobalState.db
-        search = lambda pattern: list(db.keys(pattern))
-        self.assertEqual([], search('*'))
-        db.set('key1', 1)
-        db.set('key2', 1)
-        self.assertEqual([], search('ciao*'))
-        self.assertEqual(['key1'], search('key1'))
-        self.assertEqual(['key1'], search('*1'))
-        self.assertEqual([], search('d*1'))
+        db = get_compmake_db()
+        
+        def search(pattern):
+            r = wildcard_to_regexp(pattern)
+            for k in db.keys():
+                if r.match(k):
+                    yield k
+            
+        self.assertEqual([], list(search('*')))
+        db['key1'] = 1
+        db['key2'] = 1
+        self.assertEqual([], list(search('ciao*')))
+        self.assertEqual(['key1'], list(search('key1')))
+        self.assertEqual(['key1'], list(search('*1')))
+        self.assertEqual([], list(search('d*1')))
 

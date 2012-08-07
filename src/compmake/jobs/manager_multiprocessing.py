@@ -12,6 +12,7 @@ import sys
 import time
 import random
 import signal
+from compmake.state import get_compmake_db
 
 
 if False:
@@ -40,12 +41,6 @@ class MultiprocessingManager(Manager):
         self.last_accepted = 0
 
     def process_init(self):
-        #signal.signal(signal.SIGCHLD, sig_child)
-        #from compmake.storage import db
-        # if not db.supports_concurrency():
-            #raise UserError("I cannot do multiprocessing using %s \
-            #backend (use redis) " % db)
-
         if self.num_processes is None:
             self.num_processes = cpu_count()
 
@@ -63,21 +58,34 @@ class MultiprocessingManager(Manager):
                          **kwargs)
         self.max_num_processing = self. num_processes
 
-    def can_accept_job(self):
+    def get_resources_status(self):
+        resource_available = {}
+        
         # Scale up softly
         time_from_last = time.time() - self.last_accepted
-        if time_from_last < get_compmake_config('min_proc_interval'):
-            #print('Too soon %s\n\n' % time_from_last)
-            return False
-
+        min_interval = get_compmake_config('min_proc_interval')
+        if time_from_last < min_interval:
+            resource_available['soft'] = (False,
+                '%.2f < %.1f' % (time_from_last, min_interval))  
+        else:
+            resource_available['soft'] = (True, '')
+            
         # only one job at a time
         process_limit_ok = len(self.processing) < self.max_num_processing
         if not process_limit_ok:
-            return False
+            resource_available['nproc'] = (False,
+                '%d >= %d' % (len(self.processing), self.max_num_processing))
+        else:
+            resource_available['nproc'] = (True, '')
 
+        # TODO: add disk
+        
         stats = CompmakeGlobalState.system_stats
-        if stats.available(): # psutil not installed   
-#            avg_cpu = stats.avg_cpu_percent()
+        if not stats.available(): # psutil not installed
+            resource_available['cpu'] = (True, 'n/a')
+            resource_available['mem'] = (True, 'n/a')
+        else:
+            #avg_cpu = stats.avg_cpu_percent()
             max_cpu = stats.max_cpu_percent()
             cur_mem = stats.cur_phymem_usage_percent()
 
@@ -87,26 +95,52 @@ class MultiprocessingManager(Manager):
                 # XXX: assumes we are cpu-bound
                 estimated_cpu_increase = 1.0 / ncpus
                 estimated_cpu = max_cpu + estimated_cpu_increase
-                if estimated_cpu > get_compmake_config('max_cpu_load'):
+                max_cpu_load = get_compmake_config('max_cpu_load')
+                if estimated_cpu > max_cpu_load:
                     #print('Load too high: %s\n\n' % cpu_load)
-                    return False
-
-            if cur_mem > get_compmake_config('max_mem_load'):
+                    reason = ('cur: %.2f, projected %.2f > %.2f' % 
+                              (max_cpu, estimated_cpu, max_cpu_load))
+                    resource_available['cpu'] = (False, reason)
+                else:
+                    resource_available['cpu'] = (True, '')
+             
+            max_mem_load = get_compmake_config('max_mem_load')
+            if cur_mem > max_mem_load:
+                reason = '%s > %s' % (cur_mem > max_mem_load)
+                resource_available['mem'] = (False, reason)
                 #print('Memory load too high: %s\n\n' % cpu_load)
-                return False
+            else:
+                resource_available['mem'] = (True, '')
+        
+            # cooperating between parmake instances:
+            # to balance the jobs, accept with probability
+            # 1 / (1+n), where n is the number of current processes
+            if True:
+                autobal_after = get_compmake_config('autobal_after')
+                n = len(self.processing)
+                q = max(0, n - autobal_after)
+                probability = 1.0 / (1 + q)
+                if random.random() > probability:
+                    # Unlucky, let's try next time
+                    reason = ('after %d, p=%s' % (autobal_after, probability))
+                    resource_available['autobal'] = (False, reason) 
+                else:
+                    resource_available['autobal'] = (True, '')
+                        
+        return resource_available
 
-        # cooperating between parmake instances:
-        # to balance the jobs, accept with probability
-        # 1 / (1+n), where n is the number of current processes
-
-        n = len(self.processing)
-        probability = 1.0 / (1 + n)
-
-        if random.random() > probability:
-            # Unlucky, let's try next time
+    def can_accept_job(self):
+        resources = self.get_resources_status()
+        missing = [k for k, v in resources.items() if not v[0]]
+        
+        if missing:
+            reason = "; ".join(["%s: %s" % (k, v[1]) 
+                                for k, v in resources.items() if not v[0]])
+            #print('missing %r: %s' % (missing, reason))
             return False
-
+        
         self.last_accepted = time.time()
+        #print('accept')
         return True
 
     def instance_job(self, job_id, more):
@@ -151,11 +185,11 @@ def worker_initialization():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     # You can use this to see when a worker start
-    #print('Process: ignoring sigint')
+    # print('Process: ignoring sigint')
 
 
 def parmake_job2(job_id, more): # TODO: remove "more"
-    #print('Process: starting job')
+    # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
 
     try:
@@ -181,15 +215,14 @@ def parmake_job2(job_id, more): # TODO: remove "more"
 
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
-        CompmakeGlobalState.db.reopen_after_fork() #@UndefinedVariable
+        db = get_compmake_db()
+        try:
+            db.reopen_after_fork() #@UndefinedVariable
+        except:
+            pass
 
         publish('worker-status', job_id=job_id, status='connected')
 
-        # XXX this should not be necessary
-#        if more:
-#            mark_more(job_id)
-
-    #    try:
         make(job_id, more)
         publish('worker-status', job_id=job_id, status='ended')
 
@@ -210,7 +243,6 @@ def parmake_job2(job_id, more): # TODO: remove "more"
     #            raise
 
     except KeyboardInterrupt:
-#        where = traceback.format_exc()
         publish('worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
         raise

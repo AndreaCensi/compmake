@@ -5,16 +5,41 @@ from ..config import config_populate_optparser
 from ..jobs import set_namespace
 from ..storage import use_filesystem
 from ..structures import UserError
-from ..ui import (error, user_error, warning, interactive_console,
-    interpret_commands)
+from ..ui import (error, user_error, warning, interactive_console)
 from ..utils import setproctitle
 from optparse import OptionParser
 import compmake
 import sys
 import traceback
+from compmake import logger
+import os
+from compmake.ui.console import batch_command, interpret_commands_wrap
+from compmake.state import get_compmake_status, CompmakeGlobalState
+from compmake.jobs.storage import all_jobs
+from compmake.ui.ui import consider_jobs_as_defined_now
 
 # TODO: revise all of this
 
+def read_rc_files():
+    possible = ['compmake.rc', '~/.compmake/compmake.rc']
+    done = False
+    for x in possible:
+        x = os.path.expanduser(x)
+        if os.path.exists(x):
+            read_commands_from_file(x)
+            done = True
+    if not done:
+        logger.info('No configuration found (looked for %s)' % "; ".join(possible))
+            
+def read_commands_from_file(filename):
+    logger.info('Reading configuration from %r' % filename)
+    with open(filename, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line[0] == '#':
+                continue
+            interpret_commands_wrap(line)
+            
 
 def initialize_backend():
     allowed_db = ['filesystem']
@@ -22,7 +47,7 @@ def initialize_backend():
 
     chosen_db = get_compmake_config('db')
     if not chosen_db in allowed_db:
-        user_error('Backend name "%s" not valid. I was expecting one in %s.' %
+        user_error('Backend name "%s" not valid. I was expecting one in %s.' % 
               (chosen_db, allowed_db))
         sys.exit(-1)
 #
@@ -41,6 +66,13 @@ def initialize_backend():
     else:
         assert(False)
 
+usage = """
+
+    compmake  <module_name>
+    compmake  <path>
+
+
+"""
 
 # TODO: make everythin an exception instead of sys.exit()
 
@@ -48,21 +80,16 @@ def main():
 
     setproctitle('compmake')
 
-    parser = OptionParser(version=version)
+    parser = OptionParser(version=version, usage=usage)
 
-    parser.add_option("--slave", action="store_true",
-                      default=False, dest="slave",
-                      help="[internal] Runs compmake in slave mode.")
-
-#    parser.add_option("--redis_events", action="store_true",
-#                      default=False, dest="redis_events",
-#                      help="[internal] Relays events using Redis.")
-
+    parser.add_option("-c", "--command",
+                      default=None,
+                      help="Run the given command")
+ 
     config_populate_optparser(parser)
 
     (options, args) = parser.parse_args()
 
-    initialize_backend()
 
     # We load plugins after we parsed the configuration
     from compmake import plugins #@UnusedImport
@@ -81,62 +108,64 @@ def main():
 #        remove_all_handlers()
 #        register_handler("*", handler)
 
-    if not options.slave:
-        # XXX make sure this is the default
-        set_compmake_status(CompmakeConstants.compmake_status_interactive)
+    
+    # XXX make sure this is the default
+    if not args:
+        msg = ('I expect at least one parameter (module name)'
+               ' or db path.')
+        raise UserError(msg)
 
-        # TODO: add command namespace
-        # TODO: add command "load"
-        if not args:
-            user_error('I expect at least one parameter (module name)')
-            sys.exit(-2)
-
-        module_name = args[0]
-        args = args[1:]
-
-        if module_name.endswith('.py') or (module_name.find('/') > 0):
-            warning('You passed a string "%s" which looks like a filename.' %
-                    module_name)
-            module_name = module_name.replace('/', '.')
-            module_name = module_name.replace('.py', '')
-            warning('However, I need a module name. I will try with "%s".' %
-                    module_name)
-
-        set_namespace(module_name)
-        compmake.is_it_time = True
-        try:
-            __import__(module_name)
-        except Exception as e:
-            error('Error while trying to import module "%s": %s' %
-                  (module_name, e))
-            traceback.print_exc(file=sys.stderr)
-            sys.exit(-5)
-
-        # TODO: BUG: XXX: remove old jobs those in defined_this_section
+    # if the argument looks like a dirname        
+    if os.path.exists(args[0]):
+        loaded_db = True
+        load_existing_db(args[0])
     else:
-        set_compmake_status(CompmakeConstants.compmake_status_slave)
-
-        if not args:
-            user_error('I expect at least one parameter (namespace name)')
-            sys.exit(-2)
-
-        module_name = args.pop(0)
-        set_namespace(module_name)
-
+        loaded_db = False
+        load_module(args[0])
+    args = args[1:]
+    
     if args:
-        try:
-            # XXX is this redudant?
-            # compmake_config.interactive = False
-            commands_str = " ".join(args)
-            retcode = interpret_commands(commands_str)
-            # print "Exiting with retcode %s" % retcode
-            sys.exit(retcode)
-        except UserError as e:
-            user_error(e)
-            sys.exit(-6)
+        raise Exception('extra commands, use "-c" to pass commands')
+ 
+    if options.command:
+        set_compmake_status(CompmakeConstants.compmake_status_slave)
+        read_rc_files()
+        if not loaded_db:
+            initialize_backend()
+        retcode = batch_command(options.command)
     else:
+        set_compmake_status(CompmakeConstants.compmake_status_interactive)
+        read_rc_files()
+        if not loaded_db:
+            initialize_backend()
         retcode = interactive_console()
-        sys.exit(retcode)
 
-# FEATURE: history across iterations
+    sys.exit(retcode) 
 
+def load_existing_db(dirname):
+    logger.info('Loading existing jobs from %r' % dirname)
+    use_filesystem(dirname)
+    jobs = list(all_jobs())
+    logger.info('Found %d existing jobs.' % len(jobs))
+    consider_jobs_as_defined_now(jobs)
+    
+
+def load_module(module_name):
+    if module_name.endswith('.py') or (module_name.find('/') > 0):
+        warning('You passed a string "%s" which looks like a filename.' % 
+                module_name)
+        module_name = module_name.replace('/', '.')
+        module_name = module_name.replace('.py', '')
+        warning('However, I need a module name. I will try with "%s".' % 
+                module_name)
+
+    set_namespace(module_name)
+
+    compmake.is_it_time = True
+    try:
+        __import__(module_name)
+    except Exception as e:
+        error('Error while trying to import module "%s": %s' % 
+              (module_name, e))
+        traceback.print_exc(file=sys.stderr)
+        raise 

@@ -2,6 +2,8 @@ from .. import CompmakeGlobalState, get_compmake_config
 from ..ui import info
 from .filesystem import StorageFilesystem
 import os
+from compmake.state import set_compmake_db
+from .. import logger
 
 #
 #def use_redis(host=None, port=None):
@@ -22,10 +24,19 @@ import os
 
 
 def use_filesystem(directory=None):
+    db = CompmakeGlobalState.compmake_db 
+        
+    
     if directory is None:
         directory = get_compmake_config('path')
+    
+    if db is not None:
+        if isinstance(db, StorageFilesystem):
+            logger.warning('Switching from db %r to %r' % (db, directory))
+#            raise ValueError() # TMP
+
     directory = os.path.expandvars(directory)
     directory = os.path.expanduser(directory)
-    CompmakeGlobalState.db = StorageFilesystem(directory)
+    set_compmake_db(StorageFilesystem(directory))
 
 
