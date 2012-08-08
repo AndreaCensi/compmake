@@ -23,7 +23,7 @@ class Tracker:
         self.status_plus = {}
         self.nloops = 0
 
-    def event_manager_loop(self, event):
+    def event_manager_loop(self, event): #@UnusedVariable
         self.nloops += 1
 
     def event_job_progress(self, event):

@@ -49,7 +49,8 @@ def up_to_date(job_id):
     elif cache.state == Cache.FAILED:
         return False, 'Failed'
 
-    assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
+#    assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
+    assert(cache.state == Cache.DONE)
 
     # FIXME: the cache is broken for now
     # up_to_date_cache.add(job_id)

@@ -13,7 +13,7 @@ banners = [
            "Keep calm and carry on"]
 
 
-def console_starting(event):
+def console_starting(event): #@UnusedVariable
     # starting console
     def printb(s):
         print(pad_to_screen(s))

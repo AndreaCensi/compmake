@@ -5,14 +5,14 @@ from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
 from ..utils import setproctitle
 from Queue import Empty, Full
-import multiprocessing
+from compmake.state import get_compmake_db
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
-import sys
-import time
+import multiprocessing
 import random
 import signal
-from compmake.state import get_compmake_db
+import sys
+import time
 
 
 if False:
@@ -143,9 +143,9 @@ class MultiprocessingManager(Manager):
         #print('accept')
         return True
 
-    def instance_job(self, job_id, more):
+    def instance_job(self, job_id):
         publish('worker-status', job_id=job_id, status='apply_async')
-        async_result = self.pool.apply_async(parmake_job2, [job_id, more])
+        async_result = self.pool.apply_async(parmake_job2, [job_id])
         publish('worker-status', job_id=job_id, status='apply_async_done')
         return async_result
 
@@ -188,7 +188,7 @@ def worker_initialization():
     # print('Process: ignoring sigint')
 
 
-def parmake_job2(job_id, more): # TODO: remove "more"
+def parmake_job2(job_id):
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
 
@@ -223,7 +223,7 @@ def parmake_job2(job_id, more): # TODO: remove "more"
 
         publish('worker-status', job_id=job_id, status='connected')
 
-        make(job_id, more)
+        make(job_id)
         publish('worker-status', job_id=job_id, status='ended')
 
     #    except Exception as e:

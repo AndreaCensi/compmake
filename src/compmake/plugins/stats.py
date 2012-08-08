@@ -9,8 +9,6 @@ import string
 state2color = {
     Cache.NOT_STARTED: {'color': 'yellow'}, #{'attrs': ['dark']},
     Cache.IN_PROGRESS: {'color': 'yellow'},
-    Cache.MORE_REQUESTED: {'color': 'blue'},
-    Cache.MORE_REQUESTED: {'color': 'green', 'on_color': 'on_red'},
     Cache.BLOCKED: {'color': 'yellow'},
     Cache.FAILED: {'color': 'red'},
     Cache.DONE: {'color': 'green'},
@@ -31,8 +29,7 @@ def stats(args):
 def display_stats(job_list):
 
     states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
-              Cache.MORE_REQUESTED, Cache.FAILED, Cache.BLOCKED,
-              Cache.DONE]
+                    Cache.FAILED, Cache.BLOCKED, Cache.DONE]
     # initialize counters to 0
     states2count = dict(map(lambda x: (x, 0), states_order))
 

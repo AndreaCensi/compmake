@@ -28,9 +28,6 @@ state2color = {
         (Cache.NOT_STARTED, False): {}, #'attrs': ['dark']},
         # (Cache.IN_PROGRESS, True): None,
         (Cache.IN_PROGRESS, False): {'color': 'yellow'},
-        (Cache.MORE_REQUESTED, True): {'color': 'blue'},
-        (Cache.MORE_REQUESTED, False): {'color': 'green',
-                                        'on_color': 'on_red'},
         #(Cache.FAILED, True): None,
         (Cache.FAILED, False): {'color': 'red'},
         (Cache.BLOCKED, True): {'color': 'yellow'},
@@ -90,7 +87,7 @@ def list_jobs(job_list):
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:
-            if cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
+            if cache.state in [Cache.DONE]:
                 s += " (needs update: %s)" % reason
         print(s)
 

@@ -7,13 +7,20 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import time
 from compmake.jobs.queries import direct_children
+import itertools
+
+from .. import logger
+from compmake.jobs.uptodate import up_to_date
 
 
 class AsyncResultInterface:
-    # XXX: add abstract method
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def ready(self):
         pass
 
+    @abstractmethod
     def get(self, timeout=0):
         ''' Either:
             - returns normally (value ignored)
@@ -28,19 +35,29 @@ class Manager:
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        # top-level targets
+        # top-level targets added by users
         self.targets = set()
+        
         # targets + dependencies
-        self.all_targets = set()
+        self.all_targets = set() 
+        # invariant:
+        #  all_targets = todo + done + failed + blocked  
         self.todo = set()
+        # |
+        # V
+        self.ready_todo = set()
+        # |
+        # V
+        self.processing = set()
+        # |
+        # V
+        # final states
         self.done = set()
         self.failed = set()
         self.blocked = set()
-        self.processing = set()
-
-        self.more = set()
-        self.ready_todo = set()
-
+        
+        
+        
         # contains job_id -> priority
         # computed by precompute_priorities() called by process()
         self.priorities = {}
@@ -62,7 +79,7 @@ class Manager:
         ''' Return true if a new job can be accepted right away'''
 
     @abstractmethod
-    def instance_job(self, job_id, more):
+    def instance_job(self, job_id):
         ''' Instances a job. '''
 
     def cleanup(self):
@@ -84,7 +101,7 @@ class Manager:
         self.check_invariants()
         return best
 
-    def add_targets(self, targets, more=False):
+    def add_targets(self, targets):
         self.check_invariants()
         
         # self.targets contains all the top-level targets we were passed
@@ -97,11 +114,7 @@ class Manager:
         self.all_targets.update(targets_done)
         # however, we will only do the ones needed 
         self.todo.update(targets_todo_plus_deps)
-        self.done.update(targets_done)
-
-        if more:
-            self.more.update(targets)
-            self.todo.update(targets)
+        self.done.update(targets_done) 
 
         self.ready_todo = set([job_id for job_id in self.todo
                                if dependencies_up_to_date(job_id)])
@@ -118,7 +131,7 @@ class Manager:
             # todo: add task priority
             job_id = self.next_job()
             self.start_job(job_id)
-            #info('Job %s instantiated (more=%s)' % (job_id, make_more))
+        
 
         self.check_invariants()
         
@@ -129,6 +142,7 @@ class Manager:
         assert not job_id in self.ready_todo
         assert not job_id in self.processing2result
         assert dependencies_up_to_date(job_id)
+        
         if job_id in self.processing:
             msg = "Something's wrong, the job %r should no be in processing." % job_id
             msg += '\n' + self._get_situation_string()
@@ -136,14 +150,13 @@ class Manager:
 
         publish('manager-job-starting', job_id=job_id)
         self.processing.add(job_id)
-        make_more = job_id in self.more
 
         # This is for the simple case of local processing, where
         # the next line actually does something now
         self.publish_progress()
 
         self.processing2result[job_id] = \
-            self.instance_job(job_id, make_more)
+            self.instance_job(job_id)
             
         self.check_invariants()
         
@@ -220,7 +233,7 @@ class Manager:
             if p in self.todo:
                 self.todo.remove(p)
                 self.blocked.add(p)
-                if p in self.ready_todo:
+                if p in self.ready_todo: # I don't think this happens... XXX
                     self.ready_todo.remove(p)
 
         self.publish_progress()
@@ -237,22 +250,27 @@ class Manager:
         self.processing.remove(job_id)
 
         parent_jobs = set(direct_parents(job_id))
+        #logger.info('done job %r with parents %s' % (job_id, parent_jobs))
         for opportunity in self.todo & parent_jobs:
+            #logger.info('parent %r in todo' % (opportunity))
             assert opportunity not in self.processing
             
             for child in direct_children(opportunity):
                 # If child is part of all_targets, check that it is done
                 # otherwise check that it is done by the DB.
-                # Actually -- all children were put in all_targets
-                # so we just j
-                if not child in self.done:
-                    # still some dependency left
-                    break
+                if child in self.all_targets:
+                    if not child in self.done:
+                        #logger.info('parent %r still waiting on %r' % 
+                        #            (opportunity, child))
+                        # still some dependency left
+                        break                    
+                else:
+                    # otherwise it should be done
+                    # (or, we would have put in all_targets)
+                    assert up_to_date(child)
             else:
+                #logger.info('parent %r is now ready' % (opportunity))
                 self.ready_todo.add(opportunity)
-            # this was a bug
-            #if dependencies_up_to_date(opportunity):
-            #    self.ready_todo.add(opportunity)
 
         self.check_invariants()
         self.publish_progress()
@@ -310,10 +328,15 @@ class Manager:
         try:
             while self.todo:
                 self.check_invariants()
-
-                assert self.ready_todo or self.processing
-                assert not self.failed.intersection(self.todo)
-
+                # either something ready to do, or something doing
+                # otherwise, we are completely blocked
+                if not (self.ready_todo or self.processing):
+                    msg = 'Nothing ready to do, and nothing cooking.'
+                    msg += self._get_situation_string()
+                    from .. import logger
+                    logger.error(msg)
+#                    assert False, msg
+                
                 self.publish_progress()
                 self.instance_some_jobs()
                 #self.publish_progress()
@@ -324,18 +347,16 @@ class Manager:
                     pass
                     # TODO: make child raise exception if there are no
                     # resources
-#                    publish('manager-waits')
-#                    publish('manager-failed', reason='No resources.',
-#                        targets=self.targets, done=self.done,
-#                        todo=self.todo, failed=self.failed,
-#                        ready=self.ready_todo,
-#                        processing=self.processing,
-#                        all_targets=self.all_targets)
-#
-#                    msg = 'Cannot find computing resources, giving up.'
-#                    raise CompmakeException(msg)
-
-                #self.publish_progress()
+                    #publish('manager-waits')
+                    #publish('manager-failed', reason='No resources.',
+                    #    targets=self.targets, done=self.done,
+                    #    todo=self.todo, failed=self.failed,
+                    #    ready=self.ready_todo,
+                    #    processing=self.processing,
+                    #    all_targets=self.all_targets)
+                    #
+                    #msg = 'Cannot find computing resources, giving up.'
+                    #raise CompmakeException(msg)
 
                 self.loop_until_something_finishes()
                 self.check_invariants()
@@ -397,7 +418,7 @@ class Manager:
                      todo=self.todo,
                      blocked=self.blocked,
                      failed=self.failed,
-                     ready=self.ready_todo,
+                     ready_todo=self.ready_todo,
                      processing=self.processing)
         
         def empty_intersection(a, b):
@@ -407,8 +428,36 @@ class Manager:
                 msg += ' but found %s' % inter
                 msg += '\n' + self._get_situation_string()
                 assert False, msg
+#        
+        empty_intersection('ready_todo', 'processing')
+        empty_intersection('failed', 'todo')
+
+        def partition(sets, result):
+            S = set()
+            for s in sets:
+                S = S | lists[s]
+                
+            if S != lists[result]:
+                msg = 'These two sets should be the same:\n'
+                msg += ' %s = %s\n' % (" + ".join(list(sets)), result)
+                msg += ' first = %s\n' % S
+                msg += ' second = %s\n' % lists[result]
+                msg += '\n' + self._get_situation_string()
+                assert False, msg
+                
+            for a, b in itertools.product(sets, sets):
+                if a == b:
+                    continue
+                empty_intersection(a, b)
+        # all := done | todo | failed
+        # todo := processing, blocked, ready_todo
+            
+        partition(['done', 'todo', 'failed', 'blocked'], 'all_targets')
+#        partition(['processing', 'blocked', 'ready_todo'], 'todo')
         
-        empty_intersection('ready', 'processing')
+        # XXX
+#        partition(['ready_todo', 'done', 'failed', 'blocked', 'processing'],
+#                   'all_targets')
+
         
-        
-        
+         

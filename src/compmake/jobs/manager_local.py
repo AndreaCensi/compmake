@@ -8,8 +8,8 @@ class ManagerLocal(Manager):
         # only one job at a time
         return not self.processing
 
-    def instance_job(self, job_id, more):
-        return FakeAsync(make, job_id, more=more)
+    def instance_job(self, job_id):
+        return FakeAsync(make, job_id)
 
 
 class FakeAsync:

@@ -4,7 +4,7 @@ try:
     from termcolor import colored as t_colored
 
     def termcolor_colored(x, color=None, on_color=None, attrs=None):
-        return "\n".join(t_colored(x, color, on_color, attrs) for x in
+        return "\n".join(t_colored(x, color, on_color, attrs) for x in 
                          x.split("\n"))
 except:
     # TODO: logger

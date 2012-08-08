@@ -1,7 +1,6 @@
 from . import CompmakeConstants, logger
 from .utils import AvgSystemStats
 from collections import namedtuple
-from compmake.utils.describe import describe_type
 import sys
 
 
