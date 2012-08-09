@@ -3,9 +3,9 @@ from .. import CompmakeGlobalState
 from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
+from ..state import get_compmake_db
 from ..utils import setproctitle
 from Queue import Empty, Full
-from compmake.state import get_compmake_db
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
 import multiprocessing

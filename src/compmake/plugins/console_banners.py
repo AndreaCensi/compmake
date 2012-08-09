@@ -35,7 +35,7 @@ def console_starting(event): #@UnusedVariable
         printb("%d jobs loaded." % njobs)
 
 
-def console_ending(event):
+def console_ending(event): #@UnusedVariable
     print("Thanks for using compmake. Problems? Suggestions? Praise? "
           "Go to %s" % colored(compmake_issues_url, attrs=['bold']))
 

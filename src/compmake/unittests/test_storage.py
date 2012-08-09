@@ -1,5 +1,4 @@
 from . import CompmakeTest
-from .. import CompmakeGlobalState
 from compmake.utils.wildcards import wildcard_to_regexp
 from compmake.state import get_compmake_db
  

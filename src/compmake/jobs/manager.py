@@ -1,16 +1,13 @@
 from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
     mark_as_blocked, parents, direct_parents)
 from ..events import publish
+from ..jobs import direct_children, up_to_date
 from ..structures import JobFailed, JobInterrupted, HostFailed
 from ..ui import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
-import time
-from compmake.jobs.queries import direct_children
 import itertools
-
-from .. import logger
-from compmake.jobs.uptodate import up_to_date
+import time
 
 
 class AsyncResultInterface:
@@ -333,9 +330,7 @@ class Manager:
                 if not (self.ready_todo or self.processing):
                     msg = 'Nothing ready to do, and nothing cooking.'
                     msg += self._get_situation_string()
-                    from .. import logger
-                    logger.error(msg)
-#                    assert False, msg
+                    assert False, msg
                 
                 self.publish_progress()
                 self.instance_some_jobs()

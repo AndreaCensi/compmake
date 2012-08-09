@@ -1,9 +1,8 @@
 from .. import (CompmakeGlobalState, ConfigSwitch, set_compmake_config,
     ConfigSection, get_compmake_config)
 from ..structures import UserError
+from ..utils import colored, interpret_strings_like # XXX initializtion order
 from string import rjust
-from ..utils import colored
-from ..utils import interpret_strings_like  # XXX initializtion order
 
 
 def add_config_switch(name, default_value, allowed=None,

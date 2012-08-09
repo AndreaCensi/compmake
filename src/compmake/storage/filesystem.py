@@ -23,8 +23,8 @@ class StorageFilesystem:
         self.basepath = basepath
         self.checked_existence = False
 
-    def __str__(self):
-        return "Filesystem backend"
+    def __repr__(self):
+        return "FilesystemDB(%r)" % self.basepath
 
     def supports_concurrency(self):
         return False

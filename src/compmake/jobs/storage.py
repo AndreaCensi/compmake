@@ -12,7 +12,7 @@ from .. import CompmakeGlobalState
 from ..structures import Cache, Job, CompmakeException
 from ..ui import  info
 from ..utils import wildcard_to_regexp
-from compmake.state import get_compmake_db
+from ..state import get_compmake_db
 
 
 def set_namespace(n):

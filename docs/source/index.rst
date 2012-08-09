@@ -1,12 +1,13 @@
 .. raw:: html
    :file: fork.html
 
-.. container:: twitterbadge
+..
+    .. container:: twitterbadge
 
-   **Latest news**
+       **Latest news**
 
-   .. raw:: html
-      :file: twitter_badge.html
+       .. raw:: html
+          :file: twitter_badge.html
 
 .. include:: definitions.txt
 

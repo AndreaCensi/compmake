@@ -1,7 +1,6 @@
 from ..jobs import direct_children, get_job_cache, top_targets, tree
 from ..structures import UserError, Cache
-from ..ui import ui_section, VISUALIZATION, ui_command
-from ..ui import info
+from ..ui import info, ui_section, VISUALIZATION, ui_command
 import os
 
 ui_section(VISUALIZATION)

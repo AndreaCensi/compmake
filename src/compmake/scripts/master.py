@@ -1,22 +1,18 @@
 ''' This is the executable '''
 from .. import (get_compmake_config, version, set_compmake_status,
-    CompmakeConstants)
+    CompmakeConstants, logger)
 from ..config import config_populate_optparser
-from ..jobs import set_namespace
+from ..jobs import all_jobs, set_namespace
 from ..storage import use_filesystem
 from ..structures import UserError
-from ..ui import (error, user_error, warning, interactive_console)
+from ..ui import (error, user_error, warning, interactive_console,
+    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
 from ..utils import setproctitle
 from optparse import OptionParser
 import compmake
+import os
 import sys
 import traceback
-from compmake import logger
-import os
-from compmake.ui.console import batch_command, interpret_commands_wrap
-from compmake.state import get_compmake_status, CompmakeGlobalState
-from compmake.jobs.storage import all_jobs
-from compmake.ui.ui import consider_jobs_as_defined_now
 
 # TODO: revise all of this
 
