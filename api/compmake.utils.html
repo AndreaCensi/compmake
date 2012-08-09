@@ -209,6 +209,16 @@ get the completed lines using lines().</p>
 <tt class="descname">deactivate</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.capture.OutputCapture.deactivate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="compmake.utils.capture.OutputCapture.get_logged_stderr">
+<tt class="descname">get_logged_stderr</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.capture.OutputCapture.get_logged_stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.utils.capture.OutputCapture.get_logged_stdout">
+<tt class="descname">get_logged_stdout</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.capture.OutputCapture.get_logged_stdout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -231,7 +241,7 @@ get the completed lines using lines().</p>
 <span id="coloredterm-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">coloredterm</span></tt> Module<a class="headerlink" href="#module-compmake.utils.coloredterm" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.coloredterm.termcolor_colored">
-<tt class="descclassname">compmake.utils.coloredterm.</tt><tt class="descname">termcolor_colored</tt><big>(</big><em>x</em>, <em>color=None</em>, <em>on_color=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#compmake.utils.coloredterm.termcolor_colored" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.utils.coloredterm.</tt><tt class="descname">termcolor_colored</tt><big>(</big><em>s</em>, <em>color=None</em>, <em>on_color=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#compmake.utils.coloredterm.termcolor_colored" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -354,7 +364,7 @@ on the terminal.</p>
 <span id="system-stats-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">system_stats</span></tt> Module<a class="headerlink" href="#module-compmake.utils.system_stats" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.system_stats.AvgSystemStats">
-<em class="property">class </em><tt class="descclassname">compmake.utils.system_stats.</tt><tt class="descname">AvgSystemStats</tt><big>(</big><em>interval=1</em>, <em>history_len=10</em><big>)</big><a class="headerlink" href="#compmake.utils.system_stats.AvgSystemStats" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">compmake.utils.system_stats.</tt><tt class="descname">AvgSystemStats</tt><big>(</big><em>interval</em>, <em>history_len</em><big>)</big><a class="headerlink" href="#compmake.utils.system_stats.AvgSystemStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collects average statistics about the system using psutil.</p>
 <dl class="method">
 <dt id="compmake.utils.system_stats.AvgSystemStats.available">
@@ -416,7 +426,7 @@ on the terminal.</p>
 
 <dl class="method">
 <dt id="compmake.utils.time_track.TimeTrack.show">
-<tt class="descname">show</tt><big>(</big><em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x100260150&gt;</em>, <em>min_td=0.001</em><big>)</big><a class="headerlink" href="#compmake.utils.time_track.TimeTrack.show" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">show</tt><big>(</big><em>stream=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x10028d1e0&gt;</em>, <em>min_td=0.001</em><big>)</big><a class="headerlink" href="#compmake.utils.time_track.TimeTrack.show" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -435,7 +445,7 @@ on the terminal.</p>
 <dl class="class">
 <dt id="compmake.utils.values_interpretation_test.InterpretTest">
 <em class="property">class </em><tt class="descclassname">compmake.utils.values_interpretation_test.</tt><tt class="descname">InterpretTest</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.utils.values_interpretation_test.InterpretTest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/unittest.html#unittest.TestCase" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">unittest.TestCase</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
 <dl class="method">
 <dt id="compmake.utils.values_interpretation_test.InterpretTest.test_bool">
 <tt class="descname">test_bool</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.values_interpretation_test.InterpretTest.test_bool" title="Permalink to this definition">¶</a></dt>

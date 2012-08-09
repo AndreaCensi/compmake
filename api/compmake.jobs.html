@@ -200,7 +200,7 @@ Y.Remarkbox.render();
 
 <dl class="function">
 <dt id="compmake.jobs.actions.make">
-<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">make</tt><big>(</big><em>job_id</em>, <em>more=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.make" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">make</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.make" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes a single job. Returns the user-object or raises JobFailed
 or JobInterrupted. Also SystemExit and KeyboardInterrupt are 
 captured.</p>
@@ -217,14 +217,19 @@ captured.</p>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="compmake.jobs.actions.mark_as_done">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_done</tt><big>(</big><em>job_id</em>, <em>walltime=1</em>, <em>cputime=1</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_done" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="compmake.jobs.actions.mark_as_failed">
 <tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_failed</tt><big>(</big><em>job_id</em>, <em>exception=None</em>, <em>backtrace=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_failed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Marks job_id and its parents as failed</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="compmake.jobs.actions.mark_more">
-<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_more</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_more" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.jobs.actions.mark_as_notstarted">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_notstarted</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_notstarted" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -249,64 +254,43 @@ captured.</p>
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.host">
 <tt class="descname">host</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.host" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.init">
 <tt class="descname">init</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 4</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.instance">
 <tt class="descname">instance</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.instance" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 6</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.name">
 <tt class="descname">name</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 0</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.processors">
 <tt class="descname">processors</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.processors" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 3</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.test">
 <tt class="descname">test</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.test" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 5</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.cluster_conf.Host.username">
 <tt class="descname">username</tt><a class="headerlink" href="#compmake.jobs.cluster_conf.Host.username" title="Permalink to this definition">¶</a></dt>
-<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
-<p>Return a callable object that fetches the given item(s) from its operand.
-After, f=itemgetter(2), the call f(r) returns r[2].
-After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+<dd><p>Alias for field number 2</p>
 </dd></dl>
 
 </dd></dl>
@@ -322,7 +306,8 @@ After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
 <dl class="class">
 <dt id="compmake.jobs.manager.AsyncResultInterface">
 <em class="property">class </em><tt class="descclassname">compmake.jobs.manager.</tt><tt class="descname">AsyncResultInterface</tt><a class="headerlink" href="#compmake.jobs.manager.AsyncResultInterface" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
 <dt id="compmake.jobs.manager.AsyncResultInterface.get">
 <tt class="descname">get</tt><big>(</big><em>timeout=0</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.AsyncResultInterface.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Either:
@@ -344,7 +329,7 @@ After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.add_targets">
-<tt class="descname">add_targets</tt><big>(</big><em>targets</em>, <em>more=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.add_targets" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.add_targets" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -352,6 +337,11 @@ After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
 <tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.can_accept_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return true if a new job can be accepted right away</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.check_invariants">
+<tt class="descname">check_invariants</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_invariants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.check_job_finished">
@@ -382,7 +372,7 @@ Captures HostFailed, JobFailed and returns True.</p>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.instance_job">
-<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.instance_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.instance_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instances a job.</p>
 </dd></dl>
 
@@ -415,10 +405,7 @@ mark any parents which are ready as ready_todo.</p>
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.next_job">
 <tt class="descname">next_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.next_job" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns one job from the ready_todo list 
-(and removes it from there). Uses self.priorities
-to decide which job to use.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.process">
@@ -485,7 +472,7 @@ to decide which job to use.</p>
 
 <dl class="method">
 <dt id="compmake.jobs.manager_local.ManagerLocal.instance_job">
-<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.instance_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.instance_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -514,8 +501,13 @@ to decide which job to use.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.get_resources_status">
+<tt class="descname">get_resources_status</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.get_resources_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.instance_job">
-<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.instance_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.instance_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -543,7 +535,7 @@ to decide which job to use.</p>
 
 <dl class="function">
 <dt id="compmake.jobs.manager_multiprocessing.parmake_job2">
-<tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">parmake_job2</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.parmake_job2" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.jobs.manager_multiprocessing.</tt><tt class="descname">parmake_job2</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.parmake_job2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -580,7 +572,7 @@ to decide which job to use.</p>
 
 <dl class="method">
 <dt id="compmake.jobs.manager_ssh_cluster.ClusterManager.instance_job">
-<tt class="descname">instance_job</tt><big>(</big><em>job_id</em>, <em>more</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.instance_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">instance_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_ssh_cluster.ClusterManager.instance_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
