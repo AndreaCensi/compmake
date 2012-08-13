@@ -90,7 +90,7 @@ add_config_switch('max_cpu_load', 90.0,
        desc="Maximum CPU load (%)",
        section=CONFIG_PARALLEL)
 
-add_config_switch('autobal_after', 16,
+add_config_switch('autobal_after', 8, # TODO: number of processors / 2
        desc="Autobalances after the given number of processes (%)",
        section=CONFIG_PARALLEL)
 
