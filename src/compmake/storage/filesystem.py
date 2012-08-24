@@ -43,7 +43,7 @@ class StorageFilesystem:
             with open(filename, 'rb') as f:
                 return pickle.load(f)
         except Exception as e:
-            msg = "Could not unpickle file %r." % (filename, e)
+            msg = "Could not unpickle file %r." % (filename)
             msg += "\n" + traceback.format_exc(e)
             raise CompmakeException(msg)
 
@@ -66,7 +66,7 @@ class StorageFilesystem:
         except Exception as e:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
-            msg += '\n%s' % find_pickling_error(value)
+            msg += '\n%s' % find_pickling_error(value, pickle.HIGHEST_PROTOCOL)
             raise SerializationError(msg)
 
         with safe_write(filename, 'wb') as f:
