@@ -21,6 +21,7 @@ from .storage import use_filesystem, StorageFilesystem
 from .ui import comp, comp_prefix, batch_command, compmake_console
 #from .state import get_compmake_config, set_compmake_config
 from .jobs import set_namespace, progress
+from  .scripts.master import read_rc_files
 
 from . import plugins
 

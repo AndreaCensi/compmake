@@ -106,7 +106,7 @@ class MultiprocessingManager(Manager):
              
             max_mem_load = get_compmake_config('max_mem_load')
             if cur_mem > max_mem_load:
-                reason = '%s > %s' % (cur_mem > max_mem_load)
+                reason = '%s > %s' % (cur_mem, max_mem_load)
                 resource_available['mem'] = (False, reason)
                 #print('Memory load too high: %s\n\n' % cpu_load)
             else:
@@ -191,16 +191,20 @@ def worker_initialization():
 def parmake_job2(job_id):
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
-
+    #nlostmessages = 0
     try:
-        # We register an handler for the events to be passed back 
+        # We register a handler for the events to be passed back 
         # to the main process
         def handler(event):
             try:
                 Shared.event_queue.put(event, block=False)
             except Full:
-                sys.stderr.write('job %s: Queue is full, message is lost.\n'
-                                 % job_id)
+                pass
+                # Do not write messages here, it might create a recursive
+                # problem.
+                # sys.stderr.write('job %s: Queue is full, message is lost.\n'
+                #                 % job_id)
+                # nlostmessages += 1
 
         remove_all_handlers()
         register_handler("*", handler)

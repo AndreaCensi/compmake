@@ -26,17 +26,6 @@ def clean_target(job_id):
     # Removes also the Cache object 
     delete_job_cache(job_id)
 
-
-#def mark_more(job_id): # TODO: remove
-#    cache = get_job_cache(job_id)
-#    if not cache.state in [Cache.DONE, Cache.MORE_REQUESTED]:
-#        raise UserError(('I cannot make more of job %s because I did not even '
-#                        'complete one iteration (state: %s)') % 
-#                        (job_id, Cache.state2desc[cache.state]))
-#    cache.state = Cache.MORE_REQUESTED
-#    set_job_cache(job_id, cache)
-
-
 def mark_remake(job_id):
     ''' Delets and invalidates the cache for this object '''
     # TODO: think of the difference between this and clean_target
@@ -117,9 +106,7 @@ def make(job_id):
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id)  # @UnusedVariable
     cache = get_job_cache(job_id)
-#    want_more = cache.state == Cache.MORE_REQUESTED
-    if up:# and not (more and want_more):
-        # print "%s is up to date" % job_id
+    if up:
         assert is_job_userobject_available(job_id)
         return get_job_userobject(job_id)
     else:
@@ -127,7 +114,6 @@ def make(job_id):
 
         assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                                Cache.BLOCKED,
-                               #Cache.MORE_REQUESTED, 
                                Cache.DONE, Cache.FAILED])
 
         if cache.state == Cache.NOT_STARTED:
@@ -141,14 +127,6 @@ def make(job_id):
                 previous_user_object = get_job_tmpobject(job_id)
             else:
                 previous_user_object = None
-#        elif cache.state == Cache.MORE_REQUESTED:
-#            assert(is_job_userobject_available(job_id))
-#            if is_job_tmpobject_available(job_id):
-#                # resuming more computation
-#                previous_user_object = get_job_tmpobject(job_id)
-#            else:
-#                # starting more computation
-#                previous_user_object = get_job_userobject(job_id)
         elif cache.state == Cache.DONE:
             # If we are done, it means children have been updated
             assert(not up)
@@ -176,7 +154,8 @@ def make(job_id):
         old_emit = logging.StreamHandler.emit
 
         def my_emit(_, log_record):
-            msg = colorize_loglevel(log_record.levelno, log_record.msg)
+            # note that log_record.msg might be an exception
+            msg = colorize_loglevel(log_record.levelno, str(log_record.msg)) 
             #  levelname = log_record.levelname
             name = log_record.name
 
@@ -257,10 +236,9 @@ def make(job_id):
         cache.timestamp = time()
         walltime = cache.timestamp - cache.time_start
         cputime = clock() - cpu_start
-        # FIXME walltime/cputime not precise (especially for "more" computation
+        # FIXME walltime/cputime not precise
         cache.walltime_used = walltime
         cache.cputime_used = cputime
-        #cache.done_iterations = 0 # XXX not true # TODO: remove
         cache.host = get_compmake_config('hostname') # XXX
 
         set_job_cache(job_id, cache)

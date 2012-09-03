@@ -65,12 +65,15 @@ def broadcast_event(event):
                 handler(event)
                 # TODO: do not catch interrupted, etc.
             except Exception as e:
-                e = traceback.format_exc(e)
-                msg = ('compmake BUG: Error in handler %s:\n%s\n'
-                       % (handler, e))
-                # Note: if we use error() there is a risk of infinite 
-                # loop if we are capturing the current stderr.
-                CompmakeGlobalState.original_stderr.write(msg)
+                try:
+                    #e = traceback.format_exc(e)
+                    msg = ('compmake BUG: Error in handler %s:\n%s\n'
+                           % (handler, e))
+                    # Note: if we use error() there is a risk of infinite 
+                    # loop if we are capturing the current stderr.
+                    CompmakeGlobalState.original_stderr.write(msg)
+                except:
+                    pass
     else:
         for handler in CompmakeGlobalState.EventHandlers.fallback:
             handler(event)
