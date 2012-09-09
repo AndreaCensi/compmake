@@ -1,7 +1,7 @@
 
 # constants
 import sys
-version = '2.0.0'
+version = '2.1'
 __version__ = version
 
 import logging
@@ -15,14 +15,14 @@ from .state import *
 from .storage import use_filesystem, StorageFilesystem
 
 # TODO: default cluster.yaml
-# TODO: how to deal with KeyboardInterrupt in make? 
 
 # This is the module's public interface
-from .ui import comp, comp_prefix, batch_command, compmake_console
+from .ui import comp, comp_prefix, batch_command, compmake_console, comp_stage_job_id, comp_store
+
 #from .state import get_compmake_config, set_compmake_config
 from .jobs import set_namespace, progress
-from  .scripts.master import read_rc_files
-
+from .scripts.master import read_rc_files
+from .structures import Promise
 from . import plugins
 
 # Default initialization

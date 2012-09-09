@@ -32,10 +32,10 @@ class TimeTrack:
 
     @staticmethod
     @contextmanager
-    def measure(what=None):
+    def measure(what=None, min_td=0.001):
         t = TimeTrack(what)
         yield
-        t.show()
+        t.show(min_td=min_td)
 
     @staticmethod
     def decorator(f):
@@ -45,7 +45,7 @@ class TimeTrack:
                 sargs += ', '
             sargs += ", ".join(['%s=%r' % (k, v) for (k, v) in kwargs.items()])
             what = "%15s(%s)" % (f.__name__, sargs)
-            with TimeTrack.measure(what):
+            with TimeTrack.measure(what, min_td=1):
                 return f(*args, **kwargs)
         return wrapper
 

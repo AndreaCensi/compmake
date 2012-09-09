@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import itertools
 import time
+from .. import logger
 
 
 class AsyncResultInterface:
@@ -51,9 +52,7 @@ class Manager:
         # final states
         self.done = set()
         self.failed = set()
-        self.blocked = set()
-        
-        
+        self.blocked = set() 
         
         # contains job_id -> priority
         # computed by precompute_priorities() called by process()
@@ -104,6 +103,7 @@ class Manager:
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
+        logger.info('Checking dependencies...')
         targets_todo_plus_deps, targets_done = list_todo_targets(targets)
 
         # both done and todo jobs are added to self.all_targets
@@ -113,6 +113,7 @@ class Manager:
         self.todo.update(targets_todo_plus_deps)
         self.done.update(targets_done) 
 
+        logger.info('Checking if up to date...')
         self.ready_todo = set([job_id for job_id in self.todo
                                if dependencies_up_to_date(job_id)])
 
@@ -120,17 +121,29 @@ class Manager:
 
     def instance_some_jobs(self):
         ''' Instances some of the jobs. Uses the
-            functions can_accept_job(), next_job(), and ... '''
+            functions can_accept_job(), next_job(), and ...
+            
+            Returns a dictionary of wait conditions.
+        '''
         # add jobs up to saturations
         self.check_invariants()
-        
-        while self.ready_todo and self.can_accept_job():
+
+        while True:
+            reasons = {}
+            if not self.ready_todo:
+                reasons['jobs'] = 'no jobs ready'
+                break
+            
+            if not self.can_accept_job(reasons):
+                break
+                        
             # todo: add task priority
             job_id = self.next_job()
             self.start_job(job_id)
-        
+
 
         self.check_invariants()
+        return reasons
         
     def start_job(self, job_id):
         self.check_invariants()
@@ -152,8 +165,7 @@ class Manager:
         # the next line actually does something now
         self.publish_progress()
 
-        self.processing2result[job_id] = \
-            self.instance_job(job_id)
+        self.processing2result[job_id] = self.instance_job(job_id)
             
         self.check_invariants()
         
@@ -301,6 +313,7 @@ class Manager:
 
     def process(self):
         ''' Start processing jobs. '''
+        logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
 
         if not self.todo:
@@ -333,9 +346,11 @@ class Manager:
                     assert False, msg
                 
                 self.publish_progress()
-                self.instance_some_jobs()
+                waiting_on = self.instance_some_jobs()
                 #self.publish_progress()
 
+                publish('manager-wait', reasons=waiting_on)
+                
                 if self.ready_todo and not self.processing:
                     # We time out as there are no resources
                     publish('manager-phase', phase='wait')
@@ -395,12 +410,12 @@ class Manager:
     def _get_situation_string(self):
         """ Returns a string summarizing the current situation """
         lists = dict(done=self.done,
-                   all_targets=self.all_targets,
-                   todo=self.todo,
-                    blocked=self.blocked,
-                    failed=self.failed,
-                    ready=self.ready_todo,
-                    processing=self.processing)
+                     all_targets=self.all_targets,
+                     todo=self.todo,
+                     blocked=self.blocked,
+                     failed=self.failed,
+                     ready=self.ready_todo,
+                     processing=self.processing)
         s = ""
         for t, jobs in lists.items():
             jobs = lists[t]
@@ -423,7 +438,7 @@ class Manager:
                 msg += ' but found %s' % inter
                 msg += '\n' + self._get_situation_string()
                 assert False, msg
-#        
+        
         empty_intersection('ready_todo', 'processing')
         empty_intersection('failed', 'todo')
 

@@ -32,6 +32,8 @@ add(EventSpec('manager-job-failed', ['job_id']))
 add(EventSpec('manager-job-succeeded', ['job_id']))
 add(EventSpec('manager-host-failed', ['job_id', 'reason']))
 add(EventSpec('manager-init', ['targets', 'more']))
+add(EventSpec('manager-wait', ['reasons'], # dict str -> str
+              desc='Reasons why no jobs cannot be instantiated.'))
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
                                     'failed', 'ready', 'processing', 'blocked']))
 add(EventSpec('manager-succeeded', ['targets', 'all_targets', 'done', 'todo',

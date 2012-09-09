@@ -105,6 +105,7 @@ Usage:
        
        parmake [n=<num>] [joblist]
  '''
+    
     publish('parmake-status', status='Obtaining job list')
     job_list = list(job_list)
 
@@ -116,6 +117,7 @@ Usage:
     manager = MultiprocessingManager(n)
 
     publish('parmake-status', status='Adding targets')
+    logger.info('Adding %d targets ' % len(job_list))
     manager.add_targets(job_list)
 
     publish('parmake-status', status='Processing')
@@ -126,6 +128,7 @@ Usage:
     else:
         return 0
 
+from .. import logger
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):

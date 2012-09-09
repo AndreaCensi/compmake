@@ -4,9 +4,13 @@ from . import Manager, make
 class ManagerLocal(Manager):
     ''' Specialization of manager for local execution '''
 
-    def can_accept_job(self):
+    def can_accept_job(self, reasons):
         # only one job at a time
-        return not self.processing
+        if self.processing:
+            reasons['cpu'] = 'already processing'
+            return False
+        else:
+            return True 
 
     def instance_job(self, job_id):
         return FakeAsync(make, job_id)

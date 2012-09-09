@@ -10,6 +10,8 @@ class Tracker:
         register_handler('job-progress-plus', self.event_job_progress_plus)
         register_handler('manager-progress', self.event_manager_progress)
         register_handler('manager-loop', self.event_manager_loop)
+        register_handler('manager-wait', self.event_manager_wait)
+        
         self.processing = set()
         self.targets = set()
         self.all_targets = set()
@@ -22,7 +24,11 @@ class Tracker:
         self.status = {}
         self.status_plus = {}
         self.nloops = 0
-
+        self.wait_reasons = {}
+        
+    def event_manager_wait(self, event):
+        self.wait_reasons = event.reasons
+        
     def event_manager_loop(self, event): #@UnusedVariable
         self.nloops += 1
 

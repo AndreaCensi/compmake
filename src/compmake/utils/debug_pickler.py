@@ -1,20 +1,21 @@
 from . import describe_type
 from StringIO import StringIO
-from pickle import Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP, \
-    _tuplesize2code, POP_MARK
-import traceback
+from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
+    _tuplesize2code, POP_MARK)
 import pickle
+import traceback
 
 
-def find_pickling_error(obj, protocol):
+def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()
     try:
         pickle.dumps(obj)
     except Exception as e1:
-        s1 = traceback.format_exc(e1)
+        #s1 = traceback.format_exc(e1)
+        pass
     else:
-        raise Exception('We could pickle this object.')
-        
+        msg = 'We could pickle the object of class %s' % describe_type(obj)
+        raise Exception(msg)
     
     pickler = MyPickler(sio, protocol)
     try:

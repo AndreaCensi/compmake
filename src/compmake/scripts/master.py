@@ -39,24 +39,13 @@ def read_commands_from_file(filename):
 
 def initialize_backend():
     allowed_db = ['filesystem']
-    #allowed_db = ['filesystem', 'redis']
 
     chosen_db = get_compmake_config('db')
     if not chosen_db in allowed_db:
         user_error('Backend name "%s" not valid. I was expecting one in %s.' % 
               (chosen_db, allowed_db))
         sys.exit(-1)
-#
-#    if chosen_db == 'redis':
-#        hostname = compmake_config.redis_host
-#        if ':' in hostname:
-#            # XXX this should be done elsewhere
-#            hostname, port = hostname.split(':')
-#        else:
-#            port = None
-#        use_redis(hostname, port)
-#
-#    el
+
     if chosen_db == 'filesystem':
         use_filesystem(get_compmake_config('path'))
     else:

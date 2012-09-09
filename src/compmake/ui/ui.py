@@ -3,19 +3,15 @@ from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     CompmakeGlobalState, is_interactive_session, get_compmake_config)
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
-    delete_job, set_job_args, job_args_exists, parse_job_list)
+    delete_job, set_job_args, job_args_exists, parse_job_list,
+    is_job_userobject_available, delete_job_userobject, delete_job_args)
 from ..structures import Job, UserError, Promise
 from ..utils import describe_type, interpret_strings_like
-from compmake.jobs.storage import (is_job_userobject_available,
-    delete_job_userobject, delete_job_args)
 from types import NoneType
 import cPickle as pickle
 import inspect
 
-
-# static storage # XXX: put it somewhere
-
-
+ 
 def is_pickable(x): # TODO: move away
     try:
         pickle.dumps(x)
@@ -45,6 +41,19 @@ def comp_prefix(prefix=None):
     # TODO: check str
     CompmakeGlobalState.job_prefix = prefix
 
+def comp_stage_job_id(job, suffix):
+    """ Makes a new job_id, by returnin job_id + '-' + suffix,
+        but removing the job_prefix if it exists. """
+    assert isinstance(job, Promise)
+    job_id = job.job_id
+    pref = '%s-' % CompmakeGlobalState.job_prefix
+    if job_id.startswith(pref):
+        job_id = job_id[len(pref):]
+    result = '%s-%s' % (job_id, suffix)
+    #print('removing %r' % pref)
+    #print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s' 
+    #      % (job.job_id, job_id, suffix, result))
+    return result 
 
 def generate_job_id(command):
     ''' Generates a unique job_id for the specified commmand.

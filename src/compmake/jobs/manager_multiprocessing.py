@@ -13,6 +13,7 @@ import random
 import signal
 import sys
 import time
+from contracts import contract
 
 
 if False:
@@ -129,13 +130,17 @@ class MultiprocessingManager(Manager):
                         
         return resource_available
 
-    def can_accept_job(self):
+    @contract(reasons_why_not=dict)
+    def can_accept_job(self, reasons_why_not):
         resources = self.get_resources_status()
+        for k, v in resources.items():
+            if not v[0]:
+                reasons_why_not[k] = v[1]
         missing = [k for k, v in resources.items() if not v[0]]
-        
+    
         if missing:
-            reason = "; ".join(["%s: %s" % (k, v[1]) 
-                                for k, v in resources.items() if not v[0]])
+#            reason = "; ".join(["%s: %s" % (k, v[1]) 
+#                                for k, v in resources.items() if not v[0]])
             #print('missing %r: %s' % (missing, reason))
             return False
         

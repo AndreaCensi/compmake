@@ -30,12 +30,12 @@ def remove_all_jobs():
 
 
 def job2key(job_id):
-    prefix = 'compmake:%s:job:' % get_namespace()
+    prefix = 'cm:%s:job:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
 
 def key2job(key):
-    prefix = 'compmake:%s:job:' % get_namespace()
+    prefix = 'cm:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
 
 
@@ -81,7 +81,7 @@ def delete_job(job_id):
 # Cache objects
 #
 def job2cachekey(job_id):
-    prefix = 'compmake:%s:cache:' % get_namespace()
+    prefix = 'cm:%s:cache:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
 
@@ -125,7 +125,7 @@ def delete_job_cache(job_id):
 # User objects
 #
 def job2userobjectkey(job_id):
-    prefix = 'compmake:%s:userobject:' % get_namespace()
+    prefix = 'cm:%s:res:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
 def get_job_userobject(job_id):
@@ -151,7 +151,7 @@ def delete_job_userobject(job_id):
 
 # TODO: add function 2key
 def job2tmpobjectkey(job_id):
-    prefix = 'compmake:%s:tmpobject:' % get_namespace()
+    prefix = 'cm:%s:tmpobject:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
 def get_job_tmpobject(job_id):
@@ -172,7 +172,7 @@ def delete_job_tmpobject(job_id):
 
 
 def job2jobargskey(job_id):
-    prefix = 'compmake:%s:jobargs:' % get_namespace()
+    prefix = 'cm:%s:args:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
 def get_job_args(job_id):

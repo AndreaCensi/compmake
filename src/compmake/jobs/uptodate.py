@@ -49,7 +49,6 @@ def up_to_date(job_id):
     elif cache.state == Cache.FAILED:
         return False, 'Failed'
 
-#    assert(cache.state in [Cache.DONE, Cache.MORE_REQUESTED])
     assert(cache.state == Cache.DONE)
 
     # FIXME: the cache is broken for now
@@ -58,6 +57,26 @@ def up_to_date(job_id):
     return True, ''
 
 
+#def list_todo_targets_slow(jobs):
+#    """ returns a tuple (todo, jobs_done):
+#         todo:  set of job ids to do (children that are not up to date) 
+#         done:  top level targets (in jobs) that are already done. 
+#    """
+#    todo = set()
+#    done = set()
+#     
+#    for job_id in jobs:
+#        up, _ = up_to_date(job_id)
+#        if up: 
+#            done.add(job_id)
+#        else:
+#            todo.add(job_id)
+#            
+#            children = direct_children(job_id)
+#            todo.update(list_todo_targets(children)[0])
+#
+#    return todo, done
+
 def list_todo_targets(jobs):
     """ returns a tuple (todo, jobs_done):
          todo:  set of job ids to do (children that are not up to date) 
@@ -65,15 +84,25 @@ def list_todo_targets(jobs):
     """
     todo = set()
     done = set()
-    for job_id in jobs:
-        up, reason = up_to_date(job_id) #@UnusedVariable
-        if not up:
-            todo.add(job_id)
-            children_id = direct_children(job_id)
-            todo.update(list_todo_targets(children_id)[0])
-        else:
+    
+    seen = set()
+    stack = list()
+    stack.extend(jobs)
+     
+    while stack:
+        job_id = stack.pop()
+        seen.add(job_id)
+        up, _ = up_to_date(job_id)
+        if up: 
             done.add(job_id)
-
+        else:
+            todo.add(job_id)
+            children = direct_children(job_id)
+            
+            for child in children:
+                if not child in seen:
+                    stack.append(child)
+            
     return todo, done
 
 
