@@ -7,7 +7,7 @@ class ManagerLocal(Manager):
     def can_accept_job(self, reasons):
         # only one job at a time
         if self.processing:
-            reasons['cpu'] = 'already processing'
+            reasons['cpu'] = 'max 1 job'
             return False
         else:
             return True 

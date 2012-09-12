@@ -165,14 +165,8 @@ def remake(non_empty_job_list):
 
     non_empty_job_list = list(non_empty_job_list)
 
-    from ..ui.console import ask_question
-    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = "Should I clean and remake %d jobs? [y/n] " % \
-            len(non_empty_job_list)
-        answer = ask_question(question)
-        if not answer:
-            info('Not cleaned.')
-            return
+    if not ask_if_sure_remake(non_empty_job_list):
+        return
 
     for job in non_empty_job_list:
         mark_remake(job)
@@ -186,12 +180,28 @@ def remake(non_empty_job_list):
     else:
         return 0
 
+def ask_if_sure_remake(non_empty_job_list):
+    """ If interactive, ask the user yes or no. Otherwise returns True. """
+    from ..ui.console import ask_question
+    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
+        question = "Should I clean and remake %d jobs? [y/n] " % \
+            len(non_empty_job_list)
+        answer = ask_question(question)
+        if not answer:
+            info('Not cleaned.')
+            return False
+        else:
+            return True
+    return True
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
     '''Parallel equivalent of "remake". '''
 
     non_empty_job_list = list(non_empty_job_list)
+
+    if not ask_if_sure_remake(non_empty_job_list):
+        return
 
     for job in non_empty_job_list:
         mark_remake(job)
