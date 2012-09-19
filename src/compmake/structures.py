@@ -238,7 +238,7 @@ class Cache:
         assert(state in Cache.allowed_states)
         self.state = state
         # if DONE:
-        self.timestamp = 0
+        self.timestamp = 0.0
         self.cputime_used = None
         self.walltime_used = None
         self.done_iterations = -1

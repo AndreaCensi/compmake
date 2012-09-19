@@ -13,6 +13,9 @@ else:
     from ..utils import TimeTrack
     track_time = TimeTrack.decorator
 
+trace_queries = False
+#trace_queries = True
+
 
 class StorageFilesystem:
 
@@ -30,8 +33,9 @@ class StorageFilesystem:
 
     @track_time
     def __getitem__(self, key):
-        #if True:
-        #    logger.debug('< %s' % str(key))
+        if trace_queries:
+            logger.debug('< %s' % str(key))
+        
         self.check_existence()
         
         filename = self.filename_for_key(key)
@@ -57,6 +61,9 @@ class StorageFilesystem:
 
     @track_time
     def __setitem__(self, key, value):  # @ReservedAssignment
+        if trace_queries:
+            logger.debug('W %s' % str(key))
+
         self.check_existence()
 
         filename = self.filename_for_key(key)
@@ -81,6 +88,9 @@ class StorageFilesystem:
 
     @track_time
     def __contains__(self, key):
+        if trace_queries:
+            logger.debug('? %s' % str(key))
+
         filename = self.filename_for_key(key)
         return os.path.exists(filename)
   

@@ -38,6 +38,12 @@ def key2job(key):
     prefix = 'cm:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
 
+#
+#class CompmakeDB(object):
+#    
+#    def __
+
+
 
 def all_jobs(force_db=False): #@UnusedVariable
     ''' Returns the list of all jobs.

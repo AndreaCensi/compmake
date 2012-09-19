@@ -35,12 +35,13 @@ def mark_remake(job_id):
 
     if is_job_userobject_available(job_id):
         delete_job_userobject(job_id)
+
     if is_job_tmpobject_available(job_id):
         delete_job_tmpobject(job_id)
 
-    from compmake.jobs.uptodate import up_to_date_cache
-    if job_id in up_to_date_cache:
-        up_to_date_cache.remove(job_id)
+#    from compmake.jobs.uptodate import up_to_date_cache
+#    if job_id in up_to_date_cache:
+#        up_to_date_cache.remove(job_id)
 
 
 def substitute_dependencies(a):

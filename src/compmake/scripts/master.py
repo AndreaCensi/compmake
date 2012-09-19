@@ -51,6 +51,7 @@ def initialize_backend():
     else:
         assert(False)
 
+
 usage = """
 
     compmake  <module_name>
@@ -67,9 +68,15 @@ def main():
 
     parser = OptionParser(version=version, usage=usage)
 
+    parser.add_option("--profile", default=False, action='store_true',
+                      help="Use Python profiler")
+
     parser.add_option("-c", "--command",
                       default=None,
                       help="Run the given command")
+    
+    parser.add_option('-n', '--namespace',
+                      default='default')
  
     config_populate_optparser(parser)
 
@@ -93,6 +100,7 @@ def main():
 #        remove_all_handlers()
 #        register_handler("*", handler)
 
+    set_namespace(options.namespace)
     
     # XXX make sure this is the default
     if not args:
@@ -112,20 +120,32 @@ def main():
     if args:
         raise Exception('extra commands, use "-c" to pass commands')
  
-    if options.command:
-        set_compmake_status(CompmakeConstants.compmake_status_slave)
-        read_rc_files()
-        if not loaded_db:
-            initialize_backend()
-        retcode = batch_command(options.command)
+    def go():
+        if options.command:
+            set_compmake_status(CompmakeConstants.compmake_status_slave)
+            read_rc_files()
+            if not loaded_db:
+                initialize_backend()
+            retcode = batch_command(options.command)
+        else:
+            set_compmake_status(CompmakeConstants.compmake_status_interactive)
+            read_rc_files()
+            if not loaded_db:
+                initialize_backend()
+            retcode = interactive_console()
+        sys.exit(retcode) 
+        
+    if not options.profile:
+        go()
     else:
-        set_compmake_status(CompmakeConstants.compmake_status_interactive)
-        read_rc_files()
-        if not loaded_db:
-            initialize_backend()
-        retcode = interactive_console()
+        import cProfile
+        cProfile.runctx('go()', globals(), locals(), 'out/compmake.profile')
+        import pstats
+        p = pstats.Stats('out/compmake.profile')
+        n = 30
+        p.sort_stats('cumulative').print_stats(n)
+        p.sort_stats('time').print_stats(n)
 
-    sys.exit(retcode) 
 
 def load_existing_db(dirname):
     logger.info('Loading existing jobs from %r' % dirname)

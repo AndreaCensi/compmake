@@ -1,14 +1,11 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
 from . import direct_children, get_job_cache
 from ..structures import Cache
+from contracts import contract
+from collections import namedtuple
+ 
 
-# XXX not used for now
-up_to_date_cache = set()
-
-#def invalidate_uptodate_cache():
-
-
-def up_to_date(job_id):
+def up_to_date_slow(job_id):
     """ Check that the job is up to date. 
     We are up to date if:
     *) we are in the up_to_date_cache
@@ -22,10 +19,9 @@ def up_to_date(job_id):
     
         boolean, explanation 
     
-    """
-    global up_to_date_cache
-    if job_id in up_to_date_cache:
-        return True, 'cached result'
+    """ 
+
+    # simple local result cache
 
     cache = get_job_cache(job_id) # OK
 
@@ -50,11 +46,108 @@ def up_to_date(job_id):
         return False, 'Failed'
 
     assert(cache.state == Cache.DONE)
-
-    # FIXME: the cache is broken for now
-    # up_to_date_cache.add(job_id)
-
+ 
     return True, ''
+
+#UpToDate = namedtuple('UpToDate', 'up timestamp ')
+
+@contract(returns='tuple(bool, str)')
+def up_to_date(job_id):
+    """ Check that the job is up to date. 
+    We are up to date if:
+    *) we are in the up_to_date_cache
+       (nothing uptodate can become not uptodate so this is generally safe)
+    OR
+    1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+    2) the children are up to date AND
+    3) the children timestamp is older than this timestamp 
+    
+    Returns:
+    
+        boolean, explanation 
+    
+    """ 
+    cq = CacheQueryDB()
+    res, reason, _ = cq.up_to_date(job_id)
+    return res, reason
+
+
+class CacheQueryDB(object):
+    
+    def __init__(self):
+        self.up_to_date_cache = {} # string -> (bool, reason, timestamp)
+        self.get_job_cache_cache = {}
+    
+    @contract(returns=Cache)
+    def get_job_cache(self, job_id):
+        if not job_id in self.get_job_cache_cache:
+            self.get_job_cache_cache[job_id] = get_job_cache(job_id)
+        return self.get_job_cache_cache[job_id]
+    
+    @contract(returns='tuple(bool, str, float)')
+    def up_to_date(self, job_id):
+        if job_id in self.up_to_date_cache:
+            return self.up_to_date_cache[job_id]
+        res = self.up_to_date_actual(job_id)
+        self.up_to_date_cache[job_id] = res
+        return res
+    
+    @contract(returns='tuple(bool, str, float)')
+    def up_to_date_actual(self, job_id):
+            
+        cache = get_job_cache(job_id) # OK
+    
+        if cache.state == Cache.NOT_STARTED:
+            return False, 'Not started', cache.timestamp
+    
+        for child in direct_children(job_id):
+            child_up, _, child_timestamp = self.up_to_date(child)
+            if not child_up:
+                return False, 'Children not up to date.', cache.timestamp
+            else:
+                if child_timestamp > cache.timestamp:
+                    return False, 'Children have been updated.', cache.timestamp
+    
+        # FIXME BUG if I start (in progress), children get updated,
+        # I still finish the computation instead of starting again
+        if cache.state == Cache.IN_PROGRESS:
+            return False, 'Resuming progress', cache.timestamp
+        elif cache.state == Cache.FAILED:
+            return False, 'Failed', cache.timestamp
+    
+        assert(cache.state == Cache.DONE)
+     
+        return True, '', cache.timestamp
+#
+#    def list_todo_targets(self, jobs):
+#        """ returns a tuple (todo, jobs_done):
+#             todo:  set of job ids to do (children that are not up to date) 
+#             done:  top level targets (in jobs) that are already done. 
+#        """
+#        todo = set()
+#        done = set()
+#        
+##        seen = set()
+##        stack = list()
+##        stack.extend(jobs)
+#         
+#        while stack:
+#            job_id = stack.pop()
+#            seen.add(job_id)
+#            up, _, _ = self.up_to_date(job_id)
+#            if up: 
+#                done.add(job_id)
+#            else:
+#                todo.add(job_id)
+#                
+#                children = direct_children(job_id)
+#                
+#                for child in children:
+#                    if not child in seen:
+#                        stack.append(child)
+#                
+#        return todo, done
+
 
 
 #def list_todo_targets_slow(jobs):

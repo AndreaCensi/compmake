@@ -1,14 +1,15 @@
 ''' The actual interface of some commands in commands.py '''
-from ..jobs import get_job_cache, all_jobs, up_to_date, parse_job_list
+from ..jobs import all_jobs, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
 from ..utils import duration_human, colored
 from time import time
 import string
+from compmake.jobs.uptodate import CacheQueryDB
 
 
-@ui_command(section=VISUALIZATION, alias='ls')
-def list(args):  # @ReservedAssignment
+@ui_command(section=VISUALIZATION, alias='list')
+def ls(args):  # @ReservedAssignment
     '''Lists the status of the selected targets (or all targets \
 if not specified).
     
@@ -36,9 +37,11 @@ state2color = {
         (Cache.DONE, False): {'color': 'magenta'},
 }
 
+ 
+
 
 def list_jobs(job_list):
-    job_list = [x for x in job_list]
+    job_list = list(job_list)
     #print('%s jobs in total' % len(job_list))
     if not job_list:
         print('No jobs found.')
@@ -46,11 +49,13 @@ def list_jobs(job_list):
 
     jlen = max(len(x) for x in job_list)
 
+    cq = CacheQueryDB()
+
     cpu_total = []
     wall_total = []
     for job_id in job_list:
         # TODO: only ask up_to_date if necessary
-        up, reason = up_to_date(job_id)
+        up, reason, _ = cq.up_to_date(job_id)
 
         Mmin = 4
         M = 40
@@ -59,7 +64,7 @@ def list_jobs(job_list):
         else:
             indent = Mmin
         s = " " * indent + string.ljust(job_id, jlen) + '    '
-        cache = get_job_cache(job_id)
+        cache = cq.get_job_cache(job_id)
 
         tag = Cache.state2desc[cache.state]
 
