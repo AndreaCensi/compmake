@@ -1,7 +1,6 @@
 from ..jobs import direct_children, get_job_cache, top_targets, tree
 from ..structures import UserError, Cache
-from ..ui import ui_section, VISUALIZATION, ui_command
-from ..ui import info
+from ..ui import info, ui_section, VISUALIZATION, ui_command
 import os
 
 ui_section(VISUALIZATION)
@@ -33,7 +32,7 @@ def graph(job_list, filename='compmake', compact=0,
     except:
         gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen'
         raise UserError(('To use the "graph" command'
-                        ' you have to install the "gvgen" package from %s') %
+                        ' you have to install the "gvgen" package from %s') % 
                         gvgen_url)
 
     graph = gvgen.GvGen()
@@ -41,7 +40,6 @@ def graph(job_list, filename='compmake', compact=0,
     state2color = {
         Cache.NOT_STARTED: 'grey',
         Cache.IN_PROGRESS: 'yellow',
-        Cache.MORE_REQUESTED: 'blue',
         Cache.FAILED: 'red',
         Cache.DONE: 'green'
     }

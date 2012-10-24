@@ -13,7 +13,7 @@ banners = [
            "Keep calm and carry on"]
 
 
-def console_starting(event):
+def console_starting(event): #@UnusedVariable
     # starting console
     def printb(s):
         print(pad_to_screen(s))
@@ -35,7 +35,7 @@ def console_starting(event):
         printb("%d jobs loaded." % njobs)
 
 
-def console_ending(event):
+def console_ending(event): #@UnusedVariable
     print("Thanks for using compmake. Problems? Suggestions? Praise? "
           "Go to %s" % colored(compmake_issues_url, attrs=['bold']))
 

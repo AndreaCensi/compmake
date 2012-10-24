@@ -11,7 +11,7 @@ from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
 from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
-    MultiprocessingManager, clean_target, mark_remake, mark_more, top_targets,
+    MultiprocessingManager, clean_target, mark_remake, top_targets,
     parse_yaml_configuration)
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
@@ -83,7 +83,7 @@ def make(job_list):
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
-def make_single(job_list, more=False):
+def make_single(job_list):
     ''' Makes a single job -- not for users, but for slave mode. '''
     if len(job_list) > 1:
         raise UserError("I want only one job")
@@ -91,9 +91,7 @@ def make_single(job_list, more=False):
     from compmake import jobs
     try:
         job_id = job_list[0]
-        if more:
-            mark_more(job_id)
-        jobs.make(job_id, more)
+        jobs.make(job_id)
         return 0
     except JobFailed:
         return CompmakeConstants.RET_CODE_JOB_FAILED
@@ -107,6 +105,7 @@ Usage:
        
        parmake [n=<num>] [joblist]
  '''
+    
     publish('parmake-status', status='Obtaining job list')
     job_list = list(job_list)
 
@@ -118,7 +117,8 @@ Usage:
     manager = MultiprocessingManager(n)
 
     publish('parmake-status', status='Adding targets')
-    manager.add_targets(job_list, more=False)
+    logger.info('Adding %d targets ' % len(job_list))
+    manager.add_targets(job_list)
 
     publish('parmake-status', status='Processing')
     manager.process()
@@ -128,6 +128,7 @@ Usage:
     else:
         return 0
 
+from .. import logger
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):
@@ -164,14 +165,8 @@ def remake(non_empty_job_list):
 
     non_empty_job_list = list(non_empty_job_list)
 
-    from ..ui.console import ask_question
-    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = "Should I clean and remake %d jobs? [y/n] " % \
-            len(non_empty_job_list)
-        answer = ask_question(question)
-        if not answer:
-            info('Not cleaned.')
-            return
+    if not ask_if_sure_remake(non_empty_job_list):
+        return
 
     for job in non_empty_job_list:
         mark_remake(job)
@@ -185,6 +180,19 @@ def remake(non_empty_job_list):
     else:
         return 0
 
+def ask_if_sure_remake(non_empty_job_list):
+    """ If interactive, ask the user yes or no. Otherwise returns True. """
+    from ..ui.console import ask_question
+    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
+        question = "Should I clean and remake %d jobs? [y/n] " % \
+            len(non_empty_job_list)
+        answer = ask_question(question)
+        if not answer:
+            info('Not cleaned.')
+            return False
+        else:
+            return True
+    return True
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):
@@ -192,11 +200,14 @@ def parremake(non_empty_job_list):
 
     non_empty_job_list = list(non_empty_job_list)
 
+    if not ask_if_sure_remake(non_empty_job_list):
+        return
+
     for job in non_empty_job_list:
         mark_remake(job)
 
     manager = MultiprocessingManager()
-    manager.add_targets(non_empty_job_list, more=True)
+    manager.add_targets(non_empty_job_list)
     manager.process()
 
     if manager.failed:

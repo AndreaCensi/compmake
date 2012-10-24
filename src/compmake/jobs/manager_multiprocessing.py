@@ -3,16 +3,17 @@ from .. import CompmakeGlobalState
 from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
+from ..state import get_compmake_db
 from ..utils import setproctitle
 from Queue import Empty, Full
-import multiprocessing
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
-import sys
-import time
+import multiprocessing
 import random
 import signal
-from compmake.state import get_compmake_db
+import sys
+import time
+from contracts import contract
 
 
 if False:
@@ -28,7 +29,7 @@ class Shared:
 
 
 def sig_child(signo, frame):
-    #error('Child terminated %s %s' % (signo, frame))
+    # error('Child terminated %s %s' % (signo, frame))
     pass
 
 
@@ -97,8 +98,7 @@ class MultiprocessingManager(Manager):
                 estimated_cpu = max_cpu + estimated_cpu_increase
                 max_cpu_load = get_compmake_config('max_cpu_load')
                 if estimated_cpu > max_cpu_load:
-                    #print('Load too high: %s\n\n' % cpu_load)
-                    reason = ('cur: %.2f, projected %.2f > %.2f' % 
+                    reason = ('cpu %d%%, proj %d%% > %d%%' % 
                               (max_cpu, estimated_cpu, max_cpu_load))
                     resource_available['cpu'] = (False, reason)
                 else:
@@ -106,7 +106,7 @@ class MultiprocessingManager(Manager):
              
             max_mem_load = get_compmake_config('max_mem_load')
             if cur_mem > max_mem_load:
-                reason = '%s > %s' % (cur_mem > max_mem_load)
+                reason = '%s > %s' % (cur_mem, max_mem_load)
                 resource_available['mem'] = (False, reason)
                 #print('Memory load too high: %s\n\n' % cpu_load)
             else:
@@ -129,23 +129,23 @@ class MultiprocessingManager(Manager):
                         
         return resource_available
 
-    def can_accept_job(self):
+    @contract(reasons_why_not=dict)
+    def can_accept_job(self, reasons_why_not):
         resources = self.get_resources_status()
-        missing = [k for k, v in resources.items() if not v[0]]
-        
-        if missing:
-            reason = "; ".join(["%s: %s" % (k, v[1]) 
-                                for k, v in resources.items() if not v[0]])
-            #print('missing %r: %s' % (missing, reason))
+        some_missing = False
+        for k, v in resources.items():
+            if not v[0]:
+                some_missing = True
+                reasons_why_not[k] = v[1]
+        if some_missing:
             return False
         
         self.last_accepted = time.time()
-        #print('accept')
         return True
 
-    def instance_job(self, job_id, more):
+    def instance_job(self, job_id):
         publish('worker-status', job_id=job_id, status='apply_async')
-        async_result = self.pool.apply_async(parmake_job2, [job_id, more])
+        async_result = self.pool.apply_async(parmake_job2, [job_id])
         publish('worker-status', job_id=job_id, status='apply_async_done')
         return async_result
 
@@ -188,19 +188,23 @@ def worker_initialization():
     # print('Process: ignoring sigint')
 
 
-def parmake_job2(job_id, more): # TODO: remove "more"
+def parmake_job2(job_id):
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
-
+    #nlostmessages = 0
     try:
-        # We register an handler for the events to be passed back 
+        # We register a handler for the events to be passed back 
         # to the main process
         def handler(event):
             try:
                 Shared.event_queue.put(event, block=False)
             except Full:
-                sys.stderr.write('job %s: Queue is full, message is lost.\n'
-                                 % job_id)
+                pass
+                # Do not write messages here, it might create a recursive
+                # problem.
+                # sys.stderr.write('job %s: Queue is full, message is lost.\n'
+                #                 % job_id)
+                # nlostmessages += 1
 
         remove_all_handlers()
         register_handler("*", handler)
@@ -223,10 +227,12 @@ def parmake_job2(job_id, more): # TODO: remove "more"
 
         publish('worker-status', job_id=job_id, status='connected')
 
-        make(job_id, more)
+        make(job_id)
+
         publish('worker-status', job_id=job_id, status='ended')
 
-    #    except Exception as e:
+    #    We don't need this anymore, as make writes the result directly.
+    #
     #        publish('worker-status', job_id=job_id, status='exception')
     #
     #        # It is very common for exceptions to not be pickable,
@@ -246,6 +252,7 @@ def parmake_job2(job_id, more): # TODO: remove "more"
         publish('worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
         raise
+    
     finally:
         publish('worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake:DONE:%s' % job_id)

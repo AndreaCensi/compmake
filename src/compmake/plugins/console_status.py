@@ -52,6 +52,9 @@ def job_counts():
     if tracker.ready:
         s += colored(" (%d ready)" % len(tracker.ready), **ready_style)
 
+#    s += "(" + ",".join(["%s:%s" % (k, v) 
+#                         for (k, v) in  tracker.wait_reasons.items()]) + ')'
+    s += " (" + ",".join(tracker.wait_reasons.values()) + ')'
     #s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
     return s
 
@@ -76,6 +79,7 @@ def display_rotating(strings, intervals):
     aligned = pad_to_screen_length(strings[which], L)
     return  aligned
 
+ 
 
 def handle_event(event):  # @UnusedVariable
     s = ""
@@ -84,8 +88,7 @@ def handle_event(event):  # @UnusedVariable
     status = system_status()
 
     if status: # available 
-        s += display_rotating([system_status(),
-                               job_counts()], [2, 5])
+        s += display_rotating([status, job_counts()], [2, 5])
     else:
         s += job_counts()
 
@@ -122,22 +125,23 @@ def handle_event(event):  # @UnusedVariable
                         x += ['>>']
 #            X += ["[" + " ".join(x) + "]"]
             X += [" ".join(x)]
-        return " | " + " ".join(X)
+        return  " ".join(X) + " | "
 
     cols, _ = getTerminalSize()
 
+    remaining = cols - get_length_on_screen(s)
     for level in [4, 3, 2, 1, 0, -1, -2]:
-        x = s + get_string(level)
-        if get_length_on_screen(x) <= cols:
+        x = get_string(level)
+        if get_length_on_screen(x) <= remaining:
             choice = x
             break
     else:
         # everything is too long
         # TODO: warn
         choice = s
-
-    choice = pad_to_screen_length(choice, cols, align_right=True)
-    stream.write(choice)
+        
+    line = pad_to_screen_length(choice, remaining, align_right=True) + s
+    stream.write(line)
     stream.write('\r')
 
 
@@ -147,5 +151,4 @@ register_handler('job-progress', handle_event)
 register_handler('job-progress-plus', handle_event)
 register_handler('job-stdout', handle_event)
 register_handler('job-stderr', handle_event)
-
-
+ 

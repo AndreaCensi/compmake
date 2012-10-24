@@ -28,7 +28,8 @@ class AvgSystemStats:
             self._available = False
         else:
             self._available = True
-            self.cpu = Collect('cpu', psutil.cpu_percent,
+            
+            self.cpu = Collect('cpu', lambda: psutil.cpu_percent(interval=0),
                                interval, history_len)
             self.mem = Collect('mem', lambda: psutil.phymem_usage().percent,
                               interval, history_len)

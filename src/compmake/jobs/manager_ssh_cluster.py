@@ -6,7 +6,7 @@ from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cach
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 from ..ui import info, error
 from ..utils import OutputCapture, setproctitle
-from cjson import encode, decode, EncodeError, DecodeError
+from cjson import encode, decode, EncodeError, DecodeError #@UnresolvedImport
 from multiprocessing import Pool
 import base64
 import logging
@@ -85,7 +85,7 @@ class ClusterManager(Manager):
             #info("Not reusing host %s because it failed (failed: %s)" % 
             #    (slave, self.failed_hosts))
 
-    def instance_job(self, job_id, more):
+    def instance_job(self, job_id):
         slave = self.hosts_ready.pop()
         self.processing2host[job_id] = slave
 

@@ -1,22 +1,18 @@
 ''' This is the executable '''
 from .. import (get_compmake_config, version, set_compmake_status,
-    CompmakeConstants)
+    CompmakeConstants, logger)
 from ..config import config_populate_optparser
-from ..jobs import set_namespace
+from ..jobs import all_jobs, set_namespace
 from ..storage import use_filesystem
 from ..structures import UserError
-from ..ui import (error, user_error, warning, interactive_console)
+from ..ui import (error, user_error, warning, interactive_console,
+    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
 from ..utils import setproctitle
 from optparse import OptionParser
 import compmake
+import os
 import sys
 import traceback
-from compmake import logger
-import os
-from compmake.ui.console import batch_command, interpret_commands_wrap
-from compmake.state import get_compmake_status, CompmakeGlobalState
-from compmake.jobs.storage import all_jobs
-from compmake.ui.ui import consider_jobs_as_defined_now
 
 # TODO: revise all of this
 
@@ -43,28 +39,18 @@ def read_commands_from_file(filename):
 
 def initialize_backend():
     allowed_db = ['filesystem']
-    #allowed_db = ['filesystem', 'redis']
 
     chosen_db = get_compmake_config('db')
     if not chosen_db in allowed_db:
         user_error('Backend name "%s" not valid. I was expecting one in %s.' % 
               (chosen_db, allowed_db))
         sys.exit(-1)
-#
-#    if chosen_db == 'redis':
-#        hostname = compmake_config.redis_host
-#        if ':' in hostname:
-#            # XXX this should be done elsewhere
-#            hostname, port = hostname.split(':')
-#        else:
-#            port = None
-#        use_redis(hostname, port)
-#
-#    el
+
     if chosen_db == 'filesystem':
         use_filesystem(get_compmake_config('path'))
     else:
         assert(False)
+
 
 usage = """
 
@@ -82,9 +68,15 @@ def main():
 
     parser = OptionParser(version=version, usage=usage)
 
+    parser.add_option("--profile", default=False, action='store_true',
+                      help="Use Python profiler")
+
     parser.add_option("-c", "--command",
                       default=None,
                       help="Run the given command")
+    
+    parser.add_option('-n', '--namespace',
+                      default='default')
  
     config_populate_optparser(parser)
 
@@ -108,6 +100,7 @@ def main():
 #        remove_all_handlers()
 #        register_handler("*", handler)
 
+    set_namespace(options.namespace)
     
     # XXX make sure this is the default
     if not args:
@@ -127,20 +120,32 @@ def main():
     if args:
         raise Exception('extra commands, use "-c" to pass commands')
  
-    if options.command:
-        set_compmake_status(CompmakeConstants.compmake_status_slave)
-        read_rc_files()
-        if not loaded_db:
-            initialize_backend()
-        retcode = batch_command(options.command)
+    def go():
+        if options.command:
+            set_compmake_status(CompmakeConstants.compmake_status_slave)
+            read_rc_files()
+            if not loaded_db:
+                initialize_backend()
+            retcode = batch_command(options.command)
+        else:
+            set_compmake_status(CompmakeConstants.compmake_status_interactive)
+            read_rc_files()
+            if not loaded_db:
+                initialize_backend()
+            retcode = interactive_console()
+        sys.exit(retcode) 
+        
+    if not options.profile:
+        go()
     else:
-        set_compmake_status(CompmakeConstants.compmake_status_interactive)
-        read_rc_files()
-        if not loaded_db:
-            initialize_backend()
-        retcode = interactive_console()
+        import cProfile
+        cProfile.runctx('go()', globals(), locals(), 'out/compmake.profile')
+        import pstats
+        p = pstats.Stats('out/compmake.profile')
+        n = 30
+        p.sort_stats('cumulative').print_stats(n)
+        p.sort_stats('time').print_stats(n)
 
-    sys.exit(retcode) 
 
 def load_existing_db(dirname):
     logger.info('Loading existing jobs from %r' % dirname)

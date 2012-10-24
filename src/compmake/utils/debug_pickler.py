@@ -1,15 +1,30 @@
 from . import describe_type
 from StringIO import StringIO
-from pickle import Pickler, SETITEM, MARK, SETITEMS
+from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
+    _tuplesize2code, POP_MARK)
+import pickle
+import traceback
 
 
-def find_pickling_error(obj):
+def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()
-    pickler = MyPickler(sio)
+    try:
+        pickle.dumps(obj)
+    except Exception as e1:
+        #s1 = traceback.format_exc(e1)
+        pass
+    else:
+        msg = 'We could pickle the object of class %s' % describe_type(obj)
+        raise Exception(msg)
+    
+    pickler = MyPickler(sio, protocol)
     try:
         pickler.dump(obj)
-    except:
-        return pickler.get_stack_description()
+    except Exception as E:
+        msg = pickler.get_stack_description() 
+        msg += '\n --- Current exception----\n%s' % traceback.format_exc(E)
+        msg += '\n --- Old exception----\n%s' % traceback.format_exc(e1)
+        return msg
     else:
         raise Exception('We could pickle this object.')
 
@@ -20,7 +35,7 @@ class MyPickler (Pickler):
         self.stack = []
 
     def save(self, obj):
-        desc = '%30s' % (describe_type(obj))
+        desc = 'object of type %s' % (describe_type(obj))
         #, describe_value(obj, 100))
         #  self.stack.append(describe_value(obj, 120))
         self.stack.append(desc)
@@ -28,25 +43,28 @@ class MyPickler (Pickler):
         self.stack.pop()
 
     def get_stack_description(self):
-        s = 'Pickling error occurred at:'
-        for context in self.stack:
-            s += '- %s\n' % context
+        s = 'Pickling error occurred at:\n'
+        for i, context in enumerate(self.stack):
+            s += ' ' * i + '- %s\n' % context
         return s
 
     def save_pair(self, k, v):
+        self.stack.append('key %r = object of type %s' % (k, describe_type(v)))
         self.save(k)
-        self.stack.append('key %r' % k)
         self.save(v)
         self.stack.pop()
 
     def _batch_setitems(self, items):
+        
         # Helper to batch up SETITEMS sequences; proto >= 1 only
         #save = self.save
         write = self.write
 
         if not self.bin:
             for k, v in items:
+                self.stack.append('entry %s' % str(k))
                 self.save_pair(k, v)
+                self.stack.pop()
                 write(SETITEM)
             return
 
@@ -63,10 +81,70 @@ class MyPickler (Pickler):
             if n > 1:
                 write(MARK)
                 for k, v in tmp:
+                    self.stack.append('entry %s' % str(k))
                     self.save_pair(k, v)
+                    self.stack.pop()
                 write(SETITEMS)
             elif n:
                 k, v = tmp[0]
+                self.stack.append('entry %s' % str(k))
                 self.save_pair(k, v)
+                self.stack.pop()
                 write(SETITEM)
             # else tmp is empty, and we're done
+
+
+    def save_tuple(self, obj):
+        write = self.write
+        proto = self.proto
+
+        n = len(obj)
+        if n == 0:
+            if proto:
+                write(EMPTY_TUPLE)
+            else:
+                write(MARK + TUPLE)
+            return
+
+        save = self.save
+        memo = self.memo
+        if n <= 3 and proto >= 2:
+            for i, element in enumerate(obj):
+                self.stack.append('tuple element %s' % i)
+                save(element)
+                self.stack.pop()
+            # Subtle.  Same as in the big comment below.
+            if id(obj) in memo:
+                get = self.get(memo[id(obj)][0])
+                write(POP * n + get)
+            else:
+                write(_tuplesize2code[n])
+                self.memoize(obj)
+            return
+
+        # proto 0 or proto 1 and tuple isn't empty, or proto > 1 and tuple
+        # has more than 3 elements.
+        write(MARK)
+        for i, element in enumerate(obj):
+            self.stack.append('tuple element %s' % i)
+            save(element)
+            self.stack.pop()
+
+        if id(obj) in memo:
+            # Subtle.  d was not in memo when we entered save_tuple(), so
+            # the process of saving the tuple's elements must have saved
+            # the tuple itself:  the tuple is recursive.  The proper action
+            # now is to throw away everything we put on the stack, and
+            # simply GET the tuple (it's already constructed).  This check
+            # could have been done in the "for element" loop instead, but
+            # recursive tuples are a rare thing.
+            get = self.get(memo[id(obj)][0])
+            if proto:
+                write(POP_MARK + get)
+            else:   # proto 0 -- POP_MARK not available
+                write(POP * (n + 1) + get)
+            return
+
+        # No recursion.
+        self.write(TUPLE)
+        self.memoize(obj)

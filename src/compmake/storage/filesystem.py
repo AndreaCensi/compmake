@@ -1,36 +1,41 @@
 from .. import logger
 from ..structures import CompmakeException, SerializationError
-from ..utils import find_pickling_error, safe_write
-from StringIO import StringIO
+from ..utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
 from glob import glob
-from os.path import splitext, basename
-import cPickle
+from os.path import basename
 import os
 import traceback
 
-pickle = cPickle
 
-if True:
+if False:
     track_time = lambda x: x
 else:
     from ..utils import TimeTrack
     track_time = TimeTrack.decorator
 
+trace_queries = False
+#trace_queries = True
+
 
 class StorageFilesystem:
 
-    def __init__(self, basepath):
+
+    def __init__(self, basepath, compress=False):
         self.basepath = basepath
         self.checked_existence = False
+        if compress:
+            self.file_extension = '.pickle.gz'
+        else:
+            self.file_extension = '.pickle'
 
-    def __str__(self):
-        return "Filesystem backend"
-
-    def supports_concurrency(self):
-        return False
+    def __repr__(self):
+        return "FilesystemDB(%r)" % self.basepath
 
     @track_time
     def __getitem__(self, key):
+        if trace_queries:
+            logger.debug('< %s' % str(key))
+        
         self.check_existence()
         
         filename = self.filename_for_key(key)
@@ -39,11 +44,11 @@ class StorageFilesystem:
             raise CompmakeException('Could not find key %r.' % key)
         
         try:
-            # Use safe_pickle_load
-            with open(filename, 'rb') as f:
-                return pickle.load(f)
+            return safe_pickle_load(filename)
         except Exception as e:
-            msg = "Could not unpickle file %r." % (filename, e)
+            msg = "Could not unpickle file %r." % (filename)
+            logger.error(msg)
+            logger.exception(e)
             msg += "\n" + traceback.format_exc(e)
             raise CompmakeException(msg)
 
@@ -56,47 +61,52 @@ class StorageFilesystem:
 
     @track_time
     def __setitem__(self, key, value):  # @ReservedAssignment
-        self.check_existence()
-        # TODO: use safe write
-        filename = self.filename_for_key(key)
+        if trace_queries:
+            logger.debug('W %s' % str(key))
 
-        sio = StringIO()
+        self.check_existence()
+
+        filename = self.filename_for_key(key)
         try:
-            pickle.dump(value, sio, pickle.HIGHEST_PROTOCOL)
+            safe_pickle_dump(value, filename)
         except Exception as e:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
-            msg += '\n%s' % find_pickling_error(value)
-            raise SerializationError(msg)
-
-        with safe_write(filename, 'wb') as f:
-            f.write(sio.getvalue())
+            logger.error(msg)
+            logger.exception(e)
+            emsg = find_pickling_error(value)
+            logger.error(emsg)
+            raise SerializationError(msg + '\n' + emsg)
 
     @track_time
     def __delitem__(self, key):
         filename = self.filename_for_key(key)
         if not os.path.exists(filename):
-            raise ValueError('I expected path %s to exist before deleting' % filename)
+            msg = 'I expected path %s to exist before deleting' % filename
+            raise ValueError(msg)
         os.remove(filename)
 
     @track_time
     def __contains__(self, key):
+        if trace_queries:
+            logger.debug('? %s' % str(key))
+
         filename = self.filename_for_key(key)
         return os.path.exists(filename)
- 
-
+  
     @track_time
     def keys0(self):
         filename = self.filename_for_key('*')
         for x in glob(filename):
-            b = splitext(basename(x))[0]
-            yield self.filename2key(b)
+            #b = splitext(basename(x))[0]
+            b = basename(x.replace(self.file_extension, ''))
+            key = self.basename2key(b)
+            yield key
     
     def keys(self):
         # slow process
         found = sorted(list(self.keys0()))
         return found
-
 
     def reopen_after_fork(self):
         pass
@@ -107,21 +117,22 @@ class StorageFilesystem:
        '~': 'CMHOME'
     }
 
-    def key2filename(self, key):
+    def key2basename(self, key):
         '''turns a key into a reasonable filename'''
         for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
-    def filename2key(self, key):
-        ''' Undoes key2filename '''
+    def basename2key(self, key):
+        ''' Undoes key2basename '''
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key
 
     def filename_for_key(self, key):
         """ Returns the pickle storage filename corresponding to the job id """
-        return os.path.join(self.basepath, self.key2filename(key) + '.pickle')
+        f = self.key2basename(key) + self.file_extension
+        return os.path.join(self.basepath, f)
 
 
 

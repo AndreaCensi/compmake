@@ -42,9 +42,11 @@ def interpret_commands_wrap(commands):
         publish('command-line-failed', command=commands, reason=e)
         # Added this for KeyboardInterrupt
         return str(e)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as e:
         publish('command-line-interrupted',
                 command=commands, reason='KeyboardInterrupt')
+        tb = traceback.format_exc()
+        print tb
         return('Execution of "%s" interrupted.' % commands)
     except ShellExitRequested:
         raise
@@ -201,19 +203,13 @@ def ask_question(question, allowed=None):
 # to import other things.
 def batch_command(s):
     ''' executes one command '''
-#
-#    if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-#        return # XXX not sure 
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
-    # ignore if interactive
+
     # we assume that we are done with defining jobs
     clean_other_jobs()
 
-#    try:
-    return interpret_commands_wrap(s)
-#    except KeyboardInterrupt:
-#        pass
+    return interpret_commands_wrap(s) 
 
 
 def compmake_console():

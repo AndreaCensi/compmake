@@ -219,19 +219,18 @@ class Cache:
 
     NOT_STARTED = 0
     IN_PROGRESS = 1
-    MORE_REQUESTED = 2
     FAILED = 3
     BLOCKED = 5 # TODO, will add later
     DONE = 4
 
-    allowed_states = [NOT_STARTED, IN_PROGRESS, MORE_REQUESTED, FAILED, DONE,
+    allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE,
                       BLOCKED]
 
     state2desc = {
         NOT_STARTED: 'not started',
         IN_PROGRESS: 'in progress',
         BLOCKED: 'blocked',
-        MORE_REQUESTED: 'Done (but more in progress)',
+        #MORE_REQUESTED: 'Done (but more in progress)',
         FAILED: 'failed',
         DONE: 'done'}
 
@@ -239,7 +238,7 @@ class Cache:
         assert(state in Cache.allowed_states)
         self.state = state
         # if DONE:
-        self.timestamp = 0
+        self.timestamp = 0.0
         self.cputime_used = None
         self.walltime_used = None
         self.done_iterations = -1
