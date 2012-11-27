@@ -143,7 +143,7 @@ def clean_other_jobs():
 
     #logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
     
-def comp(command, *args, **kwargs):
+def comp(command_, *args, **kwargs):
     ''' 
         Main method to define a computation step.
     
@@ -154,6 +154,8 @@ def comp(command, *args, **kwargs):
         
         Raises UserError if command is not pickable.
     '''
+    
+    command = command_
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
 

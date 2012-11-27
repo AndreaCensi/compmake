@@ -91,26 +91,28 @@ class MultiprocessingManager(Manager):
             cur_mem = stats.cur_phymem_usage_percent()
 
             ncpus = multiprocessing.cpu_count()
-            if ncpus > 2:
-                # Do this only for big machines
-                # XXX: assumes we are cpu-bound
-                estimated_cpu_increase = 1.0 / ncpus
-                estimated_cpu = max_cpu + estimated_cpu_increase
-                max_cpu_load = get_compmake_config('max_cpu_load')
-                if estimated_cpu > max_cpu_load:
-                    reason = ('cpu %d%%, proj %d%% > %d%%' % 
-                              (max_cpu, estimated_cpu, max_cpu_load))
-                    resource_available['cpu'] = (False, reason)
+            num_processing = len(self.processing)
+            if num_processing > 0:  # at least one
+                if ncpus > 2:
+                    # Do this only for big machines
+                    # XXX: assumes we are cpu-bound
+                    estimated_cpu_increase = 1.0 / ncpus
+                    estimated_cpu = max_cpu + estimated_cpu_increase
+                    max_cpu_load = get_compmake_config('max_cpu_load')
+                    if estimated_cpu > max_cpu_load:
+                        reason = ('cpu %d%%, proj %d%% > %d%%' % 
+                                  (max_cpu, estimated_cpu, max_cpu_load))
+                        resource_available['cpu'] = (False, reason)
+                    else:
+                        resource_available['cpu'] = (True, '')
+                 
+                max_mem_load = get_compmake_config('max_mem_load')
+                if cur_mem > max_mem_load:
+                    reason = '%s > %s' % (cur_mem, max_mem_load)
+                    resource_available['mem'] = (False, reason)
+                    # print('Memory load too high: %s\n\n' % cpu_load)
                 else:
-                    resource_available['cpu'] = (True, '')
-             
-            max_mem_load = get_compmake_config('max_mem_load')
-            if cur_mem > max_mem_load:
-                reason = '%s > %s' % (cur_mem, max_mem_load)
-                resource_available['mem'] = (False, reason)
-                #print('Memory load too high: %s\n\n' % cpu_load)
-            else:
-                resource_available['mem'] = (True, '')
+                    resource_available['mem'] = (True, '')
         
             # cooperating between parmake instances:
             # to balance the jobs, accept with probability
@@ -122,7 +124,7 @@ class MultiprocessingManager(Manager):
                 probability = 1.0 / (1 + q)
                 if random.random() > probability:
                     # Unlucky, let's try next time
-                    reason = ('after %d, p=%s' % (autobal_after, probability))
+                    reason = ('after %d, p=%.2f' % (autobal_after, probability))
                     resource_available['autobal'] = (False, reason) 
                 else:
                     resource_available['autobal'] = (True, '')
