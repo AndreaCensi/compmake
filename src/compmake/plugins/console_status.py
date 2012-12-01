@@ -14,7 +14,7 @@ tracker = Tracker()
 
 def system_status():
     stats = CompmakeGlobalState.system_stats
-    if not stats.available(): # psutil not installed
+    if not stats.available():  # psutil not installed
         # TODO: use os.load 
         return ""
 
@@ -51,11 +51,13 @@ def job_counts():
 
     if tracker.ready:
         s += colored(" (%d ready)" % len(tracker.ready), **ready_style)
+    return s
 
+def wait_reasons():
 #    s += "(" + ",".join(["%s:%s" % (k, v) 
 #                         for (k, v) in  tracker.wait_reasons.items()]) + ')'
-    s += " (" + ",".join(tracker.wait_reasons.values()) + ')'
-    #s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
+    s = "(" + ",".join(tracker.wait_reasons.values()) + ')'
+    # s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
     return s
 
 
@@ -70,77 +72,85 @@ def current_slot(intervals):
     return len(intervals) - 1
 
 
-def display_rotating(strings, intervals):
+def display_rotating(strings, intervals, align_right=False):
     ''' Rotates the display of the given strings. 
         For now, we assume intervals to be round integers.
     '''
     which = current_slot(intervals)
     L = max(get_length_on_screen(x) for x in strings)
-    aligned = pad_to_screen_length(strings[which], L)
+    aligned = pad_to_screen_length(strings[which], L, align_right=align_right)
     return  aligned
 
- 
+def get_string(level):
+    if level == -3:
+        return ""
+    if level == -2:
+        return "..."
+    if level == -1:
+        return '  %d proc.' % len(tracker.status)
+    X = []
+
+    for job_id, status in tracker.status.items():
+        x = []
+        if level >= 1:
+            x += [job_id]
+            
+        if level <= 1 or not job_id in tracker.status_plus:
+            x += [status]
+        elif job_id in tracker.status_plus:
+            x += []
+            stack = tracker.status_plus[job_id]
+            for i, frame in enumerate(stack):
+                if level >= 3:
+                    x += [frame.name]
+
+                if level >= 2:
+                    x += ["%s/%s" % (frame.iterations[0] + 1,
+                                     frame.iterations[1])]
+
+                if level >= 4 and frame.iteration_desc is not None:
+                    x += ["(" + frame.iteration_desc + ")"]
+
+                if i < len(stack) - 1:
+                    x += ['>>']
+        X += [" ".join(x)]
+    return  " ".join(X)
 
 def handle_event(event):  # @UnusedVariable
-    s = ""
-    s += spinner() + ' '
+    text_right = ' '
 
     status = system_status()
 
-    if status: # available 
-        s += display_rotating([status, job_counts()], [2, 5])
+    if status:  # available
+        if False:  # TODO: add configuration 
+            options = [wait_reasons() + " " + status, job_counts()]
+        else:
+            options = [status, job_counts()]
+        text_right += display_rotating(options, [3, 5], align_right=True)
     else:
-        s += job_counts()
-
-    def get_string(level):
-        if level == -2:
-            return
-        if level == -1:
-            return '  %d proc.' % len(tracker.status)
-        X = []
-
-        for job_id, status in tracker.status.items():
-            x = []
-            if level >= 1:
-                x += [job_id]
-                # + ':'
-
-            if level <= 1 or not job_id in tracker.status_plus:
-                x += [status]
-            elif job_id in tracker.status_plus:
-                x += []
-                stack = tracker.status_plus[job_id]
-                for i, frame in enumerate(stack):
-                    if level >= 3:
-                        x += [frame.name]
-
-                    if level >= 2:
-                        x += ["%s/%s" % (frame.iterations[0] + 1,
-                                         frame.iterations[1])]
-
-                    if level >= 4 and frame.iteration_desc is not None:
-                        x += ["(" + frame.iteration_desc + ")"]
-
-                    if i < len(stack) - 1:
-                        x += ['>>']
-#            X += ["[" + " ".join(x) + "]"]
-            X += [" ".join(x)]
-        return  " ".join(X) + " | "
+        text_right += job_counts()
 
     cols, _ = getTerminalSize()
 
-    remaining = cols - get_length_on_screen(s)
-    for level in [4, 3, 2, 1, 0, -1, -2]:
-        x = get_string(level)
+    remaining = cols - get_length_on_screen(text_right)
+    
+    options_left = [spinner() + '  ' + get_string(level)
+                    for level in [4, 3, 2, 1, 0, -1, -2, -3]]
+    
+    for x in options_left:
         if get_length_on_screen(x) <= remaining:
-            choice = x
+            text_left = x
             break
     else:
-        # everything is too long
-        # TODO: warn
-        choice = s
-        
-    line = pad_to_screen_length(choice, remaining, align_right=True) + s
+        text_left = ''
+    
+    nspaces = (cols 
+               - get_length_on_screen(text_right) 
+               - get_length_on_screen(text_left))
+    line = text_left + ' ' * nspaces + text_right
+    
+    # line = pad_to_screen_length(choice, remaining, align_right=True) + s
+    
     stream.write(line)
     stream.write('\r')
 
