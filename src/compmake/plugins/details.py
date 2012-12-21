@@ -2,9 +2,9 @@
 from ..jobs import direct_parents, direct_children, get_job_cache, up_to_date
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
-from ..utils import colored
 from string import rjust
 import sys
+from compmake.ui.visualization import compmake_colored
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')
@@ -20,14 +20,14 @@ def details(non_empty_job_list):
 
 
 def list_job_detail(job_id):
-    #computation = get_computation(job_id)
+    # computation = get_computation(job_id)
     cache = get_job_cache(job_id)
     parents = direct_parents(job_id)
     children = direct_children(job_id)
     up, reason = up_to_date(job_id)
 
-    red = lambda x: colored(x, 'red')
-    bold = lambda x: colored(rjust(x + ' ', 15), attrs=['bold'])
+    red = lambda x: compmake_colored(x, 'red')
+    bold = lambda x: compmake_colored(rjust(x + ' ', 15), attrs=['bold'])
 
     try:
         # TODO: make it work in Python3K
@@ -51,7 +51,7 @@ def list_job_detail(job_id):
             print(red(cache.exception))
             print(red(cache.backtrace))
 
-        def display_with_prefix(buffer, prefix, #@ReservedAssignment
+        def display_with_prefix(buffer, prefix,  # @ReservedAssignment
                                 transform=lambda x: x, out=sys.stdout):
             for line in buffer.split('\n'):
                 out.write('%s%s\n' % (prefix, transform(line)))

@@ -2,8 +2,9 @@ from .. import get_compmake_config
 from ..events import register_handler
 from ..ui import error
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
-    colored, get_screen_columns)
+    get_screen_columns)
 import sys
+from compmake.ui.visualization import compmake_colored
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -25,14 +26,14 @@ def plot_with_prefix(job_id, lines, is_stderr):
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
             #prefix = colored(prefix, color='cyan', attrs=['dark'])
-            prefix = colored(prefix, color='cyan')
+            prefix = compmake_colored(prefix, color='cyan')
         else:
             prefix = prefix_empty
 
         if is_stderr:
-            sep = colored('|', 'red')
+            sep = compmake_colored('|', 'red')
         else:
-            sep = colored('|', 'cyan')
+            sep = compmake_colored('|', 'cyan')
 
         # Now let's take lines that do not fit the length
         if True:
@@ -72,19 +73,19 @@ def write_screen_line(s):
     stream.flush()
 
 
-def plot_normally(job_id, lines, is_stderr):
+def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
     for line in lines:
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
 #            job_name = colored('%s' % job_id, color='cyan')
             header = pad_to_screen('___ %s ' % job_id, pad='_')
-            header = colored(header, color='cyan')
+            header = compmake_colored(header, color='cyan')
             write_screen_line(header)
 
         max_size = get_screen_columns()
         if debug_padding:
-            prefix = colored('>', color='red')
-            postfix = colored('<', color='blue')
+            prefix = compmake_colored('>', color='red')
+            postfix = compmake_colored('<', color='blue')
         else:
             prefix = ""
             postfix = ""

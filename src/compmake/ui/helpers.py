@@ -1,10 +1,9 @@
 from ..structures import UserError
-from ..utils import colored
-
 from collections import namedtuple
 from string import ljust
 import sys
 import types
+from compmake.ui.visualization import compmake_colored
 
 
 # Storage for the commands
@@ -147,7 +146,7 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
             cmd = UIState.commands[name]
             short_doc = cmd.doc.split('\n')[0].strip()
             file.write("  | %s  %s\n" %
-                       (colored(ljust(name, max_len), attrs=['bold']),
+                       (compmake_colored(ljust(name, max_len), attrs=['bold']),
                         short_doc))
 
 

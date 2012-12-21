@@ -32,7 +32,8 @@ def use_filesystem(directory=None):
     
     if db is not None:
         if isinstance(db, StorageFilesystem):
-            logger.warning('Switching from db %r to %r' % (db, directory))
+            #logger.warning('Switching from db %r to %r' % (db, directory))
+            pass
 #            raise ValueError() # TMP
 
     directory = os.path.expandvars(directory)

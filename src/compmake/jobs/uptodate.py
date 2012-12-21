@@ -2,8 +2,7 @@
 from . import direct_children, get_job_cache
 from ..structures import Cache
 from contracts import contract
-from collections import namedtuple
- 
+  
 
 def up_to_date_slow(job_id):
     """ Check that the job is up to date. 

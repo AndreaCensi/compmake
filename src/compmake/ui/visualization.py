@@ -3,7 +3,7 @@ from .. import get_compmake_config
 from ..utils import termcolor_colored, get_screen_columns
 
 
-def colored(x, color=None, on_color=None, attrs=None):
+def compmake_colored(x, color=None, on_color=None, attrs=None):
     colorize = get_compmake_config('colorize')
     if colorize:
         return termcolor_colored(x, color, on_color, attrs)
@@ -17,23 +17,23 @@ def clean_console_line(stream):
 
 
 def warning(string):
-    write_message(string, lambda x: colored(x, 'yellow'))
+    write_message(string, lambda x: compmake_colored(x, 'yellow'))
 
 
 def error(string):
-    write_message(string, lambda x: colored(x, 'red'))
+    write_message(string, lambda x: compmake_colored(x, 'red'))
 
 
-def user_error(string): # XXX: what's the difference with above?
-    write_message(string, lambda x: colored(x, 'red'))
+def user_error(string):  # XXX: what's the difference with above?
+    write_message(string, lambda x: compmake_colored(x, 'red'))
 
 
 def info(string):
-    write_message(string, lambda x: colored(x, 'green'))
+    write_message(string, lambda x: compmake_colored(x, 'green'))
 
 
-def debug(string): # XXX: never used?
-    write_message(string, lambda x: colored(x, 'magenta'))
+def debug(string):  # XXX: never used?
+    write_message(string, lambda x: compmake_colored(x, 'magenta'))
 
 
 def write_message(string, formatting):

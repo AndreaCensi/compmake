@@ -1,7 +1,8 @@
 '''This plugin dumps all events received'''
 from ..events import register_fallback_handler, register_handler
-from ..utils import pad_to_screen, colored
+from ..utils import pad_to_screen
 import sys
+from compmake.ui.visualization import compmake_colored
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr
@@ -27,7 +28,7 @@ def print_event(event):
 #        s = s[:MAX_LEN]
 
     msg = '%s: %s' % (event.name, s)
-    msg = colored(pad_to_screen(msg), 'yellow')
+    msg = compmake_colored(pad_to_screen(msg), 'yellow')
     stream.write(msg)
     stream.write('\n')
     stream.flush()

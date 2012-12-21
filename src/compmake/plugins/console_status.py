@@ -1,10 +1,11 @@
 from .. import CompmakeGlobalState
 from ..events import register_handler
-from ..utils import (pad_to_screen_length, get_length_on_screen, colored,
+from ..utils import (pad_to_screen_length, get_length_on_screen,
     getTerminalSize)
 from .tracker import Tracker
 import sys
 import time
+from compmake.ui.visualization import compmake_colored
 
 
 stream = sys.stderr
@@ -36,21 +37,21 @@ def job_counts():
     ready_style = dict(color='yellow')
     proc_style = dict(color='yellow')
     s = ""
-    s += colored("%d done" % len(tracker.done), **done_style)
+    s += compmake_colored("%d done" % len(tracker.done), **done_style)
 
     if tracker.processing:
-        s += colored(" %d proc" % len(tracker.processing), **proc_style)
+        s += compmake_colored(" %d proc" % len(tracker.processing), **proc_style)
 
     if tracker.failed:
-        s += colored(" %d failed" % len(tracker.failed), **failed_style)
+        s += compmake_colored(" %d failed" % len(tracker.failed), **failed_style)
 
     if tracker.blocked:
-        s += colored(" %d blocked" % len(tracker.blocked), **blocked_style)
+        s += compmake_colored(" %d blocked" % len(tracker.blocked), **blocked_style)
 
-    s += colored(" %d todo" % len(tracker.todo), **ready_style)
+    s += compmake_colored(" %d todo" % len(tracker.todo), **ready_style)
 
     if tracker.ready:
-        s += colored(" (%d ready)" % len(tracker.ready), **ready_style)
+        s += compmake_colored(" (%d ready)" % len(tracker.ready), **ready_style)
     return s
 
 def wait_reasons():

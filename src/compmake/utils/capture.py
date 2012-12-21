@@ -1,4 +1,4 @@
-from . import pad_to_screen, termcolor_colored as colored
+from . import pad_to_screen, termcolor_colored 
 from StringIO import StringIO
 import sys
 
@@ -78,7 +78,9 @@ class OutputCapture:
             publish('job-stderr', job_id=prefix, lines=lines)
 
         #t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
-        t1 = lambda s: '%s|%s' % (colored(prefix, attrs=['dark']), s)
+        
+        # FIXME: perhaps we should use compmake_colored
+        t1 = lambda s: '%s|%s' % (termcolor_colored(prefix, attrs=['dark']), s)
         t2 = lambda s: RESET + pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]
         self.stdout_replacement = StreamCapture(transform=t2, dest=dest,
@@ -86,7 +88,7 @@ class OutputCapture:
         sys.stdout = self.stdout_replacement
 
         #t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
-        t3 = lambda s: '%s|%s' % (colored(prefix, 'red', attrs=['dark']), s)
+        t3 = lambda s: '%s|%s' % (termcolor_colored(prefix, 'red', attrs=['dark']), s)
         t4 = lambda s: RESET + pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]
         self.stderr_replacement = StreamCapture(transform=t4, dest=dest,

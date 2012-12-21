@@ -2,8 +2,9 @@
 from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
-from ..utils import colored, pad_to_screen
+from ..utils import  pad_to_screen
 import string
+from compmake.ui.visualization import compmake_colored
 
 
 state2color = {
@@ -63,7 +64,7 @@ def display_stats(job_list):
     for state in states_order:
         desc = "%30s" % Cache.state2desc[state]
         # colorize output
-        desc = colored(desc, **state2color[state])
+        desc = compmake_colored(desc, **state2color[state])
 
         num = states2count[state]
         if num > 0:
@@ -88,7 +89,7 @@ def display_stats(job_list):
             desc = Cache.state2desc[state]
             s = '%5d %s' % (num, desc)
             if num > 0:
-                s = colored(s, **state2color[state])
+                s = compmake_colored(s, **state2color[state])
             alls.append(s)
 
         s = ",".join(alls)

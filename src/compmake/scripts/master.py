@@ -25,7 +25,8 @@ def read_rc_files():
             read_commands_from_file(x)
             done = True
     if not done:
-        logger.info('No configuration found (looked for %s)' % "; ".join(possible))
+        # logger.info('No configuration found (looked for %s)' % "; ".join(possible))
+        pass
             
 def read_commands_from_file(filename):
     logger.info('Reading configuration from %r' % filename)
@@ -54,8 +55,7 @@ def initialize_backend():
 
 usage = """
 
-    compmake  <module_name>
-    compmake  <path>
+    compmake  <module_name>  [-c COMMAND]
 
 
 """

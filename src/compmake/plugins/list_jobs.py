@@ -2,10 +2,11 @@
 from ..jobs import all_jobs, parse_job_list
 from ..structures import Cache
 from ..ui import ui_command, VISUALIZATION
-from ..utils import duration_human, colored
+from ..utils import duration_human
 from time import time
 import string
 from compmake.jobs.uptodate import CacheQueryDB
+from compmake.ui.visualization import compmake_colored
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -74,7 +75,7 @@ def list_jobs(job_list):
         k = (cache.state, up)
         assert k in state2color, "I found strange state %s" % str(k)
 
-        s += colored(tag, **state2color[k])
+        s += compmake_colored(tag, **state2color[k])
 
 #        if cache.state == Cache.DONE and cache.done_iterations > 1:
 #            s += ' %s iterations completed ' % cache.done_iterations

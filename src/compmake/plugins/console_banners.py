@@ -2,8 +2,9 @@
 from .. import version
 from ..events import register_handler
 from ..jobs import all_jobs, get_namespace
-from ..utils import colored, pad_to_screen
+from ..utils import  pad_to_screen
 import random
+from compmake.ui.visualization import compmake_colored
 
 compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
@@ -21,9 +22,9 @@ def console_starting(event): #@UnusedVariable
     random_banner = random.choice(banners)
     banner = "   ``%s,," % random_banner
     printb("%s %s%s" % (
-        colored(name, attrs=['bold']),
-        colored(version, 'green'),
-        colored(banner, 'cyan')))
+        compmake_colored(name, attrs=['bold']),
+        compmake_colored(version, 'green'),
+        compmake_colored(banner, 'cyan')))
 
     printb(("Welcome to the compmake console. " +
             "(write 'help' for a list of commands)"))
@@ -37,7 +38,7 @@ def console_starting(event): #@UnusedVariable
 
 def console_ending(event): #@UnusedVariable
     print("Thanks for using compmake. Problems? Suggestions? Praise? "
-          "Go to %s" % colored(compmake_issues_url, attrs=['bold']))
+          "Go to %s" % compmake_colored(compmake_issues_url, attrs=['bold']))
 
 
 register_handler('console-starting', console_starting)

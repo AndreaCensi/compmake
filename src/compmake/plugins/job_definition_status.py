@@ -1,8 +1,9 @@
 from ..events import register_handler
-from ..utils import colored, get_screen_columns
+from ..utils import get_screen_columns
 import sys
 import string
 from compmake.state import get_compmake_config
+from compmake.ui.visualization import compmake_colored
 
 
 stream = sys.stderr
@@ -21,9 +22,9 @@ def console_write(s):
 def job_redefined(event):  # @UnusedVariable
     if not get_compmake_config('verbose_definition'):
         return
-    stream.write(colored('Redefined %s\r' % event.job_id, 'yellow',
+    stream.write(compmake_colored('Redefined %s\r' % event.job_id, 'yellow',
                          attrs=['bold']))
-    stream.write(colored(event.reason, 'yellow'))
+    stream.write(compmake_colored(event.reason, 'yellow'))
     #stream.write('\n')
 
 

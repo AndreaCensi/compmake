@@ -7,11 +7,12 @@ from . import (delete_job_cache, get_job_cache, set_job_cache,
 from .. import get_compmake_config
 from ..events import publish
 from ..structures import Cache, JobFailed, JobInterrupted, Promise
-from ..utils import OutputCapture, setproctitle, colored
+from ..utils import OutputCapture, setproctitle
 from copy import deepcopy
 from time import time, clock
 import logging
 import traceback
+from compmake.ui.visualization import compmake_colored
 
 
 def make_sure_cache_is_sane():
@@ -253,15 +254,15 @@ def make(job_id):
 def colorize_loglevel(levelno, msg):
     # TODO: use Compmake's way
     if(levelno >= 50):
-        return colored(msg, 'red')
+        return compmake_colored(msg, 'red')
     elif(levelno >= 40):
-        return colored(msg, 'red')
+        return compmake_colored(msg, 'red')
     elif(levelno >= 30):
-        return colored(msg, 'yellow')
+        return compmake_colored(msg, 'yellow')
     elif(levelno >= 20):
-        return colored(msg, 'green')
+        return compmake_colored(msg, 'green')
     elif(levelno >= 10):
-        return colored(msg, 'cyan')
+        return compmake_colored(msg, 'cyan')
     else:
         return msg
 
