@@ -1,6 +1,4 @@
                                                                                                                                                                                   Using namespace 'using_compmake2'.
-INFO:compmake:No configuration found (looked for compmake.rc; ~/.compmake/compmake.rc)
-WARNING:compmake:Switching from db FilesystemDB('compmake_storage') to 'compmake_storage'
 INFO:compmake:Checking dependencies...
 INFO:compmake:Checking if up to date...
 INFO:compmake:Started job manager with 0 jobs.

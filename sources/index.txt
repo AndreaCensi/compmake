@@ -60,13 +60,13 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 
 
-**Note**: |compmake| is currently an **alpha release**:
-while most of the functionality is there,
-the documentation is not complete,
-it is a bit rough around the edges,
-and some minor aspects of the API could change in the future.
-If you feel adventorous, this is a perfect time to
-get support and influence |compmake|'s evolution!
+.. **Note**: |compmake| is currently a **beta release**:
+.. while most of the functionality is there,
+.. the documentation is not complete,
+.. it is a bit rough around the edges,
+.. and some minor aspects of the API could change in the future.
+.. If you feel adventorous, this is a perfect time to
+.. get support and influence |compmake|'s evolution!
 
 
 .. container:: col1

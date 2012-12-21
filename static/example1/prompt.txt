@@ -1,5 +1,5 @@
 $ compmake example 
-[1mcompmake[0m [32m2.1[0m[36m   ``Keep calm and carry on,,[0m                                                                                                                                         
+[1mcompmake[0m [32m2.2.0[0m[36m   ``Tame your Python computations!,,[0m                                                                                                                               
 Welcome to the compmake console. (write 'help' for a list of commands)                                                                                                            
 27 jobs loaded in namespace 'using_compmake1'.                                                                                                                                    
 @:
