@@ -1,5 +1,5 @@
 $ compmake example 
-Compmake 0.9 - ``Tame your Python computation!''     (c) 2010, Andrea Censi, Caltech 
-Welcome to the compmake console. ('help' for a list of commands)
-27 jobs loaded; using namespace 'using_compmake1'.
+[1mcompmake[0m [32m2.1[0m[36m   ``Keep calm and carry on,,[0m                                                                                                                                         
+Welcome to the compmake console. (write 'help' for a list of commands)                                                                                                            
+27 jobs loaded in namespace 'using_compmake1'.                                                                                                                                    
 @:

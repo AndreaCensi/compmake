@@ -246,18 +246,18 @@ is passed:</p>
 <h2><a class="toc-backref" href="#id3">Running the computation</a><a class="headerlink" href="#running-the-computation" title="Permalink to this headline">¶</a></h2>
 <p>Suppose that before you ran your program as <tt class="docutils literal"><span class="pre">python</span> <span class="pre">[MODULE].py</span></tt>.
 Now, you have to use the syntax:</p>
-<div class="highlight-python"><pre>$ compmake [MODULE] [COMMAND]</pre>
+<div class="highlight-python"><pre>$ compmake [MODULE] [-c COMMAND]</pre>
 </div>
 <p>The following are some examples.</p>
 <p><strong>Making</strong>: The command &#8220;make [jobs]&#8221; runs the computation in series:</p>
-<div class="highlight-python"><pre>$ compmake example make</pre>
+<div class="highlight-python"><pre>$ compmake example -c make</pre>
 </div>
 <p>The first time you run this, you will see the names of the jobs being executed scrolling by. However, the second time, the output will be something like:</p>
-<blockquote>
-<div>Nothing to do.</div></blockquote>
+<div class="highlight-python"><pre>Nothing to do.</pre>
+</div>
 <p>because <span class="compmake-brand">compmake</span> has cached the results of the computation.</p>
 <p><strong>Cleaning up</strong>: Use the command <tt class="docutils literal"><span class="pre">clean</span></tt> to clean:</p>
-<div class="highlight-python"><pre>$ compmake example clean</pre>
+<div class="highlight-python"><pre>$ compmake example -c clean</pre>
 </div>
 <p>Moreover, the command <tt class="docutils literal"><span class="pre">remake</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">clean</span></tt> + <tt class="docutils literal"><span class="pre">make</span></tt>.</p>
 </div>
@@ -269,12 +269,12 @@ by the name of the function, with a progressive number postponed.
 You can use the command <tt class="docutils literal"><span class="pre">list</span></tt> to obtain a list of the jobs.
 For this example, the output would be:</p>
 <div class="highlight-python"><pre>$ compmake example list
-draw                                              Not started/False
-draw-0                                            Not started/False
-draw-1                                            Not started/False
-draw-2                                            Not started/False
-draw-3                                            Not started/False
-draw-4                                            Not started/False
+                                 draw       not started[0m
+                                 draw-0     not started[0m
+                                 draw-1     not started[0m
+                                 draw-2     not started[0m
+                                 draw-3     not started[0m
+                                 draw-4     not started[0m
     [...]
 </pre>
 </div>
@@ -301,12 +301,12 @@ where we presumably want to group the functions by the parameters:</p>
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
 <div class="highlight-python"><pre>$ compmake example list
-p1=1-p2=10-draw                                   Not started/False
-p1=1-p2=10-func1                                  Not started/False
-p1=1-p2=10-func2                                  Not started/False
-p1=1-p2=11-draw                                   Not started/False
-p1=1-p2=11-func1                                  Not started/False
-p1=1-p2=11-func2                                  Not started/False
+                        p1=1-p2=10-draw     not started[0m
+                        p1=1-p2=10-func1    not started[0m
+                        p1=1-p2=10-func2    not started[0m
+                        p1=1-p2=11-draw     not started[0m
+                        p1=1-p2=11-func1    not started[0m
+                        p1=1-p2=11-func2    not started[0m
     [...]
 </pre>
 </div>
@@ -326,12 +326,12 @@ p1=1-p2=11-func2                                  Not started/False
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
 <div class="highlight-python"><pre>$ compmake example list
-p1=1-p2=10-computing                              Not started/False
-p1=1-p2=10-drawing                                Not started/False
-p1=1-p2=10-preparing                              Not started/False
-p1=1-p2=11-computing                              Not started/False
-p1=1-p2=11-drawing                                Not started/False
-p1=1-p2=11-preparing                              Not started/False
+                    p1=1-p2=10-computing    not started[0m
+                    p1=1-p2=10-drawing      not started[0m
+                    p1=1-p2=10-preparing    not started[0m
+                    p1=1-p2=11-computing    not started[0m
+                    p1=1-p2=11-drawing      not started[0m
+                    p1=1-p2=11-preparing    not started[0m
     [...]
 </pre>
 </div>
@@ -340,15 +340,15 @@ p1=1-p2=11-preparing                              Not started/False
 <h2><a class="toc-backref" href="#id5">Cleaning and remaking</a><a class="headerlink" href="#cleaning-and-remaking" title="Permalink to this headline">¶</a></h2>
 <p>Now that you know how to give names to your jobs, you can
 use them for referring to them. For example:</p>
-<div class="highlight-python"><pre>$ compmake  example   make p1=1,p2=11-drawing</pre>
+<div class="highlight-python"><pre>$ compmake  example  -c  "make p1=1,p2=11-drawing"</pre>
 </div>
 <p>You can use the <tt class="docutils literal"><span class="pre">*</span></tt> wildcard. This is very useful to refer
 only to part of the jobs. In the example, you can write:</p>
-<div class="highlight-python"><pre>$ compmake  example   remake   *-p2=11-*</pre>
+<div class="highlight-python"><pre>$ compmake  example   -c "remake   *-p2=11-*"</pre>
 </div>
 <p>to re-do only the subset of computations with a certain value
 of the parameters. Or, you can remake the last stage of the computation:</p>
-<div class="highlight-python"><pre>$ compmake  example   remake   *-drawing</pre>
+<div class="highlight-python"><pre>$ compmake  example   -c "remake   *-drawing"</pre>
 </div>
 <p>As you can see, compmake gives you peace of mind and a sense of empowerment.</p>
 <ul class="simple">

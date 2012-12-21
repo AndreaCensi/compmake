@@ -31,15 +31,15 @@ the opportunities for parallelization.
 
 You would run the modified program using::
 
-    $ compmake example make       # runs locally
-    $ compmake example parmake    # runs locally in parallel
-    $ compmake example clustmake  # runs on a cluster
+    $ compmake example -c make       # runs locally
+    $ compmake example -c parmake    # runs locally in parallel
+    $ compmake example -c clustmake  # runs on a cluster
 
 You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
 rerun only the last step. You can achieve that by::
 
-    $ compmake example remake "draw*"
+    $ compmake example -c "remake draw*"
 
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.

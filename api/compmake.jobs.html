@@ -381,6 +381,7 @@ Captures HostFailed, JobFailed and returns True.</p>
 <tt class="descname">instance_some_jobs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.instance_some_jobs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instances some of the jobs. Uses the
 functions can_accept_job(), next_job(), and ...</p>
+<p>Returns a dictionary of wait conditions.</p>
 </dd></dl>
 
 <dl class="method">
@@ -467,7 +468,7 @@ mark any parents which are ready as ready_todo.</p>
 <p>Specialization of manager for local execution</p>
 <dl class="method">
 <dt id="compmake.jobs.manager_local.ManagerLocal.can_accept_job">
-<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">can_accept_job</tt><big>(</big><em>reasons</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_local.ManagerLocal.can_accept_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -487,8 +488,16 @@ mark any parents which are ready as ready_todo.</p>
 <p>Specialization of Manager for local multiprocessing</p>
 <dl class="method">
 <dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.can_accept_job">
-<tt class="descname">can_accept_job</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.can_accept_job" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descname">can_accept_job</tt><big>(</big><em>reasons_why_not</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager_multiprocessing.MultiprocessingManager.can_accept_job" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reasons_why_not</strong> (<tt class="docutils literal"><span class="pre">dict</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager_multiprocessing.MultiprocessingManager.cleanup">
@@ -947,6 +956,51 @@ Otherwise, use local cache.</p>
 <div class="section" id="module-compmake.jobs.uptodate">
 <span id="uptodate-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">uptodate</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.uptodate" title="Permalink to this headline">¶</a></h2>
 <p>Contains functions concerning the up-to-date status of jobs</p>
+<dl class="class">
+<dt id="compmake.jobs.uptodate.CacheQueryDB">
+<em class="property">class </em><tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">CacheQueryDB</tt><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="compmake.jobs.uptodate.CacheQueryDB.get_job_cache">
+<tt class="descname">get_job_cache</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job_cache" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">Cache</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.uptodate.CacheQueryDB.up_to_date">
+<tt class="descname">up_to_date</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">tuple(bool,str,float)</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.uptodate.CacheQueryDB.up_to_date_actual">
+<tt class="descname">up_to_date_actual</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date_actual" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">tuple(bool,str,float)</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="compmake.jobs.uptodate.dependencies_up_to_date">
 <tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">dependencies_up_to_date</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
@@ -965,8 +1019,36 @@ done:  top level targets (in jobs) that are already done.</p>
 <dt id="compmake.jobs.uptodate.up_to_date">
 <tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">up_to_date</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.up_to_date" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the job is up to date. 
+We are up to date if:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><a href="#id2"><span class="problematic" id="id3">*</span></a>) we are in the up_to_date_cache</dt>
+<dd>(nothing uptodate can become not uptodate so this is generally safe)</dd>
+</dl>
+<p>OR
+1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+2) the children are up to date AND
+3) the children timestamp is older than this timestamp</p>
+<p>Returns:</p>
+<blockquote>
+<div>boolean, explanation</div></blockquote>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">tuple(bool,str)</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.uptodate.up_to_date_slow">
+<tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">up_to_date_slow</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.up_to_date_slow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the job is up to date. 
 We are up to date if:
-<a href="#id2"><span class="problematic" id="id3">*</span></a>) we are in the up_to_date_cache</p>
+<a href="#id4"><span class="problematic" id="id5">*</span></a>) we are in the up_to_date_cache</p>
 <blockquote>
 <div>(nothing uptodate can become not uptodate so this is generally safe)</div></blockquote>
 <p>OR

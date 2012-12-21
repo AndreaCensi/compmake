@@ -189,8 +189,14 @@ Y.Remarkbox.render();
 <span id="filesystem-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">filesystem</span></tt> Module<a class="headerlink" href="#module-compmake.storage.filesystem" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.storage.filesystem.StorageFilesystem">
-<em class="property">class </em><tt class="descclassname">compmake.storage.filesystem.</tt><tt class="descname">StorageFilesystem</tt><big>(</big><em>basepath</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">compmake.storage.filesystem.</tt><tt class="descname">StorageFilesystem</tt><big>(</big><em>basepath</em>, <em>compress=False</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
+<dt id="compmake.storage.filesystem.StorageFilesystem.basename2key">
+<tt class="descname">basename2key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.basename2key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undoes key2basename</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="compmake.storage.filesystem.StorageFilesystem.check_existence">
 <tt class="descname">check_existence</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.check_existence" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -201,20 +207,14 @@ Y.Remarkbox.render();
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="compmake.storage.filesystem.StorageFilesystem.filename2key">
-<tt class="descname">filename2key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.filename2key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Undoes key2filename</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="compmake.storage.filesystem.StorageFilesystem.filename_for_key">
 <tt class="descname">filename_for_key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.filename_for_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the pickle storage filename corresponding to the job id</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="compmake.storage.filesystem.StorageFilesystem.key2filename">
-<tt class="descname">key2filename</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.key2filename" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.storage.filesystem.StorageFilesystem.key2basename">
+<tt class="descname">key2basename</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.key2basename" title="Permalink to this definition">¶</a></dt>
 <dd><p>turns a key into a reasonable filename</p>
 </dd></dl>
 
@@ -225,7 +225,7 @@ Y.Remarkbox.render();
 
 <dl class="method">
 <dt id="compmake.storage.filesystem.StorageFilesystem.keys0">
-<tt class="descname">keys0</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.keys0" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">keys0</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.keys0" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -233,17 +233,7 @@ Y.Remarkbox.render();
 <tt class="descname">reopen_after_fork</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.reopen_after_fork" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="compmake.storage.filesystem.StorageFilesystem.supports_concurrency">
-<tt class="descname">supports_concurrency</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.supports_concurrency" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.filesystem.track_time">
-<tt class="descclassname">compmake.storage.filesystem.</tt><tt class="descname">track_time</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.track_time" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 <div class="section" id="module-compmake.storage.redisdb">

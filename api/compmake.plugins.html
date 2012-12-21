@@ -312,10 +312,15 @@ stuff is built in as a plugin.</p>
 
 <dl class="function">
 <dt id="compmake.plugins.console_status.display_rotating">
-<tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">display_rotating</tt><big>(</big><em>strings</em>, <em>intervals</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.display_rotating" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">display_rotating</tt><big>(</big><em>strings</em>, <em>intervals</em>, <em>align_right=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.display_rotating" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotates the display of the given strings. 
 For now, we assume intervals to be round integers.</p>
 </dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.console_status.get_string">
+<tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">get_string</tt><big>(</big><em>level</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.get_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="compmake.plugins.console_status.handle_event">
@@ -335,6 +340,11 @@ For now, we assume intervals to be round integers.</p>
 <dl class="function">
 <dt id="compmake.plugins.console_status.system_status">
 <tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">system_status</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.system_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.console_status.wait_reasons">
+<tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">wait_reasons</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.wait_reasons" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -434,16 +444,16 @@ computation. The default is &#8216;dot&#8217;
 <span id="list-jobs-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">list_jobs</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.list_jobs" title="Permalink to this headline">¶</a></h2>
 <p>The actual interface of some commands in commands.py</p>
 <dl class="function">
-<dt id="compmake.plugins.list_jobs.list">
-<tt class="descclassname">compmake.plugins.list_jobs.</tt><tt class="descname">list</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs.list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists the status of the selected targets (or all targets if not specified).</p>
-<p>If only one job is specified, then it is listed in more detail.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="compmake.plugins.list_jobs.list_jobs">
 <tt class="descclassname">compmake.plugins.list_jobs.</tt><tt class="descname">list_jobs</tt><big>(</big><em>job_list</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs.list_jobs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.list_jobs.ls">
+<tt class="descclassname">compmake.plugins.list_jobs.</tt><tt class="descname">ls</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs.ls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the status of the selected targets (or all targets if not specified).</p>
+<p>If only one job is specified, then it is listed in more detail.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-compmake.plugins.reload_module">
@@ -501,6 +511,11 @@ It listens to progress events.</p>
 <tt class="descname">event_manager_progress</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.tracker.Tracker.event_manager_progress" title="Permalink to this definition">¶</a></dt>
 <dd><p>Receive progress message (updates processing)</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="compmake.plugins.tracker.Tracker.event_manager_wait">
+<tt class="descname">event_manager_wait</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.tracker.Tracker.event_manager_wait" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

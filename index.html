@@ -194,14 +194,14 @@ such that it can understand the processing layout and
 the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><pre>$ compmake example make       # runs locally
-$ compmake example parmake    # runs locally in parallel
-$ compmake example clustmake  # runs on a cluster</pre>
+<div class="highlight-python"><pre>$ compmake example -c make       # runs locally
+$ compmake example -c parmake    # runs locally in parallel
+$ compmake example -c clustmake  # runs on a cluster</pre>
 </div>
 <p>You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
 rerun only the last step. You can achieve that by:</p>
-<div class="highlight-python"><pre>$ compmake example remake "draw*"</pre>
+<div class="highlight-python"><pre>$ compmake example -c "remake draw*"</pre>
 </div>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.</p>

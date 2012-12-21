@@ -266,11 +266,16 @@ get the completed lines using lines().</p>
 <tt class="descname">save_pair</tt><big>(</big><em>k</em>, <em>v</em><big>)</big><a class="headerlink" href="#compmake.utils.debug_pickler.MyPickler.save_pair" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="compmake.utils.debug_pickler.MyPickler.save_tuple">
+<tt class="descname">save_tuple</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#compmake.utils.debug_pickler.MyPickler.save_tuple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
 <dt id="compmake.utils.debug_pickler.find_pickling_error">
-<tt class="descclassname">compmake.utils.debug_pickler.</tt><tt class="descname">find_pickling_error</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#compmake.utils.debug_pickler.find_pickling_error" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.utils.debug_pickler.</tt><tt class="descname">find_pickling_error</tt><big>(</big><em>obj</em>, <em>protocol=2</em><big>)</big><a class="headerlink" href="#compmake.utils.debug_pickler.find_pickling_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -325,9 +330,24 @@ get the completed lines using lines().</p>
 <div class="section" id="module-compmake.utils.safe_write">
 <span id="safe-write-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">safe_write</span></tt> Module<a class="headerlink" href="#module-compmake.utils.safe_write" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="compmake.utils.safe_write.is_gzip_filename">
+<tt class="descclassname">compmake.utils.safe_write.</tt><tt class="descname">is_gzip_filename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#compmake.utils.safe_write.is_gzip_filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.safe_write.safe_read">
+<tt class="descclassname">compmake.utils.safe_write.</tt><tt class="descname">safe_read</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#compmake.utils.safe_write.safe_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the filename ends in &#8221;.gz&#8221;, reads from a compressed stream.
+Yields a file descriptor.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="compmake.utils.safe_write.safe_write">
 <tt class="descclassname">compmake.utils.safe_write.</tt><tt class="descname">safe_write</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#compmake.utils.safe_write.safe_write" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Makes atomic writes by writing to a temp filename. 
+Also if the filename ends in &#8221;.gz&#8221;, writes to a compressed stream.
+Yields a file descriptor.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-compmake.utils.strings_with_escapes">

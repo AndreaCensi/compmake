@@ -1,8 +1,8 @@
 $ compmake example list
-p1=1-p2=10-draw                                   Not started/False
-p1=1-p2=10-func1                                  Not started/False
-p1=1-p2=10-func2                                  Not started/False
-p1=1-p2=11-draw                                   Not started/False
-p1=1-p2=11-func1                                  Not started/False
-p1=1-p2=11-func2                                  Not started/False
+                        p1=1-p2=10-draw     not started[0m
+                        p1=1-p2=10-func1    not started[0m
+                        p1=1-p2=10-func2    not started[0m
+                        p1=1-p2=11-draw     not started[0m
+                        p1=1-p2=11-func1    not started[0m
+                        p1=1-p2=11-func2    not started[0m
     [...]

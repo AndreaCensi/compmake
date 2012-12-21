@@ -1,0 +1,11 @@
+scripts_utils Package
+=====================
+
+:mod:`scripts_utils` Package
+----------------------------
+
+.. automodule:: compmake.scripts.scripts_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

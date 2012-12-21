@@ -63,15 +63,15 @@ Running the computation
 Suppose that before you ran your program as ``python [MODULE].py``.
 Now, you have to use the syntax::
 
-	$ compmake [MODULE] [COMMAND]
+	$ compmake [MODULE] [-c COMMAND]
 
 The following are some examples.
 
 **Making**: The command "make [jobs]" runs the computation in series::
 
-	$ compmake example make
+	$ compmake example -c make
 
-The first time you run this, you will see the names of the jobs being executed scrolling by. However, the second time, the output will be something like:
+The first time you run this, you will see the names of the jobs being executed scrolling by. However, the second time, the output will be something like: ::
 
 	Nothing to do.
 
@@ -80,7 +80,7 @@ because |compmake| has cached the results of the computation.
 
 **Cleaning up**: Use the command ``clean`` to clean::
 
-	$ compmake example clean
+	$ compmake example -c clean
 
 Moreover, the command ``remake`` is equivalent to ``clean`` + ``make``.
 
@@ -126,17 +126,17 @@ Cleaning and remaking
 Now that you know how to give names to your jobs, you can
 use them for referring to them. For example::
 
-    $ compmake  example   make p1=1,p2=11-drawing
+    $ compmake  example  -c  "make p1=1,p2=11-drawing"
 
 You can use the ``*`` wildcard. This is very useful to refer
 only to part of the jobs. In the example, you can write::
 
-    $ compmake  example   remake   *-p2=11-*
+    $ compmake  example   -c "remake   *-p2=11-*"
 
 to re-do only the subset of computations with a certain value 
 of the parameters. Or, you can remake the last stage of the computation::
 
-    $ compmake  example   remake   *-drawing
+    $ compmake  example   -c "remake   *-drawing"
 
 As you can see, compmake gives you peace of mind and a sense of empowerment.
 

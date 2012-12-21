@@ -3,4 +3,4 @@ make
 ls
 clean
 make
-exit
+
