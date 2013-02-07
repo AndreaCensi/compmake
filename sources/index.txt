@@ -15,10 +15,14 @@ Compmake
 =========
 
 |compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
-* Familiar commands such as ``make``, ``clean``, etc.
-* Zero-effort parallelization.
-* Caching of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
-* A console for inspecting failures and partial completion.
+
+* **Familiar commands** such as ``make``, ``clean``, etc.
+
+* Zero-effort **parallelization**.
+
+* **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
+
+* A **console** for inspecting failures and partial completion.
 
 To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
@@ -29,7 +33,7 @@ the opportunities for parallelization.
 
 Download `a demo example.py`_ that you can try.
 
-.. _`a demo example.py`: my_static/demos/example.py
+.. _`a demo example.py`: static/demos/example.py
 
 You would run the modified program using::
 
@@ -76,7 +80,6 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 
 	**Getting started**
 
-	* :ref:`install`
 	* :ref:`why`
 	* :ref:`limitations`
 
@@ -110,22 +113,24 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 
    <div style="clear:left"/>
 
-Quick installation
+Installation
 ------------------
 
-The quick install is::
+The simplest way to install |compmake| is::
 
 $ easy_install compmake
 
-This will allow you to run |compmake| on a single host.
-However, there are also separate dependencies to install for some
-advanced features such as multiprocessing. See :ref:`install` for more information.
+or, alternatively, using ``pip install compmake``.
 
+.. 
+    This will allow you to run |compmake| on a single host.
+    However, there are also separate dependencies to install for some
+    advanced features such as multiprocessing. See :ref:`install` for more information.
 
 Source download
 +++++++++++++++
 
-Development happens on github: http://github.com/AndreaCensi/compmake
+Development happens on GitHub: http://github.com/AndreaCensi/compmake
 
 .. raw:: html
    :file: download.html
@@ -146,7 +151,6 @@ Please use the `issue tracker on github`_ for bugs and requested features.
    :hidden:
    :glob:
 
-   install*
    features*
    tutorial*
    config*

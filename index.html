@@ -28,7 +28,7 @@
     <script type="text/javascript" src="static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="#" />
-    <link rel="next" title="Installation notes" href="install.html" />
+    <link rel="next" title="Features and limitations" href="features.html" />
 	 
 	
    <style type="text/css">
@@ -171,7 +171,7 @@ Y.Remarkbox.render();
         <p>
         <a class="uplink" href="#">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="install.html">Installation notes</a>&#160;&#160;»
+        <a href="features.html">Features and limitations</a>&#160;&#160;»
         </p>
 
       </div>
@@ -181,16 +181,18 @@ Y.Remarkbox.render();
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
-<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:
-* Familiar commands such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.
-* Zero-effort parallelization.
-* Caching of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
-* A console for inspecting failures and partial completion.</p>
+<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
+<ul class="simple">
+<li><strong>Familiar commands</strong> such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.</li>
+<li>Zero-effort <strong>parallelization</strong>.</li>
+<li><strong>Caching</strong> of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.</li>
+<li>A <strong>console</strong> for inspecting failures and partial completion.</li>
+</ul>
 <p>To use <span class="compmake-brand">compmake</span>, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
-<p>Download <a class="reference external" href="mystatic/demos/example.py">a demo example.py</a> that you can try.</p>
+<p>Download <a class="reference external" href="static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
 <div class="highlight-python"><pre>$ compmake example -c make       # runs locally
 $ compmake example -c parmake    # runs locally in parallel</pre>
@@ -215,7 +217,6 @@ And check out <a class="reference internal" href="limitations.html#limitations">
 <div class="col1 container">
 <p><strong>Getting started</strong></p>
 <ul class="simple">
-<li><a class="reference internal" href="install.html#install"><em>Installation notes</em></a></li>
 <li><a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a></li>
 <li><a class="reference internal" href="limitations.html#limitations"><em>Limitations and assumptions</em></a></li>
 </ul>
@@ -241,17 +242,15 @@ And check out <a class="reference internal" href="limitations.html#limitations">
 <li><a class="reference internal" href="building_docs.html#building-docs"><em>How to contribute to the documentation</em></a></li>
 </ul>
 </div>
-<div style="clear:left"/><div class="section" id="quick-installation">
-<h2>Quick installation<a class="headerlink" href="#quick-installation" title="Permalink to this headline">¶</a></h2>
-<p>The quick install is:</p>
+<div style="clear:left"/><div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The simplest way to install <span class="compmake-brand">compmake</span> is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
 </div>
-<p>This will allow you to run <span class="compmake-brand">compmake</span> on a single host.
-However, there are also separate dependencies to install for some
-advanced features such as multiprocessing. See <a class="reference internal" href="install.html#install"><em>Installation notes</em></a> for more information.</p>
+<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>.</p>
 <div class="section" id="source-download">
 <h3>Source download<a class="headerlink" href="#source-download" title="Permalink to this headline">¶</a></h3>
-<p>Development happens on github: <a class="reference external" href="http://github.com/AndreaCensi/compmake">http://github.com/AndreaCensi/compmake</a></p>
+<p>Development happens on GitHub: <a class="reference external" href="http://github.com/AndreaCensi/compmake">http://github.com/AndreaCensi/compmake</a></p>
 
 <div style="float:right; margin-left: 2em" class="download">
   <a href="http://github.com/AndreaCensi/compmake/zipball/master">
@@ -288,7 +287,7 @@ advanced features such as multiprocessing. See <a class="reference internal" hre
         <p>
         <a class="uplink" href="#">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="install.html">Installation notes</a>&#160;&#160;»
+        <a href="features.html">Features and limitations</a>&#160;&#160;»
         </p>
 
       </div>

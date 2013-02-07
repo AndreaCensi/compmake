@@ -15,15 +15,18 @@ def func2(res1, param2):
 def draw(res2):
     print('draw(%s)' % res2)
 
-# You want to try many combinations of parameters
+# A typical pattern: you want to try 
+# many combinations of parameters
 for param1 in [1,2,3]:
     for param2 in [10,11,12]:
         # Simply use "y = comp(f, x)" whenever
-        # you would have used "y = f(x)"
+        # you would have used "y = f(x)".
         res1 = comp(func1, param1)
-        # You can use return values as well
+        # You can use return values as well.
         res2 = comp(func2, res1, param2)
         comp(draw, res2)
+
+# At this point, nothing has been run yet.
 
 # Now, a few options to run this:
 
@@ -31,13 +34,13 @@ for param1 in [1,2,3]:
 #  $ compmake example
 #  and then run "make" at the prompt.
 
-# 2) Or uncomment the following:
+# 2) Or uncomment this to start the console:
 if False:
     from compmake import compmake_console
     compmake_console()
 
-# 3) Or just run the computation:
+# 3) Or just run the computation in batch mode:
 if True:
     from compmake import batch_command
-    batch_command('make')
+    batch_command('parmake')
 
