@@ -1,16 +1,9 @@
-**Compmake** is a non-obtrusive module that provides:
+Compmake is a non-obtrusive module that provides Makefile-like facilities (including parallel processing) for batch Python applications.
 
-* ``make``--like facilities to your Python computations
-  (``make``, ``clean``, etc.), including caching of temporary
-  results (that is, you can interrupt your program, and
-  restart it without losing (much) data.) 
+To use compmake, you have to minimally modify your Python program, such that it can understand the processing layout and the opportunities for parallelization.
 
-* A console for inspecting failures and partial completion. 
+.. image:: http://andreacensi.github.com/compmake/images/initial.png
+   :class: bigpicture
 
-* Single-host (using the ``multiprocessing`` module) and
-  multiple-host parallelization (using ssh-spawned slaves). 
-  
-* Peace of mind!
-
-See <http://compmake.org> for documentation.
+See http://andreacensi.github.com/compmake/ for extensive documentation. 
 
