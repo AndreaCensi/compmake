@@ -181,22 +181,19 @@ Y.Remarkbox.render();
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 <div class="section" id="compmake">
 <h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
-<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">make</span></tt>&#8211;like facilities to your Python computations (<tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.),
-including caching of temporary results (that is, you can interrupt your program, and restart it without losing  (much) data.)</li>
-<li>A console for inspecting failures and partial completion.</li>
-<li>Single-host (using the <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> module) and multiple-host parallelization (using ssh-spawned slaves).</li>
-<li>Peace of mind!</li>
-</ul>
+<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:
+* Familiar commands such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.
+* Zero-effort parallelization.
+* Caching of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
+* A console for inspecting failures and partial completion.</p>
 <p>To use <span class="compmake-brand">compmake</span>, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
+<p>Download <a class="reference external" href="mystatic/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
 <div class="highlight-python"><pre>$ compmake example -c make       # runs locally
-$ compmake example -c parmake    # runs locally in parallel
-$ compmake example -c clustmake  # runs on a cluster</pre>
+$ compmake example -c parmake    # runs locally in parallel</pre>
 </div>
 <p>You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to

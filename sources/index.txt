@@ -14,13 +14,11 @@
 Compmake
 =========
 
-|compmake| is a non-obtrusive module that provides:
-
-* ``make``--like facilities to your Python computations (``make``, ``clean``, etc.),
-  including caching of temporary results (that is, you can interrupt your program, and restart it without losing  (much) data.)
+|compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
+* Familiar commands such as ``make``, ``clean``, etc.
+* Zero-effort parallelization.
+* Caching of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
 * A console for inspecting failures and partial completion.
-* Single-host (using the ``multiprocessing`` module) and multiple-host parallelization (using ssh-spawned slaves).
-* Peace of mind!
 
 To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
@@ -29,10 +27,15 @@ the opportunities for parallelization.
 .. image:: my_static/initial.png 
    :class: bigpicture
 
+Download `a demo example.py`_ that you can try.
+
+.. _`a demo example.py`: my_static/demos/example.py
+
 You would run the modified program using::
 
     $ compmake example -c make       # runs locally
     $ compmake example -c parmake    # runs locally in parallel
+..
     $ compmake example -c clustmake  # runs on a cluster
 
 You can selectively remake part of the computations. For example,
