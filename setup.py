@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = "2.2.0"
+version = "2.2.1"
 
 
 setup(
@@ -25,7 +25,7 @@ setup(
     license="LGPL",
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
@@ -52,7 +52,8 @@ setup(
         'readline', 
         'PyYaml', 
         'psutil',
-        'decorator'],
+        'decorator'
+    ],
 
     tests_require=['nose']
     # extras_require={
