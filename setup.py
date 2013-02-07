@@ -44,7 +44,15 @@ setup(
        'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
       ]
     },
-    install_requires=['termcolor', 'setproctitle', 'readline', 'PyYaml', 'psutil'],
+    install_requires=[
+        'PyContracts', 
+        'cjson', 
+        'termcolor', 
+        'setproctitle', 
+        'readline', 
+        'PyYaml', 
+        'psutil',
+        'decorator'],
 
     tests_require=['nose']
     # extras_require={

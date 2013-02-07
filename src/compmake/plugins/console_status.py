@@ -57,7 +57,10 @@ def job_counts():
 def wait_reasons():
 #    s += "(" + ",".join(["%s:%s" % (k, v) 
 #                         for (k, v) in  tracker.wait_reasons.items()]) + ')'
-    s = "(" + ",".join(tracker.wait_reasons.values()) + ')'
+    if tracker.wait_reasons:
+        s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
+    else:
+        s = ""
     # s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
     return s
 
@@ -123,7 +126,7 @@ def handle_event(event):  # @UnusedVariable
     status = system_status()
 
     if status:  # available
-        if False:  # TODO: add configuration 
+        if True:  # TODO: add configuration 
             options = [wait_reasons() + " " + status, job_counts()]
         else:
             options = [status, job_counts()]
