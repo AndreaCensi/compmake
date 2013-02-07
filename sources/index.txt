@@ -37,8 +37,8 @@ Download `a demo example.py`_ that you can try.
 
 You would run the modified program using::
 
-    $ compmake example -c make       # runs locally
-    $ compmake example -c parmake    # runs locally in parallel
+    $ compmake example -c make       # runs serially
+    $ compmake example -c parmake    # runs in parallel
 ..
     $ compmake example -c clustmake  # runs on a cluster
 

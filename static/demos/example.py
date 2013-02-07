@@ -38,9 +38,9 @@ for param1 in [1,2,3]:
 if False:
     from compmake import compmake_console
     compmake_console()
-
 # 3) Or just run the computation in batch mode:
-if True:
+elif False:
     from compmake import batch_command
     batch_command('parmake')
-
+else:
+    print('Read inside for how to run this.')

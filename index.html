@@ -120,10 +120,15 @@ div.header h2 {
 	font-size: 160%;
  }
 
-.compmake-brand {
+/*.compmake-brand {
 	font-family: "Lobster", serif;
 	font-size: 120%;
+}*/
+
+.compmake-brand {
+	font-weight: bold;
 }
+
 
 a.reference em, a.external em {
 	font-style: normal !important;
@@ -194,8 +199,8 @@ the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
 <p>Download <a class="reference external" href="static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><pre>$ compmake example -c make       # runs locally
-$ compmake example -c parmake    # runs locally in parallel</pre>
+<div class="highlight-python"><pre>$ compmake example -c make       # runs serially
+$ compmake example -c parmake    # runs in parallel</pre>
 </div>
 <p>You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
