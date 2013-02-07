@@ -27,20 +27,26 @@ for param1 in [1,2,3]:
         comp(draw, res2)
 
 # At this point, nothing has been run yet.
+# There are different options on how to run the computation,
+# depending on how much fine-grained control you want,
+# and if you want an interactive or batch experience.
 
 # Now, a few options to run this:
-
 # 1) Call this file using the compmake program:
 #  $ compmake example
 #  and then run "make" at the prompt.
-
-# 2) Or uncomment this to start the console:
-if False:
-    from compmake import compmake_console
-    compmake_console()
-# 3) Or just run the computation in batch mode:
-elif False:
-    from compmake import batch_command
-    batch_command('parmake')
+import compmake
+if compmake.is_inside_compmake_script():
+    print('Detected that we were imported by compmake.')
+    # We were called by the "compmake" program. 
+    # It will take care of presenting a console to the user 
 else:
-    print('Read inside for how to run this.')
+    interactive = True
+    # 2) Run the console ourselves
+    if interactive:
+        print('Presenting an interactive console')
+        compmake.compmake_console()
+    # 3) Or just run the computation in batch mode:
+    else:
+        print('Running the computation in batch mode')
+        compmake.batch_command('parmake n=4')
