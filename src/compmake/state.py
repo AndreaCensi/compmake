@@ -10,6 +10,7 @@ class CompmakeGlobalState:
     original_stderr = sys.stderr
     original_stdout = sys.stdout
 
+    inside_compmake_script = False
     compmake_status = None
 
     class EventHandlers:
@@ -65,6 +66,14 @@ ConfigSwitch = namedtuple('ConfigSwitch',
                           'name default_value desc section order allowed')
 ConfigSection = namedtuple('ConfigSection', 'name desc order switches')
 
+
+def is_inside_compmake_script():
+    """ Returns true if running inside the compmake script. """
+    return CompmakeGlobalState.inside_compmake_script
+
+def set_inside_compmake_script(itis=True):
+    CompmakeGlobalState.inside_compmake_script = itis
+    
 def set_compmake_status(s):
     CompmakeGlobalState.compmake_status = s
 

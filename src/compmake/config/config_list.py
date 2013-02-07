@@ -82,18 +82,18 @@ add_config_switch('cluster_show_cmd', True,
 #                  desc='Hostname[:port] for Redis host.',
 #                  section=CONFIG_REDIS)
 
-add_config_switch('max_mem_load', 90.0,
+add_config_switch('max_mem_load', 100.0,
        desc="Maximum physical memory load (%)",
        section=CONFIG_PARALLEL)
 
-add_config_switch('max_cpu_load', 90.0,
-       desc="Maximum CPU load (%)",
+add_config_switch('max_cpu_load', 100.0,
+       desc="Maximum CPU load (%). No jobs will be instantiated if over threshold.",
        section=CONFIG_PARALLEL)
 
 add_config_switch('autobal_after', 8, # TODO: number of processors / 2
        desc="Autobalances after the given number of processes (%)",
        section=CONFIG_PARALLEL)
 
-add_config_switch('min_proc_interval', 0.5,
-                  desc='Minimum interval between instantiating jobs.',
+add_config_switch('min_proc_interval', 0,
+                  desc='Minimum time interval between instantiating jobs.',
                   section=CONFIG_PARALLEL)

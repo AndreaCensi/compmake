@@ -133,7 +133,7 @@ def compmake_console_lines():
                             continue
                         f.write('%s\n' % word)
                         last_word = word
-
+                        
             readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
         except:
             pass

@@ -10,14 +10,15 @@ These are all wrappers around the raw methods in storage
 '''
 from .. import CompmakeGlobalState
 from ..structures import Cache, Job, CompmakeException
-from ..ui import  info
+# from ..ui import  info
 from ..utils import wildcard_to_regexp
 from ..state import get_compmake_db
-
+# from .. import logger
 
 def set_namespace(n):
     if n != 'default':
-        info('Using namespace %r.' % n)
+        # logger.info('Using namespace %r.' % n)
+        pass
     CompmakeGlobalState.namespace = n
 
 

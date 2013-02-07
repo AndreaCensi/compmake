@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = "2.2.1"
+version = "2.2.2"
 
 
 setup(
@@ -46,7 +46,7 @@ setup(
     },
     install_requires=[
         'PyContracts', 
-        'cjson', 
+        'python-cjson',
         'termcolor', 
         'setproctitle', 
         'readline', 

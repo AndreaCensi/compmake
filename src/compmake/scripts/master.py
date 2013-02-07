@@ -5,7 +5,7 @@ from ..config import config_populate_optparser
 from ..jobs import all_jobs, set_namespace
 from ..storage import use_filesystem
 from ..structures import UserError
-from ..ui import (error, user_error, warning, interactive_console,
+from ..ui import (error, user_error, interactive_console,
     consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
 from ..utils import setproctitle
 from optparse import OptionParser
@@ -13,6 +13,8 @@ import compmake
 import os
 import sys
 import traceback
+from compmake.state import set_inside_compmake_script
+from compmake.scripts.scripts_utils.script_utils import wrap_script_entry_point
 
 # TODO: revise all of this
 
@@ -54,15 +56,34 @@ def initialize_backend():
 
 
 usage = """
+The "compmake" script has takes either a module name or a DB directory.
 
-    compmake  <module_name>  [-c COMMAND]
+1) In the basic usage, pass a module name, and an optional command with "-c".
+
+    $ compmake  <module_name>  [-c COMMAND]
+    
+   For example, if you have a file "example.py", you could run
+   
+    $ compmake example
+    
+   or 
+    
+    $ compmake example -c "clean; parmake n=2"
 
 
+2) Advanced usage: load jobs from an existing directory.
+
+   $ compmake compmake_storage
+   
+   
 """
 
-# TODO: make everythin an exception instead of sys.exit()
-
 def main():
+    wrap_script_entry_point(compmake_main,
+                            exceptions_no_traceback=(UserError,))
+
+def compmake_main(args):
+    set_inside_compmake_script()
 
     setproctitle('compmake')
 
@@ -80,11 +101,11 @@ def main():
  
     config_populate_optparser(parser)
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(args)
 
 
     # We load plugins after we parsed the configuration
-    from compmake import plugins #@UnusedImport
+    from compmake import plugins  # @UnusedImport
 
 #    if options.redis_events:
 #        if not compmake_config.db == 'redis':
@@ -104,21 +125,24 @@ def main():
     
     # XXX make sure this is the default
     if not args:
-        msg = ('I expect at least one parameter (module name)'
-               ' or db path.')
+        msg = ('I expect at least one argument (module name or db path).'
+               ' Use "compmake -h" for usage information.')
         raise UserError(msg)
 
-    # if the argument looks like a dirname        
-    if os.path.exists(args[0]):
+    if len(args) >= 2:
+        msg = 'I only expect one argument. Use "compmake -h" for usage information.'
+        raise UserError(msg)
+
+    # if the argument looks like a dirname
+    one_arg = args[0]     
+    if os.path.exists(one_arg) and os.path.isdir(one_arg):
         loaded_db = True
-        load_existing_db(args[0])
+        load_existing_db(one_arg)
     else:
         loaded_db = False
-        load_module(args[0])
+        check_not_filename(one_arg)
+        load_module(one_arg)
     args = args[1:]
-    
-    if args:
-        raise Exception('extra commands, use "-c" to pass commands')
  
     def go():
         if options.command:
@@ -148,21 +172,32 @@ def main():
 
 
 def load_existing_db(dirname):
-    logger.info('Loading existing jobs from %r' % dirname)
+    assert os.path.isdir(dirname)
+    logger.info('Loading existing jobs from DB directory %r' % dirname)
     use_filesystem(dirname)
     jobs = list(all_jobs())
+    if not jobs:
+        msg = 'No jobs found in that directory.'
+        raise UserError(msg)
     logger.info('Found %d existing jobs.' % len(jobs))
     consider_jobs_as_defined_now(jobs)
     
 
-def load_module(module_name):
+def check_not_filename(module_name):
     if module_name.endswith('.py') or (module_name.find('/') > 0):
-        warning('You passed a string "%s" which looks like a filename.' % 
+        msg = ('You passed a string %r which looks like a filename.' % 
                 module_name)
-        module_name = module_name.replace('/', '.')
-        module_name = module_name.replace('.py', '')
-        warning('However, I need a module name. I will try with "%s".' % 
-                module_name)
+        msg += ' However, I need a module name.'
+        raise UserError(msg)
+
+def load_module(module_name):
+#    if module_name.endswith('.py') or (module_name.find('/') > 0):
+#        warning('You passed a string %r which looks like a filename.' % 
+#                module_name)
+#        module_name = module_name.replace('/', '.')
+#        module_name = module_name.replace('.py', '')
+#        warning('However, I need a module name. I will try with %r.' % 
+#                module_name)
 
     set_namespace(module_name)
 

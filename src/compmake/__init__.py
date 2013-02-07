@@ -1,5 +1,5 @@
 import sys
-version = '2.2.1'
+version = '2.2.2'
 __version__ = version
 
 import logging
@@ -9,6 +9,7 @@ logger.setLevel(logging.DEBUG)
 
 
 from .constants import *
+from .state import is_inside_compmake_script
 from .state import *
 from .storage import use_filesystem, StorageFilesystem
 
@@ -22,6 +23,8 @@ from .jobs import set_namespace, progress
 from .scripts.master import read_rc_files
 from .structures import Promise
 from . import plugins
+
+
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)

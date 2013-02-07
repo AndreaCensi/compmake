@@ -15,6 +15,8 @@ import sys
 import time
 from contracts import contract
 
+# for some reason it might block on OSX 10.8
+ncpus = multiprocessing.cpu_count() 
 
 if False:
     # Debug multiprocsssing
@@ -67,7 +69,7 @@ class MultiprocessingManager(Manager):
         min_interval = get_compmake_config('min_proc_interval')
         if time_from_last < min_interval:
             resource_available['soft'] = (False,
-                '%.2f < %.1f' % (time_from_last, min_interval))  
+                'interval: %.2f < %.1f' % (time_from_last, min_interval))  
         else:
             resource_available['soft'] = (True, '')
             
@@ -75,7 +77,7 @@ class MultiprocessingManager(Manager):
         process_limit_ok = len(self.processing) < self.max_num_processing
         if not process_limit_ok:
             resource_available['nproc'] = (False,
-                '%d >= %d' % (len(self.processing), self.max_num_processing))
+                'nproc %d >= %d' % (len(self.processing), self.max_num_processing))
         else:
             resource_available['nproc'] = (True, '')
 
@@ -90,7 +92,6 @@ class MultiprocessingManager(Manager):
             max_cpu = stats.max_cpu_percent()
             cur_mem = stats.cur_phymem_usage_percent()
 
-            ncpus = multiprocessing.cpu_count()
             num_processing = len(self.processing)
             if num_processing > 0:  # at least one
                 if ncpus > 2:
@@ -99,7 +100,7 @@ class MultiprocessingManager(Manager):
                     estimated_cpu_increase = 1.0 / ncpus
                     estimated_cpu = max_cpu + estimated_cpu_increase
                     max_cpu_load = get_compmake_config('max_cpu_load')
-                    if estimated_cpu > max_cpu_load:
+                    if max_cpu_load < 100 and estimated_cpu > max_cpu_load:
                         reason = ('cpu %d%%, proj %d%% > %d%%' % 
                                   (max_cpu, estimated_cpu, max_cpu_load))
                         resource_available['cpu'] = (False, reason)
@@ -108,7 +109,7 @@ class MultiprocessingManager(Manager):
                  
                 max_mem_load = get_compmake_config('max_mem_load')
                 if cur_mem > max_mem_load:
-                    reason = '%s > %s' % (cur_mem, max_mem_load)
+                    reason = 'mem %s > %s' % (cur_mem, max_mem_load)
                     resource_available['mem'] = (False, reason)
                     # print('Memory load too high: %s\n\n' % cpu_load)
                 else:
