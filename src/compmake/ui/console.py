@@ -9,6 +9,8 @@ from ..ui import clean_console_line
 import os
 import sys
 import traceback
+from compmake.ui.visualization import error
+from compmake.state import is_inside_compmake_script
 
 use_readline = True
 
@@ -214,6 +216,11 @@ def batch_command(s):
 
 def compmake_console():
     ''' Runs the compmake console. Ignore if we are embedded. '''
+#    if is_inside_compmake_script():
+#        msg = 'I detected that we were imported by "compmake". compmake_console() will not do anything.'
+#        error(msg)
+#        return
+    
     if get_compmake_status() != CompmakeConstants.compmake_status_embedded:
         return
 

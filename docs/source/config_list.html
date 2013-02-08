@@ -10,10 +10,10 @@
 <tr> <td class='config-name'><tt>colorize</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>Use colors in terminals if possible.</td> </tr> 
 <tr> <td class='config-name'><tt>verbose_definition</tt></td> <td class='config-value'><tt>False<tt></td> <td class='config-desc'>If true, log on stderr about job (re)definition.</td> </tr> 
 <tr><th colspan='3'>Multiprocessing</th></tr/ 
-<tr> <td class='config-name'><tt>max_mem_load</tt></td> <td class='config-value'><tt>90.0<tt></td> <td class='config-desc'>Maximum physical memory load (%)</td> </tr> 
-<tr> <td class='config-name'><tt>max_cpu_load</tt></td> <td class='config-value'><tt>90.0<tt></td> <td class='config-desc'>Maximum CPU load (%)</td> </tr> 
+<tr> <td class='config-name'><tt>max_mem_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum physical memory load (%)</td> </tr> 
+<tr> <td class='config-name'><tt>max_cpu_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum CPU load (%). No jobs will be instantiated if over threshold.</td> </tr> 
 <tr> <td class='config-name'><tt>autobal_after</tt></td> <td class='config-value'><tt>8<tt></td> <td class='config-desc'>Autobalances after the given number of processes (%)</td> </tr> 
-<tr> <td class='config-name'><tt>min_proc_interval</tt></td> <td class='config-value'><tt>0.5<tt></td> <td class='config-desc'>Minimum interval between instantiating jobs.</td> </tr> 
+<tr> <td class='config-name'><tt>min_proc_interval</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Minimum time interval between instantiating jobs.</td> </tr> 
 <tr><th colspan='3'>Cluster execution</th></tr/ 
 <tr> <td class='config-name'><tt>cluster_conf</tt></td> <td class='config-value'><tt>cluster.yaml<tt></td> <td class='config-desc'>Location of cluster configuration file.</td> </tr> 
 <tr> <td class='config-name'><tt>hostname</tt></td> <td class='config-value'><tt>localhost<tt></td> <td class='config-desc'>Nickname for current host (set by compmake master).</td> </tr> 
