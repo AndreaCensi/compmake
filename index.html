@@ -217,12 +217,23 @@ the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
 <p>Download <a class="reference external" href="static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><pre>$ compmake example -c make            # runs serially
-$ compmake example -c "parmake n=6"   # runs in parallel</pre>
+<div class="highlight-python"><pre>$ compmake example -c make            # runs serially</pre>
 </div>
+<p><strong>Parallel execution</strong>: To run jobs in parallel, use the <tt class="docutils literal"><span class="pre">parmake</span></tt> command:</p>
+<blockquote>
+<div>$ compmake example -c &#8220;parmake n=6&#8221;   # runs at most 6 in parallel</div></blockquote>
+<p>There are all sorts of configuration options for being nice to other
+users of the machine; for example, Compmake can be instructed
+not to start other jobs if the CPU or memory usage is already above a certain
+percentage:</p>
+<blockquote>
+<div>$ compmake &#8211;max_cpu_load=50 &#8211;max_mem_load=50 example -c &#8220;clean; parmake&#8221;</div></blockquote>
+<div class="section" id="console">
+<h3>Console<a class="headerlink" href="#console" title="Permalink to this headline">¶</a></h3>
 <p>Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.</p>
+</div>
 <div class="section" id="selective-re-make">
 <h3>Selective re-make<a class="headerlink" href="#selective-re-make" title="Permalink to this headline">¶</a></h3>
 <p>You can selectively remake part of the computations. For example,
@@ -233,8 +244,8 @@ rerun only the last step. You can achieve that by:</p>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.</p>
 </div>
-<div class="section" id="failure-tolerant">
-<h3>Failure tolerant<a class="headerlink" href="#failure-tolerant" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="failure-tolerance">
+<h3>Failure tolerance<a class="headerlink" href="#failure-tolerance" title="Permalink to this headline">¶</a></h3>
 <p>If some of the jobs fail (e.g., they throw an exception),
 compmake will go forward with the rest.</p>
 <p>To try this behavior, download the file <a class="reference external" href="static/demos/example_fail.py">example_fail.py</a>.</p>

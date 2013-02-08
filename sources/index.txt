@@ -69,9 +69,25 @@ Download `a demo example.py`_ that you can try.
 You would run the modified program using::
 
     $ compmake example -c make            # runs serially
-    $ compmake example -c "parmake n=6"   # runs in parallel
+
+
+**Parallel execution**: To run jobs in parallel, use the ``parmake`` command:
+
+    $ compmake example -c "parmake n=6"   # runs at most 6 in parallel
+
+There are all sorts of configuration options for being nice to other
+users of the machine; for example, Compmake can be instructed  
+not to start other jobs if the CPU or memory usage is already above a certain 
+percentage: 
+
+    $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
+
+
 ..
     $ compmake example -c clustmake  # runs on a cluster
+
+Console
++++++++++++++++++
 
 Moreover, by running ``compmake example`` only, you have access to a
 console that allows you to inspect the status of the computations,
@@ -89,7 +105,7 @@ rerun only the last step. You can achieve that by::
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
 
-Failure tolerant
+Failure tolerance
 +++++++++++++++++
 
 If some of the jobs fail (e.g., they throw an exception),
