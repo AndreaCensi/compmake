@@ -190,7 +190,9 @@ Y.Remarkbox.render();
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 <div class="section" id="compmake-keep-calm-and-carry-on">
 <h1>Compmake: keep calm and carry on<a class="headerlink" href="#compmake-keep-calm-and-carry-on" title="Permalink to this headline">¶</a></h1>
-<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
+<div id='logo' style='float: left; margin: 1em'>
+    <img style='width: 15em' src='mystatic/logo/compmake-logo.png' alt='COMPMAKE LOGO'/>
+</div><p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
 <ul class="simple">
 <li><strong>Familiar commands</strong> such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.</li>
 <li>Zero-effort <strong>parallelization</strong>.</li>
@@ -206,8 +208,7 @@ you can use <span class="compmake-brand">compmake</span> to gain considerable pe
 <p>The simplest way to install <span class="compmake-brand">compmake</span> is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
 </div>
-<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>.</p>
-<p>You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
+<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>. You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
 </div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
@@ -220,61 +221,52 @@ the opportunities for parallelization.</p>
 <div class="highlight-python"><pre>$ compmake example -c make            # runs serially</pre>
 </div>
 <p><strong>Parallel execution</strong>: To run jobs in parallel, use the <tt class="docutils literal"><span class="pre">parmake</span></tt> command:</p>
-<blockquote>
-<div>$ compmake example -c &#8220;parmake n=6&#8221;   # runs at most 6 in parallel</div></blockquote>
+<div class="highlight-python"><pre>$ compmake example -c "parmake n=6"   # runs at most 6 in parallel</pre>
+</div>
 <p>There are all sorts of configuration options for being nice to other
 users of the machine; for example, Compmake can be instructed
 not to start other jobs if the CPU or memory usage is already above a certain
 percentage:</p>
-<blockquote>
-<div>$ compmake &#8211;max_cpu_load=50 &#8211;max_mem_load=50 example -c &#8220;clean; parmake&#8221;</div></blockquote>
-<div class="section" id="console">
-<h3>Console<a class="headerlink" href="#console" title="Permalink to this headline">¶</a></h3>
-<p>Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
+<div class="highlight-python"><pre>$ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"</pre>
+</div>
+<p><strong>Console</strong>: Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.</p>
-</div>
-<div class="section" id="selective-re-make">
-<h3>Selective re-make<a class="headerlink" href="#selective-re-make" title="Permalink to this headline">¶</a></h3>
-<p>You can selectively remake part of the computations. For example,
+<p><strong>Selective re-make</strong>: You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
 rerun only the last step. You can achieve that by:</p>
 <div class="highlight-python"><pre>$ compmake example -c "remake draw*"</pre>
 </div>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.</p>
-</div>
-<div class="section" id="failure-tolerance">
-<h3>Failure tolerance<a class="headerlink" href="#failure-tolerance" title="Permalink to this headline">¶</a></h3>
-<p>If some of the jobs fail (e.g., they throw an exception),
+<p><strong>Failure tolerance</strong>:
+If some of the jobs fail (e.g., they throw an exception),
 compmake will go forward with the rest.</p>
-<p>To try this behavior, download the file <a class="reference external" href="static/demos/example_fail.py">example_fail.py</a>.</p>
-<p>If you run:</p>
+<p>To try this behavior, download the file <a class="reference external" href="static/demos/example_fail.py">example_fail.py</a>. If you run:</p>
 <div class="highlight-python"><pre>$ compmake example_fail -c "parmake n=4"</pre>
 </div>
-<p>you will see how compmake completes all jobs that can be completed.</p>
-<p>If you run again:</p>
+<p>you will see how compmake completes all jobs that can be completed. If you run again:</p>
 <div class="highlight-python"><pre>$ compmake example_fail -c "make"</pre>
 </div>
 <p>Compmake will try again to run the jobs that failed.</p>
 </div>
-</div>
 <div class="section" id="feedback">
 <h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
-<p>Compmake is currently developed by <a class="reference external" href="http://purl.org/censi/web">Andrea Censi</a>. Contributors are most welcome.</p>
-<p>Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and feature requests.</p>
+<p>Compmake is currently developed by <a class="reference external" href="http://purl.org/censi/web">Andrea Censi</a>. Contributors are most welcome.
+Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and feature requests.</p>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
-<p>Still interested? Read along. Start with the tutorial <a class="reference internal" href="tutorial_basic.html#tutorial-basic"><em>Basic compmake usage</em></a>.
-And check out <a class="reference internal" href="limitations.html#limitations"><em>Limitations and assumptions</em></a> to see if <tt class="docutils literal"><span class="pre">compmake</span></tt> can help you.</p>
+<p>Still unsure you need this?  Read <a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a>.
+And check out <a class="reference internal" href="limitations.html#limitations"><em>Limitations and assumptions</em></a> to see if <span class="compmake-brand">compmake</span> can help you.</p>
+<p>Still interested? Start with the tutorial <a class="reference internal" href="tutorial_basic.html#tutorial-basic"><em>Basic compmake usage</em></a>.</p>
 <div class="col1 container">
-<p><strong>Getting started</strong></p>
+<p><strong>Design</strong></p>
 <ul class="simple">
 <li><a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a></li>
 <li><a class="reference internal" href="limitations.html#limitations"><em>Limitations and assumptions</em></a></li>
 </ul>
-<p><strong>Tutorial</strong></p>
+<p><strong>Getting started</strong></p>
 <ul class="simple">
 <li><a class="reference internal" href="tutorial_basic.html#tutorial-basic"><em>Basic compmake usage</em></a></li>
 <li><a class="reference internal" href="tutorial_console.html#tutorial-console"><em>The compmake console</em></a></li>
@@ -288,7 +280,7 @@ And check out <a class="reference internal" href="limitations.html#limitations">
 <li><a class="reference internal" href="commands.html#commands"><em>Compmake commands reference</em></a></li>
 <li><a class="reference internal" href="config.html#config"><em>Compmake configuration reference</em></a></li>
 </ul>
-<p><strong>Developer</strong></p>
+<p><strong>Developement</strong></p>
 <ul class="simple">
 <li><a class="reference internal" href="developer.html#developer"><em>Developer notes</em></a></li>
 <li><a class="reference internal" href="extending.html#extending"><em>Extending compmake</em></a></li>
