@@ -1,5 +1,5 @@
 import sys
-version = '2.2.2'
+version = '2.2.3'
 __version__ = version
 
 import logging
@@ -23,8 +23,6 @@ from .jobs import set_namespace, progress
 from .scripts.master import read_rc_files
 from .structures import Promise
 from . import plugins
-
-
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
