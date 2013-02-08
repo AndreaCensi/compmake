@@ -1,5 +1,5 @@
 .. raw:: html
-   :file: fork.html
+   :file: index-fork.html
 
 ..
     .. container:: twitterbadge
@@ -14,20 +14,25 @@
 Compmake: keep calm and carry on
 ================================
 
-|compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
+.. raw:: html
+   :file: index-logo.html
 
-* **Familiar commands** such as ``make``, ``clean``, etc.
+.. container:: intro
 
-* Zero-effort **parallelization**.
+  |compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
 
-* **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
+  * **Familiar commands** such as ``make``, ``clean``, etc.
 
-* A **console** for inspecting failures and partial completion.
+  * Zero-effort **parallelization**.
 
-|compmake| has been designed primarily for handling long computational-intensive
-batch processes. It assumes that the computational layout is fixed and that 
-all intermediate results can be cached to disk. If these two conditions are met,
-you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
+  * **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
+
+  * A **console** for inspecting failures and partial completion.
+
+  |compmake| has been designed primarily for handling long computational-intensive
+  batch processes. It assumes that the computational layout is fixed and that 
+  all intermediate results can be cached to disk. If these two conditions are met,
+  you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
 
 
 Installation
@@ -37,9 +42,7 @@ The simplest way to install |compmake| is::
 
 $ easy_install compmake
 
-or, alternatively, using ``pip install compmake``.
-
-You can also `fork the project on GitHub`_.
+or, alternatively, using ``pip install compmake``. You can also `fork the project on GitHub`_.
 
 .. _`fork the project on GitHub`: http://github.com/AndreaCensi/compmake
 
@@ -71,14 +74,14 @@ You would run the modified program using::
     $ compmake example -c make            # runs serially
 
 
-**Parallel execution**: To run jobs in parallel, use the ``parmake`` command:
+**Parallel execution**: To run jobs in parallel, use the ``parmake`` command::
 
     $ compmake example -c "parmake n=6"   # runs at most 6 in parallel
 
 There are all sorts of configuration options for being nice to other
 users of the machine; for example, Compmake can be instructed  
 not to start other jobs if the CPU or memory usage is already above a certain 
-percentage: 
+percentage::
 
     $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
 
@@ -86,17 +89,11 @@ percentage:
 ..
     $ compmake example -c clustmake  # runs on a cluster
 
-Console
-+++++++++++++++++
-
-Moreover, by running ``compmake example`` only, you have access to a
+**Console**: Moreover, by running ``compmake example`` only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.
 
-Selective re-make
-+++++++++++++++++
-
-You can selectively remake part of the computations. For example,
+**Selective re-make**: You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
 rerun only the last step. You can achieve that by::
 
@@ -105,21 +102,15 @@ rerun only the last step. You can achieve that by::
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
 
-Failure tolerance
-+++++++++++++++++
-
+**Failure tolerance**: 
 If some of the jobs fail (e.g., they throw an exception),
 compmake will go forward with the rest. 
 
-To try this behavior, download the file `example_fail.py`_. 
-
-If you run::
+To try this behavior, download the file `example_fail.py`_. If you run::
 
     $ compmake example_fail -c "parmake n=4"
 
-you will see how compmake completes all jobs that can be completed.
-
-If you run again::
+you will see how compmake completes all jobs that can be completed. If you run again::
 
     $ compmake example_fail -c "make"
 
@@ -133,7 +124,6 @@ Feedback
 ---------
 
 Compmake is currently developed by `Andrea Censi`_. Contributors are most welcome.
-
 Please use the `issue tracker on github`_ for bugs and feature requests.
 
 .. _`issue tracker on github`: http://github.com/AndreaCensi/compmake/issues
@@ -152,18 +142,20 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 Documentation
 -------------
 
-Still interested? Read along. Start with the tutorial :ref:`tutorial_basic`.
-And check out :ref:`limitations` to see if ``compmake`` can help you.
+Still unsure you need this?  Read :ref:`why`.
+And check out :ref:`limitations` to see if |compmake| can help you.
+
+Still interested? Start with the tutorial :ref:`tutorial_basic`.
 
 
 .. container:: col1
 
-	**Getting started**
+	**Design**
 
 	* :ref:`why`
 	* :ref:`limitations`
 
-	**Tutorial**
+	**Getting started**
 	
 	* :ref:`tutorial_basic`
 	* :ref:`tutorial_console`
@@ -182,7 +174,7 @@ And check out :ref:`limitations` to see if ``compmake`` can help you.
 	* :ref:`commands`
 	* :ref:`config`
 
-	**Developer**
+	**Developement**
 
 	* :ref:`developer`
 	* :ref:`extending`
