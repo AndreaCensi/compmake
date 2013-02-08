@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Compmake &mdash; Compmake make for batch Python processes</title>
+    <title>Compmake: keep calm and carry on &mdash; Compmake make for batch Python processes</title>
     
     <link rel="stylesheet" href="static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
@@ -93,7 +93,10 @@
 	/*	width: 80ex;*/
 	}
 	
-	body {  font-size: 120%; font-family: "Droid Serif", serif; }
+	body {  font-size: 120%; 
+		font-family: "Verdana", sans-serif;
+		/*font-family: "Droid Serif", serif; */
+	}
 	
 	h1,h2,h3 { 
   font-family: "Lobster", serif;
@@ -126,7 +129,7 @@ div.header h2 {
 }*/
 
 .compmake-brand {
-	font-family: "Droid Serif";
+	/*font-family: "Droid Serif";*/
 	font-weight: bold;
 }
 
@@ -170,7 +173,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="#">
           <span></span></a></h1>
-        <h2 class="heading"><span>Compmake</span></h2>
+        <h2 class="heading"><span>Compmake: keep calm and carry on</span></h2>
       </div>
       <div class="topnav">
       
@@ -185,8 +188,8 @@ Y.Remarkbox.render();
         
         
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-<div class="section" id="compmake">
-<h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="compmake-keep-calm-and-carry-on">
+<h1>Compmake: keep calm and carry on<a class="headerlink" href="#compmake-keep-calm-and-carry-on" title="Permalink to this headline">¶</a></h1>
 <p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
 <ul class="simple">
 <li><strong>Familiar commands</strong> such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.</li>
@@ -194,12 +197,17 @@ Y.Remarkbox.render();
 <li><strong>Caching</strong> of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.</li>
 <li>A <strong>console</strong> for inspecting failures and partial completion.</li>
 </ul>
+<p><span class="compmake-brand">compmake</span> has been designed primarily for handling long computational-intensive
+batch processes. It assumes that the computational layout is fixed and that
+all intermediate results can be cached to disk. If these two conditions are met,
+you can use <span class="compmake-brand">compmake</span> to gain considerable peace of mind. Read <a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a>.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way to install <span class="compmake-brand">compmake</span> is:</p>
 <div class="highlight-python"><pre>$ easy_install compmake</pre>
 </div>
 <p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>.</p>
+<p>You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
 </div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
@@ -209,20 +217,25 @@ the opportunities for parallelization.</p>
 <img alt="images/initial.png" class="bigpicture" src="images/initial.png" />
 <p>Download <a class="reference external" href="static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><pre>$ compmake example -c make       # runs serially
-$ compmake example -c parmake    # runs in parallel</pre>
+<div class="highlight-python"><pre>$ compmake example -c make            # runs serially
+$ compmake example -c "parmake n=6"   # runs in parallel</pre>
 </div>
 <p>Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
 console that allows you to inspect the status of the computations,
 cleaning/remaking jobs, etc.</p>
-<p><strong>Selective re-make</strong>: You can selectively remake part of the computations. For example,
+<div class="section" id="selective-re-make">
+<h3>Selective re-make<a class="headerlink" href="#selective-re-make" title="Permalink to this headline">¶</a></h3>
+<p>You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
 rerun only the last step. You can achieve that by:</p>
 <div class="highlight-python"><pre>$ compmake example -c "remake draw*"</pre>
 </div>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
 but it will redo the last step.</p>
-<p><strong>Failure tolerant</strong>: If some of the jobs fail (e.g., they throw an exception),
+</div>
+<div class="section" id="failure-tolerant">
+<h3>Failure tolerant<a class="headerlink" href="#failure-tolerant" title="Permalink to this headline">¶</a></h3>
+<p>If some of the jobs fail (e.g., they throw an exception),
 compmake will go forward with the rest.</p>
 <p>To try this behavior, download the file <a class="reference external" href="static/demos/example_fail.py">example_fail.py</a>.</p>
 <p>If you run:</p>
@@ -233,11 +246,15 @@ compmake will go forward with the rest.</p>
 <div class="highlight-python"><pre>$ compmake example_fail -c "make"</pre>
 </div>
 <p>Compmake will try again to run the jobs that failed.</p>
-<p><span class="compmake-brand">compmake</span> has been designed primarily for handling long computational-intensive
-batch processes. It assumes that the computational layout is fixed and that
-all intermediate results can be cached to disk. If these two conditions are met,
-you can use <span class="compmake-brand">compmake</span> to gain considerable peace of mind.</p>
-<p>Still not convinced? Read <a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a>.</p>
+</div>
+</div>
+<div class="section" id="feedback">
+<h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
+<p>Compmake is currently developed by <a class="reference external" href="http://purl.org/censi/web">Andrea Censi</a>. Contributors are most welcome.</p>
+<p>Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and feature requests.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <p>Still interested? Read along. Start with the tutorial <a class="reference internal" href="tutorial_basic.html#tutorial-basic"><em>Basic compmake usage</em></a>.
 And check out <a class="reference internal" href="limitations.html#limitations"><em>Limitations and assumptions</em></a> to see if <tt class="docutils literal"><span class="pre">compmake</span></tt> can help you.</p>
 <div class="col1 container">
@@ -252,7 +269,6 @@ And check out <a class="reference internal" href="limitations.html#limitations">
 <li><a class="reference internal" href="tutorial_console.html#tutorial-console"><em>The compmake console</em></a></li>
 <li><a class="reference internal" href="tutorial_parmake.html#tutorial-parmake"><em>Single-host multiprocessing</em></a></li>
 <li><a class="reference internal" href="tutorial_embedding.html#tutorial-embedding"><em>Embedding compmake in your application</em></a></li>
-<li><a class="reference internal" href="tutorial_cluster.html#tutorial-cluster"><em>Compmake on a cluster</em></a></li>
 </ul>
 </div>
 <div class="col2 container">
@@ -268,31 +284,7 @@ And check out <a class="reference internal" href="limitations.html#limitations">
 <li><a class="reference internal" href="building_docs.html#building-docs"><em>How to contribute to the documentation</em></a></li>
 </ul>
 </div>
-<div style="clear:left"/><div class="section" id="source-download">
-<h3>Source download<a class="headerlink" href="#source-download" title="Permalink to this headline">¶</a></h3>
-<p>Development happens on GitHub: <a class="reference external" href="http://github.com/AndreaCensi/compmake">http://github.com/AndreaCensi/compmake</a></p>
-
-<div style="float:right; margin-left: 2em" class="download">
-  <a href="http://github.com/AndreaCensi/compmake/zipball/master">
-    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-  <a href="http://github.com/AndreaCensi/compmake/tarball/master">
-    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-</div>
-
-<p>
-  You can download this project in either
-  <a href="http://github.com/AndreaCensi/compmake/zipball/master">zip</a> or
-  <a href="http://github.com/AndreaCensi/compmake/tarball/master">tar</a> formats.
-  You can also clone the project with <a href="http://git-scm.com">Git</a>
-  by running:
-  <pre>$ git clone git://github.com/AndreaCensi/compmake</pre>
-</p></div>
-</div>
-<div class="section" id="feedback">
-<h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
-<p>Compmake is currently developed by <a class="reference external" href="http://www.cds.caltech.edu/~andrea/">Andrea Censi</a>. Contributors are most welcome.</p>
-<p>Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and requested features.</p>
-<div class="toctree-wrapper compound">
+<div style="clear:left"/><div class="toctree-wrapper compound">
 </div>
 <ul class="simple">
 <li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
