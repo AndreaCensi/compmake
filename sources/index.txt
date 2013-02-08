@@ -17,20 +17,22 @@ Compmake: keep calm and carry on
 .. raw:: html
    :file: index-logo.html
 
-|compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
+.. container:: intro
 
-* **Familiar commands** such as ``make``, ``clean``, etc.
+  |compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
 
-* Zero-effort **parallelization**.
+  * **Familiar commands** such as ``make``, ``clean``, etc.
 
-* **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
+  * Zero-effort **parallelization**.
 
-* A **console** for inspecting failures and partial completion.
+  * **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
 
-|compmake| has been designed primarily for handling long computational-intensive
-batch processes. It assumes that the computational layout is fixed and that 
-all intermediate results can be cached to disk. If these two conditions are met,
-you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
+  * A **console** for inspecting failures and partial completion.
+
+  |compmake| has been designed primarily for handling long computational-intensive
+  batch processes. It assumes that the computational layout is fixed and that 
+  all intermediate results can be cached to disk. If these two conditions are met,
+  you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
 
 
 Installation

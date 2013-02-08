@@ -138,9 +138,32 @@ a.reference em, a.external em {
 	font-style: normal !important;
 }
 
+/* First page layout */
+
+/*
+	div#logo
+	div#intro
+
+*/
+div#logo, div.intro { 
+		
+	}
+    div.intro ul, div.intro p {float: left; }
+    h2 { clear: both;}
+	div#logo {
+		float: left;
+		margin: 1em;
+        margin-right: 4em;
+	}
+	div#logo img {
+        border: solid 1px red;
+		width: 15em;
+	}
 </style>
 
-<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+
+
+<!-- <link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" > -->
 <link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
 <!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
 
@@ -190,9 +213,15 @@ Y.Remarkbox.render();
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 <div class="section" id="compmake-keep-calm-and-carry-on">
 <h1>Compmake: keep calm and carry on<a class="headerlink" href="#compmake-keep-calm-and-carry-on" title="Permalink to this headline">¶</a></h1>
-<div id='logo' style='float: left; margin: 1em'>
-    <img style='width: 15em' src='mystatic/logo/compmake-logo.png' alt='COMPMAKE LOGO'/>
-</div><p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
+<style type='text/css'>
+/* let's get rid of the header */
+div.topnav, div.header { display: none;}
+html { background: white; background-image: none !important;}
+</style>
+<div id='logo'>
+    <img src='static/logo/compmake-logo.png' alt='COMPMAKE LOGO'/>
+</div><div class="intro container">
+<p><span class="compmake-brand">compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
 <ul class="simple">
 <li><strong>Familiar commands</strong> such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.</li>
 <li>Zero-effort <strong>parallelization</strong>.</li>
@@ -203,6 +232,7 @@ Y.Remarkbox.render();
 batch processes. It assumes that the computational layout is fixed and that
 all intermediate results can be cached to disk. If these two conditions are met,
 you can use <span class="compmake-brand">compmake</span> to gain considerable peace of mind. Read <a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a>.</p>
+</div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way to install <span class="compmake-brand">compmake</span> is:</p>
