@@ -4,39 +4,41 @@ from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
     _tuplesize2code, POP_MARK)
 import pickle
 import traceback
-
+from .. import logger
 
 def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()
     try:
         pickle.dumps(obj)
     except Exception as e1:
-        #s1 = traceback.format_exc(e1)
+        # s1 = traceback.format_exc(e1)
         pass
     else:
-        msg = 'We could pickle the object of class %s' % describe_type(obj)
-        raise Exception(msg)
-    
+        msg = ('Strange! I could not reproduce the pickling error '
+                'for the object of class %s' % describe_type(obj))
+        logger.info(msg)
+
     pickler = MyPickler(sio, protocol)
     try:
         pickler.dump(obj)
-    except Exception as E:
+    except Exception as e1:
         msg = pickler.get_stack_description() 
-        msg += '\n --- Current exception----\n%s' % traceback.format_exc(E)
+        msg += '\n --- Current exception----\n%s' % traceback.format_exc(e1)
         msg += '\n --- Old exception----\n%s' % traceback.format_exc(e1)
         return msg
     else:
-        raise Exception('We could pickle this object.')
+        msg = 'I could not find the exact pickling error.'
+        raise Exception(msg)
 
 
-class MyPickler (Pickler):
+class MyPickler(Pickler):
     def __init__(self, *args, **kargs):
         Pickler.__init__(self, *args, **kargs)
         self.stack = []
 
     def save(self, obj):
         desc = 'object of type %s' % (describe_type(obj))
-        #, describe_value(obj, 100))
+        # , describe_value(obj, 100))
         #  self.stack.append(describe_value(obj, 120))
         self.stack.append(desc)
         Pickler.save(self, obj)
@@ -57,7 +59,7 @@ class MyPickler (Pickler):
     def _batch_setitems(self, items):
         
         # Helper to batch up SETITEMS sequences; proto >= 1 only
-        #save = self.save
+        # save = self.save
         write = self.write
 
         if not self.bin:
@@ -141,7 +143,7 @@ class MyPickler (Pickler):
             get = self.get(memo[id(obj)][0])
             if proto:
                 write(POP_MARK + get)
-            else:   # proto 0 -- POP_MARK not available
+            else:  # proto 0 -- POP_MARK not available
                 write(POP * (n + 1) + get)
             return
 
