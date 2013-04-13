@@ -12,7 +12,7 @@ import cPickle as pickle
 import inspect
 
  
-def is_pickable(x): # TODO: move away
+def is_pickable(x):  # TODO: move away
     try:
         pickle.dumps(x)
         return True
@@ -41,6 +41,10 @@ def comp_prefix(prefix=None):
     # TODO: check str
     CompmakeGlobalState.job_prefix = prefix
 
+def get_comp_prefix():
+    return CompmakeGlobalState.job_prefix 
+
+
 def comp_stage_job_id(job, suffix):
     """ Makes a new job_id, by returnin job_id + '-' + suffix,
         but removing the job_prefix if it exists. """
@@ -50,8 +54,8 @@ def comp_stage_job_id(job, suffix):
     if job_id.startswith(pref):
         job_id = job_id[len(pref):]
     result = '%s-%s' % (job_id, suffix)
-    #print('removing %r' % pref)
-    #print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s' 
+    # print('removing %r' % pref)
+    # print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s' 
     #      % (job.job_id, job_id, suffix, result))
     return result 
 
@@ -106,13 +110,13 @@ def clean_other_jobs():
         
     defined_now = CompmakeGlobalState.jobs_defined_in_this_session
     
-    #logger.info('Cleaning all jobs not defined in this session.'
+    # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
     
     jobs_in_db = 0
     num_cleaned = 0
     for job_id in all_jobs(force_db=True):
-        #logger.info('Considering %s' % job_id)
+        # logger.info('Considering %s' % job_id)
         jobs_in_db += 1
         if not job_id in defined_now:
             num_cleaned += 1
@@ -131,7 +135,7 @@ def clean_other_jobs():
                     clean_all = True
             else:
                 pass
-                #logger.info('Cleaning %r' % job_id)
+                # logger.info('Cleaning %r' % job_id)
                 
             clean_target(job_id)
             delete_job(job_id)
@@ -141,7 +145,7 @@ def clean_other_jobs():
             if job_args_exists(job_id):
                 delete_job_args(job_id)
 
-    #logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
+    # logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
     
 def comp(command_, *args, **kwargs):
     ''' 
@@ -166,7 +170,7 @@ def comp(command_, *args, **kwargs):
                'Python)' % command)
         raise UserError(msg)
 
-    args = list(args) # args is a non iterable tuple
+    args = list(args)  # args is a non iterable tuple
 
     # Get job id from arguments
     if CompmakeConstants.job_id_key in kwargs:
@@ -191,7 +195,7 @@ def comp(command_, *args, **kwargs):
 
     CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
 
-    if CompmakeConstants.extra_dep_key in kwargs: # TODO: add in constants
+    if CompmakeConstants.extra_dep_key in kwargs:  # TODO: add in constants
         extra_dep = \
             collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
         del kwargs[CompmakeConstants.extra_dep_key]
@@ -388,7 +392,7 @@ def interpret_single_command(commands_line):
                             (k, v, type(default_value)))
                     raise UserError(msg)
 
-                #print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
+                # print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
 
         else:
             other.append(a)
