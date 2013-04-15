@@ -9,8 +9,7 @@ from ..ui import clean_console_line
 import os
 import sys
 import traceback
-from compmake.ui.visualization import error
-from compmake.state import is_inside_compmake_script
+from contracts import contract
 
 use_readline = True
 
@@ -23,7 +22,16 @@ if use_readline:
 
 
 def interpret_commands_wrap(commands):
-    """ Returns False if we want to exit. """
+    """ 
+        Returns:
+        
+        0            everything ok
+        int not 0    error
+        string       an error, explained
+        
+        False?       we want to exit (not found in source though)
+    """
+    
     publish('command-line-starting', command=commands)
 
     try:
@@ -47,9 +55,9 @@ def interpret_commands_wrap(commands):
     except KeyboardInterrupt as e:
         publish('command-line-interrupted',
                 command=commands, reason='KeyboardInterrupt')
-        tb = traceback.format_exc()
-        print tb
-        return('Execution of "%s" interrupted.' % commands)
+        # tb = traceback.format_exc()
+        # print tb  # XXX 
+        return('Execution of %r interrupted.' % commands)
     except ShellExitRequested:
         raise
     except Exception as e:
@@ -58,7 +66,7 @@ def interpret_commands_wrap(commands):
               'have been filtered out already. '
               'This is a compmake BUG '
               'that should be reported:  %s' % tb)
-        publish('compmake-bug', user_msg=msg, dev_msg="") # XXX
+        publish('compmake-bug', user_msg=msg, dev_msg="")  # XXX
         return('Compmake BUG: %s' % e)
     return retcode
 
@@ -89,12 +97,12 @@ def interactive_console():
 
 def get_completions():
     if CompmakeGlobalState.cached_completions is None:
-        #print('Computing completions...')
+        # print('Computing completions...')
         available = get_commands().keys()
         available.extend(list(all_jobs()))  # give it a list
         # TODO: add function type "myfunc()" 
         CompmakeGlobalState.cached_completions = available
-        #print('..done.')
+        # print('..done.')
 
     return CompmakeGlobalState.cached_completions
 
@@ -128,10 +136,10 @@ def compmake_console_lines():
                     for word in lines:
                         word = word.strip()
                         if len(word) == 1:
-                            continue # 'y', 'n'
+                            continue  # 'y', 'n'
                         if word in ['exit', 'quit']:
                             continue
-                        if word == last_word: # no doubles
+                        if word == last_word:  # no doubles
                             continue
                         f.write('%s\n' % word)
                         last_word = word
@@ -203,8 +211,19 @@ def ask_question(question, allowed=None):
 
 # Note: we wrap these in shallow functions because we don't want
 # to import other things.
+
+@contract(returns='int|str')
 def batch_command(s):
-    ''' executes one command '''
+    ''' 
+        Executes one command (could be a sequence) 
+
+         Returns:
+            
+            0            everything ok
+            int not 0    error
+            string       an error, explained
+                
+    '''
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
@@ -215,7 +234,9 @@ def batch_command(s):
 
 
 def compmake_console():
-    ''' Runs the compmake console. Ignore if we are embedded. '''
+    ''' 
+        Runs the compmake console. Ignore if we are embedded. 
+    '''
 #    if is_inside_compmake_script():
 #        msg = 'I detected that we were imported by "compmake". compmake_console() will not do anything.'
 #        error(msg)
