@@ -26,8 +26,8 @@ def exit():  # @ReservedAssignment
     '''Exits the shell.'''
     raise ShellExitRequested()
 
-#@ui_command(section=ACTIONS)
-#def check():
+# @ui_command(section=ACTIONS)
+# def check():
 #    '''Makes sure that the cache is sane. '''
 #    make_sure_cache_is_sane()
 
@@ -69,7 +69,7 @@ def make(job_list):
     if not job_list:
         job_list = list(top_targets())
 
-    #print "Making %d jobs" % len(job_list)
+    # print "Making %d jobs" % len(job_list)
 
     manager = ManagerLocal()
     manager.add_targets(job_list)
@@ -116,19 +116,18 @@ Usage:
             status='Starting multiprocessing manager (forking)')
     manager = MultiprocessingManager(n)
 
-    publish('parmake-status', status='Adding targets')
-    logger.info('Adding %d targets ' % len(job_list))
+    publish('parmake-status', status='Adding %d targets.' % len(job_list))
+    # logger.info('Adding %d targets ' % len(job_list))
     manager.add_targets(job_list)
 
     publish('parmake-status', status='Processing')
     manager.process()
 
     if manager.failed:
-        return('%d job(s) failed.' % len(manager.failed))
+        return ('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
-from .. import logger
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):

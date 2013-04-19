@@ -63,7 +63,7 @@ class Manager:
 
         self.check_invariants()
         
-### Derived class interface 
+# ## Derived class interface 
     def process_init(self):
         ''' Called before processing '''
 
@@ -103,7 +103,7 @@ class Manager:
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
-        logger.info('Checking dependencies...')
+        # logger.info('Checking dependencies...')
         targets_todo_plus_deps, targets_done = list_todo_targets(targets)
 
         # both done and todo jobs are added to self.all_targets
@@ -113,7 +113,7 @@ class Manager:
         self.todo.update(targets_todo_plus_deps)
         self.done.update(targets_done) 
 
-        logger.info('Checking if up to date...')
+        # logger.info('Checking if up to date...')
         self.ready_todo = set([job_id for job_id in self.todo
                                if dependencies_up_to_date(job_id)])
 
@@ -232,7 +232,7 @@ class Manager:
         publish('manager-job-failed', job_id=job_id)
 
         self.failed.add(job_id)
-        self.todo.remove(job_id) # XXX
+        self.todo.remove(job_id)  # XXX
         self.processing.remove(job_id)
         del self.processing2result[job_id]
 
@@ -242,7 +242,7 @@ class Manager:
             if p in self.todo:
                 self.todo.remove(p)
                 self.blocked.add(p)
-                if p in self.ready_todo: # I don't think this happens... XXX
+                if p in self.ready_todo:  # I don't think this happens... XXX
                     self.ready_todo.remove(p)
 
         self.publish_progress()
@@ -259,9 +259,9 @@ class Manager:
         self.processing.remove(job_id)
 
         parent_jobs = set(direct_parents(job_id))
-        #logger.info('done job %r with parents %s' % (job_id, parent_jobs))
+        # logger.info('done job %r with parents %s' % (job_id, parent_jobs))
         for opportunity in self.todo & parent_jobs:
-            #logger.info('parent %r in todo' % (opportunity))
+            # logger.info('parent %r in todo' % (opportunity))
             assert opportunity not in self.processing
             
             for child in direct_children(opportunity):
@@ -269,7 +269,7 @@ class Manager:
                 # otherwise check that it is done by the DB.
                 if child in self.all_targets:
                     if not child in self.done:
-                        #logger.info('parent %r still waiting on %r' % 
+                        # logger.info('parent %r still waiting on %r' % 
                         #            (opportunity, child))
                         # still some dependency left
                         break                    
@@ -278,7 +278,7 @@ class Manager:
                     # (or, we would have put in all_targets)
                     assert up_to_date(child)
             else:
-                #logger.info('parent %r is now ready' % (opportunity))
+                # logger.info('parent %r is now ready' % (opportunity))
                 self.ready_todo.add(opportunity)
 
         self.check_invariants()
@@ -292,7 +292,7 @@ class Manager:
 
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
-        for _ in range(10): # XXX
+        for _ in range(10):  # XXX
             received = False
 
             # We make a copy because processing is updated during the loop
@@ -304,7 +304,7 @@ class Manager:
                 break
             else:
                 publish('manager-loop', processing=list(self.processing))
-                time.sleep(0.01) # TODO: make param
+                time.sleep(0.01)  # TODO: make param
 
             # Process events
             self.event_check()
@@ -313,7 +313,7 @@ class Manager:
 
     def process(self):
         ''' Start processing jobs. '''
-        logger.info('Started job manager with %d jobs.' % (len(self.todo)))
+        # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
 
         if not self.todo:
@@ -347,7 +347,7 @@ class Manager:
                 
                 self.publish_progress()
                 waiting_on = self.instance_some_jobs()
-                #self.publish_progress()
+                # self.publish_progress()
 
                 publish('manager-wait', reasons=waiting_on)
                 
@@ -357,16 +357,16 @@ class Manager:
                     pass
                     # TODO: make child raise exception if there are no
                     # resources
-                    #publish('manager-waits')
-                    #publish('manager-failed', reason='No resources.',
+                    # publish('manager-waits')
+                    # publish('manager-failed', reason='No resources.',
                     #    targets=self.targets, done=self.done,
                     #    todo=self.todo, failed=self.failed,
                     #    ready=self.ready_todo,
                     #    processing=self.processing,
                     #    all_targets=self.all_targets)
                     #
-                    #msg = 'Cannot find computing resources, giving up.'
-                    #raise CompmakeException(msg)
+                    # msg = 'Cannot find computing resources, giving up.'
+                    # raise CompmakeException(msg)
 
                 self.loop_until_something_finishes()
                 self.check_invariants()
@@ -388,7 +388,7 @@ class Manager:
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:
-            ### Interrupt caught by manager outside of get()
+            # ## Interrupt caught by manager outside of get()
             # for example in sleep()
 #            error('Received KeyboardInterrupt at: %s' %
 #                  traceback.format_exc(e))
@@ -423,7 +423,7 @@ class Manager:
         return s
     
     def check_invariants(self):
-        return # everything works 
+        return  # everything works 
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,
