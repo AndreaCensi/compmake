@@ -137,7 +137,7 @@ def compmake_console_lines():
                         word = word.strip()
                         if len(word) == 1:
                             continue  # 'y', 'n'
-                        if word in ['exit', 'quit']:
+                        if word in ['exit', 'quit', 'ls']:
                             continue
                         if word == last_word:  # no doubles
                             continue

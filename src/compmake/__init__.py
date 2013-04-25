@@ -1,6 +1,6 @@
 import sys
 
-version = '2.2.5'
+version = '2.3'
 __version__ = version
 
 import logging
