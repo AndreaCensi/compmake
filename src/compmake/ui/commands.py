@@ -124,7 +124,11 @@ Usage:
     manager.process()
 
     if manager.failed:
-        return ('%d job(s) failed.' % len(manager.failed))
+        if manager.blocked:
+            return ('%d job(s) failed, %d job(s) blocked.' % 
+                    (len(manager.failed), len(manager.blocked)))
+        else:
+            return ('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
 
