@@ -3,7 +3,7 @@ import time
 __all__ = ['AvgSystemStats']
 
 try:
-    import psutil as test_import #@UnresolvedImport @UnusedImport
+    import psutil as test_import  # @UnresolvedImport @UnusedImport
 except ImportError:
     from .. import logger
     logger.warning('Package "psutil" not found; load balancing '
@@ -23,7 +23,7 @@ class AvgSystemStats:
         self.interval = interval
         self.history_len = history_len
         try:
-            import psutil #@UnresolvedImport
+            import psutil  # @UnresolvedImport
         except:
             self._available = False
         else:
@@ -31,7 +31,7 @@ class AvgSystemStats:
             
             self.cpu = Collect('cpu', lambda: psutil.cpu_percent(interval=0),
                                interval, history_len)
-            self.mem = Collect('mem', lambda: psutil.phymem_usage().percent,
+            self.mem = Collect('mem', lambda: psutil.virtual_memory().percent,
                               interval, history_len)
 
     def avg_cpu_percent(self):

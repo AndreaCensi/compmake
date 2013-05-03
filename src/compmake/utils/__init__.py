@@ -19,3 +19,17 @@ from .system_stats import *
 from .safe_pickle import * 
 from .frozen import *
 from .memoize import *
+
+
+
+def find_print_statements():
+    
+    class TracePrints(object):
+        def __init__(self):    
+            self.stdout = sys.stdout
+        
+        def write(self, s):
+            self.stdout.write("Writing %r\n" % s)
+            traceback.print_stack(file=self.stdout)
+
+    sys.stdout = TracePrints()
