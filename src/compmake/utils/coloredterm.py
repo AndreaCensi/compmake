@@ -2,6 +2,16 @@ import sys
 
 __all__ = ['termcolor_colored']
 
+#  Available text colors:
+#         red, green, yellow, blue, magenta, cyan, white.
+# 
+#     Available text highlights:
+#         on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_white.
+# 
+#     Available attributes:
+#         bold, dark, underline, blink, reverse, concealed.
+# 
+#    
 try:
     from termcolor import colored as t_colored
 

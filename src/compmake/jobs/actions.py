@@ -60,7 +60,7 @@ def substitute_dependencies(a):
 
 def mark_as_blocked(job_id, dependency=None):
     cache = Cache(Cache.BLOCKED)
-    cache.exception = "Failure of dependency %r" % dependency # XXX
+    cache.exception = "Failure of dependency %r" % dependency  # XXX
     cache.backtrace = ""
     set_job_cache(job_id, cache)
 
@@ -87,9 +87,9 @@ def mark_as_done(job_id, walltime=1, cputime=1):
     cache.captured_stdout = ""
     cache.state = Cache.DONE
     cache.timestamp = time()
-    cache.walltime_used = walltime # XXX: use none?
+    cache.walltime_used = walltime  # XXX: use none?
     cache.cputime_used = cputime 
-    cache.host = get_compmake_config('hostname') # XXX
+    cache.host = get_compmake_config('hostname')  # XXX
     set_job_cache(job_id, cache)
     # TODO: add user object
     
@@ -161,38 +161,38 @@ def make(job_id):
             #  levelname = log_record.levelname
             name = log_record.name
 
-            #print('%s:%s:%s' % (name, levelname, msg)) 
+            # print('%s:%s:%s' % (name, levelname, msg)) 
             print('%s:%s' % (name, msg))
 
         logging.StreamHandler.emit = my_emit
 
         try:
             result = computation.compute(previous_user_object)
-
-#            # XXX: remove this logic
-#            if type(result) == GeneratorType:
-#                try:
-#                    while True:
-#                        next = result.next()  # @ReservedAssignment
-#                        if isinstance(next, tuple):
-#                            if len(next) != 3:
-#                                msg = ('If computation yields a tuple, '
-#                                        'should be a tuple with 3 elemnts.'
-#                                          'Got: %s') % str(next)
-#                                raise CompmakeException(msg)
-#                            user_object, num, total = next
-#
-#                            publish('job-progress', job_id=job_id, host=host,
-#                                    done=None, progress=num, goal=total)
-#                            if compmake_config.save_progress:
-#                                set_job_tmpobject(job_id, user_object)
-#
-#                except StopIteration:
-#                    pass
-#            else:
-#                #publish('job-progress', job_id=job_id, host='XXX',
-#                #        done=1, progress=1, goal=1)
-#
+            
+            #            # XXX: remove this logic
+            #            if type(result) == GeneratorType:
+            #                try:
+            #                    while True:
+            #                        next = result.next()  # @ReservedAssignment
+            #                        if isinstance(next, tuple):
+            #                            if len(next) != 3:
+            #                                msg = ('If computation yields a tuple, '
+            #                                        'should be a tuple with 3 elemnts.'
+            #                                          'Got: %s') % str(next)
+            #                                raise CompmakeException(msg)
+            #                            user_object, num, total = next
+            #
+            #                            publish('job-progress', job_id=job_id, host=host,
+            #                                    done=None, progress=num, goal=total)
+            #                            if compmake_config.save_progress:
+            #                                set_job_tmpobject(job_id, user_object)
+            #
+            #                except StopIteration:
+            #                    pass
+            #            else:
+            #                #publish('job-progress', job_id=job_id, host='XXX',
+            #                #        done=1, progress=1, goal=1)
+            #
             user_object = result
 
         except KeyboardInterrupt:
@@ -208,6 +208,7 @@ def make(job_id):
                     host=host, reason=str(e), bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
         finally:
+        
             capture.deactivate()
             # even if we send an error, let's save the output of the process
             cache = get_job_cache(job_id)
@@ -241,7 +242,7 @@ def make(job_id):
         # FIXME walltime/cputime not precise
         cache.walltime_used = walltime
         cache.cputime_used = cputime
-        cache.host = get_compmake_config('hostname') # XXX
+        cache.host = get_compmake_config('hostname')  # XXX
 
         set_job_cache(job_id, cache)
 
