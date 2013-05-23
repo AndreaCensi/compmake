@@ -195,7 +195,7 @@ def comp(command_, *args, **kwargs):
 
     CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
 
-    if CompmakeConstants.extra_dep_key in kwargs:  # TODO: add in constants
+    if CompmakeConstants.extra_dep_key in kwargs:   
         extra_dep = \
             collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
         del kwargs[CompmakeConstants.extra_dep_key]
