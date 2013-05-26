@@ -6,7 +6,8 @@ class CompmakeConstants:
     # DO NOT change these -- they are part of Compmake's interface
     job_id_key = 'job_id'
     extra_dep_key = 'extra_dep'
-
+    command_name_key = 'command_name'
+    
     # Compmake returns:
     #  0                      if everything all right
     #  RET_CODE_JOB_FAILED    if some job failed

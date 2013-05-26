@@ -31,8 +31,15 @@ class AvgSystemStats:
             
             self.cpu = Collect('cpu', lambda: psutil.cpu_percent(interval=0),
                                interval, history_len)
-            self.mem = Collect('mem', lambda: psutil.virtual_memory().percent,
-                              interval, history_len)
+            
+            try:
+                # new in 0.8
+                psutil.virtual_memory().percent
+                get_mem = lambda: psutil.virtual_memory().percent
+            except:
+                get_mem = lambda: psutil.phymem_usage().percent
+            
+            self.mem = Collect('mem', get_mem, interval, history_len)
 
     def avg_cpu_percent(self):
         self._check_available()

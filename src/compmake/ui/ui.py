@@ -59,13 +59,9 @@ def comp_stage_job_id(job, suffix):
     #      % (job.job_id, job_id, suffix, result))
     return result 
 
-def generate_job_id(command):
+def generate_job_id(base):
     ''' Generates a unique job_id for the specified commmand.
         Takes into account job_prefix if that's defined '''
-    base = str(command)
-    if type(command) == type(comp):
-        base = command.func_name
-
     if CompmakeGlobalState.job_prefix:
         job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, base)
         if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
@@ -155,6 +151,8 @@ def comp(command_, *args, **kwargs):
     
         :arg:job_id:   sets the job id (respects job_prefix)
         :arg:extra_dep: extra dependencies (not passed as arguments)
+        :arg:command_name: used to define job name if job_id not provided.
+        If not given, command_.__name__ is used.
         
         Raises UserError if command is not pickable.
     '''
@@ -169,6 +167,12 @@ def comp(command_, *args, **kwargs):
                'function or a nested function. (This is a limitation of '
                'Python)' % command)
         raise UserError(msg)
+
+    if CompmakeConstants.command_name_key in kwargs:
+        command_desc = kwargs.pop(CompmakeConstants.command_name_key)
+    else:
+        command_desc = command.__name__
+
 
     args = list(args)  # args is a non iterable tuple
 
@@ -191,7 +195,7 @@ def comp(command_, *args, **kwargs):
         if job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             raise UserError('Job %r already defined.' % job_id)
     else:
-        job_id = generate_job_id(command)
+        job_id = generate_job_id(command_desc)
 
     CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
 
@@ -205,9 +209,9 @@ def comp(command_, *args, **kwargs):
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
 
+
     all_args = (command, args, kwargs)
 
-    command_desc = command.__name__
 
     c = Job(job_id=job_id, children=list(children), command_desc=command_desc)
 
