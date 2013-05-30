@@ -12,7 +12,7 @@ from copy import deepcopy
 from time import time, clock
 import logging
 import traceback
-from compmake.ui.visualization import compmake_colored
+from compmake.ui import compmake_colored
 
 
 def make_sure_cache_is_sane():

@@ -10,6 +10,7 @@ from ..utils import describe_type, interpret_strings_like
 from types import NoneType
 import cPickle as pickle
 import inspect
+from compmake.utils.describe import describe_value
 
  
 def is_pickable(x):  # TODO: move away
@@ -39,6 +40,12 @@ def collect_dependencies(ob):
 def comp_prefix(prefix=None):
     ''' Sets the prefix for creating the subsequent job names. '''
     # TODO: check str
+    if prefix is not None:
+        
+        if ' ' in prefix:
+            msg = 'Invalid job prefix %r.' % prefix
+            raise UserError(msg)
+        
     CompmakeGlobalState.job_prefix = prefix
 
 def get_comp_prefix():
@@ -188,21 +195,41 @@ def comp(command_, *args, **kwargs):
             raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
+        
+        if ' ' in job_id:
+            msg = 'Invalid job id: %r' % job_id
+            raise UserError(msg)
+        
         if CompmakeGlobalState.job_prefix:
             job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, job_id)
+            
         del kwargs[CompmakeConstants.job_id_key]
 
         if job_id in CompmakeGlobalState.jobs_defined_in_this_session:
-            raise UserError('Job %r already defined.' % job_id)
+            msg = 'Job %r already defined.' % job_id
+            raise UserError(msg)
+        
+        
     else:
         job_id = generate_job_id(command_desc)
 
     CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
 
-    if CompmakeConstants.extra_dep_key in kwargs:   
-        extra_dep = \
-            collect_dependencies(kwargs[CompmakeConstants.extra_dep_key])
+    if CompmakeConstants.extra_dep_key in kwargs:
+        extra_dep = kwargs[CompmakeConstants.extra_dep_key]
         del kwargs[CompmakeConstants.extra_dep_key]
+        
+        if not isinstance(extra_dep, list):
+            msg = ('The "extra_dep" argument must be a list of promises; ' 
+                   'got: %s' % describe_value(extra_dep))
+            raise ValueError(msg)
+        for ed in extra_dep:
+            if not isinstance(ed, Promise):
+                msg = ('The "extra_dep" argument must be a list of promises; ' 
+                       'got: %s' % describe_value(extra_dep))
+                raise ValueError(msg)
+        extra_dep = collect_dependencies(extra_dep)
+        
     else:
         extra_dep = set()
 

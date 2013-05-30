@@ -136,7 +136,7 @@ class Job(object):
         job_args = get_job_args(self.job_id)
         command, args, kwargs = job_args
 
-        ### XXX move this somewhere else
+        # ## XXX move this somewhere else
         kwargs = dict(**kwargs)
         if previous_result is not None:
             kw = 'previous_result'
@@ -214,23 +214,21 @@ class Job(object):
             return True, None
 
 
-class Cache:
+class Cache(object):
     # TODO: add blocked
 
     NOT_STARTED = 0
     IN_PROGRESS = 1
     FAILED = 3
-    BLOCKED = 5 # TODO, will add later
+    BLOCKED = 5  # TODO, will add later
     DONE = 4
 
-    allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE,
-                      BLOCKED]
+    allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]
 
     state2desc = {
         NOT_STARTED: 'not started',
         IN_PROGRESS: 'in progress',
         BLOCKED: 'blocked',
-        #MORE_REQUESTED: 'Done (but more in progress)',
         FAILED: 'failed',
         DONE: 'done'}
 
@@ -253,6 +251,13 @@ class Cache:
         # 
         self.captured_stdout = None
         self.captured_stderr = None
+
+    def __repr__(self):
+        return ('Cache(%s;%s;cpu:%s;wall:%s)' % 
+                (Cache.state2desc[self.state],
+                 self.timestamp, self.cputime_used,
+                 self.walltime_used)) 
+
 
 
 class ProgressStage:

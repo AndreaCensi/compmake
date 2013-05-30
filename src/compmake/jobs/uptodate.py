@@ -22,13 +22,13 @@ def up_to_date_slow(job_id):
 
     # simple local result cache
 
-    cache = get_job_cache(job_id) # OK
+    cache = get_job_cache(job_id)  # OK
 
     if cache.state == Cache.NOT_STARTED:
         return False, 'Not started'
 
     for child in direct_children(job_id):
-        child_up, why = up_to_date(child) #@UnusedVariable
+        child_up, why = up_to_date(child)  # @UnusedVariable
         if not child_up:
             return False, 'Children not up to date.'
         else:
@@ -48,11 +48,13 @@ def up_to_date_slow(job_id):
  
     return True, ''
 
-#UpToDate = namedtuple('UpToDate', 'up timestamp ')
+# UpToDate = namedtuple('UpToDate', 'up timestamp ')
 
 @contract(returns='tuple(bool, str)')
 def up_to_date(job_id):
-    """ Check that the job is up to date. 
+    """ 
+    
+    Check that the job is up to date. 
     We are up to date if:
     *) we are in the up_to_date_cache
        (nothing uptodate can become not uptodate so this is generally safe)
@@ -74,7 +76,7 @@ def up_to_date(job_id):
 class CacheQueryDB(object):
     
     def __init__(self):
-        self.up_to_date_cache = {} # string -> (bool, reason, timestamp)
+        self.up_to_date_cache = {}  # string -> (bool, reason, timestamp)
         self.get_job_cache_cache = {}
     
     @contract(returns=Cache)
@@ -94,7 +96,7 @@ class CacheQueryDB(object):
     @contract(returns='tuple(bool, str, float)')
     def up_to_date_actual(self, job_id):
             
-        cache = get_job_cache(job_id) # OK
+        cache = get_job_cache(job_id)  # OK
     
         if cache.state == Cache.NOT_STARTED:
             return False, 'Not started', cache.timestamp
@@ -126,9 +128,9 @@ class CacheQueryDB(object):
 #        todo = set()
 #        done = set()
 #        
-##        seen = set()
-##        stack = list()
-##        stack.extend(jobs)
+# #        seen = set()
+# #        stack = list()
+# #        stack.extend(jobs)
 #         
 #        while stack:
 #            job_id = stack.pop()
@@ -149,7 +151,7 @@ class CacheQueryDB(object):
 
 
 
-#def list_todo_targets_slow(jobs):
+# def list_todo_targets_slow(jobs):
 #    """ returns a tuple (todo, jobs_done):
 #         todo:  set of job ids to do (children that are not up to date) 
 #         done:  top level targets (in jobs) that are already done. 
@@ -201,7 +203,7 @@ def list_todo_targets(jobs):
 def dependencies_up_to_date(job_id):
     ''' Returns true if all the dependencies are up to date '''
     for child in direct_children(job_id):
-        child_up, reason = up_to_date(child) #@UnusedVariable
+        child_up, reason = up_to_date(child)  # @UnusedVariable
         if not child_up:
             return False
     return True

@@ -25,6 +25,7 @@ from .jobs import set_namespace, progress
 from .scripts.master import read_rc_files
 from .structures import Promise
 from . import plugins
+from .stats import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
