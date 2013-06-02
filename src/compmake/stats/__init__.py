@@ -6,14 +6,6 @@ from contracts import contract
 
 __all__ = ['compmake_execution_stats']
 
-# class ExecutionStats(object):
-#     """ Result of compmake_execution_stats """
-#     
-#     @contract(cpu_time='float', wall_time='float')
-#     def __init__(self, cpu_time, wall_time):
-#         self.cpu_time = cpu_time
-#         self.wall_time = wall_time
-
 
 @contract(promise=Promise, returns=Promise)
 def compmake_execution_stats(promise):
@@ -23,7 +15,6 @@ def compmake_execution_stats(promise):
     """
     job_id = promise.job_id
     jobs = tree([job_id])
-    print jobs
     
     caches = []
     for j in jobs:
