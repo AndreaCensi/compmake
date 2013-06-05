@@ -69,7 +69,7 @@ def broadcast_event(event):
                 # TODO: do not catch interrupted, etc.
             except Exception as e:
                 try:
-                    #e = traceback.format_exc(e)
+                    # e = traceback.format_exc(e)
                     msg = ('compmake BUG: Error in handler %s:\n%s\n'
                            % (handler, e))
                     # Note: if we use error() there is a risk of infinite 
