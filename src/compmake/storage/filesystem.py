@@ -1,11 +1,11 @@
-from .. import logger
 from ..structures import CompmakeException, SerializationError
-from ..utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
+from compmake.utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
+from compmake import logger
 from glob import glob
 from os.path import basename
+import cPickle as pickle
 import os
 import traceback
-
 
 if False:
     track_time = lambda x: x
@@ -14,11 +14,9 @@ else:
     track_time = TimeTrack.decorator
 
 trace_queries = False
-#trace_queries = True
 
 
-class StorageFilesystem:
-
+class StorageFilesystem(object):
 
     def __init__(self, basepath, compress=False):
         self.basepath = basepath
@@ -34,7 +32,7 @@ class StorageFilesystem:
     @track_time
     def __getitem__(self, key):
         if trace_queries:
-            logger.debug('< %s' % str(key))
+            logger.debug('R %s' % str(key))
         
         self.check_existence()
         
@@ -67,8 +65,15 @@ class StorageFilesystem:
         self.check_existence()
 
         filename = self.filename_for_key(key)
+        protocol = pickle.HIGHEST_PROTOCOL
         try:
-            safe_pickle_dump(value, filename)
+            paranoid = False
+            if paranoid:        
+                safe_pickle_dump(value, filename, protocol)
+            else:
+                with open(filename, 'wb') as f:
+                    pickle.dump(value, f, protocol)
+
         except Exception as e:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
@@ -98,11 +103,12 @@ class StorageFilesystem:
     def keys0(self):
         filename = self.filename_for_key('*')
         for x in glob(filename):
-            #b = splitext(basename(x))[0]
+            # b = splitext(basename(x))[0]
             b = basename(x.replace(self.file_extension, ''))
             key = self.basename2key(b)
             yield key
     
+    @track_time
     def keys(self):
         # slow process
         found = sorted(list(self.keys0()))

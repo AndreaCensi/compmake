@@ -8,7 +8,6 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import itertools
 import time
-from .. import logger
 
 
 class AsyncResultInterface:
@@ -151,7 +150,8 @@ class Manager:
         assert job_id in self.todo 
         assert not job_id in self.ready_todo
         assert not job_id in self.processing2result
-        assert dependencies_up_to_date(job_id)
+        if False:
+            assert dependencies_up_to_date(job_id)
         
         if job_id in self.processing:
             msg = "Something's wrong, the job %r should no be in processing." % job_id

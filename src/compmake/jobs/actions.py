@@ -98,7 +98,7 @@ def mark_as_done(job_id, walltime=1, cputime=1):
 def make(job_id):
     """ 
         Makes a single job. Returns the user-object or raises JobFailed
-        or JobInterrupted. Also SystemExit and KeyboardInterrupt are 
+        or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
         captured.
     """
     host = get_compmake_config('hostname')
@@ -200,7 +200,7 @@ def make(job_id):
             mark_as_failed(job_id, 'KeyboardInterrupt',
                            traceback.format_exc())
             raise JobInterrupted('Keyboard interrupt')
-        except (Exception, SystemExit) as e:
+        except (Exception, SystemExit, MemoryError) as e:
             bt = traceback.format_exc()
             mark_as_failed(job_id, str(e), bt)
 
@@ -208,7 +208,6 @@ def make(job_id):
                     host=host, reason=str(e), bt=bt)
             raise JobFailed('Job %s failed: %s' % (job_id, e))
         finally:
-        
             capture.deactivate()
             # even if we send an error, let's save the output of the process
             cache = get_job_cache(job_id)

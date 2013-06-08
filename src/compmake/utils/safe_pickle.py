@@ -1,6 +1,9 @@
-from . import describe_type, find_pickling_error, logger, safe_write, safe_read
+from . import find_pickling_error, safe_write, safe_read
+from compmake import logger
+from contracts import describe_type
 import cPickle as pickle
 
+__all__ = ['safe_pickle_dump', 'safe_pickle_load']
 
 
 def safe_pickle_dump(value, filename, protocol=pickle.HIGHEST_PROTOCOL, **safe_write_options):

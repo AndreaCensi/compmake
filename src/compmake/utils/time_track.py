@@ -2,8 +2,9 @@ import time
 import sys
 from contextlib import contextmanager
 
+__all__ = ['TimeTrack']
 
-class TimeTrack:
+class TimeTrack(object):
 
     def __init__(self, what=None):
         self.t0 = time.time()
@@ -22,7 +23,7 @@ class TimeTrack:
         msg = 'wall %6.2fms clock %6.2fms' % (self.td * 1000, self.cd * 1000)
         if self.what:
             what = str(self.what)
-            MAX = 80
+            MAX = 120
             if len(what) > MAX:
                 what = what[:(MAX - 3)] + '...'
             msg = '%s - %s' % (msg, what)

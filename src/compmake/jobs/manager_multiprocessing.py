@@ -6,6 +6,7 @@ from ..events import (register_handler, broadcast_event, remove_all_handlers,
 from ..state import get_compmake_db
 from ..utils import setproctitle
 from Queue import Empty, Full
+from contracts import contract
 from multiprocessing import cpu_count, Pool
 from multiprocessing.queues import Queue
 import multiprocessing
@@ -13,7 +14,6 @@ import random
 import signal
 import sys
 import time
-from contracts import contract
 
 # for some reason it might block on OSX 10.8
 ncpus = multiprocessing.cpu_count() 
@@ -48,7 +48,7 @@ class MultiprocessingManager(Manager):
             self.num_processes = cpu_count()
 
         Shared.event_queue = Queue(self.num_processes * 1000)
-        #info('Starting %d processes' % self.num_processes)
+        # info('Starting %d processes' % self.num_processes)
 
         kwargs = {}
 
@@ -84,11 +84,11 @@ class MultiprocessingManager(Manager):
         # TODO: add disk
         
         stats = CompmakeGlobalState.system_stats
-        if not stats.available(): # psutil not installed
+        if not stats.available():  # psutil not installed
             resource_available['cpu'] = (True, 'n/a')
             resource_available['mem'] = (True, 'n/a')
         else:
-            #avg_cpu = stats.avg_cpu_percent()
+            # avg_cpu = stats.avg_cpu_percent()
             max_cpu = stats.max_cpu_percent()
             cur_mem = stats.cur_phymem_usage_percent()
 
@@ -194,7 +194,7 @@ def worker_initialization():
 def parmake_job2(job_id):
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
-    #nlostmessages = 0
+    # nlostmessages = 0
     try:
         # We register a handler for the events to be passed back 
         # to the main process
@@ -224,7 +224,7 @@ def parmake_job2(job_id):
         # All data is conserved, but resources need to be reopened
         db = get_compmake_db()
         try:
-            db.reopen_after_fork() #@UndefinedVariable
+            db.reopen_after_fork()  # @UndefinedVariable
         except:
             pass
 

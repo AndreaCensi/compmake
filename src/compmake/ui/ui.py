@@ -236,7 +236,6 @@ def comp(command_, *args, **kwargs):
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
 
-
     all_args = (command, args, kwargs)
 
 
@@ -248,7 +247,7 @@ def comp(command_, *args, **kwargs):
             child_comp.parents.append(job_id)
             set_job(child, child_comp)
 
-    if job_exists(job_id):
+    if get_compmake_config('check_params') and job_exists(job_id):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
         # however, by unpickling(), it will start
@@ -287,8 +286,11 @@ def comp(command_, *args, **kwargs):
         set_job_args(job_id, all_args)
         publish('job-defined', job_id=job_id)
 
-    assert job_exists(job_id)
-    assert job_args_exists(job_id)
+    # assert job_exists(job_id)
+    # assert job_args_exists(job_id)
+
+#     from compmake import logger
+#     logger.debug('defined job %r' % job_id)
 
     return Promise(job_id)
 
