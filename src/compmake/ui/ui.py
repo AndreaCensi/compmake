@@ -219,10 +219,12 @@ def comp(command_, *args, **kwargs):
         extra_dep = kwargs[CompmakeConstants.extra_dep_key]
         del kwargs[CompmakeConstants.extra_dep_key]
         
-        if not isinstance(extra_dep, list):
+        if not isinstance(extra_dep, (list, Promise)):
             msg = ('The "extra_dep" argument must be a list of promises; ' 
                    'got: %s' % describe_value(extra_dep))
             raise ValueError(msg)
+        if isinstance(extra_dep, Promise):
+            extra_dep = [extra_dep]
         for ed in extra_dep:
             if not isinstance(ed, Promise):
                 msg = ('The "extra_dep" argument must be a list of promises; ' 

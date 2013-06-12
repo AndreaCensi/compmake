@@ -16,6 +16,9 @@ else:
 trace_queries = False
 
 
+__all__ = ['StorageFilesystem']
+
+
 class StorageFilesystem(object):
 
     def __init__(self, basepath, compress=False):

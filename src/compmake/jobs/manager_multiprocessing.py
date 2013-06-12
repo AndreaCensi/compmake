@@ -91,6 +91,7 @@ class MultiprocessingManager(Manager):
             # avg_cpu = stats.avg_cpu_percent()
             max_cpu = stats.max_cpu_percent()
             cur_mem = stats.cur_phymem_usage_percent()
+            cur_swap = stats.cur_virtmem_usage_percent()
 
             num_processing = len(self.processing)
             if num_processing > 0:  # at least one
@@ -114,6 +115,14 @@ class MultiprocessingManager(Manager):
                     # print('Memory load too high: %s\n\n' % cpu_load)
                 else:
                     resource_available['mem'] = (True, '')
+
+                max_swap = get_compmake_config('max_swap')
+                if cur_swap > max_swap:
+                    reason = 'swap %s > %s' % (cur_swap, max_swap)
+                    resource_available['swap'] = (False, reason)
+                    # print('Memory load too high: %s\n\n' % cpu_load)
+                else:
+                    resource_available['swap'] = (True, '')
         
             # cooperating between parmake instances:
             # to balance the jobs, accept with probability

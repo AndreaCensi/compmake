@@ -8,12 +8,10 @@ Compmake stores 4 kind of data, all of them indexed by a job_id string.
 
 These are all wrappers around the raw methods in storage
 '''
-from .. import CompmakeGlobalState
-from ..structures import Cache, Job, CompmakeException
-# from ..ui import  info
-from ..utils import wildcard_to_regexp
-from ..state import get_compmake_db
-# from .. import logger
+from compmake import CompmakeGlobalState
+from compmake.structures import Cache, Job, CompmakeException
+from compmake.utils import wildcard_to_regexp
+from compmake.state import get_compmake_db
 
 def set_namespace(n):
     if n != 'default':
@@ -40,13 +38,13 @@ def key2job(key):
     return key.replace(prefix, '', 1)
 
 #
-#class CompmakeDB(object):
+# class CompmakeDB(object):
 #    
 #    def __
 
 
 
-def all_jobs(force_db=False): #@UnusedVariable
+def all_jobs(force_db=False):  # @UnusedVariable
     ''' Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
@@ -55,7 +53,7 @@ def all_jobs(force_db=False): #@UnusedVariable
     regexp = wildcard_to_regexp(pattern)
     
     db = get_compmake_db()
-    for key in db.keys(): #@UndefinedVariable        
+    for key in db.keys():  # @UndefinedVariable        
         if regexp.match(key):
             yield key2job(key)
 

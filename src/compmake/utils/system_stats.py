@@ -5,7 +5,7 @@ __all__ = ['AvgSystemStats']
 try:
     import psutil as test_import  # @UnresolvedImport @UnusedImport
 except ImportError:
-    from .. import logger
+    from compmake import logger
     logger.warning('Package "psutil" not found; load balancing '
                    'and system stats (CPU, MEM) not available.')
 
@@ -40,6 +40,15 @@ class AvgSystemStats:
                 get_mem = lambda: psutil.phymem_usage().percent
             
             self.mem = Collect('mem', get_mem, interval, history_len)
+            try:
+                # new in 0.8
+                psutil.swap_memory().percent
+                get_mem = lambda: psutil.swap_memory().percent
+            except:
+                get_mem = lambda: psutil.virtmem_usage().percent
+
+            self.swap_mem = Collect('swap', get_mem, interval, history_len)
+
 
     def avg_cpu_percent(self):
         self._check_available()
@@ -56,6 +65,10 @@ class AvgSystemStats:
     def cur_phymem_usage_percent(self):
         self._check_available()
         return self.mem.get_cur()
+
+    def cur_virtmem_usage_percent(self):
+        self._check_available()
+        return self.swap_mem.get_cur()
 
     def available(self):
         ''' returns false if psutil is not installed '''

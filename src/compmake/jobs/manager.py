@@ -1,16 +1,16 @@
 from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
     mark_as_blocked, parents, direct_parents)
-from ..events import publish
-from ..jobs import direct_children, up_to_date
-from ..structures import JobFailed, JobInterrupted, HostFailed
-from ..ui import error
+from compmake.events import publish
+from compmake.jobs import direct_children, up_to_date
+from compmake.structures import JobFailed, JobInterrupted, HostFailed
+from compmake.ui import error
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import itertools
 import time
 
 
-class AsyncResultInterface:
+class AsyncResultInterface(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -27,7 +27,7 @@ class AsyncResultInterface:
         pass
 
 
-class Manager:
+class Manager(object):
 
     __metaclass__ = ABCMeta
 

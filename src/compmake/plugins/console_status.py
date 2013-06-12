@@ -1,11 +1,11 @@
-from .. import CompmakeGlobalState
-from ..events import register_handler
-from ..utils import (pad_to_screen_length, get_length_on_screen,
-    getTerminalSize)
 from .tracker import Tracker
+from compmake import CompmakeGlobalState
+from compmake.events import register_handler
+from compmake.ui import compmake_colored
+from compmake.utils import (pad_to_screen_length, get_length_on_screen,
+    getTerminalSize)
 import sys
 import time
-from compmake.ui.visualization import compmake_colored
 
 
 stream = sys.stderr
@@ -21,8 +21,8 @@ def system_status():
 
     cpu = stats.avg_cpu_percent()
     cur_mem = stats.cur_phymem_usage_percent()
-
-    return  ('cpu %2.0f%% mem %2.0f%% ' % (cpu, cur_mem))
+    swap = stats.cur_virtmem_usage_percent()
+    return  ('cpu %2.0f%% mem %2.0f%% / %2.0f%%' % (cpu, cur_mem, swap))
 
 
 def spinner():
@@ -54,6 +54,7 @@ def job_counts():
         s += compmake_colored(" (%d ready)" % len(tracker.ready), **ready_style)
     return s
 
+
 def wait_reasons():
 #    s += "(" + ",".join(["%s:%s" % (k, v) 
 #                         for (k, v) in  tracker.wait_reasons.items()]) + ')'
@@ -84,6 +85,7 @@ def display_rotating(strings, intervals, align_right=False):
     L = max(get_length_on_screen(x) for x in strings)
     aligned = pad_to_screen_length(strings[which], L, align_right=align_right)
     return  aligned
+
 
 def get_string(level):
     if level == -3:
@@ -126,11 +128,14 @@ def handle_event(event):  # @UnusedVariable
     status = system_status()
 
     if status:  # available
-        if True:  # TODO: add configuration 
-            options = [wait_reasons() + " " + status, job_counts()]
+        if False:
+            if True:  # TODO: add configuration 
+                options = [wait_reasons() + " " + status, job_counts()]
+            else:
+                options = [status, job_counts()]
+            text_right += display_rotating(options, [3, 5], align_right=True)
         else:
-            options = [status, job_counts()]
-        text_right += display_rotating(options, [3, 5], align_right=True)
+            text_right += wait_reasons() + ' ' + status + ' ' + job_counts()
     else:
         text_right += job_counts()
 
