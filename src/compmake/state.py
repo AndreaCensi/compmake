@@ -1,11 +1,11 @@
-from . import CompmakeConstants, logger
 from .utils import AvgSystemStats
 from collections import namedtuple
+from compmake import CompmakeConstants, logger
 import sys
 
 
-class CompmakeGlobalState:
-    is_it_time = False # XXX
+class CompmakeGlobalState(object):
+    is_it_time = False  # XXX
 
     original_stderr = sys.stderr
     original_stdout = sys.stdout
@@ -50,7 +50,7 @@ def get_compmake_db():
 
 
 def set_compmake_db(db):
-    #logger.info('Using database %r' % describe_type(db))
+    # logger.info('Using database %r' % describe_type(db))
     CompmakeGlobalState.compmake_db = db
 
 def get_compmake_config(key):

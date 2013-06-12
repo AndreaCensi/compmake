@@ -3,14 +3,14 @@ from . import add_config_section, add_config_switch
 CONFIG_GENERAL = 'General configuration'
 CONFIG_APPEARANCE = 'Appearance'
 CONFIG_CLUSTER = 'Cluster execution'
-#CONFIG_REDIS = 'Redis backend'
+# CONFIG_REDIS = 'Redis backend'
 CONFIG_STORAGE = 'Storage setting backend'
 CONFIG_PARALLEL = 'Multiprocessing'
 
 add_config_section(name=CONFIG_GENERAL, desc='', order=0)
-#add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
+# add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
 add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
-#add_config_section(name=CONFIG_REDIS, desc='', order=2.1)
+# add_config_section(name=CONFIG_REDIS, desc='', order=2.1)
 add_config_section(name=CONFIG_CLUSTER, desc='', order=4)
 add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
 add_config_section(name=CONFIG_STORAGE, desc='', order=1)
@@ -34,7 +34,7 @@ add_config_switch('check_params', False,
 # parameters.", 
  section=CONFIG_GENERAL)
 
-#add_config_switch('interactive', True,
+# add_config_switch('interactive', True,
 #       desc="Whether we are in interactive mode (e.g., ask confirmations).",
 #       section=CONFIG_GENERAL)
 
@@ -48,10 +48,10 @@ add_config_switch('echo_stderr', True,
        section=CONFIG_APPEARANCE)
 
 # XXX: to remove
-#add_config_switch('save_progress', True,
+# add_config_switch('save_progress', True,
 #        desc="Whether to save intermediate results for jobs that use \
-#the yield() paradigm. Automatically disabled for cluster slaves to save \
-#bandwidth.", section=CONFIG_JOB_EXEC)
+# the yield() paradigm. Automatically disabled for cluster slaves to save \
+# bandwidth.", section=CONFIG_JOB_EXEC)
 
 add_config_switch('colorize', True,
        desc="Use colors in terminals if possible.",
@@ -78,19 +78,24 @@ add_config_switch('cluster_show_cmd', True,
                         'string to the slaves.',
                   section=CONFIG_CLUSTER)
 
-#add_config_switch('redis_host', 'localhost',
+# add_config_switch('redis_host', 'localhost',
 #                  desc='Hostname[:port] for Redis host.',
 #                  section=CONFIG_REDIS)
 
-add_config_switch('max_mem_load', 100.0,
+add_config_switch('max_mem_load', 90.0,
        desc="Maximum physical memory load (%)",
        section=CONFIG_PARALLEL)
+
+add_config_switch('max_swap', 20.0,
+       desc="Maximum swap usage (%)",
+       section=CONFIG_PARALLEL)
+
 
 add_config_switch('max_cpu_load', 100.0,
        desc="Maximum CPU load (%). No jobs will be instantiated if over threshold.",
        section=CONFIG_PARALLEL)
 
-add_config_switch('autobal_after', 8, # TODO: number of processors / 2
+add_config_switch('autobal_after', 8,  # TODO: number of processors / 2
        desc="Autobalances after the given number of processes (%)",
        section=CONFIG_PARALLEL)
 

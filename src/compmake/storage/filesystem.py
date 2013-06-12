@@ -1,4 +1,4 @@
-from ..structures import CompmakeException, SerializationError
+from compmake.structures import CompmakeException, SerializationError
 from compmake.utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
 from compmake import logger
 from glob import glob
@@ -14,6 +14,9 @@ else:
     track_time = TimeTrack.decorator
 
 trace_queries = False
+
+
+__all__ = ['StorageFilesystem']
 
 
 class StorageFilesystem(object):
