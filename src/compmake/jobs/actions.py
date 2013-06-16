@@ -1,18 +1,18 @@
-from . import (delete_job_cache, get_job_cache, set_job_cache,
-    is_job_userobject_available, delete_job_userobject,
-    is_job_tmpobject_available,
-    delete_job_tmpobject, get_job_tmpobject, get_job_userobject,
-    set_job_userobject,
-    get_job, init_progress_tracking, up_to_date)
-from .. import get_compmake_config
-from ..events import publish
-from ..structures import Cache, JobFailed, JobInterrupted, Promise
-from ..utils import OutputCapture, setproctitle
+from .progress import init_progress_tracking
+from .storage import (delete_job_cache, set_job_cache,
+    is_job_userobject_available, delete_job_userobject, get_job_userobject,
+    set_job_userobject, get_job_cache, get_job)
+from .uptodate import up_to_date
+from compmake import get_compmake_config
+from compmake.events import publish
+from compmake.structures import Cache, JobFailed, JobInterrupted, Promise
+from compmake.ui import compmake_colored
+from compmake.utils import OutputCapture, setproctitle
 from copy import deepcopy
 from time import time, clock
 import logging
 import traceback
-from compmake.ui import compmake_colored
+import warnings
 
 
 def make_sure_cache_is_sane():
@@ -27,6 +27,7 @@ def clean_target(job_id):
     # Removes also the Cache object 
     delete_job_cache(job_id)
 
+
 def mark_remake(job_id):
     ''' Delets and invalidates the cache for this object '''
     # TODO: think of the difference between this and clean_target
@@ -37,8 +38,9 @@ def mark_remake(job_id):
     if is_job_userobject_available(job_id):
         delete_job_userobject(job_id)
 
-    if is_job_tmpobject_available(job_id):
-        delete_job_tmpobject(job_id)
+#     
+#     if is_job_tmpobject_available(job_id):
+#         delete_job_tmpobject(job_id)
 
 #    from compmake.jobs.uptodate import up_to_date_cache
 #    if job_id in up_to_date_cache:
@@ -46,16 +48,19 @@ def mark_remake(job_id):
 
 
 def substitute_dependencies(a):
-    a = deepcopy(a)
     if isinstance(a, dict):
-        for k, v in a.items():
-            a[k] = substitute_dependencies(v)
-    if isinstance(a, list):
-        for i, v in enumerate(a):
-            a[i] = substitute_dependencies(v)
-    if isinstance(a, Promise):
-        a = get_job_userobject(a.job_id)
-    return a
+        ca = type(a)
+        return ca((k, substitute_dependencies(v)) for k, v in a.items())
+    elif isinstance(a, list):
+        warnings.warn('This fails for subclasses of list')
+        return map(substitute_dependencies, a)
+    elif isinstance(a, tuple):
+        warnings.warn('This fails for subclasses of tuple')
+        return tuple(map(substitute_dependencies, a))
+    elif isinstance(a, Promise):
+        return get_job_userobject(a.job_id)
+    else:
+        return deepcopy(a)
 
 
 def mark_as_blocked(job_id, dependency=None):
@@ -74,10 +79,12 @@ def mark_as_failed(job_id, exception=None, backtrace=None):
     # TODO: clean user object
     set_job_cache(job_id, cache)
 
+
 def mark_as_notstarted(job_id):
     cache = Cache(Cache.NOT_STARTED)
     # TODO: clean user object
     set_job_cache(job_id, cache)
+
     
 def mark_as_done(job_id, walltime=1, cputime=1):
     # For now, only used explicitly by user
@@ -92,7 +99,6 @@ def mark_as_done(job_id, walltime=1, cputime=1):
     cache.host = get_compmake_config('hostname')  # XXX
     set_job_cache(job_id, cache)
     # TODO: add user object
-    
     
 
 def make(job_id):
@@ -109,7 +115,7 @@ def make(job_id):
     up, reason = up_to_date(job_id)  # @UnusedVariable
     cache = get_job_cache(job_id)
     if up:
-        assert is_job_userobject_available(job_id)
+        # assert is_job_userobject_available(job_id)
         return get_job_userobject(job_id)
     else:
         computation = get_job(job_id)
@@ -125,10 +131,11 @@ def make(job_id):
             previous_user_object = None
             cache.state = Cache.IN_PROGRESS
         elif cache.state == Cache.IN_PROGRESS:
-            if is_job_tmpobject_available(job_id):
-                previous_user_object = get_job_tmpobject(job_id)
-            else:
-                previous_user_object = None
+            pass
+#             if is_job_tmpobject_available(job_id):
+#                 previous_user_object = get_job_tmpobject(job_id)
+#             else:
+#                 previous_user_object = None
         elif cache.state == Cache.DONE:
             # If we are done, it means children have been updated
             assert(not up)
@@ -167,7 +174,7 @@ def make(job_id):
         logging.StreamHandler.emit = my_emit
 
         try:
-            result = computation.compute(previous_user_object)
+            result = computation.compute()
             
             #            # XXX: remove this logic
             #            if type(result) == GeneratorType:
@@ -230,9 +237,9 @@ def make(job_id):
 
         set_job_userobject(job_id, user_object)
 
-        if is_job_tmpobject_available(job_id):
-            # We only have one with yield
-            delete_job_tmpobject(job_id)
+#         if is_job_tmpobject_available(job_id):
+#             # We only have one with yield
+#             delete_job_tmpobject(job_id)
 
         cache.state = Cache.DONE
         cache.timestamp = time()

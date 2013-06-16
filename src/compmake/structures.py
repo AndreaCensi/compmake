@@ -131,22 +131,22 @@ class Job(object):
         self.parents = []
         self.yields = yields  # XXX
 
-    def compute(self, previous_result=None):
+    def compute(self):
         from compmake.jobs.storage import get_job_args
         job_args = get_job_args(self.job_id)
         command, args, kwargs = job_args
 
         # ## XXX move this somewhere else
         kwargs = dict(**kwargs)
-        if previous_result is not None:
-            kw = 'previous_result'
-            available = self.command.func_code.co_varnames
-
-            if not kw in available:
-                msg = ('Function does not have a %r argument, necessary'
-                       ' for makemore (args: %s)' % (kw, available))
-                raise CompmakeException(msg)
-            kwargs[kw] = previous_result
+#         if previous_result is not None:
+#             kw = 'previous_result'
+#             available = self.command.func_code.co_varnames
+# 
+#             if not kw in available:
+#                 msg = ('Function does not have a %r argument, necessary'
+#                        ' for makemore (args: %s)' % (kw, available))
+#                 raise CompmakeException(msg)
+#             kwargs[kw] = previous_result
 
         from compmake.jobs import substitute_dependencies
         # TODO: move this to jobs.actions?

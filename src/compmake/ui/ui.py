@@ -28,7 +28,7 @@ def collect_dependencies(ob):
         return set([ob.job_id])
     else:
         depends = set()
-        if isinstance(ob, list):
+        if isinstance(ob, (list, tuple)):
             for child in ob:
                 depends.update(collect_dependencies(child))
         if isinstance(ob, dict):
@@ -208,8 +208,7 @@ def comp(command_, *args, **kwargs):
         if job_id in CompmakeGlobalState.jobs_defined_in_this_session:
             msg = 'Job %r already defined.' % job_id
             raise UserError(msg)
-        
-        
+    
     else:
         job_id = generate_job_id(command_desc)
 

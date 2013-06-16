@@ -74,8 +74,12 @@ class StorageFilesystem(object):
             if paranoid:        
                 safe_pickle_dump(value, filename, protocol)
             else:
-                with open(filename, 'wb') as f:
+                if False:
+                    f = open(filename, 'wb', buffering=-1)
                     pickle.dump(value, f, protocol)
+                else:
+                    with open(filename, 'wb', buffering=-1) as f:
+                        pickle.dump(value, f, protocol)
 
         except Exception as e:
             msg = ('Cannot set key %s: cannot pickle object '

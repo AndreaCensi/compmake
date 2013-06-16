@@ -22,7 +22,12 @@ def system_status():
     cpu = stats.avg_cpu_percent()
     cur_mem = stats.cur_phymem_usage_percent()
     swap = stats.cur_virtmem_usage_percent()
-    return  ('cpu %2.0f%% mem %2.0f%% / %2.0f%%' % (cpu, cur_mem, swap))
+    
+    s_mem = 'mem %2.0f%%' % cur_mem  
+    if swap > 20:
+        s_mem += 'swap %2.0f%%' % swap 
+        
+    return  ('cpu %2.0f%% %s' % (cpu, s_mem))
 
 
 def spinner():
@@ -121,6 +126,7 @@ def get_string(level):
                     x += ['>>']
         X += [" ".join(x)]
     return  " ".join(X)
+
 
 def handle_event(event):  # @UnusedVariable
     text_right = ' '
