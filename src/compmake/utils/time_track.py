@@ -47,7 +47,7 @@ class TimeTrack(object):
                 sargs += ', '
             sargs += ", ".join(['%s=%r' % (k, v) for (k, v) in kwargs.items()])
             what = "%15s(%s)" % (f.__name__, sargs)
-            with TimeTrack.measure(what, min_td=0):
+            with TimeTrack.measure(what, min_td=0.1):
                 return f(self, *args, **kwargs)
         return wrapper
 
