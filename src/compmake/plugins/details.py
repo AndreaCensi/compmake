@@ -34,7 +34,7 @@ def list_job_detail(job_id):
         print(bold('Job ID:') + '%s' % job_id)
         print(bold('Status:') + '%s' % Cache.state2desc[cache.state])
         print(bold('Uptodate:') + '%s (%s)' % (up, reason))
-        print(bold('Dependences:') + '%s' % ', '.join(children))
+        print(bold('Dependences:') + '%d ' % len(children) + '\n- '.join(children))
         print(bold('Jobs depending on this:') + '%s' % ', '.join(parents))
 
         if cache.state == Cache.DONE and cache.done_iterations > 1:

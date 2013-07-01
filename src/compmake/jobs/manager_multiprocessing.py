@@ -78,6 +78,8 @@ class MultiprocessingManager(Manager):
         if not process_limit_ok:
             resource_available['nproc'] = (False,
                 'nproc %d >= %d' % (len(self.processing), self.max_num_processing))
+            # this is enough to continue
+            return resource_available
         else:
             resource_available['nproc'] = (True, '')
 

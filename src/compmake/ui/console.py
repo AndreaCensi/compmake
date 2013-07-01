@@ -144,16 +144,16 @@ def compmake_console_lines():
                         f.write('%s\n' % word)
                         last_word = word
                         
-            readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
+            readline.read_history_file(COMPMAKE_HISTORY_FILENAME)  # @UndefinedVariable
         except:
             pass
 
     if use_readline:
         # small enough to be saved every time
-        readline.set_history_length(300)
-        readline.set_completer(tab_completion2)
-        readline.set_completer_delims(" ")
-        readline.parse_and_bind('tab: complete')
+        readline.set_history_length(300)  # @UndefinedVariable
+        readline.set_completer(tab_completion2)  # @UndefinedVariable
+        readline.set_completer_delims(" ")  # @UndefinedVariable
+        readline.parse_and_bind('tab: complete')  # @UndefinedVariable
 
     while True:
         clean_console_line(sys.stdout)
@@ -175,7 +175,7 @@ def compmake_console_lines():
             continue
 
         if use_readline:
-            readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
+            readline.write_history_file(COMPMAKE_HISTORY_FILENAME)  # @UndefinedVariable
 
         yield line
 
@@ -199,9 +199,9 @@ def ask_question(question, allowed=None):
         # we don't want these to go into the history
         if use_readline:
             try:
-                L = readline.get_current_history_length()
+                L = readline.get_current_history_length()  # @UndefinedVariable
                 if L:
-                    readline.remove_history_item(L - 1)
+                    readline.remove_history_item(L - 1)  # @UndefinedVariable
             except:
                 pass
 

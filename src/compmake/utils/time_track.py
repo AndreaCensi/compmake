@@ -26,6 +26,7 @@ class TimeTrack(object):
             MAX = 120
             if len(what) > MAX:
                 what = what[:(MAX - 3)] + '...'
+            # msg = '%s - %s' % (msg, what)
             msg = '%s - %s' % (msg, what)
         stream.write(msg)
         stream.write('\n')
@@ -40,14 +41,14 @@ class TimeTrack(object):
 
     @staticmethod
     def decorator(f):
-        def wrapper(*args, **kwargs):
+        def wrapper(self, *args, **kwargs):
             sargs = ", ".join(['{0}'.format(x) for x in args])
             if args and kwargs:
                 sargs += ', '
             sargs += ", ".join(['%s=%r' % (k, v) for (k, v) in kwargs.items()])
             what = "%15s(%s)" % (f.__name__, sargs)
-            with TimeTrack.measure(what, min_td=1):
-                return f(*args, **kwargs)
+            with TimeTrack.measure(what, min_td=0.1):
+                return f(self, *args, **kwargs)
         return wrapper
 
 
