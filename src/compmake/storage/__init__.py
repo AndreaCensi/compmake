@@ -1,10 +1,10 @@
-from .. import get_compmake_config
-from ..ui import info
 from .filesystem import StorageFilesystem
-import os
-from compmake.state import set_compmake_db
-from compmake import logger, CompmakeGlobalState
+from .filesystem2 import StorageFilesystem2
 from .memorycache import MemoryCache
+from compmake import get_compmake_config, logger, CompmakeGlobalState
+from compmake.state import set_compmake_db
+from compmake.ui import info
+import os
 
 #
 # def use_redis(host=None, port=None):
@@ -41,6 +41,7 @@ def use_filesystem(directory=None):
     directory = os.path.expanduser(directory)
     
     sf = StorageFilesystem(directory)
+#     sf = StorageFilesystem2(directory)
 #     sf = MemoryCache(sf)
     set_compmake_db(sf)
 
