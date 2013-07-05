@@ -16,6 +16,7 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
 import os
+from compmake.jobs.manager_sge import SGEManager
 
 
 ui_section(GENERAL)
@@ -135,10 +136,9 @@ Usage:
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list):
-    '''Cluster equivalent of "make".
-
-       Note: you should use the Redis backend to use multiprocessing.
- '''
+    '''
+        Cluster equivalent of "make".
+    '''
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
 
@@ -153,6 +153,27 @@ def clustmake(job_list):
 
     hosts = parse_yaml_configuration(open(cluster_conf))
     manager = ClusterManager(hosts)
+    manager.add_targets(job_list)
+    manager.process()
+
+    if manager.failed:
+        return('%d job(s) failed.' % len(manager.failed))
+    else:
+        return 0
+
+
+
+@ui_command(section=COMMANDS_CLUSTER)
+def sgemake(job_list):
+    '''
+        SGE equivalent of "make".
+     '''
+    job_list = [x for x in job_list]
+
+    if not job_list:
+        job_list = list(top_targets())
+
+    manager = SGEManager()
     manager.add_targets(job_list)
     manager.process()
 

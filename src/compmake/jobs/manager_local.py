@@ -1,5 +1,6 @@
 from . import Manager, make
 
+__all__ = ['ManagerLocal', 'FakeAsync']
 
 class ManagerLocal(Manager):
     ''' Specialization of manager for local execution '''
@@ -16,7 +17,7 @@ class ManagerLocal(Manager):
         return FakeAsync(make, job_id)
 
 
-class FakeAsync:
+class FakeAsync(object):
     def __init__(self, cmd, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -32,6 +33,6 @@ class FakeAsync:
         self.execute()
         return True
 
-    def get(self, timeout=0): #@UnusedVariable
+    def get(self, timeout=0):  # @UnusedVariable
         self.execute()
         return self.result

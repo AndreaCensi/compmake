@@ -6,11 +6,13 @@ from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list,
     is_job_userobject_available, delete_job_userobject, delete_job_args)
 from ..structures import Job, UserError, Promise
-from ..utils import describe_type, interpret_strings_like
+from ..utils import describe_type, interpret_strings_like, describe_value
 from types import NoneType
 import cPickle as pickle
 import inspect
-from compmake.utils.describe import describe_value
+import sys
+from conf_tools.instantiate_utils import import_name
+import os
 
  
 def is_pickable(x):  # TODO: move away
@@ -95,7 +97,7 @@ def reset_jobs_definition_set():
     CompmakeGlobalState.jobs_defined_in_this_session = set()
 
 def consider_jobs_as_defined_now(jobs):
-    CompmakeGlobalState.jobs_defined_in_this_session = jobs
+    CompmakeGlobalState.jobs_defined_in_this_session = set(jobs)
     
 
 def clean_other_jobs():
@@ -174,7 +176,25 @@ def comp(command_, *args, **kwargs):
                'function or a nested function. (This is a limitation of '
                'Python)' % command)
         raise UserError(msg)
-
+    
+    if command.__module__ == '__main__':
+        main_module = sys.modules['__main__']
+        filename = main_module.__file__
+        filename = os.path.splitext(filename)[0]
+        if filename.startswith('./'):
+            filename = filename[2:]
+        
+        try:
+            m = import_name(filename)
+            
+            fname = command.__name__
+            if fname in m.__dict__:
+                command = m.__dict__[fname]
+                
+            # print('I will remap:\n    %s\nto    %s' % (command_, command))
+        except:
+            pass
+        
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
     else:

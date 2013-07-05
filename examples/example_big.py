@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from compmake import comp, compmake_console
 import numpy
 import sys

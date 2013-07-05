@@ -6,7 +6,7 @@ from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cach
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 from ..ui import info, error
 from ..utils import OutputCapture, setproctitle
-from cjson import encode, decode, EncodeError, DecodeError #@UnresolvedImport
+from cjson import encode, decode, EncodeError, DecodeError  # @UnresolvedImport
 from multiprocessing import Pool
 import base64
 import logging
@@ -47,7 +47,7 @@ class ClusterManager(Manager):
             error('The following hosts failed: %s.' % 
                   ", ".join(list(self.failed_hosts)))
 
-    def can_accept_job(self):
+    def can_accept_job(self, reasons_why_not):  # @UnusedVariable
         # only one job at a time
         return self.hosts_ready
 
@@ -78,11 +78,11 @@ class ClusterManager(Manager):
         del self.processing2host[job_id]
         if not slave in self.failed_hosts:
             self.hosts_ready.append(slave)
-            #info("Putting %s into the stack again (failed: %s)" % 
+            # info("Putting %s into the stack again (failed: %s)" % 
             #     (slave, self.failed_hosts))
         else:
             pass
-            #info("Not reusing host %s because it failed (failed: %s)" % 
+            # info("Not reusing host %s because it failed (failed: %s)" % 
             #    (slave, self.failed_hosts))
 
     def instance_job(self, job_id):
@@ -143,7 +143,7 @@ def compmake_slave():
         def handler(event):
             s.write(('event', event))
 
-        register_handler("*", handler) # third (otherwise stdout dirty)
+        register_handler("*", handler)  # third (otherwise stdout dirty)
 
         # TODO: add whether we should just capture and not echo
         old_emit = logging.StreamHandler.emit
@@ -152,7 +152,7 @@ def compmake_slave():
             msg = colorize_loglevel(log_record.levelno, log_record.msg)
             #  levelname = log_record.levelname
             name = log_record.name
-            #print('%s:%s:%s' % (name, levelname, msg))
+            # print('%s:%s:%s' % (name, levelname, msg))
             # TODO: use special log event? 
             sys.stderr.write('%s:%s\n' % (name, msg))
 
@@ -187,7 +187,7 @@ def cluster_job(job_id, hostname, username=None, nice=None):
         connection_string = hostname
 
     command = ['ssh', connection_string,
-               #'-X', 
+               # '-X', 
                'compmake_slave']
 
     try:
@@ -214,8 +214,8 @@ def cluster_job(job_id, hostname, username=None, nice=None):
                 cache = Cache(Cache.DONE)
                 cache.state = Cache.DONE
                 cache.timestamp = time.time()
-                walltime = 1 # FIXME
-                cputime = walltime # FIXME
+                walltime = 1  # FIXME
+                cputime = walltime  # FIXME
                 cache.walltime_used = walltime
                 cache.cputime_used = cputime
                 cache.host = hostname

@@ -83,6 +83,9 @@ def main():
                             exceptions_no_traceback=(UserError,))
 
 def compmake_main(args):
+    if not '' in sys.path:
+        sys.path.append('')
+        
     set_inside_compmake_script()
 
     setproctitle('compmake')
@@ -131,6 +134,7 @@ def compmake_main(args):
 
     if len(args) >= 2:
         msg = 'I only expect one argument. Use "compmake -h" for usage information.'
+        msg += '\n args: %s' % args
         raise UserError(msg)
 
     # if the argument looks like a dirname
@@ -205,7 +209,9 @@ def load_module(module_name):
     try:
         __import__(module_name)
     except Exception as e:
-        error('Error while trying to import module "%s": %s' % 
+        msg = ('Error while trying to import module "%s": %s' % 
               (module_name, e))
+        msg += '\n path: %s' % sys.path
+        error(msg)
         traceback.print_exc(file=sys.stderr)
         raise 

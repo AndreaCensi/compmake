@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 import itertools
 import time
+from contracts import ContractsMeta
 
 
 class AsyncResultInterface(object):
@@ -29,7 +30,7 @@ class AsyncResultInterface(object):
 
 class Manager(object):
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = ContractsMeta
 
     def __init__(self):
         # top-level targets added by users
