@@ -70,16 +70,16 @@ class StorageFilesystem(object):
         filename = self.filename_for_key(key)
         protocol = pickle.HIGHEST_PROTOCOL
         try:
-            paranoid = False
-            if paranoid:        
-                safe_pickle_dump(value, filename, protocol)
-            else:
-                if False:
-                    f = open(filename, 'wb', buffering=-1)
-                    pickle.dump(value, f, protocol)
-                else:
-                    with open(filename, 'wb', buffering=-1) as f:
-                        pickle.dump(value, f, protocol)
+#             paranoid = False
+#             if paranoid or self.compress:  # safe_pickle_dump can take care of .gz
+            safe_pickle_dump(value, filename, protocol)
+#             else:
+#                 if False:
+#                     f = open(filename, 'wb', buffering=-1)
+#                     pickle.dump(value, f, protocol)
+#                 else:
+#                     with open(filename, 'wb', buffering=-1) as f:
+#                         pickle.dump(value, f, protocol)
 
         except Exception as e:
             msg = ('Cannot set key %s: cannot pickle object '

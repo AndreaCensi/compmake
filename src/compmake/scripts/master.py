@@ -8,13 +8,16 @@ from ..structures import UserError
 from ..ui import (error, user_error, interactive_console,
     consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
 from ..utils import setproctitle
+from .scripts_utils.script_utils import wrap_script_entry_point
+from compmake.state import set_inside_compmake_script
+from compmake.ui.visualization import info
 from optparse import OptionParser
 import compmake
+import contracts
 import os
 import sys
 import traceback
-from compmake.state import set_inside_compmake_script
-from compmake.scripts.scripts_utils.script_utils import wrap_script_entry_point
+
 
 # TODO: revise all of this
 
@@ -50,6 +53,7 @@ def initialize_backend():
         sys.exit(-1)
 
     if chosen_db == 'filesystem':
+         
         use_filesystem(get_compmake_config('path'))
     else:
         assert(False)
@@ -95,17 +99,28 @@ def compmake_main(args):
     parser.add_option("--profile", default=False, action='store_true',
                       help="Use Python profiler")
 
+    parser.add_option("--contracts", default=False, action='store_true',
+                      help="Activate PyContracts")
+
     parser.add_option("-c", "--command",
                       default=None,
                       help="Run the given command")
     
     parser.add_option('-n', '--namespace',
                       default='default')
+
+    parser.add_option('--retcodefile',
+                      help='If given, the return value is written in this file. '
+                           'Useful to check when compmake finished in a grid environment. ',
+                      default='default')
  
     config_populate_optparser(parser)
 
     (options, args) = parser.parse_args(args)
 
+    if not options.contracts:
+        info('Disabling PyContracts; use --contracts to activate.')
+        contracts.disable_all()
 
     # We load plugins after we parsed the configuration
     from compmake import plugins  # @UnusedImport
@@ -161,6 +176,10 @@ def compmake_main(args):
             if not loaded_db:
                 initialize_backend()
             retcode = interactive_console()
+            
+        if options.retcodefile is not None:
+            with open(options.retcodefile, 'w') as f:
+                f.write(str(retcode))
         sys.exit(retcode) 
         
     if not options.profile:
@@ -178,7 +197,15 @@ def compmake_main(args):
 def load_existing_db(dirname):
     assert os.path.isdir(dirname)
     logger.info('Loading existing jobs from DB directory %r' % dirname)
-    use_filesystem(dirname)
+    
+    # check if it is compressed
+    files = os.listdir(dirname)
+    one = files[0]
+    if '.gz' in one:
+        compress = True
+    
+    use_filesystem(dirname, compress=compress)
+    
     jobs = list(all_jobs())
     if not jobs:
         msg = 'No jobs found in that directory.'

@@ -7,7 +7,7 @@ from ..state import get_compmake_db
 from ..utils import setproctitle
 from Queue import Empty, Full
 from contracts import contract
-from multiprocessing import cpu_count, Pool
+from multiprocessing import Pool
 from multiprocessing.queues import Queue
 import multiprocessing
 import random
@@ -25,7 +25,7 @@ if False:
     logger.setLevel(multiprocessing.SUBDEBUG)
 
 
-class Shared:
+class Shared(object):
     """ Shared storage with workers. """
     event_queue = None
 
@@ -45,7 +45,7 @@ class MultiprocessingManager(Manager):
 
     def process_init(self):
         if self.num_processes is None:
-            self.num_processes = cpu_count()
+            self.num_processes = get_compmake_config('max_parallel_jobs')
 
         Shared.event_queue = Queue(self.num_processes * 1000)
         # info('Starting %d processes' % self.num_processes)
@@ -227,6 +227,7 @@ def parmake_job2(job_id):
             stat = '[%s/%s %s] (compmake)' % (event.progress,
                                               event.goal, event.job_id)
             setproctitle(stat)
+            
         register_handler("job-progress", proctitle)
 
         publish('worker-status', job_id=job_id, status='started')

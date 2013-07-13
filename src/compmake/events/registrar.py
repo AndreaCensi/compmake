@@ -1,13 +1,16 @@
-from . import Event, compmake_registered_events
-from .. import CompmakeGlobalState
 from ..structures import CompmakeException
-from ..utils import wildcard_to_regexp
+from .registered_events import compmake_registered_events
+from .structures import Event
+from compmake import CompmakeGlobalState, logger
+from compmake.utils import wildcard_to_regexp
  
 
 def remove_all_handlers():
-    ''' Removes all event handlers. Useful when
+    ''' 
+        Removes all event handlers. Useful when
         events must not be processed locally but routed
-        to the original process. '''
+        to the original process somewhere else. 
+    '''
     CompmakeGlobalState.EventHandlers.handlers = {}
     CompmakeGlobalState.EventHandlers.fallback = []
 
@@ -22,9 +25,10 @@ def register_fallback_handler(handler):
 
 # TODO: make decorator
 def register_handler(event_name, handler):
-    ''' Registers an handler with an event name.
-    The event name might contain asterisks. "*" matches 
-    all. '''
+    ''' 
+        Registers an handler with an event name.
+        The event name might contain asterisks. "*" matches all. 
+    '''
 
     handlers = CompmakeGlobalState.EventHandlers.handlers
 
@@ -40,9 +44,10 @@ def register_handler(event_name, handler):
             handlers[event_name] = []
         handlers[event_name].append(handler)
 
-from .. import logger
 
 def publish(event_name, **kwargs):
+    """ Publishes an event. Checks that it is registered and with the right
+        attributes. Then it is passed to broadcast_event(). """
     if not event_name in compmake_registered_events:
         msg = 'Event %r not registered' % event_name
         logger.error(msg)

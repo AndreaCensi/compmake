@@ -28,16 +28,20 @@ class TimeTrack(object):
                 what = what[:(MAX - 3)] + '...'
             # msg = '%s - %s' % (msg, what)
             msg = '%s - %s' % (msg, what)
-        stream.write(msg)
-        stream.write('\n')
-        stream.flush()
+        #         stream.write(msg)
+        #         stream.write('\n')
+        #         stream.flush()
 
+        from compmake.ui.visualization import warning
+        warning(msg)
+    
     @staticmethod
     @contextmanager
     def measure(what=None, min_td=0.001):
         t = TimeTrack(what)
         yield
         t.show(min_td=min_td)
+        
 
     @staticmethod
     def decorator(f):

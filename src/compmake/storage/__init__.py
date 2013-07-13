@@ -24,9 +24,8 @@ import os
 #    get_redis()
 
 
-def use_filesystem(directory=None):
-    db = CompmakeGlobalState.compmake_db 
-        
+def use_filesystem(directory=None, compress=False):
+    db = CompmakeGlobalState.compmake_db     
     
     if directory is None:
         directory = get_compmake_config('path')
@@ -40,7 +39,7 @@ def use_filesystem(directory=None):
     directory = os.path.expandvars(directory)
     directory = os.path.expanduser(directory)
     
-    sf = StorageFilesystem(directory)
+    sf = StorageFilesystem(directory, compress=compress)
 #     sf = StorageFilesystem2(directory)
 #     sf = MemoryCache(sf)
     set_compmake_db(sf)

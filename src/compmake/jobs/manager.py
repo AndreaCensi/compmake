@@ -23,6 +23,8 @@ class AsyncResultInterface(object):
         ''' Either:
             - returns normally (value ignored)
             - raises JobFailed
+            - raises HostFailed
+            - raises JobInterrupted
             - raises TimeoutError (not ready)
         '''
         pass
@@ -182,7 +184,8 @@ class Manager(object):
             
             Capture KeyboardInterrupt and raises JobInterrupted.
             
-            Handles update of various sets. '''
+            Handles update of various sets. 
+        '''
         self.check_invariants()
 
         assert job_id in self.processing
@@ -196,6 +199,7 @@ class Manager(object):
                 async_result.get()
                 self.job_succeeded(job_id)
                 return True
+            
         except TimeoutError:
             # Result not ready yet
             return False
@@ -424,7 +428,7 @@ class Manager(object):
         return s
     
     def check_invariants(self):
-        return  # everything works 
+        # return  # everything works 
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,

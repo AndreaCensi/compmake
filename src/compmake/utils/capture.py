@@ -5,7 +5,7 @@ import sys
 RESET = '\033[0m'  # XXX
 
 
-class LineSplitter:
+class LineSplitter(object):
     ''' A simple utility to split an incoming sequence of chars
         in lines. Push characters using append_chars() and 
         get the completed lines using lines(). '''
@@ -31,7 +31,7 @@ class LineSplitter:
         return l
 
 
-class StreamCapture:
+class StreamCapture(object):
     def __init__(self, transform=None, dest=None, after_lines=None):
         ''' dest has write() and flush() '''
         self.buffer = StringIO()
@@ -63,7 +63,7 @@ class StreamCapture:
 
 
 # TODO: this thing does not work with logging enabled
-class OutputCapture:
+class OutputCapture(object):
 
     def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
@@ -77,7 +77,7 @@ class OutputCapture:
         def publish_stderr(lines):  # @UnusedVariable
             publish('job-stderr', job_id=prefix, lines=lines)
 
-        #t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
+        # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
         
         # FIXME: perhaps we should use compmake_colored
         t1 = lambda s: '%s|%s' % (termcolor_colored(prefix, attrs=['dark']), s)
@@ -87,7 +87,7 @@ class OutputCapture:
                                                 after_lines=publish_stdout)
         sys.stdout = self.stdout_replacement
 
-        #t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
+        # t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
         t3 = lambda s: '%s|%s' % (termcolor_colored(prefix, 'red', attrs=['dark']), s)
         t4 = lambda s: RESET + pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]

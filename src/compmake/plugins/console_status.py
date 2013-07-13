@@ -25,7 +25,7 @@ def system_status():
     
     s_mem = 'mem %2.0f%%' % cur_mem  
     if swap > 20:
-        s_mem += 'swap %2.0f%%' % swap 
+        s_mem += ' swap %2.0f%%' % swap 
         
     return  ('cpu %2.0f%% %s' % (cpu, s_mem))
 
@@ -57,6 +57,7 @@ def job_counts():
 
     if tracker.ready:
         s += compmake_colored(" (%d ready)" % len(tracker.ready), **ready_style)
+
     return s
 
 

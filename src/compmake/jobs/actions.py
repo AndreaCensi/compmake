@@ -52,11 +52,11 @@ def substitute_dependencies(a):
         ca = type(a)
         return ca((k, substitute_dependencies(v)) for k, v in a.items())
     elif isinstance(a, list):
-        warnings.warn('This fails for subclasses of list')
-        return map(substitute_dependencies, a)
+        # warnings.warn('This fails for subclasses of list')
+        return type(a)(map(substitute_dependencies, a))
     elif isinstance(a, tuple):
-        warnings.warn('This fails for subclasses of tuple')
-        return tuple(map(substitute_dependencies, a))
+        # warnings.warn('This fails for subclasses of tuple')
+        return type(a)(map(substitute_dependencies, a))
     elif isinstance(a, Promise):
         return get_job_userobject(a.job_id)
     else:
@@ -213,7 +213,7 @@ def make(job_id):
 
             publish('job-failed', job_id=job_id,
                     host=host, reason=str(e), bt=bt)
-            raise JobFailed('Job %s failed: %s' % (job_id, e))
+            raise JobFailed('Job %s failed on host %s: %s' % (job_id, host, e))
         finally:
             capture.deactivate()
             # even if we send an error, let's save the output of the process
@@ -256,6 +256,7 @@ def make(job_id):
 
         # TODO: clear these records in other place
         return user_object
+
 
 # TODO: remove these
 def colorize_loglevel(levelno, msg):

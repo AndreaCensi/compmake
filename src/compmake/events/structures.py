@@ -1,7 +1,10 @@
 import time
 
 
-class EventSpec:
+__all__ = ['EventSpec', 'Event']
+
+
+class EventSpec(object):
     ''' This is a specification of the events that can be generated '''
 
     def __init__(self, name, attrs=[], desc=None):
@@ -10,7 +13,7 @@ class EventSpec:
         self.desc = desc
 
 
-class Event:
+class Event(object):
     ''' This, instead, is an event itself '''
     def __init__(self, name, **kwargs):
         self.name = name

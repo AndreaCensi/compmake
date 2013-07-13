@@ -38,10 +38,16 @@ class SGEJob(object):
             
         self.stderr = os.path.join(spool, '%s.stderr' % self.job_id)
         self.stdout = os.path.join(spool, '%s.stdout' % self.job_id)
+        self.retcode = os.path.join(spool, '%s.retcode' % self.job_id)
+        
         if os.path.exists(self.stderr):
             os.remove(self.stderr)
+        
         if os.path.exists(self.stdout):
             os.remove(self.stdout)
+        
+        if os.path.exists(self.retcode):
+            os.remove(self.retcode)
              
         options = []
         cwd = os.path.abspath(os.getcwd())
@@ -53,6 +59,7 @@ class SGEJob(object):
         options.extend(['-e', self.stderr])
         options.extend(['-o', self.stdout])
         options.extend(['-N', self.job_id])
+        options.extend(['-wd', cwd])
         
         options.extend(['-V'])  # pass all environment
         
@@ -61,7 +68,9 @@ class SGEJob(object):
         compmake_bin = system_cmd_result(cwd, 'which compmake').stdout.strip()
         compmake_bin = os.path.abspath(compmake_bin)
         
-        compmake_options = [compmake_bin, storage, '-c', '"make %s"' % self.job_id]
+        compmake_options = [compmake_bin, storage,
+                            '--retcodefile', self.retcode,
+                            '-c', '"make %s"' % self.job_id]
         
         write_stdin = ' '.join(compmake_options)
         
@@ -76,7 +85,15 @@ class SGEJob(object):
      
         self.sge_id = res.stdout.strip()
         
-    
+           
+    def ready(self):
+        if os.path.exists(self.retcode):
+            self.ret = int(open(self.retcode, 'r').read())
+            return True
+        else:
+            return False
+        
+ 
     def get_status(self):
         cmd = ['qacct', '-j', self.sge_id]
         cwd = os.getcwd()
@@ -93,9 +110,9 @@ class SGEJob(object):
                 v = " ".join(tokens[1:])
                 values[k] = v
         return values
+
+    def ready_qacct(self):
         
-        
-    def ready(self):
         try:
             status = self.get_status()
         except Exception:
@@ -110,6 +127,8 @@ class SGEJob(object):
 
     def get(self, timeout=0):  # @UnusedVariable
         assert self.ready()
+        os.remove(self.retcode)
+
 
         stderr = open(self.stderr, 'r').read()
         stdout = open(self.stdout, 'r').read()
