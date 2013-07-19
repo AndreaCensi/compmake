@@ -178,6 +178,8 @@ def compmake_main(args):
             retcode = interactive_console()
             
         if options.retcodefile is not None:
+            if isinstance(retcode, str):
+                retcode = 1
             with open(options.retcodefile, 'w') as f:
                 f.write(str(retcode))
         sys.exit(retcode) 

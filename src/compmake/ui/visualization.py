@@ -1,6 +1,6 @@
-import sys
 from .. import get_compmake_config
 from ..utils import termcolor_colored, get_screen_columns
+import sys
 
 
 def compmake_colored(x, color=None, on_color=None, attrs=None):
@@ -50,7 +50,9 @@ def write_message(string, formatting):
     lines = string.rstrip().split('\n')
 
     if len(lines) == 1:
-        stderr.write(formatting(lines[0]) + '\n')
+        l = formatting(lines[0])
+        # not sure why this wasnt pad_to_screen()ed before
+        stderr.write(pad_to_screen(l) + '\n')
     else:
         for l in lines:
             l = formatting(l)

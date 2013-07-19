@@ -1,13 +1,13 @@
-from . import  compmake_environment
-from ..structures import Cache
-from ..jobs import get_job_cache
+from . import compmake_environment
+# from ..structures import Cache
+# from ..jobs import get_job_cache
 
 
 def job_success(*args, **kwargs):
     pass
 
 
-def job_failure(*args, **kwargs):
+def job_failure(*args, **kwargs):  # @UnusedVariable
     assert False
 
 

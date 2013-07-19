@@ -6,6 +6,7 @@ from compmake.state import get_compmake_db
 from compmake.utils import system_cmd_result
 from contracts.utils import indent
 import os
+from compmake.structures import HostFailed
 
 
 __all__ = ['SGEMaster']
@@ -88,43 +89,47 @@ class SGEJob(object):
            
     def ready(self):
         if os.path.exists(self.retcode):
-            self.ret = int(open(self.retcode, 'r').read())
+            ret_str = open(self.retcode, 'r').read()
+            try:
+                self.ret = int(ret_str)
+            except ValueError:
+                msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
+                raise HostFailed(msg)  # XXX
+                self.ret = 1
             return True
         else:
             return False
         
  
-    def get_status(self):
-        cmd = ['qacct', '-j', self.sge_id]
-        cwd = os.getcwd()
-        res = system_cmd_result(cwd, cmd,
-                                display_stdout=False,
-                                display_stderr=False,
-                                raise_on_error=True,
-                                capture_keyboard_interrupt=False)
-        values = {}
-        for line in res.stdout.split('\n'):
-            tokens = line.split()
-            if len(tokens) >= 2:  # XXX
-                k = tokens[0]
-                v = " ".join(tokens[1:])
-                values[k] = v
-        return values
-
-    def ready_qacct(self):
+#     def get_status(self):
+#         cmd = ['qacct', '-j', self.sge_id]
+#         cwd = os.getcwd()
+#         res = system_cmd_result(cwd, cmd,
+#                                 display_stdout=False,
+#                                 display_stderr=False,
+#                                 raise_on_error=True,
+#                                 capture_keyboard_interrupt=False)
+#         values = {}
+#         for line in res.stdout.split('\n'):
+#             tokens = line.split()
+#             if len(tokens) >= 2:  # XXX
+#                 k = tokens[0]
+#                 v = " ".join(tokens[1:])
+#                 values[k] = v
+#         return values
+# 
+#     def ready_qacct(self):
+#         
+#         try:
+#             status = self.get_status()
+#         except Exception:
+#             # XXX let's assume it's not ready yet
+#             # print('couldn ot probe %s' % e)
+#             # print('job %s not ready' % self.job_id)
+#             return False
+# 
+#         self.ret = int(status['exit_status'])
         
-        try:
-            status = self.get_status()
-        except Exception:
-            # XXX let's assume it's not ready yet
-            # print('couldn ot probe %s' % e)
-            # print('job %s not ready' % self.job_id)
-            return False
-
-        self.ret = int(status['exit_status'])
- 
-        return True
-
     def get(self, timeout=0):  # @UnusedVariable
         assert self.ready()
         os.remove(self.retcode)
