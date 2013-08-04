@@ -45,14 +45,15 @@ setup(
       ]
     },
     install_requires=[
-        'PyContracts', 
+        'PyContracts',
         'python-cjson',
-        'termcolor', 
-        'setproctitle', 
-        'readline', 
-        'PyYaml', 
+        'termcolor',
+        'setproctitle',
+        'readline',
+        'PyYaml',
         'psutil',
-        'decorator'
+        'decorator',
+        'system_cmd'
     ],
 
     tests_require=['nose']

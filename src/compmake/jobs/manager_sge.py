@@ -3,7 +3,7 @@ from ..structures import JobFailed
 from ..ui import error
 from compmake import CompmakeConstants
 from compmake.state import get_compmake_db
-from compmake.utils import system_cmd_result
+from system_cmd import system_cmd_result
 from contracts.utils import indent
 import os
 from compmake.structures import HostFailed

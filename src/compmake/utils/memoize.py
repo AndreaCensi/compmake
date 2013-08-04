@@ -1,5 +1,5 @@
 from . import frozendict2
-from decorator import decorator
+from decorator import decorator  # @UnresolvedImport
 
 def memoize_simple(obj):
     cache = obj.cache = {}

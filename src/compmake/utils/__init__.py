@@ -20,7 +20,7 @@ from .safe_pickle import *
 from .frozen import *
 from .memoize import *
 
-from .calling_ext_programs import *
+# from .calling_ext_programs import *
 
 def find_print_statements():
     
