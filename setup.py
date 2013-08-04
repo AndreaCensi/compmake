@@ -53,7 +53,7 @@ setup(
         'PyYaml',
         'psutil',
         'decorator',
-        'system_cmd'
+        'SystemCmd'
     ],
 
     tests_require=['nose']
