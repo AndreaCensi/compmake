@@ -1,15 +1,15 @@
-from . import Manager
-from ..structures import JobFailed
+from ..structures import HostFailed, JobFailed
 from ..ui import error
-from compmake import CompmakeConstants
-from compmake.state import get_compmake_db
-from system_cmd import system_cmd_result
+from .manager import AsyncResultInterface, Manager
+from compmake import CompmakeConstants, get_compmake_db
 from contracts.utils import indent
+from system_cmd import system_cmd_result
 import os
-from compmake.structures import HostFailed
+from compmake.structures import CompmakeException
+from system_cmd.structures import CmdException
 
 
-__all__ = ['SGEMaster']
+__all__ = ['SGEManager']
 
 
 class SGEManager(Manager):
@@ -20,9 +20,22 @@ class SGEManager(Manager):
 
     def instance_job(self, job_id):
         return SGEJob(job_id)
+
     
 
-class SGEJob(object):
+class SGEJob(AsyncResultInterface):
+    
+    compmake_bin = None
+    
+    @staticmethod
+    def get_compmake_bin():
+        """ Returns the path to the compmake executable. """
+        if SGEJob.compmake_bin is None:
+            cwd = os.path.abspath(os.getcwd())
+            compmake_bin = system_cmd_result(cwd, 'which compmake').stdout.strip()
+            compmake_bin = os.path.abspath(compmake_bin)
+            SGEJob.compmake_bin = compmake_bin
+        return SGEJob.compmake_bin 
     
     def __init__(self, job_id):
         self.job_id = job_id
@@ -66,8 +79,7 @@ class SGEJob(object):
         
         options.extend(['-terse'])
         
-        compmake_bin = system_cmd_result(cwd, 'which compmake').stdout.strip()
-        compmake_bin = os.path.abspath(compmake_bin)
+        compmake_bin = SGEJob.get_compmake_bin()
         
         compmake_options = [compmake_bin, storage,
                             '--retcodefile', self.retcode,
@@ -86,8 +98,21 @@ class SGEJob(object):
      
         self.sge_id = res.stdout.strip()
         
+        self.already_read = False
+        self.npolls = 0
            
     def ready(self):
+        if self.npolls % 100 == 1:
+            try:
+                qacct = self.get_qacct()
+                if 'failed' in qacct and qacct['failed'] == '1':
+                    msg = 'Job schedule failed: %s' % qacct
+                    raise HostFailed(msg)  # XXX
+            except CmdException:
+                pass
+            
+        self.npolls += 1
+        
         if os.path.exists(self.retcode):
             ret_str = open(self.retcode, 'r').read()
             try:
@@ -101,23 +126,25 @@ class SGEJob(object):
             return False
         
  
-#     def get_status(self):
-#         cmd = ['qacct', '-j', self.sge_id]
-#         cwd = os.getcwd()
-#         res = system_cmd_result(cwd, cmd,
-#                                 display_stdout=False,
-#                                 display_stderr=False,
-#                                 raise_on_error=True,
-#                                 capture_keyboard_interrupt=False)
-#         values = {}
-#         for line in res.stdout.split('\n'):
-#             tokens = line.split()
-#             if len(tokens) >= 2:  # XXX
-#                 k = tokens[0]
-#                 v = " ".join(tokens[1:])
-#                 values[k] = v
-#         return values
-# 
+    def get_qacct(self):
+        cmd = ['qacct', '-j', self.sge_id]
+        cwd = os.getcwd()
+        res = system_cmd_result(cwd, cmd,
+                                display_stdout=False,
+                                display_stderr=False,
+                                raise_on_error=True,
+                                capture_keyboard_interrupt=False)
+        values = {}
+        for line in res.stdout.split('\n'):
+            tokens = line.split()
+            if len(tokens) >= 2:  # XXX
+                k = tokens[0]
+                v = " ".join(tokens[1:])
+                if k == 'failed':
+                    v = tokens[1]
+                values[k] = v
+        return values
+ 
 #     def ready_qacct(self):
 #         
 #         try:
@@ -131,12 +158,19 @@ class SGEJob(object):
 #         self.ret = int(status['exit_status'])
         
     def get(self, timeout=0):  # @UnusedVariable
+        if self.already_read:
+            msg = 'Compmake BUG: should not call twice.'
+            raise CompmakeException(msg)
+        
+        self.already_read = True
         assert self.ready()
         os.remove(self.retcode)
 
-
         stderr = open(self.stderr, 'r').read()
         stdout = open(self.stdout, 'r').read()
+        
+        stderr = 'Contents of %s:\n' % self.stderr + stderr
+        stdout = 'Contents of %s:\n' % self.stdout + stdout
 
         os.remove(self.stderr)
         os.remove(self.stdout)
@@ -144,14 +178,14 @@ class SGEJob(object):
         if self.ret == 0:
             return
         elif self.ret == CompmakeConstants.RET_CODE_JOB_FAILED:
-            msg = 'Job failed (ret: %s)' % self.ret
+            msg = 'SGE Job failed (ret: %s)\n' % self.ret
             msg += indent(stderr, 'err > ')
             # mark_as_failed(self.job_id, msg, None)
             error(msg)
             raise JobFailed(msg)
         else:
             # XXX RET_CODE_JOB_FAILED is not honored
-            msg = 'Job failed (ret: %s)' % self.ret
+            msg = 'SGE Job failed (ret: %s)\n' % self.ret
             msg += indent(stderr, 'err > ')
             error(msg)
             raise JobFailed(msg)

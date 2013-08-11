@@ -1,11 +1,12 @@
-from . import make, Manager
-from .. import CompmakeGlobalState
 from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
 from ..state import get_compmake_db
 from ..utils import setproctitle
+from .manager import Manager
 from Queue import Empty, Full
+from compmake import CompmakeGlobalState
+from ..jobs import make
 from contracts import contract
 from multiprocessing import Pool
 from multiprocessing.queues import Queue
@@ -14,6 +15,8 @@ import random
 import signal
 import sys
 import time
+
+__all__ = ['MultiprocessingManager']
 
 # for some reason it might block on OSX 10.8
 ncpus = multiprocessing.cpu_count() 

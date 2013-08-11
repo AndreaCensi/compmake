@@ -1,10 +1,10 @@
 ''' The actual interface of some commands in commands.py '''
-from ..jobs import direct_parents, direct_children, get_job_cache, up_to_date
+from ..jobs import (direct_parents, direct_children, get_job_cache, up_to_date,
+    parents, children)
 from ..structures import Cache
-from ..ui import ui_command, VISUALIZATION
+from ..ui import compmake_colored, ui_command, VISUALIZATION
 from string import rjust
 import sys
-from compmake.ui.visualization import compmake_colored
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')
@@ -22,21 +22,30 @@ def details(non_empty_job_list):
 def list_job_detail(job_id):
     # computation = get_computation(job_id)
     cache = get_job_cache(job_id)
-    parents = direct_parents(job_id)
-    children = direct_children(job_id)
+    dparents = direct_parents(job_id)
+    all_parents = parents(job_id)
+    other_parents = set(all_parents) - set(dparents)
+    dchildren = direct_children(job_id)
+    all_children = children(job_id)
+    other_children = set(all_children) - set(dchildren)
     up, reason = up_to_date(job_id)
 
     red = lambda x: compmake_colored(x, 'red')
     bold = lambda x: compmake_colored(rjust(x + ' ', 15), attrs=['bold'])
 
     try:
+        def format_list(x):
+            return '\n- '.join([''] + sorted(x))
+        
         # TODO: make it work in Python3K
         print(bold('Job ID:') + '%s' % job_id)
         print(bold('Status:') + '%s' % Cache.state2desc[cache.state])
         print(bold('Uptodate:') + '%s (%s)' % (up, reason))
-        print(bold('Dependences:') + '%d ' % len(children) + '\n- '.join(children))
-        print(bold('Jobs depending on this:') + '%s' % ', '.join(parents))
-
+        print(bold('Dependences: (direct)') + ' (%d) ' % len(dchildren) + format_list(dchildren))
+        print(bold('Dependences: (other)') + ' (%d) ' % len(other_children) + format_list(other_children))
+        print(bold('Jobs depending on this (direct):') + format_list(dparents))
+        print(bold('Jobs depending on this (other levels):') + format_list(other_parents))
+        
         if cache.state == Cache.DONE and cache.done_iterations > 1:
             print(bold('Iterations:') + '%s' % cache.done_iterations)
             print(bold('Wall Time:') + '%.4f s' % cache.walltime_used)
@@ -65,6 +74,9 @@ def list_job_detail(job_id):
             print("-----> captured stderr <-----")
             display_with_prefix(cache.captured_stdout, prefix='|',
                                 transform=lambda x: x)
+
+
+
 
     except AttributeError:
         pass

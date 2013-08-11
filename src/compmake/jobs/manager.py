@@ -1,14 +1,17 @@
-from . import (compute_priorities, dependencies_up_to_date, list_todo_targets,
-    mark_as_blocked, parents, direct_parents)
-from compmake.events import publish
-from compmake.jobs import direct_children, up_to_date
-from compmake.structures import JobFailed, JobInterrupted, HostFailed
-from compmake.ui import error
+from ..events import publish
+from ..jobs import (mark_as_blocked, compute_priorities, direct_children,
+    up_to_date, list_todo_targets, dependencies_up_to_date, parents, direct_parents)
+from ..structures import (JobFailed, JobInterrupted, HostFailed,
+    CompmakeException)
+from ..ui import error
 from abc import ABCMeta, abstractmethod
+from contracts import ContractsMeta, contract
 from multiprocessing import TimeoutError
 import itertools
 import time
-from contracts import ContractsMeta
+
+
+__all__ = ['Manager', 'AsyncResultInterface']
 
 
 class AsyncResultInterface(object):
@@ -16,6 +19,7 @@ class AsyncResultInterface(object):
 
     @abstractmethod
     def ready(self):
+        """ Returns True if it is ready (completed or failed). """
         pass
 
     @abstractmethod
@@ -84,13 +88,13 @@ class Manager(object):
         ''' free up any resource '''
         pass
 
-
+    @contract(returns='str')
     def next_job(self):
-        self.check_invariants()
-        
         ''' Returns one job from the ready_todo list 
             (and removes it from there). Uses self.priorities
             to decide which job to use. '''
+        self.check_invariants()
+        
         ordered = sorted(self.ready_todo,
                          key=lambda job: self.priorities[job])
         best = ordered[-1]
@@ -197,6 +201,7 @@ class Manager(object):
         try:
             if async_result.ready():
                 async_result.get()
+                # print('job %r succeeded' % job_id)
                 self.job_succeeded(job_id)
                 return True
             
@@ -236,6 +241,8 @@ class Manager(object):
         
         publish('manager-job-failed', job_id=job_id)
 
+        # print('manager noticed that job failed: %r' % job_id)
+        
         self.failed.add(job_id)
         self.todo.remove(job_id)  # XXX
         self.processing.remove(job_id)
@@ -244,6 +251,7 @@ class Manager(object):
         its_parents = set(parents(job_id))
         for p in its_parents:
             mark_as_blocked(p, job_id)
+            
             if p in self.todo:
                 self.todo.remove(p)
                 self.blocked.add(p)
@@ -347,8 +355,11 @@ class Manager(object):
                 # otherwise, we are completely blocked
                 if not (self.ready_todo or self.processing):
                     msg = 'Nothing ready to do, and nothing cooking.'
+                    msg += 'This probably means that the Compmake job database was inconsistent. '
+                    msg += 'This might happen if the job creation is interrupted. Use the command "check-consistency" '
+                    msg += 'to check the database consistency.\n'
                     msg += self._get_situation_string()
-                    assert False, msg
+                    raise CompmakeException(msg)
                 
                 self.publish_progress()
                 waiting_on = self.instance_some_jobs()
@@ -375,7 +386,6 @@ class Manager(object):
 
                 self.loop_until_something_finishes()
                 self.check_invariants()
-
 
             self.publish_progress()
 
@@ -422,6 +432,11 @@ class Manager(object):
                      ready=self.ready_todo,
                      processing=self.processing)
         s = ""
+        for t, jobs in lists.items():
+            jobs = lists[t]
+            s += '- %12s: %d\n' % (t, len(jobs))
+
+        s += '\n In more details:'
         for t, jobs in lists.items():
             jobs = lists[t]
             s += '- %12s: %d %s\n' % (t, len(jobs), jobs)

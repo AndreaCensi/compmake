@@ -100,7 +100,7 @@ add_config_switch('max_cpu_load', 100.0,
        desc="Maximum CPU load (%). No jobs will be instantiated if over threshold.",
        section=CONFIG_PARALLEL)
 
-add_config_switch('autobal_after', 8,  # TODO: number of processors / 2
+add_config_switch('autobal_after', cpu_count(),  # TODO: number of processors / 2
        desc="Autobalances after the given number of processes (%)",
        section=CONFIG_PARALLEL)
 

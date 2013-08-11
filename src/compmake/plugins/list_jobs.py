@@ -1,12 +1,10 @@
 ''' The actual interface of some commands in commands.py '''
-from ..jobs import all_jobs, parse_job_list
+from ..jobs import CacheQueryDB, all_jobs, parse_job_list
 from ..structures import Cache
-from ..ui import ui_command, VISUALIZATION
+from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
 from time import time
 import string
-from compmake.jobs.uptodate import CacheQueryDB
-from compmake.ui.visualization import compmake_colored
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -27,13 +25,13 @@ if not specified).
 state2color = {
         # The ones commented out are not possible
         # (Cache.NOT_STARTED, True): None,
-        (Cache.NOT_STARTED, False): {}, #'attrs': ['dark']},
+        (Cache.NOT_STARTED, False): {},  # 'attrs': ['dark']},
         # (Cache.IN_PROGRESS, True): None,
         (Cache.IN_PROGRESS, False): {'color': 'yellow'},
-        #(Cache.FAILED, True): None,
+        # (Cache.FAILED, True): None,
         (Cache.FAILED, False): {'color': 'red'},
         (Cache.BLOCKED, True): {'color': 'yellow'},
-        (Cache.BLOCKED, False): {'color': 'yellow'}, # XXX
+        (Cache.BLOCKED, False): {'color': 'yellow'},  # XXX
         (Cache.DONE, True): {'color': 'green'},
         (Cache.DONE, False): {'color': 'magenta'},
 }
@@ -43,7 +41,7 @@ state2color = {
 
 def list_jobs(job_list):
     job_list = list(job_list)
-    #print('%s jobs in total' % len(job_list))
+    # print('%s jobs in total' % len(job_list))
     if not job_list:
         print('No jobs found.')
         return
@@ -69,7 +67,7 @@ def list_jobs(job_list):
 
         tag = Cache.state2desc[cache.state]
 
-        #if not up:
+        # if not up:
         #    tag += ' (needs update)' 
 
         k = (cache.state, up)
