@@ -3,14 +3,13 @@ from .. import (get_compmake_config, version, set_compmake_status,
     CompmakeConstants, logger)
 from ..config import config_populate_optparser
 from ..jobs import all_jobs, set_namespace
+from ..state import set_inside_compmake_script
 from ..storage import use_filesystem
 from ..structures import UserError
 from ..ui import (error, user_error, interactive_console,
-    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
+    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap, info)
 from ..utils import setproctitle
-from .scripts_utils.script_utils import wrap_script_entry_point
-from compmake.state import set_inside_compmake_script
-from compmake.ui.visualization import info
+from .scripts_utils import wrap_script_entry_point
 from optparse import OptionParser
 import compmake
 import contracts
@@ -112,7 +111,7 @@ def compmake_main(args):
     parser.add_option('--retcodefile',
                       help='If given, the return value is written in this file. '
                            'Useful to check when compmake finished in a grid environment. ',
-                      default='default')
+                      default=None)
  
     config_populate_optparser(parser)
 
@@ -180,8 +179,7 @@ def compmake_main(args):
         if options.retcodefile is not None:
             if isinstance(retcode, str):
                 retcode = 1
-            with open(options.retcodefile, 'w') as f:
-                f.write(str(retcode))
+            write_atomic(options.retcodefile, str(retcode))
         sys.exit(retcode) 
         
     if not options.profile:
@@ -194,6 +192,17 @@ def compmake_main(args):
         n = 30
         p.sort_stats('cumulative').print_stats(n)
         p.sort_stats('time').print_stats(n)
+
+
+def write_atomic(filename, contents):
+    tmpFile = filename + '.tmp'
+    f = open(tmpFile, 'w')
+    f.write(contents)
+    f.flush()
+    os.fsync(f.fileno()) 
+    f.close()
+    os.rename(tmpFile, filename)
+    os.unlink(tmpFile)
 
 
 def load_existing_db(dirname):
