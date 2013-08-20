@@ -202,7 +202,8 @@ def write_atomic(filename, contents):
     os.fsync(f.fileno()) 
     f.close()
     os.rename(tmpFile, filename)
-    os.unlink(tmpFile)
+    # try:
+    # os.unlink(tmpFile)
 
 
 def load_existing_db(dirname):

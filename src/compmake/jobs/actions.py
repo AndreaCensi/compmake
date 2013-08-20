@@ -1,23 +1,20 @@
+from ..events import publish
+from ..structures import Cache, JobFailed, JobInterrupted, Promise
+from ..ui import compmake_colored
+from ..utils import OutputCapture, setproctitle
 from .progress import init_progress_tracking
 from .storage import (delete_job_cache, set_job_cache,
     is_job_userobject_available, delete_job_userobject, get_job_userobject,
     set_job_userobject, get_job_cache, get_job)
 from .uptodate import up_to_date
 from compmake import get_compmake_config
-from compmake.events import publish
-from compmake.structures import Cache, JobFailed, JobInterrupted, Promise
-from compmake.ui import compmake_colored
-from compmake.utils import OutputCapture, setproctitle
 from copy import deepcopy
 from time import time, clock
 import logging
 import traceback
 import warnings
 
-
-def make_sure_cache_is_sane():
-    # TODO write new version of this
-    return
+ 
 
 
 def clean_target(job_id):
@@ -125,21 +122,13 @@ def make(job_id):
                                Cache.DONE, Cache.FAILED])
 
         if cache.state == Cache.NOT_STARTED:
-            previous_user_object = None
             cache.state = Cache.IN_PROGRESS
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:
-            previous_user_object = None
             cache.state = Cache.IN_PROGRESS
         elif cache.state == Cache.IN_PROGRESS:
             pass
-#             if is_job_tmpobject_available(job_id):
-#                 previous_user_object = get_job_tmpobject(job_id)
-#             else:
-#                 previous_user_object = None
         elif cache.state == Cache.DONE:
-            # If we are done, it means children have been updated
             assert(not up)
-            previous_user_object = None
         else:
             assert(False)
 
