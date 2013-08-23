@@ -148,33 +148,7 @@ def set_job_userobject(job_id, obj):
 def delete_job_userobject(job_id):
     key = job2userobjectkey(job_id)
     del get_compmake_db()[key] 
-
-#
-# Temporary objects
-#
-
-# 
-# # TODO: add function 2key
-# def job2tmpobjectkey(job_id):
-#     prefix = 'cm:%s:tmpobject:' % get_namespace()
-#     return '%s%s' % (prefix, job_id)
-# 
-# def get_job_tmpobject(job_id):
-#     key = job2tmpobjectkey(job_id)
-#     return CompmakeGlobalState[key]
-# 
-# def is_job_tmpobject_available(job_id):
-#     key = job2tmpobjectkey(job_id)
-#     return key in get_compmake_db()
-# 
-# def set_job_tmpobject(job_id, obj):
-#     key = job2tmpobjectkey(job_id)
-#     get_compmake_db()[key] = obj
-# 
-# def delete_job_tmpobject(job_id):
-#     key = job2tmpobjectkey(job_id)
-#     del get_compmake_db()[key] 
-
+ 
 
 def job2jobargskey(job_id):
     prefix = 'cm:%s:args:' % get_namespace()

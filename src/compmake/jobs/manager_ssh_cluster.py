@@ -1,12 +1,14 @@
-from . import FakeAsync, Host, Manager
-from .. import CompmakeConstants
 from ..events import register_handler, remove_all_handlers, broadcast_event
 from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cache,
     mark_as_failed)
 from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 from ..ui import info, error
 from ..utils import OutputCapture, setproctitle
+from .cluster_conf import Host
+from .manager import Manager
+from .manager_local import FakeAsync
 from cjson import encode, decode, EncodeError, DecodeError  # @UnresolvedImport
+from compmake import CompmakeConstants
 from multiprocessing import Pool
 import base64
 import logging
@@ -15,6 +17,9 @@ import subprocess
 import sys
 import time
 import traceback
+
+
+__all__ = ['ClusterManager']
 
 
 class ClusterManager(Manager):
@@ -257,7 +262,7 @@ class ComException(Exception):
     pass
 
 
-class StreamCon:
+class StreamCon(object):
     ''' Simple communication stream. 
     
         It sends and receives python objects by enclosing them in a json

@@ -1,12 +1,11 @@
-from . import Manager
-from ..structures import JobFailed
-from ..ui import error
+from .manager import Manager
 from compmake import CompmakeConstants
 from compmake.state import get_compmake_db
+from compmake.structures import HostFailed, JobFailed
+from compmake.ui import error
 from compmake.utils import system_cmd_result
 from contracts.utils import indent
 import os
-from compmake.structures import HostFailed
 
 
 __all__ = ['SGEMaster']

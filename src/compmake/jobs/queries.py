@@ -1,7 +1,7 @@
 ''' Contains queries of the job DB. '''
 from ..jobs import get_job, all_jobs
 from contracts import contract
-# from ..utils import memoize_simple
+
 
 # FIXME: not sure if this works if the same instance has different
 # databases

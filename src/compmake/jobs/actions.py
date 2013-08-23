@@ -12,9 +12,6 @@ from copy import deepcopy
 from time import time, clock
 import logging
 import traceback
-import warnings
-
- 
 
 
 def clean_target(job_id):
@@ -34,10 +31,6 @@ def mark_remake(job_id):
 
     if is_job_userobject_available(job_id):
         delete_job_userobject(job_id)
-
-#     
-#     if is_job_tmpobject_available(job_id):
-#         delete_job_tmpobject(job_id)
 
 #    from compmake.jobs.uptodate import up_to_date_cache
 #    if job_id in up_to_date_cache:
@@ -180,8 +173,6 @@ def make(job_id):
             #
             #                            publish('job-progress', job_id=job_id, host=host,
             #                                    done=None, progress=num, goal=total)
-            #                            if compmake_config.save_progress:
-            #                                set_job_tmpobject(job_id, user_object)
             #
             #                except StopIteration:
             #                    pass
@@ -225,10 +216,6 @@ def make(job_id):
             logging.StreamHandler.emit = old_emit
 
         set_job_userobject(job_id, user_object)
-
-#         if is_job_tmpobject_available(job_id):
-#             # We only have one with yield
-#             delete_job_tmpobject(job_id)
 
         cache.state = Cache.DONE
         cache.timestamp = time()

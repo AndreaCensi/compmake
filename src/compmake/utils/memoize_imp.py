@@ -1,7 +1,9 @@
-from . import frozendict2
 from decorator import decorator
+from .frozen import frozendict2
+
 
 __all__ = ['memoize_simple']
+
 
 def memoize_simple(obj):
     cache = obj.cache = {}
