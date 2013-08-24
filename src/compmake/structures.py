@@ -260,7 +260,7 @@ class Cache(object):
 
 
 
-class ProgressStage:
+class ProgressStage(object):
     def __init__(self, name, iterations, iteration_desc):
         self.name = name
         self.iterations = iterations
