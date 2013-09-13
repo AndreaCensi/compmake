@@ -49,7 +49,6 @@ setup(
         'python-cjson',
         'termcolor',
         'setproctitle',
-        'readline',
         'PyYaml',
         'psutil',
         'decorator',

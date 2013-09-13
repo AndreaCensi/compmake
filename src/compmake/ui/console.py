@@ -10,15 +10,20 @@ import os
 import sys
 import traceback
 from contracts import contract
+from compmake import logger
 
 use_readline = True
 
 if use_readline:
     try:
-        import readline
-    except:
-        # TODO: write message
-        use_readline = False
+        import readline        
+    except ImportError as e:      
+        try:
+            import pyreadline as readline
+        except Exception as e2:
+            # TODO: write message
+            use_readline = False
+            logger.warning('Neither readline or pyreadline available:\n- %s\n- %s' % (e, e2))
 
 
 def interpret_commands_wrap(commands):

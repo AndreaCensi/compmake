@@ -1,26 +1,26 @@
 ''' This is the executable '''
-from .. import (get_compmake_config, version, set_compmake_status,
-    CompmakeConstants, logger)
-from ..config import config_populate_optparser
-from ..jobs import all_jobs, set_namespace
-from ..storage import use_filesystem
-from ..structures import UserError
-from ..ui import (error, user_error, interactive_console,
-    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap)
-from ..utils import setproctitle
-from .scripts_utils.script_utils import wrap_script_entry_point
-from compmake.state import set_inside_compmake_script
-from compmake.ui.visualization import info
 from optparse import OptionParser
-import compmake
-import contracts
 import os
 import sys
 import traceback
 
+import compmake
+import contracts
+
+from .. import (get_compmake_config, version, set_compmake_status,
+    CompmakeConstants, logger)
+from ..config import config_populate_optparser
+from ..jobs import all_jobs, set_namespace
+from ..state import set_inside_compmake_script
+from ..storage import use_filesystem
+from ..structures import UserError
+from ..ui import (error, user_error, interactive_console,
+    consider_jobs_as_defined_now, batch_command, interpret_commands_wrap, info)
+from ..utils import setproctitle
+from .scripts_utils.script_utils import wrap_script_entry_point
+
 
 # TODO: revise all of this
-
 def read_rc_files():
     possible = ['compmake.rc', '~/.compmake/compmake.rc']
     done = False
@@ -156,6 +156,10 @@ def compmake_main(args):
     one_arg = args[0]     
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
         loaded_db = True
+        # If there is a compmake/ folder inside, take it as the root
+        child = os.path.join(one_arg, 'compmake')
+        if os.path.exists(child):
+            one_arg = child
         load_existing_db(one_arg)
     else:
         loaded_db = False
@@ -205,7 +209,9 @@ def load_existing_db(dirname):
     one = files[0]
     if '.gz' in one:
         compress = True
-    
+    else:
+        compress = False
+        
     use_filesystem(dirname, compress=compress)
     
     jobs = list(all_jobs())
