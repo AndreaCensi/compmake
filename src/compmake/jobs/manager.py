@@ -6,12 +6,21 @@ from ..structures import (JobFailed, JobInterrupted, HostFailed,
 from ..ui import error
 from abc import ABCMeta, abstractmethod
 from contracts import ContractsMeta, contract
+from ..structures import JobFailed, JobInterrupted, HostFailed
+from ..ui import error
+from .actions import mark_as_blocked
+from .priority import compute_priorities
+from .queries import direct_children, parents, direct_parents
+from .uptodate import CacheQueryDB
+from abc import ABCMeta, abstractmethod
+from contracts import ContractsMeta
 from multiprocessing import TimeoutError
 import itertools
 import time
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
+
 
 
 class AsyncResultInterface(object):
@@ -109,8 +118,9 @@ class Manager(object):
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
-        # logger.info('Checking dependencies...')
-        targets_todo_plus_deps, targets_done = list_todo_targets(targets)
+#         logger.info('Checking dependencies...')
+        cq = CacheQueryDB()
+        targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
 
         # both done and todo jobs are added to self.all_targets
         self.all_targets.update(targets_todo_plus_deps)
@@ -119,10 +129,17 @@ class Manager(object):
         self.todo.update(targets_todo_plus_deps)
         self.done.update(targets_done) 
 
-        # logger.info('Checking if up to date...')
-        self.ready_todo = set([job_id for job_id in self.todo
-                               if dependencies_up_to_date(job_id)])
-
+        self.ready_todo = ready_todo
+        
+#         logger.info('Checking if up to date...')
+#         self.ready_todo = set([job_id for job_id in self.todo
+#                                if dependencies_up_to_date(job_id)])
+# 
+#         if not ready_todo == self.ready_todo:
+#             logger.error('mismatch between ready_todo: %s %s' % (ready_todo, self.ready_todo))
+            
+            
+#         logger.info('finished adding targets')
         self.check_invariants()
 
     def instance_some_jobs(self):
@@ -157,8 +174,8 @@ class Manager(object):
         assert job_id in self.todo 
         assert not job_id in self.ready_todo
         assert not job_id in self.processing2result
-        if False:
-            assert dependencies_up_to_date(job_id)
+#         if False:
+#             assert dependencies_up_to_date(job_id)
         
         if job_id in self.processing:
             msg = "Something's wrong, the job %r should no be in processing." % job_id
@@ -289,7 +306,8 @@ class Manager(object):
                 else:
                     # otherwise it should be done
                     # (or, we would have put in all_targets)
-                    assert up_to_date(child)
+                    # assert up_to_date(child)
+                    pass
             else:
                 # logger.info('parent %r is now ready' % (opportunity))
                 self.ready_todo.add(opportunity)
@@ -443,7 +461,7 @@ class Manager(object):
         return s
     
     def check_invariants(self):
-        # return  # everything works 
+        return  # everything works 
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,

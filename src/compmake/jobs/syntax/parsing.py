@@ -25,6 +25,7 @@ from ...structures import UserError, Cache, CompmakeSyntaxError
 from ...utils import expand_wildcard
 from collections import namedtuple
 import types
+from compmake.jobs.uptodate import CacheQueryDB
 
 
 aliases = {}
@@ -73,7 +74,7 @@ def eval_alias(alias):
         # can be generator; no assert_list_of_strings(result)
         return result
     else:
-        raise ValueError('I cannot interpret alias "%s" -> "%s".' %
+        raise ValueError('I cannot interpret alias "%s" -> "%s".' % 
                          (alias, value))
 
 
@@ -93,7 +94,7 @@ def list_matching_functions(token):
             num_matches += 1
 
     if num_matches == 0:
-        raise UserError('Could not find matches for function "%s()".' %
+        raise UserError('Could not find matches for function "%s()".' % 
                         function_id)
 
 
@@ -109,7 +110,7 @@ def expand_job_list_token(token):
         return eval_alias(token)
     elif token.endswith('()'):
         return list_matching_functions(token)
-        #raise UserError('Syntax reserved but not used yet. ("%s")' % token)
+        # raise UserError('Syntax reserved but not used yet. ("%s")' % token)
     else:
         # interpret as a job id
         job_id = token
@@ -165,9 +166,10 @@ def list_jobs_with_state(state):
 def list_ready_jobs():
     ''' Returns a list of jobs that can be done now,
         as their dependencies are up-to-date. '''
-    from compmake.jobs.uptodate import dependencies_up_to_date
+    
+    cq = CacheQueryDB()
     for job_id in all_jobs():
-        if dependencies_up_to_date(job_id):
+        if cq.dependencies_up_to_date(job_id):
             yield job_id
 
 
@@ -231,7 +233,7 @@ def parse_job_list(tokens):
 
     result = eval_ops(ops)
 
-    #print " %s => %s" % (tokens, result)
+    # print " %s => %s" % (tokens, result)
 
     return result
 
@@ -254,7 +256,7 @@ def eval_ops(ops):
         left, right = list_split(ops, ops.index(Operators.INTERSECTION))
         if not left or not right:
             raise CompmakeSyntaxError(''' INTERSECTION requires only a right \
-argument. Interpreting "%s" INTERSECTION "%s". ''' %
+argument. Interpreting "%s" INTERSECTION "%s". ''' % 
 (' '.join(left), ' '.join(right)))
         left = eval_ops(left)
         right = set(eval_ops(right))
@@ -266,7 +268,7 @@ argument. Interpreting "%s" INTERSECTION "%s". ''' %
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
         if not left or not right:
             raise CompmakeSyntaxError(''' EXCEPT requires a left and right \
-argument. Interpreting "%s" EXCEPT "%s". ''' %
+argument. Interpreting "%s" EXCEPT "%s". ''' % 
 (' '.join(left), ' '.join(right)))
 
         left = eval_ops(left)
@@ -277,9 +279,9 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
 
     elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
-        if left or not right: # forbid left, require right
+        if left or not right:  # forbid left, require right
             raise CompmakeSyntaxError(\
-''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' %
+''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' % 
 (' '.join(left), ' '.join(right)))
 
         right = set(eval_ops(right))

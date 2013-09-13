@@ -18,7 +18,7 @@ from .system_stats import *
 
 from .safe_pickle import * 
 from .frozen import *
-from .memoize import *
+from .memoize_imp import *
 
 # from .calling_ext_programs import *
 

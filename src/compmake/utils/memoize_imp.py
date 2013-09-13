@@ -1,5 +1,9 @@
-from . import frozendict2
-from decorator import decorator  # @UnresolvedImport
+from decorator import decorator
+from .frozen import frozendict2
+
+
+__all__ = ['memoize_simple']
+
 
 def memoize_simple(obj):
     cache = obj.cache = {}
@@ -8,7 +12,7 @@ def memoize_simple(obj):
         key = (args, frozendict2(kwargs))
         if key not in cache:
             cache[key] = f(*args, **kwargs)
-            print('memoize: %s %d storage' % (obj, len(cache)))
+            # print('memoize: %s %d storage' % (obj, len(cache)))
         return cache[key]
     
     return decorator(memoizer, obj)

@@ -5,18 +5,17 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 '''
-from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS,
-               COMMANDS_ADVANCED,
+from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
     COMMANDS_CLUSTER, ui_section)
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
 from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     MultiprocessingManager, clean_target, mark_remake, top_targets,
     parse_yaml_configuration)
+from ..jobs.manager_sge import SGEManager
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
 import os
-from compmake.jobs.manager_sge import SGEManager
 
 
 ui_section(GENERAL)
@@ -26,12 +25,7 @@ ui_section(GENERAL)
 def exit():  # @ReservedAssignment
     '''Exits the shell.'''
     raise ShellExitRequested()
-
-# @ui_command(section=ACTIONS)
-# def check():
-#    '''Makes sure that the cache is sane. '''
-#    make_sure_cache_is_sane()
-
+ 
 
 @ui_command(section=ACTIONS)
 def clean(job_list):
@@ -70,7 +64,7 @@ def make(job_list):
     if not job_list:
         job_list = list(top_targets())
 
-    # print "Making %d jobs" % len(job_list)
+#     info("Making %d jobs" % len(job_list))
 
     manager = ManagerLocal()
     manager.add_targets(job_list)
@@ -118,7 +112,7 @@ Usage:
     manager = MultiprocessingManager(n)
 
     publish('parmake-status', status='Adding %d targets.' % len(job_list))
-    # logger.info('Adding %d targets ' % len(job_list))
+#     logger.info('Adding %d targets ' % len(job_list))
     manager.add_targets(job_list)
 
     publish('parmake-status', status='Processing')
@@ -204,6 +198,7 @@ def remake(non_empty_job_list):
     else:
         return 0
 
+
 def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
     from ..ui.console import ask_question
@@ -217,6 +212,7 @@ def ask_if_sure_remake(non_empty_job_list):
         else:
             return True
     return True
+
 
 @ui_command(section=PARALLEL_ACTIONS)
 def parremake(non_empty_job_list):

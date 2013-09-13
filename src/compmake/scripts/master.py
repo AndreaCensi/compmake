@@ -112,7 +112,7 @@ def compmake_main(args):
     parser.add_option('--retcodefile',
                       help='If given, the return value is written in this file. '
                            'Useful to check when compmake finished in a grid environment. ',
-                      default='default')
+                      default=None)
  
     config_populate_optparser(parser)
 
@@ -184,8 +184,7 @@ def compmake_main(args):
         if options.retcodefile is not None:
             if isinstance(retcode, str):
                 retcode = 1
-            with open(options.retcodefile, 'w') as f:
-                f.write(str(retcode))
+            write_atomic(options.retcodefile, str(retcode))
         sys.exit(retcode) 
         
     if not options.profile:
@@ -198,6 +197,18 @@ def compmake_main(args):
         n = 30
         p.sort_stats('cumulative').print_stats(n)
         p.sort_stats('time').print_stats(n)
+
+
+def write_atomic(filename, contents):
+    tmpFile = filename + '.tmp'
+    f = open(tmpFile, 'w')
+    f.write(contents)
+    f.flush()
+    os.fsync(f.fileno()) 
+    f.close()
+    os.rename(tmpFile, filename)
+    # try:
+    # os.unlink(tmpFile)
 
 
 def load_existing_db(dirname):

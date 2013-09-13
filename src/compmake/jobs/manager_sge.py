@@ -2,6 +2,12 @@ from ..structures import HostFailed, JobFailed
 from ..ui import error
 from .manager import AsyncResultInterface, Manager
 from compmake import CompmakeConstants, get_compmake_db
+from .manager import Manager
+from compmake import CompmakeConstants
+from compmake.state import get_compmake_db
+from compmake.structures import HostFailed, JobFailed
+from compmake.ui import error
+from compmake.utils import system_cmd_result
 from contracts.utils import indent
 from system_cmd import system_cmd_result
 import os

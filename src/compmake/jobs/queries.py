@@ -2,6 +2,7 @@
 from ..jobs import get_job, all_jobs
 from contracts import contract
 
+
 def direct_parents(job_id):
     ''' Returns the direct parents of the specified job.
         (Jobs that depend directly on this one) '''

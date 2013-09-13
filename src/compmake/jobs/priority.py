@@ -1,4 +1,7 @@
-from . import direct_parents
+from  .queries import direct_parents
+
+
+__all__ = ['compute_priorities', 'compute_priority']
 
 
 def compute_priorities(all_targets):
