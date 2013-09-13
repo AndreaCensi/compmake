@@ -1,3 +1,15 @@
+import base64
+import logging
+from multiprocessing import Pool
+import pickle
+import subprocess
+import sys
+import time
+import traceback
+
+from cjson import encode, decode, EncodeError, DecodeError  # @UnresolvedImport
+from compmake import CompmakeConstants
+
 from ..events import register_handler, remove_all_handlers, broadcast_event
 from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cache,
     mark_as_failed)
@@ -7,16 +19,6 @@ from ..utils import OutputCapture, setproctitle
 from .cluster_conf import Host
 from .manager import Manager
 from .manager_local import FakeAsync
-from cjson import encode, decode, EncodeError, DecodeError  # @UnresolvedImport
-from compmake import CompmakeConstants
-from multiprocessing import Pool
-import base64
-import logging
-import pickle
-import subprocess
-import sys
-import time
-import traceback
 
 
 __all__ = ['ClusterManager']

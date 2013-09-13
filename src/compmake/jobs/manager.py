@@ -1,22 +1,18 @@
-from ..events import publish
-from ..jobs import (mark_as_blocked, compute_priorities, direct_children,
-    up_to_date, list_todo_targets, dependencies_up_to_date, parents, direct_parents)
-from ..structures import (JobFailed, JobInterrupted, HostFailed,
-    CompmakeException)
-from ..ui import error
 from abc import ABCMeta, abstractmethod
+import itertools
+from multiprocessing import TimeoutError
+import time
+
 from contracts import ContractsMeta, contract
-from ..structures import JobFailed, JobInterrupted, HostFailed
+
+from ..events import publish
+from ..structures import (CompmakeException, JobFailed, JobInterrupted,
+    HostFailed)
 from ..ui import error
 from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, parents, direct_parents
 from .uptodate import CacheQueryDB
-from abc import ABCMeta, abstractmethod
-from contracts import ContractsMeta
-from multiprocessing import TimeoutError
-import itertools
-import time
 
 
 __all__ = ['Manager', 'AsyncResultInterface']

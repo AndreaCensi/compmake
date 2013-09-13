@@ -1,13 +1,13 @@
-from compmake.structures import CompmakeException, SerializationError
-from compmake.utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
-from compmake import logger
-from glob import glob
-from os.path import basename
-import cPickle as pickle
 import os
+from os.path import basename
 import traceback
-import fnmatch
-from contracts import contract
+
+import cPickle as pickle
+from compmake import logger
+from compmake.structures import CompmakeException, SerializationError
+from compmake.utils import (find_pickling_error, safe_pickle_load,
+    safe_pickle_dump)
+
 
 if False:
     track_time = lambda x: x
