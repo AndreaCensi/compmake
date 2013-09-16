@@ -84,6 +84,8 @@ class SGEJob(AsyncResultInterface):
         
         compmake_options = [compmake_bin, storage,
                             '--retcodefile', self.retcode,
+                            '--status_line_enabled', '0',
+                            '--colorize', '0',
                             '-c', '"make %s"' % self.job_id]
         
         write_stdin = ' '.join(compmake_options)

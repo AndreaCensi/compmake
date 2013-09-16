@@ -48,6 +48,11 @@ add_config_switch('echo_stderr', True,
        desc="If true, the job output to stderr is shown.",
        section=CONFIG_APPEARANCE)
 
+
+add_config_switch('status_line_enabled', True,
+       desc="Activate the plugin for status line",
+       section=CONFIG_APPEARANCE)
+
 # XXX: to remove
 # add_config_switch('save_progress', True,
 #        desc="Whether to save intermediate results for jobs that use \

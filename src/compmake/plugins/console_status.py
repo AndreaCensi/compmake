@@ -6,6 +6,7 @@ from compmake.utils import (pad_to_screen_length, get_length_on_screen,
     getTerminalSize)
 import sys
 import time
+from compmake.state import get_compmake_config
 
 
 stream = sys.stderr
@@ -170,11 +171,11 @@ def handle_event(event):  # @UnusedVariable
     stream.write(line)
     stream.write('\r')
 
-
-register_handler('manager-loop', handle_event)
-register_handler('manager-progress', handle_event)
-register_handler('job-progress', handle_event)
-register_handler('job-progress-plus', handle_event)
-register_handler('job-stdout', handle_event)
-register_handler('job-stderr', handle_event)
+if get_compmake_config('status_line_enabled'):    
+    register_handler('manager-loop', handle_event)
+    register_handler('manager-progress', handle_event)
+    register_handler('job-progress', handle_event)
+    register_handler('job-progress-plus', handle_event)
+    register_handler('job-stdout', handle_event)
+    register_handler('job-stderr', handle_event)
  
