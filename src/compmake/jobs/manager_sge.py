@@ -3,10 +3,10 @@ import os
 from system_cmd import CmdException, system_cmd_result
 
 from compmake import CompmakeConstants, get_compmake_db
-from compmake.structures import CompmakeException, HostFailed, JobFailed
-from compmake.ui import error
 from contracts.utils import indent
 
+from ..structures import CompmakeException, HostFailed, JobFailed
+from ..ui import error
 from .manager import AsyncResultInterface, Manager
 
 

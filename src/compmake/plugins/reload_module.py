@@ -1,8 +1,9 @@
-from ..structures import UserError
-from ..ui import GENERAL, ui_command, user_error, info
 import imp
 import os
 import pwd
+
+from ..structures import UserError
+from ..ui import GENERAL, ui_command, user_error, info
 
 
 @ui_command(section=GENERAL)

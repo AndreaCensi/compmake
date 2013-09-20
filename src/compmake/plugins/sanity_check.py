@@ -1,8 +1,7 @@
 ''' The actual interface of some commands in commands.py '''
 from ..jobs import (direct_parents, parents, direct_children, children, all_jobs,
     parse_job_list)
-from ..ui import ui_command, VISUALIZATION
-from ..ui.visualization import error
+from ..ui import error, ui_command, VISUALIZATION
 
 
 @ui_command(section=VISUALIZATION, alias='check-consistency')

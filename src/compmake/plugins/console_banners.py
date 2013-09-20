@@ -1,10 +1,12 @@
 ''' Implements the initial and final banner '''
+import random
+
 from .. import version
 from ..events import register_handler
 from ..jobs import all_jobs, get_namespace
-from ..utils import  pad_to_screen
-import random
-from compmake.ui.visualization import compmake_colored
+from ..ui import compmake_colored
+from ..utils import pad_to_screen
+
 
 compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
@@ -14,7 +16,7 @@ banners = [
            "Keep calm and carry on"]
 
 
-def console_starting(event): #@UnusedVariable
+def console_starting(event):  # @UnusedVariable
     # starting console
     def printb(s):
         print(pad_to_screen(s))
@@ -26,7 +28,7 @@ def console_starting(event): #@UnusedVariable
         compmake_colored(version, 'green'),
         compmake_colored(banner, 'cyan')))
 
-    printb(("Welcome to the compmake console. " +
+    printb(("Welcome to the compmake console. " + 
             "(write 'help' for a list of commands)"))
     njobs = len(list(all_jobs()))
 
@@ -36,7 +38,7 @@ def console_starting(event): #@UnusedVariable
         printb("%d jobs loaded." % njobs)
 
 
-def console_ending(event): #@UnusedVariable
+def console_ending(event):  # @UnusedVariable
     print("Thanks for using compmake. Problems? Suggestions? Praise? "
           "Go to %s" % compmake_colored(compmake_issues_url, attrs=['bold']))
 

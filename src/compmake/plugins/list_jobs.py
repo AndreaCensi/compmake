@@ -1,10 +1,11 @@
 ''' The actual interface of some commands in commands.py '''
+import string
+from time import time
+
 from ..jobs import CacheQueryDB, all_jobs, parse_job_list
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
-from time import time
-import string
 
 
 @ui_command(section=VISUALIZATION, alias='list')

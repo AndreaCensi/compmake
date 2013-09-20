@@ -1,14 +1,14 @@
 ''' The actual interface of some commands in commands.py '''
+import string
+
 from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
-from ..ui import ui_command, VISUALIZATION
-from ..utils import  pad_to_screen
-import string
-from compmake.ui.visualization import compmake_colored
+from ..ui import compmake_colored, ui_command, VISUALIZATION
+from ..utils import pad_to_screen
 
 
 state2color = {
-    Cache.NOT_STARTED: {'color': 'yellow'}, #{'attrs': ['dark']},
+    Cache.NOT_STARTED: {'color': 'yellow'},  # {'attrs': ['dark']},
     Cache.IN_PROGRESS: {'color': 'yellow'},
     Cache.BLOCKED: {'color': 'yellow'},
     Cache.FAILED: {'color': 'red'},
@@ -52,7 +52,7 @@ def display_stats(job_list):
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1
 
-        if total == 100: # XXX: use standard method
+        if total == 100:  # XXX: use standard method
             print("Loading a large number of jobs...\r")
 
     if total == 0:
@@ -78,7 +78,7 @@ def display_stats(job_list):
         states = [(Cache.DONE, 'done'),
                   (Cache.FAILED, 'failed'),
                   (Cache.BLOCKED, 'blocked'),
-                  #(Cache.MORE_REQUESTED, 'done'),
+                  # (Cache.MORE_REQUESTED, 'done'),
                   (Cache.IN_PROGRESS, 'in progress'),
                   (Cache.NOT_STARTED, 'to do'),
                   ]

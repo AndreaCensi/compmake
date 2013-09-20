@@ -1,6 +1,8 @@
-from ..ui import ui_command, GENERAL
 from collections import namedtuple
 import string
+
+from ..ui import ui_command, GENERAL
+
 
 banner = """\
                                            _        
@@ -25,12 +27,12 @@ def add_credits(**kwargs):
 
 
 @ui_command(alias='about', section=GENERAL)
-def credits(): #@ReservedAssignment
+def credits():  # @ReservedAssignment
     '''Shows the credits for compmake.'''
     print(banner)
 
     print "Compmake is brought to you by:\n"
-    for credits in contributors: #@ReservedAssignment
+    for credits in contributors:  # @ReservedAssignment
         print(string.rjust(credits.name, 30) + (" " * 10) + credits.what)
 
 

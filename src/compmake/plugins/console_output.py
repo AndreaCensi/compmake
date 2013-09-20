@@ -1,10 +1,11 @@
+import sys
+
 from .. import get_compmake_config
 from ..events import register_handler
-from ..ui import error
+from ..ui import compmake_colored, error
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
     get_screen_columns)
-import sys
-from compmake.ui.visualization import compmake_colored
+
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -25,7 +26,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
 
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
-            #prefix = colored(prefix, color='cyan', attrs=['dark'])
+            # prefix = colored(prefix, color='cyan', attrs=['dark'])
             prefix = compmake_colored(prefix, color='cyan')
         else:
             prefix = prefix_empty
@@ -40,7 +41,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
             max_space = (get_screen_columns() - 1
                          - len('%s%s%s' % (prefix, sep, '')))
 
-            sublines = clip_to_length(line, max_space) # FIXME
+            sublines = clip_to_length(line, max_space)  # FIXME
 
             for a, subline in enumerate(sublines):
                 if a == 0:
@@ -95,7 +96,7 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
             write_screen_line(s)
 
 
-#@contract(prefix='str', line='str', postfix='str', returns='list[>=1]x(str)')
+# @contract(prefix='str', line='str', postfix='str', returns='list[>=1]x(str)')
 def pad_line_to_screen_length(prefix, line, postfix, max_size):
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)
@@ -158,7 +159,7 @@ def handle_job_failed(event):
     reason = event.kwargs['reason']
     bt = event.kwargs['bt']
 
-    error('Job %r failed on host %r: %s\n%s' %
+    error('Job %r failed on host %r: %s\n%s' % 
           (job_id, host, reason, bt))
 
 register_handler('job-failed', handle_job_failed)

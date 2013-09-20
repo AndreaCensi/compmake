@@ -1,9 +1,10 @@
+from compmake import CompmakeGlobalState, logger
+
 from ..structures import CompmakeException
+from ..utils import wildcard_to_regexp
 from .registered_events import compmake_registered_events
 from .structures import Event
-from compmake import CompmakeGlobalState, logger
-from compmake.utils import wildcard_to_regexp
- 
+
 
 def remove_all_handlers():
     ''' 

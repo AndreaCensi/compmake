@@ -1,6 +1,7 @@
 ''' Contains queries of the job DB. '''
-from ..jobs import get_job, all_jobs
 from contracts import contract
+
+from ..jobs import get_job, all_jobs
 
 
 def direct_parents(job_id):

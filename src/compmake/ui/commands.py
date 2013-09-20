@@ -5,17 +5,17 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 '''
+import os
+
 from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
     COMMANDS_CLUSTER, ui_section)
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
 from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     MultiprocessingManager, clean_target, mark_remake, top_targets,
-    parse_yaml_configuration)
-from ..jobs.manager_sge import SGEManager
+    parse_yaml_configuration, SGEManager)
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
-import os
 
 
 ui_section(GENERAL)

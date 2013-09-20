@@ -1,7 +1,9 @@
+import os
+
+import cPickle as pickle
+
 from ..jobs import get_job_userobject, is_job_userobject_available
 from ..ui import INPUT_OUTPUT, ui_section, ui_command, info, user_error
-import cPickle as pickle
-import os
 
 
 ui_section(INPUT_OUTPUT)

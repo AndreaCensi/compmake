@@ -1,8 +1,10 @@
 '''This plugin dumps all events received'''
-from ..events import register_fallback_handler, register_handler
-from ..utils import pad_to_screen
 import sys
-from compmake.ui.visualization import compmake_colored
+
+from ..events import register_fallback_handler, register_handler
+from ..ui import compmake_colored
+from ..utils import pad_to_screen
+
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr
@@ -20,7 +22,7 @@ def print_event(event):
 
     s = str(event.kwargs)
 #    print ('%r has len %d' % (s, len(s)))
-    MAX_LEN = 1000 # TODO: 
+    MAX_LEN = 1000  # TODO: 
     # TODO: clip_to_length(s, ' [...]')
     if len(s) > MAX_LEN:
         suff = ' [...]'

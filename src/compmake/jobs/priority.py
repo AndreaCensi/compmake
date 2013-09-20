@@ -1,4 +1,4 @@
-from  .queries import direct_parents
+from .queries import direct_parents
 
 
 __all__ = ['compute_priorities', 'compute_priority']
