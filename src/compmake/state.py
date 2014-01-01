@@ -53,6 +53,7 @@ def set_compmake_db(db):
     # logger.info('Using database %r' % describe_type(db))
     CompmakeGlobalState.compmake_db = db
 
+
 def get_compmake_config(key):
     return CompmakeGlobalState.compmake_config[key]
 
@@ -71,8 +72,10 @@ def is_inside_compmake_script():
     """ Returns true if running inside the compmake script. """
     return CompmakeGlobalState.inside_compmake_script
 
+
 def set_inside_compmake_script(itis=True):
     CompmakeGlobalState.inside_compmake_script = itis
+
     
 def set_compmake_status(s):
     CompmakeGlobalState.compmake_status = s
