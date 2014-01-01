@@ -1,4 +1,10 @@
-from . import UIState, get_commands
+import inspect
+import os
+import sys
+from types import NoneType
+
+import cPickle as pickle
+
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     CompmakeGlobalState, is_interactive_session, get_compmake_config)
 from ..events import publish
@@ -6,15 +12,11 @@ from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list,
     is_job_userobject_available, delete_job_userobject, delete_job_args)
 from ..structures import Job, UserError, Promise
-from ..utils import describe_type, interpret_strings_like, describe_value
-from types import NoneType
-import cPickle as pickle
-import inspect
-import sys
-from conf_tools.instantiate_utils import import_name
-import os
+from ..utils import (describe_type, interpret_strings_like, describe_value,
+    import_name)
+from .helpers import get_commands, UIState
 
- 
+
 def is_pickable(x):  # TODO: move away
     try:
         pickle.dumps(x)
