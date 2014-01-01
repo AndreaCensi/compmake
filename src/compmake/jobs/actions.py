@@ -1,3 +1,10 @@
+from copy import deepcopy
+import logging
+from time import time, clock
+import traceback
+
+from compmake import get_compmake_config
+
 from ..events import publish
 from ..structures import Cache, JobFailed, JobInterrupted, Promise
 from ..ui import compmake_colored
@@ -7,11 +14,6 @@ from .storage import (delete_job_cache, set_job_cache,
     is_job_userobject_available, delete_job_userobject, get_job_userobject,
     set_job_userobject, get_job_cache, get_job)
 from .uptodate import up_to_date
-from compmake import get_compmake_config
-from copy import deepcopy
-from time import time, clock
-import logging
-import traceback
 
 
 def clean_target(job_id):

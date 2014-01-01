@@ -1,4 +1,3 @@
-''' This is the executable '''
 from optparse import OptionParser
 import os
 import sys

@@ -1,10 +1,11 @@
 ''' The actual interface of some commands in commands.py '''
+from string import rjust
+import sys
+
 from ..jobs import (direct_parents, direct_children, get_job_cache, up_to_date,
     parents, children)
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
-from string import rjust
-import sys
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')

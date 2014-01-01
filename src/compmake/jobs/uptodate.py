@@ -1,7 +1,9 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
-from ..structures import Cache
 from contracts import contract
-from compmake.utils import memoize_simple
+
+from ..structures import Cache
+from ..utils import memoize_simple
+
 
 __all__ = ['CacheQueryDB']
 

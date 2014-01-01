@@ -9,9 +9,11 @@ Compmake stores 3 kind of data, all of them indexed by a job_id string.
 These are all wrappers around the raw methods in storage
 '''
 from compmake import CompmakeGlobalState
-from compmake.structures import Cache, Job, CompmakeException
-from compmake.utils import wildcard_to_regexp
-from compmake.state import get_compmake_db
+
+from ..state import get_compmake_db
+from ..structures import Cache, Job, CompmakeException
+from ..utils import wildcard_to_regexp
+
 
 def set_namespace(n):
     if n != 'default':

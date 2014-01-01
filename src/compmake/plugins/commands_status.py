@@ -1,9 +1,8 @@
-from ..ui import error
 from ..events import register_handler
+from ..ui import error
 
 
 # TODO: command-succeeded: {'command': '
-
 # command-interrupted: {'reason': 'KeyboardInterrupt', 'command': 'ls todo'}
 def command_interrupted(event):
     error('Command %r interrupted.' % event.kwargs['command'])
@@ -71,12 +70,12 @@ register_handler('parmake-status', ignore)
 register_handler('job-succeeded', ignore)
 register_handler('job-interrupted', ignore)
 
-if True: # debugging
+if True:  # debugging
     register_handler('worker-status', ignore)
     register_handler('manager-job-succeeded', ignore)
     register_handler('manager-job-failed', ignore)
     register_handler('manager-job-starting', ignore)
 
-register_handler('manager-succeeded', ignore) # TODO: maybe write sth
+register_handler('manager-succeeded', ignore)  # TODO: maybe write sth
 
 

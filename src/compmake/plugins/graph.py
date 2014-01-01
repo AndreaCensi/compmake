@@ -1,7 +1,9 @@
+import os
+
 from ..jobs import direct_children, get_job_cache, top_targets, tree
 from ..structures import UserError, Cache
 from ..ui import info, ui_section, VISUALIZATION, ui_command
-import os
+
 
 ui_section(VISUALIZATION)
 
@@ -56,8 +58,8 @@ def graph(job_list, filename='compmake', compact=0,
         graph.styleApply(job_id, job2node[job_id])
 
     for job_id in job_list:
-        #c = get_computation(job_id)
-        #children_id = [x.job_id for x in c.depends]
+        # c = get_computation(job_id)
+        # children_id = [x.job_id for x in c.depends]
         for child in direct_children(job_id):
             graph.newLink(job2node[job_id], job2node[child])
 

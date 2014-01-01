@@ -1,16 +1,16 @@
-#ssh -R 12000:localhost:6379 nessa.cds.caltech.edu 
+# ssh -R 12000:localhost:6379 nessa.cds.caltech.edu 
 # "compmake --db=redis --host localhost:12000 --slave make 
 # v_rangefinder_nonunif-random_pose_simulation "
-import sys
 from collections import namedtuple
 from pprint import pprint
+import sys
 
 
 Host = namedtuple('Host',
                   'name host username processors init test instance')
 
 
-def parse_yaml_configuration(file): #@ReservedAssignment
+def parse_yaml_configuration(file):  # @ReservedAssignment
 
     def fill_in(config, defaults):
         for k, v in defaults.items():
@@ -38,7 +38,7 @@ def parse_yaml_configuration(file): #@ReservedAssignment
     fill_in(default_type, default_conf)
     types['default'] = default_type
 
-    for compname, config in types.items(): #@UnusedVariable
+    for compname, config in types.items():  # @UnusedVariable
         fill_in(config, default_type)
 
     for hostname, config in hosts.items():

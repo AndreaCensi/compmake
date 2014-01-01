@@ -1,4 +1,6 @@
-from . import Manager, make
+from .actions import make
+from .manager import Manager
+
 
 __all__ = ['ManagerLocal', 'FakeAsync']
 

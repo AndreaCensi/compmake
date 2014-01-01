@@ -1,5 +1,7 @@
-from . import add_config_section, add_config_switch
 from multiprocessing import cpu_count
+
+from .structure import add_config_section, add_config_switch
+
 
 CONFIG_GENERAL = 'General configuration'
 CONFIG_APPEARANCE = 'Appearance'
@@ -46,6 +48,11 @@ add_config_switch('echo_stdout', True,
 
 add_config_switch('echo_stderr', True,
        desc="If true, the job output to stderr is shown.",
+       section=CONFIG_APPEARANCE)
+
+
+add_config_switch('status_line_enabled', True,
+       desc="Activate the plugin for status line",
        section=CONFIG_APPEARANCE)
 
 # XXX: to remove

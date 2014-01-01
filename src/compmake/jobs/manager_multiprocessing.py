@@ -1,20 +1,23 @@
-from ..config import get_compmake_config
-from ..events import (register_handler, broadcast_event, remove_all_handlers,
-    publish)
-from ..state import get_compmake_db
-from ..utils import setproctitle
-from .manager import Manager
 from Queue import Empty, Full
-from compmake import CompmakeGlobalState
-from ..jobs import make
-from contracts import contract
 from multiprocessing import Pool
-from multiprocessing.queues import Queue
 import multiprocessing
+from multiprocessing.queues import Queue
 import random
 import signal
 import sys
 import time
+
+from compmake import CompmakeGlobalState
+from contracts import contract
+
+from ..config import get_compmake_config
+from ..events import (register_handler, broadcast_event, remove_all_handlers,
+    publish)
+from ..jobs import make
+from ..state import get_compmake_db
+from ..utils import setproctitle
+from .manager import Manager
+
 
 __all__ = ['MultiprocessingManager']
 
