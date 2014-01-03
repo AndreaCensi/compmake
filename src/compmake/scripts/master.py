@@ -215,6 +215,8 @@ def load_existing_db(dirname):
     one = files[0]
     if '.gz' in one:
         compress = True
+    else:
+        compress = False
     
     use_filesystem(dirname, compress=compress)
     
