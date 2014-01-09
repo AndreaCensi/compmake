@@ -221,7 +221,7 @@ def load_existing_db(dirname):
         compress = True
     else:
         compress = False
-        
+
     use_filesystem(dirname, compress=compress)
     
     jobs = list(all_jobs())
