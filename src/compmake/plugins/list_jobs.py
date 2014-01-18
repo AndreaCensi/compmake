@@ -9,17 +9,20 @@ from ..utils import duration_human
 
 
 @ui_command(section=VISUALIZATION, alias='list')
-def ls(args):  # @ReservedAssignment
-    '''Lists the status of the selected targets (or all targets \
-if not specified).
+def ls(args, context):  # @ReservedAssignment
+    '''
+        Lists the status of the selected targets (or all targets if not specified).
     
-    If only one job is specified, then it is listed in more detail.  '''
+        If only one job is specified, then it is listed in more detail.  
+    '''
+    
+    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs()
+        job_list = all_jobs(db=db)
     else:
-        job_list = parse_job_list(args)
+        job_list = parse_job_list(tokens=args, context=context)
 
-    list_jobs(job_list)
+    list_jobs(context, job_list)
     return 0
 
 
@@ -40,7 +43,7 @@ state2color = {
  
 
 
-def list_jobs(job_list):
+def list_jobs(context, job_list):
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
@@ -49,7 +52,8 @@ def list_jobs(job_list):
 
     jlen = max(len(x) for x in job_list)
 
-    cq = CacheQueryDB()
+    db = context.get_compmake_db()
+    cq = CacheQueryDB(db)
 
     cpu_total = []
     wall_total = []

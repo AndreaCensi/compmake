@@ -1,24 +1,27 @@
-from .. import comp
+from nose.tools import istest
+
+from compmake.unittests.compmake_test import CompmakeTest
+
 from ..structures import UserError
-import unittest
 
 
-def uses_nested():
+def uses_nested(context):
     def f1():
         pass
 
-    comp(f1)
+    context.comp(f1)
 
 
-def uses_lambda():
+def uses_lambda(context):
 
-    comp(lambda x: x, 1)
+    context.comp(lambda x: x, 1)
 
 
-class TestInvalidFunctions(unittest.TestCase):
+@istest
+class TestInvalidFunctions(CompmakeTest):
 
     def test_invalid_function_nested(self):
-        self.assertRaises(UserError, uses_nested)
+        self.assertRaises(UserError, uses_nested, self.cc)
 
     def test_invalid_function_lambda(self):
-        self.assertRaises(UserError, uses_lambda)
+        self.assertRaises(UserError, uses_lambda, self.cc)

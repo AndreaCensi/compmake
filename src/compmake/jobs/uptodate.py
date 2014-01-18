@@ -9,7 +9,7 @@ __all__ = ['CacheQueryDB']
 
 
 @contract(returns='tuple(bool, str)')
-def up_to_date(job_id):
+def up_to_date(job_id, db):
     """ 
     
     Check that the job is up to date. 
@@ -26,21 +26,21 @@ def up_to_date(job_id):
         boolean, explanation 
     
     """ 
-    cq = CacheQueryDB()
+    cq = CacheQueryDB(db)
     res, reason, _ = cq.up_to_date(job_id)
     return res, reason
 
 
 class CacheQueryDB(object):
     
-    def __init__(self):
-        pass
+    def __init__(self, db):
+        self.db = db
     
     @memoize_simple
     @contract(returns=Cache)
     def get_job_cache(self, job_id):
         from compmake.jobs.storage import get_job_cache
-        return get_job_cache(job_id)
+        return get_job_cache(job_id, db=self.db)
 
     @memoize_simple
     @contract(returns='tuple(bool, str, float)')
@@ -77,7 +77,7 @@ class CacheQueryDB(object):
     @memoize_simple
     def direct_children(self, job_id):
         from compmake.jobs.queries import direct_children
-        return direct_children(job_id)
+        return direct_children(job_id, db=self.db)
 
     @memoize_simple
     def dependencies_up_to_date(self, job_id):

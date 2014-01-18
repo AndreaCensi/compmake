@@ -1,7 +1,9 @@
-from .utils import AvgSystemStats
 from collections import namedtuple
-from compmake import CompmakeConstants, logger
 import sys
+
+from compmake import CompmakeConstants
+
+from .utils import AvgSystemStats
 
 
 class CompmakeGlobalState(object):
@@ -39,19 +41,21 @@ class CompmakeGlobalState(object):
     # Cached list of options for completions in console
     cached_completions = None
 
+# def get_compmake_db():
+#     warnings.warn('Using default DB', stacklevel=2)
+#
+#     if CompmakeGlobalState.compmake_db is None:
+#         msg = 'Warning, no DB was specified. Will use in-memory dict.'
+#         logger.warning(msg)
+#         warnings.warn(msg, stacklevel=2)
+#         set_compmake_db({})
+#
+#     return CompmakeGlobalState.compmake_db
 
-def get_compmake_db():
-    if CompmakeGlobalState.compmake_db is None:
-        msg = 'Warning, no DB was specified. Will use in-memory dict.'
-        logger.warning(msg)
-        set_compmake_db({})
-        
-    return CompmakeGlobalState.compmake_db
-
-
-def set_compmake_db(db):
-    # logger.info('Using database %r' % describe_type(db))
-    CompmakeGlobalState.compmake_db = db
+#
+# def set_compmake_db(db):
+#     # logger.info('Using database %r' % describe_type(db))
+#     CompmakeGlobalState.compmake_db = db
 
 
 def get_compmake_config(key):

@@ -16,7 +16,8 @@ banners = [
            "Keep calm and carry on"]
 
 
-def console_starting(event):  # @UnusedVariable
+def console_starting(event, context):  # @UnusedVariable
+    db = context.get_compmake_db()
     # starting console
     def printb(s):
         print(pad_to_screen(s))
@@ -30,7 +31,7 @@ def console_starting(event):  # @UnusedVariable
 
     printb(("Welcome to the compmake console. " + 
             "(write 'help' for a list of commands)"))
-    njobs = len(list(all_jobs()))
+    njobs = len(list(all_jobs(db)))
 
     if get_namespace() != 'default':
         printb("%d jobs loaded in namespace '%s'." % (njobs, get_namespace()))
@@ -38,7 +39,7 @@ def console_starting(event):  # @UnusedVariable
         printb("%d jobs loaded." % njobs)
 
 
-def console_ending(event):  # @UnusedVariable
+def console_ending(event, context):  # @UnusedVariable
     print("Thanks for using compmake. Problems? Suggestions? Praise? "
           "Go to %s" % compmake_colored(compmake_issues_url, attrs=['bold']))
 

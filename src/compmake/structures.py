@@ -124,16 +124,23 @@ class Promise(object):
 
 class Job(object):
 
-    def __init__(self, job_id, children, command_desc, yields=False):
+    def __init__(self, job_id, children, command_desc, yields=False,
+                 needs_context=False):
+        """
+        
+            needs_context: new facility for dynamic jobs
+        """
         self.job_id = job_id
         self.children = children
         self.command_desc = command_desc
         self.parents = []
-        self.yields = yields  # XXX
+        self.yields = yields  # XXX # To remove
+        self.needs_context = needs_context
 
-    def compute(self):
+    def compute(self, context):
+        db = context.get_compmake_db()
         from compmake.jobs.storage import get_job_args
-        job_args = get_job_args(self.job_id)
+        job_args = get_job_args(self.job_id, db=db)
         command, args, kwargs = job_args
 
         # ## XXX move this somewhere else
@@ -150,10 +157,13 @@ class Job(object):
 
         from compmake.jobs import substitute_dependencies
         # TODO: move this to jobs.actions?
-        args = substitute_dependencies(args)
-        kwargs = substitute_dependencies(kwargs)
+        args = substitute_dependencies(args, db=db)
+        kwargs = substitute_dependencies(kwargs, db=db)
 
-        return command(*args, **kwargs)
+        if self.needs_context:
+            return command(context, *args, **kwargs)
+        else:
+            return command(*args, **kwargs)
 
     def get_actual_command(self):
         """ returns command, args, kwargs after deps subst."""

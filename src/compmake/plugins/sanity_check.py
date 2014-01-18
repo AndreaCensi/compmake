@@ -5,27 +5,27 @@ from ..ui import error, ui_command, VISUALIZATION
 
 
 @ui_command(section=VISUALIZATION, alias='check-consistency')
-def check_consistency(args):  # @ReservedAssignment
+def check_consistency(args, context):  # @ReservedAssignment
     ''' Checks that the relations between jobs are consistent. '''
+    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs()
+        job_list = all_jobs(db)
     else:
-        job_list = parse_job_list(args)
+        job_list = parse_job_list(args, context=context)
 
-    check_jobs(job_list)
+
+    for job_id in job_list:
+        check_job(job_id, context)
+
     return 0
 
 
-def check_jobs(job_list):
-    for job_id in job_list:
-        check_job(job_id)
-
-        
-def check_job(job_id):
-    dparents = direct_parents(job_id)
-    all_parents = parents(job_id)
-    dchildren = direct_children(job_id)
-    all_children = children(job_id)
+def check_job(job_id, context):
+    db = context.get_compmake_db()
+    dparents = direct_parents(job_id, db=db)
+    all_parents = parents(job_id, db=db)
+    dchildren = direct_children(job_id, db=db)
+    all_children = children(job_id, db=db)
     
     errors = []
 
@@ -33,19 +33,19 @@ def check_job(job_id):
         errors.append(msg)
         
     for dp in dparents:
-        if not job_id in direct_children(dp):
+        if not job_id in direct_children(dp, db=db):
             e('%s is direct parent but no direct child relation' % dp)
     
     for ap in all_parents:
-        if not job_id in children(ap):
+        if not job_id in children(ap, db=db):
             e('%s is parent but no child relation' % ap)
     
     for dc in dchildren:
-        if not job_id in direct_parents(dc):
+        if not job_id in direct_parents(dc, db=db):
             e('%s is direct child but no direct_parent relation' % dc)
             
     for ac in all_children:
-        if not job_id in parents(ac):
+        if not job_id in parents(ac, db=db):
             e('%s is direct child but no direct_parent relation' % ac)
             
     if errors:

@@ -15,6 +15,7 @@ from ..structures import Job, UserError, Promise
 from ..utils import (describe_type, interpret_strings_like, describe_value,
     import_name)
 from .helpers import get_commands, UIState
+from compmake.context import get_default_context
 
 
 def is_pickable(x):  # TODO: move away
@@ -102,8 +103,9 @@ def consider_jobs_as_defined_now(jobs):
     CompmakeGlobalState.jobs_defined_in_this_session = set(jobs)
     
 
-def clean_other_jobs():
+def clean_other_jobs(context):
     ''' Cleans jobs not defined in the session '''
+    db = context.get_compmake_db()
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return
     from .console import ask_question
@@ -115,6 +117,7 @@ def clean_other_jobs():
     else:
         clean_all = True
         
+    # XXX TODO
     defined_now = CompmakeGlobalState.jobs_defined_in_this_session
     
     # logger.info('Cleaning all jobs not defined in this session.'
@@ -122,7 +125,7 @@ def clean_other_jobs():
     
     jobs_in_db = 0
     num_cleaned = 0
-    for job_id in all_jobs(force_db=True):
+    for job_id in all_jobs(force_db=True, db=db):
         # logger.info('Considering %s' % job_id)
         jobs_in_db += 1
         if not job_id in defined_now:
@@ -144,17 +147,25 @@ def clean_other_jobs():
                 pass
                 # logger.info('Cleaning %r' % job_id)
                 
-            clean_target(job_id)
-            delete_job(job_id)
-            if is_job_userobject_available(job_id):
-                delete_job_userobject(job_id)
+            clean_target(job_id, db=db)
+            delete_job(job_id, db=db)
+            if is_job_userobject_available(job_id, db=db):
+                delete_job_userobject(job_id, db=db)
 
-            if job_args_exists(job_id):
-                delete_job_args(job_id)
+            if job_args_exists(job_id, db=db):
+                delete_job_args(job_id, db=db)
 
     # logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
     
+
 def comp(command_, *args, **kwargs):
+    return comp_(get_default_context(), command_, *args, **kwargs)
+
+def comp_dynamic(command_, *args, **kwargs):
+    return comp_(get_default_context(), command_, *args, needs_context=True, **kwargs)
+
+# @contract(context=CompmakeContext)
+def comp_(context, command_, *args, **kwargs):
     ''' 
         Main method to define a computation step.
     
@@ -165,9 +176,13 @@ def comp(command_, *args, **kwargs):
         :arg:command_name: used to define job name if job_id not provided.
         If not given, command_.__name__ is used.
         
+        :arg:needs_context: if this is a dynamic job
+        
         Raises UserError if command is not pickable.
     '''
     
+    db = context.get_compmake_db()
+
     command = command_
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
@@ -232,9 +247,17 @@ def comp(command_, *args, **kwargs):
             raise UserError(msg)
     
     else:
+        # TODO: use Context FIXME
         job_id = generate_job_id(command_desc)
 
     CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
+
+    # could be done better
+    if 'needs_context' in kwargs:
+        needs_context = True
+        del kwargs['needs_context']
+    else:
+        needs_context = False
 
     if CompmakeConstants.extra_dep_key in kwargs:
         extra_dep = kwargs[CompmakeConstants.extra_dep_key]
@@ -262,13 +285,14 @@ def comp(command_, *args, **kwargs):
     all_args = (command, args, kwargs)
 
 
-    c = Job(job_id=job_id, children=list(children), command_desc=command_desc)
+    c = Job(job_id=job_id, children=list(children), command_desc=command_desc,
+            needs_context=needs_context)
 
     for child in children:
-        child_comp = get_job(child)
+        child_comp = get_job(child, db=db)
         if not job_id in child_comp.parents:
             child_comp.parents.append(job_id)
-            set_job(child, child_comp)
+            set_job(child, child_comp, db=db)
 
     if get_compmake_config('check_params') and job_exists(job_id):
         # OK, this is going to be black magic.
@@ -285,29 +309,29 @@ def comp(command_, *args, **kwargs):
         if get_compmake_config('check_params'):
             old_status = get_compmake_status()
             set_compmake_status(CompmakeConstants.compmake_status_slave)
-            old_computation = get_job(job_id)
+            old_computation = get_job(job_id, db=db)
             set_compmake_status(old_status)
 
             assert False, 'update for job_args'
             same, reason = old_computation.same_computation(c)
 
             if not same:
-                set_job(job_id, c)
-                set_job_args(job_id, all_args)
-                publish('job-redefined', job_id=job_id, reason=reason)
+                set_job(job_id, c, db=db)
+                set_job_args(job_id, all_args, db=db)
+                publish(context, 'job-redefined', job_id=job_id, reason=reason)
                 # XXX TODO clean the cache
             else:
-                publish('job-already-defined', job_id=job_id)
+                publish(context, 'job-already-defined', job_id=job_id)
         else:
             # We assume everything's ok
-            set_job(job_id, c)
-            set_job_args(job_id, all_args)
-            publish('job-defined', job_id=job_id)
+            set_job(job_id, c, db=db)
+            set_job_args(job_id, all_args, db=db)
+            publish(context, 'job-defined', job_id=job_id)
 
     else:
-        set_job(job_id, c)
-        set_job_args(job_id, all_args)
-        publish('job-defined', job_id=job_id)
+        set_job(job_id, c, db=db)
+        set_job_args(job_id, all_args, db=db)
+        publish(context, 'job-defined', job_id=job_id)
 
     # assert job_exists(job_id)
     # assert job_args_exists(job_id)
@@ -322,7 +346,7 @@ def comp(command_, *args, **kwargs):
 #  command  alias aliasname job... 
 
 
-def interpret_commands(commands_str, separator=';'):
+def interpret_commands(commands_str, separator=';', context=None):
     ''' 
         Interprets what could possibly be a list of commands (separated by ";")
         If one command fails, it returns its retcode, and then the rest 
@@ -331,6 +355,9 @@ def interpret_commands(commands_str, separator=';'):
         Returns 0 on success; else returns either an int or a string describing
         what went wrong.
     '''
+    if context is None:
+        context = get_default_context()
+
 
     if not isinstance(commands_str, str):
         msg = 'I expected a string, got %s.' % describe_type(commands_str)
@@ -349,19 +376,19 @@ def interpret_commands(commands_str, separator=';'):
 
     for cmd in commands:
         try:
-            publish('command-starting', command=cmd)
-            retcode = interpret_single_command(cmd)
+            publish(context, 'command-starting', command=cmd)
+            retcode = interpret_single_command(cmd, context=context)
         except KeyboardInterrupt:
-            publish('command-interrupted', command=cmd,
+            publish(context, 'command-interrupted', command=cmd,
                     reason='KeyboardInterrupt')
             raise
         except UserError as e:
-            publish('command-failed', command=cmd, reason=e)
+            publish(context, 'command-failed', command=cmd, reason=e)
             raise
         # TODO: all the rest is unexpected
 
         if not isinstance(retcode, (int, NoneType, str)):
-            publish('compmake-bug', user_msg="",
+            publish(context, 'compmake-bug', user_msg="",
                     dev_msg="Command %r should return an integer, "
                         "None, or a string describing the error, not %r." % 
                         (cmd, retcode))
@@ -371,21 +398,24 @@ def interpret_commands(commands_str, separator=';'):
             continue
         else:
             if isinstance(retcode, int):
-                publish('command-failed', command=cmd,
+                publish(context, 'command-failed', command=cmd,
                         reason='Return code %r' % retcode)
                 return retcode
             else:
-                publish('command-failed', command=cmd, reason=retcode)
+                publish(context, 'command-failed', command=cmd, reason=retcode)
                 return retcode
 
         # not sure what happens if one cmd fails
     return 0
 
 
-def interpret_single_command(commands_line):
+def interpret_single_command(commands_line, context=None):
     """ Returns 0/None for success, or error code. """
     if not isinstance(commands_line, str):
         raise ValueError('Expected a string')
+
+    if context is None:
+        context = get_default_context()
 
     ui_commands = get_commands()
 
@@ -463,14 +493,17 @@ def interpret_single_command(commands_line):
                    "argument." % command_name)
             raise UserError(msg)
 
-        job_list = parse_job_list(args)
+        job_list = parse_job_list(args, context=context)
 
         # TODO: check non empty
 
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
-        kwargs['job_list'] = parse_job_list(args)
+        kwargs['job_list'] = parse_job_list(args, context=context)
+
+    if 'context' in function_args:
+        kwargs['context'] = context
 
     for x in args_without_default:
         if not x in kwargs:

@@ -2,7 +2,6 @@ from .filesystem import StorageFilesystem
 from .filesystem2 import StorageFilesystem2
 from .memorycache import MemoryCache
 from compmake import get_compmake_config, logger, CompmakeGlobalState
-from compmake.state import set_compmake_db
 from compmake.ui import info
 import os
 

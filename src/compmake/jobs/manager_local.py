@@ -16,7 +16,7 @@ class ManagerLocal(Manager):
             return True 
 
     def instance_job(self, job_id):
-        return FakeAsync(make, job_id)
+        return FakeAsync(make, job_id, context=self.context)
 
 
 class FakeAsync(object):

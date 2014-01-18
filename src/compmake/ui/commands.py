@@ -16,33 +16,37 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     parse_yaml_configuration, SGEManager)
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
+from compmake.context import Context, get_default_context
+from contracts import contract
 
 
 ui_section(GENERAL)
 
 
 @ui_command(alias='quit')
-def exit():  # @ReservedAssignment
+def exit(context):  # @ReservedAssignment
     '''Exits the shell.'''
     raise ShellExitRequested()
  
 
 @ui_command(section=ACTIONS)
-def clean(job_list):
+def clean(job_list, context):
     '''Cleans the result of the selected computation \
 (or everything is nothing specified). '''
+    db = context.get_compmake_db()
 
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
 
     if not job_list:
-        job_list = list(all_jobs())
+        job_list = list(all_jobs(db=db))
 
     if not job_list:
         return
 
     from ..ui import ask_question
 
+    # Use context
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
         answer = ask_question(question)
@@ -51,22 +55,24 @@ def clean(job_list):
             return
 
     for job_id in job_list:
-        clean_target(job_id)
+        clean_target(job_id, db=db)
 
 
 # FIXME BUG: "make failed" == "make all" if no failed
-@ui_command(section=ACTIONS)
-def make(job_list):
+
+@contract(context=Context)
+def make_(context, job_list):
     '''Makes selected targets; or all targets if none specified. '''
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
 
+    db = context.get_compmake_db()
     if not job_list:
-        job_list = list(top_targets())
+        job_list = list(top_targets(db=db))
 
 #     info("Making %d jobs" % len(job_list))
 
-    manager = ManagerLocal()
+    manager = ManagerLocal(context=context)
     manager.add_targets(job_list)
     manager.process()
 
@@ -75,10 +81,14 @@ def make(job_list):
     else:
         return 0
 
+@ui_command(section=ACTIONS)
+def make(job_list, context):
+    return make_(context, job_list)
+
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
-def make_single(job_list):
+def make_single(job_list, context):
     ''' Makes a single job -- not for users, but for slave mode. '''
     if len(job_list) > 1:
         raise UserError("I want only one job")
@@ -86,14 +96,14 @@ def make_single(job_list):
     from compmake import jobs
     try:
         job_id = job_list[0]
-        jobs.make(job_id)
+        jobs.make(job_id, context=context)
         return 0
     except JobFailed:
         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
 @ui_command(section=PARALLEL_ACTIONS)
-def parmake(job_list, n=None):
+def parmake(job_list, context, n=None):
     '''Parallel equivalent of "make".
 
 Usage:
@@ -101,21 +111,22 @@ Usage:
        parmake [n=<num>] [joblist]
  '''
     
-    publish('parmake-status', status='Obtaining job list')
+    publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
 
+    db = context.get_compmake_db()
     if not job_list:
-        job_list = list(top_targets())
+        job_list = list(top_targets(db=db))
 
-    publish('parmake-status',
+    publish(context, 'parmake-status',
             status='Starting multiprocessing manager (forking)')
-    manager = MultiprocessingManager(n)
+    manager = MultiprocessingManager(num_processes=n, context=context)
 
-    publish('parmake-status', status='Adding %d targets.' % len(job_list))
+    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
 #     logger.info('Adding %d targets ' % len(job_list))
     manager.add_targets(job_list)
 
-    publish('parmake-status', status='Processing')
+    publish(context, 'parmake-status', status='Processing')
     manager.process()
 
     if manager.failed:
@@ -129,7 +140,7 @@ Usage:
 
 
 @ui_command(section=COMMANDS_CLUSTER)
-def clustmake(job_list):
+def clustmake(job_list, context):
     '''
         Cluster equivalent of "make".
     '''
@@ -137,7 +148,8 @@ def clustmake(job_list):
     job_list = [x for x in job_list]
 
     if not job_list:
-        job_list = list(top_targets())
+        db = context.get_compmake_db()
+        job_list = list(top_targets(db))
 
     cluster_conf = get_compmake_config('cluster_conf')
 
@@ -146,7 +158,7 @@ def clustmake(job_list):
         raise UserError(msg)
 
     hosts = parse_yaml_configuration(open(cluster_conf))
-    manager = ClusterManager(hosts)
+    manager = ClusterManager(hosts=hosts, context=context)
     manager.add_targets(job_list)
     manager.process()
 
@@ -158,16 +170,17 @@ def clustmake(job_list):
 
 
 @ui_command(section=COMMANDS_CLUSTER)
-def sgemake(job_list):
+def sgemake(job_list, context):
     '''
         SGE equivalent of "make".
      '''
     job_list = [x for x in job_list]
 
     if not job_list:
-        job_list = list(top_targets())
+        db = context.get_compmake_db()
+        job_list = list(top_targets(db=db))
 
-    manager = SGEManager()
+    manager = SGEManager(context=context)
     manager.add_targets(job_list)
     manager.process()
 
@@ -178,7 +191,7 @@ def sgemake(job_list):
 
 
 @ui_command(section=ACTIONS)
-def remake(non_empty_job_list):
+def remake(non_empty_job_list, context):
     '''Remake the selected targets (equivalent to clean and make). '''
 
     non_empty_job_list = list(non_empty_job_list)
@@ -187,9 +200,10 @@ def remake(non_empty_job_list):
         return
 
     for job in non_empty_job_list:
-        mark_remake(job)
+        db = context.get_compmake_db()
+        mark_remake(job, db=db)
 
-    manager = ManagerLocal()
+    manager = ManagerLocal(context=context)
     manager.add_targets(non_empty_job_list)
     manager.process()
 
@@ -215,18 +229,18 @@ def ask_if_sure_remake(non_empty_job_list):
 
 
 @ui_command(section=PARALLEL_ACTIONS)
-def parremake(non_empty_job_list):
+def parremake(non_empty_job_list, context):
     '''Parallel equivalent of "remake". '''
-
+    db = context.get_compmake_db()
     non_empty_job_list = list(non_empty_job_list)
 
     if not ask_if_sure_remake(non_empty_job_list):
         return
 
     for job in non_empty_job_list:
-        mark_remake(job)
+        mark_remake(job, db=db)
 
-    manager = MultiprocessingManager()
+    manager = MultiprocessingManager(context=context)
     manager.add_targets(non_empty_job_list)
     manager.process()
 

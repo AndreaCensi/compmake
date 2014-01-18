@@ -8,9 +8,10 @@ Compmake stores 3 kind of data, all of them indexed by a job_id string.
 
 These are all wrappers around the raw methods in storage
 '''
-from compmake import CompmakeGlobalState
 
-from ..state import get_compmake_db
+from compmake import CompmakeGlobalState
+from contracts import contract
+
 from ..structures import Cache, Job, CompmakeException
 from ..utils import wildcard_to_regexp
 
@@ -26,8 +27,9 @@ def get_namespace():
     return CompmakeGlobalState.namespace
 
 
-def remove_all_jobs():
-    map(delete_job, all_jobs())
+def remove_all_jobs(db):
+    for job_id in all_jobs(db=db):
+        delete_job(job_id=job_id, db=db)
 
 
 def job2key(job_id):
@@ -46,42 +48,48 @@ def key2job(key):
 
 
 
-def all_jobs(force_db=False):  # @UnusedVariable
+def all_jobs(db, force_db=False):
     ''' Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
      '''
+#     db = get_default_db_if_none(db)
     pattern = job2key('*')
     regexp = wildcard_to_regexp(pattern)
     
-    db = get_compmake_db()
-    for key in db.keys():  # @UndefinedVariable        
+    for key in db.keys():
+        if not isinstance(key, str):
+            raise CompmakeException('Invalid string: %s' % key)
         if regexp.match(key):
             yield key2job(key)
 
 
-def get_job(job_id):
+def get_job(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2key(job_id)
-    computation = get_compmake_db()[key]
+    computation = db[key]
     assert isinstance(computation, Job)
     return computation
 
 
-def job_exists(job_id):
+def job_exists(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2key(job_id)
-    return key in get_compmake_db()
+    return key in db
 
 
-def set_job(job_id, computation):
+def set_job(job_id, computation, db):
+#     db = get_default_db_if_none(db)
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
-    get_compmake_db()[key] = computation 
+    db[key] = computation
 
 
-def delete_job(job_id):
+def delete_job(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2key(job_id)
-    del get_compmake_db()[key]
+    del db[key]
 
 
 #
@@ -92,17 +100,18 @@ def job2cachekey(job_id):
     return '%s%s' % (prefix, job_id)
 
 
-def get_job_cache(job_id):
+def get_job_cache(job_id, db):
+#     db = get_default_db_if_none(db)
     cache_key = job2cachekey(job_id)
-    if cache_key in get_compmake_db():
+    if cache_key in db:
         try:
-            cache = get_compmake_db()[cache_key]
+            cache = db[cache_key]
             assert(isinstance(cache, Cache))
         except Exception as e:
-            del get_compmake_db()[cache_key]
+            del db[cache_key]
             # also remove user object?
-            raise CompmakeException('Could not read Cache object for job "%s":'
-                                    ' %s; deleted.' % (job_id, e))
+            msg = 'Could not read Cache object for job "%s": %s; deleted.' % (job_id, e)
+            raise CompmakeException(msg)
         return cache
     else:
         # make sure this is a valid job_id
@@ -117,15 +126,18 @@ def get_job_cache(job_id):
         return cache
 
 
-def set_job_cache(job_id, cache):
+def set_job_cache(job_id, cache, db):
+#     db = get_default_db_if_none(db)
     assert(isinstance(cache, Cache))
     cache_key = job2cachekey(job_id)
-    get_compmake_db()[cache_key] = cache
+    db[cache_key] = cache
 
 
-def delete_job_cache(job_id):
+@contract(job_id=str)
+def delete_job_cache(job_id, db):
+#     db = get_default_db_if_none(db)
     cache_key = job2cachekey(job_id)
-    del get_compmake_db()[cache_key]
+    del db[cache_key]
 
 
 #
@@ -135,39 +147,58 @@ def job2userobjectkey(job_id):
     prefix = 'cm:%s:res:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
-def get_job_userobject(job_id):
+def get_job_userobject(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
-    return get_compmake_db()[key]
+    return db[key]
 
-def is_job_userobject_available(job_id):
+def is_job_userobject_available(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
-    return key in get_compmake_db()
+    return key in db
 
-def set_job_userobject(job_id, obj):
+def set_job_userobject(job_id, obj, db):
+#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
-    get_compmake_db()[key] = obj
+    db[key] = obj
 
-def delete_job_userobject(job_id):
+def delete_job_userobject(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
-    del get_compmake_db()[key] 
+    del db[key]
  
 
 def job2jobargskey(job_id):
     prefix = 'cm:%s:args:' % get_namespace()
     return '%s%s' % (prefix, job_id)
 
-def get_job_args(job_id):
+def get_job_args(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
-    return get_compmake_db()[key]
+    return db[key]
 
-def job_args_exists(job_id):
-    key = job2jobargskey(job_id)
-    return key in get_compmake_db()
 
-def set_job_args(job_id, obj):
+def job_args_exists(job_id, db):
+#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
-    get_compmake_db()[key] = obj 
+    return key in db
 
-def delete_job_args(job_id):
+def set_job_args(job_id, obj, db):
+#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
-    del get_compmake_db()[key]
+    db[key] = obj
+
+def delete_job_args(job_id, db):
+#     db = get_default_db_if_none(db)
+    key = job2jobargskey(job_id)
+    del db[key]
+
+
+# def get_default_db_if_none(db):
+#     from ..state import get_compmake_db
+#     if db is None:
+#         warnings.warn('no db given in call', stacklevel=2)
+#         print traceback.print_stack()
+#         return get_compmake_db()
+#     else:
+#         return db

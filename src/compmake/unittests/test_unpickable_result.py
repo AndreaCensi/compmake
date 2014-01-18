@@ -20,7 +20,6 @@ class TestUnpickable(CompmakeTest):
         self.assertNotEqual(res, 0)
 
     def add_and_execute(self, function):
-        from compmake import comp, batch_command
-        comp(function)
-        batch_command('clean')
-        return batch_command('make')
+        self.comp(function)
+        self.cc.batch_command('clean')
+        return self.cc.batch_command('make')

@@ -13,6 +13,7 @@ from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, parents, direct_parents
 from .uptodate import CacheQueryDB
+from compmake.context import get_default_context
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
@@ -43,7 +44,12 @@ class Manager(object):
 
     __metaclass__ = ContractsMeta
 
-    def __init__(self):
+    def __init__(self, context=None):
+        if context is None:
+            context = get_default_context()
+        self.context = context
+        self.db = context.get_compmake_db()
+
         # top-level targets added by users
         self.targets = set()
         
@@ -115,7 +121,7 @@ class Manager(object):
         self.targets.update(targets)
 
 #         logger.info('Checking dependencies...')
-        cq = CacheQueryDB()
+        cq = CacheQueryDB(self.db)
         targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
 
         # both done and todo jobs are added to self.all_targets
@@ -178,7 +184,7 @@ class Manager(object):
             msg += '\n' + self._get_situation_string()
             assert False, msg
 
-        publish('manager-job-starting', job_id=job_id)
+        publish(self.context, 'manager-job-starting', job_id=job_id)
         self.processing.add(job_id)
 
         # This is for the simple case of local processing, where
@@ -237,7 +243,7 @@ class Manager(object):
     def host_failed(self, job_id, reason):
         self.check_invariants()
         
-        publish('manager-host-failed', job_id=job_id, reason=reason)
+        publish(self.context, 'manager-host-failed', job_id=job_id, reason=reason)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
@@ -252,7 +258,7 @@ class Manager(object):
             mark any parent as failed as well. '''
         self.check_invariants()
         
-        publish('manager-job-failed', job_id=job_id)
+        publish(self.context, 'manager-job-failed', job_id=job_id)
 
         # print('manager noticed that job failed: %r' % job_id)
         
@@ -261,9 +267,9 @@ class Manager(object):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
 
-        its_parents = set(parents(job_id))
+        its_parents = set(parents(job_id, db=self.db))
         for p in its_parents:
-            mark_as_blocked(p, job_id)
+            mark_as_blocked(p, job_id, db=self.db)
             
             if p in self.todo:
                 self.todo.remove(p)
@@ -278,19 +284,19 @@ class Manager(object):
         ''' Mark the specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''
         self.check_invariants()
-        publish('manager-job-succeeded', job_id=job_id)
+        publish(self.context, 'manager-job-succeeded', job_id=job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
 
-        parent_jobs = set(direct_parents(job_id))
+        parent_jobs = set(direct_parents(job_id, db=self.db))
         # logger.info('done job %r with parents %s' % (job_id, parent_jobs))
         for opportunity in self.todo & parent_jobs:
             # logger.info('parent %r in todo' % (opportunity))
             assert opportunity not in self.processing
             
-            for child in direct_children(opportunity):
+            for child in direct_children(opportunity, db=self.db):
                 # If child is part of all_targets, check that it is done
                 # otherwise check that it is done by the DB.
                 if child in self.all_targets:
@@ -330,7 +336,7 @@ class Manager(object):
             if received:
                 break
             else:
-                publish('manager-loop', processing=list(self.processing))
+                publish(self.context, 'manager-loop', processing=list(self.processing))
                 time.sleep(0.01)  # TODO: make param
 
             # Process events
@@ -345,7 +351,7 @@ class Manager(object):
 
         if not self.todo:
             # info('Nothing to do.')
-            publish('manager-succeeded',
+            publish(self.context, 'manager-succeeded',
                 targets=self.targets, done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo, failed=self.failed,
@@ -355,13 +361,13 @@ class Manager(object):
             return True
 
         # precompute job priorities
-        publish('manager-phase', phase='compute_priorities')
-        self.priorities = compute_priorities(self.all_targets)
+        publish(self.context, 'manager-phase', phase='compute_priorities')
+        self.priorities = compute_priorities(self.all_targets, db=self.db)
 
-        publish('manager-phase', phase='init')
+        publish(self.context, 'manager-phase', phase='init')
         self.process_init()
 
-        publish('manager-phase', phase='loop')
+        publish(self.context, 'manager-phase', phase='loop')
         try:
             while self.todo:
                 self.check_invariants()
@@ -379,11 +385,11 @@ class Manager(object):
                 waiting_on = self.instance_some_jobs()
                 # self.publish_progress()
 
-                publish('manager-wait', reasons=waiting_on)
+                publish(self.context, 'manager-wait', reasons=waiting_on)
                 
                 if self.ready_todo and not self.processing:
                     # We time out as there are no resources
-                    publish('manager-phase', phase='wait')
+                    publish(self.context, 'manager-phase', phase='wait')
                     pass
                     # TODO: make child raise exception if there are no
                     # resources
@@ -405,7 +411,7 @@ class Manager(object):
 
             self.process_finished()
 
-            publish('manager-succeeded',
+            publish(self.context, 'manager-succeeded',
                 targets=self.targets, done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo, failed=self.failed, ready=self.ready_todo,
@@ -426,7 +432,7 @@ class Manager(object):
             self.cleanup()
 
     def publish_progress(self):
-        publish('manager-progress',
+        publish(self.context, 'manager-progress',
                 targets=self.targets,
                 done=self.done,
                 all_targets=self.all_targets,

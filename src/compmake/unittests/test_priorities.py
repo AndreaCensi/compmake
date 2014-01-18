@@ -27,38 +27,35 @@ class TestOrder(CompmakeTest):
         TestOrder.order = []
 
     def test_order(self):
-        from compmake import comp, batch_command
         # add two copies
-        comp(top, comp(bottom))
-        comp(top, comp(bottom))
+        self.comp(top, self.comp(bottom))
+        self.comp(top, self.comp(bottom))
 
-        batch_command('clean')
-        batch_command('make')
+        self.cc.batch_command('clean')
+        self.cc.batch_command('make')
 
         self.assertEqual(['bottom', 'top', 'bottom', 'top'], TestOrder.order)
 
     def test_order_2(self):
-        from compmake import comp, batch_command
         # choose wisely here
-        comp(top, comp(bottom))
-        comp(top, comp(bottom))
-        comp(bottom2)
+        self.comp(top, self.comp(bottom))
+        self.comp(top, self.comp(bottom))
+        self.comp(bottom2)
 
-        batch_command('clean')
-        batch_command('make')
+        self.cc.batch_command('clean')
+        self.cc.batch_command('make')
 
         self.assertEqual(['bottom2', 'bottom', 'top', 'bottom', 'top'],
                          TestOrder.order)
 
     def test_order_3(self):
-        from compmake import comp, batch_command
         # choose wisely here
-        comp(top, comp(bottom2))
-        comp(bottom)
-        comp(top, comp(bottom2))
+        self.comp(top, self.comp(bottom2))
+        self.comp(bottom)
+        self.comp(top, self.comp(bottom2))
 
-        batch_command('clean')
-        batch_command('make')
+        self.cc.batch_command('clean')
+        self.cc.batch_command('make')
 
         self.assertEqual(['bottom', 'bottom2', 'top', 'bottom2', 'top'],
                          TestOrder.order)

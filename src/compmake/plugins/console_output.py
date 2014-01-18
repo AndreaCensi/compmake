@@ -11,7 +11,7 @@ from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
 stream = sys.stdout
 
 
-class Storage:
+class Storage():
     max_len = 0
     last_job_id = None
 
@@ -139,12 +139,12 @@ def clip_to_length(line, max_len):
     return sublines
 
 
-def handle_event_stdout(event):
+def handle_event_stdout(event, context):
     if get_compmake_config('echo_stdout'):
         handle_event(event, False)
 
 
-def handle_event_stderr(event):
+def handle_event_stderr(event, context):
     if get_compmake_config('echo_stderr'):
         handle_event(event, True)
 
@@ -153,7 +153,7 @@ register_handler('job-stdout', handle_event_stdout)
 register_handler('job-stderr', handle_event_stderr)
 
 
-def handle_job_failed(event):
+def handle_job_failed(event, context):
     job_id = event.kwargs['job_id']
     host = event.kwargs['host']
     reason = event.kwargs['reason']

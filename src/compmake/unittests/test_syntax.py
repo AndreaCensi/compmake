@@ -1,9 +1,11 @@
+import sys
+
+from nose.tools import istest
+
 from . import CompmakeTest
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache, UserError, CompmakeSyntaxError
-from ..ui import comp, parse_job_list, reset_jobs_definition_set
-from nose.tools import istest
-import sys
+from ..ui import parse_job_list, reset_jobs_definition_set
 
 
 def dummy():
@@ -37,10 +39,10 @@ class Test1(CompmakeTest):
         ]
 
         for job_id, state in self.jobs:
-            comp(dummy, job_id=job_id)
-            cache = get_job_cache(job_id)
+            self.comp(dummy, job_id=job_id)
+            cache = get_job_cache(job_id, db=self.db)
             cache.state = state
-            set_job_cache(job_id, cache)
+            set_job_cache(job_id, cache, db=self.db)
 
         self.all = set([job_id for job_id, state in self.jobs])
         selectf = lambda S: set([nid
@@ -69,7 +71,7 @@ class Test1(CompmakeTest):
             elif isinstance(X, type(lambda: 0)):
                 return self.selection(X)
             elif isinstance(X, str):
-                return set(parse_job_list(X))
+                return set(parse_job_list(X, context=self.cc))
             else:
                 assert False, 'Wrong type %s' % type(X)
 
@@ -82,7 +84,7 @@ class Test1(CompmakeTest):
 
     def syntaxError(self, s):
         def f(s): # it's a generator, you should try to read it
-            return list(parse_job_list(s))
+            return list(parse_job_list(s, context=self.cc))
 
         self.assertRaises(CompmakeSyntaxError, f, s)
 

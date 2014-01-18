@@ -4,6 +4,10 @@ from ..structures import CompmakeException
 from ..utils import wildcard_to_regexp
 from .registered_events import compmake_registered_events
 from .structures import Event
+from compmake.context import Context
+from contracts import contract
+import traceback
+import inspect
 
 
 def remove_all_handlers():
@@ -31,6 +35,12 @@ def register_handler(event_name, handler):
         The event name might contain asterisks. "*" matches all. 
     '''
 
+    spec = inspect.getargspec(handler)
+    args = spec.args
+    if not 'context' in args and 'event' in args:
+        msg = 'Function is not valid event handler:\n function = %s\n args = %s' % (handler, spec)
+        raise ValueError(msg)
+
     handlers = CompmakeGlobalState.EventHandlers.handlers
 
     if event_name.find('*') > -1:
@@ -45,8 +55,8 @@ def register_handler(event_name, handler):
             handlers[event_name] = []
         handlers[event_name].append(handler)
 
-
-def publish(event_name, **kwargs):
+@contract(context=Context, event_name=str)
+def publish(context, event_name, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """
     if not event_name in compmake_registered_events:
@@ -61,17 +71,18 @@ def publish(event_name, **kwargs):
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
-    broadcast_event(event)
+    broadcast_event(context, event)
 
 
-def broadcast_event(event):
+@contract(context=Context, event=Event)
+def broadcast_event(context, event):
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
     handlers = all_handlers.get(event.name, None)
     if handlers:
         for handler in handlers:
             try:
-                handler(event)
+                handler(context=context, event=event)
                 # TODO: do not catch interrupted, etc.
             except Exception as e:
                 try:
@@ -80,10 +91,11 @@ def broadcast_event(event):
                            % (handler, e))
                     # Note: if we use error() there is a risk of infinite 
                     # loop if we are capturing the current stderr.
+                    msg += traceback.format_exc(e)
                     CompmakeGlobalState.original_stderr.write(msg)
                 except:
                     pass
     else:
         for handler in CompmakeGlobalState.EventHandlers.fallback:
-            handler(event)
+            handler(context=context, event=event)
 

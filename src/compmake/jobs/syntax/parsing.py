@@ -46,7 +46,7 @@ def is_alias(alias):
     return alias.lower() in aliases
 
 
-def eval_alias(alias):
+def eval_alias(alias, context):
     ''' 
     Evaluates the given alias. 
     Returns a list of job_id strings.
@@ -70,15 +70,16 @@ def eval_alias(alias):
         assert_list_of_strings(value)
         return value
     elif isinstance(value, types.FunctionType):
-        result = value()
+        result = value(context)
         # can be generator; no assert_list_of_strings(result)
         return result
     else:
-        raise ValueError('I cannot interpret alias "%s" -> "%s".' % 
-                         (alias, value))
+        msg = 'I cannot interpret alias "%s" -> "%s".' % (alias, value)
+        raise ValueError(msg)
 
 
-def list_matching_functions(token):
+def list_matching_functions(token, context):
+    db = context.get_compmake_db()
     assert token.endswith('()')
     if len(token) < 3:
         raise UserError('Malformed token "%s".' % token)
@@ -86,7 +87,7 @@ def list_matching_functions(token):
     function_id = token[:-2]
 
     num_matches = 0
-    for job_id in all_jobs():
+    for job_id in all_jobs(db=db):
         # command name (f.__name__)
         command_desc = get_job(job_id).command_desc
         if function_id.lower() == command_desc.lower():
@@ -98,38 +99,42 @@ def list_matching_functions(token):
                         function_id)
 
 
-def expand_job_list_token(token):
+def expand_job_list_token(token, context):
     ''' Parses a token (string). Returns a generator of jobs.
         Raises UserError, CompmakeSyntaxError '''
 
     assert isinstance(token, str)
 
+    db = context.get_compmake_db()
+
     if token.find('*') > -1:
-        return expand_wildcard(token, all_jobs())
+        return expand_wildcard(token, all_jobs(db=db))
     elif is_alias(token):
-        return eval_alias(token)
+        return eval_alias(token, context)
     elif token.endswith('()'):
-        return list_matching_functions(token)
+        return list_matching_functions(token, context)
         # raise UserError('Syntax reserved but not used yet. ("%s")' % token)
     else:
         # interpret as a job id
         job_id = token
-        if not job_exists(job_id):
+        if not job_exists(job_id, db=db):
             raise UserError('Job or expression "%s" not found.' % job_id)
         return [job_id]
 
 
-def expand_job_list_tokens(tokens):
+def expand_job_list_tokens(tokens, context):
     ''' Expands a list of tokens using expand_job_list_token(). 
         yields job_id '''
     for token in tokens:
         if not isinstance(token, str):
-            print tokens
-        for job in expand_job_list_token(token):
+            # print tokens XXX
+            pass
+        print ('expanding token %r' % token)
+        for job in expand_job_list_token(token, context):
             yield job
 
 
-class Operators:
+class Operators():
     Op = namedtuple('Op', 'name')
 
     NOT = Op('not')
@@ -156,47 +161,51 @@ class Operators:
         return map(token2op, tokens)
 
 
-def list_jobs_with_state(state):
+def list_jobs_with_state(state, context):
     ''' Returns a list of jobs in the given state. '''
-    for job_id in all_jobs():
-        if get_job_cache(job_id).state == state:
+    db = context.get_compmake_db()
+    for job_id in all_jobs(db=db):
+        if get_job_cache(job_id, db=db).state == state:
             yield job_id
 
 
-def list_ready_jobs():
+def list_ready_jobs(context):
     ''' Returns a list of jobs that can be done now,
         as their dependencies are up-to-date. '''
-    
-    cq = CacheQueryDB()
-    for job_id in all_jobs():
+    db = context.get_compmake_db()
+    cq = CacheQueryDB(db=db)
+    for job_id in all_jobs(db=db):
         if cq.dependencies_up_to_date(job_id):
             yield job_id
 
 
-def list_todo_jobs():
+def list_todo_jobs(context):
     ''' Returns a list of jobs that haven't been DONE. '''
-    for job_id in all_jobs():
-        if get_job_cache(job_id).state != Cache.DONE:
+    db = context.get_compmake_db()
+    for job_id in all_jobs(db=db):
+        if get_job_cache(job_id, db=db).state != Cache.DONE:
             yield job_id
 
 
-def list_top_jobs():
+def list_top_jobs(context):
     ''' Returns a list of jobs that are top-level targets.  '''
     from compmake.jobs.queries import direct_parents
-    for job_id in all_jobs():
-        if not direct_parents(job_id):
+    db = context.get_compmake_db()
+    for job_id in all_jobs(db=db):
+        if not direct_parents(job_id, db=db):
             yield job_id
 
 
-def list_bottom_jobs():
+def list_bottom_jobs(context):
     ''' Returns a list of jobs that do not depend on anything else. '''
     from compmake.jobs.queries import direct_children
-    for job_id in all_jobs():
-        if not direct_children(job_id):
+    db = context.get_compmake_db()
+    for job_id in all_jobs(db=db):
+        if not direct_children(job_id, db=db):
             yield job_id
 
 
-def parse_job_list(tokens):
+def parse_job_list(tokens, context):
     '''
         Parses a job list. tokens can be:
         
@@ -215,33 +224,34 @@ def parse_job_list(tokens):
     if not tokens:
         return []
 
-    add_alias('all', all_jobs)
-    add_alias('failed', lambda: list_jobs_with_state(Cache.FAILED))
-    add_alias('blocked', lambda: list_jobs_with_state(Cache.BLOCKED))
+    add_alias('all', lambda cc: all_jobs(db=cc.get_compmake_db()))
+    add_alias('failed', lambda cc: list_jobs_with_state(Cache.FAILED, context=cc))
+    add_alias('blocked', lambda cc: list_jobs_with_state(Cache.BLOCKED, context=cc))
     add_alias('ready', list_ready_jobs)
     add_alias('todo', list_todo_jobs)
     add_alias('top', list_top_jobs)
     add_alias('bottom', list_bottom_jobs)
-    add_alias('done', lambda: list_jobs_with_state(Cache.DONE))
-    add_alias('in_progress', lambda: list_jobs_with_state(Cache.IN_PROGRESS))
-    add_alias('not_started', lambda: list_jobs_with_state(Cache.NOT_STARTED))
+    add_alias('done', lambda cc: list_jobs_with_state(Cache.DONE, context=cc))
+    add_alias('in_progress', lambda cc: list_jobs_with_state(Cache.IN_PROGRESS, context=cc))
+    add_alias('not_started', lambda cc: list_jobs_with_state(Cache.NOT_STARTED, context=cc))
 
     # First we look for operators 
     ops = Operators.parse(tokens)
 
     # print " %s => %s" % (tokens, ops)
 
-    result = eval_ops(ops)
+    result = eval_ops(ops=ops, context=context)
 
     # print " %s => %s" % (tokens, result)
 
     return result
 
 
-def eval_ops(ops):
+def eval_ops(ops, context):
     ''' Evaluates an expression. 
       ops: list of strings and int representing operators '''
     assert isinstance(ops, list)
+    db = context.get_compmake_db()
 
     def list_split(l, index):
         ''' Splits a list in two '''
@@ -255,11 +265,10 @@ def eval_ops(ops):
     if Operators.INTERSECTION in ops:
         left, right = list_split(ops, ops.index(Operators.INTERSECTION))
         if not left or not right:
-            raise CompmakeSyntaxError(''' INTERSECTION requires only a right \
-argument. Interpreting "%s" INTERSECTION "%s". ''' % 
-(' '.join(left), ' '.join(right)))
-        left = eval_ops(left)
-        right = set(eval_ops(right))
+            msg = ''' INTERSECTION requires only a right argument. Interpreting "%s" INTERSECTION "%s". ''' % (' '.join(left), ' '.join(right))
+            raise CompmakeSyntaxError(msg)
+        left = eval_ops(ops=left, context=context)
+        right = set(eval_ops(ops=right, context=context))
         for x in left:
             if x in right:
                 yield x
@@ -267,12 +276,11 @@ argument. Interpreting "%s" INTERSECTION "%s". ''' %
     elif Operators.DIFFERENCE in ops:
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
         if not left or not right:
-            raise CompmakeSyntaxError(''' EXCEPT requires a left and right \
-argument. Interpreting "%s" EXCEPT "%s". ''' % 
-(' '.join(left), ' '.join(right)))
+            msg = ''' EXCEPT requires a left and right argument. Interpreting "%s" EXCEPT "%s". ''' % (' '.join(left), ' '.join(right))
+            raise CompmakeSyntaxError(msg)
 
-        left = eval_ops(left)
-        right = set(eval_ops(right))
+        left = eval_ops(ops=left, context=context)
+        right = set(eval_ops(ops=right, context=context))
         for x in left:
             if x not in right:
                 yield x
@@ -280,17 +288,16 @@ argument. Interpreting "%s" EXCEPT "%s". ''' %
     elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
         if left or not right:  # forbid left, require right
-            raise CompmakeSyntaxError(\
-''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' % 
-(' '.join(left), ' '.join(right)))
+            msg = (''' NOT requires only a right argument. Interpreting "%s" NOT "%s". ''' % (' '.join(left), ' '.join(right)))
+            raise CompmakeSyntaxError()
 
-        right = set(eval_ops(right))
-        for x in all_jobs():
+        right = set(eval_ops(ops=right, context=context))
+        for x in all_jobs(db=db):
             if x not in right:
                 yield x
     else:
         # no operators: simple list
         # cannot do this anymore, now it's a generator. 
         # assert_list_of_strings(ops)
-        for x in expand_job_list_tokens(ops):
+        for x in expand_job_list_tokens(ops, context=context):
             yield x
