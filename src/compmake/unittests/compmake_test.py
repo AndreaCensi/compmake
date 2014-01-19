@@ -5,7 +5,7 @@ import unittest
 
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.context import Context
-from compmake.jobs.syntax.parsing import eval_alias, parse_job_list
+from compmake.jobs.syntax.parsing import parse_job_list
 from contracts import contract
 #
 #

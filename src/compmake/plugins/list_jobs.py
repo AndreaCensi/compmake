@@ -83,11 +83,11 @@ def list_jobs(context, job_list):
 #        if cache.state == Cache.DONE and cache.done_iterations > 1:
 #            s += ' %s iterations completed ' % cache.done_iterations
 
-        if cache.state == Cache.IN_PROGRESS:
-#            s += ' (%s/%s iterations in progress) ' % \
-#                (cache.iterations_in_progress, cache.iterations_goal)
-#                
-            s += ' (in progress)'
+#         if cache.state == Cache.IN_PROGRESS:
+# #            s += ' (%s/%s iterations in progress) ' % \
+# #                (cache.iterations_in_progress, cache.iterations_goal)
+# #
+#             s += ' (in progress)'
         if up:
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used

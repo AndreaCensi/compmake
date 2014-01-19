@@ -121,7 +121,7 @@ def expand_job_list_token(token, context, cq):
     elif is_alias(token):
         return eval_alias(token, context, cq)
     elif token.endswith('()'):
-        return list_matching_functions(token, context)
+        return list_matching_functions(token, context, cq)
         # raise UserError('Syntax reserved but not used yet. ("%s")' % token)
     else:
         # interpret as a job id

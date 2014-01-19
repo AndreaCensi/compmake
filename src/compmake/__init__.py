@@ -12,13 +12,13 @@ logger.setLevel(logging.DEBUG)
 from .constants import *
 from .state import is_inside_compmake_script
 from .state import *
-from .storage import use_filesystem, StorageFilesystem
+from .storage import StorageFilesystem
 
 # TODO: default cluster.yaml
 
 # This is the module's public interface
-from .ui import (comp, comp_dynamic, comp_prefix, get_comp_prefix, batch_command, compmake_console,
-                 comp_stage_job_id, comp_store)
+from .ui import (comp, comp_dynamic, batch_command, compmake_console,
+                 comp_store)
 
 # from .state import get_compmake_config, set_compmake_config
 from .jobs import set_namespace, progress

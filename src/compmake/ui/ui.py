@@ -7,7 +7,7 @@ import cPickle as pickle
 from compmake.context import get_default_context
 
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
-    CompmakeGlobalState, is_interactive_session, get_compmake_config)
+    is_interactive_session, get_compmake_config)
 from ..events import publish
 from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
     delete_job, set_job_args, job_args_exists, parse_job_list,
@@ -42,40 +42,39 @@ def collect_dependencies(ob):
         return depends
 
 
-def comp_prefix(prefix=None):
-    ''' Sets the prefix for creating the subsequent job names. '''
-    # TODO: check str
-    if prefix is not None:
-        
-        if ' ' in prefix:
-            msg = 'Invalid job prefix %r.' % prefix
-            raise UserError(msg)
-        
-    CompmakeGlobalState.job_prefix = prefix
+# def comp_prefix(prefix=None):
+#     ''' Sets the prefix for creating the subsequent job names. '''
+#     # TODO: check str
+#     if prefix is not None:
+#
+#         if ' ' in prefix:
+#             msg = 'Invalid job prefix %r.' % prefix
+#             raise UserError(msg)
+#
+#     CompmakeGlobalState.job_prefix = prefix
 
-def get_comp_prefix():
-    return CompmakeGlobalState.job_prefix 
-
-
-def comp_stage_job_id(job, suffix):
-    """ Makes a new job_id, by returnin job_id + '-' + suffix,
-        but removing the job_prefix if it exists. """
-    assert isinstance(job, Promise)
-    job_id = job.job_id
-    pref = '%s-' % CompmakeGlobalState.job_prefix
-    if job_id.startswith(pref):
-        job_id = job_id[len(pref):]
-    result = '%s-%s' % (job_id, suffix)
-    # print('removing %r' % pref)
-    # print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s' 
-    #      % (job.job_id, job_id, suffix, result))
-    return result 
+#
+# def comp_stage_job_id(job, suffix):
+#     """ Makes a new job_id, by returnin job_id + '-' + suffix,
+#         but removing the job_prefix if it exists. """
+#     assert isinstance(job, Promise)
+#     job_id = job.job_id
+#     pref = '%s-' % CompmakeGlobalState.job_prefix
+#     if job_id.startswith(pref):
+#         job_id = job_id[len(pref):]
+#     result = '%s-%s' % (job_id, suffix)
+#     # print('removing %r' % pref)
+#     # print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s'
+#     #      % (job.job_id, job_id, suffix, result))
+#     return result
 
 def generate_job_id(base, context):
     ''' Generates a unique job_id for the specified commmand.
         Takes into account job_prefix if that's defined '''
-    if CompmakeGlobalState.job_prefix:
-        job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, base)
+
+    job_prefix = context.get_comp_prefix()
+    if job_prefix:
+        job_id = '%s-%s' % (job_prefix, base)
         if not job_id in context.jobs_defined_in_this_session:
             return job_id
     else:
@@ -83,9 +82,8 @@ def generate_job_id(base, context):
             return base
 
     for i in xrange(1000000):
-        if CompmakeGlobalState.job_prefix:
-            job_id = ('%s-%s-%d' % 
-                      (CompmakeGlobalState.job_prefix, base, i))
+        if job_prefix:
+            job_id = ('%s-%s-%d' % (job_prefix, base, i))
         else:
             job_id = '%s-%d' % (base, i)
 
@@ -93,15 +91,7 @@ def generate_job_id(base, context):
             return job_id
 
     assert(False)
-#
-#
-# def reset_jobs_definition_set():
-#     ''' Useful only for unit tests '''
-#     CompmakeGlobalState.jobs_defined_in_this_session = set()
-#
-# def consider_jobs_as_defined_now(jobs):
-#     CompmakeGlobalState.jobs_defined_in_this_session = set(jobs)
-#
+
 
 def clean_other_jobs(context):
     ''' Cleans jobs not defined in the session '''
@@ -235,9 +225,10 @@ def comp_(context, command_, *args, **kwargs):
         if ' ' in job_id:
             msg = 'Invalid job id: %r' % job_id
             raise UserError(msg)
-        
-        if CompmakeGlobalState.job_prefix:
-            job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, job_id)
+
+        job_prefix = context.get_comp_prefix()
+        if job_prefix:
+            job_id = '%s-%s' % (job_prefix, job_id)
             
         del kwargs[CompmakeConstants.job_id_key]
 

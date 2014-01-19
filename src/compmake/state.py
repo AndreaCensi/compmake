@@ -15,7 +15,7 @@ class CompmakeGlobalState(object):
     inside_compmake_script = False
     compmake_status = None
 
-    class EventHandlers:
+    class EventHandlers():
         # event name -> list of functions
         handlers = {}
         # list of handler, called when there is no other specialized handler
@@ -23,10 +23,7 @@ class CompmakeGlobalState(object):
 
     compmake_db = None
     namespace = CompmakeConstants.default_namespace
-
-    job_prefix = None
     compmake_slave_mode = False
-#     jobs_defined_in_this_session = set()
 
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)
@@ -40,22 +37,6 @@ class CompmakeGlobalState(object):
 
     # Cached list of options for completions in console
     cached_completions = None
-
-# def get_compmake_db():
-#     warnings.warn('Using default DB', stacklevel=2)
-#
-#     if CompmakeGlobalState.compmake_db is None:
-#         msg = 'Warning, no DB was specified. Will use in-memory dict.'
-#         logger.warning(msg)
-#         warnings.warn(msg, stacklevel=2)
-#         set_compmake_db({})
-#
-#     return CompmakeGlobalState.compmake_db
-
-#
-# def set_compmake_db(db):
-#     # logger.info('Using database %r' % describe_type(db))
-#     CompmakeGlobalState.compmake_db = db
 
 
 def get_compmake_config(key):
