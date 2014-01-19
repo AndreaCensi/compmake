@@ -164,6 +164,9 @@ def compmake_main(args):
             one_arg = child
 
         context = load_existing_db(one_arg)
+        # If the context was custom we load it
+        if 'context' in context.compmake_db:
+            context = context.compmake_db['context']
     else:
         check_not_filename(one_arg)
 

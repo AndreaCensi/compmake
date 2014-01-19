@@ -249,7 +249,7 @@ def parse_job_list(tokens, context):
     # First we look for operators 
     ops = Operators.parse(tokens)
 
-    print " %s => %s" % (tokens, ops)
+    # print " %s => %s" % (tokens, ops)
 
     cq = CacheQueryDB(db=context.get_compmake_db())
 
@@ -257,7 +257,7 @@ def parse_job_list(tokens, context):
 
     # FIXME, remove
     result = list(result)
-    print " %s => %s" % (tokens, result)
+#     print " %s => %s" % (tokens, result)
 
     return result
 

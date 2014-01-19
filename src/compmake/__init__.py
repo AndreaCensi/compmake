@@ -17,8 +17,7 @@ from .storage import StorageFilesystem
 # TODO: default cluster.yaml
 
 # This is the module's public interface
-from .ui import (comp, comp_dynamic, batch_command, compmake_console,
-                 comp_store)
+from .ui import (comp, comp_dynamic, batch_command, compmake_console)
 
 # from .state import get_compmake_config, set_compmake_config
 from .jobs import set_namespace, progress

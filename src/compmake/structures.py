@@ -126,14 +126,15 @@ class Promise(object):
 
 class Job(object):
 
-    @contract(defined_by='None|str')
+    @contract(defined_by='list[>=1](str)')
     def __init__(self, job_id, children, command_desc, yields=False,
                  needs_context=False,
                  defined_by=None):
         """
         
             needs_context: new facility for dynamic jobs
-            defined_by: name of job defining this job dynamically
+            defined_by: name of jobs defining this job dynamically
+                        This is the stack of jobs. 'root' is the first.
         """
         self.job_id = job_id
         self.children = children
@@ -167,14 +168,19 @@ class Job(object):
         kwargs = substitute_dependencies(kwargs, db=db)
 
         if self.needs_context:
-            child_context = Context(db=db, currently_executing=self.job_id)
-            res = command(child_context, *args, **kwargs)
-            generated = list(child_context.jobs_defined_in_this_session)
+            context.currently_executing.append(self.job_id)
+            already = set(context.jobs_defined_in_this_session)
+#             child_context = Context(db=db, currently_executing=self.job_id)
+            res = command(context, *args, **kwargs)
+            
+            context.currently_executing.pop()
+            generated = set(context.jobs_defined_in_this_session) - already
             from compmake.ui.visualization import info
-            info('Job %r generated %s.' % (self.job_id, generated))
+            if generated:
+                info('Job %r generated %s.' % (self.job_id, generated))
             # now remove the extra jobs that are not needed anymore
             extra = []
-            from compmake.jobs.storage import all_jobs, get_job, delete_all_job_data
+            from .jobs import all_jobs, get_job, delete_all_job_data
             for g in all_jobs(db=db):
                 if get_job(g, db=db).defined_by == self.job_id:
                     if not g in generated:

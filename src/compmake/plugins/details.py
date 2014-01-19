@@ -3,7 +3,7 @@ from string import rjust
 import sys
 
 from ..jobs import (direct_parents, direct_children, get_job_cache, parents,
-    children, CacheQueryDB)
+    children, CacheQueryDB, get_job)
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 
@@ -41,8 +41,10 @@ def list_job_detail(job_id, context, cq):
     def format_list(x):
         return '\n- '.join([''] + sorted(x))
 
+    job = get_job(job_id, db=db)
     # TODO: make it work in Python3K
     print(bold('Job ID:') + '%s' % job_id)
+    print(bold('Defined by:') + '%s' % job.defined_by)
     print(bold('Status:') + '%s' % Cache.state2desc[cache.state])
     print(bold('Uptodate:') + '%s (%s)' % (up, reason))
     print(bold('Dependences: (direct)') + ' (%d) ' % len(dchildren) + format_list(dchildren))

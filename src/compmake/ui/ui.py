@@ -119,6 +119,12 @@ def clean_other_jobs(context):
         # logger.info('Considering %s' % job_id)
         jobs_in_db += 1
         if not job_id in defined_now:
+            # it might be ok if it was not defined by ['root']
+            job = get_job(job_id, db=db)
+            if job.defined_by != ['root']:
+                # keeping this around
+                continue
+
             num_cleaned += 1
             if not clean_all:
                 text = ('Found spurious job %s; cleaning? '

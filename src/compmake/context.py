@@ -1,9 +1,10 @@
+import traceback
 __all__ = ['Context']
 
 
 class Context():
 
-    def __init__(self, db, currently_executing=None):
+    def __init__(self, db):
         """
             currently_executing: str, job currently executing
         """
@@ -13,8 +14,9 @@ class Context():
         self.namespace = CompmakeConstants.default_namespace
         self.job_prefix = None
         self.jobs_defined_in_this_session = set()
-        self.currently_executing = currently_executing
+        self.currently_executing = ['root']
         self._job_prefix = None
+        self.comp_store_objectid2job = {}
 
     # plumbing
     def get_compmake_db(self):
@@ -44,6 +46,14 @@ class Context():
         from compmake.ui.ui import comp_
         return comp_(self, command_, *args, **kwargs)
 
+    def comp_store(self, x, job_id=None):
+        return comp_store_(x=x, context=self, job_id=job_id)
+
+
+
+
+
+
     def interpret_commands_wrap(self, commands):
         """ 
             Returns:
@@ -67,11 +77,12 @@ class Context():
 
 
 
+
 def get_default_context():
     from .ui.visualization import info
 
-    # print traceback.print_stack()
-    # raise Exception()
+    print traceback.print_stack()
+    raise Exception()
 
     if Context._default is None:
         path = 'default-compmake-storage'
@@ -85,4 +96,26 @@ def get_default_context():
     return Context._default
 
 
+def comp_store_(x, context, job_id=None):
+    """ 
+    
+    Stores the object as a job, keeping track of whether
+        we have it.  
+    """
+
+    id_object = id(x)
+
+    book = context.comp_store.objectid2job
+    if not id_object in book:
+        job_params = {}
+        if job_id is not None:
+            job_params['job_id'] = job_id
+
+        job = context.comp(load_static_storage, x, **job_params)
+        book[id_object] = job
+    return book[id_object]
+
+
+def load_static_storage(x):  # XXX: this uses double the memory though
+    return x
 
