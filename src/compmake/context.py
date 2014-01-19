@@ -3,12 +3,17 @@ import warnings
 
 
 class Context():
-    def __init__(self, db):
+
+    def __init__(self, db, currently_executing=None):
+        """
+            currently_executing: str, job currently executing
+        """
         assert db is not None
         self.compmake_db = db
         self.namespace = CompmakeConstants.default_namespace
         self.job_prefix = None
         self.jobs_defined_in_this_session = set()
+        self.currently_executing = currently_executing
 
     # plumbing
     def get_compmake_db(self):

@@ -15,8 +15,8 @@ from ..jobs import all_jobs, set_namespace
 from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
 from ..structures import UserError
-from ..ui import (error, interactive_console, consider_jobs_as_defined_now,
-    batch_command, interpret_commands_wrap, info)
+from ..ui import (error, interactive_console, batch_command,
+    interpret_commands_wrap, info)
 from ..utils import setproctitle
 from .scripts_utils import wrap_script_entry_point
 
@@ -249,9 +249,9 @@ def load_existing_db(dirname):
         msg = 'No jobs found in that directory.'
         raise UserError(msg)
     logger.info('Found %d existing jobs.' % len(jobs))
-    consider_jobs_as_defined_now(jobs)
+    context.jobs_defined_in_this_session = set(jobs)
+    # consider_jobs_as_defined_now(jobs)
     
-
     return context
 
 

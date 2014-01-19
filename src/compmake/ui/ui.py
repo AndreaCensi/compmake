@@ -4,6 +4,7 @@ import sys
 from types import NoneType
 
 import cPickle as pickle
+from compmake.context import get_default_context
 
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     CompmakeGlobalState, is_interactive_session, get_compmake_config)
@@ -15,7 +16,6 @@ from ..structures import Job, UserError, Promise
 from ..utils import (describe_type, interpret_strings_like, describe_value,
     import_name)
 from .helpers import get_commands, UIState
-from compmake.context import get_default_context
 
 
 def is_pickable(x):  # TODO: move away
@@ -71,15 +71,15 @@ def comp_stage_job_id(job, suffix):
     #      % (job.job_id, job_id, suffix, result))
     return result 
 
-def generate_job_id(base):
+def generate_job_id(base, context):
     ''' Generates a unique job_id for the specified commmand.
         Takes into account job_prefix if that's defined '''
     if CompmakeGlobalState.job_prefix:
         job_id = '%s-%s' % (CompmakeGlobalState.job_prefix, base)
-        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
+        if not job_id in context.jobs_defined_in_this_session:
             return job_id
     else:
-        if not base in CompmakeGlobalState.jobs_defined_in_this_session:
+        if not base in context.jobs_defined_in_this_session:
             return base
 
     for i in xrange(1000000):
@@ -89,19 +89,19 @@ def generate_job_id(base):
         else:
             job_id = '%s-%d' % (base, i)
 
-        if not job_id in CompmakeGlobalState.jobs_defined_in_this_session:
+        if not job_id in context.jobs_defined_in_this_session:
             return job_id
 
     assert(False)
-
-
-def reset_jobs_definition_set():
-    ''' Useful only for unit tests '''
-    CompmakeGlobalState.jobs_defined_in_this_session = set()
-
-def consider_jobs_as_defined_now(jobs):
-    CompmakeGlobalState.jobs_defined_in_this_session = set(jobs)
-    
+#
+#
+# def reset_jobs_definition_set():
+#     ''' Useful only for unit tests '''
+#     CompmakeGlobalState.jobs_defined_in_this_session = set()
+#
+# def consider_jobs_as_defined_now(jobs):
+#     CompmakeGlobalState.jobs_defined_in_this_session = set(jobs)
+#
 
 def clean_other_jobs(context):
     ''' Cleans jobs not defined in the session '''
@@ -118,7 +118,7 @@ def clean_other_jobs(context):
         clean_all = True
         
     # XXX TODO
-    defined_now = CompmakeGlobalState.jobs_defined_in_this_session
+    defined_now = context.jobs_defined_in_this_session
     
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
@@ -156,7 +156,6 @@ def clean_other_jobs(context):
                 delete_job_args(job_id, db=db)
 
     # logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
-    
 
 def comp(command_, *args, **kwargs):
     return comp_(get_default_context(), command_, *args, **kwargs)
@@ -242,15 +241,20 @@ def comp_(context, command_, *args, **kwargs):
             
         del kwargs[CompmakeConstants.job_id_key]
 
-        if job_id in CompmakeGlobalState.jobs_defined_in_this_session:
-            msg = 'Job %r already defined.' % job_id
-            raise UserError(msg)
+        if job_id in context.jobs_defined_in_this_session:
+            # unless it is dynamically geneterated
+            old_job = get_job(job_id, db=db)
+            if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
+                # exception, it's ok
+                pass
+            else:
+                msg = 'Job %r already defined.' % job_id
+                raise UserError(msg)
     
     else:
-        # TODO: use Context FIXME
-        job_id = generate_job_id(command_desc)
+        job_id = generate_job_id(command_desc, context=context)
 
-    CompmakeGlobalState.jobs_defined_in_this_session.add(job_id)
+    context.jobs_defined_in_this_session.add(job_id)
 
     # could be done better
     if 'needs_context' in kwargs:
@@ -284,9 +288,11 @@ def comp_(context, command_, *args, **kwargs):
 
     all_args = (command, args, kwargs)
 
-
-    c = Job(job_id=job_id, children=list(children), command_desc=command_desc,
-            needs_context=needs_context)
+    c = Job(job_id=job_id,
+            children=list(children),
+            command_desc=command_desc,
+            needs_context=needs_context,
+            defined_by=context.currently_executing)
 
     for child in children:
         child_comp = get_job(child, db=db)

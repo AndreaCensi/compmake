@@ -20,4 +20,5 @@ def expand_wildcard(wildcard, universe):
             num_matches += 1
             yield x
     if num_matches == 0:
-        raise UserError('Could not find matches for pattern "%s".' % wildcard)
+        msg = 'Could not find matches for pattern "%s".' % wildcard
+        raise UserError(msg)

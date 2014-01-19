@@ -9,27 +9,29 @@ from ..ui import compmake_colored, ui_command, VISUALIZATION
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')
-def details(non_empty_job_list):
+def details(non_empty_job_list, context):
     '''Shows the details for the given jobs. '''
     num = 0
     for job_id in non_empty_job_list:
         # insert a separator if there is more than one job
         if num > 0:
             print '-' * 74
-        list_job_detail(job_id)
+        list_job_detail(job_id, context)
         num += 1
 
 
-def list_job_detail(job_id):
-    # computation = get_computation(job_id)
-    cache = get_job_cache(job_id)
-    dparents = direct_parents(job_id)
-    all_parents = parents(job_id)
+def list_job_detail(job_id, context):
+    db = context.get_compmake_db()
+
+    cache = get_job_cache(job_id, db=db)
+    dparents = direct_parents(job_id, db=db)
+    all_parents = parents(job_id, db=db)
     other_parents = set(all_parents) - set(dparents)
-    dchildren = direct_children(job_id)
-    all_children = children(job_id)
+    dchildren = direct_children(job_id, db=db)
+    all_children = children(job_id, db=db)
     other_children = set(all_children) - set(dchildren)
-    up, reason = up_to_date(job_id)
+    # TODO: use quicker up to date
+    up, reason = up_to_date(job_id, db=db)
 
     red = lambda x: compmake_colored(x, 'red')
     bold = lambda x: compmake_colored(rjust(x + ' ', 15), attrs=['bold'])

@@ -32,6 +32,10 @@ def up_to_date(job_id, db):
 
 
 class CacheQueryDB(object):
+    """ 
+        This works as a view on a DB which is assumed not to change
+        between calls. 
+    """
     
     def __init__(self, db):
         self.db = db
@@ -39,14 +43,24 @@ class CacheQueryDB(object):
     @memoize_simple
     @contract(returns=Cache)
     def get_job_cache(self, job_id):
-        from compmake.jobs.storage import get_job_cache
+        from .storage import get_job_cache
         return get_job_cache(job_id, db=self.db)
+
+    @memoize_simple
+    def all_jobs(self):
+        from .storage import all_jobs
+        # NOTE: very important, do not memoize iterator
+        return list(all_jobs(db=self.db))
+
+    @memoize_simple
+    def job_exists(self, job_id):
+        from .storage import job_exists
+        return job_exists(job_id=job_id, db=self.db)
 
     @memoize_simple
     @contract(returns='tuple(bool, str, float)')
     def up_to_date(self, job_id):
         return self._up_to_date_actual(job_id)
-
     
     @contract(returns='tuple(bool, str, float)')
     def _up_to_date_actual(self, job_id):
@@ -78,6 +92,11 @@ class CacheQueryDB(object):
     def direct_children(self, job_id):
         from compmake.jobs.queries import direct_children
         return direct_children(job_id, db=self.db)
+
+    @memoize_simple
+    def direct_parents(self, job_id):
+        from compmake.jobs.queries import direct_parents
+        return direct_parents(job_id, db=self.db)
 
     @memoize_simple
     def dependencies_up_to_date(self, job_id):

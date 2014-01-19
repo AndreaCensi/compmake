@@ -1,3 +1,5 @@
+from compmake.context import Context
+from contracts import contract
 
 
 class ShellExitRequested(Exception):
@@ -124,11 +126,14 @@ class Promise(object):
 
 class Job(object):
 
+    @contract(defined_by='None|str')
     def __init__(self, job_id, children, command_desc, yields=False,
-                 needs_context=False):
+                 needs_context=False,
+                 defined_by=None):
         """
         
             needs_context: new facility for dynamic jobs
+            defined_by: name of job defining this job dynamically
         """
         self.job_id = job_id
         self.children = children
@@ -136,6 +141,7 @@ class Job(object):
         self.parents = []
         self.yields = yields  # XXX # To remove
         self.needs_context = needs_context
+        self.defined_by = defined_by
 
     def compute(self, context):
         db = context.get_compmake_db()
@@ -161,7 +167,24 @@ class Job(object):
         kwargs = substitute_dependencies(kwargs, db=db)
 
         if self.needs_context:
-            return command(context, *args, **kwargs)
+            child_context = Context(db=db, currently_executing=self.job_id)
+            res = command(child_context, *args, **kwargs)
+            generated = list(child_context.jobs_defined_in_this_session)
+            from compmake.ui.visualization import info
+            info('Job %r generated %s.' % (self.job_id, generated))
+            # now remove the extra jobs that are not needed anymore
+            extra = []
+            from compmake.jobs.storage import all_jobs, get_job, delete_all_job_data
+            for g in all_jobs(db=db):
+                if get_job(g, db=db).defined_by == self.job_id:
+                    if not g in generated:
+                        extra.append(g)
+            
+            for g in extra:
+                info('Previously generated job %r removed.' % g)
+                delete_all_job_data(g, db=db)
+
+            return res
         else:
             return command(*args, **kwargs)
 

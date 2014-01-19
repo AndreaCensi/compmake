@@ -26,7 +26,7 @@ class CompmakeGlobalState(object):
 
     job_prefix = None
     compmake_slave_mode = False
-    jobs_defined_in_this_session = set()
+#     jobs_defined_in_this_session = set()
 
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)

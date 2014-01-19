@@ -41,11 +41,6 @@ def key2job(key):
     prefix = 'cm:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
 
-#
-# class CompmakeDB(object):
-#    
-#    def __
-
 
 
 def all_jobs(db, force_db=False):
@@ -53,7 +48,6 @@ def all_jobs(db, force_db=False):
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
      '''
-#     db = get_default_db_if_none(db)
     pattern = job2key('*')
     regexp = wildcard_to_regexp(pattern)
     
@@ -65,7 +59,6 @@ def all_jobs(db, force_db=False):
 
 
 def get_job(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2key(job_id)
     computation = db[key]
     assert isinstance(computation, Job)
@@ -73,13 +66,11 @@ def get_job(job_id, db):
 
 
 def job_exists(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2key(job_id)
     return key in db
 
 
 def set_job(job_id, computation, db):
-#     db = get_default_db_if_none(db)
     # TODO: check if they changed
     key = job2key(job_id)
     assert(isinstance(computation, Job))
@@ -87,7 +78,6 @@ def set_job(job_id, computation, db):
 
 
 def delete_job(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2key(job_id)
     del db[key]
 
@@ -101,7 +91,6 @@ def job2cachekey(job_id):
 
 
 def get_job_cache(job_id, db):
-#     db = get_default_db_if_none(db)
     cache_key = job2cachekey(job_id)
     if cache_key in db:
         try:
@@ -125,9 +114,11 @@ def get_job_cache(job_id, db):
         # get_compmake_db().set(cache_key, cache)
         return cache
 
+def job_cache_exists(job_id, db):
+    cache_key = job2cachekey(job_id)
+    return cache_key in db
 
 def set_job_cache(job_id, cache, db):
-#     db = get_default_db_if_none(db)
     assert(isinstance(cache, Cache))
     cache_key = job2cachekey(job_id)
     db[cache_key] = cache
@@ -135,7 +126,6 @@ def set_job_cache(job_id, cache, db):
 
 @contract(job_id=str)
 def delete_job_cache(job_id, db):
-#     db = get_default_db_if_none(db)
     cache_key = job2cachekey(job_id)
     del db[cache_key]
 
@@ -148,22 +138,20 @@ def job2userobjectkey(job_id):
     return '%s%s' % (prefix, job_id)
 
 def get_job_userobject(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
     return db[key]
 
 def is_job_userobject_available(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
     return key in db
 
+job_userobject_exists = is_job_userobject_available
+
 def set_job_userobject(job_id, obj, db):
-#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
     db[key] = obj
 
 def delete_job_userobject(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2userobjectkey(job_id)
     del db[key]
  
@@ -173,32 +161,33 @@ def job2jobargskey(job_id):
     return '%s%s' % (prefix, job_id)
 
 def get_job_args(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
     return db[key]
 
 
 def job_args_exists(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
     return key in db
 
 def set_job_args(job_id, obj, db):
-#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
     db[key] = obj
 
 def delete_job_args(job_id, db):
-#     db = get_default_db_if_none(db)
     key = job2jobargskey(job_id)
     del db[key]
 
+def delete_all_job_data(job_id, db):
+    args = dict(job_id=job_id, db=db)
+    if job_exists(**args):
+        delete_job(**args)
+    if job_args_exists(**args):
+        delete_job_args(**args)
+    if job_userobject_exists(**args):
+        delete_job_userobject(**args)
+    if job_cache_exists(**args):
+        delete_job_cache(**args)
 
-# def get_default_db_if_none(db):
-#     from ..state import get_compmake_db
-#     if db is None:
-#         warnings.warn('no db given in call', stacklevel=2)
-#         print traceback.print_stack()
-#         return get_compmake_db()
-#     else:
-#         return db
+
+
+

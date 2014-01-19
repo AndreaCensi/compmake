@@ -5,6 +5,8 @@ import unittest
 
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.context import Context
+from compmake.jobs.syntax.parsing import eval_alias, parse_job_list
+from contracts import contract
 #
 #
 # def compmake_environment(f):
@@ -36,22 +38,44 @@ class CompmakeTest(unittest.TestCase):
 
     def setUp(self):
         self.root = mkdtemp()
-#         use_filesystem(self.root)
         self.db = StorageFilesystem(self.root)
         self.cc = Context(db=self.db)
-
-        # make sure everything was clean
-#         db = get_compmake_db()
-#         for key in db.keys():
-#             db.delete(key)
-
         self.mySetUp()
-
-    def comp(self, *args, **kwargs):
-        return self.cc.comp(*args, **kwargs)
-
-    def mySetUp(self):
-        pass
 
     def tearDown(self):
         rmtree(self.root)
+
+    # optional init
+    def mySetUp(self):
+        pass
+
+    # useful
+    def comp(self, *args, **kwargs):
+        return self.cc.comp(*args, **kwargs)
+
+    def get_jobs(self, expression):
+        """ Returns the list of jobs corresponding to the given expression. """
+        return list(parse_job_list(expression, context=self.cc))
+
+    def assert_cmd_success(self, cmds):
+        """ Executes the (list of) commands and checks it was succesful. """
+        res = self.cc.interpret_commands_wrap(cmds)
+        self.assertEqual(res, 0)
+
+    # useful tests
+    def assertEqualSet(self, a, b):
+        self.assertEqual(set(a), set(b))
+
+    @contract(expr=str)
+    def assertJobsEqual(self, expr, jobs):
+        js = 'not-valid-yet'
+        try:
+            js = self.get_jobs(expr)
+            self.assertEqualSet(js, jobs)
+        except:
+            print('expr %r -> %s' % (expr, js))
+            print('differs from %s' % jobs)
+            raise
+
+
+

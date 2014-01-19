@@ -6,6 +6,7 @@ __all__ = ['memoize_simple']
 
 
 def memoize_simple(obj):
+    # TODO: make sure it's not iterator
     cache = obj.cache = {}
 
     def memoizer(f, *args, **kwargs):
@@ -13,6 +14,7 @@ def memoize_simple(obj):
         if key not in cache:
             cache[key] = f(*args, **kwargs)
             # print('memoize: %s %d storage' % (obj, len(cache)))
+
         return cache[key]
     
     return decorator(memoizer, obj)
