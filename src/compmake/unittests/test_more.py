@@ -44,7 +44,7 @@ class Test1(CompmakeTest):
 
     def testID2(self):
         ''' Make sure we set up a warning if the job_id key
-           is already used '''
+            is already used '''
         self.assertTrue(self.comp(f1, job_id='ciao'))
         self.assertRaises(UserError, self.comp, f1, job_id='ciao')
 

@@ -7,17 +7,18 @@ There are 3 special variables:
 '''
 import os
 
+from contracts import contract
+
 from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
     COMMANDS_CLUSTER, ui_section)
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
+from ..context import Context
 from ..events import publish
 from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     MultiprocessingManager, clean_target, mark_remake, top_targets,
     parse_yaml_configuration, SGEManager)
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
-from compmake.context import Context, get_default_context
-from contracts import contract
 
 
 ui_section(GENERAL)

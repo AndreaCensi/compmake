@@ -257,7 +257,7 @@ def parse_job_list(tokens, context):
 
     # FIXME, remove
     result = list(result)
-#     print " %s => %s" % (tokens, result)
+    # print " %s => %s" % (tokens, result)
 
     return result
 

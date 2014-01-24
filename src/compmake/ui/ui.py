@@ -16,6 +16,9 @@ from ..structures import Job, UserError, Promise
 from ..utils import (describe_type, interpret_strings_like, describe_value,
     import_name)
 from .helpers import get_commands, UIState
+from compmake.ui.visualization import info
+from compmake import logger
+import warnings
 
 
 def is_pickable(x):  # TODO: move away
@@ -42,32 +45,6 @@ def collect_dependencies(ob):
         return depends
 
 
-# def comp_prefix(prefix=None):
-#     ''' Sets the prefix for creating the subsequent job names. '''
-#     # TODO: check str
-#     if prefix is not None:
-#
-#         if ' ' in prefix:
-#             msg = 'Invalid job prefix %r.' % prefix
-#             raise UserError(msg)
-#
-#     CompmakeGlobalState.job_prefix = prefix
-
-#
-# def comp_stage_job_id(job, suffix):
-#     """ Makes a new job_id, by returnin job_id + '-' + suffix,
-#         but removing the job_prefix if it exists. """
-#     assert isinstance(job, Promise)
-#     job_id = job.job_id
-#     pref = '%s-' % CompmakeGlobalState.job_prefix
-#     if job_id.startswith(pref):
-#         job_id = job_id[len(pref):]
-#     result = '%s-%s' % (job_id, suffix)
-#     # print('removing %r' % pref)
-#     # print('---\njob: %s ->\n job, no prefix: %s \n adding %s \n  obtain -> %s'
-#     #      % (job.job_id, job_id, suffix, result))
-#     return result
-
 def generate_job_id(base, context):
     ''' Generates a unique job_id for the specified commmand.
         Takes into account job_prefix if that's defined '''
@@ -75,10 +52,10 @@ def generate_job_id(base, context):
     job_prefix = context.get_comp_prefix()
     if job_prefix:
         job_id = '%s-%s' % (job_prefix, base)
-        if not job_id in context.jobs_defined_in_this_session:
+        if not context.was_job_defined_in_this_session(job_id):
             return job_id
     else:
-        if not base in context.jobs_defined_in_this_session:
+        if not context.was_job_defined_in_this_session(base):
             return base
 
     for i in xrange(1000000):
@@ -87,7 +64,7 @@ def generate_job_id(base, context):
         else:
             job_id = '%s-%d' % (base, i)
 
-        if not job_id in context.jobs_defined_in_this_session:
+        if not context.was_job_defined_in_this_session(job_id):
             return job_id
 
     assert(False)
@@ -107,9 +84,6 @@ def clean_other_jobs(context):
     else:
         clean_all = True
         
-    # XXX TODO
-    defined_now = context.jobs_defined_in_this_session
-    
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
     
@@ -118,7 +92,7 @@ def clean_other_jobs(context):
     for job_id in all_jobs(force_db=True, db=db):
         # logger.info('Considering %s' % job_id)
         jobs_in_db += 1
-        if not job_id in defined_now:
+        if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
             job = get_job(job_id, db=db)
             if job.defined_by != ['root']:
@@ -127,6 +101,7 @@ def clean_other_jobs(context):
 
             num_cleaned += 1
             if not clean_all:
+                info('Job %s defined-by %s' % (job_id, job.defined_by))
                 text = ('Found spurious job %s; cleaning? '
                         '[y]es, [a]ll, [n]o, [N]one ' % job_id)
                 answer = ask_question(text, allowed=answers)
@@ -141,7 +116,7 @@ def clean_other_jobs(context):
                     clean_all = True
             else:
                 pass
-                # logger.info('Cleaning %r' % job_id)
+                logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
                 
             clean_target(job_id, db=db)
             delete_job(job_id, db=db)
@@ -238,20 +213,26 @@ def comp_(context, command_, *args, **kwargs):
             
         del kwargs[CompmakeConstants.job_id_key]
 
-        if job_id in context.jobs_defined_in_this_session:
+        if context.was_job_defined_in_this_session(job_id):
+            print('The job %r was already defined in this session.' % job_id)
             # unless it is dynamically geneterated
             old_job = get_job(job_id, db=db)
-            if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
-                # exception, it's ok
-                pass
-            else:
-                msg = 'Job %r already defined.' % job_id
-                raise UserError(msg)
+            print('  old_job.defined_by: %s ' % old_job.defined_by)
+            print(' context.currently_executing: %s ' % context.currently_executing)
+            warnings.warn('I know something is more complicated here')
+#             if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
+#                 # exception, it's ok
+#                 pass
+#             else:
+            
+            msg = 'Job %r already defined.' % job_id
+            raise UserError(msg)
     
     else:
         job_id = generate_job_id(command_desc, context=context)
 
-    context.jobs_defined_in_this_session.add(job_id)
+    context.add_job_defined_in_this_session(job_id)
+
 
     # could be done better
     if 'needs_context' in kwargs:

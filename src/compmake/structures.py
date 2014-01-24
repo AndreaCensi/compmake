@@ -1,4 +1,3 @@
-from compmake.context import Context
 from contracts import contract
 
 
@@ -150,49 +149,30 @@ class Job(object):
         job_args = get_job_args(self.job_id, db=db)
         command, args, kwargs = job_args
 
-        # ## XXX move this somewhere else
         kwargs = dict(**kwargs)
-#         if previous_result is not None:
-#             kw = 'previous_result'
-#             available = self.command.func_code.co_varnames
-# 
-#             if not kw in available:
-#                 msg = ('Function does not have a %r argument, necessary'
-#                        ' for makemore (args: %s)' % (kw, available))
-#                 raise CompmakeException(msg)
-#             kwargs[kw] = previous_result
 
         from compmake.jobs import substitute_dependencies
+        from compmake.context import Context
+
         # TODO: move this to jobs.actions?
         args = substitute_dependencies(args, db=db)
         kwargs = substitute_dependencies(kwargs, db=db)
 
         if self.needs_context:
-            context.currently_executing.append(self.job_id)
-            already = set(context.jobs_defined_in_this_session)
-#             child_context = Context(db=db, currently_executing=self.job_id)
-            res = command(context, *args, **kwargs)
-            
-            context.currently_executing.pop()
-            generated = set(context.jobs_defined_in_this_session) - already
-            from compmake.ui.visualization import info
-            if generated:
-                info('Job %r generated %s.' % (self.job_id, generated))
-            # now remove the extra jobs that are not needed anymore
-            extra = []
-            from .jobs import all_jobs, get_job, delete_all_job_data
-            for g in all_jobs(db=db):
-                if get_job(g, db=db).defined_by == self.job_id:
-                    if not g in generated:
-                        extra.append(g)
-            
-            for g in extra:
-                info('Previously generated job %r removed.' % g)
-                delete_all_job_data(g, db=db)
+            args = tuple(list([context])+list(args))
+            res = execute_with_context(db=db, context=context,
+                                       job_id=self.job_id,
+                                       command=command, args=args, kwargs=kwargs)
+            return res
 
+        elif len(args) > 0 and isinstance(args[0], Context):
+            context = args[0]
+            res = execute_with_context(db=db, context=context, job_id=self.job_id,
+                                       command=command, args=args, kwargs=kwargs)
             return res
         else:
-            return command(*args, **kwargs)
+            res = command(*args, **kwargs)
+            return res
 
     def get_actual_command(self):
         """ returns command, args, kwargs after deps subst."""
@@ -251,6 +231,38 @@ class Job(object):
             return False, reason
         else:
             return True, None
+
+
+
+def execute_with_context(db, context, job_id, command, args, kwargs):
+    from compmake.context import Context
+    assert isinstance(context, Context)
+    from compmake.ui.visualization import info
+
+    context.currently_executing.append(job_id)
+    already = set(context.get_jobs_defined_in_this_session())
+    context.reset_jobs_defined_in_this_session([])
+    res = command(*args, **kwargs)
+    context.currently_executing.pop()
+    generated = set(context.get_jobs_defined_in_this_session())
+    context.reset_jobs_defined_in_this_session(already)
+
+    if generated:
+        info('Job %r generated %s.' % (job_id, generated))
+    # now remove the extra jobs that are not needed anymore
+    extra = []
+    from .jobs import all_jobs, get_job, delete_all_job_data
+    for g in all_jobs(db=db):
+        if get_job(g, db=db).defined_by[-1] == job_id:
+            if not g in generated:
+                extra.append(g)
+
+    for g in extra:
+        job = get_job(g, db=db)
+        info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
+        delete_all_job_data(g, db=db)
+
+    return res
 
 
 class Cache(object):

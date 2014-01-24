@@ -44,6 +44,7 @@ class TestDynamic1(CompmakeTest):
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
         # ... still to do
         self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 'finish'])
+
         # we can make them
         self.assert_cmd_success('make')
         self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])

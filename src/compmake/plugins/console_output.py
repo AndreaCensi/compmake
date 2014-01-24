@@ -139,12 +139,12 @@ def clip_to_length(line, max_len):
     return sublines
 
 
-def handle_event_stdout(event, context):
+def handle_event_stdout(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stdout'):
         handle_event(event, False)
 
 
-def handle_event_stderr(event, context):
+def handle_event_stderr(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stderr'):
         handle_event(event, True)
 
@@ -153,7 +153,7 @@ register_handler('job-stdout', handle_event_stdout)
 register_handler('job-stderr', handle_event_stderr)
 
 
-def handle_job_failed(event, context):
+def handle_job_failed(event, context):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     host = event.kwargs['host']
     reason = event.kwargs['reason']

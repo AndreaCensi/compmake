@@ -152,7 +152,7 @@ def compmake_slave():
 
         function, args, kwargs = actual
 
-        def handler(context, event):
+        def handler(context, event):  # @UnusedVariable
             s.write(('event', event))
 
         register_handler("*", handler)  # third (otherwise stdout dirty)

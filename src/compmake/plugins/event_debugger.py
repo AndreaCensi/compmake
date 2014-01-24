@@ -11,7 +11,7 @@ stream = sys.stderr
 other_stream = sys.stdout
 
 
-def print_event(context, event):
+def print_event(context, event):  # @UnusedVariable
     other_stream.flush()
 
 #    age = time.time() - event.timestamp

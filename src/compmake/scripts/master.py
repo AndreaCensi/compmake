@@ -3,9 +3,10 @@ import os
 import sys
 import traceback
 
-import compmake
 from contracts import contract
 import contracts
+
+import compmake
 
 from .. import (get_compmake_config, version, set_compmake_status,
     CompmakeConstants, logger)
@@ -42,23 +43,6 @@ def read_commands_from_file(filename, context):
             if line[0] == '#':
                 continue
             interpret_commands_wrap(line, context)
-
-#
-# def initialize_backend():
-#     """ Returns Context """
-#     allowed_db = ['filesystem']
-#
-#     chosen_db = get_compmake_config('db')
-#     if not chosen_db in allowed_db:
-#         user_error('Backend name "%s" not valid. I was expecting one in %s.' %
-#               (chosen_db, allowed_db))
-#         sys.exit(-1)
-#
-#     if chosen_db == 'filesystem':
-#
-#         use_filesystem(get_compmake_config('path'))
-#     else:
-#         assert(False)
 
 
 usage = """
@@ -115,6 +99,11 @@ def compmake_main(args):
                       help='If given, the return value is written in this file. '
                            'Useful to check when compmake finished in a grid environment. ',
                       default=None)
+
+    parser.add_option('--nosysexit',  default=False, action='store_true',
+                      help='Does not sys.exit(ret); useful for debugging.')
+                    
+
  
     config_populate_optparser(parser)
 
@@ -185,16 +174,7 @@ def compmake_main(args):
         else:    
             set_compmake_status(CompmakeConstants.compmake_status_interactive)
             
-#         context_was_none = context is None
-#         if context_was_none:
-# #             dirname = get_compmake_config('path')
-# #             db = StorageFilesystem(dirname)
-#             context = Context(db={})
-
         read_rc_files(context)
-
-        # XXX We Do it again if path has changed
-#         if context_was_none:
         
         if options.command:
             retcode = batch_command(options.command, context=context)
@@ -205,10 +185,14 @@ def compmake_main(args):
             if isinstance(retcode, str):
                 retcode = 1
             write_atomic(options.retcodefile, str(retcode))
-        sys.exit(retcode) 
         
+        if options.nosysexit:
+            return retcode
+        else:
+            sys.exit(retcode)
+
     if not options.profile:
-        go(context)
+        return go(context)
     else:
         import cProfile
         cProfile.runctx('go(context)', globals(), locals(), 'out/compmake.profile')
@@ -243,7 +227,6 @@ def load_existing_db(dirname):
     else:
         compress = False
 
-#     use_filesystem(dirname, compress=compress)
     db = StorageFilesystem(dirname, compress=compress)
     context = Context(db=db)
     
@@ -252,11 +235,9 @@ def load_existing_db(dirname):
         msg = 'No jobs found in that directory.'
         raise UserError(msg)
     logger.info('Found %d existing jobs.' % len(jobs))
-    context.jobs_defined_in_this_session = set(jobs)
-    # consider_jobs_as_defined_now(jobs)
+    context.reset_jobs_defined_in_this_session(jobs)
     
     return context
-
 
 
 def check_not_filename(module_name):
@@ -265,6 +246,7 @@ def check_not_filename(module_name):
                 module_name)
         msg += ' However, I need a module name.'
         raise UserError(msg)
+
 
 def load_module(module_name):
 #    if module_name.endswith('.py') or (module_name.find('/') > 0):

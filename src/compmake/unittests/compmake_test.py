@@ -1,49 +1,30 @@
 from abc import ABCMeta
+import os
 from shutil import rmtree
 from tempfile import mkdtemp
 import unittest
 
-from compmake.storage.filesystem import StorageFilesystem
-from compmake.context import Context
-from compmake.jobs.syntax.parsing import parse_job_list
 from contracts import contract
-#
-#
-# def compmake_environment(f):
-#     @functools.wraps(f)
-#     def wrapper():
-#         root = mkdtemp()
-#         use_filesystem(root)
-#         CompmakeGlobalState.jobs_defined_in_this_session = set()
-#         # make sure everything was clean
-#         db = get_compmake_db()
-#         for key in db.keys():
-#             db.delete(key)
-#         try:
-#             f()
-#         except:
-#             s = 'Keys in DB:'
-#             for key in db.keys():
-#                 s += ' %s\n' % key
-#             logger.error('DB state after test %s' % f)
-#             logger.error(s)
-#             raise
-#         finally:
-#             rmtree(root)
-#     return wrapper
+
+from compmake.context import Context
+from compmake.jobs import parse_job_list
+from compmake.scripts.master import compmake_main
+from compmake.storage import StorageFilesystem
 
 
 class CompmakeTest(unittest.TestCase):
     __metaclass__ = ABCMeta
 
     def setUp(self):
-        self.root = mkdtemp()
-        self.db = StorageFilesystem(self.root)
+        self.root0 = mkdtemp()
+        self.root = os.path.join(self.root0, 'compmake')
+        # print('CompmakeTest using db %s' % self.root)
+        self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)
         self.mySetUp()
 
     def tearDown(self):
-        rmtree(self.root)
+        rmtree(self.root0)
 
     # optional init
     def mySetUp(self):
@@ -59,8 +40,21 @@ class CompmakeTest(unittest.TestCase):
 
     def assert_cmd_success(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
+        msg = 'Command %r failed.' % cmds
         res = self.cc.interpret_commands_wrap(cmds)
-        self.assertEqual(res, 0)
+        self.assertEqual(res, 0, msg=msg)
+
+    def assert_cmd_fail(self, cmds):
+        """ Executes the (list of) commands and checks it was succesful. """
+        msg = 'Command %r did not fail.' % cmds
+        res = self.cc.interpret_commands_wrap(cmds)
+        self.assertNotEqual(res, 0, msg=msg)
+
+    @contract(cmd_string=str)
+    def assert_cmd_success_script(self, cmd_string):
+        """ This runs the "compmake_main" script which recreates the DB and context from disk. """
+        ret = compmake_main([self.root, '--nosysexit', '-c', cmd_string])
+        self.assertEqual(ret, 0)
 
     # useful tests
     def assertEqualSet(self, a, b):

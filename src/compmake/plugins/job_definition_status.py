@@ -29,7 +29,7 @@ def job_redefined(context, event):  # @UnusedVariable
     # stream.write('\n')
 
 
-def job_defined(context, event):
+def job_defined(context, event):  # @UnusedVariable
     if not get_compmake_config('verbose_definition'):
         return
     global counter

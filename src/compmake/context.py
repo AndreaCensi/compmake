@@ -1,10 +1,14 @@
 import traceback
+
+from contracts import contract
+
+
 __all__ = ['Context']
 
 
 class Context():
 
-    def __init__(self, db):
+    def __init__(self, db, currently_executing=['root']):
         """
             currently_executing: str, job currently executing
         """
@@ -13,12 +17,28 @@ class Context():
         from .constants import CompmakeConstants
         self.namespace = CompmakeConstants.default_namespace
         self.job_prefix = None
-        self.jobs_defined_in_this_session = set()
-        self.currently_executing = ['root']
+        self._jobs_defined_in_this_session = set()
+        self.currently_executing = currently_executing
         self._job_prefix = None
         self.comp_store_objectid2job = {}
 
-    # plumbing
+    # This is used to make sure that the user doesn't define the same job
+    # twice.
+    @contract(job_id=str)
+    def was_job_defined_in_this_session(self, job_id):
+        return job_id in self._jobs_defined_in_this_session
+
+    @contract(job_id=str)
+    def add_job_defined_in_this_session(self, job_id):
+        self._jobs_defined_in_this_session.add(job_id)
+
+    def get_jobs_defined_in_this_session(self):
+        return set(self._jobs_defined_in_this_session)
+
+    def reset_jobs_defined_in_this_session(self, jobs):
+        """ Called only when initializing the context. """
+        self._jobs_defined_in_this_session = set(jobs)
+
     def get_compmake_db(self):
         return self.compmake_db
 
@@ -36,7 +56,6 @@ class Context():
 
     _default = None  # singleton
 
-
     # setting up jobs
     def comp_dynamic(self, command_, *args, **kwargs):
         from compmake.ui.ui import comp_
@@ -48,11 +67,6 @@ class Context():
 
     def comp_store(self, x, job_id=None):
         return comp_store_(x=x, context=self, job_id=job_id)
-
-
-
-
-
 
     def interpret_commands_wrap(self, commands):
         """ 
@@ -74,8 +88,6 @@ class Context():
     def compmake_console(self):
         from .ui import compmake_console
         return compmake_console(context=self)
-
-
 
 
 def get_default_context():
