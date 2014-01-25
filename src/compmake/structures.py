@@ -238,12 +238,16 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
     from compmake.context import Context
     assert isinstance(context, Context)
     from compmake.ui.visualization import info
+    from compmake.jobs.storage import get_job
 
-    context.currently_executing.append(job_id)
+    cur_job = get_job(job_id=job_id, db=db)
+    context.currently_executing = cur_job.defined_by + [job_id]
+
     already = set(context.get_jobs_defined_in_this_session())
     context.reset_jobs_defined_in_this_session([])
     res = command(*args, **kwargs)
-    context.currently_executing.pop()
+
+
     generated = set(context.get_jobs_defined_in_this_session())
     context.reset_jobs_defined_in_this_session(already)
 

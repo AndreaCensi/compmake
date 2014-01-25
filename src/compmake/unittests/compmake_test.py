@@ -10,6 +10,8 @@ from compmake.context import Context
 from compmake.jobs import parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
+from compmake.structures import Job
+from compmake.jobs.storage import get_job
 
 
 class CompmakeTest(unittest.TestCase):
@@ -34,6 +36,11 @@ class CompmakeTest(unittest.TestCase):
     def comp(self, *args, **kwargs):
         return self.cc.comp(*args, **kwargs)
 
+    @contract(job_id=str, returns=Job)
+    def get_job(self, job_id):
+        db = self.cc.get_compmake_db()
+        return get_job(job_id=job_id, db=db)
+
     def get_jobs(self, expression):
         """ Returns the list of jobs corresponding to the given expression. """
         return list(parse_job_list(expression, context=self.cc))
@@ -57,6 +64,9 @@ class CompmakeTest(unittest.TestCase):
         self.assertEqual(ret, 0)
 
     # useful tests
+    def assert_defined_by(self, job_id, expected):
+        self.assertEqual(self.get_job(job_id).defined_by, expected)
+
     def assertEqualSet(self, a, b):
         self.assertEqual(set(a), set(b))
 
