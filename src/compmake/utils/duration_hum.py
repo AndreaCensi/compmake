@@ -28,11 +28,11 @@ def duration_human(seconds):
                 duration.append('%d hour' % hours + 's' * (hours != 1))
             if (hours < 3) and (days == 0):
                 if minutes > 0:
-                    duration.append('%d minute' % minutes +
+                    duration.append('%d min' % minutes +
                                      's' * (minutes != 1))
                 if (minutes < 3) and (hours == 0):
                     if seconds > 0:
-                        duration.append('%d second' % seconds +
+                        duration.append('%d sec' % seconds +
                                          's' * (seconds != 1))
 
     return ' '.join(duration)

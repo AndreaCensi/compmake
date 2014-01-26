@@ -3,6 +3,7 @@ from contracts import contract
 
 from ..structures import Cache
 from ..utils import memoize_simple
+from compmake.structures import Job
 
 
 __all__ = ['CacheQueryDB']
@@ -45,6 +46,12 @@ class CacheQueryDB(object):
     def get_job_cache(self, job_id):
         from .storage import get_job_cache
         return get_job_cache(job_id, db=self.db)
+
+    @memoize_simple
+    @contract(returns=Job)
+    def get_job(self, job_id):
+        from .storage import get_job
+        return get_job(job_id, db=self.db)
 
     @memoize_simple
     def all_jobs(self):

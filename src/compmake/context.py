@@ -16,7 +16,6 @@ class Context():
         self.compmake_db = db
         from .constants import CompmakeConstants
         self.namespace = CompmakeConstants.default_namespace
-        self.job_prefix = None
         self._jobs_defined_in_this_session = set()
         self.currently_executing = currently_executing
         self._job_prefix = None

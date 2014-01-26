@@ -6,6 +6,7 @@ from ..jobs import CacheQueryDB, all_jobs, parse_job_list
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
+from ..jobs.syntax.parsing import is_root_job
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -61,14 +62,27 @@ def list_jobs(context, job_list):
         # TODO: only ask up_to_date if necessary
         up, reason, _ = cq.up_to_date(job_id)
 
+        job = cq.get_job(job_id)
+        cache = cq.get_job_cache(job_id)
+
+
         Mmin = 4
         M = 40
         if jlen < M:
             indent = M - jlen
         else:
             indent = Mmin
-        s = " " * indent + string.ljust(job_id, jlen) + '    '
-        cache = cq.get_job_cache(job_id)
+        s = " " * indent 
+        
+
+        is_root = is_root_job(job)
+        if not is_root:
+            s += '%d ' % (len(job.defined_by) - 1)
+        else:
+            s += '  '
+
+
+        s += string.ljust(job_id, jlen) + '    '
 
         tag = Cache.state2desc[cache.state]
 
@@ -80,19 +94,11 @@ def list_jobs(context, job_list):
 
         s += compmake_colored(tag, **state2color[k])
 
-#        if cache.state == Cache.DONE and cache.done_iterations > 1:
-#            s += ' %s iterations completed ' % cache.done_iterations
-
-#         if cache.state == Cache.IN_PROGRESS:
-# #            s += ' (%s/%s iterations in progress) ' % \
-# #                (cache.iterations_in_progress, cache.iterations_goal)
-# #
-#             s += ' (in progress)'
         if up:
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
             cpu_total.append(cpu)
-            s += ' %5.1f min.  ' % (cpu / 60.0)
+            s += ' %5.1f min  ' % (cpu / 60.0)
             when = duration_human(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:
