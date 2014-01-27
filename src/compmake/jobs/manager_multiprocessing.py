@@ -7,8 +7,9 @@ import signal
 import sys
 import time
 
-from compmake import CompmakeGlobalState
 from contracts import contract
+
+from compmake import CompmakeGlobalState
 
 from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,

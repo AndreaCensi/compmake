@@ -7,11 +7,10 @@ import unittest
 from contracts import contract
 
 from compmake.context import Context
-from compmake.jobs import parse_job_list
+from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
 from compmake.structures import Job
-from compmake.jobs.storage import get_job
 
 
 class CompmakeTest(unittest.TestCase):

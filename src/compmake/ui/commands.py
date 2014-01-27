@@ -82,6 +82,18 @@ def make_(context, job_list):
     else:
         return 0
 
+
+@ui_command(section=ACTIONS)
+def delete(job_list, context):
+    """ Remove completely the job from the DB. Useful for generated jobs ("delete not root"). """
+    from compmake.jobs.storage import delete_all_job_data
+    job_list = [x for x in job_list]
+
+    db = context.get_compmake_db()
+    for job_id in job_list:
+        delete_all_job_data(job_id=job_id, db=db)
+
+
 @ui_command(section=ACTIONS)
 def make(job_list, context):
     return make_(context, job_list)

@@ -137,7 +137,7 @@ def make(job_id, context=None):
             assert(False)
 
         # update state
-        cache.time_start = time()
+        time_start = time()
         cpu_start = clock()
         set_job_cache(job_id, cache, db=db)
 
@@ -230,7 +230,7 @@ def make(job_id, context=None):
 
         cache.state = Cache.DONE
         cache.timestamp = time()
-        walltime = cache.timestamp - cache.time_start
+        walltime = cache.timestamp - time_start
         cputime = clock() - cpu_start
         # FIXME walltime/cputime not precise
         cache.walltime_used = walltime

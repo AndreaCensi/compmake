@@ -255,7 +255,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
         info('Job %r generated %s.' % (job_id, generated))
     # now remove the extra jobs that are not needed anymore
     extra = []
-    from .jobs import all_jobs, get_job, delete_all_job_data
+    from .jobs import all_jobs, delete_all_job_data
     for g in all_jobs(db=db):
         if get_job(g, db=db).defined_by[-1] == job_id:
             if not g in generated:
@@ -306,6 +306,7 @@ class Cache(object):
         # 
         self.captured_stdout = None
         self.captured_stderr = None
+
 
     def __repr__(self):
         return ('Cache(%s;%s;cpu:%s;wall:%s)' % 
