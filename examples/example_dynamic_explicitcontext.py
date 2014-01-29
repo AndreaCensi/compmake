@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+import time
 
 from compmake import comp, compmake_console, StorageFilesystem, Context
-import time
+
 
 def func1(param1):
     result = param1 * 2
