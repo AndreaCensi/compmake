@@ -5,6 +5,8 @@ import time
 
 from contracts import ContractsMeta, contract
 
+from compmake.context import get_default_context
+
 from ..events import publish
 from ..structures import (CompmakeException, JobFailed, JobInterrupted,
     HostFailed)
@@ -13,7 +15,6 @@ from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, parents, direct_parents
 from .uptodate import CacheQueryDB
-from compmake.context import get_default_context
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
@@ -44,11 +45,13 @@ class Manager(object):
 
     __metaclass__ = ContractsMeta
 
-    def __init__(self, context=None):
+    def __init__(self, context=None, recurse=False):
         if context is None:
             context = get_default_context()
         self.context = context
         self.db = context.get_compmake_db()
+
+        self.recurse = recurse
 
         # top-level targets added by users
         self.targets = set()
@@ -120,7 +123,7 @@ class Manager(object):
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
-#         logger.info('Checking dependencies...')
+        # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
         targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
 
@@ -131,7 +134,7 @@ class Manager(object):
         self.todo.update(targets_todo_plus_deps)
         self.done.update(targets_done) 
 
-        self.ready_todo = ready_todo
+        self.ready_todo.update(ready_todo)
         
 #         logger.info('Checking if up to date...')
 #         self.ready_todo = set([job_id for job_id in self.todo
@@ -219,7 +222,16 @@ class Manager(object):
 
         try:
             if async_result.ready():
-                async_result.get()
+                result = async_result.get()
+                assert isinstance(result, dict)
+                new_jobs = result['new_jobs']
+                # print('job generated %s' % new_jobs)
+                if self.recurse:
+                    # print('adding targets %s' % new_jobs)
+                    self.add_targets(new_jobs)
+                    for j in new_jobs:
+                        self.priorities[j] = 10  # XXX probably should do better
+
                 # print('job %r succeeded' % job_id)
                 self.job_succeeded(job_id)
                 return True

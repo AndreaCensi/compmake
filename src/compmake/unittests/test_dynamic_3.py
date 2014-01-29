@@ -17,14 +17,6 @@ def expected_failure(test):
             raise AssertionError('Failure expected')
     return inner
 
-
-def recursive(context, v):
-    if v == 0:
-        print('finally!')
-        return
-
-    context.comp_dynamic(recursive, v - 1, job_id='r%d' % v)
-
 def f():
     pass
 

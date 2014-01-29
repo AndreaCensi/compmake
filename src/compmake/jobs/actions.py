@@ -92,13 +92,13 @@ def mark_as_done(job_id, walltime=1, cputime=1, db=None):  # XXX
     cache.host = get_compmake_config('hostname')  # XXX
     set_job_cache(job_id, cache, db=db)
     # TODO: add user object
-    
+
 
 def make(job_id, context=None):
     """ 
         Makes a single job. 
         
-        Returns the user-object 
+        Returns a dictionary with fields "user_object" and "new_jobs". 
         
         Raises JobFailed
         or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
@@ -168,6 +168,8 @@ def make(job_id, context=None):
 
         try:
             result = computation.compute(context=context)
+            user_object = result['user_object']
+            new_jobs = result['new_jobs']
             
             #            # XXX: remove this logic
             #            if type(result) == GeneratorType:
@@ -191,7 +193,6 @@ def make(job_id, context=None):
             #                #publish('job-progress', job_id=job_id, host='XXX',
             #                #        done=1, progress=1, goal=1)
             #
-            user_object = result
 
         except KeyboardInterrupt:
             publish(context, 'job-interrupted', job_id=job_id, host=host)
@@ -242,7 +243,7 @@ def make(job_id, context=None):
         publish(context, 'job-succeeded', job_id=job_id, host=host)
 
         # TODO: clear these records in other place
-        return user_object
+        return dict(user_object=user_object, new_jobs=new_jobs)
 
 
 # TODO: remove these

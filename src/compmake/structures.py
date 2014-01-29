@@ -143,7 +143,9 @@ class Job(object):
         self.needs_context = needs_context
         self.defined_by = defined_by
 
+
     def compute(self, context):
+        """ Returns a dictionary with fields "user_object" and "new_jobs" """
         db = context.get_compmake_db()
         from compmake.jobs.storage import get_job_args
         job_args = get_job_args(self.job_id, db=db)
@@ -172,7 +174,7 @@ class Job(object):
             return res
         else:
             res = command(*args, **kwargs)
-            return res
+            return dict(user_object=res, new_jobs=[])
 
     def get_actual_command(self):
         """ returns command, args, kwargs after deps subst."""
@@ -266,7 +268,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
         info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
         delete_all_job_data(g, db=db)
 
-    return res
+    return dict(user_object=res, new_jobs=generated)
 
 
 class Cache(object):

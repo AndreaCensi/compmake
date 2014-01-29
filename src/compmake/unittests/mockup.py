@@ -35,3 +35,16 @@ def mockup2(context):
     context.batch_command('make')
     context.batch_command('clean f2')
     context.batch_command('clean f5')
+
+
+
+
+def mockup_recursive_5(context):
+    recursive(context, 5)
+
+def recursive(context, v):
+    if v == 0:
+        print('finally!')
+        return
+
+    context.comp_dynamic(recursive, v - 1, job_id='r%d' % v)

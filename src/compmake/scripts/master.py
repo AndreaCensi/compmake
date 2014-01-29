@@ -23,19 +23,23 @@ from .scripts_utils import wrap_script_entry_point
 
 
 # TODO: revise all of this
+@contract(context=Context)
 def read_rc_files(context):
+    assert context is not None
     possible = ['compmake.rc', '~/.compmake/compmake.rc']
     done = False
     for x in possible:
         x = os.path.expanduser(x)
         if os.path.exists(x):
-            read_commands_from_file(x, context)
+            read_commands_from_file(filename=x, context=context)
             done = True
     if not done:
         # logger.info('No configuration found (looked for %s)' % "; ".join(possible))
         pass
             
+@contract(context=Context, filename=str)
 def read_commands_from_file(filename, context):
+    assert context is not None
     logger.info('Reading configuration from %r' % filename)
     with open(filename, 'r') as f:
         for line in f:
@@ -164,11 +168,12 @@ def compmake_main(args):
         context = Context(db=db)
         Context._default = context
         load_module(one_arg)
-        context = None
 
     args = args[1:]
  
     def go(context):
+        assert context is not None
+
         if options.command:
             set_compmake_status(CompmakeConstants.compmake_status_slave)
         else:    
@@ -211,8 +216,7 @@ def write_atomic(filename, contents):
     os.fsync(f.fileno()) 
     f.close()
     os.rename(tmpFile, filename)
-    # try:
-    # os.unlink(tmpFile)
+
 
 @contract(returns=Context)
 def load_existing_db(dirname):

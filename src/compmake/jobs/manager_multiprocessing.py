@@ -44,8 +44,8 @@ def sig_child(signo, frame):
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
 
-    def __init__(self, context, num_processes=None):
-        Manager.__init__(self, context=context)
+    def __init__(self, context, num_processes=None, recurse=False):
+        Manager.__init__(self, context=context, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
 
@@ -218,7 +218,7 @@ def parmake_job2(args):
     try:
         # We register a handler for the events to be passed back 
         # to the main process
-        def handler(context, event):
+        def handler(context, event):  # @UnusedVariable
             try:
                 Shared.event_queue.put(event, block=False)
             except Full:
@@ -232,7 +232,7 @@ def parmake_job2(args):
         remove_all_handlers()
         register_handler("*", handler)
 
-        def proctitle(context, event):
+        def proctitle(context, event):  # @UnusedVariable
             stat = '[%s/%s %s] (compmake)' % (event.progress,
                                               event.goal, event.job_id)
             setproctitle(stat)
@@ -250,26 +250,11 @@ def parmake_job2(args):
 
         publish(context, 'worker-status', job_id=job_id, status='connected')
 
-        make(job_id, context=context)
+        res = make(job_id, context=context)
 
         publish(context, 'worker-status', job_id=job_id, status='ended')
 
-    #    We don't need this anymore, as make writes the result directly.
-    #
-    #        publish('worker-status', job_id=job_id, status='exception')
-    #
-    #        # It is very common for exceptions to not be pickable,
-    #        # so we check and in case we send back just a string copy.
-    #        try:
-    #            try_pickling(e)
-    #        except (TypeError, Exception) as pe:
-    #            s = ('Warning; exception of type %r is not pickable (%s). ' %
-    #                 (describe_type(e), pe))
-    #            s += 'I will send back a string copy.'
-    #            raise Exception(str(e))
-    #        else:
-    #            print('Pickling ok!')
-    #            raise
+        return dict(new_jobs=res['new_jobs'], user_object=None)
 
     except KeyboardInterrupt:
         publish(context, 'worker-status', job_id=job_id, status='interrupted')

@@ -23,6 +23,9 @@ def generate_tsts(context, values):
 def finish(values):
     return sum(values)
 
+def mockup_dynamic1(context):
+    values = context.comp(cases, job_id='values')
+    context.comp_dynamic(generate_tsts, values, job_id='generate')
 
 @istest
 class TestDynamic1(CompmakeTest):
@@ -30,9 +33,7 @@ class TestDynamic1(CompmakeTest):
     howmany = None  # used by cases()
 
     def test_dynamic1(self):
-        values = self.cc.comp(cases, job_id='values')
-        self.cc.comp_dynamic(generate_tsts, values, job_id='generate')
-
+        mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs
         self.assertJobsEqual('all', ['generate', 'values'])
         

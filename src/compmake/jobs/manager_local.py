@@ -16,20 +16,20 @@ class ManagerLocal(Manager):
             return True 
 
     def instance_job(self, job_id):
-        return FakeAsync(make, job_id, context=self.context)
+        return FakeAsync(job_id, context=self.context)
 
 
 class FakeAsync(object):
-    def __init__(self, cmd, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self.cmd = cmd
+    def __init__(self, job_id, context):
+        self.job_id = job_id
+        self.context = context
         self.done = False
 
     def execute(self):
-        if not self.done:
-            self.result = self.cmd(*self.args, **self.kwargs)
-            self.done = True
+        if self.done:
+            return
+        self.result = make(self.job_id, context=self.context)
+        self.done = True
 
     def ready(self):
         self.execute()
@@ -37,4 +37,4 @@ class FakeAsync(object):
 
     def get(self, timeout=0):  # @UnusedVariable
         self.execute()
-        return self.result
+        return dict(new_jobs=self.result['new_jobs'])

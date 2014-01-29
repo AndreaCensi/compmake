@@ -9,7 +9,7 @@ import os
 
 from contracts import contract
 
-from . import (ui_command, GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
+from . import (GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
     COMMANDS_CLUSTER, ui_section)
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
 from ..context import Context
@@ -19,6 +19,7 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
     parse_yaml_configuration, SGEManager)
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
+from .helpers import ui_command
 
 
 ui_section(GENERAL)
@@ -62,7 +63,7 @@ def clean(job_list, context):
 # FIXME BUG: "make failed" == "make all" if no failed
 
 @contract(context=Context)
-def make_(context, job_list):
+def make_(context, job_list, recurse=False):
     '''Makes selected targets; or all targets if none specified. '''
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
@@ -71,9 +72,7 @@ def make_(context, job_list):
     if not job_list:
         job_list = list(top_targets(db=db))
 
-#     info("Making %d jobs" % len(job_list))
-
-    manager = ManagerLocal(context=context)
+    manager = ManagerLocal(context=context, recurse=recurse)
     manager.add_targets(job_list)
     manager.process()
 
@@ -95,8 +94,8 @@ def delete(job_list, context):
 
 
 @ui_command(section=ACTIONS)
-def make(job_list, context):
-    return make_(context, job_list)
+def make(job_list, context, recurse=False):
+    return make_(context=context, job_list=job_list, recurse=recurse)
 
 
 # TODO: add hidden
@@ -116,7 +115,7 @@ def make_single(job_list, context):
 
 
 @ui_command(section=PARALLEL_ACTIONS)
-def parmake(job_list, context, n=None):
+def parmake(job_list, context, n=None, recurse=False):
     '''Parallel equivalent of "make".
 
 Usage:
@@ -133,7 +132,7 @@ Usage:
 
     publish(context, 'parmake-status',
             status='Starting multiprocessing manager (forking)')
-    manager = MultiprocessingManager(num_processes=n, context=context)
+    manager = MultiprocessingManager(num_processes=n, context=context, recurse=recurse)
 
     publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
 #     logger.info('Adding %d targets ' % len(job_list))

@@ -2,8 +2,12 @@ import os
 import sys
 import traceback
 
-from compmake import logger
 from contracts import contract
+
+from compmake import logger
+from compmake.context import get_default_context
+from compmake.state import is_inside_compmake_script
+from ..ui import error
 
 from . import (ShellExitRequested, get_commands, interpret_commands,
     clean_other_jobs)
@@ -13,9 +17,6 @@ from ..events import publish
 from ..jobs import all_jobs
 from ..structures import UserError, CompmakeException
 from ..ui import clean_console_line
-from compmake.context import get_default_context
-from compmake.state import is_inside_compmake_script
-from compmake.ui.visualization import error
 
 
 use_readline = True
@@ -32,7 +33,7 @@ if use_readline:
             logger.warning('Neither readline or pyreadline available:\n- %s\n- %s' % (e, e2))
 
 
-def interpret_commands_wrap(commands, context=None):
+def interpret_commands_wrap(commands, context):
     """ 
         Returns:
         
@@ -42,9 +43,7 @@ def interpret_commands_wrap(commands, context=None):
         
         False?       we want to exit (not found in source though)
     """
-    
-    if context is None:
-        context = get_default_context()
+    assert context is not None
 
 
     publish(context, 'command-line-starting', command=commands)
