@@ -2,9 +2,12 @@ import inspect
 import os
 import sys
 from types import NoneType
+import warnings
 
 import cPickle as pickle
+from compmake import logger
 from compmake.context import get_default_context
+from compmake.ui.visualization import info
 
 from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
     is_interactive_session, get_compmake_config)
@@ -16,9 +19,6 @@ from ..structures import Job, UserError, Promise
 from ..utils import (describe_type, interpret_strings_like, describe_value,
     import_name)
 from .helpers import get_commands, UIState
-from compmake.ui.visualization import info
-from compmake import logger
-import warnings
 
 
 def is_pickable(x):  # TODO: move away
@@ -214,19 +214,22 @@ def comp_(context, command_, *args, **kwargs):
         del kwargs[CompmakeConstants.job_id_key]
 
         if context.was_job_defined_in_this_session(job_id):
-            print('The job %r was already defined in this session.' % job_id)
             # unless it is dynamically geneterated
-            old_job = get_job(job_id, db=db)
-            print('  old_job.defined_by: %s ' % old_job.defined_by)
-            print(' context.currently_executing: %s ' % context.currently_executing)
-            warnings.warn('I know something is more complicated here')
-#             if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
-#                 # exception, it's ok
-#                 pass
-#             else:
-            
-            msg = 'Job %r already defined.' % job_id
-            raise UserError(msg)
+            if not job_exists(job_id, db=db):
+                print('The job %r was defined but not found in DB. I will let it slide.' % job_id)
+            else:
+                print('The job %r was already defined in this session.' % job_id)
+                old_job = get_job(job_id, db=db)
+                print('  old_job.defined_by: %s ' % old_job.defined_by)
+                print(' context.currently_executing: %s ' % context.currently_executing)
+                warnings.warn('I know something is more complicated here')
+    #             if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
+    #                 # exception, it's ok
+    #                 pass
+    #             else:
+
+                msg = 'Job %r already defined.' % job_id
+                raise UserError(msg)
     
     else:
         job_id = generate_job_id(command_desc, context=context)
