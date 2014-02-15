@@ -1,3 +1,4 @@
+from contracts import contract
 
 
 class ShellExitRequested(Exception):
@@ -124,36 +125,56 @@ class Promise(object):
 
 class Job(object):
 
-    def __init__(self, job_id, children, command_desc, yields=False):
+    @contract(defined_by='list[>=1](str)')
+    def __init__(self, job_id, children, command_desc, yields=False,
+                 needs_context=False,
+                 defined_by=None):
+        """
+        
+            needs_context: new facility for dynamic jobs
+            defined_by: name of jobs defining this job dynamically
+                        This is the stack of jobs. 'root' is the first.
+        """
         self.job_id = job_id
         self.children = children
         self.command_desc = command_desc
         self.parents = []
-        self.yields = yields  # XXX
+        self.yields = yields  # XXX # To remove
+        self.needs_context = needs_context
+        self.defined_by = defined_by
 
-    def compute(self):
+
+    def compute(self, context):
+        """ Returns a dictionary with fields "user_object" and "new_jobs" """
+        db = context.get_compmake_db()
         from compmake.jobs.storage import get_job_args
-        job_args = get_job_args(self.job_id)
+        job_args = get_job_args(self.job_id, db=db)
         command, args, kwargs = job_args
 
-        # ## XXX move this somewhere else
         kwargs = dict(**kwargs)
-#         if previous_result is not None:
-#             kw = 'previous_result'
-#             available = self.command.func_code.co_varnames
-# 
-#             if not kw in available:
-#                 msg = ('Function does not have a %r argument, necessary'
-#                        ' for makemore (args: %s)' % (kw, available))
-#                 raise CompmakeException(msg)
-#             kwargs[kw] = previous_result
 
         from compmake.jobs import substitute_dependencies
-        # TODO: move this to jobs.actions?
-        args = substitute_dependencies(args)
-        kwargs = substitute_dependencies(kwargs)
+        from compmake.context import Context
 
-        return command(*args, **kwargs)
+        # TODO: move this to jobs.actions?
+        args = substitute_dependencies(args, db=db)
+        kwargs = substitute_dependencies(kwargs, db=db)
+
+        if self.needs_context:
+            args = tuple(list([context])+list(args))
+            res = execute_with_context(db=db, context=context,
+                                       job_id=self.job_id,
+                                       command=command, args=args, kwargs=kwargs)
+            return res
+
+        elif len(args) > 0 and isinstance(args[0], Context):
+            context = args[0]
+            res = execute_with_context(db=db, context=context, job_id=self.job_id,
+                                       command=command, args=args, kwargs=kwargs)
+            return res
+        else:
+            res = command(*args, **kwargs)
+            return dict(user_object=res, new_jobs=[])
 
     def get_actual_command(self):
         """ returns command, args, kwargs after deps subst."""
@@ -214,6 +235,42 @@ class Job(object):
             return True, None
 
 
+
+def execute_with_context(db, context, job_id, command, args, kwargs):
+    from compmake.context import Context
+    assert isinstance(context, Context)
+    from compmake.ui.visualization import info
+    from compmake.jobs.storage import get_job
+
+    cur_job = get_job(job_id=job_id, db=db)
+    context.currently_executing = cur_job.defined_by + [job_id]
+
+    already = set(context.get_jobs_defined_in_this_session())
+    context.reset_jobs_defined_in_this_session([])
+    res = command(*args, **kwargs)
+
+
+    generated = set(context.get_jobs_defined_in_this_session())
+    context.reset_jobs_defined_in_this_session(already)
+
+    if generated:
+        info('Job %r generated %s.' % (job_id, generated))
+    # now remove the extra jobs that are not needed anymore
+    extra = []
+    from .jobs import all_jobs, delete_all_job_data
+    for g in all_jobs(db=db):
+        if get_job(g, db=db).defined_by[-1] == job_id:
+            if not g in generated:
+                extra.append(g)
+
+    for g in extra:
+        job = get_job(g, db=db)
+        info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
+        delete_all_job_data(g, db=db)
+
+    return dict(user_object=res, new_jobs=generated)
+
+
 class Cache(object):
     # TODO: add blocked
 
@@ -251,6 +308,7 @@ class Cache(object):
         # 
         self.captured_stdout = None
         self.captured_stderr = None
+
 
     def __repr__(self):
         return ('Cache(%s;%s;cpu:%s;wall:%s)' % 

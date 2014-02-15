@@ -17,3 +17,7 @@ build
 priorities
 unpickable
 .noseids
+my-storage-dir
+default-compmake-storage
+.coverage
+coverage_information

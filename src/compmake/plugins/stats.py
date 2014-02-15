@@ -17,18 +17,19 @@ state2color = {
 
 
 @ui_command(section=VISUALIZATION)
-def stats(args):
+def stats(args, context):
     '''Displays a coarse summary of the jobs state. '''
+    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs()
+        job_list = all_jobs(db=db)
     else:
-        job_list = parse_job_list(args)
+        job_list = parse_job_list(args, context=context)
 
-    display_stats(job_list)
+    display_stats(job_list, context)
 
 
-def display_stats(job_list):
-
+def display_stats(job_list, context):
+    db = context.get_compmake_db()
     states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                     Cache.FAILED, Cache.BLOCKED, Cache.DONE]
     # initialize counters to 0
@@ -39,11 +40,11 @@ def display_stats(job_list):
 
     for job_id in job_list:
 
-        cache = get_job_cache(job_id)
+        cache = get_job_cache(job_id, db=db)
         states2count[cache.state] += 1
         total += 1
 
-        function_id = get_job(job_id).command_desc
+        function_id = get_job(job_id, db=db).command_desc
         # initialize record if not present
         if not function_id in function2state2count:
             function2state2count[function_id] = \

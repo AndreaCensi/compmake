@@ -7,14 +7,14 @@ import signal
 import sys
 import time
 
-from compmake import CompmakeGlobalState
 from contracts import contract
+
+from compmake import CompmakeGlobalState
 
 from ..config import get_compmake_config
 from ..events import (register_handler, broadcast_event, remove_all_handlers,
     publish)
 from ..jobs import make
-from ..state import get_compmake_db
 from ..utils import setproctitle
 from .manager import Manager
 
@@ -44,8 +44,8 @@ def sig_child(signo, frame):
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
 
-    def __init__(self, num_processes=None):
-        Manager.__init__(self)
+    def __init__(self, context, num_processes=None, recurse=False):
+        Manager.__init__(self, context=context, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
 
@@ -164,9 +164,9 @@ class MultiprocessingManager(Manager):
         return True
 
     def instance_job(self, job_id):
-        publish('worker-status', job_id=job_id, status='apply_async')
-        async_result = self.pool.apply_async(parmake_job2, [job_id])
-        publish('worker-status', job_id=job_id, status='apply_async_done')
+        publish(self.context, 'worker-status', job_id=job_id, status='apply_async')
+        async_result = self.pool.apply_async(parmake_job2, [(job_id, self.context)])
+        publish(self.context, 'worker-status', job_id=job_id, status='apply_async_done')
         return async_result
 
     def event_check(self):
@@ -174,7 +174,7 @@ class MultiprocessingManager(Manager):
             try:
                 event = Shared.event_queue.get(block=False)
                 event.kwargs['remote'] = True
-                broadcast_event(event)
+                broadcast_event(self.context, event)
             except Empty:
                 break
 
@@ -208,14 +208,17 @@ def worker_initialization():
     # print('Process: ignoring sigint')
 
 
-def parmake_job2(job_id):
+def parmake_job2(args):
+    job_id, context = args
+    db = context.get_compmake_db()
+
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
     # nlostmessages = 0
     try:
         # We register a handler for the events to be passed back 
         # to the main process
-        def handler(event):
+        def handler(context, event):  # @UnusedVariable
             try:
                 Shared.event_queue.put(event, block=False)
             except Full:
@@ -229,53 +232,37 @@ def parmake_job2(job_id):
         remove_all_handlers()
         register_handler("*", handler)
 
-        def proctitle(event):
+        def proctitle(context, event):  # @UnusedVariable
             stat = '[%s/%s %s] (compmake)' % (event.progress,
                                               event.goal, event.job_id)
             setproctitle(stat)
             
         register_handler("job-progress", proctitle)
 
-        publish('worker-status', job_id=job_id, status='started')
+        publish(context, 'worker-status', job_id=job_id, status='started')
 
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
-        db = get_compmake_db()
         try:
             db.reopen_after_fork()  # @UndefinedVariable
         except:
             pass
 
-        publish('worker-status', job_id=job_id, status='connected')
+        publish(context, 'worker-status', job_id=job_id, status='connected')
 
-        make(job_id)
+        res = make(job_id, context=context)
 
-        publish('worker-status', job_id=job_id, status='ended')
+        publish(context, 'worker-status', job_id=job_id, status='ended')
 
-    #    We don't need this anymore, as make writes the result directly.
-    #
-    #        publish('worker-status', job_id=job_id, status='exception')
-    #
-    #        # It is very common for exceptions to not be pickable,
-    #        # so we check and in case we send back just a string copy.
-    #        try:
-    #            try_pickling(e)
-    #        except (TypeError, Exception) as pe:
-    #            s = ('Warning; exception of type %r is not pickable (%s). ' %
-    #                 (describe_type(e), pe))
-    #            s += 'I will send back a string copy.'
-    #            raise Exception(str(e))
-    #        else:
-    #            print('Pickling ok!')
-    #            raise
+        return dict(new_jobs=res['new_jobs'], user_object=None)
 
     except KeyboardInterrupt:
-        publish('worker-status', job_id=job_id, status='interrupted')
+        publish(context, 'worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
         raise
     
     finally:
-        publish('worker-status', job_id=job_id, status='cleanup')
+        publish(context, 'worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake:DONE:%s' % job_id)
 
 

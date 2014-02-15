@@ -1,5 +1,6 @@
-from . import interpret_strings_like
 from unittest import TestCase
+
+from . import interpret_strings_like
 
 
 class InterpretTest(TestCase):

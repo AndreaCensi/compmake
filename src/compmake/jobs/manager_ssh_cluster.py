@@ -19,16 +19,19 @@ from ..utils import OutputCapture, setproctitle
 from .cluster_conf import Host
 from .manager import Manager
 from .manager_local import FakeAsync
+from compmake.context import Context
+import warnings
 
 
 __all__ = ['ClusterManager']
 
 
 class ClusterManager(Manager):
-    def __init__(self, hosts):
+    def __init__(self, context, hosts):
         ''' Hosts: name -> Host '''
+        Manager.__init__(self, context=context)
+
         self.hosts = hosts
-        Manager.__init__(self)
 
         # multiply hosts
         newhosts = {}
@@ -100,7 +103,7 @@ class ClusterManager(Manager):
 
         f = cluster_job
         nice = None
-        fargs = job_id, host_config.name, host_config.username, nice
+        fargs = self.context, job_id, host_config.name, host_config.username, nice
 
         debug = False
         if not debug:
@@ -132,7 +135,9 @@ def compmake_slave():
         remove_all_handlers()
 
         # MUST BE second
-        capture = OutputCapture(prefix=job_id,
+        warnings.warn('this must be changed')
+        context = Context(db={})
+        capture = OutputCapture(context=context, prefix=job_id,
                                 echo_stdout=False, echo_stderr=False)
         try:
             # MUST BE third
@@ -147,7 +152,7 @@ def compmake_slave():
 
         function, args, kwargs = actual
 
-        def handler(event):
+        def handler(context, event):  # @UnusedVariable
             s.write(('event', event))
 
         register_handler("*", handler)  # third (otherwise stdout dirty)
@@ -185,7 +190,7 @@ def compmake_slave():
 
 
 # TODO: what about wrong hostname?
-def cluster_job(job_id, hostname, username=None, nice=None):
+def cluster_job(context, job_id, hostname, username=None, nice=None):
     setproctitle('%s %s' % (job_id, hostname))
 
     if username:
@@ -241,7 +246,7 @@ def cluster_job(job_id, hostname, username=None, nice=None):
             if what == 'event':
                 event = result
                 event.kwargs['remote'] = True
-                broadcast_event(event)
+                broadcast_event(context, event)
                 continue
 
             raise Exception('Unknown what: %r' % what)

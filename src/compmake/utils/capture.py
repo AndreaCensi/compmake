@@ -65,17 +65,17 @@ class StreamCapture(object):
 # TODO: this thing does not work with logging enabled
 class OutputCapture(object):
 
-    def __init__(self, prefix, echo_stdout=True, echo_stderr=True):
+    def __init__(self, context, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
         
         from ..events import publish
 
         def publish_stdout(lines):  # @UnusedVariable
-            publish('job-stdout', job_id=prefix, lines=lines)
+            publish(context, 'job-stdout', job_id=prefix, lines=lines)
 
         def publish_stderr(lines):  # @UnusedVariable
-            publish('job-stderr', job_id=prefix, lines=lines)
+            publish(context, 'job-stderr', job_id=prefix, lines=lines)
 
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
         

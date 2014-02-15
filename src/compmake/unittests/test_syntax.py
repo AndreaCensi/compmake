@@ -1,9 +1,11 @@
+import sys
+
+from nose.tools import istest
+
 from . import CompmakeTest
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache, UserError, CompmakeSyntaxError
-from ..ui import comp, parse_job_list, reset_jobs_definition_set
-from nose.tools import istest
-import sys
+from ..ui import parse_job_list
 
 
 def dummy():
@@ -13,14 +15,11 @@ def dummy():
 @istest
 class Test1(CompmakeTest):
 
-    def setUp(self):
-        print('------ init ---------')
-        CompmakeTest.setUp(self)
 
     def mySetUp(self):
         # Removed when refactoring
         # remove_all_jobs()
-        reset_jobs_definition_set()
+#         reset_jobs_definition_set()
 
         self.jobs = [
                 ('a', Cache.DONE),
@@ -37,10 +36,10 @@ class Test1(CompmakeTest):
         ]
 
         for job_id, state in self.jobs:
-            comp(dummy, job_id=job_id)
-            cache = get_job_cache(job_id)
+            self.comp(dummy, job_id=job_id)
+            cache = get_job_cache(job_id, db=self.db)
             cache.state = state
-            set_job_cache(job_id, cache)
+            set_job_cache(job_id, cache, db=self.db)
 
         self.all = set([job_id for job_id, state in self.jobs])
         selectf = lambda S: set([nid
@@ -69,20 +68,23 @@ class Test1(CompmakeTest):
             elif isinstance(X, type(lambda: 0)):
                 return self.selection(X)
             elif isinstance(X, str):
-                return set(parse_job_list(X))
+                return set(parse_job_list(X, context=self.cc))
             else:
                 assert False, 'Wrong type %s' % type(X)
 
         a = expand_to_set(A)
         b = expand_to_set(B)
 
-        sys.stdout.write('Comparing:\n\t- %s\n\t- %s. \n' % (A, B))
+        try:
+            self.assertEqualSet(a, b)
+        except:
+            sys.stdout.write('Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n' % (A, a, B, b))
+            raise
 
-        self.assertEqual(a, b)
 
     def syntaxError(self, s):
         def f(s): # it's a generator, you should try to read it
-            return list(parse_job_list(s))
+            return list(parse_job_list(s, context=self.cc))
 
         self.assertRaises(CompmakeSyntaxError, f, s)
 
@@ -112,11 +114,9 @@ class Test1(CompmakeTest):
         self.expandsTo('e failed', self.failed.union('e'))
 
     def testNot(self):
-        self.expandsTo('not failed', lambda _, state: state != Cache.FAILED)
-        self.expandsTo('all except failed',
-                       lambda _, state: state != Cache.FAILED)
-
         all_not_e = self.selection(lambda job, _: job != 'e')
+        self.expandsTo('e', ['e'])
+        self.expandsTo('e*', ['e'])
         self.expandsTo('not e', all_not_e)
         self.expandsTo('not e*', all_not_e)
         self.expandsTo('all except e', all_not_e)
@@ -130,6 +130,12 @@ class Test1(CompmakeTest):
         self.expandsTo('a in c  ', [])
         self.expandsTo('a in all  ', 'a')
         self.expandsTo('all in all  ', 'all')
+
+    def testFailed(self):
+        self.expandsTo('all except failed',
+                       lambda _, state: state != Cache.FAILED)
+        self.expandsTo('not failed', lambda _, state: state != Cache.FAILED)
+
 
     def testIntersection(self):
         self.expandsTo('a b in a b c', ['a', 'b'])

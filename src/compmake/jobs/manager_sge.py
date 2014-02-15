@@ -2,7 +2,7 @@ import os
 
 from system_cmd import CmdException, system_cmd_result
 
-from compmake import CompmakeConstants, get_compmake_db
+from compmake import CompmakeConstants
 from contracts.utils import indent
 
 from ..structures import CompmakeException, HostFailed, JobFailed
@@ -43,7 +43,7 @@ class SGEJob(AsyncResultInterface):
         self.execute()
         
     def execute(self):
-        db = get_compmake_db()
+        db = self.db
         # Todo: check its this one
         storage = os.path.abspath(db.basepath)
         

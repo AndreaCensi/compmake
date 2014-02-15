@@ -131,7 +131,7 @@ def get_string(level):
     return  " ".join(X)
 
 
-def handle_event(event):  # @UnusedVariable
+def handle_event(context, event):  # @UnusedVariable
     text_right = ' '
 
     status = system_status()
