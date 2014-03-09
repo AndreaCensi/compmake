@@ -176,9 +176,9 @@ class Manager(object):
     def start_job(self, job_id):
         self.check_invariants()
         
-        assert job_id in self.todo 
-        assert not job_id in self.ready_todo
-        assert not job_id in self.processing2result
+        assert job_id in self.todo, job_id
+        assert not job_id in self.ready_todo, job_id
+        assert not job_id in self.processing2result, job_id
 #         if False:
 #             assert dependencies_up_to_date(job_id)
         
@@ -214,9 +214,9 @@ class Manager(object):
         '''
         self.check_invariants()
 
-        assert job_id in self.processing
-        assert job_id in self.todo
-        assert not job_id in self.ready_todo
+        assert job_id in self.processing, job_id
+        assert job_id in self.todo, job_id
+        assert not job_id in self.ready_todo, job_id
 
         async_result = self.processing2result[job_id]
 
@@ -228,8 +228,17 @@ class Manager(object):
                 # print('job generated %s' % new_jobs)
                 if self.recurse:
                     # print('adding targets %s' % new_jobs)
-                    self.add_targets(new_jobs)
+                    cocher = set()
                     for j in new_jobs:
+                        if j in self.all_targets:
+                            msg = ('Warning, job %r generated %r which was '
+                                   'already a target. I will not re-add it to the queue. '
+                                   % (job_id, j))
+                            print(msg)
+                        else:
+                            cocher.add(j)
+                    self.add_targets(cocher)
+                    for j in cocher:
                         self.priorities[j] = 10  # XXX probably should do better
 
                 # print('job %r succeeded' % job_id)
@@ -386,7 +395,7 @@ class Manager(object):
                 # either something ready to do, or something doing
                 # otherwise, we are completely blocked
                 if not (self.ready_todo or self.processing):
-                    msg = 'Nothing ready to do, and nothing cooking.'
+                    msg = 'Nothing ready to do, and nothing cooking. '
                     msg += 'This probably means that the Compmake job database was inconsistent. '
                     msg += 'This might happen if the job creation is interrupted. Use the command "check-consistency" '
                     msg += 'to check the database consistency.\n'
