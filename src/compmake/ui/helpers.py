@@ -57,13 +57,14 @@ def ui_section(section_name, desc=None, order=None):
     UIState.last_section_name = section_name
 
 
-def register_command(name, func, docs=None, alias=[], section=None):
+def register_command(name, func, docs, alias=[], section=None):
     if isinstance(alias, str):
             alias = [alias]
     if not section:
         section = UIState.last_section_name
     assert not name in UIState.commands, \
-        "Command '%r' already defined " % name
+        "Command %r already defined " % name
+    assert docs is not None, "Command %r need docs." % name
     UIState.commands[name] = Command(function=func, name=name, doc=docs,
                              alias=alias, section=section)
     assert section in UIState.sections, \

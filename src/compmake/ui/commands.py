@@ -95,6 +95,7 @@ def delete(job_list, context):
 
 @ui_command(section=ACTIONS)
 def make(job_list, context, recurse=False):
+    '''Makes selected targets; or all targets if none specified. '''
     return make_(context=context, job_list=job_list, recurse=recurse)
 
 
