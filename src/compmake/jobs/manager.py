@@ -15,6 +15,8 @@ from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, parents, direct_parents
 from .uptodate import CacheQueryDB
+import traceback
+import warnings
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
@@ -446,8 +448,9 @@ class Manager(object):
         except KeyboardInterrupt as e:
             # ## Interrupt caught by manager outside of get()
             # for example in sleep()
-#            error('Received KeyboardInterrupt at: %s' %
-#                  traceback.format_exc(e))
+            warnings.warn('This is just to see where we are interrupted')
+            error('Received KeyboardInterrupt at: %s' %
+                  traceback.format_exc(e))
             raise
         finally:
             self.cleanup()

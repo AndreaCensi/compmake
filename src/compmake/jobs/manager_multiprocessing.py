@@ -7,7 +7,7 @@ import signal
 import sys
 import time
 
-from contracts import contract
+from contracts import contract, describe_type
 
 from compmake import CompmakeGlobalState
 
@@ -209,6 +209,28 @@ def worker_initialization():
 
 
 def parmake_job2(args):
+    # this is the function that the pool worker is called with
+    s = sys.stderr
+    def sprint(t):
+        s.write(t)
+        s.write('\n')
+        s.flush()
+    try:
+        res = parmake_job2_(args)
+        sprint('parmake_job returning correctly (%s)' % describe_type(res))
+        return res
+    except Exception as e:
+        sprint('This pool worker exited with exception.')
+        sprint('job_id: %s' % args[0])
+        sprint('Exception: %s' % describe_type(e))
+        sprint('%s' % e)
+        raise
+    except:
+        sprint('This pool worker exited with exception (not a subclass of Exception).')
+        sprint('job_id: %s' % args[0])
+        raise
+
+def parmake_job2_(args):
     job_id, context = args
     db = context.get_compmake_db()
 
