@@ -1,10 +1,14 @@
-from . import describe_type
 from StringIO import StringIO
 from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
     _tuplesize2code, POP_MARK)
 import pickle
 import traceback
+
+from . import describe_type
 from .. import logger
+
+
+__all__ = ['find_pickling_error']
 
 def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()

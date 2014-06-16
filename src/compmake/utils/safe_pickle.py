@@ -1,7 +1,10 @@
-from . import find_pickling_error, safe_write, safe_read
-from compmake import logger
 from contracts import describe_type
+
 import cPickle as pickle
+from compmake import logger
+
+from . import find_pickling_error, safe_write, safe_read
+
 
 __all__ = ['safe_pickle_dump', 'safe_pickle_load']
 

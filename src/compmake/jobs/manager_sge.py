@@ -20,7 +20,7 @@ class SGEManager(Manager):
         return True
 
     def instance_job(self, job_id):
-        return SGEJob(job_id)
+        return SGEJob(job_id, self.db)
 
     
 
@@ -38,8 +38,9 @@ class SGEJob(AsyncResultInterface):
             SGEJob.compmake_bin = compmake_bin
         return SGEJob.compmake_bin 
     
-    def __init__(self, job_id):
+    def __init__(self, job_id, db):
         self.job_id = job_id
+        self.db = db
         self.execute()
         
     def execute(self):
