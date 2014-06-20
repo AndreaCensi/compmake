@@ -83,10 +83,10 @@ def clean_other_jobs(context):
         clean_all = False
     else:
         clean_all = True
-        
+
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
-    
+
     jobs_in_db = 0
     num_cleaned = 0
     for job_id in all_jobs(force_db=True, db=db):
@@ -117,7 +117,7 @@ def clean_other_jobs(context):
             else:
                 pass
                 logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
-                
+
             clean_target(job_id, db=db)
             delete_job(job_id, db=db)
             if is_job_userobject_available(job_id, db=db):
@@ -150,7 +150,7 @@ def comp_(context, command_, *args, **kwargs):
         
         Raises UserError if command is not pickable.
     '''
-    
+
     db = context.get_compmake_db()
 
     command = command_
@@ -163,25 +163,25 @@ def comp_(context, command_, *args, **kwargs):
                'function or a nested function. (This is a limitation of '
                'Python)' % command)
         raise UserError(msg)
-    
+
     if command.__module__ == '__main__':
         main_module = sys.modules['__main__']
         filename = main_module.__file__
         filename = os.path.splitext(filename)[0]
         if filename.startswith('./'):
             filename = filename[2:]
-        
+
         try:
             m = import_name(filename)
-            
+
             fname = command.__name__
             if fname in m.__dict__:
                 command = m.__dict__[fname]
-                
+
             # print('I will remap:\n    %s\nto    %s' % (command_, command))
         except:
             pass
-        
+
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
     else:
@@ -197,12 +197,12 @@ def comp_(context, command_, *args, **kwargs):
 
         if CompmakeConstants.job_id_key in argspec.args:
             msg = ("You cannot define the job id in this way because %r "
-                   "is already a parameter of this function." % 
+                   "is already a parameter of this function." %
                     CompmakeConstants.job_id_key)
             raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
-        
+
         if ' ' in job_id:
             msg = 'Invalid job id: %r' % job_id
             raise UserError(msg)
@@ -210,7 +210,7 @@ def comp_(context, command_, *args, **kwargs):
         job_prefix = context.get_comp_prefix()
         if job_prefix:
             job_id = '%s-%s' % (job_prefix, job_id)
-            
+
         del kwargs[CompmakeConstants.job_id_key]
 
         if context.was_job_defined_in_this_session(job_id):
@@ -230,7 +230,7 @@ def comp_(context, command_, *args, **kwargs):
 
                 msg = 'Job %r already defined.' % job_id
                 raise UserError(msg)
-    
+
     else:
         job_id = generate_job_id(command_desc, context=context)
 
@@ -247,20 +247,20 @@ def comp_(context, command_, *args, **kwargs):
     if CompmakeConstants.extra_dep_key in kwargs:
         extra_dep = kwargs[CompmakeConstants.extra_dep_key]
         del kwargs[CompmakeConstants.extra_dep_key]
-        
+
         if not isinstance(extra_dep, (list, Promise)):
-            msg = ('The "extra_dep" argument must be a list of promises; ' 
+            msg = ('The "extra_dep" argument must be a list of promises; '
                    'got: %s' % describe_value(extra_dep))
             raise ValueError(msg)
         if isinstance(extra_dep, Promise):
             extra_dep = [extra_dep]
         for ed in extra_dep:
             if not isinstance(ed, Promise):
-                msg = ('The "extra_dep" argument must be a list of promises; ' 
+                msg = ('The "extra_dep" argument must be a list of promises; '
                        'got: %s' % describe_value(extra_dep))
                 raise ValueError(msg)
         extra_dep = collect_dependencies(extra_dep)
-        
+
     else:
         extra_dep = set()
 
@@ -287,10 +287,10 @@ def comp_(context, command_, *args, **kwargs):
         # however, by unpickling(), it will start
         # __import__()ing the modules, perhaps
         # even the one that is calling us.
-        # What happens, then is that it will try to 
+        # What happens, then is that it will try to
         # add another time this computation recursively.
-        # What we do, is that we temporarely switch to 
-        # slave mode, so that recursive calls to comp() 
+        # What we do, is that we temporarely switch to
+        # slave mode, so that recursive calls to comp()
         # are disabled.
 
         if get_compmake_config('check_params'):
@@ -329,8 +329,8 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-# TODO: FEATURE: add aliases 
-#  command  alias aliasname job... 
+# TODO: FEATURE: add aliases
+#  command  alias aliasname job...
 
 
 def interpret_commands(commands_str, separator=';', context=None):
@@ -377,7 +377,7 @@ def interpret_commands(commands_str, separator=';', context=None):
         if not isinstance(retcode, (int, NoneType, str)):
             publish(context, 'compmake-bug', user_msg="",
                     dev_msg="Command %r should return an integer, "
-                        "None, or a string describing the error, not %r." % 
+                        "None, or a string describing the error, not %r." %
                         (cmd, retcode))
             retcode = 0
 
@@ -426,7 +426,7 @@ def interpret_single_command(commands_line, context=None):
 
     args = commands[1:]
 
-    # look for  key=value pairs 
+    # look for  key=value pairs
     other = []
     kwargs = {}
     argspec = inspect.getargspec(function)
@@ -447,7 +447,7 @@ def interpret_single_command(commands_line, context=None):
             if not k in argspec.args:
                 msg = ("You passed the argument %r for command %r, "
                        "but the only "
-                       "available arguments are %s." % 
+                       "available arguments are %s." %
                         (k, cmd.name, function_args))
                 raise UserError(msg)
             # look if we have a default value
@@ -461,7 +461,7 @@ def interpret_single_command(commands_line, context=None):
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = ('Could not parse %s=%s as %s.' % 
+                    msg = ('Could not parse %s=%s as %s.' %
                             (k, v, type(default_value)))
                     raise UserError(msg)
 

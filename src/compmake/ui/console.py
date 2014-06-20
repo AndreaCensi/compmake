@@ -95,7 +95,7 @@ def interactive_console(context=None):
         try:
             for line in compmake_console_lines(context):
                 res = interpret_commands_wrap(line, context=context)
-                print res
+                # res should be 0
         except ShellExitRequested:
             break
 

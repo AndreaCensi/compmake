@@ -35,7 +35,7 @@ def my_get_job_cache(context, job_id):
 @contract(caches='list[>=1]')
 def finalize_result(jobs, caches):
     import numpy as np
-    print caches
+    #print caches
     
     @contract(cache=Cache)
     def stats_from_cache(cache):

@@ -22,18 +22,20 @@
 
              
 '''
-from compmake.context import Context
-from contracts import contract
-__all__ = ['parse_job_list']
-
 from collections import namedtuple
 import types
 
+from contracts import contract
+
+from compmake.context import Context
 from compmake.jobs.uptodate import CacheQueryDB
 
 from .. import  get_job
 from ...structures import UserError, Cache, CompmakeSyntaxError
 from ...utils import expand_wildcard
+
+
+__all__ = ['parse_job_list']
 
 
 aliases = {}
@@ -213,6 +215,31 @@ def list_generated_jobs(context, cq):  # @UnusedVariable
         if not is_root_job(job):
             yield job_id
 
+
+def list_levelX_jobs(context, cq, X):  # @UnusedVariable
+    ''' Returns a list of jobs that are at level X '''
+    for job_id in cq.all_jobs():
+        job = cq.get_job(job_id)
+        level = len(job.defined_by) - 1
+        if level == X:
+            yield job_id
+
+def list_level1_jobs(context, cq):
+    for x in list_levelX_jobs(context, cq, 1):
+        yield x
+    
+def list_level2_jobs(context, cq):
+    for x in list_levelX_jobs(context, cq, 2):
+        yield x
+
+def list_level3_jobs(context, cq):
+    for x in list_levelX_jobs(context, cq, 3):
+        yield x
+
+def list_level4_jobs(context, cq):
+    for x in list_levelX_jobs(context, cq, 4):
+        yield x
+
 def is_root_job(job):
     return job.defined_by == ['root']
 
@@ -237,6 +264,10 @@ add_alias('top', list_top_jobs)
 add_alias('uptodate', list_uptodate_jobs)
 add_alias('root', list_root_jobs)
 add_alias('generated', list_generated_jobs)
+add_alias('level1', list_level1_jobs)
+add_alias('level2', list_level2_jobs)
+add_alias('level3', list_level3_jobs)
+add_alias('level4', list_level4_jobs)
 add_alias('bottom', list_bottom_jobs)
 add_alias('done', lambda context, cq: list_jobs_with_state(Cache.DONE, context=context, cq=cq))
 add_alias('in_progress', lambda context, cq: list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))

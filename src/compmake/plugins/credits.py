@@ -31,7 +31,7 @@ def credits():  # @ReservedAssignment
     '''Shows the credits for compmake.'''
     print(banner)
 
-    print "Compmake is brought to you by:\n"
+    print("Compmake is brought to you by:\n")
     for credits in contributors:  # @ReservedAssignment
         print(string.rjust(credits.name, 30) + (" " * 10) + credits.what)
 
