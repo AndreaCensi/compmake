@@ -134,6 +134,8 @@ class Job(object):
             needs_context: new facility for dynamic jobs
             defined_by: name of jobs defining this job dynamically
                         This is the stack of jobs. 'root' is the first.
+                        
+            children: the direct dependencies
         """
         self.job_id = job_id
         self.children = children
@@ -147,7 +149,7 @@ class Job(object):
     def compute(self, context):
         """ Returns a dictionary with fields "user_object" and "new_jobs" """
         db = context.get_compmake_db()
-        from compmake.jobs.storage import get_job_args
+        from .jobs.storage import get_job_args
         job_args = get_job_args(self.job_id, db=db)
         command, args, kwargs = job_args
 

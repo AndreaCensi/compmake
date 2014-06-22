@@ -52,7 +52,11 @@ def parents(job_id, db):
         (does not include job_id) '''
     assert(isinstance(job_id, str))
     t = set()
-    for p in direct_parents(job_id, db=db):
+    parents_jobs = direct_parents(job_id, db=db)
+    if job_id in parents_jobs:
+        raise ValueError('Compmake BUG: job is parent of itself: %s -> %s' % (job_id, parents_jobs))
+#     print('%s -> %s' % (job_id, parents_jobs))
+    for p in parents_jobs:
         t.add(p)
         t.update(parents(p, db=db))
     return t

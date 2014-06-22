@@ -209,6 +209,15 @@ def worker_initialization():
 
 
 def parmake_job2(args):
+    """
+    args = tuple job_id, context
+        
+    Returns a dictionary with fields "user_object" and "new_jobs".
+    "user_object" is set to None because we do not want to 
+    load in our thread if not necessary. Sometimes it is necessary
+    because it might contain a Promise. 
+   
+    """
     job_id, context = args
     db = context.get_compmake_db()
 
@@ -254,7 +263,9 @@ def parmake_job2(args):
 
         publish(context, 'worker-status', job_id=job_id, status='ended')
 
-        return dict(new_jobs=res['new_jobs'], user_object=None)
+        return dict(new_jobs=res['new_jobs'],
+                    user_object=None,
+                    user_object_deps=res['user_object_deps'])
 
     except KeyboardInterrupt:
         publish(context, 'worker-status', job_id=job_id, status='interrupted')

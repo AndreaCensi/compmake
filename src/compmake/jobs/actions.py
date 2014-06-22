@@ -16,7 +16,6 @@ from .storage import (delete_job_cache, set_job_cache,
 from .uptodate import up_to_date
 from compmake.context import get_default_context
 
-
 def clean_target(job_id, db):
     # TODO: think of the difference between this and mark_remake
     # Cleans associated objects
@@ -51,7 +50,9 @@ def substitute_dependencies(a, db):
         # warnings.warn('This fails for subclasses of tuple')
         return type(a)([substitute_dependencies(x, db=db) for x in a])
     elif isinstance(a, Promise):
-        return get_job_userobject(a.job_id, db=db)
+        # XXX: do some checks here
+        s = get_job_userobject(a.job_id, db=db)
+        return substitute_dependencies(s, db=db)
     else:
         return deepcopy(a)
 
@@ -98,7 +99,10 @@ def make(job_id, context=None):
     """ 
         Makes a single job. 
         
-        Returns a dictionary with fields "user_object" and "new_jobs". 
+        Returns a dictionary with fields:
+             "user_object"
+             "user_object_deps" = set of Promises
+             "new_jobs" -> new jobs defined 
         
         Raises JobFailed
         or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
@@ -242,8 +246,12 @@ def make(job_id, context=None):
 
         publish(context, 'job-succeeded', job_id=job_id, host=host)
 
-        # TODO: clear these records in other place
-        return dict(user_object=user_object, new_jobs=new_jobs)
+
+        from compmake.ui.ui import collect_dependencies
+
+        return dict(user_object=user_object,
+                    user_object_deps=collect_dependencies(user_object),
+                    new_jobs=new_jobs)
 
 
 # TODO: remove these

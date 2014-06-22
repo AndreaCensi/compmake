@@ -15,6 +15,7 @@ from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, parents, direct_parents
 from .uptodate import CacheQueryDB
+from compmake.jobs.storage import get_job, set_job
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
@@ -46,6 +47,7 @@ class Manager(object):
     __metaclass__ = ContractsMeta
 
     def __init__(self, context=None, recurse=False):
+        # print('Initialized manager, recurse=%s' % recurse)
         if context is None:
             context = get_default_context()
         self.context = context
@@ -240,6 +242,44 @@ class Manager(object):
                     self.add_targets(cocher)
                     for j in cocher:
                         self.priorities[j] = 10  # XXX probably should do better
+
+                # Check if the result of this job contains references
+                # to other jobs
+                if result['user_object_deps']:
+                    deps = result['user_object_deps']
+                    print('Found special job whose result contains references to jobs: %s' % deps)
+
+                    # We first add extra dependencies to all those jobs
+                    jobs_depending_on_this = direct_parents(job_id, self.db)
+                    print('need to update %s' % jobs_depending_on_this)
+                    for parent in jobs_depending_on_this:
+                        print(' considering %r' % parent)
+                        parent_job = get_job(parent, self.db)
+                        print(' current children: %r' % parent_job.children)
+
+                        parent_job.children = list(set(parent_job.children + list(deps)))
+                        print(' updated children: %r' % parent_job.children)
+                        assert job_id in parent_job.children
+                            
+                        # write back
+                        set_job(parent, parent_job, self.db)
+                        
+                        # also add inverse relation
+                        for d in deps:
+                            j = get_job(d, self.db)
+                            j.parents = list(set(j.parents + [parent]))
+                            set_job(d, j, self.db)
+
+                    for parent in jobs_depending_on_this:                
+                        if parent in self.all_targets:
+                            print(' it was also in targets...')
+                            # Remove it from the "ready_todo_list"
+                            if parent in self.ready_todo:
+                                self.ready_todo.remove(parent)
+                            self.add_targets([parent])
+                            # XXX: recomputing priorities for everything
+                            self.priorities = compute_priorities(self.all_targets, db=self.db)
+
 
                 # print('job %r succeeded' % job_id)
                 self.job_succeeded(job_id)

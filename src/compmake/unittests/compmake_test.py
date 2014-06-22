@@ -47,6 +47,7 @@ class CompmakeTest(unittest.TestCase):
         """ Returns the list of jobs corresponding to the given expression. """
         return list(parse_job_list(expression, context=self.cc))
 
+
     def assert_cmd_success(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
         res = self.cc.interpret_commands_wrap(cmds)

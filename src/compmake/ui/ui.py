@@ -30,7 +30,7 @@ def is_pickable(x):  # TODO: move away
 
 
 def collect_dependencies(ob):
-    ''' Returns a set of dependencies (i.e., Job objects that
+    ''' Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure '''
     if isinstance(ob, Promise):
         return set([ob.job_id])

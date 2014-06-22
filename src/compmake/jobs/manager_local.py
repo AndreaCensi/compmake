@@ -37,4 +37,5 @@ class FakeAsync(object):
 
     def get(self, timeout=0):  # @UnusedVariable
         self.execute()
-        return dict(new_jobs=self.result['new_jobs'])
+        return dict(new_jobs=self.result['new_jobs'],
+                    user_object_deps=self.result['user_object_deps'])

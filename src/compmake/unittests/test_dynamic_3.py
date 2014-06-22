@@ -3,7 +3,7 @@ import functools
 import nose
 from nose.tools import istest
 
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 
 
 def expected_failure(test):
