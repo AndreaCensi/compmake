@@ -1,6 +1,7 @@
-from .. import set_compmake_status, CompmakeConstants
-from . import CompmakeTest
 from nose.tools import istest
+
+from .. import set_compmake_status, CompmakeConstants
+from .compmake_test import CompmakeTest
 
 
 def bottom():

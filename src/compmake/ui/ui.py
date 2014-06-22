@@ -46,28 +46,78 @@ def collect_dependencies(ob):
 
 
 def generate_job_id(base, context):
-    ''' Generates a unique job_id for the specified commmand.
-        Takes into account job_prefix if that's defined '''
+    ''' 
+        Generates a unique job_id for the specified commmand.
+        Takes into account job_prefix if that's defined.     
+    '''
+
+    stack = context.currently_executing
+    # print('generating an ID with base = %s and stack %s' % (base, stack))
+    # print('  jobs defined in session: %s' % (context.get_jobs_defined_in_this_session()))
 
     job_prefix = context.get_comp_prefix()
-    if job_prefix:
-        job_id = '%s-%s' % (job_prefix, base)
-        if not context.was_job_defined_in_this_session(job_id):
-            return job_id
-    else:
-        if not context.was_job_defined_in_this_session(base):
-            return base
 
-    for i in xrange(1000000):
+    def get_options():
         if job_prefix:
-            job_id = ('%s-%s-%d' % (job_prefix, base, i))
+            yield '%s-%s' % (job_prefix, base)
+            for i in xrange(10000):
+                yield '%s-%s-%d' % (job_prefix, base, i)
         else:
-            job_id = '%s-%d' % (base, i)
+            yield base
+            for i in xrange(10000):
+                yield '%s-%d' % (base, i)
 
-        if not context.was_job_defined_in_this_session(job_id):
-            return job_id
+    db = context.get_compmake_db()
+    for x in get_options():
+        # print(' considering %s' % x)
+        if not job_exists(x, db):
+            return x
+        else:
+            # print('  it already exists')
+            # if it is the same job defined in the same stack
+            defined_by = get_job(x, db).defined_by
+            # print('  Found, he was defined by %s' % defined_by)
+            if defined_by == stack:
+                # print('  same stack, continuing')
+                # wonder why you need this? Consider the code in test_priorities
+                #
+                #         # add two copies
+                #         self.comp(top, self.comp(bottom))
+                #         self.comp(top, self.comp(bottom))
+                if context.was_job_defined_in_this_session(x):
+                    continue
+                return x
+            else:
+                continue
 
-    assert(False)
+    assert False
+
+
+# def generate_job_id_old(base, context):
+#     '''
+#         Generates a unique job_id for the specified commmand.
+#         Takes into account job_prefix if that's defined.
+#     '''
+#
+#     job_prefix = context.get_comp_prefix()
+#     if job_prefix:
+#         job_id = '%s-%s' % (job_prefix, base)
+#         if not context.was_job_defined_in_this_session(job_id):
+#             return job_id
+#     else:
+#         if not context.was_job_defined_in_this_session(base):
+#             return base
+#
+#     for i in xrange(1000000):
+#         if job_prefix:
+#             job_id = ('%s-%s-%d' % (job_prefix, base, i))
+#         else:
+#             job_id = '%s-%d' % (base, i)
+#
+#         if not context.was_job_defined_in_this_session(job_id):
+#             return job_id
+#
+#     assert False
 
 
 def clean_other_jobs(context):
@@ -233,6 +283,7 @@ def comp_(context, command_, *args, **kwargs):
 
     else:
         job_id = generate_job_id(command_desc, context=context)
+        print('generated job: %s' % job_id)
 
     context.add_job_defined_in_this_session(job_id)
 

@@ -3,12 +3,11 @@ from nose.tools import istest
 from .compmake_test import CompmakeTest
 
 
-
 def rec(context, n):
     if n == 0:
         return 0
     return context.comp(add, n,
-                        context.comp_dynamic(rec, n - 1, job_id='rec-%d' % n),
+                        context.comp_dynamic(rec, n - 1),
                         job_id='add-%d' % n)
 
 def add(a, b):
@@ -20,9 +19,11 @@ def f(x):
 
 
 @istest
-class TestDelegation2(CompmakeTest):
+class TestDelegation3(CompmakeTest):
+    """ Similar to TestDelegation2, but here the jobs are not named
+        exclusively with job_id=... """
 
-    def test_delegation_2(self):
+    def test_delegation_3(self):
         context = self.cc
 
         res = context.comp_dynamic(rec, 5, job_id='rec-main')
