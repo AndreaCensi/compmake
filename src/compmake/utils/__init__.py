@@ -32,6 +32,7 @@ def find_print_statements():
         
         def write(self, s):
             self.stdout.write("Writing %r\n" % s)
+            import traceback
             traceback.print_stack(file=self.stdout)
 
     sys.stdout = TracePrints()

@@ -371,17 +371,9 @@ def comp_(context, command_, *args, **kwargs):
         set_job_args(job_id, all_args, db=db)
         publish(context, 'job-defined', job_id=job_id)
 
-    # assert job_exists(job_id)
-    # assert job_args_exists(job_id)
-
-#     from compmake import logger
-#     logger.debug('defined job %r' % job_id)
 
     return Promise(job_id)
 
-
-# TODO: FEATURE: add aliases
-#  command  alias aliasname job...
 
 
 def interpret_commands(commands_str, separator=';', context=None):

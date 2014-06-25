@@ -1,6 +1,8 @@
 from nose.tools import istest
+
 from compmake.unittests.compmake_test import CompmakeTest
 from compmake.unittests.test_dynamic import mockup_dynamic1, TestDynamic1
+
 
 @istest
 class TestDynamic1rec(CompmakeTest):

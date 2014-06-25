@@ -1,6 +1,7 @@
-import time
-import sys
 from contextlib import contextmanager
+import sys
+import time
+
 
 __all__ = ['TimeTrack']
 
@@ -11,7 +12,7 @@ class TimeTrack(object):
         self.c0 = time.clock()
         self.what = what
 
-    def show(self, stream=sys.stdout, min_td=0.001):
+    def show(self, stream=sys.stdout, min_td=0.001):  # @UnusedVariable
         self.t1 = time.time()
         self.c1 = time.clock()
         self.cd = self.c1 - self.c0
