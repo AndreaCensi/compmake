@@ -263,6 +263,8 @@ def comp_(context, command_, *args, **kwargs):
 
         del kwargs[CompmakeConstants.job_id_key]
 
+
+
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
@@ -280,6 +282,34 @@ def comp_(context, command_, *args, **kwargs):
 
                 msg = 'Job %r already defined.' % job_id
                 raise UserError(msg)
+        else:
+            if job_exists(job_id, db=db):
+                # ok, you gave us a job_id, but we still need to check whether
+                # it is the same job
+                stack = context.currently_executing
+                defined_by = get_job(job_id, db=db).defined_by
+                if defined_by == stack:
+                    # this is the same job-redefining
+                    pass
+                else:
+                    print('The job_id %r was given explicitly but already defined.' % job_id)
+                    print('current stack: %s' % stack)
+                    print('    its stack: %s' % defined_by)
+                    for i in xrange(1000):
+                        n = '%s-%d' % (job_id, i)
+                        if not job_exists(n, db=db):
+                            job_id = n
+                            break
+                        
+                    print('New job_id is %s' % job_id)
+#                 # print('  same stack, continuing')
+#                 # wonder why you need this? Consider the code in test_priorities
+#                 #
+#                 #         # add two copies
+#                 #         self.comp(top, self.comp(bottom))
+#                 #         self.comp(top, self.comp(bottom))
+#                 if context.was_job_defined_in_this_session(x):
+#                     continue
 
     else:
         job_id = generate_job_id(command_desc, context=context)
