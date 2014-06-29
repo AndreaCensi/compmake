@@ -279,7 +279,7 @@ class Cache(object):
     NOT_STARTED = 0
     IN_PROGRESS = 1
     FAILED = 3
-    BLOCKED = 5  # TODO, will add later
+    BLOCKED = 5
     DONE = 4
 
     allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]

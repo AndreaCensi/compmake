@@ -9,7 +9,7 @@ ui_section(VISUALIZATION)
 
 
 @ui_command
-def graph(job_list, filename='compmake', compact=0,
+def graph(job_list, context, filename='compmake', compact=0,
           filter='dot', format='png'):  # @ReservedAssignment
     '''Creates a graph of the given targets and dependencies 
     
@@ -24,10 +24,11 @@ def graph(job_list, filename='compmake', compact=0,
                        (hierarchy top-bottom). 
             format=[png,...]  The output file format.
     '''
+    db = context.get_compmake_db()
     if not job_list:
-        job_list = top_targets()
+        job_list = top_targets(db)
 
-    job_list = tree(job_list)
+    job_list = tree(job_list, db)
 
     try:
         import gvgen  # @UnresolvedImport
@@ -43,7 +44,9 @@ def graph(job_list, filename='compmake', compact=0,
         Cache.NOT_STARTED: 'grey',
         Cache.IN_PROGRESS: 'yellow',
         Cache.FAILED: 'red',
-        Cache.DONE: 'green'
+        Cache.DONE: 'green',
+        Cache.BLOCKED: 'brown',
+
     }
 
     job2node = {}
@@ -52,7 +55,7 @@ def graph(job_list, filename='compmake', compact=0,
             job2node[job_id] = graph.newItem("")
         else:
             job2node[job_id] = graph.newItem(job_id)
-        cache = get_job_cache(job_id)
+        cache = get_job_cache(job_id, db)
         graph.styleAppend(job_id, "style", "filled")
         graph.styleAppend(job_id, "fillcolor", state2color[cache.state])
         graph.styleApply(job_id, job2node[job_id])
@@ -60,7 +63,7 @@ def graph(job_list, filename='compmake', compact=0,
     for job_id in job_list:
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
-        for child in direct_children(job_id):
+        for child in direct_children(job_id, db):
             graph.newLink(job2node[job_id], job2node[child])
 
     # TODO: add check?
@@ -72,7 +75,7 @@ def graph(job_list, filename='compmake', compact=0,
     try:
         os.system(cmd_line)
     except:
-        raise UserError("Could not run dot (cmdline='%s')\
-Make sure graphviz is installed" % cmd_line)  # XXX maybe not UserError
+        msg = "Could not run dot (cmdline='%s') Make sure graphviz is installed" % cmd_line
+        raise UserError(msg)  # XXX maybe not UserError
 
     info("Written output on files %s, %s." % (filename, output))
