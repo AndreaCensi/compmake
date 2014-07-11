@@ -70,6 +70,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
     cache.backtrace = backtrace
+    cache.timestamp = time()
     # TODO: clean user object
     set_job_cache(job_id, cache, db=db)
 

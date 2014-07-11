@@ -104,6 +104,11 @@ def list_jobs(context, job_list):
         else:
             if cache.state in [Cache.DONE]:
                 s += " (needs update: %s)" % reason
+
+            if cache.state == Cache.FAILED:
+                when = duration_human(time() - cache.timestamp)
+                s += " (%s ago)" % when
+
         print(s)
 
     if cpu_total:

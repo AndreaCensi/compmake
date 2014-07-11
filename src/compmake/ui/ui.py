@@ -292,16 +292,17 @@ def comp_(context, command_, *args, **kwargs):
                     # this is the same job-redefining
                     pass
                 else:
-                    print('The job_id %r was given explicitly but already defined.' % job_id)
-                    print('current stack: %s' % stack)
-                    print('    its stack: %s' % defined_by)
+
                     for i in xrange(1000):
                         n = '%s-%d' % (job_id, i)
                         if not job_exists(n, db=db):
                             job_id = n
                             break
-                        
-                    print('New job_id is %s' % job_id)
+                    if False:
+                        print('The job_id %r was given explicitly but already defined.' % job_id)
+                        print('current stack: %s' % stack)
+                        print('    its stack: %s' % defined_by)
+                        print('New job_id is %s' % job_id)
 #                 # print('  same stack, continuing')
 #                 # wonder why you need this? Consider the code in test_priorities
 #                 #
@@ -313,7 +314,7 @@ def comp_(context, command_, *args, **kwargs):
 
     else:
         job_id = generate_job_id(command_desc, context=context)
-        print('generated job: %s' % job_id)
+#         print('generated job: %s' % job_id)
 
     context.add_job_defined_in_this_session(job_id)
 
