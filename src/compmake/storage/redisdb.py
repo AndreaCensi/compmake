@@ -42,7 +42,7 @@ the db, however I found %s (%s). Key is %s' % (s, type(s), k))
             open(tmp_core, 'w').write(s)
             msg = ("Could not load cache %s.\n Dumped file %s.\n Error: '%s'" %
                 (name, tmp_core, e))
-            print msg
+            print(msg)
             raise e
 
         # Useful to get a sense what it's doing

@@ -129,8 +129,8 @@ def help(args): #@ReservedAssignment
 
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
-        print s
-        print cmd.doc
+        print(s)
+        print(cmd.doc)
 
 
 def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment

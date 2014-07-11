@@ -91,8 +91,7 @@ class Context():
 
 def get_default_context():
     from .ui.visualization import info
-
-    print traceback.print_stack()
+    print(traceback.print_stack())
     raise Exception()
 
     if Context._default is None:

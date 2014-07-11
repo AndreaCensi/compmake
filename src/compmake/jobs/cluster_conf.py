@@ -60,5 +60,5 @@ def parse_yaml_configuration(file):  # @ReservedAssignment
 
 if __name__ == '__main__':
     hosts = parse_yaml_configuration(sys.stdin)
-    print hosts
+    print(hosts)
 

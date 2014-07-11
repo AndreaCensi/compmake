@@ -28,5 +28,5 @@ class TestExecutionStats(CompmakeTest):
         res['wall_time']
         res['jobs']
         
-        print res
+        print(res)
         
