@@ -1,21 +1,24 @@
-from abc import ABCMeta, abstractmethod
-import itertools
-from multiprocessing import TimeoutError
-import time
-
-from contracts import ContractsMeta, contract
-
-from compmake.context import get_default_context
-
 from ..events import publish
-from ..structures import (CompmakeException, JobFailed, JobInterrupted,
-    HostFailed)
+from ..structures import (CompmakeException, HostFailed, JobFailed, 
+    JobInterrupted)
 from ..ui import error
 from .actions import mark_as_blocked
 from .priority import compute_priorities
-from .queries import direct_children, parents, direct_parents
+from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
-from compmake.jobs.storage import get_job, set_job
+from abc import ABCMeta, abstractmethod
+from compmake.context import get_default_context
+from compmake.jobs.storage import (get_job, get_job_cache, job_cache_exists, 
+    set_job)
+from compmake.structures import Cache, CompmakeBug
+from contracts import ContractsMeta, contract
+from contracts.utils import check_isinstance, indent
+from multiprocessing import TimeoutError
+import itertools
+import time
+
+
+
 
 
 __all__ = ['Manager', 'AsyncResultInterface']
@@ -225,7 +228,7 @@ class Manager(object):
         try:
             if async_result.ready():
                 result = async_result.get()
-                assert isinstance(result, dict)
+                check_isinstance(result, dict)
                 new_jobs = result['new_jobs']
                 # print('job generated %s' % new_jobs)
                 if self.recurse:
@@ -288,7 +291,23 @@ class Manager(object):
         except TimeoutError:
             # Result not ready yet
             return False
-        except JobFailed:
+        except JobFailed as e:
+            # it is the responsibility of the executer to mark_job_as_failed, 
+            # so we can check
+            if not job_cache_exists(job_id, db=self.db):
+                msg = 'The job %r was reported as failed but no record of it was found.'
+                msg += '\n' + 'JobFailed exception:'
+                msg += '\n' + indent(str(e), "| ")
+                raise CompmakeBug(msg)                
+            else:
+                cache = get_job_cache(job_id, db=self.db)
+                if not cache.state == Cache.FAILED:
+                    msg = 'The job %r was reported as failed but it was not marked as such in the DB.'
+                    msg += '\n seen state: %s ' % Cache.state2desc(cache)
+                    msg += '\n' + 'JobFailed exception:'
+                    msg += '\n' + indent(str(e), "| ")
+                    raise CompmakeBug(msg)
+
             self.job_failed(job_id)
             return True
         except HostFailed as e:
@@ -328,7 +347,11 @@ class Manager(object):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
 
+        # TODO: more efficient query
         its_parents = set(parents(job_id, db=self.db))
+        #print('marking parents as blocked for %s' % job_id)
+        #print(' parents: %s' % its_parents)
+        
         for p in its_parents:
             mark_as_blocked(p, job_id, db=self.db)
             

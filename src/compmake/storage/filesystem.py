@@ -72,7 +72,9 @@ class StorageFilesystem(object):
         try:
 #             paranoid = False
 #             if paranoid or self.compress:  # safe_pickle_dump can take care of .gz
+#             print('writing to %s' % filename)
             safe_pickle_dump(value, filename, protocol)
+            assert os.path.exists(filename)
 #             else:
 #                 if False:
 #                     f = open(filename, 'wb', buffering=-1)
@@ -81,7 +83,7 @@ class StorageFilesystem(object):
 #                     with open(filename, 'wb', buffering=-1) as f:
 #                         pickle.dump(value, f, protocol)
 
-        except Exception as e:
+        except BaseException as e:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))
             logger.error(msg)
@@ -104,7 +106,10 @@ class StorageFilesystem(object):
             logger.debug('? %s' % str(key))
 
         filename = self.filename_for_key(key)
-        return os.path.exists(filename)
+        ex = os.path.exists(filename)
+        
+#         logger.debug('? %s %s %s' % (str(key), filename, ex))
+        return ex
   
     @track_time
     def keys0(self):

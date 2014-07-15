@@ -40,12 +40,15 @@ def safe_read(filename, mode='rb'):
     """
     try:
         if is_gzip_filename(filename):
-            fopen = gzip.open
+            f = gzip.open(filename, mode)
+            try:
+                yield f
+            finally:
+                f.close()
+            
         else:
-            fopen = open
-        
-        with fopen(filename, mode) as f:
-            yield f
+            with open(filename, mode) as f:
+                yield f
     except:
         # TODO
         raise

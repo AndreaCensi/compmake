@@ -204,18 +204,20 @@ def make(job_id, context=None):
             mark_as_failed(job_id, 'KeyboardInterrupt',
                            traceback.format_exc(), db=db)
             raise JobInterrupted('Keyboard interrupt')
-        except (Exception, SystemExit, MemoryError) as e:
+        except (BaseException,StandardError, ArithmeticError,BufferError,LookupError,
+                Exception, SystemExit, MemoryError) as e:
             bt = traceback.format_exc()
             mark_as_failed(job_id, str(e), bt, db=db)
-
             publish(context, 'job-failed', job_id=job_id,
                     host=host, reason=str(e), bt=bt)
+        
             raise JobFailed('Job %s failed on host %s: %s' % (job_id, host, e))
+        
+        
         finally:
             capture.deactivate()
             # even if we send an error, let's save the output of the process
             cache = get_job_cache(job_id, db=db)
-
             cache.captured_stderr = \
                 capture.stderr_replacement.buffer.getvalue()
             cache.captured_stdout = \
@@ -227,7 +229,6 @@ def make(job_id, context=None):
                                                         max_lines)
             cache.captured_stdout = limit_to_last_lines(cache.captured_stdout,
                                                         max_lines)
-
             set_job_cache(job_id, cache, db=db)
 
             logging.StreamHandler.emit = old_emit

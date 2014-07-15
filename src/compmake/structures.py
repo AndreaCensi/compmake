@@ -8,6 +8,10 @@ class ShellExitRequested(Exception):
 class CompmakeException(Exception):
     pass
 
+class CompmakeBug(CompmakeException):
+    pass
+
+
 
 class KeyNotFound(CompmakeException):
     pass
@@ -256,7 +260,12 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
     context.reset_jobs_defined_in_this_session(already)
 
     if generated:
-        info('Job %r generated %s.' % (job_id, generated))
+        if len(generated) < 4:
+            info('Job %r generated %s.' % (job_id, generated))
+        else:
+            M = 3
+            info('Job %r generated %d jobs such as %s.' % 
+                 (job_id, len(generated), sorted(generated)[:M]))
     # now remove the extra jobs that are not needed anymore
     extra = []
     from .jobs import all_jobs, delete_all_job_data

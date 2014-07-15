@@ -1,22 +1,33 @@
+from ..config import get_compmake_config
+from ..events import (broadcast_event, publish, register_handler, 
+    remove_all_handlers)
+from ..jobs import make
+from ..utils import setproctitle
+from .manager import AsyncResultInterface, Manager
 from Queue import Empty, Full
+from compmake import CompmakeGlobalState
+from compmake.structures import JobFailed, HostFailed
+from contracts import contract
+from contracts.utils import check_isinstance, indent
 from multiprocessing import Pool
-import multiprocessing
 from multiprocessing.queues import Queue
+import multiprocessing
+import os
 import random
 import signal
 import sys
+import tempfile
 import time
+import warnings
 
-from contracts import contract
 
-from compmake import CompmakeGlobalState
 
-from ..config import get_compmake_config
-from ..events import (register_handler, broadcast_event, remove_all_handlers,
-    publish)
-from ..jobs import make
-from ..utils import setproctitle
-from .manager import Manager
+
+# Disable queue for stabitility
+disable_interproc_queue = True
+
+if disable_interproc_queue:
+    warnings.warn('Disabled queue of shared events') # TMP:
 
 
 __all__ = ['MultiprocessingManager']
@@ -65,7 +76,7 @@ class MultiprocessingManager(Manager):
         self.pool = Pool(processes=self.num_processes,
                          initializer=worker_initialization,
                          **kwargs)
-        self.max_num_processing = self. num_processes
+        self.max_num_processing = self.num_processes
 
     def get_resources_status(self):
         resource_available = {}
@@ -165,9 +176,12 @@ class MultiprocessingManager(Manager):
 
     def instance_job(self, job_id):
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async')
-        async_result = self.pool.apply_async(parmake_job2, [(job_id, self.context)])
+        handle, tmp_filename = tempfile.mkstemp(prefix='compmake', text=True)
+        os.close(handle)
+        os.remove(tmp_filename)
+        async_result = self.pool.apply_async(parmake_job2, [(job_id, self.context, tmp_filename)])
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async_done')
-        return async_result
+        return AsyncResultWrap(job_id, async_result, tmp_filename)
 
     def event_check(self):
         while True:
@@ -196,6 +210,62 @@ class MultiprocessingManager(Manager):
                 # assert result_handler.is_alive() or len(cache) == 0
                 pass
 
+class AsyncResultWrap(AsyncResultInterface):
+    """ Wrapper for the async result object obtained by pool.apply_async """
+    
+    def __init__(self, job_id, async_result, tmp_filename):
+        self.job_id = job_id
+        self.async_result = async_result
+        self.tmp_filename = tmp_filename
+    
+        self.count = 0
+        
+    def ready(self):
+        self.count += 1
+        is_ready = self.async_result.ready()
+#         tmp_filename = self.tmp_filename
+        
+        if self.count > 10000 and (self.count % 100 == 0):
+#             if is_ready:
+#                 if not os.path.exists(tmp_filename):
+#                     msg = 'I would have expected tmp_filename to exist.\n %s' % tmp_filename
+#                     error('%s: %s' % (self.job_id, msg))
+#             else:
+#                 if os.path.exists(tmp_filename):
+#                     msg = 'The tmp_filename exists! but job not returned yet.\n %s' % tmp_filename
+#                     error('%s: %s' % (self.job_id, msg))
+#                     
+#                     if self.count % 100 == 0:
+#                         s = open(tmp_filename).read()
+#                         print('%s: %s: %s ' % (self.job_id, self.count, s)) 
+            
+            if self.count % 100 == 0:
+                s= self.read_status()
+                #print('%70s: %10s  %s         ' % (self.job_id, self.count, s)) 
+        
+        # timeout
+        if self.count > 100000:
+            raise HostFailed()        
+                
+        return is_ready
+    
+    def read_status(self):
+        if os.path.exists(self.tmp_filename):
+            with open(self.tmp_filename) as f:
+                return f.read()
+        else:
+            return '(no status)'
+    
+    def get(self, timeout=0):  # @UnusedVariable
+        res = self.async_result.get(timeout=timeout)
+        check_isinstance(res, dict)
+        if 'fail' in res:
+            msg = 'Currently debuging exceptions so full trace not available.'
+            msg += '\n' + indent(res['fail'], '| ')
+            print(msg)
+            raise JobFailed(msg)
+        return res
+
 
 def worker_initialization():
     setproctitle('compmake: worker just created')
@@ -207,10 +277,10 @@ def worker_initialization():
     # You can use this to see when a worker start
     # print('Process: ignoring sigint')
 
-
+@contract(args='tuple(str, *, str)')
 def parmake_job2(args):
     """
-    args = tuple job_id, context
+    args = tuple job_id, context, tmp_filename
         
     Returns a dictionary with fields "user_object" and "new_jobs".
     "user_object" is set to None because we do not want to 
@@ -218,25 +288,40 @@ def parmake_job2(args):
     because it might contain a Promise. 
    
     """
-    job_id, context = args
+    job_id, context, tmp_filename = args
     db = context.get_compmake_db()
 
+    debug_exceptions = False
+    
+    old_stream = sys.stderr
+    
+    def write_status(s):
+        if debug_exceptions:
+            old_stream.write(s)
+            old_stream.write('\n')
+            old_stream.flush()
+    
+        with open(tmp_filename, 'w') as f:
+            f.write(s)
+
+    write_status('starting')
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
-    # nlostmessages = 0
+    nlostmessages = 0
     try:
         # We register a handler for the events to be passed back 
         # to the main process
         def handler(context, event):  # @UnusedVariable
             try:
-                Shared.event_queue.put(event, block=False)
+                if not disable_interproc_queue:
+                    Shared.event_queue.put(event, block=False)
             except Full:
-                pass
+                nlostmessages += 1
                 # Do not write messages here, it might create a recursive
                 # problem.
                 # sys.stderr.write('job %s: Queue is full, message is lost.\n'
                 #                 % job_id)
-                # nlostmessages += 1
+                
 
         remove_all_handlers()
         register_handler("*", handler)
@@ -259,8 +344,11 @@ def parmake_job2(args):
 
         publish(context, 'worker-status', job_id=job_id, status='connected')
 
+        write_status('before make')
+        
         res = make(job_id, context=context)
 
+        write_status('after make') 
         publish(context, 'worker-status', job_id=job_id, status='ended')
 
         return dict(new_jobs=res['new_jobs'],
@@ -268,12 +356,28 @@ def parmake_job2(args):
                     user_object_deps=res['user_object_deps'])
 
     except KeyboardInterrupt:
+        write_status('interrupt')
         publish(context, 'worker-status', job_id=job_id, status='interrupted')
         setproctitle('compmake:FAILED:%s' % job_id)
+        write_status('interrupt2')
+        if debug_exceptions:
+            return dict(fail='KeyboardInterrupt')
         raise
-    
+    except BaseException as e:
+        write_status('exception')
+        if debug_exceptions:
+            return dict(fail=str(e))
+        raise
+    except:
+        write_status('except')
+        if debug_exceptions:
+            return dict(fail='except')
+        raise
     finally:
+        write_status('finally')
         publish(context, 'worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake:DONE:%s' % job_id)
+        write_status('finally2')
+            
 
 

@@ -7,6 +7,7 @@ from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
 from ..jobs.syntax.parsing import is_root_job
+from compmake.jobs.storage import get_job_cache, job_cache_exists
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -59,12 +60,15 @@ def list_jobs(context, job_list):
     cpu_total = []
     wall_total = []
     for job_id in job_list:
+#         has = job_cache_exists(job_id, db)
+        cache = cq.get_job_cache(job_id)
+
         # TODO: only ask up_to_date if necessary
         up, reason, _ = cq.up_to_date(job_id)
 
         job = cq.get_job(job_id)
-        cache = cq.get_job_cache(job_id)
-
+        
+        #cache = get_job_cache(job_id, db)
 
         Mmin = 4
         M = 40
@@ -109,6 +113,7 @@ def list_jobs(context, job_list):
                 when = duration_human(time() - cache.timestamp)
                 s += " (%s ago)" % when
 
+#         s += ' (has: %s)' % has # TMP:
         print(s)
 
     if cpu_total:
