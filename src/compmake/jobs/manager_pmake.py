@@ -15,10 +15,11 @@ import signal
 import sys
 import tempfile
 import warnings
+import traceback
 
 
-def manual_function(name, job_queue, result_queue):
-    f = open('worker-%s.log' % name, 'w')
+def pmake_worker(name, job_queue, result_queue):
+    f = open('pmake_worker-%s.log' % name, 'w')
     def log(s):
         f.write('%s: ' % name)
         f.write(s)
@@ -49,9 +50,14 @@ def manual_function(name, job_queue, result_queue):
             log('...done.')
 
         #except KeyboardInterrupt: pass
+    except BaseException as e:
+        msg = 'aborted because of uncaptured:\n' + indent( traceback.format_exc(e), '| ')
+        log(msg)
+        result_queue.put(dict(abort=msg))
     except:
-        log('aborted')
-        result_queue.put(dict(abort='aborted'))
+        msg = 'aborted-unknown'
+        log(msg)
+        result_queue.put(dict(abort=msg))
         
     log('clean exit.')
         
@@ -62,7 +68,7 @@ class PmakeSub():
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
 
-        self.proc = multiprocessing.Process(target=manual_function,
+        self.proc = multiprocessing.Process(target=pmake_worker,
                                       args=(self.name, 
                                             self.job_queue, self.result_queue))
         self.proc.start()
@@ -87,42 +93,32 @@ class PmakeResult(AsyncResultInterface):
         try: 
             self.result = self.result_queue.get(block=False)
         except Empty:
-            if self.count > 1000 and self.count % 100 == 0:
-                print('ready()?  still waiting on %s' % str(self.job))
+            #if self.count > 1000 and self.count % 100 == 0:
+            #    print('ready()?  still waiting on %s' % str(self.job))
             return False
         else:
             return True    
-        # TODO: implement timeout
-#     
-#     def read_status(self):
-#         if os.path.exists(self.tmp_filename):
-#             with open(self.tmp_filename) as f:
-#                 return f.read()
-#         else:
-#             return '(no status)'
-#     
+        
     def get(self, timeout=0):  # @UnusedVariable
         if self.result is None:
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
-            except Queue.Empty as e:
+            except Empty as e:
                 raise TimeoutError(e)
             
         check_isinstance(self.result, dict)
         if 'fail' in self.result:
             msg = 'Currently debuging exceptions so full trace not available.'
             msg += '\n' + indent(self.result['fail'], '| ')
-#             print(msg)
             raise JobFailed(msg)
+        
         if 'abort' in self.result:
             msg = 'Currently debuging exceptions so full trace not available.'
             msg += '\n' + indent(self.result['abort'], '| ')
-#             print(msg)
+
             raise HostFailed(msg)
             
         return self.result
- 
-#  
 
 
 class PmakeManager(Manager):
@@ -136,8 +132,7 @@ class PmakeManager(Manager):
         self.num_processes = num_processes
         self.last_accepted = 0
 
-        
-
+         
     def process_init(self):
         if self.num_processes is None:
             self.num_processes = get_compmake_config('max_parallel_jobs')
@@ -193,8 +188,7 @@ class PmakeManager(Manager):
             return False
 #         self.last_accepted = time.time()
         return True
-    
-    
+     
 
     def instance_job(self, job_id):
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async')
@@ -216,27 +210,18 @@ class PmakeManager(Manager):
     def event_check(self):
         while True:
             try:
-                event = Shared.event_queue.get(block=False)
+                event = Shared.event_queue.get(block=False)  # @UndefinedVariable
                 event.kwargs['remote'] = True
                 broadcast_event(self.context, event)
             except Empty:
                 break
 
     def process_finished(self):
-        for name, sub in self.subs.items():
+        for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.terminate()
-        for name, sub in self.subs.items():
+        for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.join()
         
-            
-        # Make sure that all the stuff is read from the queue
-        # otherwise some workers will hang
-        # http://docs.python.org/library/multiprocessing.html
-#         self.event_check()
-#         self.pool.close()
-#         self.pool.join()
-#         self.event_check()
-
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
@@ -254,7 +239,8 @@ class PmakeManager(Manager):
         Manager.job_succeeded(self, job_id)
         self._clear(job_id)
 
-
     def cleanup(self):
         warnings.warn('to do')
+        self.process_finished()
+        
  

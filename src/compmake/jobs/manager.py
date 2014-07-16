@@ -303,7 +303,7 @@ class Manager(object):
                 cache = get_job_cache(job_id, db=self.db)
                 if not cache.state == Cache.FAILED:
                     msg = 'The job %r was reported as failed but it was not marked as such in the DB.'
-                    msg += '\n seen state: %s ' % Cache.state2desc(cache)
+                    msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
                     msg += '\n' + 'JobFailed exception:'
                     msg += '\n' + indent(str(e), "| ")
                     raise CompmakeBug(msg)
