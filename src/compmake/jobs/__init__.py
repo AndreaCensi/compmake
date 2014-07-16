@@ -8,6 +8,7 @@ from .priority import *
 from .manager import *
 from .manager_local import *
 from .manager_multiprocessing import *
+from .manager_pmake import *
 
 from .cluster_conf import *
 from .manager_ssh_cluster import *

@@ -24,7 +24,7 @@ import warnings
 
 
 # Disable queue for stabitility
-disable_interproc_queue = True
+disable_interproc_queue = False
 
 if disable_interproc_queue:
     warnings.warn('Disabled queue of shared events') # TMP:

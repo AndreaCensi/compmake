@@ -20,6 +20,7 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
 from .helpers import ui_command
+from compmake.jobs.manager_pmake import PmakeManager
 
 
 ui_section(GENERAL)
@@ -151,6 +152,37 @@ Usage:
     else:
         return 0
 
+
+
+@ui_command(section=PARALLEL_ACTIONS)
+def pmake(job_list, context, n=None, recurse=False):    
+    """ Parallel processing using multiprocessing.Process. """
+    publish(context, 'parmake-status', status='Obtaining job list')
+    job_list = list(job_list)
+
+    db = context.get_compmake_db()
+    if not job_list:
+        job_list = list(top_targets(db=db))
+
+    publish(context, 'parmake-status',
+            status='Starting multiprocessing manager (forking)')
+    manager = PmakeManager(num_processes=n, context=context, recurse=recurse)
+
+    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
+    manager.add_targets(job_list)
+
+    publish(context, 'parmake-status', status='Processing')
+    manager.process()
+
+    if manager.failed:
+        if manager.blocked:
+            return ('%d job(s) failed, %d job(s) blocked.' % 
+                    (len(manager.failed), len(manager.blocked)))
+        else:
+            return ('%d job(s) failed.' % len(manager.failed))
+    else:
+        return 0
+    
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list, context):
