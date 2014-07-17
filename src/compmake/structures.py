@@ -330,6 +330,7 @@ class Cache(object):
 
 
 class ProgressStage(object):
+    @contract(name=str, iterations='tuple((float|int),(float|int))')
     def __init__(self, name, iterations, iteration_desc):
         self.name = name
         self.iterations = iterations

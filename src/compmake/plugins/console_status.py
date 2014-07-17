@@ -119,8 +119,13 @@ def get_string(level):
                     x += [frame.name]
 
                 if level >= 2:
-                    x += ["%s/%s" % (frame.iterations[0] + 1,
-                                     frame.iterations[1])]
+                    if (isinstance(frame.iterations[0], int) 
+                        and isinstance(frame.iterations[1], int)):                    
+                        x += ["%s/%s" % (frame.iterations[0]+1,
+                                         frame.iterations[1])]
+                    else:
+                        x += ["%.3f/%.3f" % (frame.iterations[0],
+                                             frame.iterations[1])]
 
                 if level >= 4 and frame.iteration_desc is not None:
                     x += ["(" + frame.iteration_desc + ")"]

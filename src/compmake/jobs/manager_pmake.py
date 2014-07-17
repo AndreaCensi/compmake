@@ -14,19 +14,23 @@ import os
 import signal
 import sys
 import tempfile
-import warnings
 import traceback
+import warnings
 
 
-def pmake_worker(name, job_queue, result_queue):
-    f = open('pmake_worker-%s.log' % name, 'w')
-    def log(s):
-        f.write('%s: ' % name)
-        f.write(s)
-        f.write('\n')
-        f.flush()
+def pmake_worker(name, job_queue, result_queue, write_log=False):
+    if write_log:
+        f = open('pmake_worker-%s.log' % name, 'w')
+        def log(s):
+            f.write('%s: ' % name)
+            f.write(s)
+            f.write('\n')
+            f.flush()
+    else:
+        def log(s):
+            pass
         
-    log('started manual_function()')
+    log('started pmake_worker()')
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     
     try:

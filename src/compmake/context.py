@@ -96,8 +96,6 @@ def get_default_context():
 
     if Context._default is None:
         path = 'default-compmake-storage'
-#         warnings.warn('Creating default context with storage in %r' % path,
-#                   stacklevel=2)
         msg = ('Creating default Compmake context with storage in %r.' % path)
         info(msg)
         from compmake.storage.filesystem import StorageFilesystem

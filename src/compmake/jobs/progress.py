@@ -23,7 +23,7 @@ def init_progress_tracking(my_callback):
     progress_stack_updated()
 
 
-@contract(taskname='str', iterations='tuple(int,int)')
+@contract(taskname='str', iterations='tuple(int|float,int|float)')
 def progress(taskname, iterations, iteration_desc=None):
     '''
         Function used by the user to describe the state of the computation.
@@ -58,12 +58,12 @@ def progress(taskname, iterations, iteration_desc=None):
         raise ValueError('The second argument to progress() must be a tuple ' + 
                          ' of length 2, not of length %s.' % len(iterations))
 
-    if not isinstance(iterations[0], int):
+    if not isinstance(iterations[0], (int, float)):
         raise ValueError('The first element of the tuple passed to progress ' + 
-                         'must be  an integer, not a %s.' % 
+                         'must be integer or float, not a %s.' % 
                          describe_type(iterations[0]))
 
-    if not iterations[1] is None and not isinstance(iterations[1], int):
+    if not iterations[1] is None and not isinstance(iterations[1], (int, float)):
         raise ValueError('The second element of the tuple passed to progress '
                          'must be either None or an integer, not a %s.' % 
                          describe_type(iterations[1]))
