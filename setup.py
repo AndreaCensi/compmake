@@ -11,7 +11,7 @@ version = "3.0dev1"
 setup(
     name='compmake',
     author="Andrea Censi",
-    author_email="andrea@cds.caltech.edu",
+    author_email="censi@mit.edu",
     url='http://compmake.org',
     version=version,
 
