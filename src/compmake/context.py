@@ -97,22 +97,7 @@ class Context():
     def compmake_console(self):
         from .ui import compmake_console
         return compmake_console(context=self)
-
-# 
-# def get_default_context():
-#     from .ui.visualization import info
-#     print(traceback.print_stack())
-#     raise Exception()
-# 
-#     if Context._default is None:
-#         path = 'default-compmake-storage'
-#         msg = ('Creating default Compmake context with storage in %r.' % path)
-#         info(msg)
-#         from compmake.storage.filesystem import StorageFilesystem
-#         Context._default = Context(db=StorageFilesystem(path))
-# 
-#     return Context._default
-
+ 
 
 def comp_store_(x, context, job_id=None):
     """ 

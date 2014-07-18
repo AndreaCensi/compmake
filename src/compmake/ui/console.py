@@ -1,22 +1,19 @@
+from .. import (CompmakeConstants, CompmakeGlobalState, get_compmake_status, 
+    set_compmake_status)
+from ..events import publish
+from ..jobs import all_jobs
+from ..state import is_inside_compmake_script
+from ..structures import CompmakeException, ShellExitRequested, UserError
+from .ui import clean_other_jobs, get_commands, interpret_commands
+from .visualization import clean_console_line, error
+from compmake import logger
+from contracts import contract
+from contracts.utils import indent
 import os
 import sys
 import traceback
 
-from contracts import contract
 
-from compmake import logger
-
-from compmake.state import is_inside_compmake_script
-from ..ui import error
-
-from . import (ShellExitRequested, get_commands, interpret_commands,
-    clean_other_jobs)
-from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
-    CompmakeGlobalState)
-from ..events import publish
-from ..jobs import all_jobs
-from ..structures import UserError, CompmakeException
-from ..ui import clean_console_line
 
 
 use_readline = True
@@ -78,8 +75,8 @@ def interpret_commands_wrap(commands, context):
         tb = traceback.format_exc()
         msg = ('Warning, I got this exception, while it should '
               'have been filtered out already. '
-              'This is a compmake BUG '
-              'that should be reported:  %s' % tb)
+              'This is a compmake BUG that should be reported.')
+        msg +="\n", indent(tb, 'bug| ')
         publish(context, 'compmake-bug', user_msg=msg, dev_msg="")  # XXX
         return('Compmake BUG: %s' % e)
     return retcode

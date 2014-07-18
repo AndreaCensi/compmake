@@ -31,9 +31,9 @@ def main():
           % (branch,branch,branch,branch*branch*branch))
     print('Each one can fail randomly with probability %f.' % failure_prob)
 
-#     args = sys.argv[1:]
-#     if args:
-#         branch = int(args.pop(0))
+    #     args = sys.argv[1:]
+    #     if args:
+    #         branch = int(args.pop(0))
 
     for i in range(branch):
         ijobs = []

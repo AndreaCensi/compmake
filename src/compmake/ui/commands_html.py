@@ -1,4 +1,4 @@
-from . import COMMANDS_ADVANCED, ui_command, UIState
+from .helpers import COMMANDS_ADVANCED, ui_command, UIState
 import sys
 
 

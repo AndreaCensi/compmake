@@ -406,7 +406,7 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-@contract(commands_str='str', context=Context, returns=int)
+@contract(commands_str='str', context=Context, returns="int|str")
 def interpret_commands(commands_str, context, separator=';'):
     ''' 
         Interprets what could possibly be a list of commands (separated by ";")

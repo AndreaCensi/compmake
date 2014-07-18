@@ -1,4 +1,4 @@
-from . import GENERAL, ui_command, COMMANDS_ADVANCED
+from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED
 from .. import CompmakeGlobalState, get_compmake_config
 from ..config import create_config_html, show_config, set_config_from_strings
 from ..structures import UserError

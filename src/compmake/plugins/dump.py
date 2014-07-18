@@ -3,16 +3,13 @@ import os
 import cPickle as pickle
 
 from ..jobs import get_job_userobject, is_job_userobject_available
-from ..ui import INPUT_OUTPUT, ui_section, ui_command, info, user_error
+from ..ui import COMMANDS_ADVANCED, ui_command, info, user_error
 
 
-ui_section(INPUT_OUTPUT)
 
-
-@ui_command
+@ui_command(section=COMMANDS_ADVANCED)
 def dump(non_empty_job_list, context, directory='.'):
-    '''
-        Dumps the content of jobs as pickle files.
+    ''' Dumps the result of jobs as pickle files.
 
         Arguments: 
             directory='.'   where to dump the files

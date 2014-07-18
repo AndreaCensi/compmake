@@ -3,12 +3,12 @@ import os
 import pwd
 
 from ..structures import UserError
-from ..ui import GENERAL, ui_command, user_error, info
+from ..ui import COMMANDS_ADVANCED, ui_command, user_error, info
 
 
-@ui_command(section=GENERAL)
+@ui_command(section=COMMANDS_ADVANCED)
 def reload(module):  # @ReservedAssignment
-    ''' Reloads a module.
+    ''' Reloads a module. 
     
         Usage::
         
@@ -33,8 +33,8 @@ def reload(module):  # @ReservedAssignment
     try:
         imp.reload(m)
     except Exception as e:
-        raise UserError('Obtained this exception while reloading the module:'
-                        ' %s' % e)
+        msg = ('Obtained this exception while reloading the module: %s' % e)
+        raise UserError(msg)
 
     info('Reloaded module "%s".' % module)
 

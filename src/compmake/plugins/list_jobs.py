@@ -7,13 +7,11 @@ from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
 from ..jobs.syntax.parsing import is_root_job
-from compmake.jobs.storage import get_job_cache, job_cache_exists
 
 
 @ui_command(section=VISUALIZATION, alias='list')
 def ls(args, context):  # @ReservedAssignment
-    '''
-        Lists the status of the selected targets (or all targets if not specified).
+    ''' Lists the status of the selected targets (or all targets if not specified).
     
         If only one job is specified, then it is listed in more detail.  
     '''

@@ -9,7 +9,7 @@ from compmake.ui.visualization import compmake_colored
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section')
 # Storage for the sections
-Section = namedtuple('Section', 'name desc order commands')
+Section = namedtuple('Section', 'name desc order commands experimental')
 
 
 class UIState:
@@ -25,10 +25,43 @@ class UIState:
     last_section_name = None # XXX
 
 
+############# Definition of UI sections ##############
+
+def ui_section(section_name, desc=None, order=None, experimental=False):
+    if not section_name in UIState.sections:
+        UIState.sections[section_name] = Section(name=section_name, desc=desc,
+                                         order=order, commands=[], experimental=experimental)
+    else:
+        assert not desc and not order, \
+            'Description already given for section %s' % section_name
+
+    UIState.last_section_name = section_name
+
+
+GENERAL = 'General commands'
+VISUALIZATION = 'Visualization'
+ACTIONS = 'Commands for making and cleaning jobs'
+COMMANDS_ADVANCED = 'Advanced commands and diagnostics'
+COMMANDS_CLUSTER = '(Experimental) Cluster commands'
+
+ui_section(GENERAL, order=0)
+ui_section(VISUALIZATION, order=1)
+ui_section(ACTIONS, order=2)
+ui_section(COMMANDS_CLUSTER, order=2.5,
+           desc='Experimental: These assume that you have a cluster '
+           ' configuration file as explained in the documentation.',
+           experimental=True)
+ui_section(COMMANDS_ADVANCED, order=4,
+            desc='Advanced commands not for general use.',
+            experimental=True)
+
+
+############# Helpers for defining commands ##############
+
+
 # This is a decorator with arguments -- 
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
-
 def ui_command(name=None, alias=[], section=None):
     def wrap(func, name, alias, section):
         ''' Decorator for a UI command -- wrapper for register_command '''
@@ -44,18 +77,6 @@ def ui_command(name=None, alias=[], section=None):
         return wrap(func, name=None, alias=[], section=None)
 
     return lambda x: wrap(x, name, alias, section)
-
-
-def ui_section(section_name, desc=None, order=None):
-    if not section_name in UIState.sections:
-        UIState.sections[section_name] = Section(name=section_name, desc=desc,
-                                         order=order, commands=[])
-    else:
-        assert not desc and not order, \
-            'Description already given for section %s' % section_name
-
-    UIState.last_section_name = section_name
-
 
 def register_command(name, func, docs, alias=[], section=None):
     if isinstance(alias, str):
@@ -79,27 +100,6 @@ def register_command(name, func, docs, alias=[], section=None):
 def get_commands():
     return UIState.commands
 
-
-# Pre-defined sections
-GENERAL = 'General commands'
-VISUALIZATION = 'Visualization and diagnostics'
-INPUT_OUTPUT = 'Import / export'
-ACTIONS = 'Commands'
-PARALLEL_ACTIONS = 'Parallel commands'
-COMMANDS_ADVANCED = 'Advanced commands'
-COMMANDS_CLUSTER = 'Cluster commands'
-
-ui_section(GENERAL, order=0)
-ui_section(ACTIONS, order=1)
-ui_section(VISUALIZATION, order=2.7)
-ui_section(PARALLEL_ACTIONS,
-           '', 2)
-ui_section(COMMANDS_CLUSTER,
-           'These assume that you have a cluster configuration file as \
-explained in the documentation.', 2.5)
-ui_section(INPUT_OUTPUT, 'Ways to get data out of compmake.', 3)
-
-ui_section(COMMANDS_ADVANCED, 'Advanced commands not for general use.', 4)
 
 
 @ui_command(section=GENERAL)
@@ -139,16 +139,22 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
 
     max_len = 1 + max([len(cmd.name) for cmd in UIState.commands.values()])
     for section in ordered_sections:
-        file.write("  ---- %s ----  \n" % section.name)
+        is_experimental = section.experimental
+        h = section.name
+        if not is_experimental:
+            h = compmake_colored(h, attrs=['bold'])
+        h= h +' '+ '-' * (79 - len(h))
+        file.write("  ---- %s \n" % h)
         if section.desc:
             # XXX  multiline
             file.write("  | %s \n" % section.desc)
         for name in section.commands:
             cmd = UIState.commands[name]
             short_doc = cmd.doc.split('\n')[0].strip()
-            file.write("  | %s  %s\n" %
-                       (compmake_colored(ljust(name, max_len), attrs=['bold']),
-                        short_doc))
+            n = ljust(name, max_len)
+            if not is_experimental:
+                n = compmake_colored(n, attrs=['bold'])
+            file.write("  | %s  %s\n" % (n, short_doc))
 
 
 

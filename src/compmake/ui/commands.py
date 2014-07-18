@@ -9,7 +9,7 @@ import os
 
 from contracts import contract
 
-from . import (GENERAL, ACTIONS, PARALLEL_ACTIONS, COMMANDS_ADVANCED,
+from .helpers import (GENERAL, ACTIONS, COMMANDS_ADVANCED,
     COMMANDS_CLUSTER, ui_section)
 from .. import CompmakeConstants, get_compmake_status, get_compmake_config
 from ..context import Context
@@ -20,7 +20,7 @@ from ..jobs import (all_jobs, ClusterManager, ManagerLocal,
 from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
 from .helpers import ui_command
-from compmake.jobs.manager_pmake import PmakeManager
+from ..jobs import PmakeManager
 
 
 ui_section(GENERAL)
@@ -28,9 +28,49 @@ ui_section(GENERAL)
 
 @ui_command(alias='quit')
 def exit(context):  # @ReservedAssignment
-    '''Exits the shell.'''
+    '''Exits Compmake's console.'''
     raise ShellExitRequested()
  
+
+
+# FIXME BUG: "make failed" == "make all" if no failed
+
+@contract(context=Context)
+def make_(context, job_list, recurse=False):
+    '''Makes selected targets; or all targets if none specified. '''
+    # job_list = list(job_list) # don't ask me why XXX
+    job_list = [x for x in job_list]
+
+    db = context.get_compmake_db()
+    if not job_list:
+        job_list = list(top_targets(db=db))
+
+    manager = ManagerLocal(context=context, recurse=recurse)
+    manager.add_targets(job_list)
+    manager.process()
+
+    if manager.failed:
+        return('%d job(s) failed.' % len(manager.failed))
+    else:
+        return 0
+
+
+@ui_command(section=COMMANDS_ADVANCED)
+def delete(job_list, context):
+    """ Remove completely the job from the DB. Useful for generated jobs ("delete not root"). """
+    from compmake.jobs.storage import delete_all_job_data
+    job_list = [x for x in job_list]
+
+    db = context.get_compmake_db()
+    for job_id in job_list:
+        delete_all_job_data(job_id=job_id, db=db)
+
+
+@ui_command(section=ACTIONS)
+def make(job_list, context, recurse=False):
+    '''Makes selected targets; or all targets if none specified. '''
+    return make_(context=context, job_list=job_list, recurse=recurse)
+
 
 @ui_command(section=ACTIONS)
 def clean(job_list, context):
@@ -61,45 +101,6 @@ def clean(job_list, context):
         clean_target(job_id, db=db)
 
 
-# FIXME BUG: "make failed" == "make all" if no failed
-
-@contract(context=Context)
-def make_(context, job_list, recurse=False):
-    '''Makes selected targets; or all targets if none specified. '''
-    # job_list = list(job_list) # don't ask me why XXX
-    job_list = [x for x in job_list]
-
-    db = context.get_compmake_db()
-    if not job_list:
-        job_list = list(top_targets(db=db))
-
-    manager = ManagerLocal(context=context, recurse=recurse)
-    manager.add_targets(job_list)
-    manager.process()
-
-    if manager.failed:
-        return('%d job(s) failed.' % len(manager.failed))
-    else:
-        return 0
-
-
-@ui_command(section=ACTIONS)
-def delete(job_list, context):
-    """ Remove completely the job from the DB. Useful for generated jobs ("delete not root"). """
-    from compmake.jobs.storage import delete_all_job_data
-    job_list = [x for x in job_list]
-
-    db = context.get_compmake_db()
-    for job_id in job_list:
-        delete_all_job_data(job_id=job_id, db=db)
-
-
-@ui_command(section=ACTIONS)
-def make(job_list, context, recurse=False):
-    '''Makes selected targets; or all targets if none specified. '''
-    return make_(context=context, job_list=job_list, recurse=recurse)
-
-
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
 def make_single(job_list, context):
@@ -116,9 +117,40 @@ def make_single(job_list, context):
         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
-@ui_command(section=PARALLEL_ACTIONS)
-def parmake_old(job_list, context, n=None, recurse=False):
-    '''Parallel equivalent of "make".
+
+@ui_command(section=ACTIONS)
+def parmake(job_list, context, n=None, recurse=False):    
+    """ Parallel equivalent of "make", using multiprocessing.Process. (suggested)"""
+    publish(context, 'parmake-status', status='Obtaining job list')
+    job_list = list(job_list)
+
+    db = context.get_compmake_db()
+    if not job_list:
+        job_list = list(top_targets(db=db))
+
+    publish(context, 'parmake-status',
+            status='Starting multiprocessing manager (forking)')
+    manager = PmakeManager(num_processes=n, context=context, recurse=recurse)
+
+    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
+    manager.add_targets(job_list)
+
+    publish(context, 'parmake-status', status='Processing')
+    manager.process()
+
+    if manager.failed:
+        if manager.blocked:
+            return ('%d job(s) failed, %d job(s) blocked.' % 
+                    (len(manager.failed), len(manager.blocked)))
+        else:
+            return ('%d job(s) failed.' % len(manager.failed))
+    else:
+        return 0
+    
+
+@ui_command(section=COMMANDS_ADVANCED)
+def parmake_pool(job_list, context, n=None, recurse=False):
+    '''Parallel equivalent of "make", using multiprocessing.Pool. (buggy)
 
 Usage:
        
@@ -154,41 +186,27 @@ Usage:
 
 
 
-@ui_command(section=PARALLEL_ACTIONS)
-def parmake(job_list, context, n=None, recurse=False):    
-    """ Parallel processing using multiprocessing.Process. """
-    publish(context, 'parmake-status', status='Obtaining job list')
-    job_list = list(job_list)
+@ui_command(section=COMMANDS_CLUSTER)
+def sgemake(job_list, context):
+    ''' (experimental) SGE equivalent of "make". '''
+    job_list = [x for x in job_list]
 
-    db = context.get_compmake_db()
     if not job_list:
+        db = context.get_compmake_db()
         job_list = list(top_targets(db=db))
 
-    publish(context, 'parmake-status',
-            status='Starting multiprocessing manager (forking)')
-    manager = PmakeManager(num_processes=n, context=context, recurse=recurse)
-
-    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
+    manager = SGEManager(context=context)
     manager.add_targets(job_list)
-
-    publish(context, 'parmake-status', status='Processing')
     manager.process()
 
     if manager.failed:
-        if manager.blocked:
-            return ('%d job(s) failed, %d job(s) blocked.' % 
-                    (len(manager.failed), len(manager.blocked)))
-        else:
-            return ('%d job(s) failed.' % len(manager.failed))
+        return('%d job(s) failed.' % len(manager.failed))
     else:
         return 0
-    
 
 @ui_command(section=COMMANDS_CLUSTER)
 def clustmake(job_list, context):
-    '''
-        Cluster equivalent of "make".
-    '''
+    ''' (experimental) Cluster equivalent of "make". '''
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
 
@@ -213,26 +231,6 @@ def clustmake(job_list, context):
         return 0
 
 
-
-@ui_command(section=COMMANDS_CLUSTER)
-def sgemake(job_list, context):
-    '''
-        SGE equivalent of "make".
-     '''
-    job_list = [x for x in job_list]
-
-    if not job_list:
-        db = context.get_compmake_db()
-        job_list = list(top_targets(db=db))
-
-    manager = SGEManager(context=context)
-    manager.add_targets(job_list)
-    manager.process()
-
-    if manager.failed:
-        return('%d job(s) failed.' % len(manager.failed))
-    else:
-        return 0
 
 
 @ui_command(section=ACTIONS)
@@ -273,7 +271,7 @@ def ask_if_sure_remake(non_empty_job_list):
     return True
 
 
-@ui_command(section=PARALLEL_ACTIONS)
+@ui_command(section=ACTIONS)
 def parremake(non_empty_job_list, context):
     '''Parallel equivalent of "remake". '''
     db = context.get_compmake_db()

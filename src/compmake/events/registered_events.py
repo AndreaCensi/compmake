@@ -1,5 +1,5 @@
 # Warning: this is an auto-generated file
-from . import EventSpec
+from .structures import EventSpec
 
 compmake_registered_events = {}
 

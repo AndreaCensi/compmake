@@ -2,10 +2,10 @@ import os
 
 from ..jobs import direct_children, get_job_cache, top_targets, tree
 from ..structures import UserError, Cache
-from ..ui import info, ui_section, VISUALIZATION, ui_command
+from ..ui import info, ui_section, COMMANDS_ADVANCED, ui_command
 
 
-ui_section(VISUALIZATION)
+ui_section(COMMANDS_ADVANCED)
 
 
 @ui_command

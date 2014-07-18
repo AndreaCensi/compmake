@@ -1,12 +1,12 @@
 ''' The actual interface of some commands in commands.py '''
 from ..jobs import (direct_parents, parents, direct_children, children, all_jobs,
     parse_job_list)
-from ..ui import error, ui_command, VISUALIZATION
+from ..ui import error, ui_command, COMMANDS_ADVANCED
 
 
-@ui_command(section=VISUALIZATION, alias='check-consistency')
+@ui_command(section=COMMANDS_ADVANCED, alias='check-consistency')
 def check_consistency(args, context):  # @ReservedAssignment
-    ''' Checks that the relations between jobs are consistent. '''
+    ''' Checks in the DB that the relations between jobs are consistent. '''
     db = context.get_compmake_db()
     if not args:
         job_list = all_jobs(db)
