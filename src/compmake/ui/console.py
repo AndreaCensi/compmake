@@ -5,7 +5,7 @@ import traceback
 from contracts import contract
 
 from compmake import logger
-from compmake.context import get_default_context
+
 from compmake.state import is_inside_compmake_script
 from ..ui import error
 
@@ -85,9 +85,7 @@ def interpret_commands_wrap(commands, context):
     return retcode
 
 
-def interactive_console(context=None):
-    if context is None:
-        context = get_default_context()
+def interactive_console(context):
     publish(context, 'console-starting')
 
     exit_requested = False
@@ -231,7 +229,7 @@ def ask_question(question, allowed=None):
 # to import other things.
 
 @contract(returns='int|str')
-def batch_command(s, context=None):
+def batch_command(s, context):
     ''' 
         Executes one command (could be a sequence) 
 
@@ -242,8 +240,6 @@ def batch_command(s, context=None):
             string       an error, explained
                 
     '''
-    if context is None:
-        context = get_default_context()
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
@@ -253,13 +249,10 @@ def batch_command(s, context=None):
     return interpret_commands_wrap(s, context=context)
 
 
-def compmake_console(context=None):
+def compmake_console(context):
     ''' 
         Runs the compmake console. Ignore if we are embedded. 
     '''
-    if context is None:
-        context = get_default_context()
-
     if is_inside_compmake_script():
         msg = 'I detected that we were imported by "compmake". compmake_console() will not do anything.'
         error(msg)

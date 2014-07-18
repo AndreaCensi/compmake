@@ -15,8 +15,10 @@ import signal
 import sys
 import tempfile
 import traceback
-import warnings
 
+__all__ = [
+    'PmakeManager',           
+]
 
 def pmake_worker(name, job_queue, result_queue, write_log=False):
     if write_log:
@@ -244,7 +246,6 @@ class PmakeManager(Manager):
         self._clear(job_id)
 
     def cleanup(self):
-        warnings.warn('to do')
         self.process_finished()
         
  

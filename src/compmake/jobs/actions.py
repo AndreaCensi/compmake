@@ -14,7 +14,6 @@ from .storage import (delete_job_cache, set_job_cache,
     is_job_userobject_available, delete_job_userobject, get_job_userobject,
     set_job_userobject, get_job_cache, get_job)
 from .uptodate import up_to_date
-from compmake.context import get_default_context
 
 def clean_target(job_id, db):
     # TODO: think of the difference between this and mark_remake
@@ -96,7 +95,7 @@ def mark_as_done(job_id, walltime=1, cputime=1, db=None):  # XXX
     # TODO: add user object
 
 
-def make(job_id, context=None):
+def make(job_id, context):
     """ 
         Makes a single job. 
         
@@ -109,8 +108,6 @@ def make(job_id, context=None):
         or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
         captured.
     """
-    if context is None:
-        context = get_default_context()
     db = context.get_compmake_db()
 
     host = get_compmake_config('hostname')

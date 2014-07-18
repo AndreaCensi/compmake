@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-from compmake import comp, compmake_console, comp_dynamic
-import time
+import sys
 
 def func1(param1):
     result = param1 * 2
@@ -20,13 +18,20 @@ def summary(results):
     print('I finished with this: %s' % results)
 
 def main():
-    # use  context.comp
-    values = comp(cases)
-    # comp_dynamic gives the function an extra argument "context" to further
-    # define jobs
-    comp_dynamic(generate_tests, values)
+    from compmake import Context
+    c = Context()
+    values = c.comp(cases)
+    # comp_dynamic gives the function an extra argument 
+    # "context" to further define jobs
+    c.comp_dynamic(generate_tests, values)
 
-    compmake_console()
+    # Run command passed on command line or otherwise run console.    
+    cmds = sys.argv[1:]
+    if cmds:
+        c.batch_command(' '.join(cmds))
+    else:
+        print('Use "make recurse=1" or "parmake recurse=1" to make all.')
+        c.compmake_console()
 
 
 if __name__ == '__main__':

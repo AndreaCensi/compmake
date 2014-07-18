@@ -1,6 +1,7 @@
-import traceback
-
 from contracts import contract
+import os
+import sys
+
 
 
 __all__ = ['Context']
@@ -8,10 +9,19 @@ __all__ = ['Context']
 
 class Context():
 
-    def __init__(self, db, currently_executing=['root']):
+    def __init__(self, db=None, currently_executing=['root']):
         """
             currently_executing: str, job currently executing
         """
+        if db is None:
+            from compmake import StorageFilesystem
+            prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
+            
+            from compmake.ui.visualization import info
+            info('Using default output dir %r.' % prog)
+            dirname = 'out-%s' % prog
+            db = StorageFilesystem(dirname)
+            
         assert db is not None
         self.compmake_db = db
         from .constants import CompmakeConstants
@@ -53,7 +63,7 @@ class Context():
 
         self._job_prefix = prefix
 
-    _default = None  # singleton
+#     _default = None  # singleton
 
     # setting up jobs
     def comp_dynamic(self, command_, *args, **kwargs):
@@ -88,20 +98,20 @@ class Context():
         from .ui import compmake_console
         return compmake_console(context=self)
 
-
-def get_default_context():
-    from .ui.visualization import info
-    print(traceback.print_stack())
-    raise Exception()
-
-    if Context._default is None:
-        path = 'default-compmake-storage'
-        msg = ('Creating default Compmake context with storage in %r.' % path)
-        info(msg)
-        from compmake.storage.filesystem import StorageFilesystem
-        Context._default = Context(db=StorageFilesystem(path))
-
-    return Context._default
+# 
+# def get_default_context():
+#     from .ui.visualization import info
+#     print(traceback.print_stack())
+#     raise Exception()
+# 
+#     if Context._default is None:
+#         path = 'default-compmake-storage'
+#         msg = ('Creating default Compmake context with storage in %r.' % path)
+#         info(msg)
+#         from compmake.storage.filesystem import StorageFilesystem
+#         Context._default = Context(db=StorageFilesystem(path))
+# 
+#     return Context._default
 
 
 def comp_store_(x, context, job_id=None):

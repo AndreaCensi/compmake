@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from compmake import comp, progress, compmake_console
+from compmake import progress
 import time
+import sys
 
 
 def mylongfunction():
@@ -16,7 +17,19 @@ def mylongfunction():
         time.sleep(1)
 
 
-comp(mylongfunction)
+def main():
+    print('This is an example of how to use the "progress" function.')
 
-print('This is an example of how to use the "progress" function.')
-compmake_console()
+    from compmake import Context
+    c = Context()
+    
+    c.comp(mylongfunction)
+        
+    
+    # Run command passed on command line or otherwise run console.    
+    cmds = sys.argv[1:]
+    if cmds:
+        c.batch_command(' '.join(cmds))
+    else:
+        print('Use "make recurse=1" or "parmake recurse=1" to make all.')
+        c.compmake_console()

@@ -1,24 +1,24 @@
+from .. import (CompmakeConstants, get_compmake_config, get_compmake_status, 
+    is_interactive_session, set_compmake_status)
+from ..events import publish
+from ..jobs import (all_jobs, clean_target, delete_job, delete_job_args, 
+    delete_job_userobject, get_job, is_job_userobject_available, job_args_exists, 
+    job_exists, parse_job_list, set_job, set_job_args)
+from ..structures import Job, Promise, UserError
+from ..utils import (describe_type, describe_value, import_name, 
+    interpret_strings_like)
+from .helpers import UIState, get_commands
+from compmake import logger
+from compmake.context import Context
+from compmake.ui.visualization import info
+from contracts import contract
+from types import NoneType
+import cPickle as pickle
 import inspect
 import os
 import sys
-from types import NoneType
 import warnings
 
-import cPickle as pickle
-from compmake import logger
-from compmake.context import get_default_context
-from compmake.ui.visualization import info
-
-from .. import (CompmakeConstants, set_compmake_status, get_compmake_status,
-    is_interactive_session, get_compmake_config)
-from ..events import publish
-from ..jobs import (clean_target, job_exists, get_job, set_job, all_jobs,
-    delete_job, set_job_args, job_args_exists, parse_job_list,
-    is_job_userobject_available, delete_job_userobject, delete_job_args)
-from ..structures import Job, UserError, Promise
-from ..utils import (describe_type, interpret_strings_like, describe_value,
-    import_name)
-from .helpers import get_commands, UIState
 
 
 def is_pickable(x):  # TODO: move away
@@ -177,12 +177,12 @@ def clean_other_jobs(context):
                 delete_job_args(job_id, db=db)
 
     # logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
-
-def comp(command_, *args, **kwargs):
-    return comp_(get_default_context(), command_, *args, **kwargs)
-
-def comp_dynamic(command_, *args, **kwargs):
-    return comp_(get_default_context(), command_, *args, needs_context=True, **kwargs)
+# 
+# def comp(command_, *args, **kwargs):
+#     return comp_(get_default_context(), command_, *args, **kwargs)
+# 
+# def comp_dynamic(command_, *args, **kwargs):
+#     return comp_(get_default_context(), command_, *args, needs_context=True, **kwargs)
 
 # @contract(context=CompmakeContext)
 def comp_(context, command_, *args, **kwargs):
@@ -406,8 +406,8 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-
-def interpret_commands(commands_str, separator=';', context=None):
+@contract(commands_str='str', context=Context, returns=int)
+def interpret_commands(commands_str, context, separator=';'):
     ''' 
         Interprets what could possibly be a list of commands (separated by ";")
         If one command fails, it returns its retcode, and then the rest 
@@ -416,10 +416,6 @@ def interpret_commands(commands_str, separator=';', context=None):
         Returns 0 on success; else returns either an int or a string describing
         what went wrong.
     '''
-    if context is None:
-        context = get_default_context()
-
-
     if not isinstance(commands_str, str):
         msg = 'I expected a string, got %s.' % describe_type(commands_str)
         raise ValueError(msg)
@@ -470,13 +466,10 @@ def interpret_commands(commands_str, separator=';', context=None):
     return 0
 
 
-def interpret_single_command(commands_line, context=None):
+def interpret_single_command(commands_line, context):
     """ Returns 0/None for success, or error code. """
     if not isinstance(commands_line, str):
-        raise ValueError('Expected a string')
-
-    if context is None:
-        context = get_default_context()
+        raise ValueError('Expected a string') 
 
     ui_commands = get_commands()
 

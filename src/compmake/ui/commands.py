@@ -117,7 +117,7 @@ def make_single(job_list, context):
 
 
 @ui_command(section=PARALLEL_ACTIONS)
-def parmake(job_list, context, n=None, recurse=False):
+def parmake_old(job_list, context, n=None, recurse=False):
     '''Parallel equivalent of "make".
 
 Usage:
@@ -155,7 +155,7 @@ Usage:
 
 
 @ui_command(section=PARALLEL_ACTIONS)
-def pmake(job_list, context, n=None, recurse=False):    
+def parmake(job_list, context, n=None, recurse=False):    
     """ Parallel processing using multiprocessing.Process. """
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
@@ -285,7 +285,7 @@ def parremake(non_empty_job_list, context):
     for job in non_empty_job_list:
         mark_remake(job, db=db)
 
-    manager = MultiprocessingManager(context=context)
+    manager = PmakeManager(context=context)
     manager.add_targets(non_empty_job_list)
     manager.process()
 

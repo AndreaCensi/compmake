@@ -57,7 +57,7 @@ class StorageFilesystem(object):
         if not self.checked_existence:
             self.checked_existence = True
             if not os.path.exists(self.basepath):
-                logger.info('Creating basepath %r' % self.basepath)
+                logger.info('Creating filesystem db %r' % self.basepath)
                 os.makedirs(self.basepath)
 
     @track_time

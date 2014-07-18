@@ -7,7 +7,7 @@ from .priority import compute_priorities
 from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
-from compmake.context import get_default_context
+# from compmake.context import get_default_context
 from compmake.jobs.storage import (get_job, get_job_cache, job_cache_exists, 
     set_job)
 from compmake.structures import Cache, CompmakeBug
@@ -49,10 +49,9 @@ class Manager(object):
 
     __metaclass__ = ContractsMeta
 
-    def __init__(self, context=None, recurse=False):
+    
+    def __init__(self, context, recurse=False):
         # print('Initialized manager, recurse=%s' % recurse)
-        if context is None:
-            context = get_default_context()
         self.context = context
         self.db = context.get_compmake_db()
 
@@ -250,18 +249,18 @@ class Manager(object):
                 # to other jobs
                 if result['user_object_deps']:
                     deps = result['user_object_deps']
-                    print('Found special job whose result contains references to jobs: %s' % deps)
+                    #print('Found special job whose result contains references to jobs: %s' % deps)
 
                     # We first add extra dependencies to all those jobs
                     jobs_depending_on_this = direct_parents(job_id, self.db)
-                    print('need to update %s' % jobs_depending_on_this)
+                    #print('need to update %s' % jobs_depending_on_this)
                     for parent in jobs_depending_on_this:
-                        print(' considering %r' % parent)
+                        #print(' considering %r' % parent)
                         parent_job = get_job(parent, self.db)
-                        print(' current children: %r' % parent_job.children)
+                        #print(' current children: %r' % parent_job.children)
 
                         parent_job.children = list(set(parent_job.children + list(deps)))
-                        print(' updated children: %r' % parent_job.children)
+                        #print(' updated children: %r' % parent_job.children)
                         assert job_id in parent_job.children
                             
                         # write back
@@ -275,7 +274,7 @@ class Manager(object):
 
                     for parent in jobs_depending_on_this:                
                         if parent in self.all_targets:
-                            print(' it was also in targets...')
+                            #print(' it was also in targets...')
                             # Remove it from the "ready_todo_list"
                             if parent in self.ready_todo:
                                 self.ready_todo.remove(parent)
