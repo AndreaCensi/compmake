@@ -5,6 +5,7 @@ from ..events import register_handler
 from ..ui import compmake_colored, error
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
     get_screen_columns)
+from contracts.utils import indent
 
 
 # sys.stdout will be changed later
@@ -159,8 +160,8 @@ def handle_job_failed(event, context):  # @UnusedVariable
     reason = event.kwargs['reason']
     bt = event.kwargs['bt']
 
-    error('Job %r failed on host %r: %s\n%s' % 
-          (job_id, host, reason, bt))
+    error('Job %r failed on host %r.' % (job_id, host))
+    error(indent( '%s' % (  bt), '| '))
 
 register_handler('job-failed', handle_job_failed)
 

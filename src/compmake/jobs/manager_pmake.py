@@ -1,10 +1,9 @@
 from .manager import AsyncResultInterface, Manager
-from .manager_multiprocessing import parmake_job2
+from .manager_multiprocessing import Shared, parmake_job2
 from Queue import Empty
 from compmake.events.registrar import broadcast_event, publish
-from compmake.jobs.manager_multiprocessing import Shared
 from compmake.state import get_compmake_config
-from compmake.structures import HostFailed, JobFailed
+from compmake.structures import HostFailed, JobFailed, JobInterrupted
 from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import TimeoutError
@@ -47,6 +46,9 @@ def pmake_worker(name, job_queue, result_queue, write_log=False):
                 result = function(arguments)
             except JobFailed as e:
                 log('Job failed, putting notice.')
+                result_queue.put(dict(fail=str(e)))
+            except JobInterrupted as e:
+                log('Job interrupted, putting notice.')
                 result_queue.put(dict(fail=str(e)))
             else:
                 log('result: %s' % str(result))

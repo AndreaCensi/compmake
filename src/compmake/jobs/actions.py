@@ -14,6 +14,8 @@ from .storage import (delete_job_cache, set_job_cache,
     is_job_userobject_available, delete_job_userobject, get_job_userobject,
     set_job_userobject, get_job_cache, get_job)
 from .uptodate import up_to_date
+from contracts.utils import indent
+
 
 def clean_target(job_id, db):
     # TODO: think of the difference between this and mark_remake
@@ -172,34 +174,8 @@ def make(job_id, context):
             result = computation.compute(context=context)
             user_object = result['user_object']
             new_jobs = result['new_jobs']
-            
-            #            # XXX: remove this logic
-            #            if type(result) == GeneratorType:
-            #                try:
-            #                    while True:
-            #                        next = result.next()  # @ReservedAssignment
-            #                        if isinstance(next, tuple):
-            #                            if len(next) != 3:
-            #                                msg = ('If computation yields a tuple, '
-            #                                        'should be a tuple with 3 elemnts.'
-            #                                          'Got: %s') % str(next)
-            #                                raise CompmakeException(msg)
-            #                            user_object, num, total = next
-            #
-            #                            publish('job-progress', job_id=job_id, host=host,
-            #                                    done=None, progress=num, goal=total)
-            #
-            #                except StopIteration:
-            #                    pass
-            #            else:
-            #                #publish('job-progress', job_id=job_id, host='XXX',
-            #                #        done=1, progress=1, goal=1)
-            #
-
         except KeyboardInterrupt:
             publish(context, 'job-interrupted', job_id=job_id, host=host)
-            mark_as_failed(job_id, 'KeyboardInterrupt',
-                           traceback.format_exc(), db=db)
             raise JobInterrupted('Keyboard interrupt')
         except (BaseException,StandardError, ArithmeticError,BufferError,LookupError,
                 Exception, SystemExit, MemoryError) as e:
@@ -208,8 +184,9 @@ def make(job_id, context):
             publish(context, 'job-failed', job_id=job_id,
                     host=host, reason=str(e), bt=bt)
         
-            raise JobFailed('Job %s failed on host %s: %s' % (job_id, host, e))
-        
+            msg = 'Job %s failed on host %s.' % (job_id, host)
+            msg += '\n' + indent('| ', e)
+            raise JobFailed(msg)
         
         finally:
             capture.deactivate()

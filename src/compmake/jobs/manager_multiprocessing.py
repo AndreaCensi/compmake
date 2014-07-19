@@ -6,7 +6,7 @@ from ..utils import setproctitle
 from .manager import AsyncResultInterface, Manager
 from Queue import Empty, Full
 from compmake import CompmakeGlobalState
-from compmake.structures import JobFailed, HostFailed
+from compmake.structures import JobFailed, HostFailed, JobInterrupted
 from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import Pool
@@ -356,8 +356,13 @@ def parmake_job2(args):
                     user_object_deps=res['user_object_deps'])
 
     except KeyboardInterrupt:
+        assert False, 'KeyboardInterrupt should be captured by make() (inside Job.compute())'
+    except JobInterrupted:
 #         write_status('interrupt')
         publish(context, 'worker-status', job_id=job_id, status='interrupted')
+        raise
+    except JobFailed:
+        raise
 #         setproctitle('compmake:FAILED:%s' % job_id)
 #         write_status('interrupt2')
 #         if debug_exceptions:

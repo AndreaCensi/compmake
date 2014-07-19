@@ -76,7 +76,7 @@ def interpret_commands_wrap(commands, context):
         msg = ('Warning, I got this exception, while it should '
               'have been filtered out already. '
               'This is a compmake BUG that should be reported.')
-        msg +="\n", indent(tb, 'bug| ')
+        msg +="\n" +indent(tb, 'bug| ')
         publish(context, 'compmake-bug', user_msg=msg, dev_msg="")  # XXX
         return('Compmake BUG: %s' % e)
     return retcode
