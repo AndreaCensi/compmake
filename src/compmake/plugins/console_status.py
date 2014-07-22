@@ -8,6 +8,7 @@ from ..state import get_compmake_config
 from ..ui import compmake_colored
 from ..utils import pad_to_screen_length, get_length_on_screen, getTerminalSize
 from .tracker import Tracker
+from contracts.utils import indent
 
 
 stream = sys.stderr
@@ -177,6 +178,14 @@ def handle_event(context, event):  # @UnusedVariable
     stream.write(line)
     stream.write('\r')
 
+def manager_host_failed(context, event):
+    s =  'Host failed for job %s.' % event.job_id
+    s += indent(event.reason, '| ')
+    from compmake.utils.coloredterm import termcolor_colored
+    s = termcolor_colored(s, 'red')
+    stream.write(s)
+    
+
 if get_compmake_config('status_line_enabled'):    
     register_handler('manager-loop', handle_event)
     register_handler('manager-progress', handle_event)
@@ -184,4 +193,5 @@ if get_compmake_config('status_line_enabled'):
     register_handler('job-progress-plus', handle_event)
     register_handler('job-stdout', handle_event)
     register_handler('job-stderr', handle_event)
+    register_handler('manager-host-failed', manager_host_failed)
  

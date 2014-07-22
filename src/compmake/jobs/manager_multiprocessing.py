@@ -307,7 +307,9 @@ def parmake_job2(args):
 #     write_status('starting')
     # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
-    nlostmessages = 0
+    
+    class G():
+        nlostmessages = 0
     try:
         # We register a handler for the events to be passed back 
         # to the main process
@@ -316,7 +318,7 @@ def parmake_job2(args):
                 if not disable_interproc_queue:
                     Shared.event_queue.put(event, block=False)
             except Full:
-                nlostmessages += 1
+                G.nlostmessages += 1
                 # Do not write messages here, it might create a recursive
                 # problem.
                 # sys.stderr.write('job %s: Queue is full, message is lost.\n'

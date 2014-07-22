@@ -197,12 +197,15 @@ def make(job_id, context):
             cache.captured_stdout = \
                 capture.stdout_replacement.buffer.getvalue()
 
-            # Do not save more than a few lines
-            max_lines = 10
-            cache.captured_stderr = limit_to_last_lines(cache.captured_stderr,
-                                                        max_lines)
-            cache.captured_stdout = limit_to_last_lines(cache.captured_stdout,
-                                                        max_lines)
+            if False:
+                # Do not save more than a few lines
+                max_lines = 10
+                cache.captured_stderr = limit_to_last_lines(cache.captured_stderr,
+                                                            max_lines)
+                cache.captured_stdout = limit_to_last_lines(cache.captured_stdout,
+                                                            max_lines)
+                
+            
             set_job_cache(job_id, cache, db=db)
 
             logging.StreamHandler.emit = old_emit

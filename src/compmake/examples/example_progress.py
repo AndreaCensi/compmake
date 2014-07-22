@@ -5,6 +5,8 @@ import time
 import sys
 
 
+wait = 0.01
+
 def mylongfunction():
     directories = ['a', 'b', 'c', 'd', 'e']
     n = len(directories)
@@ -16,7 +18,7 @@ def mylongfunction():
         for k in range(N):
             progress('Processing files (a)', (k, N), 'file #%d' % k)
             
-            time.sleep(1)
+            time.sleep(wait)
             
     for i, d in enumerate(directories):
         progress('Processing directories (second)', (i, n), 'Directory %s' % d)
@@ -25,7 +27,7 @@ def mylongfunction():
         for k in range(N):
             progress('Processing files (b)', (k, N), 'file #%d' % k)
             
-            time.sleep(1)
+            time.sleep(wait)
             
            
 

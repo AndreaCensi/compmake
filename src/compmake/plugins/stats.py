@@ -5,6 +5,7 @@ from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import pad_to_screen
+from compmake.jobs.syntax.parsing import aliases
 
 
 state2color = {
@@ -25,6 +26,7 @@ def stats(args, context):
     else:
         job_list = parse_job_list(args, context=context)
 
+    aliases['last'] = job_list
     display_stats(job_list, context)
 
 

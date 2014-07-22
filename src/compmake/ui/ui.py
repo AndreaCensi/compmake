@@ -8,9 +8,7 @@ from ..structures import Job, Promise, UserError
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands
-from compmake import logger
 from compmake.context import Context
-from compmake.ui.visualization import info
 from contracts import contract
 from types import NoneType
 import cPickle as pickle
@@ -18,6 +16,8 @@ import inspect
 import os
 import sys
 import warnings
+from compmake.jobs.syntax.parsing import aliases
+from compmake import logger
 
 
 
@@ -151,7 +151,7 @@ def clean_other_jobs(context):
 
             num_cleaned += 1
             if not clean_all:
-                info('Job %s defined-by %s' % (job_id, job.defined_by))
+                # info('Job %s defined-by %s' % (job_id, job.defined_by))
                 text = ('Found spurious job %s; cleaning? '
                         '[y]es, [a]ll, [n]o, [N]one ' % job_id)
                 answer = ask_question(text, allowed=answers)
@@ -166,7 +166,7 @@ def clean_other_jobs(context):
                     clean_all = True
             else:
                 pass
-                logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
+                #logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
 
             clean_target(job_id, db=db)
             delete_job(job_id, db=db)
@@ -175,15 +175,7 @@ def clean_other_jobs(context):
 
             if job_args_exists(job_id, db=db):
                 delete_job_args(job_id, db=db)
-
-    # logger.info('In DB: %d. Cleaned: %d' % (jobs_in_db, num_cleaned))
-# 
-# def comp(command_, *args, **kwargs):
-#     return comp_(get_default_context(), command_, *args, **kwargs)
-# 
-# def comp_dynamic(command_, *args, **kwargs):
-#     return comp_(get_default_context(), command_, *args, needs_context=True, **kwargs)
-
+ 
 # @contract(context=CompmakeContext)
 def comp_(context, command_, *args, **kwargs):
     ''' 
@@ -550,11 +542,15 @@ def interpret_single_command(commands_line, context):
         job_list = parse_job_list(args, context=context)
 
         # TODO: check non empty
-
+        aliases['last'] = job_list
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
-        kwargs['job_list'] = parse_job_list(args, context=context)
+        job_list = parse_job_list(args, context=context)
+        aliases['last'] = job_list
+        # TODO: this does not survive reboots
+        #logger.info('setting alias "last"' )
+        kwargs['job_list'] = job_list
 
     if 'context' in function_args:
         kwargs['context'] = context

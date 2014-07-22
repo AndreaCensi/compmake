@@ -4,17 +4,18 @@ from compmake import progress
 import time
 import sys
 
+wait = 0.01
 
 def mylongfunction():
     N = 4
 
     for i in range(N):
         progress('Task A', (i, N))
-        time.sleep(1)
+        time.sleep(wait)
 
     for i in range(N):
         progress('Task B', (i, N))
-        time.sleep(1)
+        time.sleep(wait)
 
 
 def main():

@@ -12,6 +12,14 @@ def safe_write(filename, mode='wb', compresslevel=5):
         Also if the filename ends in ".gz", writes to a compressed stream.
         Yields a file descriptor.
     """
+    dirname = os.path.dirname(filename)
+    if dirname:
+        if not os.path.exists(dirname):
+            try:
+                os.makedirs(dirname)
+            except:
+                pass
+
     tmp_filename = '%s.tmp' % filename
     try:
         if is_gzip_filename(filename):

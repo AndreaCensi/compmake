@@ -235,10 +235,11 @@ class Manager(object):
                     cocher = set()
                     for j in new_jobs:
                         if j in self.all_targets:
-                            msg = ('Warning, job %r generated %r which was '
-                                   'already a target. I will not re-add it to the queue. '
-                                   % (job_id, j))
-                            print(msg)
+                            # msg = ('Warning, job %r generated %r which was '
+                            #       'already a target. I will not re-add it to the queue. '
+                            #       % (job_id, j))
+                            #print(msg)
+                            pass
                         else:
                             cocher.add(j)
                     self.add_targets(cocher)

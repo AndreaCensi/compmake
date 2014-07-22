@@ -78,6 +78,6 @@ def list_job_detail(job_id, context, cq):
 
     if cache.captured_stderr:
         print("-----> captured stderr <-----")
-        display_with_prefix(cache.captured_stdout, prefix='|',
+        display_with_prefix(cache.captured_stderr, prefix='|',
                             transform=lambda x: x)
 

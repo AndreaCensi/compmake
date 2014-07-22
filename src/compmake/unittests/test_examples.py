@@ -42,7 +42,6 @@ def create_tmp_dir():
 def test_example_big():
     run_example('example_big')
 
-
 def test_example_dynamic_explicitcontext():
     run_example('example_dynamic_explicitcontext')
 

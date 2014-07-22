@@ -1,7 +1,7 @@
 from contracts import contract
 import os
 import sys
-
+from compmake import logger
 
 
 __all__ = ['Context']
@@ -17,8 +17,7 @@ class Context():
             from compmake import StorageFilesystem
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
             
-            from compmake.ui.visualization import info
-            info('Using default output dir %r.' % prog)
+            logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = 'out-%s' % prog
             db = StorageFilesystem(dirname)
             

@@ -40,6 +40,7 @@ __all__ = ['parse_job_list']
 
 aliases = {}
 
+aliases['last'] = '*'
 
 def add_alias(alias, value):
     ''' Sets the given alias to value. See eval_alias() for a discussion

@@ -10,13 +10,13 @@ CONFIG_CLUSTER = 'Cluster execution'
 CONFIG_STORAGE = 'Storage setting backend'
 CONFIG_PARALLEL = 'Multiprocessing'
 
-add_config_section(name=CONFIG_GENERAL, desc='', order=0)
+add_config_section(name=CONFIG_GENERAL, desc='', order=-1)
 # add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
-add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
 # add_config_section(name=CONFIG_REDIS, desc='', order=2.1)
-add_config_section(name=CONFIG_CLUSTER, desc='', order=4)
-add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
 add_config_section(name=CONFIG_STORAGE, desc='', order=1)
+add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
+add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
+add_config_section(name=CONFIG_CLUSTER, desc='', order=4)
 
 
 # TODO: make syntax similar to events
@@ -29,6 +29,10 @@ add_config_switch('path', 'compmake_storage',
             desc="[filesystem] Path to directory for filesystem storage.",
             section=CONFIG_STORAGE)
 
+
+add_config_switch('new_process',  False,
+            desc="Default choice for parmake and make whether to start a new process for each job.",
+            section=CONFIG_GENERAL)
 
 add_config_switch('check_params', False,
         desc="If true, erases the cache if job parameters appear to change.",
@@ -93,7 +97,6 @@ add_config_switch('cluster_show_cmd', True,
 add_config_switch('max_parallel_jobs', cpu_count(),
        desc="Maximum number of parallel jobs. Default is cpu_count().",
        section=CONFIG_PARALLEL)
-
 
 add_config_switch('max_mem_load', 90.0,
        desc="Maximum physical memory load (%)",

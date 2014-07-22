@@ -261,11 +261,14 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
     if generated:
         if len(generated) < 4:
-            info('Job %r generated %s.' % (job_id, generated))
+            # info('Job %r generated %s.' % (job_id, generated))
+            pass
+            # TODO: create event
         else:
             M = 3
-            info('Job %r generated %d jobs such as %s.' % 
-                 (job_id, len(generated), sorted(generated)[:M]))
+            # info('Job %r generated %d jobs such as %s.' % 
+            #     (job_id, len(generated), sorted(generated)[:M]))
+            pass
     # now remove the extra jobs that are not needed anymore
     extra = []
     from .jobs import all_jobs, delete_all_job_data

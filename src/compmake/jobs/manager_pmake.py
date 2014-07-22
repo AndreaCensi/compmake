@@ -14,6 +14,8 @@ import signal
 import sys
 import tempfile
 import traceback
+from system_cmd.meat import system_cmd_result
+from compmake.utils.safe_pickle import safe_pickle_load
 
 __all__ = [
     'PmakeManager',           
@@ -84,6 +86,50 @@ class PmakeSub():
     def apply_async(self, function, arguments):
         self.job_queue.put((function, arguments))
         return PmakeResult(self.result_queue, job=arguments)
+    
+def parmake_job2_new_process(args):
+    """ Starts the job in a new compmake process. """
+    (job_id, context, tmp_filename) = args
+    from compmake.jobs.manager_sge import SGEJob
+    compmake_bin = SGEJob.get_compmake_bin()
+    
+    db =context.get_compmake_db()
+    storage = db.basepath # XXX:
+    where = os.path.join(storage, 'parmake_job2_new_process')
+    if not os.path.exists(storage):
+        try:
+            os.makedirs(storage)
+        except:
+            pass
+        
+#     retcode_file =os.path.join(where,  '%s.retcode' % job_id) 
+    out_result = os.path.join(where, '%s.results.pickle' % job_id)
+#     retcode_file = os.path.abspath(retcode_file)
+    out_result = os.path.abspath(out_result)
+    cmd = [compmake_bin, storage,
+#                         '--retcodefile', retcode_file,
+                        '--status_line_enabled', '0',
+                        '--colorize', '0',
+                        '-c', 'make_single out_result=%s %s' % (out_result, job_id)]
+
+    cwd = os.getcwd() 
+    res = system_cmd_result(cwd, cmd,
+                      display_stdout=False,
+                      display_stderr=False,
+                      raise_on_error=False,
+                      capture_keyboard_interrupt=False)
+    ret = res.ret
+
+    if ret != 0: # XXX: 
+        msg = 'Job %r failed in external process' % job_id
+        msg += indent(res.stdout, 'stdout| ')
+        msg += indent(res.stderr, 'stderr| ')
+        raise JobFailed(msg)
+
+    res = safe_pickle_load(out_result)
+    os.unlink(out_result)
+    return res
+     
  
  
 class PmakeResult(AsyncResultInterface):
@@ -135,11 +181,11 @@ class PmakeManager(Manager):
         Python 2.7 implementation 
      '''
 
-    def __init__(self, context, num_processes=None, recurse=False):
+    def __init__(self, context, num_processes=None, recurse=False, new_process=False):
         Manager.__init__(self, context=context, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
-
+        self.new_process = new_process
          
     def process_init(self):
         if self.num_processes is None:
@@ -212,7 +258,10 @@ class PmakeManager(Manager):
         
         self.job2subname[job_id] = name
         
-        async_result = sub.apply_async(parmake_job2, (job_id, self.context, tmp_filename))
+        if self.new_process:
+            async_result = sub.apply_async(parmake_job2_new_process, (job_id, self.context, tmp_filename))
+        else:
+            async_result = sub.apply_async(parmake_job2, (job_id, self.context, tmp_filename))
         return async_result
 
     def event_check(self):

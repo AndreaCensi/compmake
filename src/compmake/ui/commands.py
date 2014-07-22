@@ -21,6 +21,7 @@ from ..structures import UserError, JobFailed, ShellExitRequested
 from ..ui import info
 from .helpers import ui_command
 from ..jobs import PmakeManager
+from compmake.utils.safe_pickle import safe_pickle_dump
 
 
 ui_section(GENERAL)
@@ -36,7 +37,7 @@ def exit(context):  # @ReservedAssignment
 # FIXME BUG: "make failed" == "make all" if no failed
 
 @contract(context=Context)
-def make_(context, job_list, recurse=False):
+def make_(context, job_list, recurse, new_process):
     '''Makes selected targets; or all targets if none specified. '''
     # job_list = list(job_list) # don't ask me why XXX
     job_list = [x for x in job_list]
@@ -45,7 +46,7 @@ def make_(context, job_list, recurse=False):
     if not job_list:
         job_list = list(top_targets(db=db))
 
-    manager = ManagerLocal(context=context, recurse=recurse)
+    manager = ManagerLocal(context=context, recurse=recurse, new_process=new_process)
     manager.add_targets(job_list)
     manager.process()
 
@@ -67,9 +68,12 @@ def delete(job_list, context):
 
 
 @ui_command(section=ACTIONS)
-def make(job_list, context, recurse=False):
+def make(job_list, context, new_process='config', recurse=False):
     '''Makes selected targets; or all targets if none specified. '''
-    return make_(context=context, job_list=job_list, recurse=recurse)
+    if new_process == 'config':
+        new_process = get_compmake_config('new_process')
+    return make_(context=context, job_list=job_list, recurse=recurse,
+                 new_process=new_process)
 
 
 @ui_command(section=ACTIONS)
@@ -103,26 +107,35 @@ def clean(job_list, context):
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED)
-def make_single(job_list, context):
+def make_single(job_list, context, out_result):
     ''' Makes a single job -- not for users, but for slave mode. '''
     if len(job_list) > 1:
         raise UserError("I want only one job")
 
-    from compmake import jobs
+    from compmake.jobs import actions
     try:
         job_id = job_list[0]
-        jobs.make(job_id, context=context)
+        res = actions.make(job_id=job_id, context=context)
+        print('Writing to %r' % out_result)
+        safe_pickle_dump(res, out_result)
         return 0
-    except JobFailed:
+    except JobFailed as e:
+        res = dict(fail=str(e))
+        print('Writing to %r' % out_result)
+        safe_pickle_dump(res, out_result)
+        
         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
 
 @ui_command(section=ACTIONS)
-def parmake(job_list, context, n=None, recurse=False):    
+def parmake(job_list, context, n=None, recurse=False, new_process='config'):    
     """ Parallel equivalent of "make", using multiprocessing.Process. (suggested)"""
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
+    
+    if new_process == 'config':
+        new_process = get_compmake_config('new_process')
 
     db = context.get_compmake_db()
     if not job_list:
@@ -130,7 +143,8 @@ def parmake(job_list, context, n=None, recurse=False):
 
     publish(context, 'parmake-status',
             status='Starting multiprocessing manager (forking)')
-    manager = PmakeManager(num_processes=n, context=context, recurse=recurse)
+    manager = PmakeManager(num_processes=n, context=context, recurse=recurse,
+                           new_process=new_process)
 
     publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
     manager.add_targets(job_list)
@@ -169,7 +183,7 @@ Usage:
     manager = MultiprocessingManager(num_processes=n, context=context, recurse=recurse)
 
     publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
-#     logger.info('Adding %d targets ' % len(job_list))
+
     manager.add_targets(job_list)
 
     publish(context, 'parmake-status', status='Processing')
@@ -246,7 +260,7 @@ def remake(non_empty_job_list, context):
         db = context.get_compmake_db()
         mark_remake(job, db=db)
 
-    manager = ManagerLocal(context=context)
+    manager = ManagerLocal(context=context, new_process=False)
     manager.add_targets(non_empty_job_list)
     manager.process()
 

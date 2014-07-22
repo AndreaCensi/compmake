@@ -7,6 +7,7 @@ from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
 from ..jobs.syntax.parsing import is_root_job
+from compmake.jobs.syntax.parsing import aliases
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -21,7 +22,7 @@ def ls(args, context):  # @ReservedAssignment
         job_list = all_jobs(db=db)
     else:
         job_list = parse_job_list(tokens=args, context=context)
-
+    aliases['last'] = job_list
     list_jobs(context, job_list)
     return 0
 

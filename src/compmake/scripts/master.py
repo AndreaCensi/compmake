@@ -8,7 +8,7 @@ import contracts
 
 import compmake
 
-from .. import (get_compmake_config, version, set_compmake_status,
+from .. import (version, set_compmake_status,
     CompmakeConstants, logger)
 from ..config import config_populate_optparser
 from ..context import Context
@@ -48,29 +48,41 @@ def read_commands_from_file(filename, context):
                 continue
             interpret_commands_wrap(line, context)
 
-
 usage = """
-The "compmake" script has takes either a module name or a DB directory.
+The "compmake" script takes a DB directory as argument:
 
-1) In the basic usage, pass a module name, and an optional command with "-c".
-
-    $ compmake  <module_name>  [-c COMMAND]
+    $ compmake  <compmake_storage>  [-c COMMAND]
     
-   For example, if you have a file "example.py", you could run
-   
-    $ compmake example
-    
-   or 
-    
-    $ compmake example -c "clean; parmake n=2"
+For example: 
 
-
-2) Advanced usage: load jobs from an existing directory.
-
-   $ compmake compmake_storage
-   
+    $ compmake out-compmake -c "clean; parmake n=2"
    
 """
+
+# 
+# 
+# usage = """
+# The "compmake" script has takes either a module name or a DB directory.
+# 
+# 1) In the basic usage, pass a module name, and an optional command with "-c".
+# 
+#     $ compmake  <module_name>  [-c COMMAND]
+#     
+#    For example, if you have a file "example.py", you could run
+#    
+#     $ compmake example
+#     
+#    or 
+#     
+#     $ compmake example -c "clean; parmake n=2"
+# 
+# 
+# 2) Advanced usage: load jobs from an existing directory.
+# 
+#    $ compmake compmake_storage
+#    
+#    
+# """
 
 def main():
     wrap_script_entry_point(compmake_main,
@@ -108,7 +120,6 @@ def compmake_main(args):
                       help='Does not sys.exit(ret); useful for debugging.')
                     
 
- 
     config_populate_optparser(parser)
 
     (options, args) = parser.parse_args(args)
@@ -138,7 +149,7 @@ def compmake_main(args):
     
     # XXX make sure this is the default
     if not args:
-        msg = ('I expect at least one argument (module name or db path).'
+        msg = ('I expect at least one argument (db path).'
                ' Use "compmake -h" for usage information.')
         raise UserError(msg)
 
@@ -161,13 +172,15 @@ def compmake_main(args):
         if 'context' in context.compmake_db:
             context = context.compmake_db['context']
     else:
-        check_not_filename(one_arg)
-
-        dirname = get_compmake_config('path')
-        db = StorageFilesystem(dirname)
-        context = Context(db=db)
-        Context._default = context
-        load_module(one_arg)
+        msg = 'Directory not found: %s' % one_arg
+        raise UserError(msg)
+#         check_not_filename(one_arg)
+# 
+#         dirname = get_compmake_config('path')
+#         db = StorageFilesystem(dirname)
+#         context = Context(db=db)
+#         Context._default = context
+#         load_module(one_arg)
 
     args = args[1:]
  
@@ -199,6 +212,7 @@ def compmake_main(args):
     if not options.profile:
         return go(context)
     else:
+        # XXX: change variables
         import cProfile
         cProfile.runctx('go(context)', globals(), locals(), 'out/compmake.profile')
         import pstats
@@ -209,6 +223,13 @@ def compmake_main(args):
 
 
 def write_atomic(filename, contents):
+    dirname = os.path.dirname(filename)
+    if dirname:
+        if not os.path.exists(dirname):
+            try:
+                os.makedirs(dirname)
+            except:
+                pass
     tmpFile = filename + '.tmp'
     f = open(tmpFile, 'w')
     f.write(contents)
