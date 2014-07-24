@@ -3,7 +3,8 @@ from .manager_multiprocessing import Shared, parmake_job2
 from Queue import Empty
 from compmake.events.registrar import broadcast_event, publish
 from compmake.state import get_compmake_config
-from compmake.structures import HostFailed, JobFailed, JobInterrupted
+from compmake.structures import HostFailed, JobFailed, JobInterrupted,\
+    CompmakeException
 from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import TimeoutError
@@ -52,6 +53,9 @@ def pmake_worker(name, job_queue, result_queue, write_log=False):
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
                 result_queue.put(dict(fail=str(e)))
+            except CompmakeException as e: # XXX :to finish
+                log('CompmakeEception')
+                result_queue.put(dict(bug=str(e)))
             else:
                 log('result: %s' % str(result))
                 log('job finished. Putting in queue...')
@@ -108,6 +112,7 @@ def parmake_job2_new_process(args):
     out_result = os.path.abspath(out_result)
     cmd = [compmake_bin, storage,
 #                         '--retcodefile', retcode_file,
+                        '--contracts',
                         '--status_line_enabled', '0',
                         '--colorize', '0',
                         '-c', 'make_single out_result=%s %s' % (out_result, job_id)]

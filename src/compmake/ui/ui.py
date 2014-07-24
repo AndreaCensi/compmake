@@ -9,6 +9,7 @@ from ..utils import (describe_type, describe_value, import_name,
     interpret_strings_like)
 from .helpers import UIState, get_commands
 from compmake.context import Context
+from compmake.jobs.syntax.parsing import aliases
 from contracts import contract
 from types import NoneType
 import cPickle as pickle
@@ -16,8 +17,6 @@ import inspect
 import os
 import sys
 import warnings
-from compmake.jobs.syntax.parsing import aliases
-from compmake import logger
 
 
 
@@ -542,11 +541,13 @@ def interpret_single_command(commands_line, context):
         job_list = parse_job_list(args, context=context)
 
         # TODO: check non empty
+        job_list = list(job_list)
         aliases['last'] = job_list
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
         job_list = parse_job_list(args, context=context)
+        job_list = list(job_list)
         aliases['last'] = job_list
         # TODO: this does not survive reboots
         #logger.info('setting alias "last"' )

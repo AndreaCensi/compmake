@@ -26,6 +26,7 @@ def stats(args, context):
     else:
         job_list = parse_job_list(args, context=context)
 
+    job_list = list(job_list)
     aliases['last'] = job_list
     display_stats(job_list, context)
 

@@ -185,7 +185,7 @@ def make(job_id, context):
                     host=host, reason=str(e), bt=bt)
         
             msg = 'Job %s failed on host %s.' % (job_id, host)
-            msg += '\n' + indent('| ', e)
+            msg += '\n' + indent(e, '| ')
             raise JobFailed(msg)
         
         finally:

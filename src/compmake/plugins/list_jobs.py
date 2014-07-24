@@ -22,6 +22,8 @@ def ls(args, context):  # @ReservedAssignment
         job_list = all_jobs(db=db)
     else:
         job_list = parse_job_list(tokens=args, context=context)
+        
+    job_list = list(job_list)
     aliases['last'] = job_list
     list_jobs(context, job_list)
     return 0

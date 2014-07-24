@@ -74,10 +74,13 @@ class CompmakeTest(unittest.TestCase):
         self.assertEqual(set(a), set(b))
 
     @contract(expr=str)
-    def assertJobsEqual(self, expr, jobs):
+    def assertJobsEqual(self, expr, jobs, ignore_dyn_reports=True):
+        
         js = 'not-valid-yet'
         try:
             js = self.get_jobs(expr)
+            if ignore_dyn_reports:
+                js = [x  for x in js if not 'dynreports' in x]
             self.assertEqualSet(js, jobs)
         except:
             print('expr %r -> %s' % (expr, js))

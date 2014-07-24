@@ -248,7 +248,7 @@ def clustmake(job_list, context):
 
 
 @ui_command(section=ACTIONS)
-def remake(non_empty_job_list, context):
+def remake(non_empty_job_list, context, new_process='config'):
     '''Remake the selected targets (equivalent to clean and make). '''
 
     non_empty_job_list = list(non_empty_job_list)
@@ -260,7 +260,7 @@ def remake(non_empty_job_list, context):
         db = context.get_compmake_db()
         mark_remake(job, db=db)
 
-    manager = ManagerLocal(context=context, new_process=False)
+    manager = ManagerLocal(context=context, new_process=new_process)
     manager.add_targets(non_empty_job_list)
     manager.process()
 

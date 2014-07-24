@@ -6,10 +6,11 @@ from ..jobs import (direct_parents, direct_children, get_job_cache, parents,
     children, CacheQueryDB, get_job)
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
+import string
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')
-def details(non_empty_job_list, context):
+def details(non_empty_job_list,  context, max_lines=None):
     '''Shows the details for the given jobs. '''
     num = 0
     db = context.get_compmake_db()
@@ -18,11 +19,11 @@ def details(non_empty_job_list, context):
         # insert a separator if there is more than one job
         if num > 0:
             print('-' * 74)
-        list_job_detail(job_id, context, cq)
+        list_job_detail(job_id, context, cq, max_lines=max_lines)
         num += 1
 
 
-def list_job_detail(job_id, context, cq):
+def list_job_detail(job_id, context, cq, max_lines):
     db = context.get_compmake_db()
     cache = get_job_cache(job_id, db=db)
     dparents = direct_parents(job_id, db=db)
@@ -62,22 +63,32 @@ def list_job_detail(job_id, context, cq):
     #             print(bold('Progress:') + '%s/%s' % \
     #                 (cache.iterations_in_progress, cache.iterations_goal))
 
+ 
+        
+    def display_with_prefix(buffer, prefix,  # @ReservedAssignment
+                            transform=lambda x: x, out=sys.stdout):
+        lines = buffer.split('\n')
+        if max_lines is not None:
+            if len(lines) > max_lines:
+                warn ='.... Showing only last %d lines of %d ... ' % (max_lines, len(lines))
+                lines = [warn] +lines[-max_lines:]
+                
+            
+        for line in lines:
+            out.write('%s%s\n' % (prefix, transform(line)))
+
+
+    
+    stdout = cache.captured_stdout
+    if stdout and string.strip(stdout):
+        print("-----> captured stdout <-----")
+        display_with_prefix(stdout, prefix='|', transform=lambda x: x)
+
+    stderr = cache.captured_stderr
+    if stderr and string.strip(stderr):
+        print("-----> captured stderr <-----")
+        display_with_prefix(stderr, prefix='|', transform=lambda x: x)
+
     if cache.state == Cache.FAILED:
         print(red(cache.exception))
         print(red(cache.backtrace))
-
-    def display_with_prefix(buffer, prefix,  # @ReservedAssignment
-                            transform=lambda x: x, out=sys.stdout):
-        for line in buffer.split('\n'):
-            out.write('%s%s\n' % (prefix, transform(line)))
-
-    if cache.captured_stdout:
-        print("-----> captured stdout <-----")
-        display_with_prefix(cache.captured_stdout, prefix='|',
-                            transform=lambda x: x)
-
-    if cache.captured_stderr:
-        print("-----> captured stderr <-----")
-        display_with_prefix(cache.captured_stderr, prefix='|',
-                            transform=lambda x: x)
-

@@ -48,6 +48,6 @@
 #         return remove_newlines(final)
 
 
-from contracts.utils import describe_type, describe_value  # @UnusedImport
+from contracts import describe_type, describe_value  # @UnusedImport
 
 
