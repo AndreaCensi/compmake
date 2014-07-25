@@ -106,7 +106,7 @@ def parmake_job2_new_process(args):
         except:
             pass
         
-#     retcode_file =os.path.join(where,  '%s.retcode' % job_id) 
+#     retcode_file = os.path.join(where,  '%s.retcode' % job_id) 
     out_result = os.path.join(where, '%s.results.pickle' % job_id)
 #     retcode_file = os.path.abspath(retcode_file)
     out_result = os.path.abspath(out_result)
