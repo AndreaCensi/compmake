@@ -2,6 +2,7 @@
 from contracts import contract
 
 from ..jobs import get_job, all_jobs
+import warnings
 
 
 def direct_parents(job_id, db):
@@ -36,13 +37,16 @@ def bottom_targets(db):
     return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
-# TODO should this be children()
-
 @contract(jobs='list')
 def tree(jobs, db):
-    ''' Returns the tree of all dependencies of the jobs '''
+    ''' 
+        Returns the tree of all dependencies of the jobs.
+        Note this is very inefficient because recursive. 
+    '''
+    warnings.warn('Do not use -- very inefficient')
     t = set(jobs)
     for job_id in jobs:
+        print('job_id: %s' % job_id)
         children_id = direct_children(job_id, db=db)
         t = t.union(tree(children_id, db=db))
     return t

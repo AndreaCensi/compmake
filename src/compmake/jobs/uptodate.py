@@ -1,12 +1,12 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
+from ..structures import Cache, Job
+from ..utils import memoize_simple
 from contracts import contract
 
-from ..structures import Cache
-from ..utils import memoize_simple
-from compmake.structures import Job
 
-
-__all__ = ['CacheQueryDB']
+__all__ = [
+    'CacheQueryDB',
+]
 
 
 @contract(returns='tuple(bool, str)')
@@ -114,9 +114,26 @@ class CacheQueryDB(object):
                 return False
         return True
     
-    def list_todo_targets(self, jobs):
+    def tree(self, jobs):
+        """ More efficient version of tree() 
+            which is direct_children() recursively. """
+        stack = []
         
-    
+        stack.extend(jobs)
+        
+        result = set()
+        
+        while stack:
+            job_id = stack.pop()
+            
+            for c in self.direct_children(job_id):
+                if not c in result:
+                    result.add(c)
+                    stack.append(c)
+                    
+        return list(result)
+       
+    def list_todo_targets(self, jobs):
         """ returns a tuple (todo, jobs_done):
              todo:  set of job ids to do (children that are not up to date) 
              done:  top level targets (in jobs) that are already done. 

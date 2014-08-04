@@ -9,11 +9,11 @@ Compmake stores 3 kind of data, all of them indexed by a job_id string.
 These are all wrappers around the raw methods in storage
 '''
 
+from ..structures import Cache, CompmakeException, Job
+from ..utils import wildcard_to_regexp
 from compmake import CompmakeGlobalState
 from contracts import contract
 
-from ..structures import Cache, Job, CompmakeException
-from ..utils import wildcard_to_regexp
 
 
 def set_namespace(n):
@@ -52,8 +52,6 @@ def all_jobs(db, force_db=False):
     regexp = wildcard_to_regexp(pattern)
     
     for key in db.keys():
-        if not isinstance(key, str):
-            raise CompmakeException('Invalid string: %s' % key)
         if regexp.match(key):
             yield key2job(key)
 

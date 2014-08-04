@@ -1,16 +1,15 @@
+from compmake.jobs import CacheQueryDB, top_targets
+from compmake.structures import Cache, UserError
+from compmake.ui import COMMANDS_ADVANCED, info, ui_command, ui_section
 import os
-
-from ..jobs import direct_children, get_job_cache, top_targets, tree
-from ..structures import UserError, Cache
-from ..ui import info, ui_section, COMMANDS_ADVANCED, ui_command
 
 
 ui_section(COMMANDS_ADVANCED)
 
 
 @ui_command
-def graph(job_list, context, filename='compmake', compact=0,
-          filter='dot', format='png'):  # @ReservedAssignment
+def graph(job_list, context, filename='compmake',
+          filter='dot', format='png', compact=False):  # @ReservedAssignment
     '''Creates a graph of the given targets and dependencies 
     
         graph filename=filename compact=0,1 format=png,...
@@ -28,15 +27,20 @@ def graph(job_list, context, filename='compmake', compact=0,
     if not job_list:
         job_list = top_targets(db)
 
-    job_list = tree(job_list, db)
-
+    print('Importing gvgen')
     try:
         import gvgen  # @UnresolvedImport
     except:
-        gvgen_url = 'http://software.inl.fr/trac/wiki/GvGen'
-        raise UserError(('To use the "graph" command'
-                        ' you have to install the "gvgen" package from %s') % 
-                        gvgen_url)
+        gvgen_url = 'https://github.com/stricaud/gvgen'
+        msg = ('To use the "graph" command you have to install the "gvgen" ' 
+               'package from %s') % gvgen_url
+        raise UserError(msg)
+
+    print('Getting all jobs')
+    cq = CacheQueryDB(db)
+    job_list = cq.tree(job_list)
+
+    print('Creating graph')
 
     graph = gvgen.GvGen()
 
@@ -55,7 +59,7 @@ def graph(job_list, context, filename='compmake', compact=0,
             job2node[job_id] = graph.newItem("")
         else:
             job2node[job_id] = graph.newItem(job_id)
-        cache = get_job_cache(job_id, db)
+        cache = cq.get_job_cache(job_id)
         graph.styleAppend(job_id, "style", "filled")
         graph.styleAppend(job_id, "fillcolor", state2color[cache.state])
         graph.styleApply(job_id, job2node[job_id])
@@ -63,15 +67,18 @@ def graph(job_list, context, filename='compmake', compact=0,
     for job_id in job_list:
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
-        for child in direct_children(job_id, db):
+        for child in cq.direct_children(job_id):
             graph.newLink(job2node[job_id], job2node[child])
 
+    print('Writing graph on %r.' % filename)
     # TODO: add check?
     with open(filename, 'w') as f:
         graph.dot(f)
 
+    print('Running rendering')
     output = filename + '.' + format
     cmd_line = '%s %s -T%s -o%s' % (filter, filename, format, output)
+    print('  %s' % cmd_line)
     try:
         os.system(cmd_line)
     except:

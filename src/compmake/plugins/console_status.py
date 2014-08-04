@@ -1,15 +1,12 @@
-import sys
-import time
-
-from compmake import CompmakeGlobalState
-
 from ..events import register_handler
 from ..state import get_compmake_config
 from ..ui import compmake_colored
-from ..utils import pad_to_screen_length, get_length_on_screen, getTerminalSize
+from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
+from compmake import CompmakeGlobalState
 from contracts.utils import indent
-
+import sys
+import time
 
 stream = sys.stderr
 
@@ -129,7 +126,7 @@ def get_string(level):
                                              frame.iterations[1])]
 
                 if level >= 4 and frame.iteration_desc is not None:
-                    x += ["(" + frame.iteration_desc + ")"]
+                    x += ["(%s)" % str(frame.iteration_desc)]
 
                 if i < len(stack) - 1:
                     x += ['>>']

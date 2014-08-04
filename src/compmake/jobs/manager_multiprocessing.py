@@ -345,12 +345,9 @@ def parmake_job2(args):
             pass
 
         publish(context, 'worker-status', job_id=job_id, status='connected')
-
-#         write_status('before make')
         
         res = make(job_id, context=context)
 
-#         write_status('after make') 
         publish(context, 'worker-status', job_id=job_id, status='ended')
 
         return dict(new_jobs=res['new_jobs'],
@@ -360,7 +357,6 @@ def parmake_job2(args):
     except KeyboardInterrupt:
         assert False, 'KeyboardInterrupt should be captured by make() (inside Job.compute())'
     except JobInterrupted:
-#         write_status('interrupt')
         publish(context, 'worker-status', job_id=job_id, status='interrupted')
         raise
     except JobFailed:
@@ -370,7 +366,6 @@ def parmake_job2(args):
 #         if debug_exceptions:
 #             return dict(fail='KeyboardInterrupt')
 #         else:
-        raise
     except BaseException as e:
 #         write_status('exception')
 #         if debug_exceptions:
