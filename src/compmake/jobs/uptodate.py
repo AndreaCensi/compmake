@@ -2,6 +2,7 @@
 from ..structures import Cache, Job
 from ..utils import memoize_simple
 from contracts import contract
+from compmake.utils.memoize_imp import memoized_reset
 
 
 __all__ = [
@@ -41,30 +42,40 @@ class CacheQueryDB(object):
     def __init__(self, db):
         self.db = db
     
-    @memoize_simple
+    def invalidate(self):
+        self.get_job_cache.reset()
+        self.get_job.reset()
+        self.all_jobs.reset()
+        self.job_exists.reset()
+        self.up_to_date.reset()
+        self.direct_children.reset()
+        self.direct_parents.reset()
+        self.dependencies_up_to_date.reset()
+        
+    @memoized_reset
     @contract(returns=Cache)
     def get_job_cache(self, job_id):
         from .storage import get_job_cache
         return get_job_cache(job_id, db=self.db)
 
-    @memoize_simple
+    @memoized_reset
     @contract(returns=Job)
     def get_job(self, job_id):
         from .storage import get_job
         return get_job(job_id, db=self.db)
 
-    @memoize_simple
+    @memoized_reset
     def all_jobs(self):
         from .storage import all_jobs
         # NOTE: very important, do not memoize iterator
         return list(all_jobs(db=self.db))
 
-    @memoize_simple
+    @memoized_reset
     def job_exists(self, job_id):
         from .storage import job_exists
         return job_exists(job_id=job_id, db=self.db)
 
-    @memoize_simple
+    @memoized_reset
     @contract(returns='tuple(bool, str, float)')
     def up_to_date(self, job_id):
         return self._up_to_date_actual(job_id)
@@ -95,17 +106,17 @@ class CacheQueryDB(object):
      
         return True, '', cache.timestamp
     
-    @memoize_simple
+    @memoized_reset
     def direct_children(self, job_id):
         from compmake.jobs.queries import direct_children
         return direct_children(job_id, db=self.db)
 
-    @memoize_simple
+    @memoized_reset
     def direct_parents(self, job_id):
         from compmake.jobs.queries import direct_parents
         return direct_parents(job_id, db=self.db)
 
-    @memoize_simple
+    @memoized_reset
     def dependencies_up_to_date(self, job_id):
         ''' Returns true if all the dependencies are up to date '''
         for child in self.direct_children(job_id):

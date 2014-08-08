@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from system_cmd import system_cmd_result
+from system_cmd import CmdException, system_cmd_result
 import os
 import tempfile
 
@@ -15,7 +15,7 @@ def get_examples_path():
     return examples
 
 
-def run_example(name):
+def run_example(name, expect_fail=False):
     examples = get_examples_path()
     pyfile = os.path.join(examples, '%s.py' % name)
     if not os.path.exists(pyfile):
@@ -24,14 +24,22 @@ def run_example(name):
 
     with create_tmp_dir() as cwd:
         cmd = [pyfile, 'make recurse=1']
-        system_cmd_result(cwd, cmd, 
-                          display_stdout=True,
-                          display_stderr=True,
-                          raise_on_error=True)
-    
+        try:
+            system_cmd_result(cwd, cmd, 
+                              display_stdout=False,
+                              display_stderr=False,
+                              raise_on_error=True)
+            if expect_fail:
+                raise Exception('Expected failure of %s' % name)
+        except CmdException:
+            if not expect_fail:
+                raise
+        
+        
 
 @contextmanager
 def create_tmp_dir():
+    # FIXME: does not delete dir
     dirname = tempfile.mkdtemp()
     try:
         yield dirname
@@ -40,7 +48,7 @@ def create_tmp_dir():
 
 
 def test_example_big():
-    run_example('example_big')
+    run_example('example_big', expect_fail=True)
 
 def test_example_dynamic_explicitcontext():
     run_example('example_dynamic_explicitcontext')

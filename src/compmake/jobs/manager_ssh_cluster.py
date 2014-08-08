@@ -27,9 +27,9 @@ __all__ = ['ClusterManager']
 
 
 class ClusterManager(Manager):
-    def __init__(self, context, hosts):
+    def __init__(self, context, cq, hosts):
         ''' Hosts: name -> Host '''
-        Manager.__init__(self, context=context)
+        Manager.__init__(self, context=context, cq=cq)
 
         self.hosts = hosts
 

@@ -75,23 +75,28 @@ class Context():
 
     def comp_store(self, x, job_id=None):
         return comp_store_(x=x, context=self, job_id=job_id)
-
+ 
     def interpret_commands_wrap(self, commands):
         """ 
             Returns:
-            
+             
             0            everything ok
             int not 0    error
             string       an error, explained
-            
+             
             False?       we want to exit (not found in source though)
         """
         from .ui import interpret_commands_wrap
-        return interpret_commands_wrap(commands, context=self)
-    
+        from .jobs import CacheQueryDB
+        cq = CacheQueryDB(self.get_compmake_db())
+        return interpret_commands_wrap(commands, context=self, cq=cq)
+     
+    @contract(returns='None')
     def batch_command(self, s):
         from .ui import batch_command
-        return batch_command(s, context=self)
+        from .jobs import CacheQueryDB
+        cq = CacheQueryDB(self.get_compmake_db())
+        return batch_command(s, context=self, cq=cq)
 
     def compmake_console(self):
         from .ui import compmake_console

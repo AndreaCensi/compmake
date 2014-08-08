@@ -6,7 +6,7 @@ from ..utils import setproctitle
 from .manager import AsyncResultInterface, Manager
 from Queue import Empty, Full
 from compmake import CompmakeGlobalState
-from compmake.structures import JobFailed, HostFailed, JobInterrupted
+from ..structures import HostFailed, JobFailed, JobInterrupted
 from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import Pool
@@ -55,8 +55,9 @@ def sig_child(signo, frame):
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
 
-    def __init__(self, context, num_processes=None, recurse=False):
-        Manager.__init__(self, context=context, recurse=recurse)
+    def __init__(self, context, cq, num_processes=None, recurse=False):
+        Manager.__init__(self, context=context, 
+                         cq=cq,recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
 

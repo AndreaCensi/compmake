@@ -1,6 +1,7 @@
-from compmake.structures import CompmakeException, SerializationError
-from compmake.utils import find_pickling_error, safe_pickle_load, safe_pickle_dump
 from compmake import logger
+from compmake.structures import CompmakeBug, SerializationError
+from compmake.utils import (find_pickling_error, safe_pickle_dump, 
+    safe_pickle_load)
 from glob import glob
 from os.path import basename
 import cPickle as pickle
@@ -16,7 +17,9 @@ else:
 trace_queries = False
 
 
-__all__ = ['StorageFilesystem']
+__all__ = [
+    'StorageFilesystem',
+]
 
 
 class StorageFilesystem(object):
@@ -42,7 +45,9 @@ class StorageFilesystem(object):
         filename = self.filename_for_key(key)
         
         if not os.path.exists(filename):
-            raise CompmakeException('Could not find key %r.' % key)
+            msg = 'Could not find key %r.' % key
+            msg += '\n file: %s' % filename
+            raise CompmakeBug(msg)
         
         try:
             return safe_pickle_load(filename)
@@ -51,7 +56,7 @@ class StorageFilesystem(object):
             logger.error(msg)
             logger.exception(e)
             msg += "\n" + traceback.format_exc(e)
-            raise CompmakeException(msg)
+            raise CompmakeBug(msg)
 
     def check_existence(self):
         if not self.checked_existence:

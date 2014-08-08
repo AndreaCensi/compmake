@@ -1,6 +1,7 @@
 from contracts import contract
 
 
+
 class ShellExitRequested(Exception):
     pass
 
@@ -11,6 +12,16 @@ class CompmakeException(Exception):
 class CompmakeBug(CompmakeException):
     pass
 
+class CommandFailed(Exception):
+    pass
+
+class MakeFailed(CommandFailed):
+    def __init__(self, failed, blocked):
+        self.failed = failed
+        self.blocked = blocked
+        msg = 'Make failed (%d failed, %d blocked)' % (len(self.failed),
+                                                       len(self.blocked))
+        CommandFailed.__init__(self, msg)
 
 
 class KeyNotFound(CompmakeException):
@@ -33,6 +44,7 @@ class CompmakeSyntaxError(UserError):
 class JobFailed(CompmakeException):
     ''' This signals that some job has failed '''
     pass
+
 
 
 class JobInterrupted(CompmakeException):
@@ -161,6 +173,16 @@ class Job(object):
 
         from compmake.jobs import substitute_dependencies
         from compmake.context import Context
+        from compmake.ui.ui import collect_dependencies
+
+        # Let's check that all dependencies have been computed
+        all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
+        for dep in all_deps:
+            from compmake.jobs.storage import job_userobject_exists
+            if not job_userobject_exists(dep, db):
+                msg = 'Dependency %r was not done.' % dep
+                raise CompmakeBug(msg)
+        #print('All deps: %r' % all_deps)
 
         # TODO: move this to jobs.actions?
         args = substitute_dependencies(args, db=db)

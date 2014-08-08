@@ -17,6 +17,8 @@ import inspect
 import os
 import sys
 import warnings
+from compmake.jobs.uptodate import CacheQueryDB
+from compmake.structures import CommandFailed
 
 
 
@@ -397,15 +399,14 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-@contract(commands_str='str', context=Context, returns="int|str")
-def interpret_commands(commands_str, context, separator=';'):
+@contract(commands_str='str', context=Context,
+          cq=CacheQueryDB, 
+          returns="None")
+def interpret_commands(commands_str, context, cq, separator=';'):
     ''' 
         Interprets what could possibly be a list of commands (separated by ";")
-        If one command fails, it returns its retcode, and then the rest 
-        are skipped.
         
-        Returns 0 on success; else returns either an int or a string describing
-        what went wrong.
+        Returns None
     '''
     if not isinstance(commands_str, str):
         msg = 'I expected a string, got %s.' % describe_type(commands_str)
@@ -420,12 +421,12 @@ def interpret_commands(commands_str, context, separator=';'):
 
     if not commands:
         # nothing to do
-        return 0
+        return None
 
     for cmd in commands:
         try:
             publish(context, 'command-starting', command=cmd)
-            retcode = interpret_single_command(cmd, context=context)
+            retcode = interpret_single_command(cmd, context=context, cq=cq)
         except KeyboardInterrupt:
             publish(context, 'command-interrupted', command=cmd,
                     reason='KeyboardInterrupt')
@@ -434,7 +435,7 @@ def interpret_commands(commands_str, context, separator=';'):
             publish(context, 'command-failed', command=cmd, reason=e)
             raise
         # TODO: all the rest is unexpected
-
+ 
         if not isinstance(retcode, (int, NoneType, str)):
             publish(context, 'compmake-bug', user_msg="",
                     dev_msg="Command %r should return an integer, "
@@ -448,17 +449,15 @@ def interpret_commands(commands_str, context, separator=';'):
             if isinstance(retcode, int):
                 publish(context, 'command-failed', command=cmd,
                         reason='Return code %r' % retcode)
-                return retcode
+                raise CommandFailed('ret code %s'%retcode)
             else:
                 publish(context, 'command-failed', command=cmd, reason=retcode)
-                return retcode
+                raise CommandFailed('ret code %s'%retcode)
+ 
 
-        # not sure what happens if one cmd fails
-    return 0
-
-
-def interpret_single_command(commands_line, context):
-    """ Returns 0/None for success, or error code. """
+@contract(returns='None', commands_line='str')
+def interpret_single_command(commands_line, context, cq):
+    """ Returns None or raises CommandFailed """
     if not isinstance(commands_line, str):
         raise ValueError('Expected a string') 
 
@@ -478,6 +477,7 @@ def interpret_single_command(commands_line, context):
 
     # XXX: use more elegant method
     cmd = ui_commands[command_name]
+    dbchange = cmd.dbchange
     function = cmd.function
     function_args = (
         function.func_code.co_varnames[:function.func_code.co_argcount])
@@ -532,6 +532,9 @@ def interpret_single_command(commands_line, context):
     if 'args' in function_args:
         kwargs['args'] = args
 
+    if 'cq' in function_args:
+        kwargs['cq'] = cq
+
     if 'non_empty_job_list' in function_args:
         if not args:
             msg = ("The command %r requires a non empty list of jobs as "
@@ -559,6 +562,12 @@ def interpret_single_command(commands_line, context):
     for x in args_without_default:
         if not x in kwargs:
             raise UserError('Required argument %r not given.' % x)
-
-    return function(**kwargs)
-
+    try:
+        res = function(**kwargs)
+        if res != None and res != 0:
+            raise CommandFailed('Command %r failed: %s' % (commands_line, res))
+        return None
+    finally:
+        if dbchange:
+            cq.invalidate()
+    

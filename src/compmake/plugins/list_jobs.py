@@ -7,11 +7,11 @@ from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
 from ..jobs.syntax.parsing import is_root_job
-from compmake.jobs.syntax.parsing import aliases
+from ..jobs.syntax.parsing import aliases
 
 
 @ui_command(section=VISUALIZATION, alias='list')
-def ls(args, context, complete_names=False):  # @ReservedAssignment
+def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
     ''' Lists the status of the selected targets (or all targets if not specified).
     
         If only one job is specified, then it is listed in more detail.  
@@ -25,7 +25,7 @@ def ls(args, context, complete_names=False):  # @ReservedAssignment
         
     job_list = list(job_list)
     aliases['last'] = job_list
-    list_jobs(context, job_list, complete_names=complete_names)
+    list_jobs(context, job_list, cq=cq, complete_names=complete_names)
     return 0
 
 
@@ -46,7 +46,7 @@ state2color = {
  
 
 
-def list_jobs(context, job_list, complete_names=False):
+def list_jobs(context, job_list, cq, complete_names=False):
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
@@ -67,10 +67,6 @@ def list_jobs(context, job_list, complete_names=False):
     
     jlen = max(len(format_job_id(x)) for x in job_list)
 
-
-    db = context.get_compmake_db()
-    cq = CacheQueryDB(db)
-
     cpu_total = []
     wall_total = []
     for job_id in job_list:
@@ -90,13 +86,11 @@ def list_jobs(context, job_list, complete_names=False):
             indent = Mmin
         s = " " * indent 
         
-
         is_root = is_root_job(job)
         if not is_root:
             s += '%d ' % (len(job.defined_by) - 1)
         else:
             s += '  '
-
 
         s += string.ljust(format_job_id(job_id), jlen) + '  '
 

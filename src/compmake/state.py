@@ -57,20 +57,16 @@ def is_inside_compmake_script():
     """ Returns true if running inside the compmake script. """
     return CompmakeGlobalState.inside_compmake_script
 
-
 def set_inside_compmake_script(itis=True):
     CompmakeGlobalState.inside_compmake_script = itis
-
     
 def set_compmake_status(s):
     CompmakeGlobalState.compmake_status = s
-
 
 def is_interactive_session():
     ''' If this is true, we will ask questions to the user. '''
     return (get_compmake_status() == 
              CompmakeConstants.compmake_status_interactive)
-
 
 def get_compmake_status():
     return CompmakeGlobalState.compmake_status

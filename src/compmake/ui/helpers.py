@@ -1,18 +1,18 @@
 from ..structures import UserError
 from collections import namedtuple
+from compmake.ui.visualization import compmake_colored
 from string import ljust
 import sys
 import types
-from compmake.ui.visualization import compmake_colored
 
 
 # Storage for the commands
-Command = namedtuple('Command', 'function name doc alias section')
+Command = namedtuple('Command', 'function name doc alias section dbchange')
 # Storage for the sections
 Section = namedtuple('Section', 'name desc order commands experimental')
 
 
-class UIState:
+class UIState():
     # name (string) -> tuple (function, name, docs, alias, section)
     commands = {}
     # holds alias -> name  (string->string) table
@@ -62,23 +62,26 @@ ui_section(COMMANDS_ADVANCED, order=4,
 # This is a decorator with arguments -- 
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
-def ui_command(name=None, alias=[], section=None):
-    def wrap(func, name, alias, section):
+def ui_command(name=None, alias=[], section=None, dbchange=False):
+    def wrap(func, name, alias, section, dbchange):
         ''' Decorator for a UI command -- wrapper for register_command '''
         if name is None:
             name = func.__name__
         docs = func.__doc__
         register_command(name=name, func=func, docs=docs,
-                         alias=alias, section=section)
+                         alias=alias, section=section,
+                         dbchange=dbchange)
         return func
 
     if type(name) is types.FunctionType:
         func = name
-        return wrap(func, name=None, alias=[], section=None)
+        return wrap(func, name=None, alias=[], section=None,
+                    dbchange=False)
 
-    return lambda x: wrap(x, name, alias, section)
+    return lambda x: wrap(x, name, alias, section, dbchange)
 
-def register_command(name, func, docs, alias=[], section=None):
+def register_command(name, func, docs, alias=[], section=None,
+                     dbchange=False):
     if isinstance(alias, str):
             alias = [alias]
     if not section:
@@ -87,7 +90,7 @@ def register_command(name, func, docs, alias=[], section=None):
         "Command %r already defined " % name
     assert docs is not None, "Command %r need docs." % name
     UIState.commands[name] = Command(function=func, name=name, doc=docs,
-                             alias=alias, section=section)
+                             alias=alias, section=section, dbchange=dbchange)
     assert section in UIState.sections, \
         "Section '%s' not defined" % section
     UIState.sections[section].commands.append(name)
@@ -99,7 +102,6 @@ def register_command(name, func, docs, alias=[], section=None):
 
 def get_commands():
     return UIState.commands
-
 
 
 @ui_command(section=GENERAL)
@@ -126,7 +128,7 @@ def help(args): #@ReservedAssignment
             raise UserError('Command %r not found.' % c)
 
         cmd = commands[c] #@UnusedVariable
-
+        dbchange = cmd.dbchange
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
         print(s)
@@ -150,7 +152,10 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
             file.write("  | %s \n" % section.desc)
         for name in section.commands:
             cmd = UIState.commands[name]
+            dbchange = cmd.dbchange
             short_doc = cmd.doc.split('\n')[0].strip()
+            if dbchange:
+                name += '*'
             n = ljust(name, max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=['bold'])

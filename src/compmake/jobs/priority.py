@@ -1,7 +1,10 @@
 from .queries import direct_parents
 
 
-__all__ = ['compute_priorities', 'compute_priority']
+__all__ = [
+    'compute_priorities', 
+    'compute_priority',
+]
 
 
 def compute_priorities(all_targets, db):

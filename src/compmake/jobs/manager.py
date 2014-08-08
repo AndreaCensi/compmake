@@ -7,9 +7,7 @@ from .priority import compute_priorities
 from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
-# from compmake.context import get_default_context
-from compmake.jobs.storage import (get_job, get_job_cache, job_cache_exists, 
-    set_job)
+from compmake.jobs import get_job, get_job_cache, job_cache_exists, set_job
 from compmake.structures import Cache, CompmakeBug
 from contracts import ContractsMeta, contract
 from contracts.utils import check_isinstance, indent
@@ -19,9 +17,10 @@ import time
 
 
 
-
-
-__all__ = ['Manager', 'AsyncResultInterface']
+__all__ = [
+    'Manager', 
+    'AsyncResultInterface',
+]
 
 
 
@@ -48,11 +47,11 @@ class AsyncResultInterface(object):
 class Manager(object):
 
     __metaclass__ = ContractsMeta
-
     
-    def __init__(self, context, recurse=False):
+    def __init__(self, context, cq, recurse=False):
         # print('Initialized manager, recurse=%s' % recurse)
         self.context = context
+        self.cq = cq
         self.db = context.get_compmake_db()
 
         self.recurse = recurse
@@ -108,9 +107,13 @@ class Manager(object):
 
     @contract(returns='str')
     def next_job(self):
-        ''' Returns one job from the ready_todo list 
+        ''' 
+            Returns one job from the ready_todo list 
             (and removes it from there). Uses self.priorities
-            to decide which job to use. '''
+            to decide which job to use. 
+            
+        '''
+        # print('next_job: ready_todo = %s' % self.ready_todo)
         self.check_invariants()
         
         ordered = sorted(self.ready_todo,
@@ -122,6 +125,7 @@ class Manager(object):
         return best
 
     def add_targets(self, targets):
+        # print('adding targets %r' % targets)
         self.check_invariants()
         
         # self.targets contains all the top-level targets we were passed
@@ -129,6 +133,8 @@ class Manager(object):
 
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
+        # Note this would not work for recursive jobs
+        #  cq = self.cq
         targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
 
         # both done and todo jobs are added to self.all_targets
@@ -138,6 +144,7 @@ class Manager(object):
         self.todo.update(targets_todo_plus_deps)
         self.done.update(targets_done) 
 
+        # print('adding %r to ready_todo: ' % ready_todo)
         self.ready_todo.update(ready_todo)
         
 #         logger.info('Checking if up to date...')
@@ -152,7 +159,8 @@ class Manager(object):
         self.check_invariants()
 
     def instance_some_jobs(self):
-        ''' Instances some of the jobs. Uses the
+        ''' 
+            Instances some of the jobs. Uses the
             functions can_accept_job(), next_job(), and ...
             
             Returns a dictionary of wait conditions.
@@ -172,7 +180,6 @@ class Manager(object):
             # todo: add task priority
             job_id = self.next_job()
             self.start_job(job_id)
-
 
         self.check_invariants()
         return reasons
@@ -250,18 +257,18 @@ class Manager(object):
                 # to other jobs
                 if result['user_object_deps']:
                     deps = result['user_object_deps']
-                    #print('Found special job whose result contains references to jobs: %s' % deps)
+                    # print('Found special job whose result contains references to jobs: %s' % deps)
 
                     # We first add extra dependencies to all those jobs
                     jobs_depending_on_this = direct_parents(job_id, self.db)
                     #print('need to update %s' % jobs_depending_on_this)
                     for parent in jobs_depending_on_this:
-                        #print(' considering %r' % parent)
+                        # print(' considering %r' % parent)
                         parent_job = get_job(parent, self.db)
-                        #print(' current children: %r' % parent_job.children)
+                        # print(' current children: %r' % parent_job.children)
 
                         parent_job.children = list(set(parent_job.children + list(deps)))
-                        #print(' updated children: %r' % parent_job.children)
+                        # print(' updated children: %r' % parent_job.children)
                         assert job_id in parent_job.children
                             
                         # write back
@@ -279,10 +286,10 @@ class Manager(object):
                             # Remove it from the "ready_todo_list"
                             if parent in self.ready_todo:
                                 self.ready_todo.remove(parent)
+                            # print('add_targets(%s)' % [parent])
                             self.add_targets([parent])
                             # XXX: recomputing priorities for everything
                             self.priorities = compute_priorities(self.all_targets, db=self.db)
-
 
                 # print('job %r succeeded' % job_id)
                 self.job_succeeded(job_id)
@@ -327,6 +334,7 @@ class Manager(object):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         assert job_id in self.todo
+        # print('host_failed, readding %s' % job_id)
         self.ready_todo.add(job_id)
 
         self.publish_progress()
@@ -367,20 +375,25 @@ class Manager(object):
     def job_succeeded(self, job_id):
         ''' Mark the specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. '''
+        # print('todo: %s ready: %s' % (self.todo, self.ready_todo))
         self.check_invariants()
         publish(self.context, 'manager-job-succeeded', job_id=job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
+        # print('removing %s from todo, processing, ready_todo' % job_id)
         self.todo.remove(job_id)
         self.processing.remove(job_id)
 
         parent_jobs = set(direct_parents(job_id, db=self.db))
-        # logger.info('done job %r with parents %s' % (job_id, parent_jobs))
+        # print('done job %r with parents %s' % (job_id, parent_jobs))
         for opportunity in self.todo & parent_jobs:
-            # logger.info('parent %r in todo' % (opportunity))
+            # print('parent %r in todo' % (opportunity))
             assert opportunity not in self.processing
             
-            for child in direct_children(opportunity, db=self.db):
+            its_children = direct_children(opportunity, db=self.db)
+            # print('its children: %r' % its_children) 
+            cq = CacheQueryDB(self.db)
+            for child in its_children:
                 # If child is part of all_targets, check that it is done
                 # otherwise check that it is done by the DB.
                 if child in self.all_targets:
@@ -390,12 +403,13 @@ class Manager(object):
                         # still some dependency left
                         break                    
                 else:
-                    # otherwise it should be done
-                    # (or, we would have put in all_targets)
-                    # assert up_to_date(child)
-                    pass
+                    up, reason, timestamp  = cq.up_to_date(child)
+                    if not up:
+                        # print('The child %s is not up_to_date' % child)
+                        break 
+                    
             else:
-                # logger.info('parent %r is now ready' % (opportunity))
+                # print('parent %r is now ready' % (opportunity))
                 self.ready_todo.add(opportunity)
 
         self.check_invariants()

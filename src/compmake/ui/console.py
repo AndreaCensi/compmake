@@ -1,17 +1,18 @@
-from .. import (CompmakeConstants, CompmakeGlobalState, get_compmake_status, 
+from .. import (CompmakeConstants, CompmakeGlobalState, 
     set_compmake_status)
 from ..events import publish
 from ..jobs import all_jobs
-from ..state import is_inside_compmake_script
-from ..structures import CompmakeException, ShellExitRequested, UserError
+from ..structures import  ShellExitRequested, UserError
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger
 from contracts import contract
-from contracts.utils import indent
+from contracts.utils import indent, raise_wrapped
 import os
 import sys
 import traceback
+from compmake.jobs.uptodate import CacheQueryDB
+from compmake.structures import CommandFailed, CompmakeBug
 
 
 
@@ -30,78 +31,73 @@ if use_readline:
             logger.warning('Neither readline or pyreadline available:\n- %s\n- %s' % (e, e2))
 
 
-def interpret_commands_wrap(commands, context):
+@contract(cq=CacheQueryDB, returns='None')
+def interpret_commands_wrap(commands, context, cq):
     """ 
-        Returns:
-        
-        0            everything ok
-        int not 0    error
-        string       an error, explained
-        
-        False?       we want to exit (not found in source though)
+        Returns None or raises CommandFailed, ShellExitRequested, 
+            CompmakeBug, KeyboardInterrupt.
     """
     assert context is not None
-
-
     publish(context, 'command-line-starting', command=commands)
 
     try:
-        retcode = interpret_commands(commands, context=context)
-        if retcode == 0:
-            publish(context, 'command-line-succeeded', command=commands)
-        else:
-            if isinstance(retcode, int):
-                publish(context, 'command-line-failed', command=commands,
-                    reason='Return code %d' % retcode)
-            else:
-                publish(context, 'command-line-failed', command=commands,
-                        reason=retcode)
+        interpret_commands(commands, context=context, cq=cq)
+        publish(context, 'command-line-succeeded', command=commands)
+    except CompmakeBug:
+        raise
     except UserError as e:
         publish(context, 'command-line-failed', command=commands, reason=e)
-        return str(e)
-    except CompmakeException as e:
+        raise CommandFailed(str(e))
+    except CommandFailed as e:
         publish(context, 'command-line-failed', command=commands, reason=e)
-        # Added this for KeyboardInterrupt
-        return str(e)
+        raise
     except KeyboardInterrupt as e:
         publish(context, 'command-line-interrupted',
                 command=commands, reason='KeyboardInterrupt')
         # tb = traceback.format_exc()
         # print tb  # XXX 
-        return('Execution of %r interrupted.' % commands)
+        raise
+        #raise CommandFailed('Execution of %r interrupted.' % commands)
     except ShellExitRequested:
         raise
     except Exception as e:
         tb = traceback.format_exc()
-        msg = ('Warning, I got this exception, while it should '
+        msg0 = ('Warning, I got this exception, while it should '
               'have been filtered out already. '
               'This is a compmake BUG that should be reported.')
-        msg +="\n" +indent(tb, 'bug| ')
+        msg = msg0 + "\n" +indent(tb, 'bug| ')
         publish(context, 'compmake-bug', user_msg=msg, dev_msg="")  # XXX
-        return('Compmake BUG: %s' % e)
-    return retcode
-
+        raise_wrapped(CompmakeBug, e, msg0)
+    
 
 def interactive_console(context):
+    """
+        raises: CommandFailed, CompmakeBug
+    """
     publish(context, 'console-starting')
 
-    exit_requested = False
-    while not exit_requested:
+    # shared cache query db by commands
+    cq = CacheQueryDB(context.get_compmake_db())
+    
+    while True:
         try:
             for line in compmake_console_lines(context):
-                res = interpret_commands_wrap(line, context=context)
-                # res should be 0
+                interpret_commands_wrap(line, context=context, cq=cq)
+        except CommandFailed as e:
+            error(e)
+            continue
+        except CompmakeBug:
+            raise
         except ShellExitRequested:
             break
-
         except KeyboardInterrupt:  # CTRL-C
             print("\nPlease use 'exit' to quit.")
-
         except EOFError:  # CTRL-D
             # TODO maybe make loop different? we don't want to catch
             # EOFerror in interpret_commands
             print("(end of input detected)")
             break
+        
 
     publish(context, 'console-ending')
     return None
@@ -225,17 +221,12 @@ def ask_question(question, allowed=None):
 # Note: we wrap these in shallow functions because we don't want
 # to import other things.
 
-@contract(returns='int|str')
-def batch_command(s, context):
+@contract(returns='None')
+def batch_command(s, context, cq):
     ''' 
         Executes one command (could be a sequence) 
 
-         Returns:
-            
-            0            everything ok
-            int not 0    error
-            string       an error, explained
-                
+        Returns None or raises CommandsFailed.    
     '''
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
@@ -243,25 +234,25 @@ def batch_command(s, context):
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
 
-    return interpret_commands_wrap(s, context=context)
+    return interpret_commands_wrap(s, context=context, cq=cq)
 
 
 def compmake_console(context):
     ''' 
         Runs the compmake console. Ignore if we are embedded. 
     '''
-    if is_inside_compmake_script():
-        msg = 'I detected that we were imported by "compmake". compmake_console() will not do anything.'
-        error(msg)
-        return
-    
-    if get_compmake_status() != CompmakeConstants.compmake_status_embedded:
-        return
+#     if is_inside_compmake_script():
+#         msg = 'I detected that we were imported by "compmake". compmake_console() will not do anything.'
+#         error(msg)
+#         return
+#     
+#     if get_compmake_status() != CompmakeConstants.compmake_status_embedded:
+#         return
 
-    set_compmake_status(CompmakeConstants.compmake_status_interactive)
+#     set_compmake_status(CompmakeConstants.compmake_status_interactive)
 
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
     interactive_console(context=context)
-    set_compmake_status(CompmakeConstants.compmake_status_embedded)
+#     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 

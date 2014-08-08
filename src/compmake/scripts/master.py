@@ -39,6 +39,8 @@ def read_rc_files(context):
             
 @contract(context=Context, filename=str)
 def read_commands_from_file(filename, context):
+    from compmake.jobs.uptodate import CacheQueryDB
+    cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None
     logger.info('Reading configuration from %r' % filename)
     with open(filename, 'r') as f:
@@ -46,7 +48,7 @@ def read_commands_from_file(filename, context):
             line = line.strip()
             if line[0] == '#':
                 continue
-            interpret_commands_wrap(line, context)
+            interpret_commands_wrap(line, context=context, cq=cq)
 
 usage = """
 The "compmake" script takes a DB directory as argument:
@@ -194,11 +196,16 @@ def compmake_main(args):
             
         read_rc_files(context)
         
-        if options.command:
-            retcode = batch_command(options.command, context=context)
+        try:
+            if options.command:
+                context.batch_command(options.command)
+            else:
+                context.compmake_console()
+        except CommandFailed:
+            retcode = 1
         else:
-            retcode = interactive_console(context=context)
-            
+            retcode = 0    
+        
         if options.retcodefile is not None:
             if isinstance(retcode, str):
                 retcode = 1

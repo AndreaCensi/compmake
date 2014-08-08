@@ -2,16 +2,17 @@
 import time
 import sys
 
+wait = 0.01
 
 def func1(param1): 
     print('Computing func1(%r)' % param1)
-    time.sleep(1) # Wait a little
+    time.sleep(wait) # Wait a little
     result = param1 * 2 
     return result
     
 def func2(param1, param2): 
     print('Computing func2(%r,%r)' % (param1, param2))
-    time.sleep(1) # Wait a little
+    time.sleep(wait) # Wait a little
     result = param1 + param2
     return result
     
@@ -27,8 +28,6 @@ def main():
             res1 = c.comp(func1, param1)
             res2 = c.comp(func2, res1, param2)
             c.comp(draw, res2)
-        
-    c.compmake_console()
     
     # Run command passed on command line or otherwise run console.    
     cmds = sys.argv[1:]

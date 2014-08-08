@@ -15,11 +15,9 @@ class TestUnpickable(CompmakeTest):
         # TODO: use tmp dir
         set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
-    def test_unpickable(self):
-        res = self.add_and_execute(f1)
-        self.assertNotEqual(res, 0)
-
-    def add_and_execute(self, function):
-        self.comp(function)
+    def test_unpickable_result(self):
+        self.comp(f1)
         self.cc.batch_command('clean')
-        return self.cc.batch_command('make')
+        
+        self.assert_cmd_fail('make')
+        

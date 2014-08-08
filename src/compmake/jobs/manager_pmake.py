@@ -3,20 +3,20 @@ from .manager_multiprocessing import Shared, parmake_job2
 from Queue import Empty
 from compmake.events.registrar import broadcast_event, publish
 from compmake.state import get_compmake_config
-from compmake.structures import HostFailed, JobFailed, JobInterrupted,\
-    CompmakeException
+from compmake.structures import (CompmakeException, HostFailed, JobFailed, 
+    JobInterrupted)
+from compmake.utils import safe_pickle_load
 from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import TimeoutError
 from multiprocessing.queues import Queue
+from system_cmd.meat import system_cmd_result
 import multiprocessing
 import os
 import signal
 import sys
 import tempfile
 import traceback
-from system_cmd.meat import system_cmd_result
-from compmake.utils.safe_pickle import safe_pickle_load
 
 __all__ = [
     'PmakeManager',           
@@ -105,13 +105,10 @@ def parmake_job2_new_process(args):
             os.makedirs(storage)
         except:
             pass
-        
-#     retcode_file = os.path.join(where,  '%s.retcode' % job_id) 
+         
     out_result = os.path.join(where, '%s.results.pickle' % job_id)
-#     retcode_file = os.path.abspath(retcode_file)
     out_result = os.path.abspath(out_result)
     cmd = [compmake_bin, storage,
-#                         '--retcodefile', retcode_file,
                         '--contracts',
                         '--status_line_enabled', '0',
                         '--colorize', '0',
@@ -186,8 +183,8 @@ class PmakeManager(Manager):
         Python 2.7 implementation 
      '''
 
-    def __init__(self, context, num_processes=None, recurse=False, new_process=False):
-        Manager.__init__(self, context=context, recurse=recurse)
+    def __init__(self, context, cq, num_processes=None, recurse=False, new_process=False):
+        Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process
@@ -279,10 +276,20 @@ class PmakeManager(Manager):
                 break
 
     def process_finished(self):
+        print('process_finished()')
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.terminate()
+            
+#         print('killing')
+#         for name, sub in self.subs.items():  # @UnusedVariable
+#             pid  = sub.proc.pid
+#             os.kill(pid, signal.SIGKILL)
+
+        print('joining')
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.join()
+                        
+        print('process_finished() done')
         
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
@@ -304,4 +311,4 @@ class PmakeManager(Manager):
     def cleanup(self):
         self.process_finished()
         
- 
+        

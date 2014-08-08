@@ -10,7 +10,7 @@ from compmake.context import Context
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
-from compmake.structures import Job
+from compmake.structures import Job, CommandFailed, MakeFailed
 
 
 class CompmakeTest(unittest.TestCase):
@@ -47,18 +47,24 @@ class CompmakeTest(unittest.TestCase):
         """ Returns the list of jobs corresponding to the given expression. """
         return list(parse_job_list(expression, context=self.cc))
 
-
     def assert_cmd_success(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
-        res = self.cc.interpret_commands_wrap(cmds)
-        msg = 'Command %r failed. (res=%s)' % (cmds, res)
-        self.assertEqual(res, 0, msg=msg)
+        try:
+            self.cc.interpret_commands_wrap(cmds)
+        except CommandFailed:
+            #msg = 'Command %r failed. (res=%s)' % (cmds, res)
+            raise
 
     def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
-        msg = 'Command %r did not fail.' % cmds
-        res = self.cc.interpret_commands_wrap(cmds)
-        self.assertNotEqual(res, 0, msg=msg)
+        
+        try:
+            self.cc.interpret_commands_wrap(cmds)
+        except CommandFailed:
+            pass
+        else:
+            msg = 'Command %r did not fail.' % cmds 
+            raise Exception(msg)
 
     @contract(cmd_string=str)
     def assert_cmd_success_script(self, cmd_string):
@@ -87,5 +93,16 @@ class CompmakeTest(unittest.TestCase):
             print('differs from %s' % jobs)
             raise
 
-
-
+    def assertMakeFailed(self, func, nfailed, nblocked):
+        try:
+            func()
+        except MakeFailed as e:
+            self.assertEqual(len(e.failed), nfailed)
+            self.assertEqual(len(e.blocked), nblocked)
+        except Exception as e:
+            raise Exception('unexpected: %s' % e)
+        
+        
+        
+        
+        

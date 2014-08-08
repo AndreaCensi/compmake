@@ -38,6 +38,24 @@ def mockup2(context):
 
 
 
+@contract(context=Context)
+def mockup2_nofail(context):
+    comp = context.comp
+
+    comp(f, job_id='f1')
+    comp(f, job_id='f2')
+
+    r5 = comp(f, job_id='f5')
+    comp(f, r5, job_id='needs_redoing')
+
+    comp(f, job_id='verylong' + 'a' * 40)
+
+    context.batch_command('make')
+    context.batch_command('clean f2')
+    context.batch_command('clean f5')
+
+
+
 
 def mockup_recursive_5(context):
     recursive(context, 5)
