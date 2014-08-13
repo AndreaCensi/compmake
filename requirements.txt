@@ -2,7 +2,7 @@ PyContracts
 python-cjson
 termcolor
 setproctitle
-yaml
+PyYaml
 psutil
 decorator
 SystemCmd
