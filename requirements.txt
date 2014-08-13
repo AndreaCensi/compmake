@@ -1,0 +1,8 @@
+PyContracts
+python-cjson
+termcolor
+setproctitle
+yaml
+psutil
+decorator
+SystemCmd
