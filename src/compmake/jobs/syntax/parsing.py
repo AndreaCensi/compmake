@@ -275,7 +275,7 @@ add_alias('in_progress', lambda context, cq: list_jobs_with_state(Cache.IN_PROGR
 add_alias('not_started', lambda context, cq: list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
 
 
-def parse_job_list(tokens, context):
+def parse_job_list(tokens, context, cq=None):
     '''
         Parses a job list. tokens can be:
         
@@ -288,20 +288,19 @@ def parse_job_list(tokens, context):
          
         Returns a list of strings.
     '''
+    if cq is None:
+        cq = CacheQueryDB(context.get_compmake_db())
+    
     if isinstance(tokens, str):
         tokens = tokens.strip().split()
 
     if not tokens:
         return []
 
-
     # First we look for operators 
     ops = Operators.parse(tokens)
 
     # print " %s => %s" % (tokens, ops)
-
-    cq = CacheQueryDB(db=context.get_compmake_db())
-
     result = eval_ops(ops=ops, context=context, cq=cq)
 
     # FIXME, remove

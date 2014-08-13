@@ -1,8 +1,7 @@
 ''' Contains functions concerning the up-to-date status of jobs '''
 from ..structures import Cache, Job
-from ..utils import memoize_simple
+from ..utils import memoized_reset
 from contracts import contract
-from compmake.utils.memoize_imp import memoized_reset
 
 
 __all__ = [

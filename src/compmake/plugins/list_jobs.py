@@ -2,12 +2,11 @@
 import string
 from time import time
 
-from ..jobs import CacheQueryDB, all_jobs, parse_job_list
+from ..jobs import parse_job_list
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
 from ..utils import duration_human
-from ..jobs.syntax.parsing import is_root_job
-from ..jobs.syntax.parsing import aliases
+from ..jobs.syntax.parsing import is_root_job,  aliases
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -17,11 +16,10 @@ def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
         If only one job is specified, then it is listed in more detail.  
     '''
     
-    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs(db=db)
+        job_list = cq.all_jobs()
     else:
-        job_list = parse_job_list(tokens=args, context=context)
+        job_list = parse_job_list(tokens=args, context=context, cq=cq)
         
     job_list = list(job_list)
     aliases['last'] = job_list

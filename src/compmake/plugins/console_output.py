@@ -79,7 +79,7 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
     for line in lines:
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
-#            job_name = colored('%s' % job_id, color='cyan')
+            # job_name = colored('%s' % job_id, color='cyan')
             header = pad_to_screen('___ %s ' % job_id, pad='_')
             header = compmake_colored(header, color='cyan')
             write_screen_line(header)

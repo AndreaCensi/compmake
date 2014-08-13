@@ -12,8 +12,9 @@ compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
 name = 'compmake'
 banners = [
-           "Tame your Python computations!",
-           "Keep calm and carry on"]
+   "Tame your Python computations!",
+   "Keep calm and carry on",
+]
 
 
 def console_starting(event, context):  # @UnusedVariable

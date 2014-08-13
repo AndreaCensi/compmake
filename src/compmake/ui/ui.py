@@ -541,7 +541,7 @@ def interpret_single_command(commands_line, context, cq):
                    "argument." % command_name)
             raise UserError(msg)
 
-        job_list = parse_job_list(args, context=context)
+        job_list = parse_job_list(args, context=context,cq=cq)
 
         # TODO: check non empty
         job_list = list(job_list)
@@ -549,7 +549,7 @@ def interpret_single_command(commands_line, context, cq):
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
-        job_list = parse_job_list(args, context=context)
+        job_list = parse_job_list(args, context=context,cq=cq)
         job_list = list(job_list)
         aliases['last'] = job_list
         # TODO: this does not survive reboots

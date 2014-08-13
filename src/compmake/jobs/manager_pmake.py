@@ -10,7 +10,7 @@ from contracts import contract
 from contracts.utils import check_isinstance, indent
 from multiprocessing import TimeoutError
 from multiprocessing.queues import Queue
-from system_cmd.meat import system_cmd_result
+from system_cmd import system_cmd_result
 import multiprocessing
 import os
 import signal
@@ -276,20 +276,20 @@ class PmakeManager(Manager):
                 break
 
     def process_finished(self):
-        print('process_finished()')
+        #print('process_finished()')
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.terminate()
             
-#         print('killing')
-#         for name, sub in self.subs.items():  # @UnusedVariable
-#             pid  = sub.proc.pid
-#             os.kill(pid, signal.SIGKILL)
+        #   print('killing')
+        # for name, sub in self.subs.items():  # @UnusedVariable
+        #   pid  = sub.proc.pid
+        #   os.kill(pid, signal.SIGKILL)
 
-        print('joining')
+        #print('joining')
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.join()
                         
-        print('process_finished() done')
+        #print('process_finished() done')
         
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)

@@ -46,7 +46,6 @@ setup(
     },
     install_requires=[
         'PyContracts',
-        'python-cjson',
         'termcolor',
         'setproctitle',
         'PyYaml',

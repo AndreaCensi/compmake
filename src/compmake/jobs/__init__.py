@@ -11,7 +11,6 @@ from .manager_multiprocessing import *
 from .manager_pmake import *
 
 from .cluster_conf import *
-from .manager_ssh_cluster import *
 from .manager_sge import *
 
 from .syntax.parsing import *

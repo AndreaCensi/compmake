@@ -302,14 +302,16 @@ class Manager(object):
             # it is the responsibility of the executer to mark_job_as_failed, 
             # so we can check
             if not job_cache_exists(job_id, db=self.db):
-                msg = 'The job %r was reported as failed but no record of it was found.'
+                msg = ('The job %r was reported as failed but no record of ' 
+                       'it was found.' % job_id)
                 msg += '\n' + 'JobFailed exception:'
                 msg += '\n' + indent(str(e), "| ")
                 raise CompmakeBug(msg)                
             else:
                 cache = get_job_cache(job_id, db=self.db)
                 if not cache.state == Cache.FAILED:
-                    msg = 'The job %r was reported as failed but it was not marked as such in the DB.'
+                    msg = ('The job %r was reported as failed but it was '
+                           'not marked as such in the DB.' % job_id)
                     msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
                     msg += '\n' + 'JobFailed exception:'
                     msg += '\n' + indent(str(e), "| ")
@@ -385,6 +387,8 @@ class Manager(object):
         self.processing.remove(job_id)
 
         parent_jobs = set(direct_parents(job_id, db=self.db))
+        cq = CacheQueryDB(self.db)
+        
         # print('done job %r with parents %s' % (job_id, parent_jobs))
         for opportunity in self.todo & parent_jobs:
             # print('parent %r in todo' % (opportunity))
@@ -392,7 +396,7 @@ class Manager(object):
             
             its_children = direct_children(opportunity, db=self.db)
             # print('its children: %r' % its_children) 
-            cq = CacheQueryDB(self.db)
+            
             for child in its_children:
                 # If child is part of all_targets, check that it is done
                 # otherwise check that it is done by the DB.
@@ -403,7 +407,7 @@ class Manager(object):
                         # still some dependency left
                         break                    
                 else:
-                    up, reason, timestamp  = cq.up_to_date(child)
+                    up, _, _  = cq.up_to_date(child)
                     if not up:
                         # print('The child %s is not up_to_date' % child)
                         break 
@@ -521,10 +525,6 @@ class Manager(object):
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:
-            # ## Interrupt caught by manager outside of get()
-            # for example in sleep()
-#            error('Received KeyboardInterrupt at: %s' %
-#                  traceback.format_exc(e))
             raise
         finally:
             self.cleanup()

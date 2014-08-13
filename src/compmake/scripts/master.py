@@ -1,26 +1,20 @@
-from optparse import OptionParser
-import os
-import sys
-import traceback
-
-from contracts import contract
-import contracts
-
-import compmake
-
-from .. import (version, set_compmake_status,
-    CompmakeConstants, logger)
+from .. import CompmakeConstants, logger, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
 from ..jobs import all_jobs, set_namespace
 from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
-from ..structures import UserError
-from ..ui import (error, interactive_console, batch_command,
-    interpret_commands_wrap, info)
+from ..structures import CommandFailed, UserError
+from ..ui import error, info, interpret_commands_wrap
 from ..utils import setproctitle
 from .scripts_utils import wrap_script_entry_point
-
+from contracts import contract
+from optparse import OptionParser
+import compmake
+import contracts
+import os
+import sys
+import traceback
 
 # TODO: revise all of this
 @contract(context=Context)

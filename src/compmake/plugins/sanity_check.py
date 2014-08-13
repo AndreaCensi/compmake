@@ -5,14 +5,12 @@ from ..ui import error, ui_command, COMMANDS_ADVANCED
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias='check-consistency')
-def check_consistency(args, context):  # @ReservedAssignment
+def check_consistency(args, context, cq):  # @ReservedAssignment
     ''' Checks in the DB that the relations between jobs are consistent. '''
-    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs(db)
+        job_list = cq.all_jobs()
     else:
-        job_list = parse_job_list(args, context=context)
-
+        job_list = parse_job_list(args, context=context, cq=cq)
 
     for job_id in job_list:
         check_job(job_id, context)

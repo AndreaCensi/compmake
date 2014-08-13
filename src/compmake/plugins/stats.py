@@ -18,13 +18,12 @@ state2color = {
 
 
 @ui_command(section=VISUALIZATION)
-def stats(args, context):
+def stats(args, context, cq):
     '''Displays a coarse summary of the jobs state. '''
-    db = context.get_compmake_db()
     if not args:
-        job_list = all_jobs(db=db)
+        job_list = cq.all_jobs()
     else:
-        job_list = parse_job_list(args, context=context)
+        job_list = parse_job_list(args, context=context, cq=cq)
 
     job_list = list(job_list)
     aliases['last'] = job_list

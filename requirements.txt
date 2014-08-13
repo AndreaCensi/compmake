@@ -1,5 +1,4 @@
 PyContracts
-python-cjson
 termcolor
 setproctitle
 PyYaml
