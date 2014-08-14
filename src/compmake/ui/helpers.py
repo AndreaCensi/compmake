@@ -1,7 +1,7 @@
 from ..structures import UserError
 from collections import namedtuple
-from compmake.ui.visualization import compmake_colored
-from string import ljust
+from ..ui.visualization import compmake_colored
+
 import sys
 import types
 
@@ -156,7 +156,7 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
             short_doc = cmd.doc.split('\n')[0].strip()
             if dbchange:
                 name += '*'
-            n = ljust(name, max_len)
+            n = name.ljust(max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=['bold'])
             file.write("  | %s  %s\n" % (n, short_doc))

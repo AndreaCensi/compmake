@@ -5,24 +5,18 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 '''
-import os
 
-from contracts import contract
-
-from .helpers import (GENERAL, ACTIONS, COMMANDS_ADVANCED,
-    COMMANDS_CLUSTER, ui_section)
-from .. import CompmakeConstants, get_compmake_status, get_compmake_config
+from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..context import Context
 from ..events import publish
-from ..jobs import (all_jobs, ManagerLocal,
-    MultiprocessingManager, clean_target, mark_remake, top_targets,
-    parse_yaml_configuration, SGEManager)
-from ..structures import UserError, JobFailed, ShellExitRequested
+from ..jobs import (ManagerLocal, MultiprocessingManager, PmakeManager, 
+    SGEManager, all_jobs, clean_target, mark_remake, top_targets)
+from ..structures import JobFailed, MakeFailed, ShellExitRequested, UserError
 from ..ui import info
-from .helpers import ui_command
-from ..jobs import PmakeManager
-from compmake.utils.safe_pickle import safe_pickle_dump
-from compmake.structures import  MakeFailed
+from ..utils import safe_pickle_dump
+from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
+    ui_command, ui_section)
+from contracts import contract
 
 
 ui_section(GENERAL)
@@ -264,8 +258,8 @@ def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
     from ..ui.console import ask_question
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = "Should I clean and remake %d jobs? [y/n] " % \
-            len(non_empty_job_list)
+        question = ("Should I clean and remake %d jobs? [y/n] " % 
+            len(non_empty_job_list))
         answer = ask_question(question)
         if not answer:
             info('Not cleaned.')

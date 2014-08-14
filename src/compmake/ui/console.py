@@ -1,18 +1,15 @@
-from .. import (CompmakeConstants, CompmakeGlobalState, 
-    set_compmake_status)
+from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
 from ..events import publish
-from ..jobs import all_jobs
-from ..structures import  ShellExitRequested, UserError
+from ..jobs import CacheQueryDB, all_jobs
+from ..structures import (CommandFailed, CompmakeBug, ShellExitRequested, 
+    UserError)
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger
-from contracts import contract
-from contracts.utils import indent, raise_wrapped
+from contracts import contract, indent, raise_wrapped
 import os
 import sys
 import traceback
-from compmake.jobs.uptodate import CacheQueryDB
-from compmake.structures import CommandFailed, CompmakeBug
 
 
 
@@ -22,14 +19,13 @@ use_readline = True
 if use_readline:
     try:
         import readline        
-    except ImportError as e:      
+    except BaseException as e:      
         try:
             import pyreadline as readline
         except Exception as e2:
             # TODO: write message
             use_readline = False
             logger.warning('Neither readline or pyreadline available:\n- %s\n- %s' % (e, e2))
-
 
 @contract(cq=CacheQueryDB, returns='None')
 def interpret_commands_wrap(commands, context, cq):

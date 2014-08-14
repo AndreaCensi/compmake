@@ -1,4 +1,3 @@
-from string import rjust
 
 from .. import (CompmakeGlobalState, ConfigSwitch, set_compmake_config,
     ConfigSection, get_compmake_config)
@@ -80,6 +79,6 @@ def show_config(file):  # @ReservedAssignment
             desc = str(switch.desc)
 
             file.write("  | %s  %s  %s\n" % 
-                       (compmake_colored(rjust(name, max_len_name), attrs=['bold']),
-                        compmake_colored(rjust(value, max_len_val), attrs=attrs),
+                       (compmake_colored(name.rjust(max_len_name), attrs=['bold']),
+                        compmake_colored(value.rjust(max_len_val), attrs=attrs),
                         desc))

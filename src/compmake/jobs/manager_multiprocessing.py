@@ -4,7 +4,13 @@ from ..events import (broadcast_event, publish, register_handler,
 from ..jobs import make
 from ..utils import setproctitle
 from .manager import AsyncResultInterface, Manager
-from Queue import Empty, Full
+import sys
+if sys.version_info[0] >= 3:
+    from queue import Empty, Full
+else:
+    from Queue import Empty, Full
+
+
 from compmake import CompmakeGlobalState
 from ..structures import HostFailed, JobFailed, JobInterrupted
 from contracts import contract
@@ -241,7 +247,7 @@ class AsyncResultWrap(AsyncResultInterface):
 #                         print('%s: %s: %s ' % (self.job_id, self.count, s)) 
             
             if self.count % 100 == 0:
-                s= self.read_status()
+                s= self.read_status()  # @UnusedVariable
                 #print('%70s: %10s  %s         ' % (self.job_id, self.count, s)) 
         
         # timeout
@@ -289,24 +295,9 @@ def parmake_job2(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, tmp_filename = args
+    job_id, context, tmp_filename = args  # @UnusedVariable
     db = context.get_compmake_db()
 
-#     debug_exceptions = False
-    
-#     old_stream = sys.stderr
-#     
-#     def write_status(s):
-#         if debug_exceptions:
-#             old_stream.write(s)
-#             old_stream.write('\n')
-#             old_stream.flush()
-#     
-#         with open(tmp_filename, 'w') as f:
-#             f.write(s)
-
-#     write_status('starting')
-    # print('Process: starting job')
     setproctitle('compmake:%s' % job_id)
     
     class G():
@@ -362,28 +353,13 @@ def parmake_job2(args):
         raise
     except JobFailed:
         raise
-#         setproctitle('compmake:FAILED:%s' % job_id)
-#         write_status('interrupt2')
-#         if debug_exceptions:
-#             return dict(fail='KeyboardInterrupt')
-#         else:
-    except BaseException as e:
-#         write_status('exception')
-#         if debug_exceptions:
-#             return dict(fail=str(e))
-#         else:
+    except BaseException:
         raise
     except:
-#         write_status('except')
-#         if debug_exceptions:
-#             return dict(fail='except')
-#         else:
         raise
     finally:
-#         write_status('finally')
         publish(context, 'worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake-slave')
-#         write_status('finally2')
             
 
 

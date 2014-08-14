@@ -51,7 +51,8 @@ setup(
         'PyYaml',
         'psutil',
         'decorator',
-        'SystemCmd'
+        'SystemCmd',
+        'pyreadline',
     ],
 
     tests_require=['nose']

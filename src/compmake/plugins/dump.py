@@ -1,6 +1,11 @@
 import os
 
-import cPickle as pickle
+
+import sys
+if sys.version_info[0] >= 3:
+    import pickle  # @UnusedImport
+else:
+    import cPickle as pickle  # @Reimport
 
 from ..jobs import get_job_userobject, is_job_userobject_available
 from ..ui import COMMANDS_ADVANCED, ui_command, info, user_error

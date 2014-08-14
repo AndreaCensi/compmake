@@ -1,6 +1,9 @@
 from contracts import describe_type
-
-import cPickle as pickle
+import sys
+if sys.version_info[0] >= 3:
+    import pickle
+else:
+    import cPickle as pickle
 from compmake import logger
 
 from . import find_pickling_error, safe_write, safe_read

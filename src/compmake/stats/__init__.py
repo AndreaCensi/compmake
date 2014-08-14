@@ -32,7 +32,7 @@ def my_get_job_cache(context, job_id):
         raise Exception(msg)
     return cache
 
-@contract(caches='list[>=1]')
+# @contract(caches='list[>=1]')
 def finalize_result(jobs, caches):
     import numpy as np
     #print caches
@@ -43,7 +43,7 @@ def finalize_result(jobs, caches):
         return  np.array((cache.walltime_used, cache.cputime_used),
                          dtype=[('walltime', 'float'), ('cputime', 'float')])
         
-    allstats = map(stats_from_cache, caches)
+    allstats = list(map(stats_from_cache, caches))
     allstats = np.hstack(allstats)
     
     cpu_time = np.sum(allstats['cputime'])

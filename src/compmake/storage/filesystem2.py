@@ -2,11 +2,16 @@ import os
 from os.path import basename
 import traceback
 
-import cPickle as pickle
 from compmake import logger
 from compmake.structures import CompmakeException, SerializationError
 from compmake.utils import (find_pickling_error, safe_pickle_load,
     safe_pickle_dump)
+
+import sys
+if sys.version_info[0] >= 3:
+    import pickle  # @UnusedImport
+else:
+    import cPickle as pickle  # @Reimport
 
 
 if False:

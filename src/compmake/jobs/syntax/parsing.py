@@ -33,6 +33,7 @@ from compmake.jobs.uptodate import CacheQueryDB
 from .. import  get_job
 from ...structures import UserError, Cache, CompmakeSyntaxError
 from ...utils import expand_wildcard
+from contracts.utils import check_isinstance
 
 
 __all__ = ['parse_job_list']
@@ -169,7 +170,7 @@ class Operators():
             ''' Translates one token, or returns the same '''
             tokenl = token.lower()
             return Operators.translation.get(tokenl, token)
-        return map(token2op, tokens)
+        return list(map(token2op, tokens))
 
 
 def list_jobs_with_state(state, context, cq):  # @UnusedVariable
@@ -313,7 +314,7 @@ def parse_job_list(tokens, context, cq=None):
 def eval_ops(ops, context, cq):
     ''' Evaluates an expression. 
       ops: list of strings and int representing operators '''
-    assert isinstance(ops, list)
+    check_isinstance(ops, list)
 
     def list_split(l, index):
         ''' Splits a list in two '''

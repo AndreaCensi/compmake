@@ -141,7 +141,7 @@ class Promise(object):
 
 class Job(object):
 
-    @contract(defined_by='list[>=1](str)')
+    @contract(defined_by='list(str)')
     def __init__(self, job_id, children, command_desc, yields=False,
                  needs_context=False,
                  defined_by=None):

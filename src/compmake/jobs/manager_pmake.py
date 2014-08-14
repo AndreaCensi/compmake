@@ -1,6 +1,11 @@
 from .manager import AsyncResultInterface, Manager
 from .manager_multiprocessing import Shared, parmake_job2
-from Queue import Empty
+import sys
+if sys.version_info[0] >= 3:
+    from queue import Empty  # @UnresolvedImport
+else:
+    from Queue import Empty
+
 from compmake.events.registrar import broadcast_event, publish
 from compmake.state import get_compmake_config
 from compmake.structures import (CompmakeException, HostFailed, JobFailed, 

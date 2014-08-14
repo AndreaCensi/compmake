@@ -4,7 +4,12 @@ from compmake.utils import (find_pickling_error, safe_pickle_dump,
     safe_pickle_load)
 from glob import glob
 from os.path import basename
-import cPickle as pickle
+import sys
+if sys.version_info[0] >= 3:
+    import pickle  # @UnusedImport
+else:
+    import cPickle as pickle  # @Reimport
+
 import os
 import traceback
 

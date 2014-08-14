@@ -1,24 +1,26 @@
 from .. import (CompmakeConstants, get_compmake_config, get_compmake_status, 
     is_interactive_session, set_compmake_status)
 from ..events import publish
-from ..jobs import (all_jobs, clean_target, delete_job, delete_job_args, 
-    delete_job_userobject, get_job, is_job_userobject_available, job_args_exists, 
-    job_exists, parse_job_list, set_job, set_job_args)
-from ..structures import Job, Promise, UserError
+from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job, 
+    delete_job_args, delete_job_userobject, get_job, is_job_userobject_available, 
+    job_args_exists, job_exists, parse_job_list, set_job, set_job_args)
+from ..jobs.syntax.parsing import aliases
+from ..structures import CommandFailed, Job, Promise, UserError
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands
 from compmake.context import Context
-from compmake.jobs.syntax.parsing import aliases
 from contracts import contract
-from types import NoneType
-import cPickle as pickle
 import inspect
 import os
 import sys
 import warnings
-from compmake.jobs.uptodate import CacheQueryDB
-from compmake.structures import CommandFailed
+if sys.version_info[0] >= 3:
+    import pickle  # @UnusedImport
+else:
+    import cPickle as pickle  # @Reimport
+
+
 
 
 
@@ -61,11 +63,11 @@ def generate_job_id(base, context):
     def get_options():
         if job_prefix:
             yield '%s-%s' % (job_prefix, base)
-            for i in xrange(10000):
+            for i in range(1000):
                 yield '%s-%s-%d' % (job_prefix, base, i)
         else:
             yield base
-            for i in xrange(10000):
+            for i in range(1000):
                 yield '%s-%d' % (base, i)
 
     db = context.get_compmake_db()
@@ -435,13 +437,14 @@ def interpret_commands(commands_str, context, cq, separator=';'):
             publish(context, 'command-failed', command=cmd, reason=e)
             raise
         # TODO: all the rest is unexpected
- 
-        if not isinstance(retcode, (int, NoneType, str)):
-            publish(context, 'compmake-bug', user_msg="",
-                    dev_msg="Command %r should return an integer, "
-                        "None, or a string describing the error, not %r." %
-                        (cmd, retcode))
-            retcode = 0
+
+#  
+#         if not isinstance(retcode, (int, NoneType, str)):
+#             publish(context, 'compmake-bug', user_msg="",
+#                     dev_msg="Command %r should return an integer, "
+#                         "None, or a string describing the error, not %r." %
+#                         (cmd, retcode))
+#             retcode = 0
 
         if retcode == 0 or retcode is None:
             continue

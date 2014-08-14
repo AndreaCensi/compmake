@@ -1,6 +1,9 @@
 from . import pad_to_screen, termcolor_colored 
-from StringIO import StringIO
 import sys
+if sys.version_info[0] >= 3:
+    from io import StringIO  # @UnusedImport
+else:
+    from StringIO import StringIO  # @Reimport
 
 RESET = '\033[0m'  # XXX
 

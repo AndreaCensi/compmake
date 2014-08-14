@@ -1,11 +1,10 @@
 ''' The actual interface of some commands in commands.py '''
-import string
-
-from ..jobs import get_job_cache, all_jobs, get_job, parse_job_list
+from ..jobs import get_job, get_job_cache, parse_job_list
 from ..structures import Cache
-from ..ui import compmake_colored, ui_command, VISUALIZATION
+from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
 from compmake.jobs.syntax.parsing import aliases
+import string
 
 
 state2color = {
@@ -35,7 +34,7 @@ def display_stats(job_list, context):
     states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                     Cache.FAILED, Cache.BLOCKED, Cache.DONE]
     # initialize counters to 0
-    states2count = dict(map(lambda x: (x, 0), states_order))
+    states2count = dict(list(map(lambda x: (x, 0), states_order)))
 
     function2state2count = {}
     total = 0
@@ -50,7 +49,7 @@ def display_stats(job_list, context):
         # initialize record if not present
         if not function_id in function2state2count:
             function2state2count[function_id] = \
-                dict(map(lambda x: (x, 0), states_order) + [('all', 0)])
+                dict(list(map(lambda x: (x, 0), states_order) + [('all', 0)]))
         # update
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1

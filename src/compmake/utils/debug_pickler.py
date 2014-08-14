@@ -1,4 +1,9 @@
-from StringIO import StringIO
+import sys
+if sys.version_info[0] >= 3:
+    from io import StringIO  # @UnusedImport
+else:
+    from StringIO import StringIO  # @Reimport
+
 from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
     _tuplesize2code, POP_MARK)
 import pickle

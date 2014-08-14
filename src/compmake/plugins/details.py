@@ -1,5 +1,4 @@
 ''' The actual interface of some commands in commands.py '''
-from string import rjust
 import sys
 
 from ..jobs import (direct_parents, direct_children, get_job_cache, parents,
@@ -37,7 +36,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     
 
     red = lambda x: compmake_colored(x, 'red')
-    bold = lambda x: compmake_colored(rjust(x + ' ', 15), attrs=['bold'])
+    bold = lambda x: compmake_colored((x + ' ').rjust(15), attrs=['bold'])
 
     def format_list(x):
         return '\n- '.join([''] + sorted(x))
