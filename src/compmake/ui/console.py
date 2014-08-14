@@ -6,10 +6,11 @@ from ..structures import (CommandFailed, CompmakeBug, ShellExitRequested,
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger
-from contracts import contract, indent, raise_wrapped
+from contracts import contract, raise_wrapped
 import os
 import sys
 import traceback
+from contracts.utils import indent
 
 
 
@@ -18,10 +19,10 @@ use_readline = True
 
 if use_readline:
     try:
-        import readline        
+        import readline        # @UnusedImport
     except BaseException as e:      
         try:
-            import pyreadline as readline
+            import pyreadline as readline  # @UnresolvedImport @Reimport
         except Exception as e2:
             # TODO: write message
             use_readline = False
