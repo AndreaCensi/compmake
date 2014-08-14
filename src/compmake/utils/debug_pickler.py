@@ -1,4 +1,5 @@
 import sys
+from compmake.utils.format_exceptions import my_format_exc
 if sys.version_info[0] >= 3:
     from io import StringIO  # @UnusedImport
 else:
@@ -7,7 +8,6 @@ else:
 from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
     _tuplesize2code, POP_MARK)
 import pickle
-import traceback
 
 from . import describe_type
 from .. import logger
@@ -20,7 +20,6 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     try:
         pickle.dumps(obj)
     except Exception as e1:
-        # s1 = traceback.format_exc(e1)
         pass
     else:
         msg = ('Strange! I could not reproduce the pickling error '
@@ -32,8 +31,9 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
         pickler.dump(obj)
     except Exception as e1:
         msg = pickler.get_stack_description() 
-        msg += '\n --- Current exception----\n%s' % traceback.format_exc(e1)
-        msg += '\n --- Old exception----\n%s' % traceback.format_exc(e1)
+        
+        msg += '\n --- Current exception----\n%s' % my_format_exc(e1)
+        msg += '\n --- Old exception----\n%s' % my_format_exc(e1)
         return msg
     else:
         msg = 'I could not find the exact pickling error.'

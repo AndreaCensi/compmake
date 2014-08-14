@@ -6,16 +6,16 @@ def duration_human(seconds):
     http://darklaunch.com/2009/10/06
     /python-time-duration-human-friendly-timestamp
     '''
-    seconds = long(math.ceil(seconds))
+    seconds = int(math.ceil(seconds))
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     years, days = divmod(days, 365.242199)
 
-    minutes = long(minutes)
-    hours = long(hours)
-    days = long(days)
-    years = long(years)
+    minutes = int(minutes)
+    hours = int(hours)
+    days = int(days)
+    years = int(years)
 
     duration = []
     if years > 0:

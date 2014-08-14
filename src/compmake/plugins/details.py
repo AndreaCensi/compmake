@@ -79,12 +79,12 @@ def list_job_detail(job_id, context, cq, max_lines):
 
     
     stdout = cache.captured_stdout
-    if stdout and string.strip(stdout):
+    if stdout and stdout.strip():
         print("-----> captured stdout <-----")
         display_with_prefix(stdout, prefix='|', transform=lambda x: x)
 
     stderr = cache.captured_stderr
-    if stderr and string.strip(stderr):
+    if stderr and stderr.strip():
         print("-----> captured stderr <-----")
         display_with_prefix(stderr, prefix='|', transform=lambda x: x)
 

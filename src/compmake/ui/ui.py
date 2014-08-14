@@ -288,7 +288,7 @@ def comp_(context, command_, *args, **kwargs):
                     pass
                 else:
 
-                    for i in xrange(1000):
+                    for i in range(100): # XXX
                         n = '%s-%d' % (job_id, i)
                         if not job_exists(n, db=db):
                             job_id = n
@@ -482,8 +482,6 @@ def interpret_single_command(commands_line, context, cq):
     cmd = ui_commands[command_name]
     dbchange = cmd.dbchange
     function = cmd.function
-    function_args = (
-        function.func_code.co_varnames[:function.func_code.co_argcount])
 
     args = commands[1:]
 
@@ -492,6 +490,8 @@ def interpret_single_command(commands_line, context, cq):
     kwargs = {}
     argspec = inspect.getargspec(function)
 
+    function_args = argspec.args
+    
     if argspec.defaults:
         num_args_with_default = len(argspec.defaults)
     else:

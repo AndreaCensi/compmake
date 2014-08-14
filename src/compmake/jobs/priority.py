@@ -28,9 +28,9 @@ def compute_priority(job_id, priorities, targets, db):
     if not parents_which_are_targets:
         priority = 0
     else:
-        priority = -1 + max(map(lambda p: compute_priority(p, priorities,
-                                                           targets, db=db),
-                         parents_which_are_targets))
+        pf = lambda p: compute_priority(p, priorities, targets, db=db)
+        
+        priority = -1 + max(list(map(pf, parents_which_are_targets)))
 
     priorities[job_id] = priority
 

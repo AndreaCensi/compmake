@@ -16,38 +16,38 @@ def clean_console_line(stream):
     stream.write(s)
 
 
-def warning(string):
-    write_message(string, lambda x: compmake_colored(x, 'yellow'))
+def warning(s):
+    write_message(s, lambda x: compmake_colored(x, 'yellow'))
 
 
-def error(string):
-    write_message(string, lambda x: compmake_colored(x, 'red'))
+def error(s):
+    write_message(s, lambda x: compmake_colored(x, 'red'))
 
 
-def user_error(string):  # XXX: what's the difference with above?
-    write_message(string, lambda x: compmake_colored(x, 'red'))
+def user_error(s):  # XXX: what's the difference with above?
+    write_message(s, lambda x: compmake_colored(x, 'red'))
 
 
-def info(string):
-    write_message(string, lambda x: compmake_colored(x, 'green'))
+def info(s):
+    write_message(s, lambda x: compmake_colored(x, 'green'))
 
 
-def debug(string):  # XXX: never used?
-    write_message(string, lambda x: compmake_colored(x, 'magenta'))
+def debug(s):  # XXX: never used?
+    write_message(s, lambda x: compmake_colored(x, 'magenta'))
 
 
-def write_message(string, formatting):
+def write_message(s, formatting):
+    s = str(s)
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState
     stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 
-    string = str(string)
     stdout.flush()
 
     clean_console_line(sys.stderr)
-    lines = string.rstrip().split('\n')
+    lines = s.rstrip().split('\n')
 
     if len(lines) == 1:
         l = formatting(lines[0])

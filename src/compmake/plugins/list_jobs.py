@@ -90,7 +90,7 @@ def list_jobs(context, job_list, cq, complete_names=False):
         else:
             s += '  '
 
-        s += string.ljust(format_job_id(job_id), jlen) + '  '
+        s += format_job_id(job_id).ljust(jlen) + '  '
 
         tag = Cache.state2desc[cache.state]
 

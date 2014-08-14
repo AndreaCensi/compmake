@@ -4,7 +4,6 @@ from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
 from compmake.jobs.syntax.parsing import aliases
-import string
 
 
 state2color = {
@@ -49,7 +48,7 @@ def display_stats(job_list, context):
         # initialize record if not present
         if not function_id in function2state2count:
             function2state2count[function_id] = \
-                dict(list(map(lambda x: (x, 0), states_order) + [('all', 0)]))
+                dict(list(map(lambda x: (x, 0), states_order)) + [('all', 0)])
         # update
         function2state2count[function_id][cache.state] += 1
         function2state2count[function_id]['all'] += 1
@@ -95,7 +94,7 @@ def display_stats(job_list, context):
             alls.append(s)
 
         s = ",".join(alls)
-        function_id_pad = string.rjust(function_id, flen)
+        function_id_pad = function_id.rjust(flen)
         print("    %s(): %s." % (function_id_pad, s))
 
 
