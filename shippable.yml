@@ -1,10 +1,11 @@
 language: python
+reset_minion: true
 
 python:
   - 2.7
-  - 3.2
-  - 3.3
-  - 3.4
+  # - 3.2
+  # - 3.3
+  # - 3.4
   - pypy
   
 install:
@@ -13,19 +14,11 @@ install:
 branches:
   only:
     - master
-    - env_fault
-
-# # Make folders for the reports
-# before_script:
-#   - mkdir -p shippable/testresults
-#   - mkdir -p shippable/codecoverage
+    - env_fault 
 
 script:
-  - nosetests compmake
-  #  test.py --with-xunit --xunit-file=shippable/testresults/nosetests.xml
-  # - which python && coverage run --branch test.py
-  # - which python && coverage xml -o shippable/codecoverage/coverage.xml test.py
-
+  - nosetests compmake 
+  
 notifications:
   email:
    - censi@mit.edu
