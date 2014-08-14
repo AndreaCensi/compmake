@@ -36,7 +36,7 @@ def run_example(name, command, expect_fail=False):
             stdout = e.res.stdout
             if not expect_fail:
                 msg = 'Example %r: Command %r failed unexpectedly.' % (name, command)
-                msg += '\n retcode: %r' % e.res.retcode
+                msg += '\n retcode: %r' % e.res.ret
                 msg += '\n' + indent(stderr, 'stderr| ')
                 msg += '\n' + indent(stdout, 'stdout| ')
                 raise Exception(msg)
