@@ -55,8 +55,6 @@ def mockup2_nofail(context):
     context.batch_command('clean f5')
 
 
-
-
 def mockup_recursive_5(context):
     recursive(context, 5)
 
