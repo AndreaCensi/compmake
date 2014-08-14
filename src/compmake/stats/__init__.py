@@ -35,20 +35,16 @@ def my_get_job_cache(context, job_id):
 # @contract(caches='list[>=1]')
 def finalize_result(jobs, caches):
     import numpy as np
-    #print caches
     
     @contract(cache=Cache)
     def stats_from_cache(cache):
         assert isinstance(cache, Cache)
-        return  np.array((cache.walltime_used, cache.cputime_used),
-                         dtype=[('walltime', 'float'), ('cputime', 'float')])
+        return dict(walltime=cache.walltime_used, cputime=cache.cputime_used)
         
     allstats = list(map(stats_from_cache, caches))
-    allstats = np.hstack(allstats)
     
-    cpu_time = np.sum(allstats['cputime'])
-    wall_time = np.sum(allstats['walltime'])
-    return dict(cpu_time=cpu_time, wall_time=wall_time,
-                jobs=jobs)    
+    cpu_time = sum(x['cputime'] for x in allstats)
+    wall_time = sum(x['walltime'] for x in allstats)
+    return dict(cpu_time=cpu_time, wall_time=wall_time, jobs=jobs)    
     
 

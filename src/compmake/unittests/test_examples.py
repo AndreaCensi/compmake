@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from system_cmd import CmdException, system_cmd_result
 import os
 import tempfile
-
+from contracts import indent
 
 def get_examples_path():
     from pkg_resources import resource_filename  # @UnresolvedImport
@@ -15,7 +15,7 @@ def get_examples_path():
     return examples
 
 
-def run_example(name, expect_fail=False):
+def run_example(name, command, expect_fail=False):
     examples = get_examples_path()
     pyfile = os.path.join(examples, '%s.py' % name)
     if not os.path.exists(pyfile):
@@ -23,7 +23,7 @@ def run_example(name, expect_fail=False):
         raise Exception(msg)
 
     with create_tmp_dir() as cwd:
-        cmd = [pyfile, 'make recurse=1']
+        cmd = [pyfile, command]
         try:
             system_cmd_result(cwd, cmd, 
                               display_stdout=False,
@@ -31,12 +31,19 @@ def run_example(name, expect_fail=False):
                               raise_on_error=True)
             if expect_fail:
                 raise Exception('Expected failure of %s' % name)
-        except CmdException:
+        except CmdException as e:
+            stderr = e.res.stderr
+            stdout = e.res.stdout
             if not expect_fail:
-                raise
+                msg = 'Example %r: Command %r failed unexpectedly.' % (name, command)
+                msg += '\n retcode: %r' % e.res.retcode
+                msg += '\n' + indent(stderr, 'stderr| ')
+                msg += '\n' + indent(stdout, 'stdout| ')
+                raise Exception(msg)
+            
+            
         
-        
-
+    
 @contextmanager
 def create_tmp_dir():
     # FIXME: does not delete dir
@@ -46,20 +53,69 @@ def create_tmp_dir():
     except:
         raise
 
+cmd_make1 = 'make recurse=1'
+cmd_make2 = 'parmake recurse=1'
+cmd_make3 = 'make recurse=1 new_process=1'
+cmd_make4 = 'parmake recurse=1 new_process=1'
 
-def test_example_big():
-    run_example('example_big', expect_fail=True)
+def test_example_big1():
+    run_example('example_big', cmd_make1, expect_fail=True)
+    
+def test_example_big2():
+    run_example('example_big', cmd_make2, expect_fail=True)
 
-def test_example_dynamic_explicitcontext():
-    run_example('example_dynamic_explicitcontext')
+# This gets slow
+# def test_example_big3():
+#     run_example('example_big', cmd_make3, expect_fail=True)
+# 
+# def test_example_big4():
+#     run_example('example_big', cmd_make4, expect_fail=True)
 
-def test_example_progress():
-    run_example('example_progress')
+def test_example_dynamic_explicitcontext1():
+    run_example('example_dynamic_explicitcontext', cmd_make1)
 
-def test_example_progress_same():
-    run_example('example_progress_same')
+def test_example_dynamic_explicitcontext2():
+    run_example('example_dynamic_explicitcontext', cmd_make2)
+    
+def test_example_dynamic_explicitcontext3():
+    run_example('example_dynamic_explicitcontext', cmd_make3)
 
-def test_example_simple():
-    run_example('example_simple')
+def test_example_dynamic_explicitcontext4():
+    run_example('example_dynamic_explicitcontext', cmd_make4)
 
+def test_example_progress1():
+    run_example('example_progress', cmd_make1)
+
+def test_example_progress2():
+    run_example('example_progress', cmd_make2)
+
+def test_example_progress3():
+    run_example('example_progress', cmd_make3)
+    
+def test_example_progress4():
+    run_example('example_progress', cmd_make4)
+
+def test_example_progress_same1():
+    run_example('example_progress_same', cmd_make1)
+
+def test_example_progress_same2():
+    run_example('example_progress_same', cmd_make2)
+
+def test_example_progress_same3():
+    run_example('example_progress_same', cmd_make3)
+    
+def test_example_progress_same4():
+    run_example('example_progress_same', cmd_make4)
+
+def test_example_simple1():
+    run_example('example_simple', cmd_make1)
+    
+def test_example_simple2():
+    run_example('example_simple', cmd_make2)
+    
+def test_example_simple3():
+    run_example('example_simple', cmd_make3)
+    
+def test_example_simple4():
+    run_example('example_simple', cmd_make4)
 
