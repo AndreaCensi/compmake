@@ -7,10 +7,10 @@ from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger
 from contracts import contract, raise_wrapped
+from contracts.utils import indent
 import os
 import sys
 import traceback
-from contracts.utils import indent
 
 
 
