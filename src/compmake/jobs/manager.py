@@ -184,19 +184,18 @@ class Manager(object):
         self.check_invariants()
         return reasons
         
+    def _raise_bug(self, func, job_id):
+        msg = "%s: Assumptions violated with job %r." % (func, job_id)
+        msg += '\n' + self._get_situation_string()            
+        raise CompmakeBug(job_id)
+        
     def start_job(self, job_id):
         self.check_invariants()
         
-        assert job_id in self.todo, job_id
-        assert not job_id in self.ready_todo, job_id
-        assert not job_id in self.processing2result, job_id
-#         if False:
-#             assert dependencies_up_to_date(job_id)
-        
-        if job_id in self.processing:
-            msg = "Something's wrong, the job %r should no be in processing." % job_id
-            msg += '\n' + self._get_situation_string()
-            assert False, msg
+        if not job_id in self.todo:  self._raise_bug('start_job', job_id)
+        if job_id in self.ready_todo: self._raise_bug('start_job', job_id)
+        if job_id in self.processing2result: self._raise_bug('start_job', job_id)
+        if job_id in self.processing: self._raise_bug('start_job', job_id)
 
         publish(self.context, 'manager-job-starting', job_id=job_id)
         self.processing.add(job_id)

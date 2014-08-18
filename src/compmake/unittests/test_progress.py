@@ -1,8 +1,8 @@
-import unittest
-from .. import progress
 from ..jobs import init_progress_tracking
+from compmake import progress
 from contracts import ContractNotRespected
 from nose.tools import istest, nottest
+import unittest
 
 
 @istest

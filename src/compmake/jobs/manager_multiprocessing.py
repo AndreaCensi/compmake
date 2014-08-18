@@ -2,19 +2,11 @@ from ..config import get_compmake_config
 from ..events import (broadcast_event, publish, register_handler, 
     remove_all_handlers)
 from ..jobs import make
+from ..structures import HostFailed, JobFailed, JobInterrupted
 from ..utils import setproctitle
 from .manager import AsyncResultInterface, Manager
-import sys
-if sys.version_info[0] >= 3:
-    from queue import Empty, Full
-else:
-    from Queue import Empty, Full
-
-
 from compmake import CompmakeGlobalState
-from ..structures import HostFailed, JobFailed, JobInterrupted
-from contracts import contract
-from contracts.utils import check_isinstance, indent
+from contracts import check_isinstance, contract, indent
 from multiprocessing import Pool
 from multiprocessing.queues import Queue
 import multiprocessing
@@ -25,6 +17,12 @@ import sys
 import tempfile
 import time
 import warnings
+if sys.version_info[0] >= 3:
+    from queue import Empty, Full  # @UnresolvedImport @UnusedImport
+else:
+    from Queue import Empty, Full  # @Reimport
+
+
 
 
 

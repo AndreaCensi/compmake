@@ -2,7 +2,7 @@ from ..events import publish
 from ..structures import Cache, JobFailed, JobInterrupted, Promise
 from ..ui import compmake_colored
 from ..utils import OutputCapture, setproctitle
-from .progress import init_progress_tracking
+from .progress_imp2 import init_progress_tracking
 from .storage import (delete_job_cache, delete_job_userobject, get_job, 
     get_job_cache, get_job_userobject, is_job_userobject_available, 
     set_job_cache, set_job_userobject)

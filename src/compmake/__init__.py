@@ -21,7 +21,8 @@ from .storage import StorageFilesystem
 # from .ui import (comp, comp_dynamic, batch_command, compmake_console)
 
 # from .state import get_compmake_config, set_compmake_config
-from .jobs import set_namespace, progress
+from .jobs import set_namespace
+from .jobs import progress
 from .scripts.master import read_rc_files
 from .structures import Promise
 from . import plugins

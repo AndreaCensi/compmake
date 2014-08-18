@@ -1,5 +1,5 @@
 from .storage import *
-from .progress import *
+from .progress_imp2 import *
 from .queries import *
 from .uptodate import *
 from .actions import *
