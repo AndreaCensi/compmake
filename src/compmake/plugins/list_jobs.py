@@ -1,5 +1,4 @@
 ''' The actual interface of some commands in commands.py '''
-import string
 from time import time
 
 from ..jobs import parse_job_list
@@ -42,9 +41,7 @@ state2color = {
 }
 
  
-
-
-def list_jobs(context, job_list, cq, complete_names=False):
+def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
@@ -74,8 +71,7 @@ def list_jobs(context, job_list, cq, complete_names=False):
         up, reason, _ = cq.up_to_date(job_id)
 
         job = cq.get_job(job_id)
-         
-
+          
         Mmin = 4
         M = 40
         if jlen < M:

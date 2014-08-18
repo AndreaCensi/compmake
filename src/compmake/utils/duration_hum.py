@@ -1,5 +1,6 @@
 import math
 
+__all__ = ['duration_human']
 
 def duration_human(seconds):
     ''' Code modified from 

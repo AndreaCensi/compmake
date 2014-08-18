@@ -1,6 +1,6 @@
 from nose.tools import istest
-from compmake.unittests.compmake_test import CompmakeTest
-from compmake.unittests.mockup import mockup2, mockup2_nofail
+from .compmake_test import CompmakeTest
+from .mockup import mockup2_nofail
 
 
 @istest

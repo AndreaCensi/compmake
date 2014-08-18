@@ -1,4 +1,3 @@
-import string
 import sys
 
 from ..events import register_handler

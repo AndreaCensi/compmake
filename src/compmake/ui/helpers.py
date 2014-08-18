@@ -1,7 +1,6 @@
 from ..structures import UserError
+from ..ui import compmake_colored
 from collections import namedtuple
-from ..ui.visualization import compmake_colored
-
 import sys
 import types
 
@@ -128,7 +127,7 @@ def help(args): #@ReservedAssignment
             raise UserError('Command %r not found.' % c)
 
         cmd = commands[c] #@UnusedVariable
-        dbchange = cmd.dbchange
+        dbchange = cmd.dbchange  # @UnusedVariable
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
         print(s)

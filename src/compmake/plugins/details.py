@@ -5,7 +5,6 @@ from ..jobs import (direct_parents, direct_children, get_job_cache, parents,
     children, CacheQueryDB, get_job)
 from ..structures import Cache
 from ..ui import compmake_colored, ui_command, VISUALIZATION
-import string
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')

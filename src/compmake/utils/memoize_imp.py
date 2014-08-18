@@ -30,23 +30,25 @@ class memoized_reset(object):
         self.func = func
         self.cache = {}
     def __call__(self, *args):
-       try:
-          return self.cache[args]
-       except KeyError:
-          value = self.func(*args)
-          self.cache[args] = value
-          return value
-       except TypeError:
-          # uncachable -- for instance, passing a list as an argument.
-          # Better to not cache than to blow up entirely.
-          return self.func(*args)
+        try:
+            return self.cache[args]
+        except KeyError:
+            value = self.func(*args)
+            self.cache[args] = value
+            return value
+        except TypeError:
+            # uncachable -- for instance, passing a list as an argument.
+            # Better to not cache than to blow up entirely.
+            return self.func(*args)
     def __repr__(self):
-       """Return the function's docstring."""
-       return self.func.__doc__
-    def __get__(self, obj, objtype):
-       """Support instance methods."""
-       fn = functools.partial(self.__call__, obj)
-       fn.reset = self._reset
-       return fn
-    def _reset(self):
-       self.cache = {}
+        """Return the function's docstring."""
+        return self.func.__doc__
+    
+    def __get__(self, obj, objtype):  # @UnusedVariable
+        """Support instance methods."""
+        fn = functools.partial(self.__call__, obj)
+        fn.reset = self._reset
+        return fn
+    
+    def _reset(self):   
+        self.cache = {}

@@ -1,7 +1,7 @@
 ''' The actual interface of some commands in commands.py '''
-from ..jobs import (direct_parents, parents, direct_children, children, all_jobs,
+from ..jobs import (children, direct_children, direct_parents, parents, 
     parse_job_list)
-from ..ui import error, ui_command, COMMANDS_ADVANCED
+from ..ui import COMMANDS_ADVANCED, error, ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias='check-consistency')
@@ -52,6 +52,4 @@ def check_job(job_id, context):
         error(s)
 
     
-    
-
 

@@ -157,7 +157,7 @@ register_handler('job-stderr', handle_event_stderr)
 def handle_job_failed(event, context):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     host = event.kwargs['host']
-    reason = event.kwargs['reason']
+    _ = event.kwargs['reason']
     bt = event.kwargs['bt']
 
     error('Job %r failed on host %r.' % (job_id, host))

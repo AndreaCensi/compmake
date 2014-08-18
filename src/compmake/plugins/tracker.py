@@ -44,7 +44,7 @@ class Tracker():
         self.status_plus[event.job_id] = event.stack
         if len(event.stack) > 0:
             i, n = event.stack[0].iterations
-            if isintance(n, int):
+            if isinstance(n, int):
                 stat = '%s/%s' % (i + 1, n)
             else:
                 perc=i*100.0/n

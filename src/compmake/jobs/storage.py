@@ -1,11 +1,4 @@
 '''
-Compmake stores 3 kind of data, all of them indexed by a job_id string.
-
-    1) Job objects
-    2) Cache objects.
-    3) user_object (any type)
-    4) args objects
-
 These are all wrappers around the raw methods in storage
 '''
 
@@ -14,14 +7,11 @@ from ..utils import wildcard_to_regexp
 from compmake import CompmakeGlobalState
 from contracts import contract
 
-
-
 def set_namespace(n):
     if n != 'default':
         # logger.info('Using namespace %r.' % n)
         pass
     CompmakeGlobalState.namespace = n
-
 
 def get_namespace():
     return CompmakeGlobalState.namespace
@@ -40,10 +30,9 @@ def job2key(job_id):
 def key2job(key):
     prefix = 'cm:%s:job:' % get_namespace()
     return key.replace(prefix, '', 1)
+ 
 
-
-
-def all_jobs(db, force_db=False):
+def all_jobs(db, force_db=False):  # @UnusedVariable
     ''' Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
@@ -162,7 +151,6 @@ def get_job_args(job_id, db):
     key = job2jobargskey(job_id)
     return db[key]
 
-
 def job_args_exists(job_id, db):
     key = job2jobargskey(job_id)
     return key in db
@@ -185,7 +173,3 @@ def delete_all_job_data(job_id, db):
         delete_job_userobject(**args)
     if job_cache_exists(**args):
         delete_job_cache(**args)
-
-
-
-

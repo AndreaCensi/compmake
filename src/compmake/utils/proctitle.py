@@ -1,5 +1,6 @@
 import sys
 
+__all__ = ['setproctitle']
 
 try:
     from setproctitle import setproctitle  # @UnresolvedImport @UnusedImport

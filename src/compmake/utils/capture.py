@@ -1,5 +1,6 @@
-from . import pad_to_screen, termcolor_colored 
 import sys
+from .coloredterm import termcolor_colored
+from .strings_with_escapes import pad_to_screen
 if sys.version_info[0] >= 3:
     from io import StringIO  # @UnusedImport
 else:
@@ -7,6 +8,7 @@ else:
 
 RESET = '\033[0m'  # XXX
 
+__all__ = ['OutputCapture']
 
 class LineSplitter(object):
     ''' A simple utility to split an incoming sequence of chars

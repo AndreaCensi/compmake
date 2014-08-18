@@ -1,11 +1,5 @@
 from .manager import AsyncResultInterface, Manager
 from .manager_multiprocessing import Shared, parmake_job2
-import sys
-if sys.version_info[0] >= 3:
-    from queue import Empty  # @UnresolvedImport
-else:
-    from Queue import Empty
-
 from compmake.events.registrar import broadcast_event, publish
 from compmake.state import get_compmake_config
 from compmake.structures import (CompmakeException, HostFailed, JobFailed, 
@@ -22,6 +16,11 @@ import signal
 import sys
 import tempfile
 import traceback
+if sys.version_info[0] >= 3:
+    from queue import Empty  # @UnresolvedImport @UnusedImport
+else:
+    from Queue import Empty  # @Reimport
+
 
 __all__ = [
     'PmakeManager',           
@@ -98,7 +97,7 @@ class PmakeSub():
     
 def parmake_job2_new_process(args):
     """ Starts the job in a new compmake process. """
-    (job_id, context, tmp_filename) = args
+    (job_id, context, _) = args
     from compmake.jobs.manager_sge import SGEJob
     compmake_bin = SGEJob.get_compmake_bin()
     

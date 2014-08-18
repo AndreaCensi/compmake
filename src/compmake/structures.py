@@ -287,7 +287,6 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
             pass
             # TODO: create event
         else:
-            M = 3
             # info('Job %r generated %d jobs such as %s.' % 
             #     (job_id, len(generated), sorted(generated)[:M]))
             pass

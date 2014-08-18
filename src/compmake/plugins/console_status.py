@@ -177,7 +177,7 @@ def handle_event(context, event):  # @UnusedVariable
     stream.write(line)
     stream.write('\r')
 
-def manager_host_failed(context, event):
+def manager_host_failed(context, event):  # @UnusedVariable
     s =  'Host failed for job %s.' % event.job_id
     s += indent(event.reason, '| ')
     from compmake.utils.coloredterm import termcolor_colored

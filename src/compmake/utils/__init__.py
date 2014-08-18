@@ -21,13 +21,15 @@ from .frozen import *
 from .memoize_imp import *
 
 from .instantiate_utils import *
-from .format_exceptions import *
-# from .calling_ext_programs import *
+from .format_exceptions import * 
+
 
 def find_print_statements():
+    import sys
     
     class TracePrints(object):
         def __init__(self):    
+            
             self.stdout = sys.stdout
         
         def write(self, s):

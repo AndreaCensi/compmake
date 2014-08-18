@@ -1,8 +1,8 @@
 from contextlib import contextmanager
+from contracts import indent
 from system_cmd import CmdException, system_cmd_result
 import os
 import tempfile
-from contracts import indent
 
 def get_examples_path():
     from pkg_resources import resource_filename  # @UnresolvedImport
