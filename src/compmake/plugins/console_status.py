@@ -117,13 +117,15 @@ def get_string(level):
                     x += [frame.name]
 
                 if level >= 2:
+                    # XXX: this is never used somehow, see tracker
+                    # that's where the code is executed to display iterations
                     if (isinstance(frame.iterations[0], int) 
                         and isinstance(frame.iterations[1], int)):                    
-                        x += ["%s/%s" % (frame.iterations[0]+1,
+                        x += ["%s of %s" % (frame.iterations[0]+1,
                                          frame.iterations[1])]
                     else:
-                        x += ["%.3f/%.3f" % (frame.iterations[0],
-                                             frame.iterations[1])]
+                        perc=frame.iterations[0]*100.0/frame.iterations[1]
+                        x += ['%.1f%%' % perc]
 
                 if level >= 4 and frame.iteration_desc is not None:
                     x += ["(%s)" % str(frame.iteration_desc)]

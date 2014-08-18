@@ -370,7 +370,11 @@ class ProgressStage(object):
         # allow off-by-one conventions
 
         # (self.iterations[0] == self.iterations[1]) or \
-        return  (self.iterations[0] >= self.iterations[1] - 1)
+        if isinstance(self.iterations[1], int):
+            return  (self.iterations[0] >= self.iterations[1] - 1)
+        else:
+            return self.iterations[0] >= self.iterations[1]
+            
 
 
 
