@@ -1,16 +1,13 @@
-import sys
-from compmake.utils.format_exceptions import my_format_exc
-if sys.version_info[0] >= 3:
-    from io import StringIO  # @UnusedImport
-else:
-    from StringIO import StringIO  # @Reimport
-
-from pickle import (Pickler, SETITEM, MARK, SETITEMS, EMPTY_TUPLE, TUPLE, POP,
-    _tuplesize2code, POP_MARK)
-import pickle
-
-from . import describe_type
 from .. import logger
+from contracts import describe_type
+from pickle import (
+    EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE, 
+    _tuplesize2code)
+import pickle
+from .format_exceptions import my_format_exc
+
+from io import BytesIO as StringIO
+
 
 
 __all__ = ['find_pickling_error']

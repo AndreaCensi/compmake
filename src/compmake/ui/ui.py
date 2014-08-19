@@ -15,6 +15,7 @@ import inspect
 import os
 import sys
 import warnings
+from compmake.ui.visualization import warning
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -199,6 +200,17 @@ def comp_(context, command_, *args, **kwargs):
     db = context.get_compmake_db()
 
     command = command_
+    
+    if command.__module__ == '__main__':
+        msg = ("A warning about the function %s: " % command)
+        msg += "This function is defined directly in the __main__ module, "
+        msg += "which means that it cannot be pickled correctly due to "
+        msg += "limitation of Python and 'make new_process=1' will fail. "
+        msg += "For best results, please define functions in external modules."
+        msg += '\nFor more info, read http://stefaanlippens.net/pickleproblem'
+        msg += '\nor the bug report http://bugs.python.org/issue5509.'
+        warning(msg)
+    
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
 

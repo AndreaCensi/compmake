@@ -1,12 +1,11 @@
 from .manager import AsyncResultInterface, Manager
 from .manager_multiprocessing import Shared, parmake_job2
-from compmake.events.registrar import broadcast_event, publish
+from compmake.events import broadcast_event, publish
 from compmake.state import get_compmake_config
 from compmake.structures import (CompmakeException, HostFailed, JobFailed, 
     JobInterrupted)
 from compmake.utils import safe_pickle_load
-from contracts import contract
-from contracts.utils import check_isinstance, indent
+from contracts import check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 from multiprocessing.queues import Queue
 from system_cmd import system_cmd_result
@@ -53,12 +52,13 @@ def pmake_worker(name, job_queue, result_queue, write_log=False):
                 result = function(arguments)
             except JobFailed as e:
                 log('Job failed, putting notice.')
+                log('result: %s' % str(e)) # debug
                 result_queue.put(dict(fail=str(e)))
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
-                result_queue.put(dict(fail=str(e)))
+                result_queue.put(dict(abort=str(e)))
             except CompmakeException as e: # XXX :to finish
-                log('CompmakeEception')
+                log('CompmakeException')
                 result_queue.put(dict(bug=str(e)))
             else:
                 log('result: %s' % str(result))
@@ -88,7 +88,8 @@ class PmakeSub():
 
         self.proc = multiprocessing.Process(target=pmake_worker,
                                       args=(self.name, 
-                                            self.job_queue, self.result_queue))
+                                            self.job_queue, 
+                                            self.result_queue))
         self.proc.start()
 
     def apply_async(self, function, arguments):

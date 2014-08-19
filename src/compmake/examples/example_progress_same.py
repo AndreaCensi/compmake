@@ -18,7 +18,7 @@ def mylongfunction():
         time.sleep(wait)
 
 
-def main():
+if __name__ == '__main__':
     print('This is an example of how to use the "progress" function.')
 
     from compmake import Context
@@ -26,7 +26,6 @@ def main():
     
     c.comp(mylongfunction)
         
-    
     # Run command passed on command line or otherwise run console.    
     cmds = sys.argv[1:]
     if cmds:
