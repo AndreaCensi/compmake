@@ -51,9 +51,17 @@ class CompmakeTest(unittest.TestCase):
         """ Executes the (list of) commands and checks it was succesful. """
         try:
             self.cc.interpret_commands_wrap(cmds)
+            
+        except MakeFailed as e:
+            print('Detected MakeFailed')
+            print('Failed jobs: %s' % e.failed)
+            for job_id in e.failed:
+                self.cc.interpret_commands_wrap('details %s' % job_id)
+            
         except CommandFailed:
             #msg = 'Command %r failed. (res=%s)' % (cmds, res)
             raise
+        
 
     def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """

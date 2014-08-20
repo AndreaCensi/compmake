@@ -21,10 +21,6 @@ if sys.version_info[0] >= 3:
 else:
     import cPickle as pickle  # @Reimport
 
-
-
-
-
 def is_pickable(x):  # TODO: move away
     try:
         pickle.dumps(x)

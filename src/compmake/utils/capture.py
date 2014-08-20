@@ -1,10 +1,7 @@
-import sys
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
-if sys.version_info[0] >= 3:
-    from io import StringIO  # @UnusedImport
-else:
-    from StringIO import StringIO  # @Reimport
+from io import BytesIO as StringIO
+import sys
 
 RESET = '\033[0m'  # XXX
 
