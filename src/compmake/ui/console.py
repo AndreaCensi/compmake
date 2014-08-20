@@ -6,13 +6,10 @@ from ..structures import (CommandFailed, CompmakeBug, ShellExitRequested,
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger
-from contracts import contract, raise_wrapped
-from contracts.utils import indent
+from contracts import contract, indent, raise_wrapped
 import os
 import sys
 import traceback
-
-
 
 
 use_readline = True
@@ -26,7 +23,10 @@ if use_readline:
         except Exception as e2:
             # TODO: write message
             use_readline = False
-            logger.warning('Neither readline or pyreadline available:\n- %s\n- %s' % (e, e2))
+            msg = 'Neither readline or pyreadline available.'
+            msg += '\n- readline error: %s' % e
+            msg += '\n- pyreadline error: %s' % e2
+            logger.warning(msg)
 
 @contract(cq=CacheQueryDB, returns='None')
 def interpret_commands_wrap(commands, context, cq):

@@ -21,3 +21,4 @@ my-storage-dir
 default-compmake-storage
 .coverage
 coverage_information
+out-example_dynamic_explicitcontext

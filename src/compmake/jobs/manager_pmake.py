@@ -2,7 +2,7 @@ from .manager import AsyncResultInterface, Manager
 from .manager_multiprocessing import Shared, parmake_job2
 from compmake.events import broadcast_event, publish
 from compmake.state import get_compmake_config
-from compmake.structures import (CompmakeException, HostFailed, JobFailed, 
+from ..structures import (CompmakeException, HostFailed, JobFailed, 
     JobInterrupted)
 from compmake.utils import safe_pickle_load
 from contracts import check_isinstance, contract, indent
@@ -15,6 +15,7 @@ import signal
 import sys
 import tempfile
 import traceback
+
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
 else:
@@ -299,6 +300,10 @@ class PmakeManager(Manager):
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
+        if self.new_process:
+            from .manager_local import display_job_failed
+            display_job_failed(db=self.db, job_id=job_id)
+              
         
     def _clear(self, job_id):
         assert job_id in self.job2subname

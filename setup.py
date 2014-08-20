@@ -52,7 +52,7 @@ setup(
         'psutil',
         'decorator',
         'SystemCmd',
-        'pyreadline',
+        #'pyreadline',
     ],
 
     tests_require=['nose']

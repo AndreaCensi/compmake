@@ -1,10 +1,7 @@
-from nose.tools import istest
-
-from compmake.jobs.storage import get_job_userobject
-from compmake.stats import compmake_execution_stats
-
 from .compmake_test import CompmakeTest
-
+from compmake import compmake_execution_stats
+from compmake.jobs import get_job_userobject
+from nose.tools import istest
 
 def f(*args):  # @UnusedVariable
     return

@@ -33,7 +33,6 @@ def list_job_detail(job_id, context, cq, max_lines):
     # TODO: use quicker up to date
     up, reason, _ = cq.up_to_date(job_id)
     
-
     red = lambda x: compmake_colored(x, 'red')
     bold = lambda x: compmake_colored((x + ' ').rjust(15), attrs=['bold'])
 
@@ -74,7 +73,6 @@ def list_job_detail(job_id, context, cq, max_lines):
             
         for line in lines:
             out.write('%s%s\n' % (prefix, transform(line)))
-
 
     
     stdout = cache.captured_stdout

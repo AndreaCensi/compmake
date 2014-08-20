@@ -1,16 +1,14 @@
 from ..events import publish
-from ..structures import (CompmakeException, HostFailed, JobFailed, 
-    JobInterrupted)
+from ..jobs import get_job, get_job_cache, job_cache_exists, set_job
+from ..structures import (Cache, CompmakeBug, CompmakeException, HostFailed, 
+    JobFailed, JobInterrupted)
 from ..ui import error
 from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
-from compmake.jobs import get_job, get_job_cache, job_cache_exists, set_job
-from compmake.structures import Cache, CompmakeBug
-from contracts import ContractsMeta, contract
-from contracts.utils import check_isinstance, indent
+from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
 import time
@@ -147,15 +145,7 @@ class Manager(object):
         # print('adding %r to ready_todo: ' % ready_todo)
         self.ready_todo.update(ready_todo)
         
-#         logger.info('Checking if up to date...')
-#         self.ready_todo = set([job_id for job_id in self.todo
-#                                if dependencies_up_to_date(job_id)])
-# 
-#         if not ready_todo == self.ready_todo:
-#             logger.error('mismatch between ready_todo: %s %s' % (ready_todo, self.ready_todo))
-            
-            
-#         logger.info('finished adding targets')
+        # logger.info('finished adding targets')
         self.check_invariants()
 
     def instance_some_jobs(self):

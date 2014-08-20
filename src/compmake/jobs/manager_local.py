@@ -1,3 +1,5 @@
+from ..structures import Cache
+from ..ui import compmake_colored
 from .actions import make
 from .manager import Manager
 
@@ -25,6 +27,22 @@ class ManagerLocal(Manager):
     def instance_job(self, job_id):
         return FakeAsync(job_id, context=self.context, new_process = self.new_process)
 
+    def job_failed(self, job_id):
+        Manager.job_failed(self, job_id)
+        if self.new_process:
+            display_job_failed(db=self.db, job_id=job_id)
+                
+                
+def display_job_failed(db, job_id):
+    """ Displays the exception that made the job fail. """
+    from ..jobs import get_job_cache
+    cache = get_job_cache(job_id, db=db)
+    assert cache.state == Cache.FAILED
+    if cache.state == Cache.FAILED:
+        red = lambda x: compmake_colored(x, 'red')
+        print(red(cache.exception))
+        #print(red(cache.backtrace))
+    
 
 class FakeAsync(object):
     def __init__(self, job_id, context, new_process):
