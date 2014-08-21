@@ -17,6 +17,7 @@ from ..utils import safe_pickle_dump
 from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
     ui_command, ui_section)
 from contracts import contract
+from compmake.ui.visualization import error
 
 
 ui_section(GENERAL)
@@ -120,16 +121,19 @@ def make_single(job_list, context, out_result):
     from compmake.jobs import actions
     try:
         job_id = job_list[0]
-        print('making job %s' % job_id)
+        info('making job %s' % job_id)
         res = actions.make(job_id=job_id, context=context)
-        print('Writing to %r' % out_result)
+        info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0
     except JobFailed as e:
         res = dict(fail=str(e))
-        print('Writing to %r' % out_result)
+        info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         raise MakeFailed(failed=[job_id])
+    except BaseException as e:
+        error('warning: %s' % e)
+        raise
 #         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
@@ -199,7 +203,7 @@ Usage:
 
 
 @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
-def sgemake(job_list, context, cq):
+def sgemake(job_list, context, cq, recurse=False):
     ''' (experimental) SGE equivalent of "make". '''
     job_list = [x for x in job_list]
 
@@ -207,7 +211,7 @@ def sgemake(job_list, context, cq):
         db = context.get_compmake_db()
         job_list = list(top_targets(db=db))
 
-    manager = SGEManager(context=context, cq=cq)
+    manager = SGEManager(context=context, cq=cq, recurse=recurse)
     manager.add_targets(job_list)
     manager.process()
     return _raise_if_failed(manager)

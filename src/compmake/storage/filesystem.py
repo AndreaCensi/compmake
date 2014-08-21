@@ -114,7 +114,6 @@ class StorageFilesystem(object):
     @track_time
     def keys0(self):
         filename = self.filename_for_key('*')
-        print('looking for %r' % filename)
         for x in glob(filename):
             # b = splitext(basename(x))[0]
             b = basename(x.replace(self.file_extension, ''))

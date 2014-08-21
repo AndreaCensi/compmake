@@ -103,7 +103,7 @@ class Manager(object):
         ''' Instances a job. '''
 
     def cleanup(self):
-        ''' free up any resource '''
+        ''' free up any resource, called wheter succesfull or not.'''
         pass
 
     @contract(returns='str')
@@ -519,7 +519,8 @@ class Manager(object):
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:
-            raise
+            print('will cleanup')
+            raise KeyboardInterrupt('Manager interrupted')
         finally:
             self.cleanup()
 

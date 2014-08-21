@@ -10,6 +10,7 @@ from contracts import contract, indent, raise_wrapped
 import os
 import sys
 import traceback
+from compmake.structures import JobInterrupted
 
 
 use_readline = True
@@ -48,12 +49,13 @@ def interpret_commands_wrap(commands, context, cq):
     except CommandFailed as e:
         publish(context, 'command-line-failed', command=commands, reason=e)
         raise
-    except KeyboardInterrupt as e:
+    except (KeyboardInterrupt, JobInterrupted) as e:
         publish(context, 'command-line-interrupted',
                 command=commands, reason='KeyboardInterrupt')
+        # If debugging
         # tb = traceback.format_exc()
         # print tb  # XXX 
-        raise
+        raise CommandFailed(str(e))
         #raise CommandFailed('Execution of %r interrupted.' % commands)
     except ShellExitRequested:
         raise

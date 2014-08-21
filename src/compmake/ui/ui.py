@@ -16,6 +16,7 @@ import os
 import sys
 import warnings
 from compmake.ui.visualization import warning
+from contracts.utils import indent
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -176,6 +177,9 @@ def clean_other_jobs(context):
             if job_args_exists(job_id, db=db):
                 delete_job_args(job_id, db=db)
  
+class WarningStorage():
+    warned = set()
+ 
 # @contract(context=CompmakeContext)
 def comp_(context, command_, *args, **kwargs):
     ''' 
@@ -198,15 +202,24 @@ def comp_(context, command_, *args, **kwargs):
     command = command_
     
     if command.__module__ == '__main__':
-        msg = ("A warning about the function %s: " % command)
-        msg += "This function is defined directly in the __main__ module, "
-        msg += "which means that it cannot be pickled correctly due to "
-        msg += "limitation of Python and 'make new_process=1' will fail. "
-        msg += "For best results, please define functions in external modules."
-        msg += '\nFor more info, read http://stefaanlippens.net/pickleproblem'
-        msg += '\nor the bug report http://bugs.python.org/issue5509.'
-        warning(msg)
-    
+        if not command in WarningStorage.warned:
+            if WarningStorage.warned:
+                # already warned for another function
+                msg = ('Same warning for function %r.' % command.__name__)
+            else:
+                msg = ("A warning about the function %r: \n" % command.__name__)
+                msg2 = (
+                "This function is defined directly in the __main__ module, \n"
+                "which means that it cannot be pickled correctly due to \n"
+                "a limitation of Python and 'make new_process=1' will fail.\n"
+                "For best results, please define functions in external modules.\n"
+                '\nFor more info, read http://stefaanlippens.net/pickleproblem'
+                '\nor the bug report http://bugs.python.org/issue5509.')
+                msg += indent(msg2, ' ')
+            warning(msg)
+            WarningStorage.warned.add(command)
+            
+            
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
 

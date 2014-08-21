@@ -1,9 +1,12 @@
-from ..structures import CompmakeException, HostFailed, JobFailed
+from ..structures import (CompmakeBug, CompmakeException, HostFailed, JobFailed, 
+    UserError)
 from ..ui import error
+from ..utils import safe_pickle_load
 from .manager import AsyncResultInterface, Manager
 from compmake import CompmakeConstants
-from contracts.utils import indent
+from contracts import indent, raise_wrapped
 from system_cmd import CmdException, system_cmd_result
+import datetime
 import os
 
 
@@ -13,13 +16,59 @@ __all__ = ['SGEManager']
 class SGEManager(Manager):
     """ Runs compmake jobs using a SGE implementation """
 
+    def __init__(self, context, cq, recurse):
+        Manager.__init__(self, context=context, cq=cq, recurse=recurse)
+        check_sge_environment()
+
     def can_accept_job(self, reasons_why_not):  # @UnusedVariable
         return True
 
     def instance_job(self, job_id):
         return SGEJob(job_id, self.db)
-
     
+    def cleanup(self):
+        Manager.cleanup(self)
+        for job_id, job in self.processing2result.items():
+            job.delete_job()
+    
+def check_sge_environment():
+    msg_install = (
+    " Please install SGE properly. "
+    )
+    try:
+        _ = which('qsub')
+    except ValueError as e:
+        msg = 'Program "qsub" not available.\n'
+        msg += msg_install
+        raise_wrapped(UserError, e, msg)
+
+
+def which(program):
+    PATH =  os.environ["PATH"]
+    PATHs = PATH.split(os.pathsep)
+    
+    def is_exe(fpath):
+        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+    def ext_candidates(fpath):
+        yield fpath
+        for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
+            yield fpath + ext
+
+    fpath, _ = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in PATHs:
+            exe_file = os.path.join(path, program)
+            for candidate in ext_candidates(exe_file):
+                if is_exe(candidate):
+                    return candidate
+
+    msg = 'Could not find program %r.' % program
+    msg += '\n paths = %s' % PATH
+    raise ValueError(msg)
 
 class SGEJob(AsyncResultInterface):
     
@@ -40,18 +89,31 @@ class SGEJob(AsyncResultInterface):
         self.db = db
         self.execute()
         
+    def delete_job(self):
+        cmd = ['qdel', self.job_id]
+        cwd = os.path.abspath(os.getcwd())
+        res = system_cmd_result(cwd, cmd,
+              display_stdout=False,
+              display_stderr=False,
+              raise_on_error=False,
+              capture_keyboard_interrupt=False)
+
     def execute(self):
         db = self.db
         # Todo: check its this one
+        
         storage = os.path.abspath(db.basepath)
         
-        spool = os.path.join(storage, 'sge_spool')
+        # create a new spool directory for each execution
+        # otherwise we get confused!
+        spool = os.path.join(storage, isodate_with_secs().replace(':','-'))
         if not os.path.exists(spool):
             os.makedirs(spool)
             
         self.stderr = os.path.join(spool, '%s.stderr' % self.job_id)
         self.stdout = os.path.join(spool, '%s.stdout' % self.job_id)
         self.retcode = os.path.join(spool, '%s.retcode' % self.job_id)
+        self.out_results = os.path.join(spool, '%s.results.pickle' % self.job_id)
         
         if os.path.exists(self.stderr):
             os.remove(self.stderr)
@@ -68,7 +130,7 @@ class SGEJob(AsyncResultInterface):
                          PYTHONPATH=os.getenv('PYTHONPATH', '') + ':' + cwd)
         
         options.extend(['-v', ",". join('%s=%s' % x for x in variables.items())])
-        # warning: spaces
+        # XXX: spaces
         options.extend(['-e', self.stderr])
         options.extend(['-o', self.stdout])
         options.extend(['-N', self.job_id])
@@ -80,12 +142,16 @@ class SGEJob(AsyncResultInterface):
         
         compmake_bin = SGEJob.get_compmake_bin()
         
-        compmake_options = [compmake_bin, storage,
-                            '--retcodefile', self.retcode,
-                            '--status_line_enabled', '0',
-                            '--colorize', '0',
-                            '-c', '"make %s"' % self.job_id]
-        
+        compmake_options = [
+            compmake_bin, storage,
+            '--retcodefile', self.retcode,
+            '--status_line_enabled', '0',
+            '--colorize', '0',
+            '-c', 
+            '"make_single out_result=%s %s"' % (self.out_results, self.job_id),
+        ] 
+        # XXX: spaces in variable out_result
+                           
         write_stdin = ' '.join(compmake_options)
         
         cmd = ['qsub'] + options 
@@ -175,19 +241,44 @@ class SGEJob(AsyncResultInterface):
 
         os.remove(self.stderr)
         os.remove(self.stdout)
-
-        if self.ret == 0:
-            return
-        elif self.ret == CompmakeConstants.RET_CODE_JOB_FAILED:
+        
+        if self.ret == CompmakeConstants.RET_CODE_JOB_FAILED:
             msg = 'SGE Job failed (ret: %s)\n' % self.ret
             msg += indent(stderr, 'err > ')
             # mark_as_failed(self.job_id, msg, None)
             error(msg)
             raise JobFailed(msg)
-        else:
+        elif self.ret != 0:
             # XXX RET_CODE_JOB_FAILED is not honored
             msg = 'SGE Job failed (ret: %s)\n' % self.ret
             msg += indent(stderr, 'err > ')
             error(msg)
             raise JobFailed(msg)
 
+        if not os.path.exists(self.out_results):
+            msg = 'job succeeded but no %r found' % self.out_results
+            msg += '\n' + indent(stderr, 'stderr')
+            msg += '\n' + indent(stdout, 'stdout')
+            raise CompmakeBug(msg)
+        
+        res = safe_pickle_load(self.out_results)
+        os.unlink(self.out_results)
+        from compmake.jobs.manager_pmake import _check_result_dict
+        _check_result_dict(res)
+        
+        if 'fail' in res:
+            raise JobFailed(self.result['fail'])
+        
+        if 'abort' in res:
+            raise HostFailed(self.result['abort'])
+        
+        if 'bug' in res:
+            raise CompmakeBug(self.result['bug'])
+        
+        return res
+
+def isodate_with_secs():
+    """ E.g., '2011-10-06-22:54:33' """
+    now = datetime.datetime.now()
+    date = now.isoformat('-')[:19]
+    return date

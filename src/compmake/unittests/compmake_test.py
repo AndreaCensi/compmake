@@ -1,16 +1,14 @@
 from abc import ABCMeta
-import os
-from shutil import rmtree
-from tempfile import mkdtemp
-import unittest
-
-from contracts import contract
-
 from compmake.context import Context
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
-from compmake.structures import Job, CommandFailed, MakeFailed
+from compmake.structures import CommandFailed, Job, MakeFailed
+from contracts import contract
+from shutil import rmtree
+from tempfile import mkdtemp
+import os
+import unittest
 
 
 class CompmakeTest(unittest.TestCase):
@@ -19,13 +17,12 @@ class CompmakeTest(unittest.TestCase):
     def setUp(self):
         self.root0 = mkdtemp()
         self.root = os.path.join(self.root0, 'compmake')
-        # print('CompmakeTest using db %s' % self.root)
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)
         self.mySetUp()
 
     def tearDown(self):
-        if True:
+        if False:
             print('not deleting %s' % self.root0)
         else:
             rmtree(self.root0)
