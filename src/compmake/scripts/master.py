@@ -4,7 +4,7 @@ from ..context import Context
 from ..jobs import all_jobs, set_namespace
 from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
-from ..structures import CommandFailed, UserError
+from ..structures import CommandFailed, MakeFailed, UserError
 from ..ui import error, info, interpret_commands_wrap
 from ..utils import setproctitle
 from .scripts_utils import wrap_script_entry_point
@@ -54,31 +54,7 @@ For example:
     $ compmake out-compmake -c "clean; parmake n=2"
    
 """
-
-# 
-# 
-# usage = """
-# The "compmake" script has takes either a module name or a DB directory.
-# 
-# 1) In the basic usage, pass a module name, and an optional command with "-c".
-# 
-#     $ compmake  <module_name>  [-c COMMAND]
-#     
-#    For example, if you have a file "example.py", you could run
-#    
-#     $ compmake example
-#     
-#    or 
-#     
-#     $ compmake example -c "clean; parmake n=2"
-# 
-# 
-# 2) Advanced usage: load jobs from an existing directory.
-# 
-#    $ compmake compmake_storage
-#    
-#    
-# """
+ 
 
 def main():
     wrap_script_entry_point(compmake_main,
@@ -169,14 +145,7 @@ def compmake_main(args):
             context = context.compmake_db['context']
     else:
         msg = 'Directory not found: %s' % one_arg
-        raise UserError(msg)
-#         check_not_filename(one_arg)
-# 
-#         dirname = get_compmake_config('path')
-#         db = StorageFilesystem(dirname)
-#         context = Context(db=db)
-#         Context._default = context
-#         load_module(one_arg)
+        raise UserError(msg) 
 
     args = args[1:]
  
@@ -195,14 +164,14 @@ def compmake_main(args):
                 context.batch_command(options.command)
             else:
                 context.compmake_console()
+        except MakeFailed:
+            retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
             retcode = 1
         else:
             retcode = 0    
         
         if options.retcodefile is not None:
-            if isinstance(retcode, str):
-                retcode = 1
             write_atomic(options.retcodefile, str(retcode))
         
         if options.nosysexit:
@@ -247,19 +216,16 @@ def load_existing_db(dirname):
     
     # check if it is compressed
     files = os.listdir(dirname)
-    one = files[0]
-    if '.gz' in one:
-        compress = True
+    for one in files:
+        if '.gz' in one:
+            compress = True
+            break
     else:
         compress = False
 
     db = StorageFilesystem(dirname, compress=compress)
     context = Context(db=db)
-    
     jobs = list(all_jobs(db=db))
-    if not jobs:
-        msg = 'No jobs found in that directory.'
-        raise UserError(msg)
     logger.info('Found %d existing jobs.' % len(jobs))
     context.reset_jobs_defined_in_this_session(jobs)
     
