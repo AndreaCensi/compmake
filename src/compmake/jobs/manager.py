@@ -33,7 +33,10 @@ class AsyncResultInterface(object):
     @abstractmethod
     def get(self, timeout=0):
         ''' Either:
-            - returns normally (value ignored)
+            - returns a dictionary with fields:
+                new_jobs: list of jobs created
+                user_object_deps: ...
+            or:
             - raises JobFailed
             - raises HostFailed
             - raises JobInterrupted
@@ -224,6 +227,8 @@ class Manager(object):
             if async_result.ready():
                 result = async_result.get()
                 check_isinstance(result, dict)
+                from .manager_pmake import _check_result_dict
+                _check_result_dict(result)
                 new_jobs = result['new_jobs']
                 # print('job generated %s' % new_jobs)
                 if self.recurse:

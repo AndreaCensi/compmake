@@ -2,6 +2,7 @@ from ..structures import Cache
 from ..ui import compmake_colored
 from .actions import make
 from .manager import Manager
+from compmake.jobs.manager import AsyncResultInterface
 
 
 __all__ = [
@@ -44,14 +45,14 @@ def display_job_failed(db, job_id):
         #print(red(cache.backtrace))
     
 
-class FakeAsync(object):
+class FakeAsync(AsyncResultInterface):
     def __init__(self, job_id, context, new_process):
         self.job_id = job_id
         self.context = context
         self.done = False
         self.new_process = new_process
 
-    def execute(self):
+    def _execute(self):
         if self.done:
             return
         if self.new_process:
@@ -64,10 +65,10 @@ class FakeAsync(object):
         self.done = True
 
     def ready(self):
-        self.execute()
+        #self._execute()
         return True
 
     def get(self, timeout=0):  # @UnusedVariable
-        self.execute()
+        self._execute()
         return dict(new_jobs=self.result['new_jobs'],
                     user_object_deps=self.result['user_object_deps'])

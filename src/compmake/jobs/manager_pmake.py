@@ -1,9 +1,11 @@
-from .manager import AsyncResultInterface, Manager
-from .manager_multiprocessing import Shared, parmake_job2
-from compmake.events import broadcast_event, publish
-from compmake.state import get_compmake_config
 from ..structures import (CompmakeException, HostFailed, JobFailed, 
     JobInterrupted)
+from .manager import AsyncResultInterface, Manager
+from .manager_multiprocessing import Shared, parmake_job2
+from compmake.constants import CompmakeConstants
+from compmake.events import broadcast_event, publish
+from compmake.state import get_compmake_config
+from compmake.structures import CompmakeBug
 from compmake.utils import safe_pickle_load
 from contracts import check_isinstance, contract, indent
 from multiprocessing import TimeoutError
@@ -114,29 +116,63 @@ def parmake_job2_new_process(args):
          
     out_result = os.path.join(where, '%s.results.pickle' % job_id)
     out_result = os.path.abspath(out_result)
-    cmd = [compmake_bin, storage,
-                        '--contracts',
-                        '--status_line_enabled', '0',
-                        '--colorize', '0',
-                        '-c', 'make_single out_result=%s %s' % (out_result, job_id)]
+    cmd = [
+        compmake_bin, 
+        storage,
+        '--contracts',
+        '--status_line_enabled', '0',
+        '--colorize', '0',
+        '-c', 
+        'make_single out_result=%s %s' % (out_result, job_id),
+    ]
 
     cwd = os.getcwd() 
-    res = system_cmd_result(cwd, cmd,
+    cmd_res = system_cmd_result(cwd, cmd,
                       display_stdout=False,
                       display_stderr=False,
                       raise_on_error=False,
                       capture_keyboard_interrupt=False)
-    ret = res.ret
-
-    if ret != 0: # XXX: 
+    ret = cmd_res.ret
+    
+    if ret == CompmakeConstants.RET_CODE_JOB_FAILED: # XXX: 
         msg = 'Job %r failed in external process' % job_id
-        msg += indent(res.stdout, 'stdout| ')
-        msg += indent(res.stderr, 'stderr| ')
+        msg += indent(cmd_res.stdout, 'stdout| ')
+        msg += indent(cmd_res.stderr, 'stderr| ')
         raise JobFailed(msg)
-
+    elif ret != 0:
+        msg = 'Host failed while doing %r' % job_id
+        msg += '\n cmd: %s' % " ".join(cmd)
+        msg += '\n' + indent(cmd_res.stdout, 'stdout| ')
+        msg += '\n' + indent(cmd_res.stderr, 'stderr| ')
+        raise CompmakeBug(msg) # XXX:
+    
     res = safe_pickle_load(out_result)
     os.unlink(out_result)
+    _check_result_dict(res)
+    
+#     if 'fail' in res:
+#         raise JobFailed(res['fail'])
+#     elif 'bug' in res:
+#         raise CompmakeBug(res['bug'])
+#     assert 'new_jobs' in res
+#     assert 'user_object_deps' in res
     return res
+     
+
+def _check_result_dict(res):
+    check_isinstance(res,dict)
+    if 'new_jobs' in res:
+        assert 'user_object_deps' in res
+    elif 'fail' in res:
+        pass
+    elif 'bug' in res:
+        pass
+    elif 'abort' in res:
+        pass
+    else:
+        msg = 'Malformed result dict: %s' % res
+        raise ValueError(msg)
+     
      
  
  
@@ -170,16 +206,14 @@ class PmakeResult(AsyncResultInterface):
             
         check_isinstance(self.result, dict)
         if 'fail' in self.result:
-            msg = 'Currently debuging exceptions so full trace not available.'
-            msg += '\n' + indent(self.result['fail'], '| ')
-            raise JobFailed(msg)
+            raise JobFailed(self.result['fail'])
         
         if 'abort' in self.result:
-            msg = 'Currently debuging exceptions so full trace not available.'
-            msg += '\n' + indent(self.result['abort'], '| ')
-
-            raise HostFailed(msg)
-            
+            raise HostFailed(self.result['abort'])
+        
+        if 'bug' in self.result:
+            raise CompmakeBug(self.result['bug'])
+        
         return self.result
 
 
@@ -286,16 +320,20 @@ class PmakeManager(Manager):
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.terminate()
             
-        #   print('killing')
-        # for name, sub in self.subs.items():  # @UnusedVariable
-        #   pid  = sub.proc.pid
-        #   os.kill(pid, signal.SIGKILL)
 
-        #print('joining')
-        for name, sub in self.subs.items():  # @UnusedVariable
-            sub.proc.join()
-                        
-        #print('process_finished() done')
+        # XXX: in practice this never works well
+        if False:
+            # print('joining')
+            timeout = 1 
+            for _, sub in self.subs.items():  
+                sub.proc.join(timeout)
+
+        # XXX: ... so we just kill them mercilessly
+        if True:
+            # print('killing')
+            for _, sub in self.subs.items(): 
+                pid  = sub.proc.pid
+                os.kill(pid, signal.SIGKILL)
         
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)

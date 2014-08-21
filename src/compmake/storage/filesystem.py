@@ -4,14 +4,14 @@ from compmake.utils import (find_pickling_error, safe_pickle_dump,
     safe_pickle_load)
 from glob import glob
 from os.path import basename
+import os
 import sys
+import traceback
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
     import cPickle as pickle  # @Reimport
 
-import os
-import traceback
 
 if False:
     track_time = lambda x: x
@@ -80,18 +80,8 @@ class StorageFilesystem(object):
         filename = self.filename_for_key(key)
         protocol = pickle.HIGHEST_PROTOCOL
         try:
-#             paranoid = False
-#             if paranoid or self.compress:  # safe_pickle_dump can take care of .gz
-#             print('writing to %s' % filename)
             safe_pickle_dump(value, filename, protocol)
             assert os.path.exists(filename)
-#             else:
-#                 if False:
-#                     f = open(filename, 'wb', buffering=-1)
-#                     pickle.dump(value, f, protocol)
-#                 else:
-#                     with open(filename, 'wb', buffering=-1) as f:
-#                         pickle.dump(value, f, protocol)
 
         except BaseException as e:
             msg = ('Cannot set key %s: cannot pickle object '
@@ -118,12 +108,13 @@ class StorageFilesystem(object):
         filename = self.filename_for_key(key)
         ex = os.path.exists(filename)
         
-#         logger.debug('? %s %s %s' % (str(key), filename, ex))
+        #  logger.debug('? %s %s %s' % (str(key), filename, ex))
         return ex
   
     @track_time
     def keys0(self):
         filename = self.filename_for_key('*')
+        print('looking for %r' % filename)
         for x in glob(filename):
             # b = splitext(basename(x))[0]
             b = basename(x.replace(self.file_extension, ''))

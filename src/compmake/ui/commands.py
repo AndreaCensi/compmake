@@ -120,6 +120,7 @@ def make_single(job_list, context, out_result):
     from compmake.jobs import actions
     try:
         job_id = job_list[0]
+        print('making job %s' % job_id)
         res = actions.make(job_id=job_id, context=context)
         print('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
@@ -128,9 +129,8 @@ def make_single(job_list, context, out_result):
         res = dict(fail=str(e))
         print('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
-
-        # FIXME        
-        return CompmakeConstants.RET_CODE_JOB_FAILED
+        raise MakeFailed(failed=[job_id])
+#         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
 @ui_command(section=ACTIONS, dbchange=True)

@@ -1,13 +1,10 @@
-import os
-
-from system_cmd import CmdException, system_cmd_result
-
-from compmake import CompmakeConstants
-from contracts.utils import indent
-
 from ..structures import CompmakeException, HostFailed, JobFailed
 from ..ui import error
 from .manager import AsyncResultInterface, Manager
+from compmake import CompmakeConstants
+from contracts.utils import indent
+from system_cmd import CmdException, system_cmd_result
+import os
 
 
 __all__ = ['SGEManager']

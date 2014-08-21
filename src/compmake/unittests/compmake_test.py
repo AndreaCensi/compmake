@@ -25,7 +25,7 @@ class CompmakeTest(unittest.TestCase):
         self.mySetUp()
 
     def tearDown(self):
-        if False:
+        if True:
             print('not deleting %s' % self.root0)
         else:
             rmtree(self.root0)

@@ -9,7 +9,14 @@ from ..ui import compmake_colored, ui_command, VISUALIZATION
 
 @ui_command(section=VISUALIZATION, alias='lsl')
 def details(non_empty_job_list,  context, max_lines=None):
-    '''Shows the details for the given jobs. '''
+    ''' Shows the details for the given jobs including
+        dependencies and stderr/stdout.
+    
+        The stderr/stdout lines are truncated. Use the ``max_lines``
+        argument to see more:
+        
+            details max_lines=1000 
+    '''
     num = 0
     db = context.get_compmake_db()
     cq = CacheQueryDB(db=db)

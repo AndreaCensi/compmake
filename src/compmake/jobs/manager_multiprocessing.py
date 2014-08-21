@@ -24,9 +24,6 @@ else:
 
 
 
-
-
-
 # Disable queue for stabitility
 disable_interproc_queue = False
 
@@ -352,6 +349,7 @@ def parmake_job2(args):
     except JobFailed:
         raise
     except BaseException:
+        # XXX
         raise
     except:
         raise
