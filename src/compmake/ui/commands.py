@@ -12,12 +12,11 @@ from ..events import publish
 from ..jobs import (ManagerLocal, MultiprocessingManager, PmakeManager, 
     SGEManager, all_jobs, clean_target, mark_remake, top_targets)
 from ..structures import JobFailed, MakeFailed, ShellExitRequested, UserError
-from ..ui import info
+from ..ui import error, info
 from ..utils import safe_pickle_dump
 from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
     ui_command, ui_section)
 from contracts import contract
-from compmake.ui.visualization import error
 
 
 ui_section(GENERAL)
@@ -121,20 +120,19 @@ def make_single(job_list, context, out_result):
     from compmake.jobs import actions
     try:
         job_id = job_list[0]
-        info('making job %s' % job_id)
+        #info('making job %s' % job_id)
         res = actions.make(job_id=job_id, context=context)
-        info('Writing to %r' % out_result)
+        #info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0
     except JobFailed as e:
         res = dict(fail=str(e))
-        info('Writing to %r' % out_result)
+        #info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:
         error('warning: %s' % e)
         raise
-#         return CompmakeConstants.RET_CODE_JOB_FAILED
 
 
 @ui_command(section=ACTIONS, dbchange=True)

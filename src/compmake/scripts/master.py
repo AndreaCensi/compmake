@@ -4,9 +4,9 @@ from ..context import Context
 from ..jobs import all_jobs, set_namespace
 from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
-from ..structures import CommandFailed, MakeFailed, UserError
+from ..structures import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..ui import error, info, interpret_commands_wrap
-from ..utils import setproctitle
+from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
 from optparse import OptionParser
@@ -168,6 +168,14 @@ def compmake_main(args):
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
             retcode = 1
+        except CompmakeBug as e:
+            sys.stderr.write('unexpected exception: %s' % my_format_exc(e))
+            retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
+        except BaseException as e:
+            sys.stderr.write('unexpected exception: %s' % my_format_exc(e))
+            retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
+        except:
+            retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         else:
             retcode = 0    
         

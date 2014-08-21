@@ -13,6 +13,7 @@ class CompmakeConstants:
     #  RET_CODE_JOB_FAILED    if some job failed
     #  other != 0             if compmake itself had some errors
     RET_CODE_JOB_FAILED = 113
+    RET_CODE_COMPMAKE_BUG = 114
 
     # Statuses ------------------------------------------------
     # Compmake can be run in different "states"

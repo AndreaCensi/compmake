@@ -320,7 +320,6 @@ class PmakeManager(Manager):
         for name, sub in self.subs.items():  # @UnusedVariable
             sub.proc.terminate()
             
-
         # XXX: in practice this never works well
         if False:
             # print('joining')

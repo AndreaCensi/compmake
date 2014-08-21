@@ -53,7 +53,10 @@ Add a submit host:
 
 Add a queue using this: 
 
-    sudo qconf -aq compmake
+    sudo qconf -aq queue1
+
+Note that you need to add more queues if you want multiple jobs executed.
+For example, if you have 8 cores, you might want to add 7 queues.
 
 Here's a simple script ``hello.sh`` to try:
 

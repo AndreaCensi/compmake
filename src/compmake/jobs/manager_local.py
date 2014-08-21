@@ -1,8 +1,7 @@
 from ..structures import Cache
 from ..ui import compmake_colored
 from .actions import make
-from .manager import Manager
-from compmake.jobs.manager import AsyncResultInterface
+from .manager import AsyncResultInterface, Manager
 
 
 __all__ = [

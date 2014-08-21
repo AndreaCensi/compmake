@@ -230,6 +230,11 @@ class Manager(object):
                 from .manager_pmake import _check_result_dict
                 _check_result_dict(result)
                 new_jobs = result['new_jobs']
+                
+                # Job succeeded? we can check in the DB
+                if True: # XXX: extra check
+                    check_job_cache_says_done(job_id=job_id, db=self.db)
+                
                 # print('job generated %s' % new_jobs)
                 if self.recurse:
                     # print('adding targets %s' % new_jobs)
@@ -294,23 +299,8 @@ class Manager(object):
             return False
         except JobFailed as e:
             # it is the responsibility of the executer to mark_job_as_failed, 
-            # so we can check
-            if not job_cache_exists(job_id, db=self.db):
-                msg = ('The job %r was reported as failed but no record of ' 
-                       'it was found.' % job_id)
-                msg += '\n' + 'JobFailed exception:'
-                msg += '\n' + indent(str(e), "| ")
-                raise CompmakeBug(msg)                
-            else:
-                cache = get_job_cache(job_id, db=self.db)
-                if not cache.state == Cache.FAILED:
-                    msg = ('The job %r was reported as failed but it was '
-                           'not marked as such in the DB.' % job_id)
-                    msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
-                    msg += '\n' + 'JobFailed exception:'
-                    msg += '\n' + indent(str(e), "| ")
-                    raise CompmakeBug(msg)
-
+            # so we can check that
+            check_job_cache_says_failed(job_id=job_id, db=self.db, e=e)
             self.job_failed(job_id)
             return True
         except HostFailed as e:
@@ -603,5 +593,36 @@ class Manager(object):
 #        partition(['ready_todo', 'done', 'failed', 'blocked', 'processing'],
 #                   'all_targets')
 
-        
-         
+def check_job_cache_says_done(job_id, db):
+    """ Raises CompmakeBug if the job is not marked as done. """
+    if not job_cache_exists(job_id, db):
+        msg = ('The job %r was reported as failed but no record of ' 
+               'it was found.' % job_id) 
+        raise CompmakeBug(msg)                
+    else:
+        cache = get_job_cache(job_id, db)
+        if not cache.state == Cache.DONE:
+            msg = ('The job %r was reported as failed but it was '
+                   'not marked as such in the DB.' % job_id)
+            msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
+            raise CompmakeBug(msg)
+ 
+
+def check_job_cache_says_failed(job_id, db, e):
+    """ Raises CompmakeBug if the job is not marked as failed. """
+    if not job_cache_exists(job_id, db):
+        msg = ('The job %r was reported as failed but no record of ' 
+               'it was found.' % job_id)
+        msg += '\n' + 'JobFailed exception:'
+        msg += '\n' + indent(str(e), "| ")
+        raise CompmakeBug(msg)                
+    else:
+        cache = get_job_cache(job_id, db)
+        if not cache.state == Cache.FAILED:
+            msg = ('The job %r was reported as failed but it was '
+                   'not marked as such in the DB.' % job_id)
+            msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
+            msg += '\n' + 'JobFailed exception:'
+            msg += '\n' + indent(str(e), "| ")
+            raise CompmakeBug(msg)
+ 

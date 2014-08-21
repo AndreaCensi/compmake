@@ -8,6 +8,8 @@ def func1(param1):
     print('Computing func1(%r)' % param1)
     time.sleep(wait) # Wait a little
     result = param1 * 2 
+    if param1 == 2:
+        raise ValueError('simulating failure')
     return result
     
 def func2(param1, param2): 

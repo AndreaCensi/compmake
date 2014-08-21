@@ -28,7 +28,7 @@ class SGEManager(Manager):
     
     def cleanup(self):
         Manager.cleanup(self)
-        for job_id, job in self.processing2result.items():
+        for _, job in self.processing2result.items():
             job.delete_job()
     
 def check_sge_environment():
@@ -90,9 +90,10 @@ class SGEJob(AsyncResultInterface):
         self.execute()
         
     def delete_job(self):
-        cmd = ['qdel', self.job_id]
+        cmd = ['qdel', self.sge_id]
         cwd = os.path.abspath(os.getcwd())
-        res = system_cmd_result(cwd, cmd,
+        # TODO: check errors
+        _ = system_cmd_result(cwd, cmd,
               display_stdout=False,
               display_stderr=False,
               raise_on_error=False,
@@ -129,11 +130,14 @@ class SGEJob(AsyncResultInterface):
         variables = dict(SGE_O_WORKDIR=cwd,
                          PYTHONPATH=os.getenv('PYTHONPATH', '') + ':' + cwd)
         
+        # nice-looking name
+        sge_job_name = 'cm%s-%s' % (os.getpid(), self.job_id)
+        # Note that we get the official "id" later and we store it in self.sge_id
         options.extend(['-v', ",". join('%s=%s' % x for x in variables.items())])
         # XXX: spaces
         options.extend(['-e', self.stderr])
         options.extend(['-o', self.stdout])
-        options.extend(['-N', self.job_id])
+        options.extend(['-N', sge_job_name])
         options.extend(['-wd', cwd])
         
         options.extend(['-V'])  # pass all environment

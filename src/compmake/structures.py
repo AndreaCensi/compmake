@@ -1,10 +1,7 @@
 from contracts import contract
 
-
-
 class ShellExitRequested(Exception):
     pass
-
 
 class CompmakeException(Exception):
     pass
@@ -16,9 +13,9 @@ class CommandFailed(Exception):
     pass
 
 class MakeFailed(CommandFailed):
-    def __init__(self, failed, blocked):
-        self.failed = failed
-        self.blocked = blocked
+    def __init__(self, failed, blocked=[]):
+        self.failed = set(failed)
+        self.blocked = set(blocked)
         msg = 'Make failed (%d failed, %d blocked)' % (len(self.failed),
                                                        len(self.blocked))
         CommandFailed.__init__(self, msg)
