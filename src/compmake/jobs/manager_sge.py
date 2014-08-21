@@ -28,6 +28,9 @@ class SGEManager(Manager):
     
     def cleanup(self):
         Manager.cleanup(self)
+        n = len(self.processing2result)
+        if n > 100:
+            print('Cleaning up %d SGE jobs. Please be patient.' % n)
         for _, job in self.processing2result.items():
             job.delete_job()
     

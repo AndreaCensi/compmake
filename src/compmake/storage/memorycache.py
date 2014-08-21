@@ -1,3 +1,8 @@
+import sys
+
+__all__ = [
+    'MemoryCache',
+]
 
 class MemoryCache(object):
 
@@ -37,6 +42,10 @@ class MemoryCache(object):
         else:
             return self.db.__contains__(key)
   
+    def sizeof(self, key):
+        # XXX: not recursive
+        return sys.getsizeof(key)
+    
     def keys(self):
         return self.db.keys() 
     

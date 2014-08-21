@@ -41,6 +41,12 @@ class StorageFilesystem(object):
         return "FilesystemDB(%r)" % self.basepath
 
     @track_time
+    def sizeof(self, key):
+        filename = self.filename_for_key(key)
+        statinfo = os.stat(filename)
+        return statinfo.st_size
+        
+    @track_time
     def __getitem__(self, key):
         if trace_queries:
             logger.debug('R %s' % str(key))

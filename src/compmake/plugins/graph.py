@@ -1,13 +1,10 @@
 from compmake.jobs import CacheQueryDB, top_targets
 from compmake.structures import Cache, UserError
-from compmake.ui import COMMANDS_ADVANCED, info, ui_command, ui_section
+from compmake.ui import COMMANDS_ADVANCED, info, ui_command
 import os
 
 
-ui_section(COMMANDS_ADVANCED)
-
-
-@ui_command
+@ui_command(section=COMMANDS_ADVANCED)
 def graph(job_list, context, filename='compmake',
           filter='dot', format='png', compact=False):  # @ReservedAssignment
     '''Creates a graph of the given targets and dependencies 

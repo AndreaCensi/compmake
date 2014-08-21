@@ -4,17 +4,8 @@ These are all wrappers around the raw methods in storage
 
 from ..structures import Cache, CompmakeException, Job
 from ..utils import wildcard_to_regexp
-from compmake import CompmakeGlobalState
 from contracts import contract
 
-def set_namespace(n):
-    if n != 'default':
-        # logger.info('Using namespace %r.' % n)
-        pass
-    CompmakeGlobalState.namespace = n
-
-def get_namespace():
-    return CompmakeGlobalState.namespace
 
 
 def remove_all_jobs(db):
@@ -23,12 +14,12 @@ def remove_all_jobs(db):
 
 
 def job2key(job_id):
-    prefix = 'cm:%s:job:' % get_namespace()
+    prefix = 'cm-job-'
     return '%s%s' % (prefix, job_id)
 
 
 def key2job(key):
-    prefix = 'cm:%s:job:' % get_namespace()
+    prefix = 'cm-job-' 
     return key.replace(prefix, '', 1)
  
 
@@ -73,7 +64,7 @@ def delete_job(job_id, db):
 # Cache objects
 #
 def job2cachekey(job_id):
-    prefix = 'cm:%s:cache:' % get_namespace()
+    prefix = 'cm-cache-' 
     return '%s%s' % (prefix, job_id)
 
 
@@ -102,31 +93,39 @@ def get_job_cache(job_id, db):
         return cache
 
 def job_cache_exists(job_id, db):
-    cache_key = job2cachekey(job_id)
-    return cache_key in db
+    key = job2cachekey(job_id)
+    return key in db
+
+def job_cache_sizeof(job_id, db):
+    key = job2cachekey(job_id)
+    return db.sizeof(key)
 
 def set_job_cache(job_id, cache, db):
     assert(isinstance(cache, Cache))
-    cache_key = job2cachekey(job_id)
-    db[cache_key] = cache
+    key = job2cachekey(job_id)
+    db[key] = cache
 
 
 @contract(job_id=str)
 def delete_job_cache(job_id, db):
-    cache_key = job2cachekey(job_id)
-    del db[cache_key]
+    key = job2cachekey(job_id)
+    del db[key]
 
 
 #
 # User objects
 #
 def job2userobjectkey(job_id):
-    prefix = 'cm:%s:res:' % get_namespace()
+    prefix = 'cm-res-' 
     return '%s%s' % (prefix, job_id)
 
 def get_job_userobject(job_id, db):
     key = job2userobjectkey(job_id)
     return db[key]
+
+def job_userobject_sizeof(job_id, db):
+    key = job2userobjectkey(job_id)
+    return db.sizeof(key)
 
 def is_job_userobject_available(job_id, db):
     key = job2userobjectkey(job_id)
@@ -141,10 +140,9 @@ def set_job_userobject(job_id, obj, db):
 def delete_job_userobject(job_id, db):
     key = job2userobjectkey(job_id)
     del db[key]
- 
 
 def job2jobargskey(job_id):
-    prefix = 'cm:%s:args:' % get_namespace()
+    prefix = 'cm-args-' 
     return '%s%s' % (prefix, job_id)
 
 def get_job_args(job_id, db):
@@ -154,6 +152,10 @@ def get_job_args(job_id, db):
 def job_args_exists(job_id, db):
     key = job2jobargskey(job_id)
     return key in db
+
+def job_args_sizeof(job_id, db):
+    key = job2jobargskey(job_id)
+    return db.sizeof(key)
 
 def set_job_args(job_id, obj, db):
     key = job2jobargskey(job_id)

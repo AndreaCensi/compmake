@@ -1,4 +1,5 @@
 from contracts import contract
+from contracts.interface import describe_value
 
 class ShellExitRequested(Exception):
     pass
@@ -218,53 +219,57 @@ class Job(object):
         ''' Use same_computation() for serious comparison '''
         return self.job_id == other.job_id
 
-    def same_computation(self, other):
-        ''' Returns boolean, string tuple '''
-        assert False, 'Outdated function'
-        equal_command = self.command == other.command
-        equal_args = self.args == other.args
-        equal_kwargs = self.kwargs == other.kwargs
+def same_computation(jobargs1, jobargs2):
+    ''' Returns boolean, string tuple '''
+    cmd1, args1, kwargs1 = jobargs1
+    cmd2, args2, kwargs2 = jobargs2
+    
+    equal_command = cmd1 == cmd2
+    equal_args = args1 == args2
+    equal_kwargs = kwargs1 == kwargs2
 
-        equal = equal_args and equal_kwargs and equal_command
-        if not equal:
-            reason = ""
+    equal = equal_args and equal_kwargs and equal_command
+    if not equal:
+        reason = ""
 
-            if self.command != other.command:
-                reason += '* function changed \n'
-                reason += '  - old: %s \n' % self.command
-                reason += '  - new: %s \n' % other.command
+        if not equal_command:
+            reason += '* function changed \n'
+            reason += '  - old: %s \n' % cmd1
+            reason += '  - new: %s \n' % cmd2
 
-                # TODO: can we check the actual code?
+            # TODO: can we check the actual code?
 
-            warn = ' (or you did not implement proper __eq__)'
-            if len(self.args) != len(other.args):
-                reason += '* different number of arguments (%d -> %d)\n' % \
-                    (len(self.args), len(other.args))
-            else:
-                for i, ob in enumerate(self.args):
-                    if ob != other.args[i]:
-                        reason += '* arg #%d changed %s \n' % (i, warn)
-                        reason += '  - old: %s\n' % ob
-                        reason += '  - old: %s\n' % other.args[i]
-
-            for key, value in self.kwargs.items():
-                if key not in other.kwargs:
-                    reason += '* kwarg "%s" not found\n' % key
-                elif  value != other.kwargs[key]:
-                    reason += '* argument "%s" changed %s \n' % (key, warn)
-                    reason += '  - old: %s \n' % value
-                    reason += '  - new: %s \n' % other.kwargs[key]
-
-            return False, reason
+        warn = ' (or you did not implement proper __eq__)'
+        if len(args1) != len(args2):
+            reason += '* different number of arguments (%d -> %d)\n' % \
+                (len(args1), len(args2))
         else:
-            return True, None
+            for i, ob in enumerate(args1):
+                if ob != args2[i]:
+                    reason += '* arg #%d changed %s \n' % (i, warn)
+                    reason += '  - old: %s\n' % describe_value(ob)
+                    reason += '  - old: %s\n' % describe_value(args2[i])
+
+        for key, value in kwargs1.items():
+            if key not in kwargs2:
+                reason += '* kwarg "%s" not found\n' % key
+            elif  value != kwargs2[key]:
+                reason += '* argument "%s" changed %s \n' % (key, warn)
+                reason += '  - old: %s \n' % describe_value(value)
+                reason += '  - new: %s \n' % describe_value(kwargs2[key])
+        
+        # TODO: different lengths
+
+        return False, reason
+    else:
+        return True, None
 
 
 
 def execute_with_context(db, context, job_id, command, args, kwargs):
     from compmake.context import Context
     assert isinstance(context, Context)
-    from compmake.ui.visualization import info
+    #from compmake.ui.visualization import info
     from compmake.jobs.storage import get_job
 
     cur_job = get_job(job_id=job_id, db=db)
@@ -287,18 +292,20 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
             # info('Job %r generated %d jobs such as %s.' % 
             #     (job_id, len(generated), sorted(generated)[:M]))
             pass
-    # now remove the extra jobs that are not needed anymore
-    extra = []
-    from .jobs import all_jobs, delete_all_job_data
-    for g in all_jobs(db=db):
-        if get_job(g, db=db).defined_by[-1] == job_id:
-            if not g in generated:
-                extra.append(g)
-
-    for g in extra:
-        job = get_job(g, db=db)
-        info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
-        delete_all_job_data(g, db=db)
+#     # now remove the extra jobs that are not needed anymore
+#     extra = []
+#     from .jobs import all_jobs, delete_all_job_data
+#     # FIXME this is a RACE CONDITION -- needs to be done in the main thread
+#     info('now cleaning up; generated = %s' % generated)
+#     for g in all_jobs(db=db):
+#         if get_job(g, db=db).defined_by[-1] == job_id:
+#             if not g in generated:
+#                 extra.append(g)
+#                 
+#     for g in extra:
+#         job = get_job(g, db=db)
+#         info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
+#         delete_all_job_data(g, db=db)
 
     return dict(user_object=res, new_jobs=generated)
 

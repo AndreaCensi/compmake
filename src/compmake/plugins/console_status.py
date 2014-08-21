@@ -4,7 +4,7 @@ from ..ui import compmake_colored
 from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
 from compmake import CompmakeGlobalState
-from contracts.utils import indent
+from contracts import indent
 import sys
 import time
 

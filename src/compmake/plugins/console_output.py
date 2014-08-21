@@ -5,7 +5,7 @@ from ..events import register_handler
 from ..ui import compmake_colored, error
 from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
     get_screen_columns)
-from contracts.utils import indent
+from contracts import indent
 
 
 # sys.stdout will be changed later

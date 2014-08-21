@@ -1,7 +1,7 @@
 from .. import CompmakeConstants, logger, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
-from ..jobs import all_jobs, set_namespace
+from ..jobs import all_jobs
 from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
 from ..structures import CommandFailed, CompmakeBug, MakeFailed, UserError
@@ -117,7 +117,7 @@ def compmake_main(args):
 #        remove_all_handlers()
 #        register_handler("*", handler)
 
-    set_namespace(options.namespace)
+#     set_namespace(options.namespace)
     
     # XXX make sure this is the default
     if not args:
@@ -257,7 +257,7 @@ def load_module(module_name):
 #        warning('However, I need a module name. I will try with %r.' % 
 #                module_name)
 
-    set_namespace(module_name)
+#     set_namespace(module_name)
 
     compmake.is_it_time = True
     try:

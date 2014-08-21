@@ -3,6 +3,7 @@ from contracts import indent
 from system_cmd import CmdException, system_cmd_result
 import os
 import tempfile
+from compmake.unittests.expected_fail import expected_failure
 
 def get_examples_path():
     from pkg_resources import resource_filename  # @UnresolvedImport
@@ -59,32 +60,18 @@ def create_tmp_dir():
         raise
 
 
-import functools
-import nose
-
-def expected_failure(test):
-    @functools.wraps(test)
-    def inner(*args, **kwargs):
-        try:
-            test(*args, **kwargs)
-        except Exception:
-            raise nose.SkipTest
-        else:
-            raise AssertionError('Failure expected')
-    return inner
 
 cmd_make1 = 'make recurse=1'
 cmd_make2 = 'parmake recurse=1'
 cmd_make3 = 'make recurse=1 new_process=1'
 cmd_make4 = 'parmake recurse=1 new_process=1'
 
-def test_example_big1():
-    run_example('example_big', cmd_make1, expect_fail=True)
-    
-def test_example_big2():
-    run_example('example_big', cmd_make2, expect_fail=True)
-
 # This gets slow
+# def test_example_big1():
+#     run_example('example_big', cmd_make1, expect_fail=True)
+#     
+# def test_example_big2():
+#     run_example('example_big', cmd_make2, expect_fail=True)
 # def test_example_big3():
 #     run_example('example_big', cmd_make3, expect_fail=True)
 # 

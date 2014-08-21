@@ -1,21 +1,7 @@
-import functools
-
-import nose
 from nose.tools import istest
 
 from .compmake_test import CompmakeTest
-
-
-def expected_failure(test):
-    @functools.wraps(test)
-    def inner(*args, **kwargs):
-        try:
-            test(*args, **kwargs)
-        except Exception:
-            raise nose.SkipTest
-        else:
-            raise AssertionError('Failure expected')
-    return inner
+from compmake.unittests.expected_fail import expected_failure
 
 def f():
     pass

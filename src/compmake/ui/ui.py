@@ -17,6 +17,9 @@ import sys
 import warnings
 from compmake.ui.visualization import warning
 from contracts.utils import indent
+from compmake.jobs.storage import get_job_args, job_cache_exists,\
+    delete_job_cache
+from compmake.structures import same_computation
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -123,6 +126,7 @@ def generate_job_id(base, context):
 
 def clean_other_jobs(context):
     ''' Cleans jobs not defined in the session '''
+    #print('cleaning other jobs. Defined: %r' % context.get_jobs_defined_in_this_session())
     db = context.get_compmake_db()
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return
@@ -141,7 +145,7 @@ def clean_other_jobs(context):
     jobs_in_db = 0
     num_cleaned = 0
     for job_id in all_jobs(force_db=True, db=db):
-        # logger.info('Considering %s' % job_id)
+        #print('Considering %s' % job_id)
         jobs_in_db += 1
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
@@ -279,8 +283,6 @@ def comp_(context, command_, *args, **kwargs):
 
         del kwargs[CompmakeConstants.job_id_key]
 
-
-
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
@@ -379,7 +381,7 @@ def comp_(context, command_, *args, **kwargs):
             child_comp.parents.append(job_id)
             set_job(child, child_comp, db=db)
 
-    if get_compmake_config('check_params') and job_exists(job_id):
+    if get_compmake_config('check_params') and job_exists(job_id, db):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
         # however, by unpickling(), it will start
@@ -390,33 +392,26 @@ def comp_(context, command_, *args, **kwargs):
         # What we do, is that we temporarely switch to
         # slave mode, so that recursive calls to comp()
         # are disabled.
-
-        if get_compmake_config('check_params'):
-            old_status = get_compmake_status()
-            set_compmake_status(CompmakeConstants.compmake_status_slave)
-            old_computation = get_job(job_id, db=db)
-            set_compmake_status(old_status)
-
-            assert False, 'update for job_args'
-            same, reason = old_computation.same_computation(c)
+#             old_status = get_compmake_status()
+#             set_compmake_status(CompmakeConstants.compmake_status_slave)
+            all_args_old = get_job_args(job_id, db=db)
+#             set_compmake_status(old_status)
+            same, reason = same_computation(all_args, all_args_old)
 
             if not same:
-                set_job(job_id, c, db=db)
-                set_job_args(job_id, all_args, db=db)
+                print('different job, cleaning cache:\n%s  ' % reason)
+                if job_cache_exists(job_id, db):
+                    delete_job_cache(job_id, db)
                 publish(context, 'job-redefined', job_id=job_id, reason=reason)
-                # XXX TODO clean the cache
             else:
-                publish(context, 'job-already-defined', job_id=job_id)
-        else:
-            # We assume everything's ok
-            set_job(job_id, c, db=db)
-            set_job_args(job_id, all_args, db=db)
-            publish(context, 'job-defined', job_id=job_id)
+                print('ok, same job')
+                # XXX TODO clean the cache
+#             else:
+#                 publish(context, 'job-already-defined', job_id=job_id)
 
-    else:
-        set_job(job_id, c, db=db)
-        set_job_args(job_id, all_args, db=db)
-        publish(context, 'job-defined', job_id=job_id)
+    set_job(job_id, c, db=db)
+    set_job_args(job_id, all_args, db=db)
+    publish(context, 'job-defined', job_id=job_id)
 
 
     return Promise(job_id)

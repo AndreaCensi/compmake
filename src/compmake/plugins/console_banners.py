@@ -3,7 +3,7 @@ import random
 
 from .. import version
 from ..events import register_handler
-from ..jobs import all_jobs, get_namespace
+from ..jobs import all_jobs
 from ..ui import compmake_colored
 from ..utils import pad_to_screen
 
@@ -34,10 +34,7 @@ def console_starting(event, context):  # @UnusedVariable
             "(write 'help' for a list of commands)"))
     njobs = len(list(all_jobs(db)))
 
-    if get_namespace() != 'default':
-        printb("%d jobs loaded in namespace '%s'." % (njobs, get_namespace()))
-    else:
-        printb("%d jobs loaded." % njobs)
+    printb("%d jobs loaded." % njobs)
 
 
 def console_ending(event, context):  # @UnusedVariable
