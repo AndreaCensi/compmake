@@ -1,6 +1,8 @@
 from ..events import register_handler
 
-__all__ = ['Tracker']
+__all__ = [
+    'Tracker',
+]
 
 
 class Tracker():

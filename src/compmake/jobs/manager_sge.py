@@ -1,31 +1,112 @@
 from ..structures import (CompmakeBug, CompmakeException, HostFailed, JobFailed, 
     UserError)
 from ..ui import error
-from ..utils import safe_pickle_load
+from ..utils import isodate_with_secs, safe_pickle_load, which
 from .manager import AsyncResultInterface, Manager
 from compmake import CompmakeConstants
-from contracts import indent, raise_wrapped
+from compmake.state import get_compmake_config
+from contracts import contract, indent, raise_wrapped
 from system_cmd import CmdException, system_cmd_result
-import datetime
 import os
 
 
 __all__ = ['SGEManager']
 
+class SGESub():
+    def __init__(self, name, db):
+        self.name = name
+        self.job_id = None
+        self.db = db
+        self.res = None
+        
+    def delete_job(self):
+        self.res.delete_job()
+        
+    def instance_job(self, job_id):
+        self.res = SGEJob(job_id, self.db)
+        return self.res
+
 
 class SGEManager(Manager):
     """ Runs compmake jobs using a SGE implementation """
 
-    def __init__(self, context, cq, recurse):
+    def __init__(self, context, cq, recurse,
+                 num_processes=None):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
+        if num_processes is None:
+            num_processes = get_compmake_config('max_parallel_jobs')
+        self.num_processes = num_processes
         check_sge_environment()
+        
+        self.sub_available = set()
+        self.sub_processing = set() # available + processing = subs.keys
+        self.subs = {} # name -> sub
+        for i in range(self.num_processes):
+            name = 'w%02d' % i
+            self.subs[name] = SGESub(name, db=self.db) 
+        self.job2subname = {}
+        # all are available
+        self.sub_available.update(self.subs)
+                
+    def get_resources_status(self):
+        resource_available = {}
+        
+        # only one job at a time
+        process_limit_ok = len(self.sub_processing) < self.num_processes
+        if not process_limit_ok:
+            resource_available['nproc'] = (False,
+                                           'max %d nproc' % (self.max_num_processing))
+            # this is enough to continue
+            return resource_available
+        else:
+            resource_available['nproc'] = (True, '')
+                        
+        return resource_available
 
-    def can_accept_job(self, reasons_why_not):  # @UnusedVariable
+
+    @contract(reasons_why_not=dict)
+    def can_accept_job(self, reasons_why_not):
+        resources = self.get_resources_status()
+        some_missing = False
+        for k, v in resources.items():
+            if not v[0]:
+                some_missing = True
+                reasons_why_not[k] = v[1]
+        if some_missing:
+            return False
         return True
 
     def instance_job(self, job_id):
-        return SGEJob(job_id, self.db)
+        assert len(self.sub_available) > 0
+        name = sorted(self.sub_available)[0]
+        self.sub_available.remove(name)
+        assert not name in self.sub_processing
+        self.sub_processing.add(name)
+        sub = self.subs[name]
+        self.job2subname[job_id] = name
+        ares = sub.instance_job(job_id)
+        return ares
     
+    def job_failed(self, job_id):
+        Manager.job_failed(self, job_id)
+        self._clear(job_id)
+        if True:
+            from .manager_local import display_job_failed
+            display_job_failed(db=self.db, job_id=job_id)
+        
+    def job_succeeded(self, job_id):
+        Manager.job_succeeded(self, job_id)
+        self._clear(job_id)
+              
+    def _clear(self, job_id):
+        assert job_id in self.job2subname
+        name = self.job2subname[job_id]
+        del self.job2subname[job_id]
+        assert name in self.sub_processing
+        assert name not in self.sub_available
+        self.sub_processing.remove(name)
+        self.sub_available.add(name)
+
     def cleanup(self):
         Manager.cleanup(self)
         n = len(self.processing2result)
@@ -45,33 +126,6 @@ def check_sge_environment():
         msg += msg_install
         raise_wrapped(UserError, e, msg)
 
-
-def which(program):
-    PATH =  os.environ["PATH"]
-    PATHs = PATH.split(os.pathsep)
-    
-    def is_exe(fpath):
-        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-    def ext_candidates(fpath):
-        yield fpath
-        for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
-            yield fpath + ext
-
-    fpath, _ = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in PATHs:
-            exe_file = os.path.join(path, program)
-            for candidate in ext_candidates(exe_file):
-                if is_exe(candidate):
-                    return candidate
-
-    msg = 'Could not find program %r.' % program
-    msg += '\n paths = %s' % PATH
-    raise ValueError(msg)
 
 class SGEJob(AsyncResultInterface):
     
@@ -283,9 +337,3 @@ class SGEJob(AsyncResultInterface):
             raise CompmakeBug(self.result['bug'])
         
         return res
-
-def isodate_with_secs():
-    """ E.g., '2011-10-06-22:54:33' """
-    now = datetime.datetime.now()
-    date = now.isoformat('-')[:19]
-    return date

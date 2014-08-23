@@ -136,7 +136,9 @@ def make_single(job_list, context, out_result):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def parmake(job_list, context, cq, n=None, recurse=False, new_process='config'):    
+def parmake(job_list, context, cq, 
+            n=None, recurse=False, new_process='config',
+            show_output=False):    
     """ Parallel equivalent of "make", using multiprocessing.Process. (suggested)"""
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
@@ -155,7 +157,8 @@ def parmake(job_list, context, cq, n=None, recurse=False, new_process='config'):
                            context=context,
                            cq=cq, 
                            recurse=recurse,
-                           new_process=new_process)
+                           new_process=new_process,
+                           show_output=show_output)
 
     publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
     manager.add_targets(job_list)
@@ -165,7 +168,6 @@ def parmake(job_list, context, cq, n=None, recurse=False, new_process='config'):
  
     return _raise_if_failed(manager)
 
-    
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 def parmake_pool(job_list, context, cq, n=None, recurse=False):
@@ -201,7 +203,7 @@ Usage:
 
 
 @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
-def sgemake(job_list, context, cq, recurse=False):
+def sgemake(job_list, context, cq, n=None, recurse=False):
     ''' (experimental) SGE equivalent of "make". '''
     job_list = [x for x in job_list]
 
@@ -209,10 +211,12 @@ def sgemake(job_list, context, cq, recurse=False):
         db = context.get_compmake_db()
         job_list = list(top_targets(db=db))
 
-    manager = SGEManager(context=context, cq=cq, recurse=recurse)
+    manager = SGEManager(context=context, cq=cq, recurse=recurse,
+                         num_processes=n)
     manager.add_targets(job_list)
     manager.process()
     return _raise_if_failed(manager)
+
 # 
 # @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
 # def clustmake(job_list, context, cq):

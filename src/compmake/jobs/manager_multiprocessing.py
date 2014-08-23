@@ -96,7 +96,7 @@ class MultiprocessingManager(Manager):
         process_limit_ok = len(self.processing) < self.max_num_processing
         if not process_limit_ok:
             resource_available['nproc'] = (False,
-                'nproc %d >= %d' % (len(self.processing), self.max_num_processing))
+                'max %d nproc' % (self.max_num_processing))
             # this is enough to continue
             return resource_available
         else:
@@ -181,7 +181,8 @@ class MultiprocessingManager(Manager):
         handle, tmp_filename = tempfile.mkstemp(prefix='compmake', text=True)
         os.close(handle)
         os.remove(tmp_filename)
-        async_result = self.pool.apply_async(parmake_job2, [(job_id, self.context, tmp_filename)])
+        async_result = self.pool.apply_async(parmake_job2, 
+                                             [(job_id, self.context, tmp_filename, False)])
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async_done')
         return AsyncResultWrap(job_id, async_result, tmp_filename)
 
@@ -279,10 +280,10 @@ def worker_initialization():
     # You can use this to see when a worker start
     # print('Process: ignoring sigint')
 
-@contract(args='tuple(str, *, str)')
+@contract(args='tuple(str, *, str, bool)')
 def parmake_job2(args):
     """
-    args = tuple job_id, context, tmp_filename
+    args = tuple job_id, context, tmp_filename, show_events
         
     Returns a dictionary with fields "user_object" and "new_jobs".
     "user_object" is set to None because we do not want to 
@@ -290,13 +291,14 @@ def parmake_job2(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, tmp_filename = args  # @UnusedVariable
+    job_id, context, tmp_filename, show_output = args  # @UnusedVariable
     db = context.get_compmake_db()
 
     setproctitle('compmake:%s' % job_id)
     
     class G():
         nlostmessages = 0
+        
     try:
         # We register a handler for the events to be passed back 
         # to the main process
@@ -311,9 +313,10 @@ def parmake_job2(args):
                 # sys.stderr.write('job %s: Queue is full, message is lost.\n'
                 #                 % job_id)
                 
-
         remove_all_handlers()
-        register_handler("*", handler)
+        
+        if show_output:
+            register_handler("*", handler)
 
         def proctitle(context, event):  # @UnusedVariable
             stat = '[%s/%s %s] (compmake)' % (event.progress,

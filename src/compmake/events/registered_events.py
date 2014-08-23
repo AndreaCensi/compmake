@@ -19,7 +19,7 @@ add(EventSpec('job-failed', ['job_id', 'host', 'reason', 'bt']))
 add(EventSpec('job-instanced', ['job_id', 'host']))
 add(EventSpec('job-starting', ['job_id', 'host']))
 add(EventSpec('job-finished', ['job_id', 'host']))
-add(EventSpec('job-interrupted', ['job_id', 'host', 'reason']))
+add(EventSpec('job-interrupted', ['job_id', 'host', 'bt']))
 add(EventSpec('job-now-ready', ['job_id']))
 add(EventSpec('manager-phase', ['phase']))
 add(EventSpec('manager-loop', ['processing'],

@@ -37,7 +37,7 @@ def bottom_targets(db):
     return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
-@contract(jobs='list')
+@contract(jobs='list|set')
 def tree(jobs, db):
     ''' 
         Returns the tree of all dependencies of the jobs.

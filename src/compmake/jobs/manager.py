@@ -13,6 +13,7 @@ from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
 import time
+import traceback
 
 
 
@@ -236,10 +237,10 @@ class Manager(object):
             Handles update of various sets. 
         '''
         self.check_invariants()
-
-        assert job_id in self.processing, job_id
-        assert job_id in self.todo, job_id
-        assert not job_id in self.ready_todo, job_id
+        
+        if not job_id in self.processing:  self._raise_bug('check_job_finished', job_id)
+        if not job_id in self.todo: self._raise_bug('check_job_finished', job_id)
+        if job_id in self.ready_todo: self._raise_bug('check_job_finished', job_id)
 
         async_result = self.processing2result[job_id]
 
@@ -260,8 +261,8 @@ class Manager(object):
                 self.job_succeeded(job_id)
                 self.check_invariants()
                 
-                self.clean_other_jobs(job_id, new_jobs)
-                self.check_invariants()
+                #self.clean_other_jobs(job_id, new_jobs)
+                #self.check_invariants()
                 
                 # print('job generated %s' % new_jobs)
                 if self.recurse:
@@ -283,12 +284,12 @@ class Manager(object):
 
                 self.check_invariants()
                 
-                
                 # Check if the result of this job contains references
                 # to other jobs
                 if result['user_object_deps']:
                     deps = result['user_object_deps']
-                    #print('Found special job whose result contains references to jobs: %s' % deps)
+                    # print('Job %r results contain references to jobs: %s' 
+                    #      % (job_id, deps))
 
                     # We first add extra dependencies to all those jobs
                     jobs_depending_on_this = direct_parents(job_id, self.db)
@@ -298,18 +299,20 @@ class Manager(object):
                         parent_job = get_job(parent, self.db)
                         # print(' current children: %r' % parent_job.children)
 
-                        parent_job.children = list(set(parent_job.children + list(deps)))
+                        parent_job.children.update(deps)
                         # print(' updated children: %r' % parent_job.children)
                         assert job_id in parent_job.children
-                            
+                        parent_job.dynamic_children[job_id] = deps
                         # write back
                         set_job(parent, parent_job, self.db)
                         
                         # also add inverse relation
                         for d in deps:
                             j = get_job(d, self.db)
-                            j.parents = list(set(j.parents + [parent]))
+                            #print('%s old parents list: %s' % (d, j.parents))
+                            j.parents.add(parent)
                             set_job(d, j, self.db)
+                            #print('new parents list: %s' % j.parents)
 
                     parents_to_schedule = []
                     for parent in jobs_depending_on_this:           
@@ -353,53 +356,13 @@ class Manager(object):
             # the execution has been interrupted, but not failed
             self.host_failed(job_id, str(e))
             return True
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             # self.job_failed(job_id) # not sure
             # No, don't mark as failed 
             # (even though knowing where it was interrupted was good)
+            print(traceback.format_exc(e))
             raise JobInterrupted('Keyboard interrupt')
 
-    def clean_other_jobs(self, job_id, new_jobs):
-        """ job_id has finished and the jobs in new_jobs have been
-            generated. We should look in the DB if in the past 
-            it had generated other jobs and delete them """
-        #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
-        db = self.db
-        extra = []
-        # XXX: slow
-        for g in all_jobs(db=db):
-            if get_job(g, db=db).defined_by[-1] == job_id:
-                if not g in new_jobs:
-                    extra.append(g)
-                     
-        for g in extra:
-            job = get_job(g, db=db)
-            
-            if g in self.processing:
-                print('a mess - cannot eliminate job %s because processing' % g)
-            else:
-                if g in self.targets:
-                    #print('removing job %r which was an explicit target' % g)
-                    self.targets.remove(g)
-                if g in self.all_targets:
-                    self.all_targets.remove(g)
-                if g in self.todo:
-                    self.todo.remove(g)
-                if g in self.ready_todo:
-                    self.ready_todo.remove(g)
-                if g in self.ready_todo:
-                    self.todo.remove(g)
-                if g in self.failed:
-                    self.failed.remove(g)
-                if g in self.blocked:
-                    self.blocked.remove(g)
-        
-            #print('Erasing previously generated job %r (%s) removed.' % (g, job.defined_by))
-            delete_all_job_data(g, db=db)
-            
-            # clean dependencies as well
-            self.clean_other_jobs(g, [])
-            
             
     def host_failed(self, job_id, reason):
         self.check_invariants()
@@ -634,7 +597,7 @@ class Manager(object):
         return s
     
     def check_invariants(self):
-#         return  # everything works 
+        return  # everything works 
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,
@@ -677,22 +640,23 @@ class Manager(object):
         partition(['done', 'todo', 'failed', 'blocked'], 'all_targets')
 #        partition(['processing', 'blocked', 'ready_todo'], 'todo')
         
-        
-        for job_id in self.done:
-            if not job_exists(job_id, self.db):
-                raise CompmakeBug('job %r in done does not exist' % job_id)
-        
-        for job_id in self.todo:    
-            if not job_exists(job_id, self.db):
-                raise CompmakeBug('job %r in todo does not exist' % job_id)
-        
-        for job_id in self.failed:    
-            if not job_exists(job_id, self.db):
-                raise CompmakeBug('job %r in failed does not exist' % job_id)
-             
-        for job_id in self.blocked:    
-            if not job_exists(job_id, self.db):
-                raise CompmakeBug('job %r in blocked does not exist' % job_id)
+        if False:
+            
+            for job_id in self.done:
+                if not job_exists(job_id, self.db):
+                    raise CompmakeBug('job %r in done does not exist' % job_id)
+            
+            for job_id in self.todo:    
+                if not job_exists(job_id, self.db):
+                    raise CompmakeBug('job %r in todo does not exist' % job_id)
+            
+            for job_id in self.failed:    
+                if not job_exists(job_id, self.db):
+                    raise CompmakeBug('job %r in failed does not exist' % job_id)
+                 
+            for job_id in self.blocked:    
+                if not job_exists(job_id, self.db):
+                    raise CompmakeBug('job %r in blocked does not exist' % job_id)
         
         # XXX
 #        partition(['ready_todo', 'done', 'failed', 'blocked', 'processing'],
@@ -735,3 +699,67 @@ def check_job_cache_says_failed(job_id, db, e):
             msg += '\n' + indent(str(e), "| ")
             raise CompmakeBug(msg)
  
+
+    def clean_other_jobs(self, job_id, new_jobs):
+        """ job_id has finished and the jobs in new_jobs have been
+            generated. We should look in the DB if in the past 
+            it had generated other jobs and delete them """
+        #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
+        db = self.db
+        extra = []
+        # XXX: slow
+        for g in all_jobs(db=db):
+            if get_job(g, db=db).defined_by[-1] == job_id:
+                if not g in new_jobs:
+                    extra.append(g)
+                     
+        for g in extra:
+            if g in self.processing:
+                print('a mess - cannot eliminate job %s because processing' % g)
+            else:
+                if g in self.targets:
+                    #print('removing job %r which was an explicit target' % g)
+                    self.targets.remove(g)
+                if g in self.all_targets:
+                    self.all_targets.remove(g)
+                if g in self.todo:
+                    self.todo.remove(g)
+                if g in self.ready_todo:
+                    self.ready_todo.remove(g)
+                if g in self.ready_todo:
+                    self.todo.remove(g)
+                if g in self.failed:
+                    self.failed.remove(g)
+                if g in self.blocked:
+                    self.blocked.remove(g)
+        
+            #print('Erasing previously generated job %r (%s) removed.' % (g, job.defined_by))
+            delete_all_job_data(g, db=db)
+            
+            # clean dependencies as well
+            self.clean_other_jobs(g, [])
+#             
+#          
+# def clean_other_jobs_distributed(db, job_id, new_jobs, recurse=False):
+#     """ job_id has finished and the jobs in new_jobs have been
+#         generated. We should look in the DB if in the past 
+#         it had generated other jobs and delete them """
+#     #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
+#     extra = []
+#     # XXX: slow
+#     for g in all_jobs(db=db):
+#         try:
+#             job = get_job(g, db)
+#         except:
+#             # race condition
+#             continue
+#          
+#         if job.defined_by[-1] == job_id:
+#             if not g in new_jobs:
+#                 extra.append(g)
+#  
+#         delete_all_job_data(g, db=db)
+#          
+#         # clean dependencies as well
+#         if recurse:
+#             clean_other_jobs_distributed(db, g, [])

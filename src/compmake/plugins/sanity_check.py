@@ -1,23 +1,33 @@
 ''' The actual interface of some commands in commands.py '''
 from ..jobs import (children, direct_children, direct_parents, parents, 
     parse_job_list)
-from ..ui import COMMANDS_ADVANCED, error, ui_command
-
+from ..ui import COMMANDS_ADVANCED, ui_command
+from contracts import contract
+from compmake.structures import CommandFailed
+from compmake.ui.visualization import error
 
 @ui_command(section=COMMANDS_ADVANCED, alias='check-consistency')
-def check_consistency(args, context, cq):  # @ReservedAssignment
+def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssignment
     ''' Checks in the DB that the relations between jobs are consistent. '''
     if not args:
         job_list = cq.all_jobs()
     else:
         job_list = parse_job_list(args, context=context, cq=cq)
 
+    errors = {}
     for job_id in job_list:
-        check_job(job_id, context)
-
+        ok, reasons = check_job(job_id, context)
+        if not ok:
+            errors[job_id] = reasons
+        
+    if raise_if_error and errors:
+        msg = "Inconsistency with %d jobs" % len(errors)
+        raise CommandFailed(msg)
+    
     return 0
 
 
+@contract(returns='tuple(bool, list(str))')
 def check_job(job_id, context):
     db = context.get_compmake_db()
     dparents = direct_parents(job_id, db=db)
@@ -50,6 +60,7 @@ def check_job(job_id, context):
         s = ('Inconsistencies for %s:\n' % job_id)
         s += '\n'.join('- %s' % msg for msg in errors)
         error(s)
-
-    
+        return False, errors
+    else:
+        return True, []
 

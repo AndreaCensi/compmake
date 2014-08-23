@@ -17,6 +17,7 @@ import signal
 import sys
 import tempfile
 import traceback
+from compmake.utils.filesystem_utils import make_sure_dir_exists
 
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
@@ -28,9 +29,9 @@ __all__ = [
     'PmakeManager',           
 ]
 
-def pmake_worker(name, job_queue, result_queue, write_log=False):
+def pmake_worker(name, job_queue, result_queue, write_log=None):
     if write_log:
-        f = open('pmake_worker-%s.log' % name, 'w')
+        f = open(write_log, 'w')
         def log(s):
             f.write('%s: ' % name)
             f.write(s)
@@ -50,23 +51,27 @@ def pmake_worker(name, job_queue, result_queue, write_log=False):
             job = job_queue.get(block=True)
             log('got job: %s' % str(job))
             function, arguments = job
-            
+
             try:
                 result = function(arguments)
             except JobFailed as e:
                 log('Job failed, putting notice.')
                 log('result: %s' % str(e)) # debug
                 result_queue.put(dict(fail=str(e)))
+                log('(put)')
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
                 result_queue.put(dict(abort=str(e)))
+                log('(put)')
             except CompmakeException as e: # XXX :to finish
                 log('CompmakeException')
                 result_queue.put(dict(bug=str(e)))
+                log('(put)')
             else:
                 log('result: %s' % str(result))
                 log('job finished. Putting in queue...')
                 result_queue.put(result, block=True)
+                log('(put)')
                 
             log('...done.')
 
@@ -79,20 +84,21 @@ def pmake_worker(name, job_queue, result_queue, write_log=False):
         msg = 'aborted-unknown'
         log(msg)
         result_queue.put(dict(abort=msg))
+        log('(put)')
         
     log('clean exit.')
         
 class PmakeSub():
-    def __init__(self, name):
+    def __init__(self, name, write_log=None):
         self.name = name
         
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
-
         self.proc = multiprocessing.Process(target=pmake_worker,
                                       args=(self.name, 
                                             self.job_queue, 
-                                            self.result_queue))
+                                            self.result_queue,
+                                            write_log))
         self.proc.start()
 
     def apply_async(self, function, arguments):
@@ -149,13 +155,7 @@ def parmake_job2_new_process(args):
     res = safe_pickle_load(out_result)
     os.unlink(out_result)
     _check_result_dict(res)
-    
-#     if 'fail' in res:
-#         raise JobFailed(res['fail'])
-#     elif 'bug' in res:
-#         raise CompmakeBug(res['bug'])
-#     assert 'new_jobs' in res
-#     assert 'user_object_deps' in res
+     
     return res
      
 
@@ -185,6 +185,7 @@ class PmakeResult(AsyncResultInterface):
         self.job = job
     
         self.count = 0
+        
     def ready(self):
         self.count += 1
         
@@ -223,12 +224,14 @@ class PmakeManager(Manager):
         Python 2.7 implementation 
      '''
 
-    def __init__(self, context, cq, num_processes=None, recurse=False, new_process=False):
+    def __init__(self, context, cq, num_processes=None, recurse=False, new_process=False,
+                 show_output=False):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process
-         
+        self.show_output = show_output
+        
     def process_init(self):
         if self.num_processes is None:
             self.num_processes = get_compmake_config('max_parallel_jobs')
@@ -239,14 +242,18 @@ class PmakeManager(Manager):
         self.sub_available = set()
         self.sub_processing = set() # available + processing = subs.keys
         self.subs = {} # name -> sub
+        db = self.context.get_compmake_db()
+        storage = db.basepath # XXX:
+        logs = os.path.join(storage, 'pmakesub')
         for i in range(self.num_processes):
             name = 'w%02d' % i
-            self.subs[name] = PmakeSub(name) 
-        
+            write_log = os.path.join(logs, '%s.log' % name)
+            make_sure_dir_exists(write_log)
+            self.subs[name] = PmakeSub(name, write_log)         
         self.job2subname = {}
-        
         # all are available
         self.sub_available.update(self.subs)
+        
 
         kwargs = {}
 
@@ -264,7 +271,7 @@ class PmakeManager(Manager):
         process_limit_ok = len(self.sub_processing) < self.max_num_processing
         if not process_limit_ok:
             resource_available['nproc'] = (False,
-                'nproc %d >= %d' % (len(self.sub_processing), self.max_num_processing))
+                                           'max %d nproc' % (self.max_num_processing))
             # this is enough to continue
             return resource_available
         else:
@@ -282,15 +289,14 @@ class PmakeManager(Manager):
                 reasons_why_not[k] = v[1]
         if some_missing:
             return False
-#         self.last_accepted = time.time()
         return True
      
-
     def instance_job(self, job_id):
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async')
         handle, tmp_filename = tempfile.mkstemp(prefix='compmake', text=True)
         os.close(handle)
         os.remove(tmp_filename)
+        
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
         self.sub_available.remove(name)
@@ -303,10 +309,13 @@ class PmakeManager(Manager):
         if self.new_process:
             async_result = sub.apply_async(parmake_job2_new_process, (job_id, self.context, tmp_filename))
         else:
-            async_result = sub.apply_async(parmake_job2, (job_id, self.context, tmp_filename))
+            async_result = sub.apply_async(parmake_job2, 
+                                           (job_id, self.context, tmp_filename, self.show_output))
         return async_result
 
     def event_check(self):
+        if not self.show_output:
+            return
         while True:
             try:
                 event = Shared.event_queue.get(block=False)  # @UndefinedVariable
@@ -339,8 +348,7 @@ class PmakeManager(Manager):
         self._clear(job_id)
         if self.new_process:
             from .manager_local import display_job_failed
-            display_job_failed(db=self.db, job_id=job_id)
-              
+            display_job_failed(db=self.db, job_id=job_id)  
         
     def _clear(self, job_id):
         assert job_id in self.job2subname

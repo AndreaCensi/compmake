@@ -13,6 +13,7 @@ from copy import deepcopy
 from time import clock, time
 import logging
 import traceback
+from compmake.utils.format_exceptions import my_format_exc
 
 
 
@@ -186,12 +187,15 @@ def make(job_id, context):
         result = computation.compute(context=context)
         user_object = result['user_object']
         new_jobs = result['new_jobs']
-    except KeyboardInterrupt:
-        publish(context, 'job-interrupted', job_id=job_id, host=host)
+    except KeyboardInterrupt as e:
+        bt = my_format_exc(e)
+        publish(context, 'job-interrupted', 
+                job_id=job_id, host=host, bt=bt)
         raise JobInterrupted('Keyboard interrupt')
-    except (BaseException,StandardError, ArithmeticError,BufferError,LookupError,
+    except (BaseException,StandardError, ArithmeticError,
+            BufferError, LookupError,
             Exception, SystemExit, MemoryError) as e:
-        bt = traceback.format_exc()
+        bt = my_format_exc(e)
         mark_as_failed(job_id, str(e), bt, db=db)
         publish(context, 'job-failed', job_id=job_id,
                 host=host, reason=str(e), bt=bt)

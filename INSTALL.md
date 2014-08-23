@@ -45,12 +45,15 @@ Need to install xfonts for QMon GUI to work. Just install all xfonts:
 
     sudo apt-get install xfonts-\*
 
-Add a submit host:
+Add yourself as user:
 
-    sudo qconf -as thinkpad14.local
     sudo qconf -ao andrea
     sudo qconf -am andrea
 
+Add a submit host:
+
+    sudo qconf -as thinkpad14.local
+    
 Add a queue using this: 
 
     sudo qconf -aq queue1

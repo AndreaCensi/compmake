@@ -1,5 +1,6 @@
 from ..events import register_handler
 from ..ui import error
+from contracts.utils import indent
 
 
 # TODO: command-succeeded: {'command': '
@@ -24,12 +25,6 @@ def command_line_interrupted(context, event):  # @UnusedVariable
 register_handler('command-line-interrupted', command_line_interrupted)
 
 
-def job_interrupted(context, event):  # @UnusedVariable
-    # Only write something if it is more than one
-    error('Job %r interrupted.' % event.kwargs['job_id'])
-register_handler('job_interrupted', job_interrupted)
-
-
 def command_line_failed(context, event):  # @UnusedVariable
     # Only write something if it is more than one
     command = event.kwargs['command']
@@ -38,13 +33,17 @@ def command_line_failed(context, event):  # @UnusedVariable
     error('Command sequence %r failed.' % command)
 register_handler('command-line-failed', command_line_failed)
 
-
-#    add(EventSpec('job-failed', ['job_id', 'host', 'reason', 'bt']))
 def job_failed(context, event):  # @UnusedVariable
     error('Job %r failed: %s' % (event.kwargs['job_id'],
                                   event.kwargs['reason']))
 register_handler('job-failed', job_failed)
 
+
+def job_interrupted(context, event):  # @UnusedVariable
+    error('Job %r interrupted:\n %s' % 
+          (event.kwargs['job_id'],
+            indent(event.kwargs['bt'], '> ')))
+register_handler('job-interrupted', job_interrupted)
 
 def compmake_bug(context, event):  # @UnusedVariable
     error(event.kwargs['user_msg'])

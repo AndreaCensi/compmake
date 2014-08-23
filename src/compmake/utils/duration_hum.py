@@ -1,6 +1,9 @@
 import math
 
-__all__ = ['duration_human']
+__all__ = [
+    'duration_human', 
+    'duration_compact',
+]
 
 def duration_human(seconds):
     ''' Code modified from 
@@ -38,4 +41,36 @@ def duration_human(seconds):
 
     return ' '.join(duration)
 
+
+
+def duration_compact(seconds):
+    seconds = int(math.ceil(seconds))
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    years, days = divmod(days, 365.242199)
+
+    minutes = int(minutes)
+    hours = int(hours)
+    days = int(days)
+    years = int(years)
+
+    duration = []
+    if years > 0:
+        duration.append('%dy' % years)
+    else:
+        if days > 0:
+            duration.append('%dd')
+        if (days < 3) and (years == 0):
+            if hours > 0:
+                duration.append('%dh' % hours )
+            if (hours < 3) and (days == 0):
+                if minutes > 0:
+                    duration.append('%dm' % minutes +
+                                     's' * (minutes != 1))
+                if (minutes < 3) and (hours == 0):
+                    if seconds > 0:
+                        duration.append('%ds' % seconds)
+
+    return ' '.join(duration)
 

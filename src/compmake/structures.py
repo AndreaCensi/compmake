@@ -1,5 +1,4 @@
-from contracts import contract
-from contracts.interface import describe_value
+from contracts import contract, describe_value
 
 class ShellExitRequested(Exception):
     pass
@@ -139,7 +138,7 @@ class Promise(object):
 
 class Job(object):
 
-    @contract(defined_by='list(str)')
+    @contract(defined_by='list(str)', children=set)
     def __init__(self, job_id, children, command_desc, yields=False,
                  needs_context=False,
                  defined_by=None):
@@ -152,13 +151,16 @@ class Job(object):
             children: the direct dependencies
         """
         self.job_id = job_id
-        self.children = children
+        self.children = set(children)
         self.command_desc = command_desc
-        self.parents = []
+        self.parents = set()
         self.yields = yields  # XXX # To remove
         self.needs_context = needs_context
         self.defined_by = defined_by
 
+        # str -> set(str), where the key is one
+        # of the direct children 
+        self.dynamic_children = {}
 
     def compute(self, context):
         """ Returns a dictionary with fields "user_object" and "new_jobs" """
@@ -293,20 +295,29 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
             #     (job_id, len(generated), sorted(generated)[:M]))
             pass
 #     # now remove the extra jobs that are not needed anymore
-#     extra = []
-#     from .jobs import all_jobs, delete_all_job_data
-#     # FIXME this is a RACE CONDITION -- needs to be done in the main thread
-#     info('now cleaning up; generated = %s' % generated)
-#     for g in all_jobs(db=db):
-#         if get_job(g, db=db).defined_by[-1] == job_id:
-#             if not g in generated:
-#                 extra.append(g)
-#                 
-#     for g in extra:
-#         job = get_job(g, db=db)
-#         info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
-#         delete_all_job_data(g, db=db)
+    extra = []
+    from .jobs import all_jobs, delete_all_job_data
+    # FIXME this is a RACE CONDITION -- needs to be done in the main thread
+    #from compmake.ui.visualization import info
 
+    #info('now cleaning up; generated = %s' % generated)
+    
+    if False:
+        for g in all_jobs(db=db):
+            try:
+                job = get_job(g, db=db)
+            except:
+                continue
+            if job.defined_by[-1] == job_id:
+                if not g in generated:
+                    extra.append(g)
+                     
+        for g in extra:
+            #info('Previously generated job %r (%s) removed.' % (g, job.defined_by))
+            delete_all_job_data(g, db=db)
+
+#     from compmake.jobs.manager import clean_other_jobs_distributed
+#     clean_other_jobs_distributed(db=db, job_id=job_id, new_jobs=generated)
     return dict(user_object=res, new_jobs=generated)
 
 

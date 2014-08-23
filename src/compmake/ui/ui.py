@@ -1,25 +1,23 @@
 from .. import (CompmakeConstants, get_compmake_config, get_compmake_status, 
-    is_interactive_session, set_compmake_status)
+    is_interactive_session)
 from ..events import publish
 from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job, 
     delete_job_args, delete_job_userobject, get_job, is_job_userobject_available, 
     job_args_exists, job_exists, parse_job_list, set_job, set_job_args)
+from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..jobs.syntax.parsing import aliases
 from ..structures import CommandFailed, Job, Promise, UserError
+from ..ui.visualization import warning
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands
 from compmake.context import Context
-from contracts import contract
+from compmake.structures import same_computation
+from contracts import contract, indent
 import inspect
 import os
 import sys
 import warnings
-from compmake.ui.visualization import warning
-from contracts.utils import indent
-from compmake.jobs.storage import get_job_args, job_cache_exists,\
-    delete_job_cache
-from compmake.structures import same_computation
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -321,18 +319,9 @@ def comp_(context, command_, *args, **kwargs):
                         print('current stack: %s' % stack)
                         print('    its stack: %s' % defined_by)
                         print('New job_id is %s' % job_id)
-#                 # print('  same stack, continuing')
-#                 # wonder why you need this? Consider the code in test_priorities
-#                 #
-#                 #         # add two copies
-#                 #         self.comp(top, self.comp(bottom))
-#                 #         self.comp(top, self.comp(bottom))
-#                 if context.was_job_defined_in_this_session(x):
-#                     continue
 
     else:
         job_id = generate_job_id(command_desc, context=context)
-#         print('generated job: %s' % job_id)
 
     context.add_job_defined_in_this_session(job_id)
 
@@ -370,15 +359,44 @@ def comp_(context, command_, *args, **kwargs):
     all_args = (command, args, kwargs)
 
     c = Job(job_id=job_id,
-            children=list(children),
+            children=children,
             command_desc=command_desc,
             needs_context=needs_context,
             defined_by=context.currently_executing)
 
+    if job_exists(job_id, db):
+        old_job = get_job(job_id, db)
+        if old_job.children != c.children:
+            #warning('Redefinition problem:')
+            #warning(' old children: %s' % (old_job.children))
+            #warning(' old dyn children: %s' % old_job.dynamic_children)
+            #warning(' new children: %s' % (c.children))
+            
+            # fixing this
+            for x, deps in old_job.dynamic_children.items():
+                if not x in c.children:
+                    # not a child any more
+                    # FIXME: ok but note it might be a dependence of a child
+                    # continue
+                    pass
+                c.dynamic_children[x] = deps
+                for j in deps:
+                    if not j in c.children:
+                        c.children.add(j)
+                
+        if old_job.parents != c.parents:
+            warning('Redefinition of %s: ' % job_id)
+            warning(' cur parents: %s' % (c.parents))
+            warning(' old parents: %s' % old_job.parents)
+            for p in old_job.parents:
+                c.parents.add(p)
+            
+            # TODO: preserve defines
+
     for child in children:
         child_comp = get_job(child, db=db)
         if not job_id in child_comp.parents:
-            child_comp.parents.append(job_id)
+            child_comp.parents.add(job_id)
             set_job(child, child_comp, db=db)
 
     if get_compmake_config('check_params') and job_exists(job_id, db):

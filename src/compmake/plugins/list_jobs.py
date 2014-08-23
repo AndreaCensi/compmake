@@ -1,11 +1,12 @@
 ''' The actual interface of some commands in commands.py '''
-from time import time
 
 from ..jobs import parse_job_list
+from ..jobs.syntax.parsing import aliases, is_root_job
 from ..structures import Cache
-from ..ui import compmake_colored, ui_command, VISUALIZATION
-from ..utils import duration_human
-from ..jobs.syntax.parsing import is_root_job,  aliases
+from ..ui import VISUALIZATION, compmake_colored, ui_command
+from ..utils import duration_compact
+from time import time
+
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -103,19 +104,19 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             cpu = cache.cputime_used
             cpu_total.append(cpu)
             s += ' %5.2f m ' % (cpu / 60.0)
-            when = duration_human(time() - cache.timestamp)
+            when = duration_compact(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:
             if cache.state in [Cache.DONE]:
                 s += " (needs update: %s)" % reason
 
             if cache.state == Cache.FAILED:
-                when = duration_human(time() - cache.timestamp)
+                when = duration_compact(time() - cache.timestamp)
                 s += " (%s ago)" % when
 
         print(s)
 
     if cpu_total:
-        print('  total  CPU time: %s.' % duration_human(sum(cpu_total)))
-        print('        wall time: %s.' % duration_human(sum(wall_total)))
+        print('  total  CPU time: %s.' % duration_compact(sum(cpu_total)))
+        print('        wall time: %s.' % duration_compact(sum(wall_total)))
 

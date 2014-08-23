@@ -8,6 +8,8 @@ from compmake.context import Context
 from contracts import contract
 import traceback
 import inspect
+from contracts.utils import indent
+from compmake.utils.format_exceptions import my_format_exc
 
 
 def remove_all_handlers():
@@ -87,11 +89,15 @@ def broadcast_event(context, event):
             except Exception as e:
                 try:
                     # e = traceback.format_exc(e)
-                    msg = ('compmake BUG: Error in handler %s:\n%s\n'
-                           % (handler, e))
-                    # Note: if we use error() there is a risk of infinite 
-                    # loop if we are capturing the current stderr.
-                    msg += traceback.format_exc(e)
+                    msg = [
+                       'compmake BUG: Error in event handler.',
+                       '  event: %s' % event.name,
+                       'handler: %s' % handler,
+                       ' kwargs: %s' % list(event.kwargs.keys()),
+                       '     bt: ',
+                       indent(my_format_exc(e), '| '),
+                    ]
+                    msg = "\n".join(msg)
                     CompmakeGlobalState.original_stderr.write(msg)
                 except:
                     pass
