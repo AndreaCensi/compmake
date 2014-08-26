@@ -62,11 +62,11 @@ def generate_job_id(base, context):
     def get_options():
         if job_prefix:
             yield '%s-%s' % (job_prefix, base)
-            for i in range(1000):
+            for i in range(2, 1000):
                 yield '%s-%s-%d' % (job_prefix, base, i)
         else:
             yield base
-            for i in range(1000):
+            for i in range(2, 1000):
                 yield '%s-%d' % (base, i)
 
     db = context.get_compmake_db()

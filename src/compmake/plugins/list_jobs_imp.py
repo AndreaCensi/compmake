@@ -86,8 +86,17 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             s += '%d ' % (len(job.defined_by) - 1)
         else:
             s += '  '
-
-        s += format_job_id(job_id).ljust(jlen) + '  '
+            
+        job_name_formatted = format_job_id(job_id).ljust(jlen)
+        
+        # de-emphasize utility jobs
+        is_utility = 'context' in job_id or 'dynrep' in job_id
+        if is_utility:
+            job_name_formatted = compmake_colored(job_name_formatted,
+                                                  'white', 
+                                                  attrs=['dark'])
+            
+        s += job_name_formatted + '  '
 
         tag = Cache.state2desc[cache.state]
 
@@ -103,7 +112,8 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
             cpu_total.append(cpu)
-            s += ' %5.2f m ' % (cpu / 60.0)
+#             s += ' %5.2f m ' % (cpu / 60.0)
+            s+= ' ' + duration_compact(cpu).rjust(7) + ' '
             when = duration_compact(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:
@@ -117,6 +127,8 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         print(s)
 
     if cpu_total:
-        print('  total  CPU time: %s.' % duration_compact(sum(cpu_total)))
-        print('        wall time: %s.' % duration_compact(sum(wall_total)))
+        cpu_time = duration_compact(sum(cpu_total))
+        wall_time = duration_compact(sum(wall_total))
+        scpu = (' total CPU: %s   wall: %s' % (cpu_time, wall_time))
+        print(scpu)
 

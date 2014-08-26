@@ -66,8 +66,7 @@ def duration_compact(seconds):
                 duration.append('%dh' % hours )
             if (hours < 3) and (days == 0):
                 if minutes > 0:
-                    duration.append('%dm' % minutes +
-                                     's' * (minutes != 1))
+                    duration.append('%dm' % minutes)
                 if (minutes < 3) and (hours == 0):
                     if seconds > 0:
                         duration.append('%ds' % seconds)

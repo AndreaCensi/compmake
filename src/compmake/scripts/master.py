@@ -90,8 +90,8 @@ def compmake_main(args):
 
     parser.add_option('--nosysexit',  default=False, action='store_true',
                       help='Does not sys.exit(ret); useful for debugging.')
-                    
-
+    
+    
     config_populate_optparser(parser)
 
     (options, args) = parser.parse_args(args)
