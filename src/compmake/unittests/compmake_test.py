@@ -47,6 +47,7 @@ class CompmakeTest(unittest.TestCase):
     def assert_cmd_success(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
         try:
+            print('@ %s' % cmds)
             self.cc.interpret_commands_wrap(cmds)
             
         except MakeFailed as e:

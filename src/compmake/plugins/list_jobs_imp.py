@@ -113,7 +113,7 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             cpu = cache.cputime_used
             cpu_total.append(cpu)
 #             s += ' %5.2f m ' % (cpu / 60.0)
-            s+= ' ' + duration_compact(cpu).rjust(7) + ' '
+            s+= ' ' + duration_compact(cpu).rjust(10) + ' '
             when = duration_compact(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:

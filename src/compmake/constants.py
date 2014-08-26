@@ -30,3 +30,10 @@ class CompmakeConstants:
     default_namespace = 'default'
     default_path = 'compmake_storage'
 
+class DefaultsToConfig():
+    """ Used to mean the param's default is from a config switch. """
+    def __init__(self, switch):
+        self.switch = switch
+        
+
+

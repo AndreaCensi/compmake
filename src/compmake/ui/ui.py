@@ -18,6 +18,7 @@ import inspect
 import os
 import sys
 import warnings
+from compmake.constants import DefaultsToConfig
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -545,6 +546,7 @@ def interpret_single_command(commands_line, context, cq):
                        "available arguments are %s." %
                         (k, cmd.name, function_args))
                 raise UserError(msg)
+            
             # look if we have a default value
             index = argspec.args.index(k)
             if index < num_args_without_default:
@@ -553,6 +555,10 @@ def interpret_single_command(commands_line, context, cq):
             else:
                 default_value = \
                     argspec.defaults[index - num_args_without_default]
+                    
+                if isinstance(default_value, DefaultsToConfig):
+                    default_value = get_compmake_config(default_value.switch)
+                
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:

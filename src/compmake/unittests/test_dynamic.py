@@ -39,36 +39,50 @@ class TestDynamic1(CompmakeTest):
         
         # now we make them
         TestDynamic1.howmany = 3
+        self.assert_cmd_success('ls')
         self.assert_cmd_success('make')
+        self.assert_cmd_success('ls')
 
         # this will have created new jobs
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
+                                     'actual1', 'actual2', 'finish'])
         # ... still to do
         self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 'finish'])
 
         # we can make them
         self.assert_cmd_success('make')
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
+        self.assert_cmd_success('ls')
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
+                                      'actual1', 'actual2', 'finish'])
 
         # Now let's suppose we re-run values and it generates different number of tests
-        TestDynamic1.howmany = 2
-        self.assert_cmd_success('clean values; make generate')
-
-        # Now we should have on job less because actual2 was not re-defined
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'finish'])
-        # they should be all done, by the way
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'finish'])
 
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
+        
+        
         self.assert_cmd_success('clean values; make generate')
-
-        self.assert_cmd_success('details finish')
+        self.assert_cmd_success('ls')
 
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'finish'])
         # some are done
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'finish'])
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
         # but finish is not updtodate
-        self.assertJobsEqual('uptodate', ['generate', 'values', 'actual0', 'actual1'])
+        self.assertJobsEqual('uptodate', ['generate', 'values', 'actual0', 'actual1', 'actual2'])
         # some others are not
-        self.assertJobsEqual('todo', ['actual2', 'actual3'])
+        self.assertJobsEqual('todo', [ 'actual3'])
+
+
+        # now 2 jobs
+        TestDynamic1.howmany = 2
+        self.assert_cmd_success('clean values')
+        self.assert_cmd_success('ls')
+        self.assert_cmd_success('make generate')
+        self.assert_cmd_success('ls')
+        
+        # Now we should have on job less because actual2 and 3 was not re-defined
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
+                                     'actual1', 'finish'])
+        # they should be all done, by the way
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
+                                      'actual1', 'finish'])

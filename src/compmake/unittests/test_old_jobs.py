@@ -62,6 +62,7 @@ def f2(context):
 @istest
 class TestCleaning2(Utils):
     
+    @expected_failure
     def test_cleaning2(self):
         root = mkdtemp()
         self.run_first(root)

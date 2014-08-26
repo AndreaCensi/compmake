@@ -17,6 +17,7 @@ from ..utils import safe_pickle_dump
 from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
     ui_command, ui_section)
 from contracts import contract
+from compmake.constants import DefaultsToConfig
 
 
 ui_section(GENERAL)
@@ -29,14 +30,15 @@ def exit(context):  # @ReservedAssignment
  
 
 @ui_command(section=ACTIONS, dbchange=True)
-def make(job_list, context, cq, new_process='config', recurse=False):
+def make(job_list, context, cq, new_process=DefaultsToConfig('new_process'), recurse=False):
     '''Makes selected targets; or all targets if none specified. '''
-    if new_process == 'config':
+    if isinstance(new_process, DefaultsToConfig):
         new_process = get_compmake_config('new_process')
+        assert isinstance(new_process, bool)
     return make_(context=context, cq=cq, job_list=job_list, recurse=recurse,
                  new_process=new_process)
     
-@contract(context=Context)
+@contract(context=Context, new_process='bool')
 def make_(context, cq, job_list, recurse, new_process):
     '''Makes selected targets; or all targets if none specified. '''
     # job_list = list(job_list) # don't ask me why XXX
@@ -137,14 +139,17 @@ def make_single(job_list, context, out_result):
 
 @ui_command(section=ACTIONS, dbchange=True)
 def parmake(job_list, context, cq, 
-            n=None, recurse=False, new_process='config',
+            n=None, recurse=False,
+            new_process=DefaultsToConfig('new_process'),
             show_output=False):    
     """ Parallel equivalent of "make", using multiprocessing.Process. (suggested)"""
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
     
-    if new_process == 'config':
+    if isinstance(new_process, DefaultsToConfig):
         new_process = get_compmake_config('new_process')
+        assert isinstance(new_process, bool)
+
 
     db = context.get_compmake_db()
     if not job_list:
@@ -242,11 +247,13 @@ def sgemake(job_list, context, cq, n=None, recurse=False):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def remake(non_empty_job_list, context, cq, new_process='config'):
+def remake(non_empty_job_list, context, cq, 
+           new_process=DefaultsToConfig('new_process')):
     '''Remake the selected targets (equivalent to clean and make). '''
 
-    if new_process == 'config':
+    if isinstance(new_process, DefaultsToConfig):
         new_process = get_compmake_config('new_process')
+        assert isinstance(new_process, bool)
 
     non_empty_job_list = list(non_empty_job_list)
 
