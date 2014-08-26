@@ -245,6 +245,9 @@ def sgemake(job_list, context, cq, n=None, recurse=False):
 def remake(non_empty_job_list, context, cq, new_process='config'):
     '''Remake the selected targets (equivalent to clean and make). '''
 
+    if new_process == 'config':
+        new_process = get_compmake_config('new_process')
+
     non_empty_job_list = list(non_empty_job_list)
 
     if not ask_if_sure_remake(non_empty_job_list):

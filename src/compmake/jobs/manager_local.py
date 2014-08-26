@@ -2,6 +2,7 @@ from ..structures import Cache
 from ..ui import compmake_colored
 from .actions import make
 from .manager import AsyncResultInterface, Manager
+from contracts import contract
 
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
 class ManagerLocal(Manager):
     ''' Specialization of manager for local execution '''
 
+    @contract(new_process='bool')
     def __init__(self, new_process, *args, **kwargs):
         Manager.__init__(self, *args, **kwargs)
         self.new_process = new_process
@@ -25,7 +27,9 @@ class ManagerLocal(Manager):
             return True 
 
     def instance_job(self, job_id):
-        return FakeAsync(job_id, context=self.context, new_process = self.new_process)
+        return FakeAsync(job_id, 
+                         context=self.context, 
+                         new_process=self.new_process)
 
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
