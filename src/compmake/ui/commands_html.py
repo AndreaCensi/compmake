@@ -2,6 +2,11 @@ from .helpers import COMMANDS_ADVANCED, ui_command, UIState
 import sys
 
 
+__all__ = [
+   'create_commands_html',
+   'commands_html',
+]
+
 def create_commands_html(file=sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(),
                               key=lambda section: section.order)

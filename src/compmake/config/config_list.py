@@ -1,18 +1,21 @@
+from .structure import add_config_section, add_config_switch
 from multiprocessing import cpu_count
 
-from .structure import add_config_section, add_config_switch
 
+__all__ = [
+    'CONFIG_GENERAL',  
+    'CONFIG_APPEARANCE',
+    'CONFIG_STORAGE',
+    'CONFIG_PARALLEL',
+]
 
 CONFIG_GENERAL = 'General configuration'
 CONFIG_APPEARANCE = 'Appearance'
 CONFIG_CLUSTER = 'Cluster execution'
-# CONFIG_REDIS = 'Redis backend'
 CONFIG_STORAGE = 'Storage setting backend'
 CONFIG_PARALLEL = 'Multiprocessing'
 
 add_config_section(name=CONFIG_GENERAL, desc='', order=-1)
-# add_config_section(name=CONFIG_JOB_EXEC, desc='', order=1)
-# add_config_section(name=CONFIG_REDIS, desc='', order=2.1)
 add_config_section(name=CONFIG_STORAGE, desc='', order=1)
 add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
 add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
@@ -36,7 +39,6 @@ add_config_switch('new_process',  False,
 
 add_config_switch('check_params', False,
         desc="If true, erases the cache if job parameters appear to change.",
-#        \
 # Very useful but you need to define __eq__() in all the objects you use as \
 # parameters.", 
  section=CONFIG_GENERAL)

@@ -1,5 +1,5 @@
 from ..structures import UserError
-from ..ui import compmake_colored
+from .visualization import compmake_colored
 from collections import namedtuple
 import sys
 import types

@@ -1,9 +1,17 @@
 ''' Contains queries of the job DB. '''
+from ..jobs import all_jobs, get_job
 from contracts import contract
-
-from ..jobs import get_job, all_jobs
 import warnings
 
+__all__ = [
+    'parents',
+    'direct_parents',
+    'direct_children',
+    'children',
+    'top_targets',
+    'bottom_targets',
+    'tree',
+]
 
 def direct_parents(job_id, db):
     ''' Returns the direct parents of the specified job.

@@ -5,23 +5,34 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 '''
-
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..context import Context
 from ..events import publish
 from ..jobs import (ManagerLocal, MultiprocessingManager, PmakeManager, 
     SGEManager, all_jobs, clean_target, mark_remake, top_targets)
 from ..structures import JobFailed, MakeFailed, ShellExitRequested, UserError
-from ..ui import error, info
 from ..utils import safe_pickle_dump
+from .console import ask_question
 from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
     ui_command, ui_section)
-from contracts import contract
+from .visualization import error, info
 from compmake.constants import DefaultsToConfig
+from contracts import contract
 
 
 ui_section(GENERAL)
 
+__all__ = [
+    'parremake',
+    'remake',
+    'sgemake',
+    'parmake_pool',
+    'parmake',
+    'make_single',
+    'exit',
+    'make',
+    'make_',
+]
 
 @ui_command(alias='quit')
 def exit(context):  # @ReservedAssignment
@@ -98,7 +109,7 @@ def clean(job_list, context):
     if not job_list:
         return
 
-    from ..ui import ask_question
+    
 
     # Use context
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
@@ -245,7 +256,6 @@ def sgemake(job_list, context, cq, n=None, recurse=False):
 #     manager.process()
 #     return _raise_if_failed(manager)
 
-
 @ui_command(section=ACTIONS, dbchange=True)
 def remake(non_empty_job_list, context, cq, 
            new_process=DefaultsToConfig('new_process')):
@@ -272,7 +282,6 @@ def remake(non_empty_job_list, context, cq,
 
 def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
-    from ..ui.console import ask_question
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = ("Should I clean and remake %d jobs? [y/n] " % 
             len(non_empty_job_list))

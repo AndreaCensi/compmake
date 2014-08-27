@@ -2,8 +2,13 @@ from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED
 from .. import CompmakeGlobalState, get_compmake_config
 from ..config import create_config_html, show_config, set_config_from_strings
 from ..structures import UserError
-from ..ui import info
+from .visualization import info
 import sys
+
+__all__ = [
+    'config',
+    'config_html',
+]
 
 
 @ui_command(section=GENERAL)

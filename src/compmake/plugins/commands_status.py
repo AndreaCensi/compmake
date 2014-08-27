@@ -36,6 +36,7 @@ register_handler('command-line-failed', command_line_failed)
 def job_failed(context, event):  # @UnusedVariable
     error('Job %r failed: %s' % (event.kwargs['job_id'],
                                   event.kwargs['reason']))
+    
 register_handler('job-failed', job_failed)
 
 

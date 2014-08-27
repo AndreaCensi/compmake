@@ -1,9 +1,17 @@
-from .. import get_compmake_config
 from ..utils import termcolor_colored, get_screen_columns
 import sys
 
+__all__ = [ 
+    'compmake_colored',
+    'warning',
+    'error',
+    'user_error',
+    'info',
+    'debug'           
+]
 
 def compmake_colored(x, color=None, on_color=None, attrs=None):
+    from .. import get_compmake_config
     colorize = get_compmake_config('colorize')
     if colorize:
         return termcolor_colored(x, color, on_color, attrs)

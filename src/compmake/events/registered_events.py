@@ -4,6 +4,8 @@ from .structures import EventSpec
 compmake_registered_events = {}
 
 
+__all__ = []
+
 def add(e):
     compmake_registered_events[e.name] = e
 

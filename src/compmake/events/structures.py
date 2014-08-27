@@ -1,7 +1,10 @@
 import time
 
 
-__all__ = ['EventSpec', 'Event']
+__all__ = [
+    'EventSpec', 
+    'Event',
+]
 
 
 class EventSpec(object):

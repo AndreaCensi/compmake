@@ -7,7 +7,7 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job,
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..jobs.syntax.parsing import aliases
 from ..structures import CommandFailed, Job, Promise, UserError
-from ..ui.visualization import warning
+from .visualization import warning
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands

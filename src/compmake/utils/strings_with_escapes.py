@@ -11,7 +11,7 @@ def get_length_on_screen(s):
     """ Returns the length of s without the escapes """
     return len(remove_escapes(s))
 
-debug_padding = False
+debug_padding = True
 
 
 def pad_to_screen(s, pad=" ", last=None):

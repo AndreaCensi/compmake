@@ -12,6 +12,13 @@ import sys
 import traceback
 from compmake.structures import JobInterrupted
 
+__all__ = [ 
+    'interactive_console',
+    'interpret_commands_wrap',
+    'batch_command',
+    'compmake_console',
+]
+
 
 use_readline = True
 
@@ -28,6 +35,7 @@ if use_readline:
             msg += '\n- readline error: %s' % e
             msg += '\n- pyreadline error: %s' % e2
             logger.warning(msg)
+
 
 @contract(cq=CacheQueryDB, returns='None')
 def interpret_commands_wrap(commands, context, cq):

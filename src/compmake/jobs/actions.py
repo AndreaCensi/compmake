@@ -1,19 +1,17 @@
 from ..events import publish
 from ..structures import Cache, JobFailed, JobInterrupted, Promise
 from ..ui import compmake_colored
-from ..utils import OutputCapture, setproctitle
+from ..utils import OutputCapture, my_format_exc, setproctitle
 from .progress_imp2 import init_progress_tracking
 from .storage import (delete_job_cache, delete_job_userobject, get_job, 
     get_job_cache, get_job_userobject, is_job_userobject_available, 
     set_job_cache, set_job_userobject)
 from .uptodate import up_to_date
 from compmake import get_compmake_config, logger
-from contracts.utils import indent
+from contracts import indent
 from copy import deepcopy
 from time import clock, time
 import logging
-import traceback
-from compmake.utils.format_exceptions import my_format_exc
 
 
 

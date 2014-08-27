@@ -1,5 +1,8 @@
 from .. import CompmakeGlobalState
 
+__all__ = [
+    'create_config_html',
+]
 
 def create_config_html(file):  # @ReservedAssignment
     config_switches = CompmakeGlobalState.config_switches

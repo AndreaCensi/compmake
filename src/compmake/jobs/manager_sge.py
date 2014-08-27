@@ -10,7 +10,9 @@ from system_cmd import CmdException, system_cmd_result
 import os
 
 
-__all__ = ['SGEManager']
+__all__ = [
+    'SGEManager',
+]
 
 class SGESub():
     def __init__(self, name, db):
@@ -310,7 +312,6 @@ class SGEJob(AsyncResultInterface):
             error(msg)
             raise JobFailed(msg)
         elif self.ret != 0:
-            # XXX RET_CODE_JOB_FAILED is not honored
             msg = 'SGE Job failed (ret: %s)\n' % self.ret
             msg += indent(stderr, 'err > ')
             error(msg)
