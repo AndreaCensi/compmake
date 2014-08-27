@@ -1,6 +1,7 @@
+from .compmake_test import CompmakeTest
+from compmake.unittests.expected_fail import expected_failure
 from nose.tools import istest
 
-from .compmake_test import CompmakeTest
 
 
 def cases():
@@ -32,6 +33,7 @@ class TestDynamic1(CompmakeTest):
 
     howmany = None  # used by cases()
 
+    @expected_failure
     def test_dynamic1(self):
         mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs

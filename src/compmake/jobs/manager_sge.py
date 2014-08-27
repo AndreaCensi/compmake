@@ -55,7 +55,7 @@ class SGEManager(Manager):
         process_limit_ok = len(self.sub_processing) < self.num_processes
         if not process_limit_ok:
             resource_available['nproc'] = (False,
-                                           'max %d nproc' % (self.max_num_processing))
+                                           'max %d nproc' % (self.num_processes))
             # this is enough to continue
             return resource_available
         else:
