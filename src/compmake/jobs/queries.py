@@ -16,19 +16,19 @@ __all__ = [
 def direct_parents(job_id, db):
     ''' Returns the direct parents of the specified job.
         (Jobs that depend directly on this one) '''
-    assert(isinstance(job_id, str))
+    assert isinstance(job_id, str) 
     computation = get_job(job_id, db=db)
     return computation.parents
     
 def direct_children(job_id, db):
     ''' Returns the direct children (dependences) of the specified job '''
-    assert(isinstance(job_id, str))
+    assert isinstance(job_id, str)
     computation = get_job(job_id, db=db)
     return computation.children
 
 def children(job_id, db):
     ''' Returns children, children of children, etc. '''
-    assert(isinstance(job_id, str))
+    assert isinstance(job_id, str)
     t = set()
     for c in direct_children(job_id, db=db):
         t.add(c)

@@ -27,7 +27,7 @@ def system_status():
     if swap > 20:
         s_mem += ' swap %2.0f%%' % swap 
         
-    return  ('cpu %2.0f%% %s' % (cpu, s_mem))
+    return ('cpu %2.0f%% %s' % (cpu, s_mem))
 
 
 def spinner():

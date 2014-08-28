@@ -1,6 +1,9 @@
 
+__all__ = [
+    'CompmakeConstants',   
+]
 
-class CompmakeConstants:
+class CompmakeConstants():
     ''' Arbitrary constants used in the code. '''
 
     # DO NOT change these -- they are part of Compmake's interface
@@ -11,7 +14,7 @@ class CompmakeConstants:
     # Compmake returns:
     #  0                      if everything all right
     #  RET_CODE_JOB_FAILED    if some job failed
-    #  other != 0             if compmake itself had some errors
+    #  RET_CODE_COMPMAKE_BUG  if compmake itself had some errors
     RET_CODE_JOB_FAILED = 113
     RET_CODE_COMPMAKE_BUG = 114
 
@@ -29,6 +32,15 @@ class CompmakeConstants:
 
     default_namespace = 'default'
     default_path = 'compmake_storage'
+    
+    
+    debug_check_invariants = True
+
+
+
+
+
+
 
 class DefaultsToConfig():
     """ Used to mean the param's default is from a config switch. """

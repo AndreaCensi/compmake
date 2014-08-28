@@ -1,5 +1,4 @@
 from ..structures import Cache, CompmakeBug
-from ..ui import compmake_colored
 from .actions import make
 from .manager import AsyncResultInterface, Manager
 from contracts import contract
@@ -42,10 +41,8 @@ def display_job_failed(db, job_id):
     from ..jobs import get_job_cache
     cache = get_job_cache(job_id, db=db)
     assert cache.state == Cache.FAILED
-    if cache.state == Cache.FAILED:
-        red = lambda x: compmake_colored(x, 'red')
-        print(red(cache.exception))
-        #print(red(cache.backtrace))
+    from ..ui import error
+    error('display_job_failed()\n' + cache.exception)
     
 
 class FakeAsync(AsyncResultInterface):

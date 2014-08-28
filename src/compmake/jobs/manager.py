@@ -1,8 +1,8 @@
 from ..events import publish
 from ..jobs import (all_jobs, delete_all_job_data, get_job, get_job_cache, 
     job_cache_exists, job_exists, job_userobject_exists, set_job)
-from ..structures import (Cache, CompmakeBug, CompmakeException, HostFailed, 
-    JobFailed, JobInterrupted)
+from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
+    JobInterrupted)
 from ..ui import error
 from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
@@ -10,6 +10,7 @@ from .priority import compute_priorities
 from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
+from compmake.constants import CompmakeConstants
 from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
@@ -81,16 +82,21 @@ class Manager(ManagerLog):
         # top-level targets added by users
         self.targets = set()
         
-        # targets + dependencies
+        # top-level targets + all their dependencies
         self.all_targets = set() 
         
+        # a job is in exactly one of these states
         self.todo = set()
         # |
         # V
         self.ready_todo = set()
         # |
         # V
+        # processing and processing2result have the same keys
+        # (it's redundant)
         self.processing = set()
+        # this hash contains  job_id -> async result
+        self.processing2result = {}
         # |
         # V
         # final states
@@ -101,9 +107,6 @@ class Manager(ManagerLog):
         # contains job_id -> priority
         # computed by precompute_priorities() called by process()
         self.priorities = {}
-
-        # this hash contains  job_id -> async result
-        self.processing2result = {}
 
         self.check_invariants()
         
@@ -145,10 +148,15 @@ class Manager(ManagerLog):
         self.log('adding targets', targets=targets)
         self.check_invariants()
         for t in targets:
+            if not job_exists(t, self.db):
+                msg = 'Adding job that does not exist: %r.' % t
+                raise CompmakeBug(msg)
+            
             if t in self.processing:
-                raise CompmakeBug('Adding a job already in processing: %r' % t)
+                msg = 'Adding a job already in processing: %r' % t
+                raise CompmakeBug(msg)
+            
             if t in self.targets:
-                #print('Already know this target %r' % t)
                 if t in self.ready_todo:
                     self.ready_todo.remove(t)
                 if t in self.todo:
@@ -157,7 +165,6 @@ class Manager(ManagerLog):
                     self.all_targets.remove(t)
                 if t in self.done:
                     self.done.remove(t)
-                
         
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
@@ -181,15 +188,28 @@ class Manager(ManagerLog):
         #print('           targets_done: %s ' % targets_done)
         #print('             ready_todo: %s ' % ready_todo)
         # both done and todo jobs are added to self.all_targets
+        
+        # let's check the additional jobs exist
+        for d in targets_todo_plus_deps - set(targets):
+            if not job_exists(d, self.db):
+                msg = 'Adding job that does not exist: %r.' % t
+                raise CompmakeBug(msg)        
+        
         self.all_targets.update(targets_todo_plus_deps)
         self.all_targets.update(targets_done)
         # however, we will only do the ones needed 
          
         self.todo.update(not_ready)
         self.ready_todo.update(ready_todo)
+        
+        needs_priorities = self.todo | self.ready_todo
+        misses_priorities = needs_priorities - set(self.priorities)
+        new_priorities = compute_priorities(misses_priorities, db=self.db, cq=cq,
+                                            priorities=self.priorities)
+        self.priorities.update(new_priorities)
+        
         self.done.update(targets_done) 
         
-        # logger.info('finished adding targets')
         self.check_invariants()
 
     def instance_some_jobs(self):
@@ -358,8 +378,8 @@ class Manager(ManagerLog):
                     cocher.add(j)
             #print('adding jobs recursively: %s' % cocher)
             self.add_targets(cocher)
-            for j in cocher:
-                self.priorities[j] = 10  # XXX probably should do better
+#             for j in cocher:
+#                 self.priorities[j] = 10  # XXX probably should do better
     
         self.check_invariants()
         
@@ -396,7 +416,7 @@ class Manager(ManagerLog):
                     set_job(d, j, self.db)
                     #print('new parents list: %s' % j.parents)
     
-            parents_to_schedule = []
+#             parents_to_schedule = []
             for parent in jobs_depending_on_this:           
                 self.log('rescheduling parent', 
                          job_id=job_id,
@@ -429,12 +449,13 @@ class Manager(ManagerLog):
                     self.add_targets([parent])
                     self.check_invariants()
                     # print('add_targets(%s)' % [parent])
-                    parents_to_schedule.append(parent)
-            if parents_to_schedule:
-                #self.add_targets(parents_to_schedule)
-                # XXX: recomputing priorities for everything
-                self.priorities = compute_priorities(self.all_targets, db=self.db)
-    
+#                     parents_to_schedule.append(parent)
+#                     
+#             if parents_to_schedule:
+#                 #self.add_targets(parents_to_schedule)
+#                 # XXX: recomputing priorities for everything
+#                 self.priorities = compute_priorities(self.all_targets, db=self.db)
+#     
                         
     def host_failed(self, job_id, reason):
         self.log('host_failed', job_id=job_id)
@@ -574,10 +595,6 @@ class Manager(ManagerLog):
 
             return True
 
-        # precompute job priorities
-        publish(self.context, 'manager-phase', phase='compute_priorities')
-        self.priorities = compute_priorities(self.all_targets, db=self.db)
-
         publish(self.context, 'manager-phase', phase='init')
         self.process_init()
 
@@ -588,12 +605,12 @@ class Manager(ManagerLog):
                 # either something ready to do, or something doing
                 # otherwise, we are completely blocked
                 if not (self.ready_todo or self.processing):
-                    msg = 'Nothing ready to do, and nothing cooking. '
-                    msg += 'This probably means that the Compmake job database was inconsistent. '
-                    msg += 'This might happen if the job creation is interrupted. Use the command "check-consistency" '
-                    msg += 'to check the database consistency.\n'
-                    msg += self._get_situation_string()
-                    raise CompmakeException(msg)
+                    msg = ('Nothing ready to do, and nothing cooking. '
+                    'This probably means that the Compmake job database was inconsistent. '
+                    'This might happen if the job creation is interrupted. Use the command "check-consistency" '
+                    'to check the database consistency.\n'
+                    +  self._get_situation_string())
+                    raise CompmakeBug(msg)
                 
                 self.publish_progress()
                 waiting_on = self.instance_some_jobs()
@@ -680,7 +697,8 @@ class Manager(ManagerLog):
         return s
     
     def check_invariants(self):
-        return  # everything works 
+        if not CompmakeConstants.debug_check_invariants:
+            return 
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,

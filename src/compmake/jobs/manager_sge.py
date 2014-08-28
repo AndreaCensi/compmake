@@ -43,7 +43,8 @@ class SGEManager(Manager):
         
         db=self.db
         storage = os.path.abspath(db.basepath)
-        spool = os.path.join(storage, 'sge', isodate_with_secs().replace(':','-'))
+        timestamp = isodate_with_secs().replace(':','-')
+        spool = os.path.join(storage, 'sge', timestamp)
         if not os.path.exists(spool):
             os.makedirs(spool)
 
@@ -155,7 +156,8 @@ class SGEJob(AsyncResultInterface):
         self.execute(spool=spool)
         
     def delete_job(self):
-        cmd = ['qdel', self.sge_id]
+        # cmd = ['qdel', self.sge_id]
+        cmd = ['qdel', self.sge_job_name]
         cwd = os.path.abspath(os.getcwd())
         # TODO: check errors
         try:
@@ -199,13 +201,13 @@ class SGEJob(AsyncResultInterface):
                          PYTHONPATH=os.getenv('PYTHONPATH', '') + ':' + cwd)
         
         # nice-looking name
-        sge_job_name = 'cm%s-%s' % (os.getpid(), self.job_id)
+        self.sge_job_name = 'cm%s-%s' % (os.getpid(), self.job_id)
         # Note that we get the official "id" later and we store it in self.sge_id
         options.extend(['-v', ",". join('%s=%s' % x for x in variables.items())])
         # XXX: spaces
         options.extend(['-e', self.stderr])
         options.extend(['-o', self.stdout])
-        options.extend(['-N', sge_job_name])
+        options.extend(['-N', self.sge_job_name])
         options.extend(['-wd', cwd])
         
         options.extend(['-V'])  # pass all environment
@@ -246,17 +248,19 @@ class SGEJob(AsyncResultInterface):
         if self.told_you_ready:
             raise CompmakeBug('should not call ready() twice')
         
-        if self.npolls % 100 == 1:
+        if self.npolls % 20 == 1:
             try:
                 qacct = get_qacct(self.sge_id)
-                
-                print('job: %s sgejob: %s res: %s' % (self.job_id, self.sge_id, qacct))
+                #  print('job: %s sgejob: %s res: %s' % (self.job_id, self.sge_id, qacct))
                 if 'failed' in qacct and qacct['failed'] != '0':
                     msg = 'Job schedule failed: %s\n%s' % (qacct['failed'], qacct)
                     raise HostFailed(msg)  # XXX
                 
             except JobNotRunYet:
+                qacct = None
                 pass
+        else:
+            qacct = None
             
         self.npolls += 1
         
@@ -264,20 +268,13 @@ class SGEJob(AsyncResultInterface):
             self.told_you_ready = True
             return True
         else:
+            if qacct is not None:
+                msg = 'The file %r does not exist but it looks like the job is done' % self.retcode
+                msg += '\n %s ' % qacct
+                raise CompmakeBug(msg)
+                
             return False
-        
-#     def ready_qacct(self):
-#         
-#         try:
-#             status = self.get_status()
-#         except Exception:
-#             # XXX let's assume it's not ready yet
-#             # print('couldn ot probe %s' % e)
-#             # print('job %s not ready' % self.job_id)
-#             return False
-# 
-#         self.ret = int(status['exit_status'])
-        
+         
     def get(self, timeout=0):  # @UnusedVariable
         if not self.told_you_ready:
             raise CompmakeBug("I didnt tell you it was ready.")
@@ -342,6 +339,7 @@ class SGEJob(AsyncResultInterface):
 
 class JobNotRunYet(Exception):
     pass
+
 def get_qacct(sge_id):
     """ 
         Only provides results if the job already rann.

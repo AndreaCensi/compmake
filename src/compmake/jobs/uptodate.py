@@ -2,6 +2,7 @@
 from ..structures import Cache, Job
 from ..utils import memoized_reset
 from contracts import contract
+from compmake.structures import CompmakeBug
 
 
 __all__ = [
@@ -178,6 +179,9 @@ class CacheQueryDB(object):
             else:
                 todo.add(job_id)
                 for child in self.direct_children(job_id):
+                    if not self.job_exists(child):
+                        msg = 'Job %r references not existing %r' % (job_id, child)
+                        raise CompmakeBug(msg)
                     if not child in seen:
                         stack.append(child)
                 
