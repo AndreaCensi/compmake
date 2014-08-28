@@ -7,12 +7,10 @@ from .utils import AvgSystemStats
 
 
 class CompmakeGlobalState(object):
-    is_it_time = False  # XXX
 
     original_stderr = sys.stderr
     original_stdout = sys.stdout
 
-    inside_compmake_script = False
     compmake_status = None
 
     class EventHandlers():
@@ -22,8 +20,6 @@ class CompmakeGlobalState(object):
         fallback = []
 
     compmake_db = None
-    namespace = CompmakeConstants.default_namespace
-    compmake_slave_mode = False
 
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)
@@ -42,7 +38,6 @@ class CompmakeGlobalState(object):
 def get_compmake_config(key):
     return CompmakeGlobalState.compmake_config[key]
 
-
 def set_compmake_config(key, value):
     # TODO: check exists
     CompmakeGlobalState.compmake_config[key] = value
@@ -53,12 +48,6 @@ ConfigSwitch = namedtuple('ConfigSwitch',
 ConfigSection = namedtuple('ConfigSection', 'name desc order switches')
 
 
-def is_inside_compmake_script():
-    """ Returns true if running inside the compmake script. """
-    return CompmakeGlobalState.inside_compmake_script
-
-def set_inside_compmake_script(itis=True):
-    CompmakeGlobalState.inside_compmake_script = itis
     
 def set_compmake_status(s):
     CompmakeGlobalState.compmake_status = s
@@ -72,6 +61,3 @@ def get_compmake_status():
     return CompmakeGlobalState.compmake_status
 
 
-# TODO: remove this
-def time_to_define_jobs():
-    return CompmakeGlobalState.is_it_time

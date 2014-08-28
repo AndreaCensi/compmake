@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 from .constants import *
-from .state import is_inside_compmake_script
 from .state import *
 from .storage import StorageFilesystem
 

@@ -23,8 +23,6 @@ class Context():
             
         assert db is not None
         self.compmake_db = db
-        from .constants import CompmakeConstants
-        self.namespace = CompmakeConstants.default_namespace
         self._jobs_defined_in_this_session = set()
         self.currently_executing = currently_executing
         self._job_prefix = None

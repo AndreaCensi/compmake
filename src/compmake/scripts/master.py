@@ -2,7 +2,6 @@ from .. import CompmakeConstants, logger, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
 from ..jobs import all_jobs
-from ..state import set_inside_compmake_script
 from ..storage import StorageFilesystem
 from ..structures import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..ui import error, info, interpret_commands_wrap
@@ -10,7 +9,6 @@ from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
 from optparse import OptionParser
-import compmake
 import contracts
 import os
 import sys
@@ -63,8 +61,7 @@ def main():
 def compmake_main(args):
     if not '' in sys.path:
         sys.path.append('')
-        
-    set_inside_compmake_script()
+    
 
     setproctitle('compmake')
 
@@ -257,9 +254,6 @@ def load_module(module_name):
 #        warning('However, I need a module name. I will try with %r.' % 
 #                module_name)
 
-#     set_namespace(module_name)
-
-    compmake.is_it_time = True
     try:
         info('Importing module %r' % module_name)
         __import__(module_name)
