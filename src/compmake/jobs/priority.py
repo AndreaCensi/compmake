@@ -1,15 +1,13 @@
-from .queries import direct_parents
-from compmake.jobs.storage import get_job
-
-
 __all__ = [
-    'compute_priorities', 
-    'compute_priority',
+    'compute_priorities'
 ]
 
 
 def compute_priorities(all_targets, db, cq, priorities=None):
-    ''' Computes the priority for all_targets. '''
+    ''' Computes the priority for all_targets. 
+    
+        :param priorities: str->float: cache
+    '''
     if priorities is None:
         priorities = {}
     all_targets = set(all_targets)

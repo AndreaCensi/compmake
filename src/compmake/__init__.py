@@ -1,6 +1,6 @@
 import sys
 
-version = '3.0dev1'
+version = '3.2'
 __version__ = version
 
 import logging
@@ -15,9 +15,10 @@ from .storage import StorageFilesystem
 from .jobs import progress
 from .scripts.master import read_rc_files
 from .structures import Promise
-from . import plugins
-from .stats import *
+from .exceptions import *
 from .context import Context
+from . import plugins
+from .plugins.execution_stats import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)

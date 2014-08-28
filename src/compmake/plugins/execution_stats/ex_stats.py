@@ -3,7 +3,9 @@ from compmake.jobs import get_job_cache, tree
 from compmake.structures import Cache
 from contracts import contract
 
-__all__ = ['compmake_execution_stats']
+__all__ = [
+    'compmake_execution_stats',
+]
 
 
 @contract(promise=Promise, returns=Promise)
@@ -34,8 +36,6 @@ def my_get_job_cache(context, job_id):
 
 # @contract(caches='list[>=1]')
 def finalize_result(jobs, caches):
-    import numpy as np
-    
     @contract(cache=Cache)
     def stats_from_cache(cache):
         assert isinstance(cache, Cache)

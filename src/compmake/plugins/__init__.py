@@ -25,3 +25,10 @@ from . import event_debugger
 # TODO: add "plugin X, automatically loading a plugin"
 from . import sanity_check
 
+
+from . import backend_local
+from . import backend_sge
+from . import backend_pmake
+from . import backend_multiprocessing
+from . import backend_ssh_cluster
+

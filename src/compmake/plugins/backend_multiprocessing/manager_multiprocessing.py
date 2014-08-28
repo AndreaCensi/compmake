@@ -1,34 +1,22 @@
-from ..config import get_compmake_config
-from ..events import (broadcast_event, publish, register_handler, 
-    remove_all_handlers)
-from ..jobs import make
-from ..structures import HostFailed, JobFailed, JobInterrupted
-from ..utils import setproctitle
-from .manager import AsyncResultInterface, Manager
+from Queue import Empty
 from compmake import CompmakeGlobalState
+from compmake.events.registrar import broadcast_event, publish
+from compmake.jobs.manager import AsyncResultInterface, Manager
+from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
+from compmake.plugins.backend_pmake.shared import Shared
+from compmake.state import get_compmake_config
+from compmake.structures import HostFailed, JobFailed
 from contracts import check_isinstance, contract, indent
 from multiprocessing import Pool
 from multiprocessing.queues import Queue
 import multiprocessing
 import os
 import random
+import setproctitle
 import signal
 import sys
 import tempfile
 import time
-import warnings
-if sys.version_info[0] >= 3:
-    from queue import Empty, Full  # @UnresolvedImport @UnusedImport
-else:
-    from Queue import Empty, Full  # @Reimport
-
-
-
-# Disable queue for stabitility
-disable_interproc_queue = False
-
-if disable_interproc_queue:
-    warnings.warn('Disabled queue of shared events') # TMP:
 
 
 __all__ = ['MultiprocessingManager']
@@ -41,11 +29,6 @@ if False:
     import logging
     logger = multiprocessing.log_to_stderr(logging.DEBUG)
     logger.setLevel(multiprocessing.SUBDEBUG)
-
-
-class Shared(object):
-    """ Shared storage with workers. """
-    event_queue = None
 
 
 def sig_child(signo, frame):
@@ -189,7 +172,7 @@ class MultiprocessingManager(Manager):
     def event_check(self):
         while True:
             try:
-                event = Shared.event_queue.get(block=False)
+                event = Shared.event_queue.get(block=False)  # @UndefinedVariable
                 event.kwargs['remote'] = True
                 broadcast_event(self.context, event)
             except Empty:
@@ -280,85 +263,7 @@ def worker_initialization():
     # You can use this to see when a worker start
     # print('Process: ignoring sigint')
 
-@contract(args='tuple(str, *, str, bool)')
-def parmake_job2(args):
-    """
-    args = tuple job_id, context, tmp_filename, show_events
-        
-    Returns a dictionary with fields "user_object" and "new_jobs".
-    "user_object" is set to None because we do not want to 
-    load in our thread if not necessary. Sometimes it is necessary
-    because it might contain a Promise. 
-   
-    """
-    job_id, context, tmp_filename, show_output = args  # @UnusedVariable
-    db = context.get_compmake_db()
 
-    setproctitle('compmake:%s' % job_id)
-    
-    class G():
-        nlostmessages = 0
-        
-    try:
-        # We register a handler for the events to be passed back 
-        # to the main process
-        def handler(context, event):  # @UnusedVariable
-            try:
-                if not disable_interproc_queue:
-                    Shared.event_queue.put(event, block=False)
-            except Full:
-                G.nlostmessages += 1
-                # Do not write messages here, it might create a recursive
-                # problem.
-                # sys.stderr.write('job %s: Queue is full, message is lost.\n'
-                #                 % job_id)
-                
-        remove_all_handlers()
-        
-        if show_output:
-            register_handler("*", handler)
-
-        def proctitle(context, event):  # @UnusedVariable
-            stat = '[%s/%s %s] (compmake)' % (event.progress,
-                                              event.goal, event.job_id)
-            setproctitle(stat)
-            
-        register_handler("job-progress", proctitle)
-
-        publish(context, 'worker-status', job_id=job_id, status='started')
-
-        # Note that this function is called after the fork.
-        # All data is conserved, but resources need to be reopened
-        try:
-            db.reopen_after_fork()  # @UndefinedVariable
-        except:
-            pass
-
-        publish(context, 'worker-status', job_id=job_id, status='connected')
-        
-        res = make(job_id, context=context)
-
-        publish(context, 'worker-status', job_id=job_id, status='ended')
-
-        return dict(new_jobs=res['new_jobs'],
-                    user_object=None,
-                    user_object_deps=res['user_object_deps'])
-
-    except KeyboardInterrupt:
-        assert False, 'KeyboardInterrupt should be captured by make() (inside Job.compute())'
-    except JobInterrupted:
-        publish(context, 'worker-status', job_id=job_id, status='interrupted')
-        raise
-    except JobFailed:
-        raise
-    except BaseException:
-        # XXX
-        raise
-    except:
-        raise
-    finally:
-        publish(context, 'worker-status', job_id=job_id, status='cleanup')
-        setproctitle('compmake-slave')
             
 
 

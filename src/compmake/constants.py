@@ -35,10 +35,7 @@ class CompmakeConstants():
     
     
     debug_check_invariants = True
-
-
-
-
+    disable_interproc_queue = True
 
 
 

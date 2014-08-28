@@ -1,23 +1,22 @@
-from ..structures import (CompmakeException, HostFailed, JobFailed, 
-    JobInterrupted)
-from .manager import AsyncResultInterface, Manager
-from .manager_multiprocessing import Shared, parmake_job2
-from compmake.constants import CompmakeConstants
+from .parmake_job2_imp import parmake_job2
+from .shared import Shared
 from compmake.events import broadcast_event, publish
+from compmake.jobs.actions_newprocess import parmake_job2_new_process
+from compmake.jobs.manager import AsyncResultInterface, Manager
+from compmake.plugins.backend_local.manager_local import display_job_failed
 from compmake.state import get_compmake_config
-from compmake.structures import CompmakeBug
-from compmake.utils import safe_pickle_load
+from compmake.structures import (CompmakeBug, CompmakeException, HostFailed, 
+    JobFailed, JobInterrupted)
+from compmake.utils import make_sure_dir_exists
 from contracts import check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 from multiprocessing.queues import Queue
-from system_cmd import system_cmd_result
 import multiprocessing
 import os
 import signal
 import sys
 import tempfile
 import traceback
-from compmake.utils.filesystem_utils import make_sure_dir_exists
 
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
@@ -105,74 +104,7 @@ class PmakeSub():
         self.job_queue.put((function, arguments))
         return PmakeResult(self.result_queue, job=arguments)
     
-def parmake_job2_new_process(args):
-    """ Starts the job in a new compmake process. """
-    (job_id, context, _) = args
-    from compmake.jobs.manager_sge import SGEJob
-    compmake_bin = SGEJob.get_compmake_bin()
-    
-    db =context.get_compmake_db()
-    storage = db.basepath # XXX:
-    where = os.path.join(storage, 'parmake_job2_new_process')
-    if not os.path.exists(storage):
-        try:
-            os.makedirs(storage)
-        except:
-            pass
-         
-    out_result = os.path.join(where, '%s.results.pickle' % job_id)
-    out_result = os.path.abspath(out_result)
-    cmd = [
-        compmake_bin, 
-        storage,
-        '--contracts',
-        '--status_line_enabled', '0',
-        '--colorize', '0',
-        '-c', 
-        'make_single out_result=%s %s' % (out_result, job_id),
-    ]
 
-    cwd = os.getcwd() 
-    cmd_res = system_cmd_result(cwd, cmd,
-                      display_stdout=False,
-                      display_stderr=False,
-                      raise_on_error=False,
-                      capture_keyboard_interrupt=False)
-    ret = cmd_res.ret
-    
-    if ret == CompmakeConstants.RET_CODE_JOB_FAILED: # XXX: 
-        msg = 'Job %r failed in external process' % job_id
-        msg += indent(cmd_res.stdout, 'stdout| ')
-        msg += indent(cmd_res.stderr, 'stderr| ')
-        raise JobFailed(msg)
-    elif ret != 0:
-        msg = 'Host failed while doing %r' % job_id
-        msg += '\n cmd: %s' % " ".join(cmd)
-        msg += '\n' + indent(cmd_res.stdout, 'stdout| ')
-        msg += '\n' + indent(cmd_res.stderr, 'stderr| ')
-        raise CompmakeBug(msg) # XXX:
-    
-    res = safe_pickle_load(out_result)
-    os.unlink(out_result)
-    _check_result_dict(res)
-     
-    return res
-     
-
-def _check_result_dict(res):
-    check_isinstance(res,dict)
-    if 'new_jobs' in res:
-        assert 'user_object_deps' in res
-    elif 'fail' in res:
-        pass
-    elif 'bug' in res:
-        pass
-    elif 'abort' in res:
-        pass
-    else:
-        msg = 'Malformed result dict: %s' % res
-        raise ValueError(msg)
-     
      
  
  
@@ -347,7 +279,7 @@ class PmakeManager(Manager):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
         if self.new_process:
-            from .manager_local import display_job_failed
+            
             display_job_failed(db=self.db, job_id=job_id)  
         
     def _clear(self, job_id):

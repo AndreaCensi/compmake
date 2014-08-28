@@ -5,69 +5,31 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 '''
-from .. import CompmakeConstants, get_compmake_config, get_compmake_status
-from ..context import Context
-from ..events import publish
-from ..jobs import (ManagerLocal, MultiprocessingManager, PmakeManager, 
-    SGEManager, all_jobs, clean_target, mark_remake, top_targets)
+from .. import CompmakeConstants, get_compmake_status
+from ..jobs import all_jobs, clean_target
 from ..structures import JobFailed, MakeFailed, ShellExitRequested, UserError
 from ..utils import safe_pickle_dump
 from .console import ask_question
-from .helpers import (ACTIONS, COMMANDS_ADVANCED, COMMANDS_CLUSTER, GENERAL, 
-    ui_command, ui_section)
+from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .visualization import error, info
-from compmake.constants import DefaultsToConfig
-from contracts import contract
 
 
 ui_section(GENERAL)
 
 __all__ = [
-    'parremake',
-    'remake',
-    'sgemake',
-    'parmake_pool',
-    'parmake',
     'make_single',
     'exit',
-    'make',
-    'make_',
+    '_raise_if_failed',
+    'ask_if_sure_remake',
 ]
 
 @ui_command(alias='quit')
 def exit(context):  # @ReservedAssignment
     '''Exits Compmake's console.'''
     raise ShellExitRequested()
- 
-
-@ui_command(section=ACTIONS, dbchange=True)
-def make(job_list, context, cq, new_process=DefaultsToConfig('new_process'), recurse=False):
-    '''Makes selected targets; or all targets if none specified. '''
-    if isinstance(new_process, DefaultsToConfig):
-        new_process = get_compmake_config('new_process')
-        assert isinstance(new_process, bool)
-    return make_(context=context, cq=cq, job_list=job_list, recurse=recurse,
-                 new_process=new_process)
-    
-@contract(context=Context, new_process='bool')
-def make_(context, cq, job_list, recurse, new_process):
-    '''Makes selected targets; or all targets if none specified. '''
-    # job_list = list(job_list) # don't ask me why XXX
-    job_list = [x for x in job_list]
-
-    db = context.get_compmake_db()
-    if not job_list:
-        job_list = list(top_targets(db=db))
-
-    manager = ManagerLocal(context=context, cq=cq,
-                           recurse=recurse, new_process=new_process)
-    manager.add_targets(job_list)
-    manager.process()
-    return _raise_if_failed(manager)
 
 def _raise_if_failed(manager):
     if manager.failed:
-
         raise MakeFailed(failed=manager.failed,
                          blocked=manager.blocked)
 #         if manager.blocked:
@@ -148,138 +110,6 @@ def make_single(job_list, context, out_result):
         raise
 
 
-@ui_command(section=ACTIONS, dbchange=True)
-def parmake(job_list, context, cq, 
-            n=None, recurse=False,
-            new_process=DefaultsToConfig('new_process'),
-            show_output=False):    
-    """ Parallel equivalent of "make", using multiprocessing.Process. (suggested)"""
-    publish(context, 'parmake-status', status='Obtaining job list')
-    job_list = list(job_list)
-    
-    if isinstance(new_process, DefaultsToConfig):
-        new_process = get_compmake_config('new_process')
-        assert isinstance(new_process, bool)
-
-
-    db = context.get_compmake_db()
-    if not job_list:
-        # XXX
-        job_list = list(top_targets(db=db))
-
-    publish(context, 'parmake-status',
-            status='Starting multiprocessing manager (forking)')
-    manager = PmakeManager(num_processes=n, 
-                           context=context,
-                           cq=cq, 
-                           recurse=recurse,
-                           new_process=new_process,
-                           show_output=show_output)
-
-    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
-    manager.add_targets(job_list)
-
-    publish(context, 'parmake-status', status='Processing')
-    manager.process()
- 
-    return _raise_if_failed(manager)
-
-
-@ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-def parmake_pool(job_list, context, cq, n=None, recurse=False):
-    '''Parallel equivalent of "make", using multiprocessing.Pool. (buggy)
-
-Usage:
-       
-       parmake [n=<num>] [joblist]
- '''
-    
-    publish(context, 'parmake-status', status='Obtaining job list')
-    job_list = list(job_list)
-
-    db = context.get_compmake_db()
-    if not job_list:
-        job_list = list(top_targets(db=db))
-
-    publish(context, 'parmake-status',
-            status='Starting multiprocessing manager (forking)')
-    manager = MultiprocessingManager(num_processes=n,
-                                     cq=cq,
-                                     context=context, 
-                                     recurse=recurse)
-
-    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
-
-    manager.add_targets(job_list)
-
-    publish(context, 'parmake-status', status='Processing')
-    manager.process()
-    return _raise_if_failed(manager)
-
-
-
-@ui_command(section=COMMANDS_CLUSTER, dbchange=True)
-def sgemake(job_list, context, cq, n=None, recurse=False):
-    ''' (experimental) SGE equivalent of "make". '''
-    job_list = [x for x in job_list]
-
-    if not job_list:
-        db = context.get_compmake_db()
-        job_list = list(top_targets(db=db))
-
-    manager = SGEManager(context=context, cq=cq, recurse=recurse,
-                         num_processes=n)
-    manager.add_targets(job_list)
-    manager.process()
-    return _raise_if_failed(manager)
-
-# 
-# @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
-# def clustmake(job_list, context, cq):
-#     ''' (experimental) Cluster equivalent of "make". '''
-#     # job_list = list(job_list) # don't ask me why XXX
-#     job_list = [x for x in job_list]
-# 
-#     if not job_list:
-#         db = context.get_compmake_db()
-#         job_list = list(top_targets(db))
-# 
-#     cluster_conf = get_compmake_config('cluster_conf')
-# 
-#     if not os.path.exists(cluster_conf):
-#         msg = ('Configuration file %r does not exist.' % cluster_conf)
-#         raise UserError(msg)
-# 
-#     hosts = parse_yaml_configuration(open(cluster_conf))
-#     manager = ClusterManager(hosts=hosts, context=context, cq=cq)
-#     manager.add_targets(job_list)
-#     manager.process()
-#     return _raise_if_failed(manager)
-
-@ui_command(section=ACTIONS, dbchange=True)
-def remake(non_empty_job_list, context, cq, 
-           new_process=DefaultsToConfig('new_process')):
-    '''Remake the selected targets (equivalent to clean and make). '''
-
-    if isinstance(new_process, DefaultsToConfig):
-        new_process = get_compmake_config('new_process')
-        assert isinstance(new_process, bool)
-
-    non_empty_job_list = list(non_empty_job_list)
-
-    if not ask_if_sure_remake(non_empty_job_list):
-        return
-
-    for job in non_empty_job_list:
-        db = context.get_compmake_db()
-        mark_remake(job, db=db)
-
-    manager = ManagerLocal(context=context, cq=cq, new_process=new_process)
-    manager.add_targets(non_empty_job_list)
-    manager.process()
-    return _raise_if_failed(manager)
-
-
 def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
@@ -292,22 +122,4 @@ def ask_if_sure_remake(non_empty_job_list):
         else:
             return True
     return True
-
-
-@ui_command(section=ACTIONS, dbchange=True)
-def parremake(non_empty_job_list, context, cq):
-    '''Parallel equivalent of "remake". '''
-    db = context.get_compmake_db()
-    non_empty_job_list = list(non_empty_job_list)
-
-    if not ask_if_sure_remake(non_empty_job_list):
-        return
-
-    for job in non_empty_job_list:
-        mark_remake(job, db=db)
-
-    manager = PmakeManager(context=context, cq=cq)
-    manager.add_targets(non_empty_job_list)
-    manager.process()
-    return _raise_if_failed(manager)
 

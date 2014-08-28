@@ -17,6 +17,7 @@ import itertools
 import os
 import time
 import traceback
+from compmake.jobs.actions_newprocess import _check_result_dict
 
 
 __all__ = [
@@ -308,7 +309,6 @@ class Manager(ManagerLog):
             if async_result.ready():
                 result = async_result.get()
                 check_isinstance(result, dict)
-                from .manager_pmake import _check_result_dict
                 _check_result_dict(result)
                 
                 self.job_succeeded(job_id)
