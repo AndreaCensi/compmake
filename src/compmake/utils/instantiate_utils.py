@@ -1,28 +1,11 @@
 # Jan 14 copied from conf_tools
 from contracts import contract
-import traceback
 from contracts.utils import indent
+import traceback
 
-__all__ = ['import_name']
-
-#
-# def instantiate(function_name, parameters):
-#     try:
-#         function = import_name(function_name)
-#     except ValueError as e:
-#         msg = 'instantiate(): Cannot find function or constructor %r:\n' % (function_name)
-#         msg += indent('%s' % (e), '> ')
-#         raise SemanticMistake(msg)
-#
-#     try:
-#         # XXX TypeError is too broad, we should bind the params explicitly
-#         return function(**parameters)
-#     except TypeError as e:
-#         params = ', '.join(['%s=%r' % (k, v) for (k, v) in parameters.items()])
-#         msg = ('instantiate(): Could not call function %r\n with params %s:' %
-#                (function_name, params))
-#         msg += '\n' + indent('%s\n%s' % (e, traceback.format_exc(e)), '> ')
-#         raise SemanticMistake(msg)
+__all__ = [
+    'import_name',
+]
 
 
 @contract(name='str')

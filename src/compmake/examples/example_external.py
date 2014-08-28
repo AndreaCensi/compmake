@@ -5,7 +5,8 @@ if __name__ == '__main__':
     from compmake import Context
     c = Context()
 
-    from example_external_support import *
+    from example_external_support import generate_tests, cases
+    
     values = c.comp(cases)
     # comp_dynamic gives the function an extra argument 
     # "context" to further define jobs

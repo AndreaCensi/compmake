@@ -3,7 +3,9 @@ import sys
 import time
 
 
-__all__ = ['TimeTrack']
+__all__ = [
+    'TimeTrack',
+]
 
 class TimeTrack(object):
 

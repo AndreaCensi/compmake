@@ -1,6 +1,8 @@
 import pickle
 
-__all__ = ['try_pickling']
+__all__ = [
+    'try_pickling',
+]
 
 def try_pickling(obj):
     """ Serializes and deserializes an object. """

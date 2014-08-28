@@ -1,18 +1,23 @@
 import copy
 
-try:
-    frozenset
-except NameError:
-    from sets import ImmutableSet as frozenset
+__all__ = [
+    'frozendict2',
+]
 
-class frozendict1(dict):
-    __slots__ = ('_hash',)
+if False:
+    try:
+        frozenset
+    except NameError:
+        from sets import ImmutableSet as frozenset
     
-    def __hash__(self):
-        rval = getattr(self, '_hash', None)
-        if rval is None:
-            rval = self._hash = hash(frozenset(self.iteritems()))
-        return rval
+    class frozendict1(dict):
+        __slots__ = ('_hash',)
+        
+        def __hash__(self):
+            rval = getattr(self, '_hash', None)
+            if rval is None:
+                rval = self._hash = hash(frozenset(self.iteritems()))
+            return rval
 
 class frozendict2(dict):
     

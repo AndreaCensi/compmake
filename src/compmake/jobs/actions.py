@@ -8,12 +8,10 @@ from .storage import (delete_job_cache, delete_job_userobject, get_job,
     set_job_cache, set_job_userobject)
 from .uptodate import up_to_date
 from compmake import get_compmake_config, logger
-from contracts import indent
+from contracts import indent, raise_wrapped
 from copy import deepcopy
 from time import clock, time
 import logging
-
-
 
 
 def clean_target(job_id, db):
@@ -27,22 +25,26 @@ def clean_target(job_id, db):
 def mark_remake(job_id, db):
     ''' Delets and invalidates the cache for this object '''
     # TODO: think of the difference between this and clean_target
-    # cache = get_job_cache(job_id)
     cache = Cache(Cache.NOT_STARTED)
     set_job_cache(job_id, cache, db=db)
 
     if is_job_userobject_available(job_id, db=db):
         delete_job_userobject(job_id, db=db)
 
-#    from compmake.jobs.uptodate import up_to_date_cache
-#    if job_id in up_to_date_cache:
-#        up_to_date_cache.remove(job_id)
-
 
 def substitute_dependencies(a, db):
+    if type(a).__name__ in  ['ObjectSpec']:
+        return deepcopy(a)
     if isinstance(a, dict):
         ca = type(a)
-        return ca((k, substitute_dependencies(v, db=db)) for k, v in a.items())
+        rest= [(k, substitute_dependencies(v, db=db)) for k, v in a.items()]
+        try:
+            return ca(rest)
+        except (BaseException, TypeError) as e:
+            raise_wrapped(Exception, e, 
+                          'Could not instance something looking like a list', 
+                          ca=ca)
+            
     elif isinstance(a, list):
         # warnings.warn('This fails for subclasses of list')
         return type(a)([substitute_dependencies(x, db=db) for x in a])
@@ -150,8 +152,6 @@ def make(job_id, context):
 
     set_job_cache(job_id, cache, db=db)
     
-    
-
     # update state
     time_start = time()
     cpu_start = clock()
@@ -210,16 +210,6 @@ def make(job_id, context):
             capture.stderr_replacement.buffer.getvalue()
         cache.captured_stdout = \
             capture.stdout_replacement.buffer.getvalue()
-# 
-#         if False:
-#             # Do not save more than a few lines
-#             max_lines = 10
-#             cache.captured_stderr = limit_to_last_lines(cache.captured_stderr,
-#                                                         max_lines)
-#             cache.captured_stdout = limit_to_last_lines(cache.captured_stdout,
-#                                                         max_lines)
-#             
-#         
         set_job_cache(job_id, cache, db=db)
 
         logging.StreamHandler.emit = old_emit
@@ -230,7 +220,7 @@ def make(job_id, context):
     cache.timestamp = time()
     walltime = cache.timestamp - time_start
     cputime = clock() - cpu_start
-    # FIXME walltime/cputime not precise
+    # XXX: walltime/cputime not precise
     cache.walltime_used = walltime
     cache.cputime_used = cputime
     cache.host = get_compmake_config('hostname')  # XXX
@@ -261,11 +251,4 @@ def colorize_loglevel(levelno, msg):
     else:
         return msg
 
-# 
-# def limit_to_last_lines(s, max_lines):
-#     """ Clips only the given number of lines. """
-#     lines = s.split('\n')
-#     if len(lines) > max_lines:
-#         lines = lines[-max_lines:]
-#     return '\n'.join(lines)
 

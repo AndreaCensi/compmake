@@ -1,12 +1,9 @@
-import sys
-
 from .. import get_compmake_config
 from ..events import register_handler
-from ..ui import compmake_colored, error
-from ..utils import (pad_to_screen, get_length_on_screen, pad_to_screen_length,
-    get_screen_columns)
-from contracts import indent
-
+from ..ui import compmake_colored
+from ..utils import (get_length_on_screen, get_screen_columns, pad_to_screen, 
+    pad_to_screen_length)
+import sys
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -60,16 +57,12 @@ def plot_with_prefix(job_id, lines, is_stderr):
             stream.write(screen_line)
             stream.write('\n')
 
-debug_padding = False
 
 
 def write_screen_line(s):
     """ Writes and pads """
     # TODO: check that it is not too long
-    if debug_padding:
-        s = pad_to_screen(s, pad=')')
-    else:
-        s = pad_to_screen(s)
+    s = pad_to_screen(s)
     stream.write(s)
     stream.write('\n')
     stream.flush()
@@ -85,12 +78,12 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
             write_screen_line(header)
 
         max_size = get_screen_columns()
-        if debug_padding:
-            prefix = compmake_colored('>', color='red')
-            postfix = compmake_colored('<', color='blue')
-        else:
-            prefix = ""
-            postfix = ""
+        # if debug_padding:
+        #     prefix = compmake_colored('>', color='red')
+        #     postfix = compmake_colored('<', color='blue')
+        # else:
+        prefix = ""
+        postfix = ""
         sublines = pad_line_to_screen_length(prefix, line, postfix, max_size)
 
         for s in sublines:
@@ -110,7 +103,8 @@ def pad_line_to_screen_length(prefix, line, postfix, max_size):
 
     lines = []
     for _, subline in enumerate(sublines):
-        pad = '+' if debug_padding else ' '
+        #pad = '+' if debug_padding else ' '
+        pad = ' '
         subline = pad_to_screen_length(subline, max_space, pad=pad)
         line = '%s%s%s' % (prefix, subline, postfix)
         lines.append(line)
@@ -152,17 +146,3 @@ def handle_event_stderr(event, context):  # @UnusedVariable
 
 register_handler('job-stdout', handle_event_stdout)
 register_handler('job-stderr', handle_event_stderr)
-
-
-def handle_job_failed(event, context):  # @UnusedVariable
-    job_id = event.kwargs['job_id']
-    host = event.kwargs['host']
-    _ = event.kwargs['reason']
-    bt = event.kwargs['bt']
-
-    error('Job %r failed on host %r.' % (job_id, host))
-    error(indent( '%s' % (  bt), '| '))
-
-register_handler('job-failed', handle_job_failed)
-
-

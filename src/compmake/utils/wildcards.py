@@ -1,6 +1,10 @@
 import re
 from ..structures import UserError
 
+__all__ = [
+    'wildcard_to_regexp',
+    'expand_wildcard',
+]
 
 def wildcard_to_regexp(arg):
     """ Returns a regular expression from a shell wildcard expression. """

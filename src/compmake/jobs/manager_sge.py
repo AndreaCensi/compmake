@@ -15,17 +15,18 @@ __all__ = [
 ]
 
 class SGESub():
-    def __init__(self, name, db):
+    def __init__(self, name, db, spool):
         self.name = name
         self.job_id = None
         self.db = db
         self.res = None
+        self.spool = spool
         
     def delete_job(self):
         self.res.delete_job()
         
     def instance_job(self, job_id):
-        self.res = SGEJob(job_id, self.db)
+        self.res = SGEJob(job_id, self.db, spool=self.spool)
         return self.res
 
 
@@ -40,12 +41,19 @@ class SGEManager(Manager):
         self.num_processes = num_processes
         check_sge_environment()
         
+        db=self.db
+        storage = os.path.abspath(db.basepath)
+        spool = os.path.join(storage, 'sge', isodate_with_secs().replace(':','-'))
+        if not os.path.exists(spool):
+            os.makedirs(spool)
+
+        
         self.sub_available = set()
         self.sub_processing = set() # available + processing = subs.keys
         self.subs = {} # name -> sub
         for i in range(self.num_processes):
             name = 'w%02d' % i
-            self.subs[name] = SGESub(name, db=self.db) 
+            self.subs[name] = SGESub(name, db=self.db, spool=spool) 
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)
@@ -137,28 +145,29 @@ class SGEJob(AsyncResultInterface):
     def get_compmake_bin():
         """ Returns the path to the compmake executable. """
         if SGEJob.compmake_bin is None:
-            cwd = os.path.abspath(os.getcwd())
-            compmake_bin = system_cmd_result(cwd, 'which compmake').stdout.strip()
-            compmake_bin = os.path.abspath(compmake_bin)
+            compmake_bin = which('compmake')
             SGEJob.compmake_bin = compmake_bin
         return SGEJob.compmake_bin 
     
-    def __init__(self, job_id, db):
+    def __init__(self, job_id, db, spool):
         self.job_id = job_id
         self.db = db
-        self.execute()
+        self.execute(spool=spool)
         
     def delete_job(self):
         cmd = ['qdel', self.sge_id]
         cwd = os.path.abspath(os.getcwd())
         # TODO: check errors
-        _ = system_cmd_result(cwd, cmd,
-              display_stdout=False,
-              display_stderr=False,
-              raise_on_error=False,
-              capture_keyboard_interrupt=False)
-
-    def execute(self):
+        try:
+            _ = system_cmd_result(cwd, cmd,
+                  display_stdout=False,
+                  display_stderr=False,
+                  raise_on_error=True,
+                  capture_keyboard_interrupt=False)
+        except CmdException as e:
+            error('Error while deleting job:\n%s' % e)
+            
+    def execute(self, spool):
         db = self.db
         # Todo: check its this one
         
@@ -166,9 +175,6 @@ class SGEJob(AsyncResultInterface):
         
         # create a new spool directory for each execution
         # otherwise we get confused!
-        spool = os.path.join(storage, isodate_with_secs().replace(':','-'))
-        if not os.path.exists(spool):
-            os.makedirs(spool)
             
         self.stderr = os.path.join(spool, '%s.stderr' % self.job_id)
         self.stdout = os.path.join(spool, '%s.stdout' % self.job_id)
@@ -183,6 +189,9 @@ class SGEJob(AsyncResultInterface):
         
         if os.path.exists(self.retcode):
             os.remove(self.retcode)
+            
+        if os.path.exists(self.out_results):
+            os.remove(self.out_results)
              
         options = []
         cwd = os.path.abspath(os.getcwd())
@@ -230,51 +239,33 @@ class SGEJob(AsyncResultInterface):
         
         self.already_read = False
         self.npolls = 0
+        
+        self.told_you_ready = False
            
     def ready(self):
+        if self.told_you_ready:
+            raise CompmakeBug('should not call ready() twice')
+        
         if self.npolls % 100 == 1:
             try:
-                qacct = self.get_qacct()
-                if 'failed' in qacct and qacct['failed'] == '1':
-                    msg = 'Job schedule failed: %s' % qacct
+                qacct = get_qacct(self.sge_id)
+                
+                print('job: %s sgejob: %s res: %s' % (self.job_id, self.sge_id, qacct))
+                if 'failed' in qacct and qacct['failed'] != '0':
+                    msg = 'Job schedule failed: %s\n%s' % (qacct['failed'], qacct)
                     raise HostFailed(msg)  # XXX
-            except CmdException:
+                
+            except JobNotRunYet:
                 pass
             
         self.npolls += 1
         
         if os.path.exists(self.retcode):
-            ret_str = open(self.retcode, 'r').read()
-            try:
-                self.ret = int(ret_str)
-            except ValueError:
-                msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
-                raise HostFailed(msg)  # XXX
-                self.ret = 1
+            self.told_you_ready = True
             return True
         else:
             return False
         
- 
-    def get_qacct(self):
-        cmd = ['qacct', '-j', self.sge_id]
-        cwd = os.getcwd()
-        res = system_cmd_result(cwd, cmd,
-                                display_stdout=False,
-                                display_stderr=False,
-                                raise_on_error=True,
-                                capture_keyboard_interrupt=False)
-        values = {}
-        for line in res.stdout.split('\n'):
-            tokens = line.split()
-            if len(tokens) >= 2:  # XXX
-                k = tokens[0]
-                v = " ".join(tokens[1:])
-                if k == 'failed':
-                    v = tokens[1]
-                values[k] = v
-        return values
- 
 #     def ready_qacct(self):
 #         
 #         try:
@@ -288,53 +279,96 @@ class SGEJob(AsyncResultInterface):
 #         self.ret = int(status['exit_status'])
         
     def get(self, timeout=0):  # @UnusedVariable
+        if not self.told_you_ready:
+            raise CompmakeBug("I didnt tell you it was ready.")
         if self.already_read:
             msg = 'Compmake BUG: should not call twice.'
             raise CompmakeException(msg)
-        
         self.already_read = True
-        assert self.ready()
-        os.remove(self.retcode)
+        
+        assert os.path.exists(self.retcode)
+        ret_str = open(self.retcode, 'r').read()
+        try:
+            ret = int(ret_str)
+        except ValueError:
+            msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
+            raise HostFailed(msg)  # XXX
+            
 
-        stderr = open(self.stderr, 'r').read()
-        stdout = open(self.stdout, 'r').read()
-        
-        stderr = 'Contents of %s:\n' % self.stderr + stderr
-        stdout = 'Contents of %s:\n' % self.stdout + stdout
+        try:
+            stderr = open(self.stderr, 'r').read()
+            stdout = open(self.stdout, 'r').read()
+            
+            stderr = 'Contents of %s:\n' % self.stderr + stderr
+            stdout = 'Contents of %s:\n' % self.stdout + stdout
 
-        os.remove(self.stderr)
-        os.remove(self.stdout)
-        
-        if self.ret == CompmakeConstants.RET_CODE_JOB_FAILED:
-            msg = 'SGE Job failed (ret: %s)\n' % self.ret
-            msg += indent(stderr, 'err > ')
-            # mark_as_failed(self.job_id, msg, None)
-            error(msg)
-            raise JobFailed(msg)
-        elif self.ret != 0:
-            msg = 'SGE Job failed (ret: %s)\n' % self.ret
-            msg += indent(stderr, 'err > ')
-            error(msg)
-            raise JobFailed(msg)
+            if ret == CompmakeConstants.RET_CODE_JOB_FAILED:
+                msg = 'SGE Job failed (ret: %s)\n' % ret
+                msg += indent(stderr, '| ')
+                # mark_as_failed(self.job_id, msg, None)
+                raise JobFailed(msg)
+            elif ret != 0:
+                msg = 'SGE Job failed (ret: %s)\n' % ret
+                error(msg)
+                msg += indent(stderr, '| ')
+                raise JobFailed(msg)
+    
+            if not os.path.exists(self.out_results):
+                msg = 'job succeeded but no %r found' % self.out_results
+                msg += '\n' + indent(stderr, 'stderr')
+                msg += '\n' + indent(stdout, 'stdout')
+                raise CompmakeBug(msg)
+            
+            res = safe_pickle_load(self.out_results)
+            from compmake.jobs.manager_pmake import _check_result_dict
+            _check_result_dict(res)
+            
+            if 'fail' in res:
+                raise JobFailed(self.result['fail'])
+            
+            if 'abort' in res:
+                raise HostFailed(self.result['abort'])
+            
+            if 'bug' in res:
+                raise CompmakeBug(self.result['bug'])
+            
+            return res
+        finally:
+            fs = [self.stderr, self.stdout, self.out_results, self.retcode]
+            for filename in fs:
+                if os.path.exists(filename):
+                    os.unlink(filename)
+                    
 
-        if not os.path.exists(self.out_results):
-            msg = 'job succeeded but no %r found' % self.out_results
-            msg += '\n' + indent(stderr, 'stderr')
-            msg += '\n' + indent(stdout, 'stdout')
-            raise CompmakeBug(msg)
-        
-        res = safe_pickle_load(self.out_results)
-        os.unlink(self.out_results)
-        from compmake.jobs.manager_pmake import _check_result_dict
-        _check_result_dict(res)
-        
-        if 'fail' in res:
-            raise JobFailed(self.result['fail'])
-        
-        if 'abort' in res:
-            raise HostFailed(self.result['abort'])
-        
-        if 'bug' in res:
-            raise CompmakeBug(self.result['bug'])
-        
-        return res
+class JobNotRunYet(Exception):
+    pass
+def get_qacct(sge_id):
+    """ 
+        Only provides results if the job already rann.
+    
+        Raises JobNotRunYet if the job didn't run.
+    """
+    cmd = ['qacct', '-j', sge_id]
+    cwd = os.getcwd()
+    res = system_cmd_result(cwd, cmd,
+                            display_stdout=False,
+                            display_stderr=False,
+                            raise_on_error=False,
+                            capture_keyboard_interrupt=False)
+    if res.ret == 1:
+        if 'not found' in res.stderr:
+            # todo
+            raise JobNotRunYet(sge_id)
+        raise Exception('qcct failed: %s' % res)
+    if res.ret != 0:
+        raise Exception('qcct failed: %s' % res)
+    values = {}
+    for line in res.stdout.split('\n'):
+        tokens = line.split()
+        if len(tokens) >= 2:  # XXX
+            k = tokens[0]
+            v = " ".join(tokens[1:])
+            if k == 'failed':
+                v = tokens[1]
+            values[k] = v
+    return values

@@ -16,7 +16,7 @@ class TestAssertion(CompmakeTest):
     def mySetUp(self):
         pass
 
-    def testOrder(self):
+    def testAssertion1(self):
         for i in range(10):
             self.comp(job_failure, job_id='F%d' % i)
         

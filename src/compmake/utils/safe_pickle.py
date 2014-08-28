@@ -11,7 +11,10 @@ else:
 
 
 
-__all__ = ['safe_pickle_dump', 'safe_pickle_load']
+__all__ = [
+    'safe_pickle_dump', 
+    'safe_pickle_load',
+]
 
 
 def safe_pickle_dump(value, filename, protocol=pickle.HIGHEST_PROTOCOL, **safe_write_options):

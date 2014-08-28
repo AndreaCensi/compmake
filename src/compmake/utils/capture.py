@@ -5,7 +5,9 @@ import sys
 
 RESET = '\033[0m'  # XXX
 
-__all__ = ['OutputCapture']
+__all__ = [
+    'OutputCapture',
+]
 
 class LineSplitter(object):
     ''' A simple utility to split an incoming sequence of chars

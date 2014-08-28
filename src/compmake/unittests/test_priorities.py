@@ -46,7 +46,7 @@ class TestOrder(CompmakeTest):
         self.cc.batch_command('clean')
         self.cc.batch_command('make')
 
-        self.assertEqual(['bottom2', 'bottom', 'top', 'bottom', 'top'],
+        self.assertEqual(['bottom', 'bottom2', 'top', 'bottom', 'top'],
                          TestOrder.order)
 
     def test_order_3(self):

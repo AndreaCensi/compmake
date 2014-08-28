@@ -1,6 +1,12 @@
 import re
-from . import get_screen_columns
+from .terminal_size import get_screen_columns
 
+__all__ = [
+    'remove_escapes',
+    'get_length_on_screen',
+    'pad_to_screen',      
+    'pad_to_screen_length',     
+]
 
 def remove_escapes(s):
     escape = re.compile('\x1b\[..?m')
@@ -11,7 +17,7 @@ def get_length_on_screen(s):
     """ Returns the length of s without the escapes """
     return len(remove_escapes(s))
 
-debug_padding = True
+debug_padding = False
 
 
 def pad_to_screen(s, pad=" ", last=None):
@@ -22,15 +28,20 @@ def pad_to_screen(s, pad=" ", last=None):
         escape sequences. 
     '''
 
+    
     total_screen_length = get_screen_columns()
 
     if debug_padding:
-        return pad_to_screen_length(s, total_screen_length, pad="-", last='|')
+        x = pad_to_screen_length(s, total_screen_length, 
+                                 pad="-", last='|')
     else:
-        return pad_to_screen_length(s, total_screen_length, pad=pad, last=last)
+        x = pad_to_screen_length(s, total_screen_length, 
+                                 pad=pad, last=last)
+    
+    return x
 
-
-def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None,
+def pad_to_screen_length(s, desired_screen_length, 
+                         pad=" ", last=None,
                          align_right=False):
     ''' 
         Pads a string so that it will appear of the given size 
@@ -52,5 +63,10 @@ def pad_to_screen_length(s, desired_screen_length, pad=" ", last=None,
             s = last + padding + s
         else:
             s = s + padding + last
+       
+    if debug_padding:     
+        if current_size > desired_screen_length:
+            T = '(cut)'
+            s = s[:desired_screen_length-len(T)] + T
 
     return s

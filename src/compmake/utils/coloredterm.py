@@ -1,6 +1,8 @@
 import sys
 
-__all__ = ['termcolor_colored']
+__all__ = [
+    'termcolor_colored',
+]
 
 #  Available text colors:
 #         red, green, yellow, blue, magenta, cyan, white.

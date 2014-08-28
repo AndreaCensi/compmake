@@ -1,5 +1,9 @@
 
 
+__all__ = [
+    'get_screen_columns',
+    'getTerminalSize',
+]
 def get_screen_columns():
     max_x, _ = getTerminalSize()  # @UnusedVariable
     return max_x

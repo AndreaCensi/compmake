@@ -1,4 +1,4 @@
-from ..structures import Cache
+from ..structures import Cache, CompmakeBug
 from ..ui import compmake_colored
 from .actions import make
 from .manager import AsyncResultInterface, Manager
@@ -52,26 +52,32 @@ class FakeAsync(AsyncResultInterface):
     def __init__(self, job_id, context, new_process):
         self.job_id = job_id
         self.context = context
-        self.done = False
         self.new_process = new_process
-
-    def _execute(self):
-        if self.done:
-            return
-        if self.new_process:
-            args = (self.job_id, self.context, None)
-            from compmake.jobs.manager_pmake import parmake_job2_new_process
-            self.result = parmake_job2_new_process(args)
-        else:
-            self.result = make(self.job_id, context=self.context)
         
-        self.done = True
+        self.told_you_ready = False
 
     def ready(self):
-        #self._execute()
+        if self.told_you_ready:
+            msg = 'Should not call ready() twice.'
+            raise CompmakeBug(msg)
+        
+        self.told_you_ready = True
         return True
 
     def get(self, timeout=0):  # @UnusedVariable
-        self._execute()
-        return dict(new_jobs=self.result['new_jobs'],
-                    user_object_deps=self.result['user_object_deps'])
+        if not self.told_you_ready:
+            msg = 'Should call get() only after ready().'
+            raise CompmakeBug(msg)
+        
+        res = self._execute()
+        return dict(new_jobs=res['new_jobs'],
+                    user_object_deps=res['user_object_deps'])
+        
+    def _execute(self):
+        if self.new_process:
+            args = (self.job_id, self.context, None)
+            from compmake.jobs.manager_pmake import parmake_job2_new_process
+            return parmake_job2_new_process(args)
+        else:
+            return make(self.job_id, context=self.context)
+        

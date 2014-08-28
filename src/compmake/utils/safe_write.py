@@ -2,6 +2,11 @@ from contextlib import contextmanager
 import os
 import gzip
 
+__all__ = [
+    'safe_write',
+    'safe_read',
+]
+
 def is_gzip_filename(filename):
     return '.gz' in filename 
 

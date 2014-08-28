@@ -1,9 +1,9 @@
 ''' The actual interface of some commands in commands.py '''
 from ..jobs import get_job, get_job_cache, parse_job_list
+from ..jobs.syntax.parsing import aliases
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
-from compmake.jobs.syntax.parsing import aliases
 
 
 state2color = {
@@ -73,13 +73,13 @@ def display_stats(job_list, context):
 
     print("Summary by function:")
 
-    flen = max(len(x) for x in function2state2count)
-    for function_id, function_stats in function2state2count.items():
+    flen = max((len(x)+len('()')) for x in function2state2count)
+    for function_id in sorted(function2state2count):
+        function_stats = function2state2count[function_id]
 
         states = [(Cache.DONE, 'done'),
                   (Cache.FAILED, 'failed'),
                   (Cache.BLOCKED, 'blocked'),
-                  # (Cache.MORE_REQUESTED, 'done'),
                   (Cache.IN_PROGRESS, 'in progress'),
                   (Cache.NOT_STARTED, 'to do'),
                   ]
@@ -94,8 +94,8 @@ def display_stats(job_list, context):
             alls.append(s)
 
         s = ",".join(alls)
-        function_id_pad = function_id.rjust(flen)
-        print("    %s(): %s." % (function_id_pad, s))
+        function_id_pad = (function_id+'()').ljust(flen)
+        print("    %s: %s." % (function_id_pad, s))
 
 
 

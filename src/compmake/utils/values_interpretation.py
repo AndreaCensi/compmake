@@ -1,4 +1,7 @@
 
+__all__ = [
+    'interpret_strings_like',
+]
 
 def interpret_strings_like(args, reference_value):
     if not isinstance(args, list):

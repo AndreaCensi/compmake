@@ -1,6 +1,8 @@
 import time
 
-__all__ = ['AvgSystemStats']
+__all__ = [
+    'AvgSystemStats',
+]
 
 try:
     import psutil as test_import  # @UnresolvedImport @UnusedImport

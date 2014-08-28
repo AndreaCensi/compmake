@@ -8,9 +8,9 @@ from .format_exceptions import my_format_exc
 
 from io import BytesIO as StringIO
 
-
-
-__all__ = ['find_pickling_error']
+__all__ = [
+    'find_pickling_error',
+]
 
 def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()

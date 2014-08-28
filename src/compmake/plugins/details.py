@@ -56,7 +56,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     print(bold('Uptodate:') + '%s (%s)' % (up, reason))
     
     job_args = get_job_args(job_id, db=db)
-    command, args, kwargs = job_args
+    command, args, kwargs = job_args  # @UnusedVariable
     print(bold('command:') + '%s' % command)
         
     print(bold('Dependences: (direct)') + ' (%d) ' % len(dchildren) + format_list(dchildren))

@@ -3,7 +3,10 @@ from .frozen import frozendict2
 import functools
 
 
-__all__ = ['memoize_simple', 'memoized_reset']
+__all__ = [
+    'memoize_simple', 
+    'memoized_reset',
+]
 
 
 def memoize_simple(obj):

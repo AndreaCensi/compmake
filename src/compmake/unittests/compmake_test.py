@@ -103,8 +103,12 @@ class CompmakeTest(unittest.TestCase):
         try:
             func()
         except MakeFailed as e:
-            self.assertEqual(len(e.failed), nfailed)
-            self.assertEqual(len(e.blocked), nblocked)
+            if len(e.failed) != nfailed:
+                msg = 'Expected %d failed, got %d: %s' % (nfailed, len(e.failed), e.failed) 
+                raise Exception(msg)
+            if len(e.blocked) != nblocked:
+                msg = 'Expected %d blocked, got %d: %s' % (nblocked, len(e.blocked), e.blocked) 
+                raise Exception(msg)
         except Exception as e:
             raise Exception('unexpected: %s' % e)
         

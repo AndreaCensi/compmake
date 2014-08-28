@@ -86,6 +86,11 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             s += '%d ' % (len(job.defined_by) - 1)
         else:
             s += '  '
+        
+        if job.needs_context:
+            s += 'd '
+        else:
+            s += '  '
             
         job_name_formatted = format_job_id(job_id).ljust(jlen)
         
@@ -129,6 +134,6 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
         wall_time = duration_compact(sum(wall_total))
-        scpu = (' total CPU: %s   wall: %s' % (cpu_time, wall_time))
+        scpu = (' total %d jobs   CPU time: %s   wall: %s' % (len(job_list), cpu_time, wall_time))
         print(scpu)
 

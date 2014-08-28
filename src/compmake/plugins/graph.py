@@ -7,8 +7,9 @@ import os
 
 @ui_command(section=COMMANDS_ADVANCED)
 def graph(job_list, context, filename='compmake',
-          filter='dot', format='png', compact=False, color=True,
-          cluster=False):  # @ReservedAssignment
+          filter='dot', format='png', # @ReservedAssignment
+          compact=False, color=True,
+          cluster=False):  
     '''Creates a graph of the given targets and dependencies 
     
         graph filename=filename compact=0,1 format=png,...
@@ -29,7 +30,7 @@ def graph(job_list, context, filename='compmake',
 
     print('Importing gvgen')
     try:
-        import gvgen  # @UnresolvedImport
+        import gvgen  # @UnresolvedImport @UnusedImport
     except:
         gvgen_url = 'https://github.com/stricaud/gvgen'
         msg = ('To use the "graph" command you have to install the "gvgen" ' 

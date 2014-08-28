@@ -1,12 +1,15 @@
 import sys
 
-__all__ = ['setproctitle']
+__all__ = [
+    'setproctitle',
+]
 
 try:
     from setproctitle import setproctitle  # @UnresolvedImport @UnusedImport
 except:
-    sys.stderr.write('compmake can make use of the package "setproctitle". '
-                    'Please install it.\n')
+    msg= ('compmake can make use of the package "setproctitle". '
+          'Please install it.\n')
+    sys.stderr.write(msg)
 
     def setproctitle(x):
         ''' emulation of the setproctitle interface '''
