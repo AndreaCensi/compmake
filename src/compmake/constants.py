@@ -34,7 +34,7 @@ class CompmakeConstants():
     default_path = 'compmake_storage'
     
     
-    debug_check_invariants = True
+    debug_check_invariants = False
     disable_interproc_queue = True
 
 

@@ -11,13 +11,13 @@ from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
+from compmake.jobs.actions_newprocess import _check_result_dict
 from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
 import os
 import time
 import traceback
-from compmake.jobs.actions_newprocess import _check_result_dict
 
 
 __all__ = [
@@ -198,18 +198,21 @@ class Manager(ManagerLog):
         
         self.all_targets.update(targets_todo_plus_deps)
         self.all_targets.update(targets_done)
-        # however, we will only do the ones needed 
-         
-        self.todo.update(not_ready)
-        self.ready_todo.update(ready_todo)
+        
+        # ok, careful here, there might be jobs that are
+        # already in processing
+        
+        # XXX: we should clean the Cache of a job before making it
+        self.done.update(targets_done - self.processing) 
+        
+        self.todo.update(not_ready - self.processing)
+        self.ready_todo.update(ready_todo - self.processing)
         
         needs_priorities = self.todo | self.ready_todo
         misses_priorities = needs_priorities - set(self.priorities)
         new_priorities = compute_priorities(misses_priorities, db=self.db, cq=cq,
                                             priorities=self.priorities)
         self.priorities.update(new_priorities)
-        
-        self.done.update(targets_done) 
         
         self.check_invariants()
 
@@ -712,7 +715,11 @@ class Manager(ManagerLog):
             if inter:
                 msg = 'There should be empty intersection in %r and %r' % (a, b)
                 msg += ' but found %s' % inter
-                msg += '\n' + self._get_situation_string()
+
+                st = self._get_situation_string()
+                if len(st) < 500:
+                    msg += '\n' + st
+                    
                 raise CompmakeBug(msg)
 
         def partition(sets, result):
@@ -728,7 +735,10 @@ class Manager(ManagerLog):
                 msg += ' first-second = %s\n' % (S -lists[result])
                 msg += ' second-first = %s\n' % (lists[result]-S)
                 
-                msg += '\n' + self._get_situation_string()
+                st = self._get_situation_string()
+                if len(st) < 500:
+                    msg += '\n' + st
+
                 raise CompmakeBug(msg)
                 
             for a, b in itertools.product(sets, sets):

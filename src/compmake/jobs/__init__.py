@@ -10,3 +10,4 @@ from .manager import *
 from .syntax.parsing import *
 
 
+from .actions_newprocess import *

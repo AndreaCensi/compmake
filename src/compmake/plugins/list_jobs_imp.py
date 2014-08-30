@@ -1,10 +1,13 @@
 ''' The actual interface of some commands in commands.py '''
 
 from ..jobs import parse_job_list
+from ..jobs.storage import (job_args_sizeof, job_cache_exists, job_cache_sizeof, 
+    job_userobject_exists, job_userobject_sizeof)
 from ..jobs.syntax.parsing import aliases, is_root_job
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import duration_compact
+from contracts import contract
 from time import time
 
 
@@ -111,8 +114,11 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         k = (cache.state, up)
         assert k in state2color, "I found strange state %s" % str(k)
 
-        s += compmake_colored(tag, **state2color[k])
+        s += compmake_colored('%7s' % tag, **state2color[k])
 
+        db = context.get_compmake_db()
+        sizes = get_sizes(job_id, db=db)
+        s += '%10s ' % format_size(sizes['total'])
         if up:
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
@@ -136,4 +142,38 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         wall_time = duration_compact(sum(wall_total))
         scpu = (' total %d jobs   CPU time: %s   wall: %s' % (len(job_list), cpu_time, wall_time))
         print(scpu)
+
+def format_size(nbytes):
+    if nbytes == 0:
+        return ''
+    mb = float(nbytes) / (1000 * 1000)
+    return '%.1f MB'% mb
+
+@contract(returns='dict')
+def get_sizes(job_id, db):
+    """ Returns byte sizes for jobs pieces. 
+    
+        Returns dict with keys 'args','cache','result','total'.
+    """
+    res = {}
+    res['args'] = job_args_sizeof(job_id, db)
+
+    if job_cache_exists(job_id, db):
+        res['cache'] = job_cache_sizeof(job_id, db)
+    else:
+        res['cache'] = 0
+
+    if job_userobject_exists(job_id, db):
+        res['result'] = job_userobject_sizeof(job_id, db)
+    else: 
+        res['result'] = 0
+         
+    res['total'] = res['cache'] + res['args'] + res['result']
+    return res
+
+
+
+
+
+
 

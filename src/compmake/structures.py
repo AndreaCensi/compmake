@@ -280,7 +280,7 @@ class Cache(object):
     allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]
 
     state2desc = {
-        NOT_STARTED: 'not started',
+        NOT_STARTED: 'todo',
         IN_PROGRESS: 'in progress',
         BLOCKED: 'blocked',
         FAILED: 'failed',

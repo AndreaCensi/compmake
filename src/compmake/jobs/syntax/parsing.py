@@ -48,7 +48,6 @@ def add_alias(alias, value):
     of the meaning of value. '''
     aliases[alias] = value
 
-
 def assert_list_of_strings(l):
     assert all([isinstance(x, str) for x in l]), \
             'Expected list of strings: %s.' % str(l)
@@ -120,18 +119,17 @@ def expand_job_list_token(token, context, cq):
     assert isinstance(token, str)
 
     if token.find('*') > -1:
-#         print('expanding wildcard %r' % token)
         return expand_wildcard(token, cq.all_jobs())
     elif is_alias(token):
         return eval_alias(token, context, cq)
     elif token.endswith('()'):
         return list_matching_functions(token, context, cq)
-        # raise UserError('Syntax reserved but not used yet. ("%s")' % token)
     else:
         # interpret as a job id
         job_id = token
         if not cq.job_exists(job_id):
-            raise UserError('Job or expression "%s" not found.' % job_id)
+            msg = 'Job or expression "%s" not found.' % job_id
+            raise UserError(msg)
         return [job_id]
 
 
@@ -245,6 +243,17 @@ def list_level4_jobs(context, cq):
 def is_root_job(job):
     return job.defined_by == ['root']
 
+def is_dynamic_job(job):
+    return job.needs_context == True
+
+def list_dynamic_jobs(context, cq):  # @UnusedVariable
+    ''' Returns a list of jobs that are uptodate 
+        (DONE, and all depednencies DONE).'''
+    for job_id in cq.all_jobs():
+        job = cq.get_job(job_id)
+        if is_dynamic_job(job):
+            yield job_id
+
 def list_top_jobs(context, cq):  # @UnusedVariable
     ''' Returns a list of jobs that are top-level targets.  '''
     for job_id in cq.all_jobs():
@@ -270,6 +279,7 @@ add_alias('level1', list_level1_jobs)
 add_alias('level2', list_level2_jobs)
 add_alias('level3', list_level3_jobs)
 add_alias('level4', list_level4_jobs)
+add_alias('dynamic', list_dynamic_jobs)
 add_alias('bottom', list_bottom_jobs)
 add_alias('done', lambda context, cq: list_jobs_with_state(Cache.DONE, context=context, cq=cq))
 add_alias('in_progress', lambda context, cq: list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))

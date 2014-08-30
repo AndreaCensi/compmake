@@ -206,12 +206,11 @@ def make(job_id, context):
         capture.deactivate()
         # even if we send an error, let's save the output of the process
         cache = get_job_cache(job_id, db=db)
-        cache.captured_stderr = \
-            capture.stderr_replacement.buffer.getvalue()
-        cache.captured_stdout = \
-            capture.stdout_replacement.buffer.getvalue()
+        captured_stderr =capture.stderr_replacement.buffer.getvalue() 
+        cache.captured_stderr = captured_stderr
+        captured_stdout =capture.stdout_replacement.buffer.getvalue() 
+        cache.captured_stdout = captured_stdout
         set_job_cache(job_id, cache, db=db)
-
         logging.StreamHandler.emit = old_emit
 
     set_job_userobject(job_id, user_object, db=db)

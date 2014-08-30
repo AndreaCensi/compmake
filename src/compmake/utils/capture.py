@@ -1,6 +1,6 @@
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
-from io import BytesIO as StringIO
+from io import BytesIO
 import sys
 
 RESET = '\033[0m'  # XXX
@@ -38,7 +38,7 @@ class LineSplitter(object):
 class StreamCapture(object):
     def __init__(self, transform=None, dest=None, after_lines=None):
         ''' dest has write() and flush() '''
-        self.buffer = StringIO()
+        self.buffer = BytesIO()
         self.dest = dest
         self.transform = transform
         self.line_splitter = LineSplitter()

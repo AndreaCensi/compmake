@@ -7,18 +7,18 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job,
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..jobs.syntax.parsing import aliases
 from ..structures import CommandFailed, Job, Promise, UserError
-from .visualization import warning
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands
+from .visualization import warning
+from compmake.constants import DefaultsToConfig
 from compmake.context import Context
-from compmake.structures import same_computation
+from ..structures import same_computation
 from contracts import contract, indent
 import inspect
 import os
 import sys
 import warnings
-from compmake.constants import DefaultsToConfig
 if sys.version_info[0] >= 3:
     import pickle  # @UnusedImport
 else:
@@ -208,17 +208,16 @@ def comp_(context, command_, *args, **kwargs):
         if not command in WarningStorage.warned:
             if WarningStorage.warned:
                 # already warned for another function
-                msg = ('Same warning for function %r.' % command.__name__)
+                msg = ('(Same warning for function %r.)' % command.__name__)
             else:
-                msg = ("A warning about the function %r: \n" % command.__name__)
-                msg2 = (
-                "This function is defined directly in the __main__ module, \n"
-                "which means that it cannot be pickled correctly due to \n"
-                "a limitation of Python and 'make new_process=1' will fail.\n"
-                "For best results, please define functions in external modules.\n"
-                '\nFor more info, read http://stefaanlippens.net/pickleproblem'
-                '\nor the bug report http://bugs.python.org/issue5509.')
-                msg += indent(msg2, ' ')
+                msg = ("A warning about the function %r: " % command.__name__)
+                msg +=(
+                "This function is defined directly in the __main__ module, "
+                "which means that it cannot be pickled correctly due to "
+                "a limitation of Python and 'make new_process=1' will fail. "
+                "For best results, please define functions in external modules. "
+                'For more info, read http://stefaanlippens.net/pickleproblem '
+                'and the bug report http://bugs.python.org/issue5509.')
             warning(msg)
             WarningStorage.warned.add(command)
             
@@ -356,6 +355,11 @@ def comp_(context, command_, *args, **kwargs):
 
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
+    
+    for c in children:
+        if not job_exists(c, db):
+            msg = "Job %r references a job %r that doesnt exist." % (job_id, c)
+            raise ValueError(msg)
 
     all_args = (command, args, kwargs)
 
@@ -367,6 +371,12 @@ def comp_(context, command_, *args, **kwargs):
 
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)
+        
+        if old_job.defined_by != c.defined_by:
+            warning('Redefinition of %s: ' % job_id)
+            warning(' cur defined_by: %s' % (c.defined_by))
+            warning(' old defined_by: %s' % old_job.defined_by)
+
         if old_job.children != c.children:
             #warning('Redefinition problem:')
             #warning(' old children: %s' % (old_job.children))
@@ -386,9 +396,9 @@ def comp_(context, command_, *args, **kwargs):
                         c.children.add(j)
                 
         if old_job.parents != c.parents:
-            warning('Redefinition of %s: ' % job_id)
-            warning(' cur parents: %s' % (c.parents))
-            warning(' old parents: %s' % old_job.parents)
+            # warning('Redefinition of %s: ' % job_id)
+            #  warning(' cur parents: %s' % (c.parents))
+            # warning(' old parents: %s' % old_job.parents)
             for p in old_job.parents:
                 c.parents.add(p)
             

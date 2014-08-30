@@ -1,7 +1,7 @@
 from compmake.constants import CompmakeConstants
 from compmake.structures import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
-from contracts import check_isinstance, indent, contract
+from contracts import check_isinstance, indent
 from system_cmd import system_cmd_result
 import os
 
