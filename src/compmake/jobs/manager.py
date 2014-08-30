@@ -1,6 +1,7 @@
 from ..events import publish
 from ..jobs import (all_jobs, delete_all_job_data, get_job, get_job_cache, 
     job_cache_exists, job_exists, job_userobject_exists, set_job)
+from ..jobs.actions_newprocess import _check_result_dict
 from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
     JobInterrupted)
 from ..ui import error
@@ -11,7 +12,6 @@ from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
-from compmake.jobs.actions_newprocess import _check_result_dict
 from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
@@ -134,15 +134,15 @@ class Manager(ManagerLog):
     def next_job(self):
         ''' 
             Returns one job from the ready_todo list 
-            Uses self.priorities
-            to decide which job to use. 
-            
+            Uses self.priorities to decide which job to use. 
         '''
         self.check_invariants()
         
         ordered = sorted(self.ready_todo,
                          key=lambda job: self.priorities[job])
         best = ordered[-1]
+        
+        #print('choosing %s job %r' % (self.priorities[best], best))
         return best
 
     def add_targets(self, targets):
@@ -210,7 +210,7 @@ class Manager(ManagerLog):
         
         needs_priorities = self.todo | self.ready_todo
         misses_priorities = needs_priorities - set(self.priorities)
-        new_priorities = compute_priorities(misses_priorities, db=self.db, cq=cq,
+        new_priorities = compute_priorities(misses_priorities, cq=cq,
                                             priorities=self.priorities)
         self.priorities.update(new_priorities)
         
@@ -451,15 +451,8 @@ class Manager(ManagerLog):
 
                     self.add_targets([parent])
                     self.check_invariants()
-                    # print('add_targets(%s)' % [parent])
-#                     parents_to_schedule.append(parent)
-#                     
-#             if parents_to_schedule:
-#                 #self.add_targets(parents_to_schedule)
-#                 # XXX: recomputing priorities for everything
-#                 self.priorities = compute_priorities(self.all_targets, db=self.db)
-#     
-                        
+                    
+                  
     def host_failed(self, job_id, reason):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()

@@ -329,8 +329,6 @@ class ProgressStage(object):
 
     def was_finished(self):
         # allow off-by-one conventions
-
-        # (self.iterations[0] == self.iterations[1]) or \
         if isinstance(self.iterations[1], int):
             return  (self.iterations[0] >= self.iterations[1] - 1)
         else:

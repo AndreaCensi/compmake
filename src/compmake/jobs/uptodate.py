@@ -164,8 +164,6 @@ class CacheQueryDB(object):
             if A.count % 100 != 0:
                 return  
         
-            # print('seen: %5d stack: %5d => todo: %5d  done: %5d' % (len(seen), len(stack), len(todo), len(done)))
-        
         while stack:
             summary()
             

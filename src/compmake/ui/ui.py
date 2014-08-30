@@ -252,9 +252,11 @@ def comp_(context, command_, *args, **kwargs):
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
+        #print('command_desc using %s: %s' % (CompmakeConstants.command_name_key, command_desc))
     else:
         command_desc = command.__name__
-
+        #print('command_desc using __name__: %s' % command_desc)
+    
 
     args = list(args)  # args is a non iterable tuple
 
@@ -483,13 +485,6 @@ def interpret_commands(commands_str, context, cq, separator=';'):
             raise
         # TODO: all the rest is unexpected
 
-#  
-#         if not isinstance(retcode, (int, NoneType, str)):
-#             publish(context, 'compmake-bug', user_msg="",
-#                     dev_msg="Command %r should return an integer, "
-#                         "None, or a string describing the error, not %r." %
-#                         (cmd, retcode))
-#             retcode = 0
 
         if retcode == 0 or retcode is None:
             continue
@@ -618,7 +613,8 @@ def interpret_single_command(commands_line, context, cq):
     try:
         res = function(**kwargs)
         if res != None and res != 0:
-            raise CommandFailed('Command %r failed: %s' % (commands_line, res))
+            msg = 'Command %r failed: %s' % (commands_line, res)
+            raise CommandFailed(msg)
         return None
     finally:
         if dbchange:

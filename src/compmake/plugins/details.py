@@ -1,16 +1,15 @@
 ''' The actual interface of some commands in commands.py '''
-from ..jobs import (CacheQueryDB, children, direct_children, direct_parents, 
-    get_job, get_job_cache, job_args_sizeof, job_cache_exists, job_cache_sizeof, 
-    job_userobject_exists, job_userobject_sizeof, parents)
+from ..jobs import (children, direct_children, direct_parents, get_job, 
+    get_job_args, get_job_cache, job_args_sizeof, job_cache_exists, 
+    job_cache_sizeof, job_userobject_exists, job_userobject_sizeof, parents)
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 import sys
-from compmake.jobs.storage import get_job_args
 
 
 
 @ui_command(section=VISUALIZATION, alias='lsl')
-def details(non_empty_job_list,  context, max_lines=None):
+def details(non_empty_job_list,  context, cq, max_lines=None):
     ''' Shows the details for the given jobs including
         dependencies and stderr/stdout.
     
@@ -20,8 +19,6 @@ def details(non_empty_job_list,  context, max_lines=None):
             details max_lines=1000 
     '''
     num = 0
-    db = context.get_compmake_db()
-    cq = CacheQueryDB(db=db)
     for job_id in non_empty_job_list:
         # insert a separator if there is more than one job
         if num > 0:

@@ -32,3 +32,4 @@ from . import backend_pmake
 from . import backend_multiprocessing
 from . import backend_ssh_cluster
 
+from . import debug_priority

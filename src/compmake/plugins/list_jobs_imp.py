@@ -1,5 +1,4 @@
 ''' The actual interface of some commands in commands.py '''
-
 from ..jobs import parse_job_list
 from ..jobs.storage import (job_args_sizeof, job_cache_exists, job_cache_sizeof, 
     job_userobject_exists, job_userobject_sizeof)

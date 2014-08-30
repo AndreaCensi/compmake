@@ -1,9 +1,11 @@
+from compmake.structures import Cache
+
 __all__ = [
     'compute_priorities'
 ]
 
 
-def compute_priorities(all_targets, db, cq, priorities=None):
+def compute_priorities(all_targets, cq, priorities=None):
     ''' Computes the priority for all_targets. 
     
         :param priorities: str->float: cache
@@ -12,12 +14,13 @@ def compute_priorities(all_targets, db, cq, priorities=None):
         priorities = {}
     all_targets = set(all_targets)
     for job_id in all_targets:
-        p = compute_priority(job_id=job_id, priorities=priorities, targets=all_targets, db=db, cq=cq)
+        p = compute_priority(job_id=job_id, priorities=priorities, 
+                             targets=all_targets, cq=cq)
         priorities[job_id] = p
     return priorities
 
 
-def compute_priority(job_id, priorities, targets, db, cq):
+def compute_priority(job_id, priorities, targets, cq):
     ''' Computes the priority for one job. It uses caching results in
         self.priorities if they are found. '''
     if job_id in priorities:
@@ -32,13 +35,18 @@ def compute_priority(job_id, priorities, targets, db, cq):
         base_priority = 10
     else:
         base_priority = 0
+        
+    cache = cq.get_job_cache(job_id)
+    if cache.state == Cache.FAILED:
+        base_priority -= 100
 
     if not parents_which_are_targets:
         priority = base_priority
     else:
-        pf = lambda p: compute_priority(p, priorities, targets, db=db, cq=cq)
+        pf = lambda p: compute_priority(p, priorities, targets, cq=cq)
         # it was -1
-        priority = base_priority + max(list(map(pf, parents_which_are_targets)))
+        parents_priority = list(map(pf, parents_which_are_targets))
+        priority = base_priority + max(parents_priority)
 
     priorities[job_id] = priority
 
