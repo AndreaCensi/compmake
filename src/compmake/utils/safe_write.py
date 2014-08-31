@@ -1,6 +1,6 @@
 from contextlib import contextmanager
-import os
 import gzip
+import os
 
 __all__ = [
     'safe_write',
@@ -16,6 +16,9 @@ def safe_write(filename, mode='wb', compresslevel=5):
         Makes atomic writes by writing to a temp filename. 
         Also if the filename ends in ".gz", writes to a compressed stream.
         Yields a file descriptor.
+        
+        It is thread safe because it renames the file.
+        If there is an error, the file will be removed if it exists.
     """
     dirname = os.path.dirname(filename)
     if dirname:
@@ -25,7 +28,12 @@ def safe_write(filename, mode='wb', compresslevel=5):
             except:
                 pass
 
-    tmp_filename = '%s.tmp' % filename
+# Dont do this!
+#     if os.path.exists(filename):
+#         os.unlink(filename)
+#     assert not os.path.exists(filename)
+#             
+    tmp_filename = '%s.tmp.%s' % (filename, os.getpid())
     try:
         if is_gzip_filename(filename):
             fopen = lambda f, mode: gzip.open(filename=f, mode=mode,
@@ -35,13 +43,19 @@ def safe_write(filename, mode='wb', compresslevel=5):
                      
         with fopen(tmp_filename, mode) as f:
             yield f
-            
-        if os.path.exists(filename):
-            os.unlink(filename)
+        f.close()
+    
+#         if os.path.exists(filename):
+#             msg = 'Race condition for writing to %r.' % filename
+#             raise Exception(msg)
+#         
+        # On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. 
         os.rename(tmp_filename, filename)
     except:
         if os.path.exists(tmp_filename):
             os.unlink(tmp_filename)
+        if os.path.exists(filename):
+            os.unlink(filename)
         raise
 
 
