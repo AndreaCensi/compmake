@@ -4,6 +4,7 @@ from compmake.utils import safe_pickle_load, which
 from contracts import check_isinstance, indent
 from system_cmd import system_cmd_result
 import os
+from contracts.enabling import all_disabled
 
 __all__ = [
     '_check_result_dict',
@@ -29,13 +30,20 @@ def parmake_job2_new_process(args):
     out_result = os.path.abspath(out_result)
     cmd = [
         compmake_bin, 
-        storage,
-        '--contracts',
+        storage
+    ]
+    
+    if not all_disabled():
+        cmd += ['--contracts']
+    
+    cmd += [
+        
         '--status_line_enabled', '0',
         '--colorize', '0',
         '-c', 
         'make_single out_result=%s %s' % (out_result, job_id),
     ]
+
 
     cwd = os.getcwd() 
     cmd_res = system_cmd_result(cwd, cmd,

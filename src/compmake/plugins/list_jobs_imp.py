@@ -106,10 +106,7 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         s += job_name_formatted + '  '
 
         tag = Cache.state2desc[cache.state]
-
-        # if not up:
-        #    tag += ' (needs update)' 
-
+ 
         k = (cache.state, up)
         assert k in state2color, "I found strange state %s" % str(k)
 
@@ -122,8 +119,13 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
             cpu_total.append(cpu)
-#             s += ' %5.2f m ' % (cpu / 60.0)
-            s+= ' ' + duration_compact(cpu).rjust(10) + ' '
+            
+            if cpu > 5: # TODO: add param
+                s_cpu = duration_compact(cpu)
+            else:
+                s_cpu = ''
+            s+= ' ' + s_cpu.rjust(10) + ' '
+            
             when = duration_compact(time() - cache.timestamp)
             s += " (%s ago)" % when
         else:
@@ -131,8 +133,11 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
                 s += " (needs update: %s)" % reason
 
             if cache.state == Cache.FAILED:
-                when = duration_compact(time() - cache.timestamp)
-                s += " (%s ago)" % when
+                age = time() - cache.timestamp
+                when = duration_compact(age)
+                age_str = " (%s ago)" % when
+                
+                s += age_str.rjust(10)
 
         print(s)
 
@@ -145,8 +150,10 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
 def format_size(nbytes):
     if nbytes == 0:
         return ''
+    if nbytes < 1000*1000:  # TODO: add param
+        return ''
     mb = float(nbytes) / (1000 * 1000)
-    return '%.1f MB'% mb
+    return '%d MB'% mb
 
 @contract(returns='dict')
 def get_sizes(job_id, db):

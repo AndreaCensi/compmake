@@ -30,7 +30,7 @@ __all__ = [
 class StorageFilesystem(object):
 
     def __init__(self, basepath, compress=False):
-        self.basepath = basepath
+        self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
         if compress:
             self.file_extension = '.pickle.gz'
@@ -63,7 +63,8 @@ class StorageFilesystem(object):
         try:
             return safe_pickle_load(filename)
         except Exception as e:
-            msg = "Could not unpickle file %r." % (filename)
+            msg =( "Could not unpickle data for key %r. \n file: %s" % 
+                   (key, filename))
             logger.error(msg)
             logger.exception(e)
             msg += "\n" + traceback.format_exc(e)
@@ -88,7 +89,7 @@ class StorageFilesystem(object):
         try:
             safe_pickle_dump(value, filename, protocol)
             assert os.path.exists(filename)
-
+            
         except BaseException as e:
             msg = ('Cannot set key %s: cannot pickle object '
                     'of class %s: %s' % (key, value.__class__.__name__, e))

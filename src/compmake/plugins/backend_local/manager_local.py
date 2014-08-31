@@ -1,10 +1,9 @@
-from contracts import contract
-from compmake.jobs.manager import Manager, AsyncResultInterface
-from compmake.jobs.storage import get_job_cache
+from compmake import CompmakeConstants
+from compmake.jobs import (AsyncResultInterface, Manager, get_job_cache, make, 
+    parmake_job2_new_process)
 from compmake.structures import Cache, CompmakeBug
-from compmake.jobs.actions import make
 from compmake.ui import error
-from compmake.jobs.actions_newprocess import parmake_job2_new_process
+from contracts import contract, indent
 
 __all__ = [
     'ManagerLocal', 
@@ -42,7 +41,10 @@ def display_job_failed(db, job_id):
     """ Displays the exception that made the job fail. """
     cache = get_job_cache(job_id, db=db)
     assert cache.state == Cache.FAILED
-    error('display_job_failed()\n' + cache.exception)
+    msg = 'Job %r failed:\n' % job_id + indent(cache.exception, '| ')
+    if CompmakeConstants.debug_origin_of_prints:
+        msg = 'display_job_failed()\n' + msg
+    error(msg)
     
 
 class FakeAsync(AsyncResultInterface):

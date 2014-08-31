@@ -71,8 +71,6 @@ def clean(job_list, context):
     if not job_list:
         return
 
-    
-
     # Use context
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = "Should I clean %d jobs? [y/n] " % len(job_list)

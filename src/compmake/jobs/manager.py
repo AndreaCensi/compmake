@@ -18,6 +18,8 @@ import itertools
 import os
 import time
 import traceback
+from compmake.jobs.storage import assert_job_exists
+from compmake.jobs.queries import children
 
 
 __all__ = [
@@ -149,9 +151,7 @@ class Manager(ManagerLog):
         self.log('adding targets', targets=targets)
         self.check_invariants()
         for t in targets:
-            if not job_exists(t, self.db):
-                msg = 'Adding job that does not exist: %r.' % t
-                raise CompmakeBug(msg)
+            assert_job_exists(t, self.db)
             
             if t in self.processing:
                 msg = 'Adding a job already in processing: %r' % t
@@ -344,17 +344,37 @@ class Manager(ManagerLog):
             # self.job_failed(job_id) # not sure
             # No, don't mark as failed 
             # (even though knowing where it was interrupted was good)
+            # XXX
             print(traceback.format_exc(e))
             raise JobInterrupted('Keyboard interrupt')
     
+    
+#     def _update_parents_relation(self, new_jobs):
+#         
+#         def add_parent(child, parent, db):
+#             print('adding %r to parents of %r' % (parent, child))
+#             child_comp = get_job(child, db=db)
+#             child_comp.parents.add(new_job)
+#             set_job(child, child_comp, db=db)
+#             print('  cur parents: %s' % child_comp.parents)
+# 
+#         print('updating parents relation for %r ' % new_jobs)
+#         for new_job in new_jobs:
+#             for child in children(new_job, db=self.db):
+#                 add_parent(child, new_job, db=self.db)
+                
     def check_job_finished_handle_result(self, job_id, result):
+#         print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
                  new_jobs=result['new_jobs'], 
                  user_object_deps=result['user_object_deps'])
         
         new_jobs = result['new_jobs']
-        
+#         print('Job %r generated %r' % (job_id, new_jobs))
+
+        # Update the child->parent relation        
+        # self._update_parents_relation(new_jobs)
         
         # Job succeeded? we can check in the DB
         if True: # XXX: extra check
@@ -367,45 +387,28 @@ class Manager(ManagerLog):
         #self.check_invariants()
         
         # print('job generated %s' % new_jobs)
-        if self.recurse:
-            # print('adding targets %s' % new_jobs)
-            cocher = set()
-            for j in new_jobs:
-                if j in self.all_targets:
-                    # msg = ('Warning, job %r generated %r which was '
-                    #       'already a target. I will not re-add it to the queue. '
-                    #       % (job_id, j))
-                    #print(msg)
-                    pass
-                else:
-                    cocher.add(j)
-            #print('adding jobs recursively: %s' % cocher)
-            self.add_targets(cocher)
-#             for j in cocher:
-#                 self.priorities[j] = 10  # XXX probably should do better
-    
-        self.check_invariants()
         
         # Check if the result of this job contains references
         # to other jobs
-        if result['user_object_deps']:
-            deps = result['user_object_deps']
-            # print('Job %r results contain references to jobs: %s' 
-            #      % (job_id, deps))
+        deps = result['user_object_deps']
+        if deps:
+#             print('Job %r results contain references to jobs: %s' 
+#                  % (job_id, deps))
     
             # We first add extra dependencies to all those jobs
             jobs_depending_on_this = direct_parents(job_id, self.db)
+#             print('I will update its parents %s' % jobs_depending_on_this)
             #print('need to update %s' % jobs_depending_on_this)
             for parent in jobs_depending_on_this:
-                # print(' considering %r' % parent)
+#                 print(' considering %r' % parent)
                 parent_job = get_job(parent, self.db)
-                # print(' current children: %r' % parent_job.children)
+#                 print(' current children: %r' % parent_job.children)
     
                 self.log('updating parent', job_id=job_id, parent=parent)
 
                 parent_job.children.update(deps)
                 # print(' updated children: %r' % parent_job.children)
-                assert job_id in parent_job.children
+                assert job_id in parent_job.children, '%r is-child-of %r' % (job_id, parent)
                 parent_job.dynamic_children[job_id] = deps
                 # write back
                 set_job(parent, parent_job, self.db)
@@ -451,7 +454,26 @@ class Manager(ManagerLog):
 
                     self.add_targets([parent])
                     self.check_invariants()
-                    
+        
+        if self.recurse:
+            # print('adding targets %s' % new_jobs)
+            cocher = set()
+            for j in new_jobs:
+                if j in self.all_targets:
+                    # msg = ('Warning, job %r generated %r which was '
+                    #       'already a target. I will not re-add it to the queue. '
+                    #       % (job_id, j))
+                    #print(msg)
+                    pass
+                else:
+                    cocher.add(j)
+            #print('adding jobs recursively: %s' % cocher)
+            self.add_targets(cocher)
+#             for j in cocher:
+#                 self.priorities[j] = 10  # XXX probably should do better
+    
+        self.check_invariants()
+                   
                   
     def host_failed(self, job_id, reason):
         self.log('host_failed', job_id=job_id)

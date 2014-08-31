@@ -60,6 +60,10 @@ class CompmakeTest(unittest.TestCase):
             #msg = 'Command %r failed. (res=%s)' % (cmds, res)
             raise
         
+        
+        self.cc.interpret_commands_wrap('check_consistency raise_if_error=1')
+
+        
 
     def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """

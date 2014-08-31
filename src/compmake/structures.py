@@ -150,6 +150,7 @@ class Job(object):
         else:
             res = command(*args, **kwargs)
             return dict(user_object=res, new_jobs=[])
+        
 
     def get_actual_command(self):
         """ returns command, args, kwargs after deps subst."""
@@ -218,7 +219,6 @@ def same_computation(jobargs1, jobargs2):
 def execute_with_context(db, context, job_id, command, args, kwargs):
     from compmake.context import Context
     assert isinstance(context, Context)
-    #from compmake.ui.visualization import info
     from compmake.jobs.storage import get_job
 
     cur_job = get_job(job_id=job_id, db=db)
@@ -226,10 +226,19 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
     already = set(context.get_jobs_defined_in_this_session())
     context.reset_jobs_defined_in_this_session([])
+    
+    if args:
+        if isinstance(args[0], Context) and args[0] != context:
+            msg = ('%s(%s, %s)' % (command, args, kwargs))
+            raise ValueError(msg)
+    print('already: %r' % already)
+    
+    if args:
+        print('%s == %s' % (id(args[0]), id(context)))
     res = command(*args, **kwargs)
-
-
+    
     generated = set(context.get_jobs_defined_in_this_session())
+    print('generated: %r ' % generated)
     context.reset_jobs_defined_in_this_session(already)
 
     if generated:
@@ -265,6 +274,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
 #     from compmake.jobs.manager import clean_other_jobs_distributed
 #     clean_other_jobs_distributed(db=db, job_id=job_id, new_jobs=generated)
+
     return dict(user_object=res, new_jobs=generated)
 
 

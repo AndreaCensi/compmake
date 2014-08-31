@@ -1,7 +1,7 @@
 from nose.tools import istest
 
-from compmake.unittests.compmake_test import CompmakeTest
-from compmake.unittests.test_dynamic import mockup_dynamic1, TestDynamic1
+from .compmake_test import CompmakeTest
+from .test_dynamic_1 import mockup_dynamic1, TestDynamic1
 
 
 @istest

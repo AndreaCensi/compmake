@@ -36,6 +36,7 @@ class Context():
 
     @contract(job_id=str)
     def add_job_defined_in_this_session(self, job_id):
+#         print('Context(%s):add_job_defined_in_this_session(%s)' % (id(self), job_id))
         self._jobs_defined_in_this_session.add(job_id)
 
     def get_jobs_defined_in_this_session(self):

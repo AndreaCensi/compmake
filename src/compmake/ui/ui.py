@@ -6,15 +6,15 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job,
     job_args_exists, job_exists, parse_job_list, set_job, set_job_args)
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..jobs.syntax.parsing import aliases
-from ..structures import CommandFailed, Job, Promise, UserError
+from ..structures import (CommandFailed, Job, Promise, UserError, 
+    same_computation)
 from ..utils import (describe_type, describe_value, import_name, 
     interpret_strings_like)
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
-from ..structures import same_computation
-from contracts import contract, indent
+from contracts import contract
 import inspect
 import os
 import sys
@@ -172,6 +172,7 @@ def clean_other_jobs(context):
                 pass
                 #logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
 
+            print('deleting job %r' % job_id)
             clean_target(job_id, db=db)
             delete_job(job_id, db=db)
             if is_job_userobject_available(job_id, db=db):
@@ -327,7 +328,6 @@ def comp_(context, command_, *args, **kwargs):
 
     context.add_job_defined_in_this_session(job_id)
 
-
     # could be done better
     if 'needs_context' in kwargs:
         needs_context = True
@@ -371,6 +371,7 @@ def comp_(context, command_, *args, **kwargs):
             needs_context=needs_context,
             defined_by=context.currently_executing)
 
+    
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)
         
@@ -405,13 +406,14 @@ def comp_(context, command_, *args, **kwargs):
                 c.parents.add(p)
             
             # TODO: preserve defines
-
+#     from compmake.ui.visualization import info
+#     info('defining job %r with children %r' % (job_id, c.children))
+    
+#     if True or c.defined_by == ['root']:
+        
     for child in children:
-        child_comp = get_job(child, db=db)
-        if not job_id in child_comp.parents:
-            child_comp.parents.add(job_id)
-            set_job(child, child_comp, db=db)
-
+        add_parent_relation_race(child=child, parent=job_id, db=db)
+    
     if get_compmake_config('check_params') and job_exists(job_id, db):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
@@ -443,7 +445,6 @@ def comp_(context, command_, *args, **kwargs):
     set_job(job_id, c, db=db)
     set_job_args(job_id, all_args, db=db)
     publish(context, 'job-defined', job_id=job_id)
-
 
     return Promise(job_id)
 
@@ -620,3 +621,32 @@ def interpret_single_command(commands_line, context, cq):
         if dbchange:
             cq.invalidate()
     
+
+
+def add_parent_relation_race(child, parent, db):
+    child_comp = get_job(child, db=db)
+    orig = set(child_comp.parents)
+    want = orig | set([parent])
+    # alright, need to take care of race condition
+    while True:
+        # Try to write
+        child_comp.parents = want
+        set_job(child, child_comp, db=db)
+        # now read back
+        child_comp = get_job(child, db=db)
+        if child_comp.parents != want:
+            print('race condition for parents of %s' % child)
+            print('orig: %s' % orig)
+            print('want: %s' % want)
+            print('now: %s' % child_comp.parents)
+            # add the children of the other racers as well
+            want = want | child_comp.parents
+        else:
+            break
+            
+            
+            
+
+
+
+

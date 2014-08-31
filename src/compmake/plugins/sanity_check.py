@@ -2,9 +2,9 @@
 from ..jobs import (children, direct_children, direct_parents, parents, 
     parse_job_list)
 from ..ui import COMMANDS_ADVANCED, ui_command
-from contracts import contract
-from compmake.structures import CommandFailed
+from compmake.exceptions import CompmakeBug
 from compmake.ui.visualization import error
+from contracts import contract
 
 @ui_command(section=COMMANDS_ADVANCED, alias='check-consistency')
 def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssignment
@@ -21,8 +21,10 @@ def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssi
             errors[job_id] = reasons
         
     if raise_if_error and errors:
-        msg = "Inconsistency with %d jobs" % len(errors)
-        raise CommandFailed(msg)
+        msg = "Inconsistency with %d jobs:\n" % len(errors)
+        for job_id, es in errors.items():
+            msg += '\n- job %s:\n%s' % (job_id, '\n'.join(es))
+        raise CompmakeBug(msg)
     
     return 0
 
@@ -42,7 +44,9 @@ def check_job(job_id, context):
         
     for dp in dparents:
         if not job_id in direct_children(dp, db=db):
-            e('%s is direct parent but no direct child relation' % dp)
+            e(('%s thinks %s is its direct parent;'% (job_id, dp))
+              +('but %s does not think %s is its direct child' % (dp, job_id))) 
+               
     
     for ap in all_parents:
         if not job_id in children(ap, db=db):
@@ -54,7 +58,7 @@ def check_job(job_id, context):
             
     for ac in all_children:
         if not job_id in parents(ac, db=db):
-            e('%s is direct child but no direct_parent relation' % ac)
+            e('%s is direct child but no parent relation' % ac)
             
     if errors:
         s = ('Inconsistencies for %s:\n' % job_id)

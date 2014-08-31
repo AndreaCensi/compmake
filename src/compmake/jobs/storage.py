@@ -47,6 +47,13 @@ def job_exists(job_id, db):
     key = job2key(job_id)
     return key in db
 
+def assert_job_exists(job_id, db):
+    """
+        :raise CompmakeBug: if the job does not exist
+    """
+    job = get_job(job_id, db)
+    
+
 
 def set_job(job_id, computation, db):
     # TODO: check if they changed
