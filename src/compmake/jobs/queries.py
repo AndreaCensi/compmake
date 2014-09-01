@@ -9,7 +9,7 @@ __all__ = [
     'direct_children',
     'children',
     'top_targets',
-    'bottom_targets',
+#     'bottom_targets',
     'tree',
 ]
 
@@ -40,9 +40,9 @@ def top_targets(db):
     """ Returns a list of all jobs which are not needed by anybody """
     return [x for x in all_jobs(db=db) if not direct_parents(x, db=db)]
 
-def bottom_targets(db):
-    """ Returns a list of all jobs with no dependencies. """
-    return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
+# def bottom_targets(db):
+#     """ Returns a list of all jobs with no dependencies. """
+#     return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
 @contract(jobs='list|set')

@@ -7,18 +7,20 @@ else:
 
 
 __all__ = [
+    'is_pickable',
     'try_pickling',
 ]
 
 def try_pickling(obj):
     """ Serializes and deserializes an object. """
     s = compmake_pickle.dumps(obj)
-    compmake_pickle.load(s)
+    compmake_pickle.loads(s)
 
 
 def is_pickable(x):  # TODO: move away
     try:
-        compmake_pickle.dumps(x)
+        s = compmake_pickle.dumps(x)
+        compmake_pickle.loads(s)
         return True
     except (BaseException, TypeError):
         return False

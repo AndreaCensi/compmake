@@ -92,7 +92,7 @@ class Promise(object):
 class Job(object):
 
     @contract(defined_by='list(str)', children=set)
-    def __init__(self, job_id, children, command_desc, yields=False,
+    def __init__(self, job_id, children, command_desc,
                  needs_context=False,
                  defined_by=None):
         """
@@ -107,7 +107,6 @@ class Job(object):
         self.children = set(children)
         self.command_desc = command_desc
         self.parents = set()
-        self.yields = yields  # XXX # To remove
         self.needs_context = needs_context
         self.defined_by = defined_by
 
@@ -205,7 +204,6 @@ class Cache(object):
         self.timestamp = 0.0
         self.cputime_used = None
         self.walltime_used = None
-        self.done_iterations = -1
 
         # in case of failure
         self.exception = None # a short string

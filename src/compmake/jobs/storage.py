@@ -7,10 +7,10 @@ from ..utils import wildcard_to_regexp
 from contracts import contract
 
 
-
-def remove_all_jobs(db):
-    for job_id in all_jobs(db=db):
-        delete_job(job_id=job_id, db=db)
+# 
+# def remove_all_jobs(db):
+#     for job_id in all_jobs(db=db):
+#         delete_job(job_id=job_id, db=db)
 
 
 def job2key(job_id):

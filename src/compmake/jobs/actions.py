@@ -51,25 +51,25 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_notstarted(job_id, db=None):  # XXX
-    cache = Cache(Cache.NOT_STARTED)
-    # TODO: clean user object
-    set_job_cache(job_id, cache, db=db)
+# def mark_as_notstarted(job_id, db=None):  # XXX
+#     cache = Cache(Cache.NOT_STARTED)
+#     # TODO: clean user object
+#     set_job_cache(job_id, cache, db=db)
 
-    
-def mark_as_done(job_id, walltime=1, cputime=1, db=None):  # XXX
-    # For now, only used explicitly by user
-    set_job_userobject(job_id, None)
-    cache = Cache(Cache.DONE)
-    cache.captured_stderr = ""
-    cache.captured_stdout = ""
-    cache.state = Cache.DONE
-    cache.timestamp = time()
-    cache.walltime_used = walltime  # XXX: use none?
-    cache.cputime_used = cputime 
-    cache.host = get_compmake_config('hostname')  # XXX
-    set_job_cache(job_id, cache, db=db)
-    # TODO: add user object
+#     
+# def mark_as_done(job_id, walltime=1, cputime=1, db=None):  # XXX
+#     # For now, only used explicitly by user
+#     set_job_userobject(job_id, None)
+#     cache = Cache(Cache.DONE)
+#     cache.captured_stderr = ""
+#     cache.captured_stdout = ""
+#     cache.state = Cache.DONE
+#     cache.timestamp = time()
+#     cache.walltime_used = walltime  # XXX: use none?
+#     cache.cputime_used = cputime 
+#     cache.host = get_compmake_config('hostname')  # XXX
+#     set_job_cache(job_id, cache, db=db)
+#     # TODO: add user object
 
 
 def make(job_id, context):
@@ -180,10 +180,8 @@ def make(job_id, context):
         capture.deactivate()
         # even if we send an error, let's save the output of the process
         cache = get_job_cache(job_id, db=db)
-        captured_stderr =capture.stderr_replacement.buffer.getvalue() 
-        cache.captured_stderr = captured_stderr
-        captured_stdout =capture.stdout_replacement.buffer.getvalue() 
-        cache.captured_stdout = captured_stdout
+        cache.captured_stderr = capture.get_logged_stderr()
+        cache.captured_stdout =  capture.get_logged_stdout() 
         set_job_cache(job_id, cache, db=db)
         logging.StreamHandler.emit = old_emit
 

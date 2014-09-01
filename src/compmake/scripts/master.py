@@ -130,7 +130,6 @@ def compmake_main(args):
     # if the argument looks like a dirname
     one_arg = args[0]     
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
-        loaded_db = True
         # If there is a compmake/ folder inside, take it as the root
         child = os.path.join(one_arg, 'compmake')
         if os.path.exists(child):
@@ -236,31 +235,31 @@ def load_existing_db(dirname):
     
     return context
 
+# 
+# def check_not_filename(module_name):
+#     if module_name.endswith('.py') or (module_name.find('/') > 0):
+#         msg = ('You passed a string %r which looks like a filename.' % 
+#                 module_name)
+#         msg += ' However, I need a module name.'
+#         raise UserError(msg)
 
-def check_not_filename(module_name):
-    if module_name.endswith('.py') or (module_name.find('/') > 0):
-        msg = ('You passed a string %r which looks like a filename.' % 
-                module_name)
-        msg += ' However, I need a module name.'
-        raise UserError(msg)
 
-
-def load_module(module_name):
-#    if module_name.endswith('.py') or (module_name.find('/') > 0):
-#        warning('You passed a string %r which looks like a filename.' % 
-#                module_name)
-#        module_name = module_name.replace('/', '.')
-#        module_name = module_name.replace('.py', '')
-#        warning('However, I need a module name. I will try with %r.' % 
-#                module_name)
-
-    try:
-        info('Importing module %r' % module_name)
-        __import__(module_name)
-    except Exception as e:
-        msg = ('Error while trying to import module "%s": %s' % 
-              (module_name, e))
-        msg += '\n path: %s' % sys.path
-        error(msg)
-        traceback.print_exc(file=sys.stderr)
-        raise 
+# def load_module(module_name):
+# #    if module_name.endswith('.py') or (module_name.find('/') > 0):
+# #        warning('You passed a string %r which looks like a filename.' % 
+# #                module_name)
+# #        module_name = module_name.replace('/', '.')
+# #        module_name = module_name.replace('.py', '')
+# #        warning('However, I need a module name. I will try with %r.' % 
+# #                module_name)
+# 
+#     try:
+#         info('Importing module %r' % module_name)
+#         __import__(module_name)
+#     except Exception as e:
+#         msg = ('Error while trying to import module "%s": %s' % 
+#               (module_name, e))
+#         msg += '\n path: %s' % sys.path
+#         error(msg)
+#         traceback.print_exc(file=sys.stderr)
+#         raise 

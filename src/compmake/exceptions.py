@@ -1,3 +1,4 @@
+from contracts.utils import raise_wrapped
 
 class ShellExitRequested(Exception):
     pass
@@ -91,6 +92,7 @@ class HostFailed(CompmakeException):
         
     def get_result_dict(self):
         res = dict(abort='Job %r failed.' % self.job_id,
+                   host=self.host,
                    job_id=self.job_id,
                    reason=self.reason,
                    bt=self.bt)
@@ -100,9 +102,14 @@ class HostFailed(CompmakeException):
     def from_dict(res):
         from compmake.jobs.result_dict import _check_result_dict
         _check_result_dict(res)
-        assert 'abort' in res
-        e = HostFailed(host=res['host'], 
-                       job_id=res['job_id'], 
-                       bt=res['bt'],
-                       reason=res['reason'])
+        try: 
+            res['abort']
+            e = HostFailed(host=res['host'], 
+                           job_id=res['job_id'], 
+                           bt=res['bt'],
+                           reason=res['reason'])
+        except KeyError as e:
+            raise_wrapped(CompmakeBug, e, 'Incomplete dict', res=res,
+                          keys=list(res.keys()))
+                        
         return e

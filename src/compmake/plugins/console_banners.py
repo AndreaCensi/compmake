@@ -8,7 +8,7 @@ from ..ui import compmake_colored
 from ..utils import pad_to_screen
 
 
-compmake_url = 'http://compmake.org'
+# compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
 name = 'compmake'
 banners = [

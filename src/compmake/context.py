@@ -4,7 +4,9 @@ import sys
 from compmake import logger
 
 
-__all__ = ['Context']
+__all__ = [
+    'Context',
+]
 
 
 class Context():
@@ -26,7 +28,6 @@ class Context():
         self._jobs_defined_in_this_session = set()
         self.currently_executing = currently_executing
         self._job_prefix = None
-        self.comp_store_objectid2job = {}
 
     # This is used to make sure that the user doesn't define the same job
     # twice.
@@ -36,7 +37,6 @@ class Context():
 
     @contract(job_id=str)
     def add_job_defined_in_this_session(self, job_id):
-#         print('Context(%s):add_job_defined_in_this_session(%s)' % (id(self), job_id))
         self._jobs_defined_in_this_session.add(job_id)
 
     def get_jobs_defined_in_this_session(self):

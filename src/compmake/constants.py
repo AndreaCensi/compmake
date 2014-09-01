@@ -30,9 +30,7 @@ class CompmakeConstants():
     # If run embedded in the user program, when executed by python
     compmake_status_embedded = 'embedded'
 
-    default_path = 'compmake_storage'
-    
-    debug_origin_of_prints = True
+    # debug_origin_of_prints = True
     debug_check_invariants = False
     
     disable_interproc_queue = True

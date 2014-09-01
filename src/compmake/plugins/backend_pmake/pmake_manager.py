@@ -16,6 +16,7 @@ import signal
 import sys
 import tempfile
 import traceback
+from compmake.exceptions import HostFailed
 
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
@@ -75,9 +76,11 @@ def pmake_worker(name, job_queue, result_queue, write_log=None):
 
         #except KeyboardInterrupt: pass
     except BaseException as e:
-        msg = 'aborted because of uncaptured:\n' + indent( traceback.format_exc(e), '| ')
-        log(msg)
-        result_queue.put(dict(abort=msg))
+        reason = 'aborted because of uncaptured:\n' + indent( traceback.format_exc(e), '| ')
+#         host = 'XXX'
+        mye = HostFailed(host="???", job_id="???", reason=reason, bt=traceback.format_exc(e))
+        log(str(mye))
+        result_queue.put(mye.get_result_dict())
     except:
         msg = 'aborted-unknown'
         log(msg)
@@ -101,20 +104,16 @@ class PmakeSub():
 
     def apply_async(self, function, arguments):
         self.job_queue.put((function, arguments))
-        return PmakeResult(self.result_queue, job=arguments)
-    
-
-     
+        return PmakeResult(self.result_queue)
+         
  
  
 class PmakeResult(AsyncResultInterface):
     """ Wrapper for the async result object obtained by pool.apply_async """
     
-    def __init__(self, result_queue, job):
+    def __init__(self, result_queue):
         self.result_queue = result_queue
         self.result = None
-        self.job = job
-    
         self.count = 0
         
     def ready(self):

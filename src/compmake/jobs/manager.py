@@ -73,7 +73,7 @@ class Manager(ManagerLog):
     def __init__(self, context, cq, recurse=False):
         # print('Initialized manager, recurse=%s' % recurse)
         self.context = context
-        self.cq = cq
+#         self.cq = cq
         self.db = context.get_compmake_db()
         ManagerLog.__init__(self, db=self.db)
 
@@ -481,10 +481,9 @@ class Manager(ManagerLog):
         publish(self.context, 'manager-host-failed', job_id=job_id, reason=reason)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
-        assert job_id in self.todo
-        # print('host_failed, readding %s' % job_id)
-        self.ready_todo.add(job_id)
 
+        print('host failed, rescheduling %r' % job_id)
+        self.ready_todo.add(job_id)
         self.publish_progress()
         
         self.check_invariants()

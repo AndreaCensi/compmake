@@ -14,9 +14,9 @@ from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
 from compmake.jobs.dependencies import collect_dependencies
-from compmake.utils.pickling_utils import is_pickable
+from compmake.utils.pickling_utils import is_pickable, try_pickling
 from contracts import contract
-from contracts.utils import check_isinstance
+from contracts.utils import check_isinstance, raise_wrapped
 import inspect
 import os
 import sys
@@ -117,11 +117,8 @@ def clean_other_jobs(context):
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
 
-    jobs_in_db = 0
-    num_cleaned = 0
     for job_id in all_jobs(force_db=True, db=db):
         #print('Considering %s' % job_id)
-        jobs_in_db += 1
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
             job = get_job(job_id, db=db)
@@ -129,7 +126,6 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
-            num_cleaned += 1
             if not clean_all:
                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
                 text = ('Found spurious job %s; cleaning? '
@@ -203,11 +199,13 @@ def comp_(context, command_, *args, **kwargs):
         return None
 
     # Check that this is a pickable function
-    if not is_pickable(command):
-        msg = ('Cannot pickle function %r. Make sure it is not a lambda '
+    try:
+        try_pickling(command)
+    except Exception as e:
+        msg = ('Cannot pickle function. Make sure it is not a lambda '
                'function or a nested function. (This is a limitation of '
-               'Python)' % command)
-        raise UserError(msg)
+               'Python)')
+        raise_wrapped(UserError, e, msg, command=command)
 
     if command.__module__ == '__main__':
         main_module = sys.modules['__main__']
