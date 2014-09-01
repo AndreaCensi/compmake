@@ -1,13 +1,13 @@
 from .qacct import JobNotRunYet, get_qacct
 from compmake import CompmakeConstants
+from compmake.jobs.actions_newprocess import _check_result_dict
 from compmake.jobs.manager import AsyncResultInterface
 from compmake.structures import CompmakeBug, HostFailed, JobFailed
 from compmake.ui import error
 from compmake.utils import safe_pickle_load, which
-from contracts import indent
+from contracts import all_disabled, indent
 from system_cmd import CmdException, system_cmd_result
 import os
-from compmake.jobs.actions_newprocess import _check_result_dict
 
 
 __all__ = [
@@ -116,6 +116,10 @@ class SGEJob(AsyncResultInterface):
             '-c', 
             '"make_single out_result=%s %s"' % (self.out_results, self.job_id),
         ] 
+        
+        if not all_disabled():
+            compmake_options += ['--contracts']
+        
         # XXX: spaces in variable out_result
                            
         write_stdin = ' '.join(compmake_options)

@@ -1,6 +1,6 @@
 from ..events import publish
-from ..jobs import (all_jobs, delete_all_job_data, get_job, get_job_cache, 
-    job_cache_exists, job_exists, job_userobject_exists, set_job)
+from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
+    get_job_cache, job_cache_exists, job_exists, job_userobject_exists, set_job)
 from ..jobs.actions_newprocess import _check_result_dict
 from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
     JobInterrupted)
@@ -18,8 +18,6 @@ import itertools
 import os
 import time
 import traceback
-from compmake.jobs.storage import assert_job_exists
-from compmake.jobs.queries import children
 
 
 __all__ = [
@@ -535,6 +533,13 @@ class Manager(ManagerLog):
         self.log('considering parents', parents_todo=parents_todo)
         for opportunity in parents_todo:
             # print('parent %r in todo' % (opportunity))
+            if opportunity in self.processing:
+                msg = 'Parent %r of %r already processing' % (opportunity, job_id)
+                if CompmakeConstants.try_recover:
+                    print(msg)
+                    continue
+                else:
+                    raise CompmakeBug(msg)
             assert opportunity not in self.processing
             
             self.log('considering opportuniny', opportunity=opportunity,
@@ -708,10 +713,12 @@ class Manager(ManagerLog):
             jobs = lists[t]
             s += '- %12s: %d\n' % (t, len(jobs))
 
+#         if False:
         s += '\n In more details:'
         for t, jobs in lists.items():
             jobs = lists[t]
-            s += '\n- %12s: %d %s' % (t, len(jobs), jobs)
+            if len(jobs) < 20:
+                s += '\n- %12s: %d %s' % (t, len(jobs), jobs)
         return s
     
     def check_invariants(self):

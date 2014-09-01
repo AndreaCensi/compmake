@@ -176,7 +176,9 @@ def make(job_id, context):
         msg = colorize_loglevel(log_record.levelno, str(log_record.msg)) 
         #  levelname = log_record.levelname
         name = log_record.name
-        # print('%s:%s:%s' % (name, levelname, msg)) 
+        # print('%s:%s:%s' % (name, levelname, msg))
+        
+        # this will be captured by OutputCapture anyway 
         print('%s:%s' % (name, msg))
 
     logging.StreamHandler.emit = my_emit
@@ -227,7 +229,6 @@ def make(job_id, context):
     set_job_cache(job_id, cache, db=db)
 
     publish(context, 'job-succeeded', job_id=job_id, host=host)
-
 
     return dict(user_object=user_object,
                 user_object_deps=collect_dependencies(user_object),

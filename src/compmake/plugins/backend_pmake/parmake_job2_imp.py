@@ -1,12 +1,12 @@
 from .shared import Shared
+from Queue import Full
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
 from compmake.events.registrar import register_handler, remove_all_handlers
 from compmake.jobs.actions import make
 from compmake.structures import JobFailed, JobInterrupted
-from compmake.utils.proctitle import setproctitle
-from contracts import  contract
-from Queue import Full
+from compmake.utils import setproctitle
+from contracts import contract
 
 
 

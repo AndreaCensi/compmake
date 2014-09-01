@@ -19,8 +19,6 @@ class CompmakeGlobalState(object):
         # list of handler, called when there is no other specialized handler
         fallback = []
 
-    compmake_db = None
-
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)
 

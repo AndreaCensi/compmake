@@ -2,12 +2,13 @@
 from ..jobs import parse_job_list
 from ..jobs.storage import (job_args_sizeof, job_cache_exists, job_cache_sizeof, 
     job_userobject_exists, job_userobject_sizeof)
-from ..jobs.syntax.parsing import aliases, is_root_job
+from ..jobs.syntax.parsing import  is_root_job
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import duration_compact
 from contracts import contract
 from time import time
+from compmake.constants import CompmakeConstants
 
 
 
@@ -24,7 +25,7 @@ def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
         job_list = parse_job_list(tokens=args, context=context, cq=cq)
         
     job_list = list(job_list)
-    aliases['last'] = job_list
+    CompmakeConstants.aliases['last'] = job_list
     list_jobs(context, job_list, cq=cq, complete_names=complete_names)
     return 0
 

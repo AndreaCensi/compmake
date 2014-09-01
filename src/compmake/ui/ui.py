@@ -5,7 +5,6 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job,
     delete_job_args, delete_job_userobject, get_job, is_job_userobject_available, 
     job_args_exists, job_exists, parse_job_list, set_job, set_job_args)
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
-from ..jobs.syntax.parsing import aliases
 from ..structures import (CommandFailed, Job, Promise, UserError, 
     same_computation)
 from ..utils import (describe_type, describe_value, import_name, 
@@ -594,13 +593,13 @@ def interpret_single_command(commands_line, context, cq):
 
         # TODO: check non empty
         job_list = list(job_list)
-        aliases['last'] = job_list
+        CompmakeConstants.aliases['last'] = job_list
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
         job_list = parse_job_list(args, context=context,cq=cq)
         job_list = list(job_list)
-        aliases['last'] = job_list
+        CompmakeConstants.aliases['last'] = job_list
         # TODO: this does not survive reboots
         #logger.info('setting alias "last"' )
         kwargs['job_list'] = job_list

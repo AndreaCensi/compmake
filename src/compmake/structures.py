@@ -1,5 +1,5 @@
+from .exceptions import * # @UnusedWildImport
 from contracts import contract, describe_value
-from .exceptions import *  # @UnusedWildImport
 
 '''
     A Job represents the computation as passed by the user.
@@ -74,6 +74,12 @@ from .exceptions import *  # @UnusedWildImport
     
 '''
 
+__all__ = [
+    'Promise',
+    'Job',
+    'Cache',
+    'execute_with_context'
+]
 
 class Promise(object):
     def __init__(self, job_id):
@@ -231,14 +237,13 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
         if isinstance(args[0], Context) and args[0] != context:
             msg = ('%s(%s, %s)' % (command, args, kwargs))
             raise ValueError(msg)
-    print('already: %r' % already)
     
-    if args:
-        print('%s == %s' % (id(args[0]), id(context)))
+#     if args:
+#         print('%s == %s' % (id(args[0]), id(context)))
     res = command(*args, **kwargs)
     
     generated = set(context.get_jobs_defined_in_this_session())
-    print('generated: %r ' % generated)
+#     print('generated: %r ' % generated)
     context.reset_jobs_defined_in_this_session(already)
 
     if generated:
@@ -305,13 +310,9 @@ class Cache(object):
         self.walltime_used = None
         self.done_iterations = -1
 
-        # if IN_PROGRESS:
-        self.iterations_in_progress = -1
-        self.iterations_goal = -1
-
         # in case of failure
-        self.exception = None
-        self.backtrace = None
+        self.exception = None # a short string
+        self.backtrace = None # a long string
         # 
         self.captured_stdout = None
         self.captured_stderr = None

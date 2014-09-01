@@ -1,9 +1,10 @@
 ''' The actual interface of some commands in commands.py '''
 from ..jobs import get_job, get_job_cache, parse_job_list
-from ..jobs.syntax.parsing import aliases
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
+from collections import defaultdict
+from compmake.constants import CompmakeConstants
 
 
 state2color = {
@@ -24,7 +25,7 @@ def stats(args, context, cq):
         job_list = parse_job_list(args, context=context, cq=cq)
 
     job_list = list(job_list)
-    aliases['last'] = job_list
+    CompmakeConstants.aliases['last'] = job_list
     display_stats(job_list, context)
 
 
@@ -74,29 +75,38 @@ def display_stats(job_list, context):
     print("Summary by function:")
 
     flen = max((len(x)+len('()')) for x in function2state2count)
+    
+    states = [
+      (Cache.DONE, 'done'),
+      (Cache.FAILED, 'failed'),
+      (Cache.BLOCKED, 'blocked'),
+      (Cache.IN_PROGRESS, 'in progress'),
+      (Cache.NOT_STARTED, 'to do'),
+    ]
+    
+    totals = defaultdict(lambda: 0)
     for function_id in sorted(function2state2count):
         function_stats = function2state2count[function_id]
-
-        states = [(Cache.DONE, 'done'),
-                  (Cache.FAILED, 'failed'),
-                  (Cache.BLOCKED, 'blocked'),
-                  (Cache.IN_PROGRESS, 'in progress'),
-                  (Cache.NOT_STARTED, 'to do'),
-                  ]
-
         alls = []
         for state, desc in states:
             num = function_stats[state]
-            desc = Cache.state2desc[state]
             s = '%5d %s' % (num, desc)
             if num > 0:
                 s = compmake_colored(s, **state2color[state])
             alls.append(s)
-
+            totals[state] += num
         s = ",".join(alls)
         function_id_pad = (function_id+'()').ljust(flen)
         print("    %s: %s." % (function_id_pad, s))
 
-
+    final = []
+    for state, desc in states:
+        s = '%5d %s' % (totals[state], desc)
+        if totals[state] > 0:
+            s = compmake_colored(s, **state2color[state])
+        final.append(s)
+    final = ",".join(final)
+    print("    %s: %s." % ("total".rjust(flen),final))
+     
 
 

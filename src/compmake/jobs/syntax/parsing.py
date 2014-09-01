@@ -22,31 +22,28 @@
 
              
 '''
+from .. import get_job
+from ...structures import Cache, CompmakeSyntaxError, UserError
+from ...utils import expand_wildcard
 from collections import namedtuple
-import types
-
-from contracts import contract
-
+from compmake.constants import CompmakeConstants
 from compmake.context import Context
 from compmake.jobs.uptodate import CacheQueryDB
-
-from .. import  get_job
-from ...structures import UserError, Cache, CompmakeSyntaxError
-from ...utils import expand_wildcard
-from contracts.utils import check_isinstance
+from contracts import check_isinstance, contract
+import types
 
 
-__all__ = ['parse_job_list']
+__all__ = [
+    'parse_job_list',
+]
 
 
-aliases = {}
-
-aliases['last'] = '*'
+CompmakeConstants.aliases['last'] = '*'
 
 def add_alias(alias, value):
     ''' Sets the given alias to value. See eval_alias() for a discussion
     of the meaning of value. '''
-    aliases[alias] = value
+    CompmakeConstants.aliases[alias] = value
 
 def assert_list_of_strings(l):
     assert all([isinstance(x, str) for x in l]), \
@@ -54,7 +51,7 @@ def assert_list_of_strings(l):
 
 
 def is_alias(alias):
-    return alias.lower() in aliases
+    return alias.lower() in CompmakeConstants.aliases
 
 
 @contract(context=Context, cq=CacheQueryDB)
@@ -71,10 +68,9 @@ def eval_alias(alias, context, cq):
     
     '''
 
-    global aliases
     alias = alias.lower()
     assert is_alias(alias)
-    value = aliases[alias]
+    value = CompmakeConstants.aliases[alias]
 
     if isinstance(value, str):
         return list([value])

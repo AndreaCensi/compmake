@@ -1,10 +1,9 @@
 from compmake.constants import CompmakeConstants
 from compmake.structures import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
-from contracts import check_isinstance, indent
+from contracts import all_disabled, check_isinstance, indent
 from system_cmd import system_cmd_result
 import os
-from contracts.enabling import all_disabled
 
 __all__ = [
     '_check_result_dict',
