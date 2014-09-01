@@ -1,9 +1,7 @@
-
-from .. import (CompmakeGlobalState, ConfigSwitch, set_compmake_config,
-    ConfigSection, get_compmake_config)
+from .. import (CompmakeGlobalState, ConfigSection, ConfigSwitch, 
+    get_compmake_config, set_compmake_config)
 from ..structures import UserError
-from ..ui import compmake_colored
-from ..utils import interpret_strings_like  # XXX initializtion order
+from ..utils import interpret_strings_like # XXX initializtion order
 
 
 def add_config_switch(name, default_value, allowed=None,
@@ -78,6 +76,7 @@ def show_config(file):  # @ReservedAssignment
             value = str(value)
             desc = str(switch.desc)
 
+            from compmake.utils.colored import compmake_colored
             file.write("  | %s  %s  %s\n" % 
                        (compmake_colored(name.rjust(max_len_name), attrs=['bold']),
                         compmake_colored(value.rjust(max_len_val), attrs=attrs),

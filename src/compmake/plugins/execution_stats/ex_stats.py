@@ -9,7 +9,7 @@ __all__ = [
 
 
 @contract(promise=Promise, returns=Promise)
-def compmake_execution_stats(context, promise):
+def compmake_execution_stats(context, promise, use_job_id=None):
     """ 
         Returns a promise for a the execution stats of a job
         and its dependencies.
@@ -23,7 +23,10 @@ def compmake_execution_stats(context, promise):
         cache = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)])
         caches.append(cache)
         
-    return context.comp(finalize_result, jobs, caches)
+    if use_job_id is not None:
+        return context.comp(finalize_result, jobs, caches, job_id=use_job_id)
+    else:
+        return context.comp(finalize_result, jobs, caches)
 
 def my_get_job_cache(context, job_id):
     """ Gets the job cache, making sure it was done """

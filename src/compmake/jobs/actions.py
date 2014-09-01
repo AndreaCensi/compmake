@@ -1,15 +1,15 @@
 from ..events import publish
-from ..structures import Cache, JobFailed, JobInterrupted, Promise
-from ..ui import compmake_colored
+from ..structures import Cache, JobFailed, JobInterrupted
 from ..utils import OutputCapture, my_format_exc, setproctitle
+from .dependencies import collect_dependencies
+from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
 from .storage import (delete_job_cache, delete_job_userobject, get_job, 
     get_job_cache, get_job_userobject, is_job_userobject_available, 
     set_job_cache, set_job_userobject)
 from .uptodate import up_to_date
 from compmake import get_compmake_config, logger
-from contracts import indent, raise_wrapped
-from copy import deepcopy
+from contracts import indent
 from time import clock, time
 import logging
 
@@ -31,32 +31,6 @@ def mark_remake(job_id, db):
     if is_job_userobject_available(job_id, db=db):
         delete_job_userobject(job_id, db=db)
 
-
-def substitute_dependencies(a, db):
-    if type(a).__name__ in  ['ObjectSpec']:
-        return deepcopy(a)
-    if isinstance(a, dict):
-        ca = type(a)
-        rest= [(k, substitute_dependencies(v, db=db)) for k, v in a.items()]
-        try:
-            return ca(rest)
-        except (BaseException, TypeError) as e:
-            raise_wrapped(Exception, e, 
-                          'Could not instance something looking like a list', 
-                          ca=ca)
-            
-    elif isinstance(a, list):
-        # warnings.warn('This fails for subclasses of list')
-        return type(a)([substitute_dependencies(x, db=db) for x in a])
-    elif isinstance(a, tuple):
-        # warnings.warn('This fails for subclasses of tuple')
-        return type(a)([substitute_dependencies(x, db=db) for x in a])
-    elif isinstance(a, Promise):
-        # XXX: do some checks here
-        s = get_job_userobject(a.job_id, db=db)
-        return substitute_dependencies(s, db=db)
-    else:
-        return deepcopy(a)
 
 
 def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
@@ -117,7 +91,6 @@ def make(job_id, context):
 
     setproctitle(job_id)
 
-    from compmake.ui.ui import collect_dependencies
 
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
@@ -133,7 +106,7 @@ def make(job_id, context):
                     user_object_deps=collect_dependencies(user_object),
                     new_jobs=[])
           
-    computation = get_job(job_id, db=db)
+    job = get_job(job_id, db=db)
 
     assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
                            Cache.BLOCKED,
@@ -171,7 +144,9 @@ def make(job_id, context):
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
 
-    def my_emit(_, log_record):
+    from compmake.ui.coloredlog import colorize_loglevel
+
+    def my_emit(_, log_record):    
         # note that log_record.msg might be an exception
         msg = colorize_loglevel(log_record.levelno, str(log_record.msg)) 
         #  levelname = log_record.levelname
@@ -184,7 +159,7 @@ def make(job_id, context):
     logging.StreamHandler.emit = my_emit
 
     try:
-        result = computation.compute(context=context)
+        result = job_compute(job=job, context=context)
         user_object = result['user_object']
         new_jobs = result['new_jobs']
     except KeyboardInterrupt as e:
@@ -197,12 +172,9 @@ def make(job_id, context):
             Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
         mark_as_failed(job_id, str(e), bt, db=db)
-        publish(context, 'job-failed', job_id=job_id,
-                host=host, reason=str(e), bt=bt)
-    
         msg = 'Job %s failed on host %s.' % (job_id, host)
         msg += '\n' + indent(e, '| ')
-        raise JobFailed(msg)
+        raise JobFailed(job_id=job_id, reason=str(e), bt=bt)
     
     finally:
         capture.deactivate()
@@ -233,22 +205,4 @@ def make(job_id, context):
     return dict(user_object=user_object,
                 user_object_deps=collect_dependencies(user_object),
                 new_jobs=new_jobs)
-
-
-# TODO: remove these
-def colorize_loglevel(levelno, msg):
-    # TODO: use Compmake's way
-    if(levelno >= 50):
-        return compmake_colored(msg, 'red')
-    elif(levelno >= 40):
-        return compmake_colored(msg, 'red')
-    elif(levelno >= 30):
-        return compmake_colored(msg, 'yellow')
-    elif(levelno >= 20):
-        return compmake_colored(msg, 'green')
-    elif(levelno >= 10):
-        return compmake_colored(msg, 'cyan')
-    else:
-        return msg
-
 

@@ -1,4 +1,5 @@
-from ..utils import termcolor_colored, get_screen_columns
+from ..utils import get_screen_columns
+from compmake.utils import compmake_colored
 import sys
 
 __all__ = [ 
@@ -9,14 +10,6 @@ __all__ = [
     'info',
     'debug'           
 ]
-
-def compmake_colored(x, color=None, on_color=None, attrs=None):
-    from .. import get_compmake_config
-    colorize = get_compmake_config('colorize')
-    if colorize:
-        return termcolor_colored(x, color, on_color, attrs)
-    else:
-        return x
 
 
 def clean_console_line(stream):

@@ -3,7 +3,7 @@ from compmake.ui.helpers import VISUALIZATION, ui_command
 
 
 @ui_command(section=VISUALIZATION)
-def debug_priority(non_empty_job_list,  context, cq):
+def debug_priority(non_empty_job_list, context, cq):
     """ Shows the priority of jobs. """
     jobs = list(non_empty_job_list)
     priorities =  compute_priorities(all_targets=jobs, cq=cq)

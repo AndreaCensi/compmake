@@ -4,7 +4,6 @@ from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
 from ..jobs.actions_newprocess import _check_result_dict
 from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
     JobInterrupted)
-from ..ui import error
 from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
 from .priority import compute_priorities
@@ -333,6 +332,8 @@ class Manager(ManagerLog):
             # so we can check that
             check_job_cache_says_failed(job_id=job_id, db=self.db, e=e)
             self.job_failed(job_id)
+            publish(self.context, 'job-failed', job_id=job_id,
+                    host="XXX", reason=e.reason, bt=e.bt)
             return True
         except HostFailed as e:
             # the execution has been interrupted, but not failed
@@ -645,6 +646,7 @@ class Manager(ManagerLog):
                     # We time out as there are no resources
                     publish(self.context, 'manager-phase', phase='wait')
                     pass
+                
                     # TODO: make child raise exception if there are no
                     # resources
                     # publish('manager-waits')
@@ -680,6 +682,7 @@ class Manager(ManagerLog):
             return True
 
         except JobInterrupted as e:
+            from ..ui import error
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:

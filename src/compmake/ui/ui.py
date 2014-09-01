@@ -13,38 +13,15 @@ from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
+from compmake.jobs.dependencies import collect_dependencies
+from compmake.utils.pickling_utils import is_pickable
 from contracts import contract
+from contracts.utils import check_isinstance
 import inspect
 import os
 import sys
 import warnings
-if sys.version_info[0] >= 3:
-    import pickle  # @UnusedImport
-else:
-    import cPickle as pickle  # @Reimport
 
-def is_pickable(x):  # TODO: move away
-    try:
-        pickle.dumps(x)
-        return True
-    except (BaseException, TypeError):
-        return False
-
-
-def collect_dependencies(ob):
-    ''' Returns a set of dependencies (i.e., Promise objects that
-        are mentioned somewhere in the structure '''
-    if isinstance(ob, Promise):
-        return set([ob.job_id])
-    else:
-        depends = set()
-        if isinstance(ob, (list, tuple)):
-            for child in ob:
-                depends.update(collect_dependencies(child))
-        if isinstance(ob, dict):
-            for child in ob.values():
-                depends.update(collect_dependencies(child))
-        return depends
 
 
 def generate_job_id(base, context):
@@ -238,24 +215,19 @@ def comp_(context, command_, *args, **kwargs):
         filename = os.path.splitext(filename)[0]
         if filename.startswith('./'):
             filename = filename[2:]
-
         try:
             m = import_name(filename)
 
             fname = command.__name__
             if fname in m.__dict__:
                 command = m.__dict__[fname]
-
-            # print('I will remap:\n    %s\nto    %s' % (command_, command))
         except:
             pass
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
-        #print('command_desc using %s: %s' % (CompmakeConstants.command_name_key, command_desc))
     else:
         command_desc = command.__name__
-        #print('command_desc using __name__: %s' % command_desc)
     
 
     args = list(args)  # args is a non iterable tuple
@@ -272,7 +244,7 @@ def comp_(context, command_, *args, **kwargs):
             raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
-
+        check_isinstance(job_id, str)
         if ' ' in job_id:
             msg = 'Invalid job id: %r' % job_id
             raise UserError(msg)
@@ -292,6 +264,7 @@ def comp_(context, command_, *args, **kwargs):
                 old_job = get_job(job_id, db=db)
                 print('  old_job.defined_by: %s ' % old_job.defined_by)
                 print(' context.currently_executing: %s ' % context.currently_executing)
+                print(' others defined in session: %s' % context. get_jobs_defined_in_this_session())
                 warnings.warn('I know something is more complicated here')
     #             if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
     #                 # exception, it's ok
@@ -370,7 +343,6 @@ def comp_(context, command_, *args, **kwargs):
             needs_context=needs_context,
             defined_by=context.currently_executing)
 
-    
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)
         
@@ -644,8 +616,3 @@ def add_parent_relation_race(child, parent, db):
             break
             
             
-            
-
-
-
-

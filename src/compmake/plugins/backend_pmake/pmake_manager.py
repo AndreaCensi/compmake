@@ -3,10 +3,9 @@ from .shared import Shared
 from compmake.events import broadcast_event, publish
 from compmake.jobs.actions_newprocess import parmake_job2_new_process
 from compmake.jobs.manager import AsyncResultInterface, Manager
-from compmake.plugins.backend_local.manager_local import display_job_failed
+from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.state import get_compmake_config
-from compmake.structures import (CompmakeBug, CompmakeException, HostFailed, 
-    JobFailed, JobInterrupted)
+from compmake.structures import CompmakeException, JobFailed, JobInterrupted
 from compmake.utils import make_sure_dir_exists
 from contracts import check_isinstance, contract, indent
 from multiprocessing import TimeoutError
@@ -56,7 +55,7 @@ def pmake_worker(name, job_queue, result_queue, write_log=None):
             except JobFailed as e:
                 log('Job failed, putting notice.')
                 log('result: %s' % str(e)) # debug
-                result_queue.put(dict(fail=str(e)))
+                result_queue.put(e.get_result_dict())
                 log('(put)')
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
@@ -138,15 +137,7 @@ class PmakeResult(AsyncResultInterface):
                 raise TimeoutError(e)
             
         check_isinstance(self.result, dict)
-        if 'fail' in self.result:
-            raise JobFailed(self.result['fail'])
-        
-        if 'abort' in self.result:
-            raise HostFailed(self.result['abort'])
-        
-        if 'bug' in self.result:
-            raise CompmakeBug(self.result['bug'])
-        
+        result_dict_raise_if_error(self.result)        
         return self.result
 
 
@@ -278,9 +269,6 @@ class PmakeManager(Manager):
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
-        if self.new_process:
-            
-            display_job_failed(db=self.db, job_id=job_id)  
         
     def _clear(self, job_id):
         assert job_id in self.job2subname

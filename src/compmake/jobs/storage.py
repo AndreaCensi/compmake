@@ -51,7 +51,7 @@ def assert_job_exists(job_id, db):
     """
         :raise CompmakeBug: if the job does not exist
     """
-    job = get_job(job_id, db)
+    get_job(job_id, db)
     
 
 

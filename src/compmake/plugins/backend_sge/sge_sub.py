@@ -8,6 +8,7 @@ from compmake.utils import safe_pickle_load, which
 from contracts import all_disabled, indent
 from system_cmd import CmdException, system_cmd_result
 import os
+from compmake.jobs.result_dict import result_dict_raise_if_error
 
 
 __all__ = [
@@ -149,8 +150,9 @@ class SGEJob(AsyncResultInterface):
                 qacct = get_qacct(self.sge_id)
                 #  print('job: %s sgejob: %s res: %s' % (self.job_id, self.sge_id, qacct))
                 if 'failed' in qacct and qacct['failed'] != '0':
-                    msg = 'Job schedule failed: %s\n%s' % (qacct['failed'], qacct)
-                    raise HostFailed(msg)  # XXX
+                    reason = 'Job schedule failed: %s\n%s' % (qacct['failed'], qacct)
+                    raise HostFailed(host="xxx", 
+                                     job_id=self.job_id, reason=reason, bt="")  # XXX
                 
             except JobNotRunYet:
                 qacct = None
@@ -186,7 +188,11 @@ class SGEJob(AsyncResultInterface):
         except ValueError:
             msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
             raise HostFailed(msg)  # XXX
-            
+#         
+#         
+#         raise HostFailed(host="xxx", 
+#                                      job_id=self.job_id, reason=reason, bt="")  # XXX
+#                 
 
         try:
             stderr = open(self.stderr, 'r').read()
@@ -195,16 +201,16 @@ class SGEJob(AsyncResultInterface):
             stderr = 'Contents of %s:\n' % self.stderr + stderr
             stdout = 'Contents of %s:\n' % self.stdout + stdout
 
-            if ret == CompmakeConstants.RET_CODE_JOB_FAILED:
-                msg = 'SGE Job failed (ret: %s)\n' % ret
-                msg += indent(stderr, '| ')
-                # mark_as_failed(self.job_id, msg, None)
-                raise JobFailed(msg)
-            elif ret != 0:
-                msg = 'SGE Job failed (ret: %s)\n' % ret
-                error(msg)
-                msg += indent(stderr, '| ')
-                raise JobFailed(msg)
+#             if ret == CompmakeConstants.RET_CODE_JOB_FAILED:
+#                 msg = 'SGE Job failed (ret: %s)\n' % ret
+#                 msg += indent(stderr, '| ')
+#                 # mark_as_failed(self.job_id, msg, None)
+#                 raise JobFailed(msg)
+#             elif ret != 0:
+#                 msg = 'SGE Job failed (ret: %s)\n' % ret
+#                 error(msg)
+#                 msg += indent(stderr, '| ')
+#                 raise JobFailed(msg)
     
             if not os.path.exists(self.out_results):
                 msg = 'job succeeded but no %r found' % self.out_results
@@ -213,17 +219,7 @@ class SGEJob(AsyncResultInterface):
                 raise CompmakeBug(msg)
             
             res = safe_pickle_load(self.out_results)
-            _check_result_dict(res)
-            
-            if 'fail' in res:
-                raise JobFailed(self.result['fail'])
-            
-            if 'abort' in res:
-                raise HostFailed(self.result['abort'])
-            
-            if 'bug' in res:
-                raise CompmakeBug(self.result['bug'])
-            
+            result_dict_raise_if_error(res)
             return res
         finally:
             fs = [self.stderr, self.stdout, self.out_results, self.retcode]

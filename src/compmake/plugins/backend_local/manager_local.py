@@ -31,22 +31,6 @@ class ManagerLocal(Manager):
                          context=self.context, 
                          new_process=self.new_process)
 
-    def job_failed(self, job_id):
-        Manager.job_failed(self, job_id)
-        if self.new_process:
-            display_job_failed(db=self.db, job_id=job_id)
-                
-                
-def display_job_failed(db, job_id):
-    """ Displays the exception that made the job fail. """
-    cache = get_job_cache(job_id, db=db)
-    assert cache.state == Cache.FAILED
-    msg = 'Job %r failed:\n' % job_id + indent(cache.exception, '| ')
-    if CompmakeConstants.debug_origin_of_prints:
-        msg = 'display_job_failed()\n' + msg
-    error(msg)
-    
-
 class FakeAsync(AsyncResultInterface):
     def __init__(self, job_id, context, new_process):
         self.job_id = job_id

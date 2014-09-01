@@ -54,7 +54,6 @@ def tree(jobs, db):
     warnings.warn('Do not use -- very inefficient')
     t = set(jobs)
     for job_id in jobs:
-        print('job_id: %s' % job_id)
         children_id = direct_children(job_id, db=db)
         t = t.union(tree(children_id, db=db))
     return t

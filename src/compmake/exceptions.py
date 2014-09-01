@@ -6,7 +6,19 @@ class CompmakeException(Exception):
     pass
 
 class CompmakeBug(CompmakeException):
-    pass
+
+    def get_result_dict(self):
+        res = dict(bug=str(self))
+        return res
+    
+    @staticmethod
+    def from_dict(res):
+        from compmake.jobs.result_dict import _check_result_dict
+        _check_result_dict(res)
+        assert 'bug' in res
+        e = CompmakeBug(res['bug'])
+        return e
+
 
 class CommandFailed(Exception):
     pass
@@ -39,9 +51,28 @@ class CompmakeSyntaxError(UserError):
 
 class JobFailed(CompmakeException):
     ''' This signals that some job has failed '''
-    pass
-
-
+    
+    def __init__(self, job_id, reason, bt):
+        self.job_id = job_id
+        self.reason = reason
+        self.bt = bt
+        
+    def get_result_dict(self):
+        res = dict(fail='Job %r failed.' % self.job_id,
+                   job_id=self.job_id,
+                   reason=self.reason,
+                   bt=self.bt)
+        return res
+    
+    @staticmethod
+    def from_dict(res):
+        from compmake.jobs.result_dict import _check_result_dict
+        _check_result_dict(res)
+        assert 'fail' in res
+        e = JobFailed(job_id=res['job_id'], 
+                      bt=res['bt'],
+                      reason=res['reason'])
+        return e
 
 class JobInterrupted(CompmakeException):
     ''' User requested to interrupt job'''
@@ -51,4 +82,27 @@ class JobInterrupted(CompmakeException):
 class HostFailed(CompmakeException):
     ''' The job has been interrupted and must 
         be redone (it has not failed, though) '''
-    pass
+    
+    def __init__(self, host, job_id, reason, bt):
+        self.host = host
+        self.job_id = job_id
+        self.reason = reason
+        self.bt = bt
+        
+    def get_result_dict(self):
+        res = dict(abort='Job %r failed.' % self.job_id,
+                   job_id=self.job_id,
+                   reason=self.reason,
+                   bt=self.bt)
+        return res
+    
+    @staticmethod
+    def from_dict(res):
+        from compmake.jobs.result_dict import _check_result_dict
+        _check_result_dict(res)
+        assert 'abort' in res
+        e = HostFailed(host=res['host'], 
+                       job_id=res['job_id'], 
+                       bt=res['bt'],
+                       reason=res['reason'])
+        return e

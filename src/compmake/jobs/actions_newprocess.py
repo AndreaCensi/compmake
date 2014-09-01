@@ -1,7 +1,8 @@
+from .result_dict import _check_result_dict
 from compmake.constants import CompmakeConstants
 from compmake.structures import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
-from contracts import all_disabled, check_isinstance, indent
+from contracts import all_disabled, indent
 from system_cmd import system_cmd_result
 import os
 
@@ -16,7 +17,7 @@ def parmake_job2_new_process(args):
     (job_id, context, _) = args
     compmake_bin = which('compmake')
     
-    db =context.get_compmake_db()
+    db = context.get_compmake_db()
     storage = db.basepath # XXX:
     where = os.path.join(storage, 'parmake_job2_new_process')
     if not os.path.exists(storage):
@@ -56,7 +57,13 @@ def parmake_job2_new_process(args):
         msg = 'Job %r failed in external process' % job_id
         msg += indent(cmd_res.stdout, 'stdout| ')
         msg += indent(cmd_res.stderr, 'stderr| ')
-        raise JobFailed(msg)
+    
+        res = safe_pickle_load(out_result)
+        os.unlink(out_result)
+        _check_result_dict(res)
+        
+        raise JobFailed.from_dict(res)
+    
     elif ret != 0:
         msg = 'Host failed while doing %r' % job_id
         msg += '\n cmd: %s' % " ".join(cmd)
@@ -67,22 +74,4 @@ def parmake_job2_new_process(args):
     res = safe_pickle_load(out_result)
     os.unlink(out_result)
     _check_result_dict(res)
-     
     return res
-     
-
-def _check_result_dict(res):
-    check_isinstance(res,dict)
-    if 'new_jobs' in res:
-        assert 'user_object_deps' in res
-    elif 'fail' in res:
-        pass
-    elif 'bug' in res:
-        pass
-    elif 'abort' in res:
-        pass
-    else:
-        msg = 'Malformed result dict: %s' % res
-        raise ValueError(msg)
-     
-     

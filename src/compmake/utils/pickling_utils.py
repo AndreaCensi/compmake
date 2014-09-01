@@ -1,4 +1,10 @@
-import pickle
+import sys
+
+if sys.version_info[0] >= 3:
+    import pickle  as compmake_pickle # @UnusedImport
+else:
+    import cPickle as compmake_pickle  # @Reimport
+
 
 __all__ = [
     'try_pickling',
@@ -6,6 +12,13 @@ __all__ = [
 
 def try_pickling(obj):
     """ Serializes and deserializes an object. """
-    s = pickle.dumps(obj)
-    pickle.load(s)
+    s = compmake_pickle.dumps(obj)
+    compmake_pickle.load(s)
 
+
+def is_pickable(x):  # TODO: move away
+    try:
+        compmake_pickle.dumps(x)
+        return True
+    except (BaseException, TypeError):
+        return False

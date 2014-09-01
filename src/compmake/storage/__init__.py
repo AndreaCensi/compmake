@@ -1,7 +1,3 @@
-import os
-
-from compmake import get_compmake_config, logger, CompmakeGlobalState
-from compmake.ui import info
 
 from .filesystem import StorageFilesystem
 from .memorycache import MemoryCache

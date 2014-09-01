@@ -2,11 +2,12 @@ from Queue import Empty
 from compmake import CompmakeGlobalState
 from compmake.events.registrar import broadcast_event, publish
 from compmake.jobs.manager import AsyncResultInterface, Manager
+from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.plugins.backend_pmake.shared import Shared
 from compmake.state import get_compmake_config
-from compmake.structures import HostFailed, JobFailed
-from contracts import check_isinstance, contract, indent
+from compmake.structures import HostFailed
+from contracts import contract
 from multiprocessing import Pool
 from multiprocessing.queues import Queue
 import multiprocessing
@@ -244,12 +245,7 @@ class AsyncResultWrap(AsyncResultInterface):
     
     def get(self, timeout=0):  # @UnusedVariable
         res = self.async_result.get(timeout=timeout)
-        check_isinstance(res, dict)
-        if 'fail' in res:
-            msg = 'Currently debuging exceptions so full trace not available.'
-            msg += '\n' + indent(res['fail'], '| ')
-            print(msg)
-            raise JobFailed(msg)
+        result_dict_raise_if_error(res)
         return res
 
 

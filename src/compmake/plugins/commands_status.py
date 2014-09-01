@@ -16,7 +16,8 @@ def command_failed(context, event):  # @UnusedVariable
                                       event.kwargs['reason']))
 register_handler('command-failed', command_failed)
 
-my_prefix = 'in plugin commands_status:\n'
+# my_prefix = '(plugin commands_status) '
+my_prefix = ''
 
 def command_line_interrupted(context, event):  # @UnusedVariable
     # Only write something if it is more than one
@@ -24,6 +25,7 @@ def command_line_interrupted(context, event):  # @UnusedVariable
     if not ';' in command:
         return
     error(my_prefix+'Command sequence %r interrupted.' % command)
+    
 register_handler('command-line-interrupted', command_line_interrupted)
 
 
@@ -33,12 +35,18 @@ def command_line_failed(context, event):  # @UnusedVariable
     if not ';' in command:
         return
     error(my_prefix+'Command sequence %r failed.' % command)
+    
+    
 register_handler('command-line-failed', command_line_failed)
 
 def job_failed(context, event):  # @UnusedVariable
-    error(my_prefix+'Job %r failed: %s' % 
-          (event.kwargs['job_id'],
-           event.kwargs['reason']))
+    job_id = event.kwargs['job_id']
+    reason = event.kwargs['reason']
+    bt = event.kwargs['bt']
+    
+    msg = 'Job %r failed:' % job_id
+    msg += '\n' + indent(reason, '| ') 
+    error(my_prefix+msg)
     
 register_handler('job-failed', job_failed)
 

@@ -99,9 +99,8 @@ def make_single(job_list, context, out_result):
         safe_pickle_dump(res, out_result)
         return 0
     except JobFailed as e:
-        res = dict(fail=str(e))
         #info('Writing to %r' % out_result)
-        safe_pickle_dump(res, out_result)
+        safe_pickle_dump(e.get_result_dict(), out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:
         error('warning: %s' % e)

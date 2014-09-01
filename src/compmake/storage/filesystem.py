@@ -5,13 +5,7 @@ from compmake.utils import (find_pickling_error, safe_pickle_dump,
 from glob import glob
 from os.path import basename
 import os
-import sys
 import traceback
-if sys.version_info[0] >= 3:
-    import pickle  # @UnusedImport
-else:
-    import cPickle as pickle  # @Reimport
-
 
 if True:
     track_time = lambda x: x
@@ -85,9 +79,9 @@ class StorageFilesystem(object):
         self.check_existence()
 
         filename = self.filename_for_key(key)
-        protocol = pickle.HIGHEST_PROTOCOL
+        
         try:
-            safe_pickle_dump(value, filename, protocol)
+            safe_pickle_dump(value, filename)
             assert os.path.exists(filename)
             
         except BaseException as e:

@@ -233,7 +233,7 @@ def batch_command(s, context, cq):
     ''' 
         Executes one command (could be a sequence) 
 
-        Returns None or raises CommandsFailed.    
+        Returns None or raises CommandsFailed, CompmakeBug.    
     '''
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)

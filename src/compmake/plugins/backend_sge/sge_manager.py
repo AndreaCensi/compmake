@@ -1,12 +1,10 @@
 from .sge_misc import check_sge_environment
-from compmake.jobs.manager import Manager
 from .sge_sub import SGESub
+from compmake.jobs.manager import Manager
 from compmake.state import get_compmake_config
 from compmake.utils import isodate_with_secs
 from contracts import contract
 import os
-from compmake.plugins.backend_local.manager_local import display_job_failed
-
 
 __all__ = [
     'SGEManager',
@@ -84,8 +82,6 @@ class SGEManager(Manager):
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
-        if True:
-            display_job_failed(db=self.db, job_id=job_id)
         
     def job_succeeded(self, job_id):
         Manager.job_succeeded(self, job_id)

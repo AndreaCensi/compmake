@@ -26,6 +26,8 @@ from .which_imp import *
 from .timedate import *
 from .filesystem_utils import *
 
+from .colored import *
+
 def find_print_statements():
     import sys
     
