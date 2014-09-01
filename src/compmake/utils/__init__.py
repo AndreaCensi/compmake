@@ -27,18 +27,18 @@ from .timedate import *
 from .filesystem_utils import *
 
 from .colored import *
-
-def find_print_statements():
-    import sys
-    
-    class TracePrints(object):
-        def __init__(self):    
-            
-            self.stdout = sys.stdout
-        
-        def write(self, s):
-            self.stdout.write("Writing %r\n" % s)
-            import traceback
-            traceback.print_stack(file=self.stdout)
-
-    sys.stdout = TracePrints()
+from .pickling_utils import *
+# def find_print_statements():
+#     import sys
+#     
+#     class TracePrints(object):
+#         def __init__(self):    
+#             
+#             self.stdout = sys.stdout
+#         
+#         def write(self, s):
+#             self.stdout.write("Writing %r\n" % s)
+#             import traceback
+#             traceback.print_stack(file=self.stdout)
+# 
+#     sys.stdout = TracePrints()

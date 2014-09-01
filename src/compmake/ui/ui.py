@@ -1,22 +1,20 @@
 from .. import (CompmakeConstants, get_compmake_config, get_compmake_status, 
     is_interactive_session)
 from ..events import publish
-from ..jobs import (CacheQueryDB, all_jobs, clean_target, delete_job, 
-    delete_job_args, delete_job_userobject, get_job, is_job_userobject_available, 
-    job_args_exists, job_exists, parse_job_list, set_job, set_job_args)
+from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies, 
+    delete_job, delete_job_args, delete_job_userobject, get_job, 
+    is_job_userobject_available, job_args_exists, job_exists, parse_job_list, 
+    set_job, set_job_args)
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..structures import (CommandFailed, Job, Promise, UserError, 
     same_computation)
 from ..utils import (describe_type, describe_value, import_name, 
-    interpret_strings_like)
+    interpret_strings_like, try_pickling)
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
-from compmake.jobs.dependencies import collect_dependencies
-from compmake.utils.pickling_utils import is_pickable, try_pickling
-from contracts import contract
-from contracts.utils import check_isinstance, raise_wrapped
+from contracts import check_isinstance, contract, raise_wrapped
 import inspect
 import os
 import sys

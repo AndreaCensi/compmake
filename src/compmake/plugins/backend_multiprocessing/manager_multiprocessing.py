@@ -20,21 +20,23 @@ import tempfile
 import time
 
 
-__all__ = ['MultiprocessingManager']
+__all__ = [
+    'MultiprocessingManager',
+]
 
 # for some reason it might block on OSX 10.8
 ncpus = multiprocessing.cpu_count() 
+# 
+# if False:
+#     # Debug multiprocsssing
+#     import logging
+#     logger = multiprocessing.log_to_stderr(logging.DEBUG)
+#     logger.setLevel(multiprocessing.SUBDEBUG)
 
-if False:
-    # Debug multiprocsssing
-    import logging
-    logger = multiprocessing.log_to_stderr(logging.DEBUG)
-    logger.setLevel(multiprocessing.SUBDEBUG)
-
-
-def sig_child(signo, frame):
-    # error('Child terminated %s %s' % (signo, frame))
-    pass
+# 
+# def sig_child(signo, frame):
+#     # error('Child terminated %s %s' % (signo, frame))
+#     pass
 
 
 class MultiprocessingManager(Manager):

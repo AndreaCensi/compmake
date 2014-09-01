@@ -7,7 +7,7 @@ else:
 
 
 __all__ = [
-    'is_pickable',
+#     'is_pickable',
     'try_pickling',
 ]
 
@@ -17,10 +17,10 @@ def try_pickling(obj):
     compmake_pickle.loads(s)
 
 
-def is_pickable(x):  # TODO: move away
-    try:
-        s = compmake_pickle.dumps(x)
-        compmake_pickle.loads(s)
-        return True
-    except (BaseException, TypeError):
-        return False
+# def is_pickable(x):  # TODO: move away
+#     try:
+#         s = compmake_pickle.dumps(x)
+#         compmake_pickle.loads(s)
+#         return True
+#     except (BaseException, TypeError):
+#         return False
