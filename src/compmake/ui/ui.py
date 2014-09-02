@@ -173,9 +173,10 @@ def comp_(context, command_, *args, **kwargs):
 
     db = context.get_compmake_db()
 
+    
     command = command_
     
-    if command.__module__ == '__main__':
+    if hasattr(command, '__module__') and command.__module__ == '__main__':
         if not command in WarningStorage.warned:
             if WarningStorage.warned:
                 # already warned for another function
@@ -205,25 +206,27 @@ def comp_(context, command_, *args, **kwargs):
                'Python)')
         raise_wrapped(UserError, e, msg, command=command)
 
-    if command.__module__ == '__main__':
-        main_module = sys.modules['__main__']
-        filename = main_module.__file__
-        filename = os.path.splitext(filename)[0]
-        if filename.startswith('./'):
-            filename = filename[2:]
-        try:
-            m = import_name(filename)
-
-            fname = command.__name__
-            if fname in m.__dict__:
-                command = m.__dict__[fname]
-        except:
-            pass
+#     if command.__module__ == '__main__':
+#         main_module = sys.modules['__main__']
+#         filename = main_module.__file__
+#         filename = os.path.splitext(filename)[0]
+#         if filename.startswith('./'):
+#             filename = filename[2:]
+#         try:
+#             m = import_name(filename)
+# 
+#             fname = command.__name__
+#             if fname in m.__dict__:
+#                 command = m.__dict__[fname]
+#         except:
+#             pass
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
-    else:
+    elif hasattr(command, '__name__'):
         command_desc = command.__name__
+    else:
+        command_desc = type(command).__name__
     
 
     args = list(args)  # args is a non iterable tuple
