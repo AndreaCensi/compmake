@@ -1,6 +1,6 @@
 from ..events import publish
 from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
-    get_job_cache, job_cache_exists, job_exists, job_userobject_exists, set_job)
+    get_job_cache, job_cache_exists, job_exists, job_userobject_exists)
 from ..jobs.actions_newprocess import _check_result_dict
 from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
     JobInterrupted)
@@ -11,6 +11,7 @@ from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
+from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
@@ -66,10 +67,9 @@ class ManagerLog(object):
             
         self.f.flush()
 
-
 class Manager(ManagerLog):
 
-    
+    @contract(recurse='bool')
     def __init__(self, context, cq, recurse=False):
         # print('Initialized manager, recurse=%s' % recurse)
         self.context = context
@@ -382,46 +382,26 @@ class Manager(ManagerLog):
         # print('job %r succeeded' % job_id)
         self.check_invariants()
         
-        #self.clean_other_jobs(job_id, new_jobs)
-        #self.check_invariants()
-        
-        # print('job generated %s' % new_jobs)
-        
         # Check if the result of this job contains references
         # to other jobs
         deps = result['user_object_deps']
         if deps:
-#             print('Job %r results contain references to jobs: %s' 
-#                  % (job_id, deps))
+            # print('Job %r results contain references to jobs: %s' 
+            #       % (job_id, deps))
     
             # We first add extra dependencies to all those jobs
             jobs_depending_on_this = direct_parents(job_id, self.db)
-#             print('I will update its parents %s' % jobs_depending_on_this)
             #print('need to update %s' % jobs_depending_on_this)
             for parent in jobs_depending_on_this:
-#                 print(' considering %r' % parent)
-                parent_job = get_job(parent, self.db)
-#                 print(' current children: %r' % parent_job.children)
+                db_job_add_dynamic_children(job_id=parent, children=deps, 
+                                            returned_by=job_id, db=self.db)
     
-                self.log('updating parent', job_id=job_id, parent=parent)
-
-                parent_job.children.update(deps)
-                # print(' updated children: %r' % parent_job.children)
-                assert job_id in parent_job.children, '%r is-child-of %r' % (job_id, parent)
-                parent_job.dynamic_children[job_id] = deps
-                # write back
-                set_job(parent, parent_job, self.db)
-                
                 # also add inverse relation
                 for d in deps:
                     self.log('updating dep', job_id=job_id, parent=parent, d=d)
-                    j = get_job(d, self.db)
-                    #print('%s old parents list: %s' % (d, j.parents))
-                    j.parents.add(parent)
-                    set_job(d, j, self.db)
-                    #print('new parents list: %s' % j.parents)
+                    db_job_add_parent(job_id=d, parent=parent, db=self.db)
     
-#             parents_to_schedule = []
+    
             for parent in jobs_depending_on_this:           
                 self.log('rescheduling parent', 
                          job_id=job_id,
@@ -466,14 +446,10 @@ class Manager(ManagerLog):
                     pass
                 else:
                     cocher.add(j)
-            #print('adding jobs recursively: %s' % cocher)
             self.add_targets(cocher)
-#             for j in cocher:
-#                 self.priorities[j] = 10  # XXX probably should do better
     
         self.check_invariants()
-                   
-                  
+                                     
     def host_failed(self, job_id, reason):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()
@@ -773,7 +749,6 @@ class Manager(ManagerLog):
         partition(['done', 'failed','blocked',
                    'todo', 'ready_todo', 'processing'],
                    'all_targets')
-#        partition(['processing', 'blocked', 'ready_todo'], 'todo')
         
         if False:
             
@@ -792,10 +767,6 @@ class Manager(ManagerLog):
             for job_id in self.blocked:    
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug('job %r in blocked does not exist' % job_id)
-        
-        # XXX
-#        partition(['ready_todo', 'done', 'failed', 'blocked', 'processing'],
-#                   'all_targets')
 
 def check_job_cache_says_done(job_id, db):
     """ Raises CompmakeBug if the job is not marked as done. """

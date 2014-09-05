@@ -1,7 +1,7 @@
+from compmake import logger
 from contracts import contract
 import os
 import sys
-from compmake import logger
 
 
 __all__ = [
@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-class Context():
+class Context(object):
 
     def __init__(self, db=None, currently_executing=['root']):
         """

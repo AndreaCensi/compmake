@@ -4,13 +4,9 @@ These are all wrappers around the raw methods in storage
 
 from ..structures import Cache, CompmakeException, Job
 from ..utils import wildcard_to_regexp
+from compmake.exceptions import CompmakeBug
 from contracts import contract
 
-
-# 
-# def remove_all_jobs(db):
-#     for job_id in all_jobs(db=db):
-#         delete_job(job_id=job_id, db=db)
 
 
 def job2key(job_id):
@@ -55,11 +51,11 @@ def assert_job_exists(job_id, db):
     
 
 
-def set_job(job_id, computation, db):
+def set_job(job_id, job, db):
     # TODO: check if they changed
     key = job2key(job_id)
-    assert(isinstance(computation, Job))
-    db[key] = computation
+    assert(isinstance(job, Job))
+    db[key] = job
 
 
 def delete_job(job_id, db):
@@ -127,6 +123,14 @@ def job2userobjectkey(job_id):
     return '%s%s' % (prefix, job_id)
 
 def get_job_userobject(job_id, db):
+    available = is_job_userobject_available(job_id, db)
+    if not available:
+        available_job = job_exists(job_id, db)
+        available_cache = job_cache_exists(job_id, db)
+        msg = 'Job user object %r does not exist.' % job_id
+        msg += ' Job exists: %s. Cache exists: %s. ' % (available_job, available_cache)
+        msg += '\n jobs: %s' % all_jobs(db)
+        raise CompmakeBug(msg)
     key = job2userobjectkey(job_id)
     return db[key]
 
@@ -182,3 +186,49 @@ def delete_all_job_data(job_id, db):
         delete_job_userobject(**args)
     if job_cache_exists(**args):
         delete_job_cache(**args)
+
+# These are delicate and should be implemented differently
+def db_job_add_dynamic_children(job_id, children, returned_by, db):
+    job = get_job(job_id, db)
+    if not returned_by in job.children:
+        msg = '%r does not know it has child  %r' % (job_id, returned_by)
+        raise CompmakeBug(msg)
+
+    job.children.update(children)
+    job.dynamic_children[returned_by] = children
+    set_job(job_id, job, db)
+    job2 = get_job(job_id, db)
+    assert job2.children == job.children, 'Race condition' 
+    assert job2.dynamic_children == job.dynamic_children, 'Race condition'
+
+def db_job_add_parent(db, job_id, parent):
+    j = get_job(job_id, db)
+    #print('%s old parents list: %s' % (d, j.parents))
+    j.parents.add(parent)
+    set_job(job_id, j, db)
+    j2 = get_job(job_id, db)
+    assert j2.parents == j.parents, 'Race condition' # FIXME    
+    
+def db_job_add_parent_relation(child, parent, db):
+    child_comp = get_job(child, db=db)
+    orig = set(child_comp.parents)
+    want = orig | set([parent])
+    # alright, need to take care of race condition
+    while True:
+        # Try to write
+        child_comp.parents = want
+        set_job(child, child_comp, db=db)
+        # now read back
+        child_comp = get_job(child, db=db)
+        if child_comp.parents != want:
+            print('race condition for parents of %s' % child)
+            print('orig: %s' % orig)
+            print('want: %s' % want)
+            print('now: %s' % child_comp.parents)
+            # add the children of the other racers as well
+            want = want | child_comp.parents
+        else:
+            break
+            
+
+    

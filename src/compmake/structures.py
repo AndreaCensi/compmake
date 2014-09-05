@@ -112,26 +112,7 @@ class Job(object):
 
         # str -> set(str), where the key is one
         # of the direct children 
-        self.dynamic_children = {}
-
-
-#         
-# 
-#     def get_actual_command(self):
-#         """ returns command, args, kwargs after deps subst."""
-#         from compmake.jobs.storage import get_job_args
-#         job_args = get_job_args(self.job_id)
-#         command, args, kwargs = job_args
-#         from compmake.jobs import substitute_dependencies
-#         # TODO: move this to jobs.actions?
-#         args = substitute_dependencies(args)
-#         kwargs = substitute_dependencies(kwargs)
-#         return command, args, kwargs
-# 
-#     def __eq__(self, other):
-#         ''' Note, this comparison has the semantics of "same promise" '''
-#         ''' Use same_computation() for serious comparison '''
-#         return self.job_id == other.job_id
+        self.dynamic_children = {} 
 
 def same_computation(jobargs1, jobargs2):
     ''' Returns boolean, string tuple '''

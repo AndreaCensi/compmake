@@ -1,14 +1,11 @@
 from .qacct import JobNotRunYet, get_qacct
-from compmake import CompmakeConstants
-from compmake.jobs.actions_newprocess import _check_result_dict
-from compmake.jobs.manager import AsyncResultInterface
-from compmake.structures import CompmakeBug, HostFailed, JobFailed
+from compmake.jobs import AsyncResultInterface, result_dict_raise_if_error
+from compmake.structures import CompmakeBug, HostFailed
 from compmake.ui import error
 from compmake.utils import safe_pickle_load, which
 from contracts import all_disabled, indent
 from system_cmd import CmdException, system_cmd_result
 import os
-from compmake.jobs.result_dict import result_dict_raise_if_error
 
 
 __all__ = [

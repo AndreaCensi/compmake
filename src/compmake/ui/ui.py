@@ -8,7 +8,7 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies,
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..structures import (CommandFailed, Job, Promise, UserError, 
     same_computation)
-from ..utils import (describe_type, describe_value, import_name, 
+from ..utils import (describe_type, describe_value, 
     interpret_strings_like, try_pickling)
 from .helpers import UIState, get_commands
 from .visualization import warning
@@ -16,9 +16,8 @@ from compmake.constants import DefaultsToConfig
 from compmake.context import Context
 from contracts import check_isinstance, contract, raise_wrapped
 import inspect
-import os
-import sys
 import warnings
+from compmake.jobs.storage import db_job_add_parent_relation
 
 
 
@@ -382,7 +381,7 @@ def comp_(context, command_, *args, **kwargs):
 #     if True or c.defined_by == ['root']:
         
     for child in children:
-        add_parent_relation_race(child=child, parent=job_id, db=db)
+        db_job_add_parent_relation(child=child, parent=job_id, db=db)
     
     if get_compmake_config('check_params') and job_exists(job_id, db):
         # OK, this is going to be black magic.
@@ -501,53 +500,48 @@ def interpret_single_command(commands_line, context, cq):
     kwargs = {}
     argspec = inspect.getargspec(function)
 
-    function_args = argspec.args
     
-    if argspec.defaults:
-        num_args_with_default = len(argspec.defaults)
-    else:
-        num_args_with_default = 0
-    num_args = len(argspec.args)
-    num_args_without_default = num_args - num_args_with_default
-
-    args_without_default = argspec.args[0:num_args_without_default]
-
+    defaults = get_defaults(argspec)
+    args_without_default = get_args_without_defaults(argspec)
+    
     for a in args:
         if a.find('=') > 0:
             k, v = a.split('=')
 
             if not k in argspec.args:
                 msg = ("You passed the argument %r for command %r, "
-                       "but the only "
-                       "available arguments are %s." %
-                        (k, cmd.name, function_args))
+                       "but the only available arguments are %s." %
+                        (k, cmd.name, argspec.args))
                 raise UserError(msg)
             
             # look if we have a default value
-            index = argspec.args.index(k)
-            if index < num_args_without_default:
+            if not k in defaults:
                 # no default, pass as string
                 kwargs[k] = v
             else:
-                default_value = \
-                    argspec.defaults[index - num_args_without_default]
-                    
+                default_value = defaults[k]
+
                 if isinstance(default_value, DefaultsToConfig):
                     default_value = get_compmake_config(default_value.switch)
-                
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
                     msg = ('Could not parse %s=%s as %s.' %
                             (k, v, type(default_value)))
                     raise UserError(msg)
-
-                # print "%s :  %s (%s)" % (k, kwargs[k], type(kwargs[k]))
-
         else:
             other.append(a)
+            
     args = other
 
+    function_args = argspec.args
+    # set default values
+    for argname, argdefault in defaults.items():
+        if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
+            v = get_compmake_config(argdefault.switch)
+            kwargs[argname] = v
+        
+ 
     if 'args' in function_args:
         kwargs['args'] = args
 
@@ -580,7 +574,9 @@ def interpret_single_command(commands_line, context, cq):
 
     for x in args_without_default:
         if not x in kwargs:
-            raise UserError('Required argument %r not given.' % x)
+            msg = 'Required argument %r not given.' % x
+            raise UserError(msg)
+        
     try:
         res = function(**kwargs)
         if res != None and res != 0:
@@ -590,28 +586,29 @@ def interpret_single_command(commands_line, context, cq):
     finally:
         if dbchange:
             cq.invalidate()
-    
 
+@contract(returns=dict)    
+def get_defaults(argspec):
+    defaults = {}
+    if argspec.defaults:
+        num_args_with_default = len(argspec.defaults)
+    else:
+        num_args_with_default = 0
+        
+    num_args = len(argspec.args)
+    num_args_without_default = num_args - num_args_with_default
+    for k in range(num_args_without_default, num_args):
+        argname = argspec.args[k]
+        argdefault = argspec.defaults[k-num_args_without_default]
+        defaults[argname] = argdefault
+    return defaults
 
-def add_parent_relation_race(child, parent, db):
-    child_comp = get_job(child, db=db)
-    orig = set(child_comp.parents)
-    want = orig | set([parent])
-    # alright, need to take care of race condition
-    while True:
-        # Try to write
-        child_comp.parents = want
-        set_job(child, child_comp, db=db)
-        # now read back
-        child_comp = get_job(child, db=db)
-        if child_comp.parents != want:
-            print('race condition for parents of %s' % child)
-            print('orig: %s' % orig)
-            print('want: %s' % want)
-            print('now: %s' % child_comp.parents)
-            # add the children of the other racers as well
-            want = want | child_comp.parents
-        else:
-            break
-            
-            
+def get_args_without_defaults(argspec):
+    if argspec.defaults:
+        num_args_with_default = len(argspec.defaults)
+    else:
+        num_args_with_default = 0
+    num_args = len(argspec.args)
+    num_args_without_default = num_args - num_args_with_default
+    args_without_default = argspec.args[0:num_args_without_default]
+    return args_without_default

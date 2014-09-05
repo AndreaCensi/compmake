@@ -1,11 +1,13 @@
 from .parmake_job2_imp import parmake_job2
 from .shared import Shared
 from compmake.events import broadcast_event, publish
+from compmake.exceptions import HostFailed
 from compmake.jobs.actions_newprocess import parmake_job2_new_process
 from compmake.jobs.manager import AsyncResultInterface, Manager
 from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.state import get_compmake_config
 from compmake.structures import CompmakeException, JobFailed, JobInterrupted
+from compmake.ui.visualization import warning
 from compmake.utils import make_sure_dir_exists
 from contracts import check_isinstance, contract, indent
 from multiprocessing import TimeoutError
@@ -16,7 +18,6 @@ import signal
 import sys
 import tempfile
 import traceback
-from compmake.exceptions import HostFailed
 
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
@@ -153,6 +154,11 @@ class PmakeManager(Manager):
         self.last_accepted = 0
         self.new_process = new_process
         self.show_output = show_output
+        
+        if new_process and show_output:
+            msg = ('Compmake does not yet support echoing stdout/stderr '
+                   'when jobs are run in a new process.')
+            warning(msg)
         
     def process_init(self):
         if self.num_processes is None:

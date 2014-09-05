@@ -3,6 +3,7 @@ from .visualization import compmake_colored
 from collections import namedtuple
 import sys
 import types
+from compmake.utils.docstring import docstring_components, docstring_trim
 
 
 # Storage for the commands
@@ -41,15 +42,15 @@ GENERAL = 'General commands'
 VISUALIZATION = 'Visualization'
 ACTIONS = 'Commands for making and cleaning jobs'
 COMMANDS_ADVANCED = 'Advanced commands and diagnostics'
-COMMANDS_CLUSTER = '(Experimental) Cluster commands'
+# COMMANDS_CLUSTER = '(Experimental) Cluster commands'
 
 ui_section(GENERAL, order=0)
 ui_section(VISUALIZATION, order=1)
 ui_section(ACTIONS, order=2)
-ui_section(COMMANDS_CLUSTER, order=2.5,
-           desc='Experimental: These assume that you have a cluster '
-           ' configuration file as explained in the documentation.',
-           experimental=True)
+# ui_section(COMMANDS_CLUSTER, order=2.5,
+#            desc='Experimental: These assume that you have a cluster '
+#            ' configuration file as explained in the documentation.',
+#            experimental=True)
 ui_section(COMMANDS_ADVANCED, order=4,
             desc='Advanced commands not for general use.',
             experimental=True)
@@ -105,13 +106,14 @@ def get_commands():
 
 @ui_command(section=GENERAL)
 def help(args): #@ReservedAssignment
-    '''Prints help about the other commands. (try 'help help')
-    
-    Usage:
-    
-       help [command]
-       
-    If command is given, extended help is printed about it.
+    '''
+        Prints help about the other commands. (try 'help help')
+        
+        Usage:
+        
+        @: help [command]
+           
+        If command is given, extended help is printed about it.
     '''
     commands = get_commands()
     if not args:
@@ -131,7 +133,8 @@ def help(args): #@ReservedAssignment
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
         print(s)
-        print(cmd.doc)
+        doc = docstring_trim(cmd.doc)
+        print(doc)
 
 
 def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
@@ -152,9 +155,13 @@ def list_commands_with_sections(file=sys.stdout): #@ReservedAssignment
         for name in section.commands:
             cmd = UIState.commands[name]
             dbchange = cmd.dbchange
-            short_doc = cmd.doc.split('\n')[0].strip()
-            if dbchange:
-                name += '*'
+            
+            dc = docstring_components(cmd.doc)
+            short_doc = dc['first']
+#             short_doc = cmd.doc.split('\n')[0].strip()
+            if False: # display * next to jobs affecting the DB
+                if dbchange:
+                    name += '*'
             n = name.ljust(max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=['bold'])

@@ -34,7 +34,11 @@ class CompmakeGlobalState(object):
 
 
 def get_compmake_config(key):
-    return CompmakeGlobalState.compmake_config[key]
+    config =  CompmakeGlobalState.compmake_config
+    if not key in config:
+        msg = 'Config %r not found. Known: %s' % (key,  list(config))
+        raise ValueError(msg)
+    return config[key]
 
 def set_compmake_config(key, value):
     # TODO: check exists

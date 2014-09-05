@@ -1,4 +1,4 @@
-from compmake.ui.helpers import COMMANDS_CLUSTER, ui_command
+from compmake.ui.helpers import ACTIONS, ui_command
 from compmake.jobs.queries import top_targets
 from compmake.plugins.backend_sge.sge_manager import SGEManager
 from compmake.ui.commands import _raise_if_failed
@@ -7,9 +7,9 @@ __all__ = [
     'sgemake',
 ]
 
-@ui_command(section=COMMANDS_CLUSTER, dbchange=True)
+@ui_command(section=ACTIONS, dbchange=True)
 def sgemake(job_list, context, cq, n=None, recurse=False):
-    ''' (experimental) SGE equivalent of "make". '''
+    ''' Cluster equivalent of "make" using the Sun Grid Engine. '''
     job_list = [x for x in job_list]
 
     if not job_list:

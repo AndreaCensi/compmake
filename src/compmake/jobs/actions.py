@@ -72,7 +72,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
 #     # TODO: add user object
 
 
-def make(job_id, context):
+def make(job_id, context, echo=False):
     """ 
         Makes a single job. 
         
@@ -87,10 +87,10 @@ def make(job_id, context):
     """
     db = context.get_compmake_db()
 
-    host = get_compmake_config('hostname')
+#     host = get_compmake_config('hostname')
+    host = 'hostname' # XXX
 
     setproctitle(job_id)
-
 
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
@@ -138,8 +138,8 @@ def make(job_id, context):
     user_object = None
 
     capture = OutputCapture(context=context, prefix=job_id,
-                            echo_stdout=False,
-                            echo_stderr=False)
+                            echo_stdout=echo,
+                            echo_stderr=echo)
 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
@@ -194,7 +194,7 @@ def make(job_id, context):
     # XXX: walltime/cputime not precise
     cache.walltime_used = walltime
     cache.cputime_used = cputime
-    cache.host = get_compmake_config('hostname')  # XXX
+    cache.host = host
 
     set_job_cache(job_id, cache, db=db)
 

@@ -1,20 +1,26 @@
 from compmake import Promise
 from compmake.jobs import get_job_cache, tree
 from compmake.structures import Cache
-from contracts import contract
+from contracts import check_isinstance, contract
 
 __all__ = [
     'compmake_execution_stats',
 ]
 
 
-@contract(promise=Promise, returns=Promise)
+@contract(promise='str|isinstance(Promise)', returns=Promise)
 def compmake_execution_stats(context, promise, use_job_id=None):
     """ 
         Returns a promise for a the execution stats of a job
         and its dependencies.
     """
-    job_id = promise.job_id
+    check_isinstance(promise, (Promise, str))
+    
+    if isinstance(promise, Promise):
+        job_id = promise.job_id
+    elif isinstance(promise, str):
+        job_id = promise    
+        
     db = context.get_compmake_db()
     jobs = tree([job_id], db=db)
     

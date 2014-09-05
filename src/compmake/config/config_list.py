@@ -5,33 +5,35 @@ from multiprocessing import cpu_count
 __all__ = [
     'CONFIG_GENERAL',  
     'CONFIG_APPEARANCE',
-    'CONFIG_STORAGE',
     'CONFIG_PARALLEL',
 ]
 
 CONFIG_GENERAL = 'General configuration'
-CONFIG_APPEARANCE = 'Appearance'
-CONFIG_CLUSTER = 'Cluster execution'
-CONFIG_STORAGE = 'Storage setting backend'
+CONFIG_APPEARANCE = 'Visualization'
+# CONFIG_CLUSTER = 'Cluster execution'
+# CONFIG_STORAGE = 'Storage setting backend'
 CONFIG_PARALLEL = 'Multiprocessing'
 
 add_config_section(name=CONFIG_GENERAL, desc='', order=-1)
-add_config_section(name=CONFIG_STORAGE, desc='', order=1)
+# add_config_section(name=CONFIG_STORAGE, desc='', order=1)
 add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
 add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
-add_config_section(name=CONFIG_CLUSTER, desc='', order=4)
+# add_config_section(name=CONFIG_CLUSTER, desc='', order=4)
 
 
 # TODO: make syntax similar to events
-add_config_switch('db', 'filesystem',
-        desc="Specifies db backend. "
-                "XXX: so far, only 'filesystem' officially supported.",
-        section=CONFIG_STORAGE)
+# add_config_switch('db', 'filesystem',
+#         desc="Specifies db backend. "
+#                 "XXX: so far, only 'filesystem' officially supported.",
+#         section=CONFIG_STORAGE)
+# 
+# # add_config_switch('path', 'compmake_storage',
+#             desc="[filesystem] Path to directory for filesystem storage.",
+#             section=CONFIG_STORAGE)
 
-add_config_switch('path', 'compmake_storage',
-            desc="[filesystem] Path to directory for filesystem storage.",
-            section=CONFIG_STORAGE)
-
+add_config_switch('recurse',  False,
+            desc="Default choice for parmake and make whether to run generated jobs.",
+            section=CONFIG_GENERAL)
 
 add_config_switch('new_process',  False,
             desc="Default choice for parmake and make whether to start a new process for each job.",
@@ -47,15 +49,17 @@ add_config_switch('check_params', False,
 #       desc="Whether we are in interactive mode (e.g., ask confirmations).",
 #       section=CONFIG_GENERAL)
 
-add_config_switch('echo_stdout', True,
-       desc="If true, the job output to stdout is shown.",
-       section=CONFIG_APPEARANCE)
+add_config_switch('echo', False,
+                  desc='Show the output of a job in the console. See echo_stdout and echo_stderr.',
+                  section=CONFIG_APPEARANCE)
 
+add_config_switch('echo_stdout', True,
+       desc="If true and 'echo' is true, the job output to stdout is shown.",
+       section=CONFIG_APPEARANCE)
 
 add_config_switch('echo_stderr', True,
-       desc="If true, the job output to stderr is shown.",
+       desc="If true and 'echo' is true, the job output to stderr is shown.",
        section=CONFIG_APPEARANCE)
-
 
 add_config_switch('status_line_enabled', True,
        desc="Activate the plugin for status line",
@@ -75,22 +79,22 @@ add_config_switch('verbose_definition', False,
        desc="If true, log on stderr about job (re)definition.",
        section=CONFIG_APPEARANCE)
 
-add_config_switch('cluster_conf', 'cluster.yaml',
-                  desc='Location of cluster configuration file.',
-                  section=CONFIG_CLUSTER)
-
-add_config_switch('hostname', 'localhost',
-                  desc='Nickname for current host (set by compmake master).',
-                  section=CONFIG_CLUSTER)
-
-add_config_switch('cluster_nice', 0,
-                  desc='Nice level for spawned remote processes.',
-                  section=CONFIG_CLUSTER)
-
-add_config_switch('cluster_show_cmd', True,
-                  desc='If true, it shows the connection '
-                        'string to the slaves.',
-                  section=CONFIG_CLUSTER)
+# add_config_switch('cluster_conf', 'cluster.yaml',
+#                   desc='Location of cluster configuration file.',
+#                   section=CONFIG_CLUSTER)
+# 
+# add_config_switch('hostname', 'localhost',
+#                   desc='Nickname for current host (set by compmake master).',
+#                   section=CONFIG_CLUSTER)
+# 
+# add_config_switch('cluster_nice', 0,
+#                   desc='Nice level for spawned remote processes.',
+#                   section=CONFIG_CLUSTER)
+# 
+# add_config_switch('cluster_show_cmd', True,
+#                   desc='If true, it shows the connection '
+#                         'string to the slaves.',
+#                   section=CONFIG_CLUSTER)
 
 # add_config_switch('redis_host', 'localhost',
 #                  desc='Hostname[:port] for Redis host.',
@@ -119,3 +123,9 @@ add_config_switch('autobal_after', cpu_count(),  # TODO: number of processors / 
 add_config_switch('min_proc_interval', 0,
                   desc='Minimum time interval between instantiating jobs.',
                   section=CONFIG_PARALLEL)
+
+
+
+
+
+

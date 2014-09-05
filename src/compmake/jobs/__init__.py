@@ -11,3 +11,4 @@ from .syntax.parsing import *
 
 
 from .actions_newprocess import *
+from .result_dict import *

@@ -1,9 +1,9 @@
 from compmake.jobs.priority import compute_priorities
-from compmake.ui.helpers import VISUALIZATION, ui_command
+from compmake.ui.helpers import COMMANDS_ADVANCED, ui_command
 
 
-@ui_command(section=VISUALIZATION)
-def debug_priority(non_empty_job_list, context, cq):
+@ui_command(section=COMMANDS_ADVANCED)
+def debug_priority(non_empty_job_list, context, cq):  # @UnusedVariable
     """ Shows the priority of jobs. """
     jobs = list(non_empty_job_list)
     priorities =  compute_priorities(all_targets=jobs, cq=cq)

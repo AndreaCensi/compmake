@@ -15,36 +15,47 @@ __all__ = [
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def make(job_list, context, cq, new_process=DefaultsToConfig('new_process'), recurse=False):
-    '''Makes selected targets; or all targets if none specified. '''
-    if isinstance(new_process, DefaultsToConfig):
-        new_process = get_compmake_config('new_process')
-        assert isinstance(new_process, bool)
-    return make_(context=context, cq=cq, job_list=job_list, recurse=recurse,
-                 new_process=new_process)
+def make(job_list, context, cq, 
+         echo=DefaultsToConfig('echo'),
+         new_process=DefaultsToConfig('new_process'), 
+         recurse=DefaultsToConfig('recurse')):
+    ''' 
+        Makes selected targets; or all targets if none specified. 
     
-@contract(context=Context, new_process='bool')
-def make_(context, cq, job_list, recurse, new_process):
-    '''Makes selected targets; or all targets if none specified. '''
-    # job_list = list(job_list) # don't ask me why XXX
-    job_list = [x for x in job_list]
+        Options:
+            make recurse=1      Recursive make: put generated jobs in the queue.
+            make new_process=1  Run the jobs in a new Python process.
+            make echo=1         Displays the stdout/stderr for the job on the console.
+            
+            make new_process=1 echo=1   Not supported yet.
+    '''
+#     return make_(context=context, cq=cq, job_list=job_list, recurse=recurse,
+#                  new_process=new_process, echo=echo)
+#     
+# @contract(context=Context)
+# def make_(context, cq, job_list, recurse, new_process, echo):
+#     # job_list = list(job_list) # don't ask me why XXX
+#     job_list = [x for x in job_list]
 
     db = context.get_compmake_db()
     if not job_list:
         job_list = list(top_targets(db=db))
 
     manager = ManagerLocal(context=context, cq=cq,
-                           recurse=recurse, new_process=new_process)
+                           recurse=recurse, new_process=new_process, echo=echo)
     manager.add_targets(job_list)
     manager.process()
     return _raise_if_failed(manager)
 
 
-
 @ui_command(section=ACTIONS, dbchange=True)
-def remake(non_empty_job_list, context, cq, 
-           new_process=DefaultsToConfig('new_process')):
-    '''Remake the selected targets (equivalent to clean and make). '''
+def remake(non_empty_job_list, context, cq, new_process=DefaultsToConfig('new_process')):
+    ''' 
+        Remake the selected targets (equivalent to clean and make). 
+    
+            remake recurse=1      Recursive remake: put generated jobs in the queue.
+            remake new_process=1  Run the jobs in a new Python process.
+    '''
 
     if isinstance(new_process, DefaultsToConfig):
         new_process = get_compmake_config('new_process')

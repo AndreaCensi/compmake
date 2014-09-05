@@ -44,7 +44,6 @@ def parmake_job2_new_process(args):
         'make_single out_result=%s %s' % (out_result, job_id),
     ]
 
-
     cwd = os.getcwd() 
     cmd_res = system_cmd_result(cwd, cmd,
                       display_stdout=False,

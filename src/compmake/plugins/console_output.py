@@ -138,7 +138,6 @@ def handle_event_stdout(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stdout'):
         handle_event(event, False)
 
-
 def handle_event_stderr(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stderr'):
         handle_event(event, True)
