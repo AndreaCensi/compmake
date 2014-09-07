@@ -10,11 +10,16 @@ def graph(job_list, context, filename='compmake',
           filter='dot', format='png', # @ReservedAssignment
           compact=False, color=True,
           cluster=False):  
-    '''Creates a graph of the given targets and dependencies 
+    '''
     
-        graph filename=filename compact=0,1 format=png,...
+        Creates a graph of the given targets and dependencies. 
+    
+        Usage:
+            
+            @: graph filename=filename compact=0,1 format=png,...
          
-        Params:
+        Options:
+        
             filename:  name of generated filename in the dot format
             compact=0: whether to include the job names in the nodes  
             filter=[dot,circo,twopi,...]  which algorithm to use to arrange

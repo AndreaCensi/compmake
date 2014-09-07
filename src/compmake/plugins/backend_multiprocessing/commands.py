@@ -3,13 +3,14 @@ from compmake.events import publish
 from compmake.jobs.queries import top_targets
 from compmake.ui import COMMANDS_ADVANCED, ui_command
 from compmake.ui.commands import _raise_if_failed
+from compmake.constants import DefaultsToConfig
 
 __all__ = [
     'parmake_pool',
 ]
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-def parmake_pool(job_list, context, cq, n=None, recurse=False):
+def parmake_pool(job_list, context, cq, n=DefaultsToConfig('max_parallel_jobs'), recurse=False):
     '''Parallel equivalent of "make", using multiprocessing.Pool. (buggy)
 
 Usage:

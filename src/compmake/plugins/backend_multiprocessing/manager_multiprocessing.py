@@ -42,19 +42,16 @@ ncpus = multiprocessing.cpu_count()
 class MultiprocessingManager(Manager):
     ''' Specialization of Manager for local multiprocessing '''
 
-    def __init__(self, context, cq, num_processes=None, recurse=False):
+    @contract(num_processes=int, recurse='bool')
+    def __init__(self, context, cq, num_processes, recurse):
         Manager.__init__(self, context=context, 
-                         cq=cq,recurse=recurse)
+                         cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
 
     def process_init(self):
-        if self.num_processes is None:
-            self.num_processes = get_compmake_config('max_parallel_jobs')
-
         Shared.event_queue = Queue(self.num_processes * 1000)
         # info('Starting %d processes' % self.num_processes)
-
         kwargs = {}
 
         if sys.hexversion >= 0x02070000:

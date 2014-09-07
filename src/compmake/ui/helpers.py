@@ -52,7 +52,7 @@ ui_section(ACTIONS, order=2)
 #            ' configuration file as explained in the documentation.',
 #            experimental=True)
 ui_section(COMMANDS_ADVANCED, order=4,
-            desc='Advanced commands not for general use.',
+            desc='These are advanced commands not for general use.',
             experimental=True)
 
 

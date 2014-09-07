@@ -1,7 +1,6 @@
 from .sge_misc import check_sge_environment
 from .sge_sub import SGESub
 from compmake.jobs.manager import Manager
-from compmake.state import get_compmake_config
 from compmake.utils import isodate_with_secs
 from contracts import contract
 import os
@@ -14,22 +13,20 @@ __all__ = [
 class SGEManager(Manager):
     """ Runs compmake jobs using a SGE implementation """
 
-    def __init__(self, context, cq, recurse,
-                 num_processes=None):
+    @contract(num_processes=int, recurse='bool')
+    def __init__(self, context, cq, recurse, num_processes):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
-        if num_processes is None:
-            num_processes = get_compmake_config('max_parallel_jobs')
+        
         self.num_processes = num_processes
+        
         check_sge_environment()
         
-        db=self.db
-        storage = os.path.abspath(db.basepath)
+        storage = os.path.abspath(self.db.basepath)
         timestamp = isodate_with_secs().replace(':','-')
         spool = os.path.join(storage, 'sge', timestamp)
         if not os.path.exists(spool):
             os.makedirs(spool)
 
-        
         self.sub_available = set()
         self.sub_processing = set() # available + processing = subs.keys
         self.subs = {} # name -> sub
@@ -54,7 +51,6 @@ class SGEManager(Manager):
             resource_available['nproc'] = (True, '')
                         
         return resource_available
-
 
     @contract(reasons_why_not=dict)
     def can_accept_job(self, reasons_why_not):
@@ -103,3 +99,4 @@ class SGEManager(Manager):
             print('Cleaning up %d SGE jobs. Please be patient.' % n)
         for _, job in self.processing2result.items():
             job.delete_job()
+                        

@@ -58,8 +58,10 @@ def delete(job_list, context):
 
 @ui_command(section=ACTIONS, dbchange=True)
 def clean(job_list, context):
-    ''' Cleans the result of the selected computation (or everything \
-        if nothing specified). '''
+    ''' 
+        Cleans the result of the selected computation (or everything if nothing specified). 
+        
+    '''
     db = context.get_compmake_db()
 
     # job_list = list(job_list) # don't ask me why XXX

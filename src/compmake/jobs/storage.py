@@ -121,16 +121,20 @@ def delete_job_cache(job_id, db):
 def job2userobjectkey(job_id):
     prefix = 'cm-res-' 
     return '%s%s' % (prefix, job_id)
+    
+    #print('All deps: %r' % all_deps)
 
+    
 def get_job_userobject(job_id, db):
-    available = is_job_userobject_available(job_id, db)
-    if not available:
-        available_job = job_exists(job_id, db)
-        available_cache = job_cache_exists(job_id, db)
-        msg = 'Job user object %r does not exist.' % job_id
-        msg += ' Job exists: %s. Cache exists: %s. ' % (available_job, available_cache)
-        msg += '\n jobs: %s' % all_jobs(db)
-        raise CompmakeBug(msg)
+#     available = is_job_userobject_available(job_id, db)
+#     if not available:
+#         available_job = job_exists(job_id, db)
+#         available_cache = job_cache_exists(job_id, db)
+#         msg = 'Job user object %r does not exist.' % job_id
+#         msg += ' Job exists: %s. Cache exists: %s. ' % (available_job, available_cache)
+#         msg += '\n jobs: %s' % list(all_jobs(db))
+#         msg += '\n path: %s' % db.basepath
+#         raise CompmakeBug(msg)
     key = job2userobjectkey(job_id)
     return db[key]
 

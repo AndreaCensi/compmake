@@ -1,15 +1,28 @@
 from copy import deepcopy
-from contracts import raise_wrapped
+from contracts import raise_wrapped, contract
+from compmake.jobs.storage import get_job_userobject, job_userobject_exists
+from compmake.exceptions import CompmakeBug
 
 
 __all__  = [
     'substitute_dependencies',
     'collect_dependencies',  
+    'get_job_userobject_resolved',
 ]
+
+def get_job_userobject_resolved(job_id, db):
+    """ This gets the job's result, and recursively substitute all dependencies. """
+    ob = get_job_userobject(job_id, db)
+    all_deps = collect_dependencies(ob)
+    for dep in all_deps:
+        if not job_userobject_exists(dep, db):
+            msg = 'Cannot resolve %r: dependency %r was not done.' % (job_id, dep)
+            raise CompmakeBug(msg)
+    return substitute_dependencies(ob, db)
+
 
 def substitute_dependencies(a, db):
     from compmake import Promise
-    from compmake.jobs.storage import get_job_userobject
     
     # XXX: this is a workaround
     if type(a).__name__ in  ['ObjectSpec']:
@@ -36,8 +49,7 @@ def substitute_dependencies(a, db):
     else:
         return deepcopy(a)
 
-
-
+@contract(returns='set(str)')
 def collect_dependencies(ob):
     ''' Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure '''

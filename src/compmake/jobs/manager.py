@@ -603,7 +603,7 @@ class Manager(ManagerLog):
                 self.check_invariants()
                 # either something ready to do, or something doing
                 # otherwise, we are completely blocked
-                if not (self.ready_todo or self.processing):
+                if (not self.ready_todo) and (not self.processing):
                     msg = ('Nothing ready to do, and nothing cooking. '
                     'This probably means that the Compmake job database was inconsistent. '
                     'This might happen if the job creation is interrupted. Use the command "check-consistency" '
@@ -620,7 +620,6 @@ class Manager(ManagerLog):
                 if self.ready_todo and not self.processing:
                     # We time out as there are no resources
                     publish(self.context, 'manager-phase', phase='wait')
-                    pass
                 
                     # TODO: make child raise exception if there are no
                     # resources

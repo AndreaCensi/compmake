@@ -16,6 +16,7 @@ class CompmakeConstants():
     #  RET_CODE_JOB_FAILED    if some job failed
     #  RET_CODE_COMPMAKE_BUG  if compmake itself had some errors
     RET_CODE_JOB_FAILED = 113
+    RET_CODE_COMMAND_FAILED = 1
     RET_CODE_COMPMAKE_BUG = 114
 
     # Statuses ------------------------------------------------

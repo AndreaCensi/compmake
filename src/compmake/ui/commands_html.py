@@ -37,7 +37,7 @@ def create_commands_html(file=sys.stdout):  # @ReservedAssignment
 
 @ui_command(section=COMMANDS_ADVANCED)
 def commands_html(output_file=''):
-    ''' Dumps the commands description in html on the specified file '''
+    ''' Dumps the commands description in html on the specified file. '''
     if output_file:
         f = open(output_file, 'w')
     else:

@@ -75,6 +75,10 @@ add_config_switch('colorize', True,
        desc="Use colors in terminals if possible.",
        section=CONFIG_APPEARANCE)
 
+add_config_switch('set_proc_title', True,
+                  desc='Set the process title to the name of current job.',
+                  section=CONFIG_APPEARANCE)
+
 add_config_switch('verbose_definition', False,
        desc="If true, log on stderr about job (re)definition.",
        section=CONFIG_APPEARANCE)

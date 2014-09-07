@@ -4,7 +4,7 @@ from ..context import Context
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
 from ..structures import CommandFailed, CompmakeBug, MakeFailed, UserError
-from ..ui import error, info, interpret_commands_wrap
+from ..ui import info, interpret_commands_wrap
 from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
@@ -12,7 +12,6 @@ from optparse import OptionParser
 import contracts
 import os
 import sys
-import traceback
 
 # TODO: revise all of this
 @contract(context=Context)
@@ -100,22 +99,6 @@ def compmake_main(args):
     # We load plugins after we parsed the configuration
     from compmake import plugins  # @UnusedImport
 
-#    if options.redis_events:
-#        if not compmake_config.db == 'redis':
-#            error('Cannot use redis_events without redis.')
-#            sys.exit(-2)
-#
-#        from compmake.storage.redisdb import RedisInterface
-#
-#        # register an handler that will capture all events    
-#        def handler(event):
-#            RedisInterface.events_push(event)
-#
-#        remove_all_handlers()
-#        register_handler("*", handler)
-
-#     set_namespace(options.namespace)
-    
     # XXX make sure this is the default
     if not args:
         msg = ('I expect at least one argument (db path).'
@@ -139,6 +122,8 @@ def compmake_main(args):
         # If the context was custom we load it
         if 'context' in context.compmake_db:
             context = context.compmake_db['context']
+            
+        # TODO: check number of jobs is nonzero
     else:
         msg = 'Directory not found: %s' % one_arg
         raise UserError(msg) 
@@ -163,7 +148,7 @@ def compmake_main(args):
         except MakeFailed:
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
-            retcode = 1
+            retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
         except CompmakeBug as e:
             sys.stderr.write('unexpected exception: %s' % my_format_exc(e))
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
@@ -235,31 +220,3 @@ def load_existing_db(dirname):
     
     return context
 
-# 
-# def check_not_filename(module_name):
-#     if module_name.endswith('.py') or (module_name.find('/') > 0):
-#         msg = ('You passed a string %r which looks like a filename.' % 
-#                 module_name)
-#         msg += ' However, I need a module name.'
-#         raise UserError(msg)
-
-
-# def load_module(module_name):
-# #    if module_name.endswith('.py') or (module_name.find('/') > 0):
-# #        warning('You passed a string %r which looks like a filename.' % 
-# #                module_name)
-# #        module_name = module_name.replace('/', '.')
-# #        module_name = module_name.replace('.py', '')
-# #        warning('However, I need a module name. I will try with %r.' % 
-# #                module_name)
-# 
-#     try:
-#         info('Importing module %r' % module_name)
-#         __import__(module_name)
-#     except Exception as e:
-#         msg = ('Error while trying to import module "%s": %s' % 
-#               (module_name, e))
-#         msg += '\n path: %s' % sys.path
-#         error(msg)
-#         traceback.print_exc(file=sys.stderr)
-#         raise 

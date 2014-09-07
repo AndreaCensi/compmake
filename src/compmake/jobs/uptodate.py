@@ -3,6 +3,9 @@ from ..structures import Cache, Job
 from ..utils import memoized_reset
 from contracts import contract
 from compmake.structures import CompmakeBug
+from compmake.jobs.dependencies import collect_dependencies
+from compmake.jobs.storage import get_job_userobject
+from contracts.utils import check_isinstance
 
 
 __all__ = [
@@ -187,3 +190,38 @@ class CacheQueryDB(object):
                               if self.dependencies_up_to_date(job_id)])
     
         return todo, done, todo_and_ready
+
+
+    @contract(returns=set, jobs='str|set(str)')
+    def tree_children_and_uodeps(self, jobs):
+        """ Closure of the relation children and dependencies of userobject. """
+        stack = []
+        if isinstance(jobs, str):
+            jobs = [jobs]
+        
+        stack.extend(jobs)
+        
+        result = set()
+        
+        def descendants(job_id):
+            deps = collect_dependencies(get_job_userobject(job_id, self.db))
+            children = self.direct_children(job_id)
+            check_isinstance(children, set)
+            r = children | deps
+            check_isinstance(r, set)
+            return r
+        
+        while stack:
+            job_id = stack.pop()    
+            
+            for c in descendants(job_id):
+                if not self.job_exists(c):
+                    raise ValueError(c)
+                if not c in result:
+                    result.add(c)
+                    stack.append(c)
+                    
+        return result
+    
+    
+    

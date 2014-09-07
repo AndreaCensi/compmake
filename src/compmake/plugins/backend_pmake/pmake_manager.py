@@ -147,7 +147,8 @@ class PmakeManager(Manager):
         Python 2.7 implementation 
      '''
 
-    def __init__(self, context, cq, num_processes=None, recurse=False, new_process=False,
+    @contract(num_processes='int')
+    def __init__(self, context, cq, num_processes, recurse=False, new_process=False,
                  show_output=False):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
@@ -161,9 +162,6 @@ class PmakeManager(Manager):
             warning(msg)
         
     def process_init(self):
-        if self.num_processes is None:
-            self.num_processes = get_compmake_config('max_parallel_jobs')
-
         Shared.event_queue = Queue(self.num_processes * 1000)
         # info('Starting %d processes' % self.num_processes)
         

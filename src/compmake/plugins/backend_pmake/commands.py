@@ -3,7 +3,6 @@ from compmake.constants import DefaultsToConfig
 from compmake.events import publish
 from compmake.jobs import top_targets
 from compmake.jobs.actions import mark_remake
-from compmake.state import get_compmake_config
 from compmake.ui import ACTIONS, ui_command
 from compmake.ui.commands import _raise_if_failed, ask_if_sure_remake
 
@@ -15,20 +14,21 @@ __all__ = [
 
 @ui_command(section=ACTIONS, dbchange=True)
 def parmake(job_list, context, cq, 
-            n=None, recurse=False,
+            n=DefaultsToConfig('max_parallel_jobs'), 
+            recurse=DefaultsToConfig('recurse'),
             new_process=DefaultsToConfig('new_process'),
             echo=DefaultsToConfig('echo')):    
     ''' 
         Parallel equivalent of make. 
         
-        Uses multiprocessing.Process as a backend and a Python queue 
-        to communicate with the workers. 
+        Uses multiprocessing.Process as a backend and a Python queue to communicate with the workers. 
     
         Options:
         
+          parmake n=10             Uses 10 workers
           parmake recurse=1        Recursive make: put generated jobs in the queue.
           parmake new_process=1    Run the jobs in a new Python process.
-          parmake echo=1    Shows the output of the jobs. This might slow down everything.
+          parmake echo=1           Shows the output of the jobs. This might slow down everything.
           
           parmake new_process=1 echo=1   Not supported yet.
 
@@ -60,11 +60,11 @@ def parmake(job_list, context, cq,
     return _raise_if_failed(manager)
 
 
-
-
 @ui_command(section=ACTIONS, dbchange=True)
 def parremake(non_empty_job_list, context, cq):
-    '''Parallel equivalent of "remake". '''
+    '''
+        Parallel equivalent of "remake". 
+    '''
     db = context.get_compmake_db()
     non_empty_job_list = list(non_empty_job_list)
 

@@ -1,29 +1,61 @@
 from .compmake_test import CompmakeTest
 from compmake import compmake_execution_stats
-from compmake.jobs import get_job_userobject
 from nose.tools import istest
+from contracts.utils import check_isinstance
+from compmake.jobs.dependencies import get_job_userobject_resolved
 
-def f(*args):  # @UnusedVariable
+def ff(*args):  # @UnusedVariable
     return
+
+def gg(context):
+    return context.comp(ff)
+
+def hh(context):
+    return context.comp_dynamic(gg)
 
 @istest
 class TestExecutionStats(CompmakeTest):
 
     def test_execution_stats(self):
-        comp = self.comp
-
-        # schedule some commands
-        res = comp(f, comp(f), comp(f, comp(f)))
-        
-        result = compmake_execution_stats(self.cc, res)
-        self.cc.batch_command('make')
     
-        res = get_job_userobject(result.job_id, db=self.db)
+        # schedule some commands
+        res = self.cc.comp_dynamic(gg)
         
-        assert isinstance(res, dict)
+        myjobid= 'myjobid'
+        compmake_execution_stats(self.cc, res, use_job_id=myjobid)
+        self.assert_cmd_success('make recurse=1')
+    
+        res = get_job_userobject_resolved(myjobid, db=self.db)
+        check_result(res)
+        
         res['cpu_time']
         res['wall_time']
-        res['jobs']
+        
+        print(res)
+        self.assertEqual(res['jobs'], set(['ff', 'gg']))
+        
+    def test_execution_stats2(self):
+    
+        # schedule some commands
+        res = self.cc.comp_dynamic(hh)
+        
+        myjobid= 'myjobid'
+        compmake_execution_stats(self.cc, res, use_job_id=myjobid)
+        self.assert_cmd_success('make recurse=1')
+        self.assert_cmd_success('ls')
+    
+        res = get_job_userobject_resolved(myjobid, db=self.db)
+        check_result(res)
         
         print(res)
         
+        self.assertEqual(res['jobs'], set(['ff', 'gg', 'hh']))
+
+
+
+def check_result(res):
+    check_isinstance(res, dict)
+    res['cpu_time']
+    res['wall_time']
+    res['jobs']
+    

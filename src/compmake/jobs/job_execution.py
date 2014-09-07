@@ -19,9 +19,6 @@ def job_compute(job, context):
     command, args, kwargs = job_args
 
     kwargs = dict(**kwargs)
-
-    
-
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
@@ -30,7 +27,7 @@ def job_compute(job, context):
             msg = 'Dependency %r was not done.' % dep
             raise CompmakeBug(msg)
     #print('All deps: %r' % all_deps)
-
+    
     # TODO: move this to jobs.actions?
     args = substitute_dependencies(args, db=db)
     kwargs = substitute_dependencies(kwargs, db=db)
@@ -48,6 +45,7 @@ def job_compute(job, context):
 
 
 def execute_with_context(db, context, job_id, command, args, kwargs):
+    """ Returns a dictionary with fields "user_object" and "new_jobs" """
     from compmake.context import Context
     assert isinstance(context, Context)
     from compmake.jobs.storage import get_job

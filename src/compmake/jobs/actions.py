@@ -90,11 +90,11 @@ def make(job_id, context, echo=False):
 #     host = get_compmake_config('hostname')
     host = 'hostname' # XXX
 
-    setproctitle(job_id)
+    if get_compmake_config('set_proc_title'):
+        setproctitle('cm-%s' % job_id)
 
     # TODO: should we make sure we are up to date???
     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
-    cache = get_job_cache(job_id, db=db)
     if up:
         msg = 'Job %r appears already done.' % job_id
         msg += 'This can only happen if another compmake process uses the same DB.'
@@ -107,23 +107,27 @@ def make(job_id, context, echo=False):
                     new_jobs=[])
           
     job = get_job(job_id, db=db)
+# 
+#     assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
+#                            Cache.BLOCKED,
+#                            Cache.DONE, Cache.FAILED])
+# 
+#     if cache.state == Cache.NOT_STARTED:
+#         cache.state = Cache.IN_PROGRESS
+#     if cache.state in [Cache.FAILED, Cache.BLOCKED]:
+#         cache.state = Cache.IN_PROGRESS
+#     elif cache.state == Cache.IN_PROGRESS:
+#         pass
+#     elif cache.state == Cache.DONE:
+#         assert(not up)
+#     else:
+#         assert(False)
 
-    assert(cache.state in [Cache.NOT_STARTED, Cache.IN_PROGRESS,
-                           Cache.BLOCKED,
-                           Cache.DONE, Cache.FAILED])
-
-    if cache.state == Cache.NOT_STARTED:
-        cache.state = Cache.IN_PROGRESS
-    if cache.state in [Cache.FAILED, Cache.BLOCKED]:
-        cache.state = Cache.IN_PROGRESS
-    elif cache.state == Cache.IN_PROGRESS:
-        pass
-    elif cache.state == Cache.DONE:
-        assert(not up)
-    else:
-        assert(False)
-
+    cache = get_job_cache(job_id, db=db)
+    cache.state = Cache.IN_PROGRESS
     set_job_cache(job_id, cache, db=db)
+    # TODO: delete previous user object
+    
     
     # update state
     time_start = time()
@@ -132,7 +136,6 @@ def make(job_id, context, echo=False):
 
     def progress_callback(stack):
         publish(context, 'job-progress-plus', job_id=job_id, host=host, stack=stack)
-
     init_progress_tracking(progress_callback)
 
     user_object = None
@@ -160,46 +163,42 @@ def make(job_id, context, echo=False):
 
     try:
         result = job_compute(job=job, context=context)
+        
         user_object = result['user_object']
         new_jobs = result['new_jobs']
+        
     except KeyboardInterrupt as e:
         bt = my_format_exc(e)
-        publish(context, 'job-interrupted', 
-                job_id=job_id, host=host, bt=bt)
+#         publish(context, 'job-interrupted', 
+#                 job_id=job_id, host=host, bt=bt)
         raise JobInterrupted('Keyboard interrupt')
     except (BaseException,StandardError, ArithmeticError,
             BufferError, LookupError,
             Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
+        
         mark_as_failed(job_id, str(e), bt, db=db)
-        msg = 'Job %s failed on host %s.' % (job_id, host)
-        msg += '\n' + indent(e, '| ')
         raise JobFailed(job_id=job_id, reason=str(e), bt=bt)
-    
     finally:
         capture.deactivate()
         # even if we send an error, let's save the output of the process
         cache = get_job_cache(job_id, db=db)
         cache.captured_stderr = capture.get_logged_stderr()
-        cache.captured_stdout =  capture.get_logged_stdout() 
+        cache.captured_stdout = capture.get_logged_stdout() 
         set_job_cache(job_id, cache, db=db)
         logging.StreamHandler.emit = old_emit
 
     set_job_userobject(job_id, user_object, db=db)
-
     cache.state = Cache.DONE
     cache.timestamp = time()
     walltime = cache.timestamp - time_start
     cputime = clock() - cpu_start
-    # XXX: walltime/cputime not precise
     cache.walltime_used = walltime
     cache.cputime_used = cputime
     cache.host = host
-
     set_job_cache(job_id, cache, db=db)
 
-    publish(context, 'job-succeeded', job_id=job_id, host=host)
-
+#     publish(context, 'job-succeeded', job_id=job_id, host=host) XXX
     return dict(user_object=user_object,
                 user_object_deps=collect_dependencies(user_object),
                 new_jobs=new_jobs)

@@ -42,7 +42,7 @@ register_handler('command-line-failed', command_line_failed)
 def job_failed(context, event):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     reason = event.kwargs['reason']
-    bt = event.kwargs['bt']
+    _ = event.kwargs['bt']
     
     msg = 'Job %r failed:' % job_id
     msg += '\n' + indent(reason, '| ') 
