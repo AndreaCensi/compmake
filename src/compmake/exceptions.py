@@ -1,4 +1,4 @@
-from contracts.utils import raise_wrapped
+from contracts.utils import raise_wrapped, indent
 
 class ShellExitRequested(Exception):
     pass
@@ -32,6 +32,9 @@ class MakeFailed(CommandFailed):
                                                        len(self.blocked))
         CommandFailed.__init__(self, msg)
 
+class MakeHostFailed(CommandFailed):
+    # Thrown when all workers have aborted
+    pass 
 
 class KeyNotFound(CompmakeException):
     pass
@@ -90,8 +93,13 @@ class HostFailed(CompmakeException):
         self.reason = reason
         self.bt = bt
         
+    def __str__(self):
+        s = 'Host %r failed for %r: %s\n%s' % (self.host, self.job_id, 
+                                               self.reason, indent(self.bt, '|'))
+        return s
+    
     def get_result_dict(self):
-        res = dict(abort='Job %r failed.' % self.job_id,
+        res = dict(abort='Host failed for %r.' % self.job_id,
                    host=self.host,
                    job_id=self.job_id,
                    reason=self.reason,

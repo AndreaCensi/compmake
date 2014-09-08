@@ -1,4 +1,3 @@
-from .shared import Shared
 from Queue import Full
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
@@ -6,18 +5,17 @@ from compmake.events.registrar import register_handler, remove_all_handlers
 from compmake.jobs.actions import make
 from compmake.structures import JobFailed, JobInterrupted
 from compmake.utils import setproctitle
-from contracts import contract
-
+from contracts import check_isinstance, contract
 
 
 __all__ = [
     'parmake_job2',
 ]
 
-@contract(args='tuple(str, *, str, bool)')
+@contract(args='tuple(str, *, str, str, bool)')
 def parmake_job2(args):
     """
-    args = tuple job_id, context, tmp_filename, show_events
+    args = tuple job_id, context, tmp_filename,  queue_name, show_events
         
     Returns a dictionary with fields "user_object" and "new_jobs".
     "user_object" is set to None because we do not want to 
@@ -25,7 +23,12 @@ def parmake_job2(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, tmp_filename, show_output = args  # @UnusedVariable
+    job_id, context, tmp_filename, event_queue_name, show_output = args  # @UnusedVariable
+    check_isinstance(job_id, str)
+    check_isinstance(event_queue_name, str)
+    from .pmake_manager import PmakeManager
+    event_queue = PmakeManager.queues[event_queue_name]
+    
     db = context.get_compmake_db()
 
     setproctitle('compmake:%s' % job_id)
@@ -39,7 +42,7 @@ def parmake_job2(args):
         def handler(context, event):  # @UnusedVariable
             try:
                 if not CompmakeConstants.disable_interproc_queue:
-                    Shared.event_queue.put(event, block=False)  # @UndefinedVariable
+                    event_queue.put(event, block=False)  
             except Full:
                 G.nlostmessages += 1
                 # Do not write messages here, it might create a recursive

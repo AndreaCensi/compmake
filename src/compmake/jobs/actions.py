@@ -141,8 +141,10 @@ def make(job_id, context, echo=False):
     user_object = None
 
     capture = OutputCapture(context=context, prefix=job_id,
-                            echo_stdout=echo,
-                            echo_stderr=echo)
+                            # This is instantaneous echo and should be False
+                            # They will generate events anyway.
+                            echo_stdout=False,
+                            echo_stderr=False)
 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit

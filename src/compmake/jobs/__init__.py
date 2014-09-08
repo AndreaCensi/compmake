@@ -8,7 +8,7 @@ from .priority import *
 from .manager import *
 
 from .syntax.parsing import *
-
+from .dependencies import *
 
 from .actions_newprocess import *
 from .result_dict import *

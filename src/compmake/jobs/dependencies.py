@@ -1,7 +1,7 @@
-from copy import deepcopy
-from contracts import raise_wrapped, contract
-from compmake.jobs.storage import get_job_userobject, job_userobject_exists
 from compmake.exceptions import CompmakeBug
+from compmake.jobs import get_job_userobject, job_userobject_exists
+from contracts import contract, raise_wrapped
+from copy import deepcopy
 
 
 __all__  = [

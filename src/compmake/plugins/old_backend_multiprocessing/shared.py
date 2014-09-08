@@ -5,7 +5,7 @@ if sys.version_info[0] >= 3:
 else:
     from Queue import Empty, Full  # @Reimport @UnusedImport
 
-
+ 
 class Shared(object):
     """ Shared storage with workers. """
     event_queue = None

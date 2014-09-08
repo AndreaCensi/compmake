@@ -178,13 +178,12 @@ def handle_event(context, event):  # @UnusedVariable
     stream.write('\r')
 
 def manager_host_failed(context, event):  # @UnusedVariable
-    s =  'Host failed for job %s.' % event.job_id
-    s += indent(event.reason, '| ')
+    s =  'Host failed for job %s: %s' % (event.job_id, event.reason)
+    s += indent(event.bt, '| ')
     from compmake.utils.coloredterm import termcolor_colored
     s = termcolor_colored(s, 'red')
     stream.write(s)
     
-
 if get_compmake_config('status_line_enabled'):    
     register_handler('manager-loop', handle_event)
     register_handler('manager-progress', handle_event)

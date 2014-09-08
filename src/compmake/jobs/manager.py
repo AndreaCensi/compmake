@@ -337,7 +337,9 @@ class Manager(ManagerLog):
             return True
         except HostFailed as e:
             # the execution has been interrupted, but not failed
-            self.host_failed(job_id, str(e))
+            self.host_failed(job_id)
+            publish(self.context, 'manager-host-failed', host=e.host,
+                    job_id=job_id, reason=e.reason, bt=e.bt)
             return True
         except KeyboardInterrupt as e:
             # self.job_failed(job_id) # not sure
@@ -450,16 +452,16 @@ class Manager(ManagerLog):
     
         self.check_invariants()
                                      
-    def host_failed(self, job_id, reason):
+    def host_failed(self, job_id):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()
         
-        publish(self.context, 'manager-host-failed', job_id=job_id, reason=reason)
+        print('host failed, rescheduling %r\n\n' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
-
-        print('host failed, rescheduling %r' % job_id)
+        # rescheduling
         self.ready_todo.add(job_id)
+        
         self.publish_progress()
         
         self.check_invariants()

@@ -37,6 +37,8 @@ def read_commands_from_file(filename, context):
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip()
+            if not line:
+                continue
             if line[0] == '#':
                 continue
             interpret_commands_wrap(line, context=context, cq=cq)

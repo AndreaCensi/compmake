@@ -74,6 +74,7 @@ register_handler('command-line-starting', ignore)
 register_handler('command-line-failed', ignore)
 register_handler('command-line-succeeded', ignore)
 register_handler('command-line-interrupted', ignore)
+
 register_handler('manager-phase', ignore)
 
 register_handler('parmake-status', ignore)

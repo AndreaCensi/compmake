@@ -40,6 +40,7 @@ class SGEManager(Manager):
     def get_resources_status(self):
         resource_available = {}
         
+        assert len(self.sub_processing) == len(self.processing)
         # only one job at a time
         process_limit_ok = len(self.sub_processing) < self.num_processes
         if not process_limit_ok:
@@ -75,6 +76,10 @@ class SGEManager(Manager):
         ares = sub.instance_job(job_id)
         return ares
     
+    def host_failed(self, job_id):
+        Manager.host_failed(self, job_id)
+        self._clear(job_id)
+        
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)

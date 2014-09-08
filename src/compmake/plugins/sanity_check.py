@@ -14,6 +14,8 @@ def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssi
     else:
         job_list = parse_job_list(args, context=context, cq=cq)
 
+    job_list = list(job_list)
+    print('Checking consistency of %d jobs.' % len(job_list))
     errors = {}
     for job_id in job_list:
         ok, reasons = check_job(job_id, context)
