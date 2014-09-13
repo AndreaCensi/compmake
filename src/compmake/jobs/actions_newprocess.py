@@ -14,7 +14,7 @@ __all__ = [
 
 def parmake_job2_new_process(args):
     """ Starts the job in a new compmake process. """
-    (job_id, context, _) = args
+    (job_id, context) = args
     compmake_bin = which('compmake')
     
     db = context.get_compmake_db()

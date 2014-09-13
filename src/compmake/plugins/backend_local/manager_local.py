@@ -65,7 +65,7 @@ class FakeAsync(AsyncResultInterface):
         
     def _execute(self):
         if self.new_process:
-            args = (self.job_id, self.context, None)
+            args = (self.job_id, self.context)
             return parmake_job2_new_process(args)
         else:
             return make(self.job_id, context=self.context, echo=self.echo)

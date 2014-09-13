@@ -136,6 +136,23 @@ def get_string(level):
     return  " ".join(X)
 
 
+class Tmp():
+    last_manager_loop = time.time()
+
+def its_time():
+    delta = 0.33
+    t = time.time()
+    dt = t - Tmp.last_manager_loop
+    if dt > delta:
+        Tmp.last_manager_loop = t
+        return True
+    else:
+        return False
+        
+def handle_event_period(context, event):
+    if its_time():
+        handle_event(context, event)
+        
 def handle_event(context, event):  # @UnusedVariable
     text_right = ' '
 
@@ -180,13 +197,14 @@ def handle_event(context, event):  # @UnusedVariable
 def manager_host_failed(context, event):  # @UnusedVariable
     s =  'Host failed for job %s: %s' % (event.job_id, event.reason)
     s += indent(event.bt, '| ')
-    from compmake.utils.coloredterm import termcolor_colored
+    from compmake.utils import termcolor_colored
     s = termcolor_colored(s, 'red')
     stream.write(s)
     
+    
 if get_compmake_config('status_line_enabled'):    
-    register_handler('manager-loop', handle_event)
-    register_handler('manager-progress', handle_event)
+    register_handler('manager-loop', handle_event_period)
+    register_handler('manager-progress', handle_event_period)
     register_handler('job-progress', handle_event)
     register_handler('job-progress-plus', handle_event)
     register_handler('job-stdout', handle_event)

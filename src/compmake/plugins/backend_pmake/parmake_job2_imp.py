@@ -12,10 +12,10 @@ __all__ = [
     'parmake_job2',
 ]
 
-@contract(args='tuple(str, *, str, str, bool)')
+@contract(args='tuple(str, *,  str, bool)')
 def parmake_job2(args):
     """
-    args = tuple job_id, context, tmp_filename,  queue_name, show_events
+    args = tuple job_id, context,  queue_name, show_events
         
     Returns a dictionary with fields "user_object" and "new_jobs".
     "user_object" is set to None because we do not want to 
@@ -23,7 +23,7 @@ def parmake_job2(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, tmp_filename, event_queue_name, show_output = args  # @UnusedVariable
+    job_id, context, event_queue_name, show_output = args  # @UnusedVariable
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager

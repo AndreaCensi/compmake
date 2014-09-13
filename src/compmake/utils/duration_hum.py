@@ -42,7 +42,6 @@ __all__ = [
 #     return ' '.join(duration)
 
 
-
 def duration_compact(seconds):
     seconds = int(math.ceil(seconds))
     minutes, seconds = divmod(seconds, 60)
@@ -60,7 +59,7 @@ def duration_compact(seconds):
         duration.append('%dy' % years)
     else:
         if days > 0:
-            duration.append('%dd')
+            duration.append('%dd' % days)
         if (days < 3) and (years == 0):
             if hours > 0:
                 duration.append('%dh' % hours )

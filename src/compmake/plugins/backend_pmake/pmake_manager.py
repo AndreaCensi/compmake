@@ -2,16 +2,14 @@ from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
-from compmake.jobs.actions_newprocess import parmake_job2_new_process
-from compmake.jobs.manager import Manager
-from compmake.ui.visualization import warning
+from compmake.jobs import Manager, parmake_job2_new_process
+from compmake.ui import warning
 from compmake.utils import make_sure_dir_exists
 from contracts import contract
 from multiprocessing.queues import Queue
 import os
 import signal
 import sys
-import tempfile
 
 if sys.version_info[0] >= 3:
     from queue import Empty  # @UnresolvedImport @UnusedImport
@@ -26,7 +24,8 @@ __all__ = [
 
 
 class PmakeManager(Manager):
-    ''' Specialization of Manager for local multiprocessing, using
+    ''' 
+        Specialization of Manager for local multiprocessing, using
         an adhoc implementation of "pool" because of bugs of the 
         Python 2.7 implementation of pool multiprocessing.
      '''
@@ -46,6 +45,7 @@ class PmakeManager(Manager):
             msg = ('Compmake does not yet support echoing stdout/stderr '
                    'when jobs are run in a new process.')
             warning(msg)
+        self.cleaned = False
         
     def process_init(self):
         self.event_queue = Queue(self.num_processes * 1000)
@@ -111,10 +111,6 @@ class PmakeManager(Manager):
      
     def instance_job(self, job_id):
         publish(self.context, 'worker-status', job_id=job_id, status='apply_async')
-        handle, tmp_filename = tempfile.mkstemp(prefix='compmake', text=True)
-        os.close(handle)
-        os.remove(tmp_filename)
-        
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
         self.sub_available.remove(name)
@@ -125,11 +121,15 @@ class PmakeManager(Manager):
         self.job2subname[job_id] = name
         
         if self.new_process:
-            async_result = sub.apply_async(parmake_job2_new_process, 
-                                           (job_id, self.context, tmp_filename))
+            f = parmake_job2_new_process
+            args= (job_id, self.context)
+            
         else:
-            async_result = sub.apply_async(parmake_job2, 
-                                           (job_id, self.context, tmp_filename, self.event_queue_name, self.show_output))
+            f = parmake_job2
+            args = (job_id, self.context, 
+                    self.event_queue_name, self.show_output)
+                
+        async_result = sub.apply_async(f, args)
         return async_result
 
     def event_check(self):
@@ -144,24 +144,32 @@ class PmakeManager(Manager):
                 break
 
     def process_finished(self):
-        print('process_finished()')
-        for name, sub in self.subs.items():  # @UnusedVariable
-            sub.terminate()
+        if self.cleaned:
+            return
+        self.cleaned = True
+        #print('process_finished()')
+        
+        for name in self.sub_processing:
+            self.subs[name].proc.terminate()
             
+        for name in self.sub_available:
+            self.subs[name].terminate()
+
         # XXX: in practice this never works well
         if False:
             # print('joining')
             timeout = 1 
-            for _, sub in self.subs.items():  
-                sub.proc.join(timeout)
+            for name in self.sub_available:  
+                self.subs[name].proc.join(timeout)
 
         # XXX: ... so we just kill them mercilessly
-        if False:
-            print('killing')
-            for _, sub in self.subs.items(): 
-                pid  = sub.proc.pid
+        if True:
+            #  print('killing')
+            for name in self.sub_processing:
+                pid  = self.subs[name].proc.pid
                 os.kill(pid, signal.SIGKILL)
-        print('process_finished() finished')
+                
+        #print('process_finished() finished')
 
     
     # Normal outcomes    

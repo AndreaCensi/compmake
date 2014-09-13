@@ -61,18 +61,18 @@ def display_stats(job_list, context):
         print(pad_to_screen('No jobs found.'))
         return
 
-    print("Found %s jobs in total. Summary by state:    " % total)
+#     print("Found %s jobs in total." % total)
+# 
+#     for state in states_order:
+#         desc = "%30s" % Cache.state2desc[state]
+#         # colorize output
+#         desc = compmake_colored(desc, **state2color[state])
+# 
+#         num = states2count[state]
+#         if num > 0:
+#             print("%s: %5d" % (desc, num))
 
-    for state in states_order:
-        desc = "%30s" % Cache.state2desc[state]
-        # colorize output
-        desc = compmake_colored(desc, **state2color[state])
-
-        num = states2count[state]
-        if num > 0:
-            print("%s: %5d" % (desc, num))
-
-    print("Summary by function:")
+    print("Summary by function name:")
 
     flen = max((len(x)+len('()')) for x in function2state2count)
     

@@ -34,8 +34,7 @@ class CompmakeConstants():
     # debug_origin_of_prints = True
     debug_check_invariants = False
     
-    disable_interproc_queue = True
-    
+    disable_interproc_queue = False
 
     # Try to recover from anomalous situations
     try_recover = False

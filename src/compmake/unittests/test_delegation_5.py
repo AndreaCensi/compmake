@@ -1,11 +1,9 @@
-from nose.tools import istest
-
-from tempfile import mkdtemp
-from compmake.storage.filesystem import StorageFilesystem
 from compmake.context import Context
+from compmake.jobs import get_job
+from compmake.storage.filesystem import StorageFilesystem
+from nose.tools import istest
+from tempfile import mkdtemp
 import unittest
-from compmake.jobs.storage import get_job
-
 
 def g():
     return 2
@@ -23,12 +21,7 @@ def h(i):
 def define_jobs(root):
     db = StorageFilesystem(root, compress=True)
     cc = Context(db=db)
-    cc.comp(h, cc.comp_dynamic(e))
-#     cc.batch_command('make;ls')
-#     cc.batch_command('make;ls')
-#     cc.batch_command('make;ls')
-#     cc.batch_command('details e')
-#     cc.batch_command('check_consistency raise_if_error=1')
+    cc.comp(h, cc.comp_dynamic(e)) 
     return db, cc
 
 @istest

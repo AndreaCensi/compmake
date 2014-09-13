@@ -1,6 +1,7 @@
 from compmake.events import register_handler
 from compmake.ui import error
 from contracts import indent
+from compmake.state import get_compmake_config
 
 
 # TODO: command-succeeded: {'command': '
@@ -42,10 +43,14 @@ register_handler('command-line-failed', command_line_failed)
 def job_failed(context, event):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     reason = event.kwargs['reason']
-    _ = event.kwargs['bt']
+    bt = event.kwargs['bt']
     
     msg = 'Job %r failed:' % job_id
-    msg += '\n' + indent(reason, '| ') 
+    s = reason.strip
+    if get_compmake_config('echo'):
+        s += '\n' + bt 
+    
+    msg += '\n' + indent(reason.strip(), '| ')
     error(my_prefix+msg)
     
 register_handler('job-failed', job_failed)

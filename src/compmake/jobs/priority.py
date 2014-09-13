@@ -34,7 +34,11 @@ def compute_priority(job_id, priorities, targets, cq):
     if job.needs_context:
         base_priority = 10
     else:
-        base_priority = 0
+        base_priority = -1
+        
+    if not parents:
+        # top level target
+        base_priority += 5
         
     cache = cq.get_job_cache(job_id)
     if cache.state == Cache.FAILED:
@@ -46,7 +50,8 @@ def compute_priority(job_id, priorities, targets, cq):
         pf = lambda p: compute_priority(p, priorities, targets, cq=cq)
         # it was -1
         parents_priority = list(map(pf, parents_which_are_targets))
-        priority = base_priority + max(parents_priority)
+#         priority = base_priority + max(parents_priority)
+        priority = base_priority + sum(parents_priority)
 
     priorities[job_id] = priority
 

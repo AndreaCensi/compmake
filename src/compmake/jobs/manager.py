@@ -662,8 +662,8 @@ class Manager(ManagerLog):
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:
-            print('will cleanup')
-            raise KeyboardInterrupt('Manager interrupted')
+            #print('will cleanup')
+            raise KeyboardInterrupt('Manager interrupted.')
         finally:
             self.cleanup()
 
