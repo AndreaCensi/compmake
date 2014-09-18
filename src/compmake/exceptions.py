@@ -1,4 +1,4 @@
-from contracts.utils import raise_wrapped, indent
+from contracts import indent, raise_wrapped
 
 class ShellExitRequested(Exception):
     pass

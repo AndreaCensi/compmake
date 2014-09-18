@@ -1,12 +1,12 @@
 from .. import logger
+from .format_exceptions import my_format_exc
 from contracts import describe_type
+from io import BytesIO as StringIO
 from pickle import (
     EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE, 
     _tuplesize2code)
 import pickle
-from .format_exceptions import my_format_exc
 
-from io import BytesIO as StringIO
 
 __all__ = [
     'find_pickling_error',
