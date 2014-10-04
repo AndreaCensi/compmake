@@ -71,33 +71,37 @@ Download `a demo example.py`_ that you can try.
 
 You would run the modified program using::
 
-    $ compmake example -c make            # runs serially
+    $ python example 
+
+This gives you a prompt: ::
+  
+  compmake 3.2   ``Keep calm and carry on,,
+  Welcome to the compmake console. (write 'help' for a list of commands)
+  27 jobs loaded.
+  @:
+
+Run "parmake" at the prompt: ::
+  
+  @: make
 
 
 **Parallel execution**: To run jobs in parallel, use the ``parmake`` command::
 
-    $ compmake example -c "parmake n=6"   # runs at most 6 in parallel
+  @: parmake n=6  # runs at most 6 in parallel
 
-There are all sorts of configuration options for being nice to other
-users of the machine; for example, Compmake can be instructed  
-not to start other jobs if the CPU or memory usage is already above a certain 
-percentage::
-
-    $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
-
+.. There are all sorts of configuration options for being nice to other
+.. users of the machine; for example, Compmake can be instructed  
+.. not to start other jobs if the CPU or memory usage is already above a certain 
+.. percentage
+..     $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
 
 ..
-    $ compmake example -c clustmake  # runs on a cluster
-
-**Console**: Moreover, by running ``compmake example`` only, you have access to a
-console that allows you to inspect the status of the computations,
-cleaning/remaking jobs, etc.
 
 **Selective re-make**: You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
 rerun only the last step. You can achieve that by::
 
-    $ compmake example -c "remake draw*"
+    @: remake draw*
 
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
@@ -108,22 +112,20 @@ compmake will go forward with the rest.
 
 To try this behavior, download the file `example_fail.py`_. If you run::
 
-    $ compmake example_fail -c "parmake n=4"
+    $ python example_fail.py "parmake n=4"
 
 you will see how compmake completes all jobs that can be completed. If you run again::
 
-    $ compmake example_fail -c "make"
+    $ python example_fail.py "make"
 
 Compmake will try again to run the jobs that failed.
 
 .. _`example_fail.py`: static/demos/example_fail.py
 
 
-
 Feedback
 ---------
 
-Compmake is currently developed by `Andrea Censi`_. Contributors are most welcome.
 Please use the `issue tracker on github`_ for bugs and feature requests.
 
 .. _`issue tracker on github`: http://github.com/AndreaCensi/compmake/issues

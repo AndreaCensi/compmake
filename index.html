@@ -246,27 +246,28 @@ the opportunities for parallelization.</p>
 <img alt="_images/initial.png" class="bigpicture" src="_images/initial.png" />
 <p>Download <a class="reference external" href="static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example -c make            # runs serially
+<div class="highlight-python"><div class="highlight"><pre>$ python example
+</pre></div>
+</div>
+<p>This gives you a prompt:</p>
+<div class="highlight-python"><div class="highlight"><pre>compmake 3.2   ``Keep calm and carry on,,
+Welcome to the compmake console. (write &#39;help&#39; for a list of commands)
+27 jobs loaded.
+@:
+</pre></div>
+</div>
+<p>Run &#8220;parmake&#8221; at the prompt:</p>
+<div class="highlight-python"><div class="highlight"><pre>@: make
 </pre></div>
 </div>
 <p><strong>Parallel execution</strong>: To run jobs in parallel, use the <tt class="docutils literal"><span class="pre">parmake</span></tt> command:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example -c &quot;parmake n=6&quot;   # runs at most 6 in parallel
+<div class="highlight-python"><div class="highlight"><pre>@: parmake n=6  # runs at most 6 in parallel
 </pre></div>
 </div>
-<p>There are all sorts of configuration options for being nice to other
-users of the machine; for example, Compmake can be instructed
-not to start other jobs if the CPU or memory usage is already above a certain
-percentage:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake --max_cpu_load=50 --max_mem_load=50 example -c &quot;clean; parmake&quot;
-</pre></div>
-</div>
-<p><strong>Console</strong>: Moreover, by running <tt class="docutils literal"><span class="pre">compmake</span> <span class="pre">example</span></tt> only, you have access to a
-console that allows you to inspect the status of the computations,
-cleaning/remaking jobs, etc.</p>
 <p><strong>Selective re-make</strong>: You can selectively remake part of the computations. For example,
 suppose that you modify the <tt class="docutils literal"><span class="pre">draw()</span></tt> function, and you want to
 rerun only the last step. You can achieve that by:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example -c &quot;remake draw*&quot;
+<div class="highlight-python"><div class="highlight"><pre>@: remake draw*
 </pre></div>
 </div>
 <p><span class="compmake-brand">compmake</span> will reuse part of the computations (<tt class="docutils literal"><span class="pre">func1</span></tt> and <tt class="docutils literal"><span class="pre">func2</span></tt>)
@@ -275,19 +276,18 @@ but it will redo the last step.</p>
 If some of the jobs fail (e.g., they throw an exception),
 compmake will go forward with the rest.</p>
 <p>To try this behavior, download the file <a class="reference external" href="static/demos/example_fail.py">example_fail.py</a>. If you run:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example_fail -c &quot;parmake n=4&quot;
+<div class="highlight-python"><div class="highlight"><pre>$ python example_fail.py &quot;parmake n=4&quot;
 </pre></div>
 </div>
 <p>you will see how compmake completes all jobs that can be completed. If you run again:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example_fail -c &quot;make&quot;
+<div class="highlight-python"><div class="highlight"><pre>$ python example_fail.py &quot;make&quot;
 </pre></div>
 </div>
 <p>Compmake will try again to run the jobs that failed.</p>
 </div>
 <div class="section" id="feedback">
 <h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
-<p>Compmake is currently developed by <a class="reference external" href="http://purl.org/censi/web">Andrea Censi</a>. Contributors are most welcome.
-Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and feature requests.</p>
+<p>Please use the <a class="reference external" href="http://github.com/AndreaCensi/compmake/issues">issue tracker on github</a> for bugs and feature requests.</p>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
