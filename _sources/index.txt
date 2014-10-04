@@ -30,9 +30,8 @@ Compmake: keep calm and carry on
   * A **console** for inspecting failures and partial completion.
 
   |compmake| has been designed primarily for handling long computational-intensive
-  batch processes. It assumes that the computational layout is fixed and that 
-  all intermediate results can be cached to disk. If these two conditions are met,
-  you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
+  batch processes. 
+  You can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
 
 
 Installation

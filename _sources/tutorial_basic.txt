@@ -5,7 +5,7 @@
 
 .. _tutorial_basic:
 
-Basic compmake usage
+Basic Compmake usage
 ====================
 
 This tutorial gives some motivation for using |compmake| and explains the basic usage.
@@ -162,19 +162,18 @@ Cleaning and remaking
 Now that you know how to give names to your jobs, you can
 use them for referring to them. For example::
 
-    $ compmake  example  -c  "make p1=1,p2=11-drawing"
+    @: make p1=1,p2=11-drawing
 
 You can use the ``*`` wildcard. This is very useful to refer
 only to part of the jobs. In the example, you can write::
 
-    $ compmake  example   -c "remake   *-p2=11-*"
+    @: remake   *-p2=11-*
 
 to re-do only the subset of computations with a certain value 
 of the parameters. Or, you can remake the last stage of the computation::
 
-    $ compmake  example   -c "remake   *-drawing"
+    @: remake   *-drawing
 
 As you can see, compmake gives you peace of mind and a sense of empowerment.
-
 
 * Go on to the next chapter :ref:`tutorial_console`.

@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Embedding compmake in your application" href="tutorial_embedding.html" />
-    <link rel="prev" title="Compmake on a cluster" href="tutorial_cluster.html" />
+    <link rel="prev" title="Basic Compmake usage" href="tutorial_basic.html" />
 	 
 	
    <style type="text/css">
@@ -199,7 +199,7 @@ Y.Remarkbox.render();
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="tutorial_cluster.html">Compmake on a cluster</a>
+        «&#160;&#160;<a href="tutorial_basic.html">Basic Compmake usage</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -279,29 +279,29 @@ jobs&#8217; stdout to the console:</p>
 There are several shortcuts available to specify lists of jobs.</p>
 <ul>
 <li><p class="first"><strong>Wildcards.</strong> In the previous section, we have seen the use of wildcards:</p>
-<div class="highlight-python"><div class="highlight"><pre>@&gt; list  *-drawing    # list all jobs that end with &quot;-drawing&quot;
-@&gt; list  *            # list all jobs
+<div class="highlight-python"><div class="highlight"><pre>@&gt; ls  *-drawing    # list all jobs that end with &quot;-drawing&quot;
+@&gt; ls  *            # list all jobs
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Selection by state.</strong> We can select jobs based on their computational state.
 (see <em class="xref std std-ref">job_states</em> for a complete description of the meaning of these states):</p>
-<div class="highlight-python"><div class="highlight"><pre>@&gt; list done         # list all completed jobs
-@&gt; list failed       # list all failed jobs
-@&gt; list blocked      # list all blocked jobs (dependencies failed)
+<div class="highlight-python"><div class="highlight"><pre>@&gt; ls done         # list all completed jobs
+@&gt; ls failed       # list all failed jobs
+@&gt; ls blocked      # list all blocked jobs (dependencies failed)
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Selection by function name</strong></p>
-<div class="highlight-python"><div class="highlight"><pre>@&gt; list f1()        # all jobs that use the function f1()
+<div class="highlight-python"><div class="highlight"><pre>@&gt; ls f1()        # all jobs that use the function f1()
 </pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
 defining sets of jobs. Some examples The following commands:</p>
-<div class="highlight-python"><div class="highlight"><pre>@&gt; list not failed in func1()   # list all func1() instances that did not fail
-@&gt; list *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
-@&gt; list all except job1 job2    # list all except &quot;job1&quot; and &quot;job2&quot;
+<div class="highlight-python"><div class="highlight"><pre>@&gt; ls not failed in func1()   # list all func1() instances that did not fail
+@&gt; ls *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
+@&gt; ls all except job1 job2    # list all except &quot;job1&quot; and &quot;job2&quot;
 </pre></div>
 </div>
 </li>
@@ -328,7 +328,7 @@ not [A]          ==  all jobs except those in A
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="tutorial_cluster.html">Compmake on a cluster</a>
+        «&#160;&#160;<a href="tutorial_basic.html">Basic Compmake usage</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

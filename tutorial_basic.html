@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic compmake usage &mdash; Compmake make for batch Python processes</title>
+    <title>Basic Compmake usage &mdash; Compmake make for batch Python processes</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
-    <link rel="next" title="Compmake on a cluster" href="tutorial_cluster.html" />
+    <link rel="next" title="The compmake console" href="tutorial_console.html" />
     <link rel="prev" title="Features and limitations" href="features.html" />
 	 
 	
@@ -194,7 +194,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>Basic compmake usage</span></h2>
+        <h2 class="heading"><span>Basic Compmake usage</span></h2>
       </div>
       <div class="topnav">
       
@@ -203,7 +203,7 @@ Y.Remarkbox.render();
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_cluster.html">Compmake on a cluster</a>&#160;&#160;»
+        <a href="tutorial_console.html">The compmake console</a>&#160;&#160;»
         </p>
 
       </div>
@@ -213,7 +213,7 @@ Y.Remarkbox.render();
   <div class="contents pagetoc topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#basic-compmake-usage" id="id1">Basic compmake usage</a><ul>
+<li><a class="reference internal" href="#basic-compmake-usage" id="id1">Basic Compmake usage</a><ul>
 <li><a class="reference internal" href="#preparing-your-programs-for-compmake" id="id2">Preparing your programs for  compmake</a></li>
 <li><a class="reference internal" href="#using-the-console" id="id3">Using the console</a></li>
 <li><a class="reference internal" href="#naming-jobs" id="id4">Naming jobs</a></li>
@@ -223,7 +223,7 @@ Y.Remarkbox.render();
 </ul>
 </div>
 <div class="section" id="basic-compmake-usage">
-<span id="tutorial-basic"></span><h1><a class="toc-backref" href="#id1">Basic compmake usage</a><a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
+<span id="tutorial-basic"></span><h1><a class="toc-backref" href="#id1">Basic Compmake usage</a><a class="headerlink" href="#basic-compmake-usage" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial gives some motivation for using <span class="compmake-brand">compmake</span> and explains the basic usage.
 If you don&#8217;t know <em>why</em> you should use <span class="compmake-brand">compmake</span>, read <a class="reference internal" href="why.html#why"><em>Why using  compmake</em></a>.</p>
 <div class="section" id="preparing-your-programs-for-compmake">
@@ -422,17 +422,17 @@ where we presumably want to group the functions by the parameters:</p>
 <h2><a class="toc-backref" href="#id5">Cleaning and remaking</a><a class="headerlink" href="#cleaning-and-remaking" title="Permalink to this headline">¶</a></h2>
 <p>Now that you know how to give names to your jobs, you can
 use them for referring to them. For example:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake  example  -c  &quot;make p1=1,p2=11-drawing&quot;
+<div class="highlight-python"><div class="highlight"><pre>@: make p1=1,p2=11-drawing
 </pre></div>
 </div>
 <p>You can use the <tt class="docutils literal"><span class="pre">*</span></tt> wildcard. This is very useful to refer
 only to part of the jobs. In the example, you can write:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake  example   -c &quot;remake   *-p2=11-*&quot;
+<div class="highlight-python"><div class="highlight"><pre>@: remake   *-p2=11-*
 </pre></div>
 </div>
 <p>to re-do only the subset of computations with a certain value
 of the parameters. Or, you can remake the last stage of the computation:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake  example   -c &quot;remake   *-drawing&quot;
+<div class="highlight-python"><div class="highlight"><pre>@: remake   *-drawing
 </pre></div>
 </div>
 <p>As you can see, compmake gives you peace of mind and a sense of empowerment.</p>
@@ -451,7 +451,7 @@ of the parameters. Or, you can remake the last stage of the computation:</p>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="tutorial_cluster.html">Compmake on a cluster</a>&#160;&#160;»
+        <a href="tutorial_console.html">The compmake console</a>&#160;&#160;»
         </p>
 
       </div>
