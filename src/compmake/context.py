@@ -13,15 +13,21 @@ class Context(object):
 
     def __init__(self, db=None, currently_executing=['root']):
         """
+            db: if a string, it is used as path for the DB
+            
             currently_executing: str, job currently executing
         """
-        if db is None:
-            from compmake import StorageFilesystem
+        from compmake import StorageFilesystem
+        
+        if db is None:    
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
             
             logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = 'out-%s' % prog
             db = StorageFilesystem(dirname)
+            
+        if isinstance(db, str):
+            db = StorageFilesystem(db)
             
         assert db is not None
         self.compmake_db = db

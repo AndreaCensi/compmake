@@ -586,7 +586,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         if not self.todo and not self.ready_todo:
-            # info('Nothing to do.')
+            from compmake.ui import info
+            info('Nothing to do.')
             publish(self.context, 'manager-succeeded',
                 targets=self.targets, done=self.done,
                 all_targets=self.all_targets,
