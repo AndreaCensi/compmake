@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,23 +8,21 @@
     
     <title>Changelog &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/underscore.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Command line reference" href="commandline.html" />
     <link rel="prev" title="How to contribute to the documentation" href="building_docs.html" />
@@ -216,6 +212,10 @@ Y.Remarkbox.render();
         
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v3-3-2014-10-04">
+<h2>v3.3 2014-10-04<a class="headerlink" href="#v3-3-2014-10-04" title="Permalink to this headline">¶</a></h2>
+<p>Readying public release with an OO interface...</p>
+</div>
 <div class="section" id="beta-version-1-5-2012-03-04">
 <h2>Beta version (1.5) - 2012-03-04<a class="headerlink" href="#beta-version-1-5-2012-03-04" title="Permalink to this headline">¶</a></h2>
 <p>Lots of changes happened in the last year; compmake became
@@ -231,7 +231,8 @@ much more robust, and is almost ready for the public.</p>
 <li><p class="first">Added two new job classes: <tt class="docutils literal"><span class="pre">top</span></tt> and <tt class="docutils literal"><span class="pre">bottom</span></tt>.</p>
 </li>
 <li><p class="first">Also implemented selection by function name. Example:</p>
-<div class="highlight-python"><pre>@&gt; ls  func1()</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; ls  func1()
+</pre></div>
 </div>
 </li>
 <li><p class="first">Implemented greedy scheduling of jobs. We now try to get
@@ -277,7 +278,7 @@ allowing processing at the same time we get data from the DB.</p>
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

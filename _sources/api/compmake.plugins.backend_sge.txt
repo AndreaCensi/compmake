@@ -1,0 +1,51 @@
+backend_sge Package
+===================
+
+:mod:`backend_sge` Package
+--------------------------
+
+.. automodule:: compmake.plugins.backend_sge
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`commands` Module
+----------------------
+
+.. automodule:: compmake.plugins.backend_sge.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`qacct` Module
+-------------------
+
+.. automodule:: compmake.plugins.backend_sge.qacct
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`sge_manager` Module
+-------------------------
+
+.. automodule:: compmake.plugins.backend_sge.sge_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`sge_misc` Module
+----------------------
+
+.. automodule:: compmake.plugins.backend_sge.sge_misc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`sge_sub` Module
+---------------------
+
+.. automodule:: compmake.plugins.backend_sge.sge_sub
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

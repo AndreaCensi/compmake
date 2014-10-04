@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,9 +8,8 @@
     
     <title>scripts Package &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,10 +20,9 @@
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../static/jquery.js"></script>
-    <script type="text/javascript" src="../static/underscore.js"></script>
-    <script type="text/javascript" src="../static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
 	 
 	
@@ -212,31 +208,23 @@ Y.Remarkbox.render();
 <h1>scripts Package<a class="headerlink" href="#scripts-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-compmake.scripts.master">
 <span id="master-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">master</span></tt> Module<a class="headerlink" href="#module-compmake.scripts.master" title="Permalink to this headline">¶</a></h2>
-<p>This is the executable</p>
-<dl class="function">
-<dt id="compmake.scripts.master.check_not_filename">
-<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">check_not_filename</tt><big>(</big><em>module_name</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.check_not_filename" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="compmake.scripts.master.compmake_main">
 <tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">compmake_main</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.compmake_main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="compmake.scripts.master.initialize_backend">
-<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">initialize_backend</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.scripts.master.initialize_backend" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="compmake.scripts.master.load_existing_db">
 <tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">load_existing_db</tt><big>(</big><em>dirname</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.load_existing_db" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="compmake.scripts.master.load_module">
-<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">load_module</tt><big>(</big><em>module_name</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.load_module" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">Context</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="compmake.scripts.master.main">
@@ -245,14 +233,51 @@ Y.Remarkbox.render();
 
 <dl class="function">
 <dt id="compmake.scripts.master.read_commands_from_file">
-<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">read_commands_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.read_commands_from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">read_commands_from_file</tt><big>(</big><em>filename</em>, <em>context</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.read_commands_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> (<tt class="docutils literal"><span class="pre">Context</span></tt>) &#8211; </li>
+<li><strong>filename</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="compmake.scripts.master.read_rc_files">
-<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">read_rc_files</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.scripts.master.read_rc_files" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">read_rc_files</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.read_rc_files" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>context</strong> (<tt class="docutils literal"><span class="pre">Context</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.scripts.master.write_atomic">
+<tt class="descclassname">compmake.scripts.master.</tt><tt class="descname">write_atomic</tt><big>(</big><em>filename</em>, <em>contents</em><big>)</big><a class="headerlink" href="#compmake.scripts.master.write_atomic" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compmake.scripts.scripts_utils.html">scripts_utils Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.scripts.scripts_utils.html#id1"><tt class="docutils literal"><span class="pre">scripts_utils</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.scripts.scripts_utils.html#module-compmake.scripts.scripts_utils.script_utils"><tt class="docutils literal"><span class="pre">script_utils</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -269,7 +294,7 @@ Y.Remarkbox.render();
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

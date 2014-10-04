@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,23 +8,21 @@
     
     <title>Graph &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/underscore.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Limitations and assumptions" href="limitations.html" />
     <link rel="prev" title="Extending compmake" href="extending.html" />
@@ -219,15 +215,16 @@ Y.Remarkbox.render();
 <p>There is a command &#8220;graph&#8221; that can produce a graphical depiction of the computation.
 (to use this feature, you should have installed <tt class="docutils literal"><span class="pre">graphviz</span></tt> and the <tt class="docutils literal"><span class="pre">gvgen</span></tt> library)</p>
 <p>If you run:</p>
-<div class="highlight-python"><pre>$ compmake my_program diagram</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ compmake my_program diagram
+</pre></div>
 </div>
 <p>before running <tt class="docutils literal"><span class="pre">make</span></tt> you will see the following:</p>
-<img alt="images/graph_before.png" src="images/graph_before.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/graph_before.png"><img alt="_images/graph_before.png" src="_images/graph_before.png" style="width: 100%;" /></a>
 <p>The color grey means that the job has not started. After running <tt class="docutils literal"><span class="pre">make</span></tt>, the output will be:</p>
-<img alt="images/graph_after.png" src="images/graph_after.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/graph_after.png"><img alt="_images/graph_after.png" src="_images/graph_after.png" style="width: 100%;" /></a>
 <p>Here, green means that the job is done.</p>
 <p>After we run</p>
-<img alt="images/graph3.png" src="images/graph3.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/graph3.png"><img alt="_images/graph3.png" src="_images/graph3.png" style="width: 100%;" /></a>
 <p>Here, green means that the job is done.</p>
 <p>The computation graph... (to write)</p>
 </div>
@@ -249,7 +246,7 @@ Y.Remarkbox.render();
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

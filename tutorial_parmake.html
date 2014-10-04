@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,23 +8,21 @@
     
     <title>Single-host multiprocessing &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/underscore.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Compmake configuration reference" href="config.html" />
     <link rel="prev" title="Embedding compmake in your application" href="tutorial_embedding.html" />
@@ -230,15 +226,17 @@ Y.Remarkbox.render();
 <div class="section" id="single-host-multiprocessing">
 <span id="tutorial-parmake"></span><h1><a class="toc-backref" href="#id1">Single-host multiprocessing</a><a class="headerlink" href="#single-host-multiprocessing" title="Permalink to this headline">¶</a></h1>
 <p>To use single-host multiprocessing, instead of using <tt class="docutils literal"><span class="pre">make</span></tt>, simply use <tt class="docutils literal"><span class="pre">parmake</span></tt>:</p>
-<div class="highlight-python"><pre>@&gt; parmake  [jobs]</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; parmake  [jobs]
+</pre></div>
 </div>
 <p>Optionally, you can specify the number of processes to spawn:</p>
-<div class="highlight-python"><pre>@&gt; parmake n=11  [jobs]</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; parmake n=11  [jobs]
+</pre></div>
 </div>
 <p>If you don&#8217;t specify a number, <span class="compmake-brand">compmake</span> will use the number of detected processors.
 If your jobs are <a class="reference external" href="http://en.wikipedia.org/wiki/I/O_bound">IO-bound</a> rather than <a class="reference external" href="http://en.wikipedia.org/wiki/CPU_bound">CPU-bound</a>, you should specify a larger number.</p>
 <p>What&#8217;s happening under the hood is that <span class="compmake-brand">compmake</span> spawns <tt class="docutils literal"><span class="pre">n</span></tt> workers thread using
-the <a class="reference external" href="http://docs.python.org/library/multiprocessing.html#multiprocessing" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">multiprocessing</span></tt></a> module. So be aware that each job will run in a different
+the <a class="reference external" href="http://docs.python.org/library/multiprocessing.html#module-multiprocessing" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">multiprocessing</span></tt></a> module. So be aware that each job will run in a different
 process.</p>
 <div class="section" id="troubleshooting-problems">
 <h2><a class="toc-backref" href="#id2">Troubleshooting problems</a><a class="headerlink" href="#troubleshooting-problems" title="Permalink to this headline">¶</a></h2>
@@ -246,8 +244,9 @@ process.</p>
 <div class="section" id="some-libraries-are-picky">
 <h3><a class="toc-backref" href="#id3">Some libraries are picky</a><a class="headerlink" href="#some-libraries-are-picky" title="Permalink to this headline">¶</a></h3>
 <p>Some libraries don&#8217;t like to run in child processes. For example, <tt class="docutils literal"><span class="pre">matplotlib</span></tt> on OS X will complain and not work properly. The errors might mention <tt class="docutils literal"><span class="pre">exec()</span></tt>. For example, this is thrown by <tt class="docutils literal"><span class="pre">matplotlib</span></tt>:</p>
-<div class="highlight-python"><pre>The process has forked and you cannot use this CoreFoundation functionality safely. You MUST exec().
-Break on __THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__() to debug.</pre>
+<div class="highlight-python"><div class="highlight"><pre>The process has forked and you cannot use this CoreFoundation functionality safely. You MUST exec().
+Break on __THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__() to debug.
+</pre></div>
 </div>
 <p>The solution is to divide your tasks in  processing tasks and visualization tasks. Use <tt class="docutils literal"><span class="pre">parmake</span></tt> to run the former group, and then run <tt class="docutils literal"><span class="pre">make</span></tt> for the latter.</p>
 </div>
@@ -278,7 +277,7 @@ Break on __THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIO
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

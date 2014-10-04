@@ -1,0 +1,171 @@
+utils Package
+=============
+
+:mod:`utils` Package
+--------------------
+
+.. automodule:: compmake.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`calling_ext_programs` Module
+----------------------------------
+
+.. automodule:: compmake.utils.calling_ext_programs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`capture` Module
+---------------------
+
+.. automodule:: compmake.utils.capture
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`coloredterm` Module
+-------------------------
+
+.. automodule:: compmake.utils.coloredterm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`debug_pickler` Module
+---------------------------
+
+.. automodule:: compmake.utils.debug_pickler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`describe` Module
+----------------------
+
+.. automodule:: compmake.utils.describe
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`duration_hum` Module
+--------------------------
+
+.. automodule:: compmake.utils.duration_hum
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`frozen` Module
+--------------------
+
+.. automodule:: compmake.utils.frozen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`instantiate_utils` Module
+-------------------------------
+
+.. automodule:: compmake.utils.instantiate_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`memoize_imp` Module
+-------------------------
+
+.. automodule:: compmake.utils.memoize_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`pickling_utils` Module
+----------------------------
+
+.. automodule:: compmake.utils.pickling_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`proctitle` Module
+-----------------------
+
+.. automodule:: compmake.utils.proctitle
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`safe_pickle` Module
+-------------------------
+
+.. automodule:: compmake.utils.safe_pickle
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`safe_write` Module
+------------------------
+
+.. automodule:: compmake.utils.safe_write
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`strings_with_escapes` Module
+----------------------------------
+
+.. automodule:: compmake.utils.strings_with_escapes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`system_stats` Module
+--------------------------
+
+.. automodule:: compmake.utils.system_stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`terminal_size` Module
+---------------------------
+
+.. automodule:: compmake.utils.terminal_size
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`time_track` Module
+------------------------
+
+.. automodule:: compmake.utils.time_track
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`values_interpretation` Module
+-----------------------------------
+
+.. automodule:: compmake.utils.values_interpretation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`values_interpretation_test` Module
+----------------------------------------
+
+.. automodule:: compmake.utils.values_interpretation_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`wildcards` Module
+-----------------------
+
+.. automodule:: compmake.utils.wildcards
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

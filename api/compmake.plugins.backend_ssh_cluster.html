@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>backend_ssh_cluster Package &mdash; Compmake make for batch Python processes</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
+	 
+	
+   <style type="text/css">
+   .pagetoc { 
+	max-width: 30%;
+	display: block; float: right; margin-left: 3em; background-color: white; border: solid 2px gray;}
+   </style>
+
+   <style type="text/css">
+	div.col1 {
+		display: block;
+		float: left;
+	}
+
+	div.col2 {
+		margin-left: 3em;
+		display: block;
+		float: left;
+	}
+
+	div.after {
+		clear: left;
+	}
+
+	div.twitterbadge {
+		float: right;
+		margin-left: 2em;
+	}
+
+	img.bigpicture {
+		margin: 1em;
+		max-width: 90%;
+	}
+	
+	.header h2 {
+		color: #990033 !important;
+		font-size: 200% !important;
+	}
+	.content {
+/*		padding-left: 5em; */
+	}
+	.content p, .content ul, .content ol {
+		max-width: 40em;
+	}
+	
+	.content h1 { 
+		display: none;
+	}
+	h2, h3 {  
+		border-bottom: solid 2px orange;
+		max-width: 40em;
+	}
+	
+	h1 { font-size: 200%;}
+	h2 { font-size: 150%;}
+	h3 { font-size: 125%;}
+	
+/*	body { font-size: 120%; font-family: Georgia,Serif !important;} */
+		
+	pre{
+		max-width: 60em;
+	/*	width: 80ex;*/
+	}
+	
+	body {  font-size: 120%; 
+		font-family: "Verdana", sans-serif;
+		/*font-family: "Droid Serif", serif; */
+	}
+	
+	h1,h2,h3 { 
+  font-family: "Lobster", serif;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: 6px 6px 6px #ccc;
+}
+
+div.header h2 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: none !important;
+    color: #aaa;
+    border: 0;
+    margin-top: -3px;
+    padding: 0;
+}
+
+/* On the first page */
+
+.col1 strong, .col2 strong { 
+	font-family: "Lobster", serif; color: #990033;text-shadow: 6px 6px 6px #ccc;
+	font-size: 160%;
+ }
+
+/*.compmake-brand {
+	font-family: "Lobster", serif;
+	font-size: 120%;
+}*/
+
+.compmake-brand {
+	/*font-family: "Droid Serif";*/
+	font-weight: bold;
+}
+
+
+a.reference em, a.external em {
+	font-style: normal !important;
+}
+
+/* First page layout */
+
+/*
+	div#logo
+	div#intro
+
+*/
+div#logo, div.intro { 
+		
+	}
+    div.intro ul, div.intro p {float: left; }
+    h2 { clear: both;}
+	div#logo {
+		float: left;
+		margin: 1em;
+        margin-right: 4em;
+	}
+	div#logo img {
+        border: solid 1px red;
+		width: 15em;
+	}
+</style>
+
+
+<meta name="google-site-verification" content="Wu274srIjeOWKp_9iWmydewgQsd8zyTuNSYFZ36fQd4" />
+
+<!-- <link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" > -->
+<link  href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css" >
+<!--<link  href="http://fonts.googleapis.com/css?family=Cardo" rel="stylesheet" type="text/css" >-->
+
+<!-- 
+<script src="http://yui.yahooapis.com/3.1.0/build/yui/yui-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-context-min.css"></link>
+<script src="http://www.remarkbox.com/deploy/remarkbox-min.js"></script>
+<script type="text/javascript">
+YUI().use('remarkbox', function (Y) {
+Y.Remarkbox.remarkson.elements("p,code");
+Y.Remarkbox.remarkson.ids("para,tnt");
+Y.Remarkbox.remarkson.classes("rmkit,contentfeedback");
+Y.Remarkbox.remarktype.pointer("right");
+Y.Remarkbox.remarktype.strongcolor("#ECFCE8");
+Y.Remarkbox.remarktype.strongcolortext("#000000");
+Y.Remarkbox.remarktype.lightcolor("#FF8040");
+Y.Remarkbox.remarktype.lightcolortext("#800000");
+Y.Remarkbox.remarktype.alwaysvisible("true");
+Y.Remarkbox.remarktype.offsetx("-3em");
+Y.Remarkbox.remarktype.offsety("-2em");
+Y.Remarkbox.remarktype.allowanonymous("true");
+Y.Remarkbox.render();
+});
+</script>
+-->
+
+
+
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span></span></a></h1>
+        <h2 class="heading"><span>backend_ssh_cluster Package</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="backend-ssh-cluster-package">
+<h1>backend_ssh_cluster Package<a class="headerlink" href="#backend-ssh-cluster-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">backend_ssh_cluster</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.plugins.backend_ssh_cluster"></span></div>
+<div class="section" id="module-compmake.plugins.backend_ssh_cluster.cluster_conf">
+<span id="cluster-conf-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">cluster_conf</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.backend_ssh_cluster.cluster_conf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host">
+<em class="property">class </em><tt class="descclassname">compmake.plugins.backend_ssh_cluster.cluster_conf.</tt><tt class="descname">Host</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Host(name, host, username, processors, init, test, instance)</p>
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.host">
+<tt class="descname">host</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.init">
+<tt class="descname">init</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.instance">
+<tt class="descname">instance</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.name">
+<tt class="descname">name</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.processors">
+<tt class="descname">processors</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.processors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.test">
+<tt class="descname">test</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.Host.username">
+<tt class="descname">username</tt><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.Host.username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.backend_ssh_cluster.cluster_conf.parse_yaml_configuration">
+<tt class="descclassname">compmake.plugins.backend_ssh_cluster.cluster_conf.</tt><tt class="descname">parse_yaml_configuration</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_ssh_cluster.cluster_conf.parse_yaml_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.plugins.backend_ssh_cluster.commands">
+<span id="commands-module"></span><h2><a class="reference external" href="http://docs.python.org/library/commands.html#module-commands" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">commands</span></tt></a> Module<a class="headerlink" href="#module-compmake.plugins.backend_ssh_cluster.commands" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-compmake.plugins.backend_ssh_cluster.manager_ssh_cluster">
+<span id="manager-ssh-cluster-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">manager_ssh_cluster</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.backend_ssh_cluster.manager_ssh_cluster" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        <a class="uplink" href="../index.html">Contents</a>
+        </p>
+
+      </div>
+
+	
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+	
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-155626-4']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+
+  </body>
+</html>

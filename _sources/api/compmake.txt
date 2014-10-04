@@ -1,0 +1,51 @@
+compmake Package
+================
+
+:mod:`compmake` Package
+-----------------------
+
+.. automodule:: compmake
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`constants` Module
+-----------------------
+
+.. automodule:: compmake.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`state` Module
+-------------------
+
+.. automodule:: compmake.state
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`structures` Module
+------------------------
+
+.. automodule:: compmake.structures
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    compmake.config
+    compmake.events
+    compmake.jobs
+    compmake.plugins
+    compmake.scripts
+    compmake.stats
+    compmake.storage
+    compmake.ui
+    compmake.unittests
+    compmake.utils
+

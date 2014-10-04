@@ -1,0 +1,11 @@
+stats Package
+=============
+
+:mod:`stats` Package
+--------------------
+
+.. automodule:: compmake.stats
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,476 @@
+adding targets
+ -         targets: ['p1=1-p2=10-drawing', 'p1=1-p2=11-drawing', 'p1=1-p2=12-drawing', 'p1=2-p2=10-drawing', 'p1=2-p2=11-drawing', 'p1=2-p2=12-drawing', 'p1=3-p2=10-drawing', 'p1=3-p2=11-drawing', 'p1=3-p2=12-drawing']
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set(['p1=3-p2=11-preparing', 'p1=2-p2=10-preparing', 'p1=3-p2=10-preparing', 'p1=3-p2=12-preparing', 'p1=1-p2=12-preparing', 'p1=2-p2=12-preparing', 'p1=1-p2=11-preparing', 'p1=1-p2=10-preparing', 'p1=2-p2=11-preparing'])
+ -       not_ready: set(['p1=3-p2=11-drawing', 'p1=1-p2=11-drawing', 'p1=3-p2=12-drawing', 'p1=1-p2=11-computing', 'p1=2-p2=11-computing', 'p1=2-p2=12-computing', 'p1=3-p2=10-drawing', 'p1=2-p2=12-drawing', 'p1=1-p2=10-drawing', 'p1=1-p2=12-drawing', 'p1=2-p2=11-drawing', 'p1=3-p2=11-computing', 'p1=3-p2=10-computing', 'p1=2-p2=10-drawing', 'p1=2-p2=10-computing', 'p1=1-p2=10-computing', 'p1=1-p2=12-computing', 'p1=3-p2=12-computing'])
+ - targets_todo_plus_deps: set(['p1=3-p2=11-preparing', 'p1=2-p2=10-preparing', 'p1=3-p2=10-preparing', 'p1=3-p2=10-drawing', 'p1=2-p2=12-drawing', 'p1=3-p2=12-preparing', 'p1=1-p2=12-preparing', 'p1=1-p2=11-preparing', 'p1=1-p2=10-computing', 'p1=1-p2=12-computing', 'p1=2-p2=11-preparing', 'p1=3-p2=11-drawing', 'p1=3-p2=12-drawing', 'p1=1-p2=11-computing', 'p1=2-p2=12-preparing', 'p1=2-p2=10-computing', 'p1=2-p2=11-drawing', 'p1=3-p2=11-computing', 'p1=2-p2=10-drawing', 'p1=2-p2=12-computing', 'p1=3-p2=10-computing', 'p1=1-p2=10-preparing', 'p1=1-p2=11-drawing', 'p1=1-p2=10-drawing', 'p1=2-p2=11-computing', 'p1=3-p2=12-computing', 'p1=1-p2=12-drawing'])
+targets_todo_plus_deps: set(['p1=3-p2=11-preparing', 'p1=2-p2=10-preparing', 'p1=3-p2=10-preparing', 'p1=3-p2=10-drawing', 'p1=2-p2=12-drawing', 'p1=3-p2=12-preparing', 'p1=1-p2=12-preparing', 'p1=1-p2=11-preparing', 'p1=1-p2=10-computing', 'p1=1-p2=12-computing', 'p1=2-p2=11-preparing', 'p1=3-p2=11-drawing', 'p1=3-p2=12-drawing', 'p1=1-p2=11-computing', 'p1=2-p2=12-preparing', 'p1=2-p2=10-computing', 'p1=2-p2=11-drawing', 'p1=3-p2=11-computing', 'p1=2-p2=10-drawing', 'p1=2-p2=12-computing', 'p1=3-p2=10-computing', 'p1=1-p2=10-preparing', 'p1=1-p2=11-drawing', 'p1=1-p2=10-drawing', 'p1=2-p2=11-computing', 'p1=3-p2=12-computing', 'p1=1-p2=12-drawing'])
+chosen next_job
+ -          job_id: p1=2-p2=11-preparing
+start_job
+ -          job_id: p1=2-p2=11-preparing
+check_job_finished
+ -          job_id: p1=2-p2=11-preparing
+job_succeeded
+ -          job_id: p1=2-p2=11-preparing
+considering parents
+ -    parents_todo: set(['p1=2-p2=11-computing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=11-computing
+ -          job_id: p1=2-p2=11-preparing
+parent is ready
+ -     opportunity: p1=2-p2=11-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=11-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=11-computing
+start_job
+ -          job_id: p1=2-p2=11-computing
+check_job_finished
+ -          job_id: p1=2-p2=11-computing
+job_succeeded
+ -          job_id: p1=2-p2=11-computing
+considering parents
+ -    parents_todo: set(['p1=2-p2=11-drawing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=11-drawing
+ -          job_id: p1=2-p2=11-computing
+parent is ready
+ -     opportunity: p1=2-p2=11-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=11-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=11-drawing
+start_job
+ -          job_id: p1=2-p2=11-drawing
+check_job_finished
+ -          job_id: p1=2-p2=11-drawing
+job_succeeded
+ -          job_id: p1=2-p2=11-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=11-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=10-preparing
+start_job
+ -          job_id: p1=1-p2=10-preparing
+check_job_finished
+ -          job_id: p1=1-p2=10-preparing
+job_succeeded
+ -          job_id: p1=1-p2=10-preparing
+considering parents
+ -    parents_todo: set(['p1=1-p2=10-computing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=10-computing
+ -          job_id: p1=1-p2=10-preparing
+parent is ready
+ -     opportunity: p1=1-p2=10-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=10-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=10-computing
+start_job
+ -          job_id: p1=1-p2=10-computing
+check_job_finished
+ -          job_id: p1=1-p2=10-computing
+job_succeeded
+ -          job_id: p1=1-p2=10-computing
+considering parents
+ -    parents_todo: set(['p1=1-p2=10-drawing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=10-drawing
+ -          job_id: p1=1-p2=10-computing
+parent is ready
+ -     opportunity: p1=1-p2=10-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=10-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=10-drawing
+start_job
+ -          job_id: p1=1-p2=10-drawing
+check_job_finished
+ -          job_id: p1=1-p2=10-drawing
+job_succeeded
+ -          job_id: p1=1-p2=10-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=10-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=11-preparing
+start_job
+ -          job_id: p1=1-p2=11-preparing
+check_job_finished
+ -          job_id: p1=1-p2=11-preparing
+job_succeeded
+ -          job_id: p1=1-p2=11-preparing
+considering parents
+ -    parents_todo: set(['p1=1-p2=11-computing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=11-computing
+ -          job_id: p1=1-p2=11-preparing
+parent is ready
+ -     opportunity: p1=1-p2=11-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=11-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=11-computing
+start_job
+ -          job_id: p1=1-p2=11-computing
+check_job_finished
+ -          job_id: p1=1-p2=11-computing
+job_succeeded
+ -          job_id: p1=1-p2=11-computing
+considering parents
+ -    parents_todo: set(['p1=1-p2=11-drawing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=11-drawing
+ -          job_id: p1=1-p2=11-computing
+parent is ready
+ -     opportunity: p1=1-p2=11-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=11-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=11-drawing
+start_job
+ -          job_id: p1=1-p2=11-drawing
+check_job_finished
+ -          job_id: p1=1-p2=11-drawing
+job_succeeded
+ -          job_id: p1=1-p2=11-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=11-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=12-preparing
+start_job
+ -          job_id: p1=2-p2=12-preparing
+check_job_finished
+ -          job_id: p1=2-p2=12-preparing
+job_succeeded
+ -          job_id: p1=2-p2=12-preparing
+considering parents
+ -    parents_todo: set(['p1=2-p2=12-computing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=12-computing
+ -          job_id: p1=2-p2=12-preparing
+parent is ready
+ -     opportunity: p1=2-p2=12-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=12-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=12-computing
+start_job
+ -          job_id: p1=2-p2=12-computing
+check_job_finished
+ -          job_id: p1=2-p2=12-computing
+job_succeeded
+ -          job_id: p1=2-p2=12-computing
+considering parents
+ -    parents_todo: set(['p1=2-p2=12-drawing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=12-drawing
+ -          job_id: p1=2-p2=12-computing
+parent is ready
+ -     opportunity: p1=2-p2=12-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=12-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=12-drawing
+start_job
+ -          job_id: p1=2-p2=12-drawing
+check_job_finished
+ -          job_id: p1=2-p2=12-drawing
+job_succeeded
+ -          job_id: p1=2-p2=12-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=12-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=12-preparing
+start_job
+ -          job_id: p1=1-p2=12-preparing
+check_job_finished
+ -          job_id: p1=1-p2=12-preparing
+job_succeeded
+ -          job_id: p1=1-p2=12-preparing
+considering parents
+ -    parents_todo: set(['p1=1-p2=12-computing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=12-computing
+ -          job_id: p1=1-p2=12-preparing
+parent is ready
+ -     opportunity: p1=1-p2=12-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=12-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=12-computing
+start_job
+ -          job_id: p1=1-p2=12-computing
+check_job_finished
+ -          job_id: p1=1-p2=12-computing
+job_succeeded
+ -          job_id: p1=1-p2=12-computing
+considering parents
+ -    parents_todo: set(['p1=1-p2=12-drawing'])
+considering opportuniny
+ -     opportunity: p1=1-p2=12-drawing
+ -          job_id: p1=1-p2=12-computing
+parent is ready
+ -     opportunity: p1=1-p2=12-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=12-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=1-p2=12-drawing
+start_job
+ -          job_id: p1=1-p2=12-drawing
+check_job_finished
+ -          job_id: p1=1-p2=12-drawing
+job_succeeded
+ -          job_id: p1=1-p2=12-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=1-p2=12-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=12-preparing
+start_job
+ -          job_id: p1=3-p2=12-preparing
+check_job_finished
+ -          job_id: p1=3-p2=12-preparing
+job_succeeded
+ -          job_id: p1=3-p2=12-preparing
+considering parents
+ -    parents_todo: set(['p1=3-p2=12-computing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=12-computing
+ -          job_id: p1=3-p2=12-preparing
+parent is ready
+ -     opportunity: p1=3-p2=12-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=12-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=12-computing
+start_job
+ -          job_id: p1=3-p2=12-computing
+check_job_finished
+ -          job_id: p1=3-p2=12-computing
+job_succeeded
+ -          job_id: p1=3-p2=12-computing
+considering parents
+ -    parents_todo: set(['p1=3-p2=12-drawing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=12-drawing
+ -          job_id: p1=3-p2=12-computing
+parent is ready
+ -     opportunity: p1=3-p2=12-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=12-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=12-drawing
+start_job
+ -          job_id: p1=3-p2=12-drawing
+check_job_finished
+ -          job_id: p1=3-p2=12-drawing
+job_succeeded
+ -          job_id: p1=3-p2=12-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=12-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=10-preparing
+start_job
+ -          job_id: p1=3-p2=10-preparing
+check_job_finished
+ -          job_id: p1=3-p2=10-preparing
+job_succeeded
+ -          job_id: p1=3-p2=10-preparing
+considering parents
+ -    parents_todo: set(['p1=3-p2=10-computing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=10-computing
+ -          job_id: p1=3-p2=10-preparing
+parent is ready
+ -     opportunity: p1=3-p2=10-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=10-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=10-computing
+start_job
+ -          job_id: p1=3-p2=10-computing
+check_job_finished
+ -          job_id: p1=3-p2=10-computing
+job_succeeded
+ -          job_id: p1=3-p2=10-computing
+considering parents
+ -    parents_todo: set(['p1=3-p2=10-drawing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=10-drawing
+ -          job_id: p1=3-p2=10-computing
+parent is ready
+ -     opportunity: p1=3-p2=10-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=10-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=10-drawing
+start_job
+ -          job_id: p1=3-p2=10-drawing
+check_job_finished
+ -          job_id: p1=3-p2=10-drawing
+job_succeeded
+ -          job_id: p1=3-p2=10-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=10-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=10-preparing
+start_job
+ -          job_id: p1=2-p2=10-preparing
+check_job_finished
+ -          job_id: p1=2-p2=10-preparing
+job_succeeded
+ -          job_id: p1=2-p2=10-preparing
+considering parents
+ -    parents_todo: set(['p1=2-p2=10-computing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=10-computing
+ -          job_id: p1=2-p2=10-preparing
+parent is ready
+ -     opportunity: p1=2-p2=10-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=10-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=10-computing
+start_job
+ -          job_id: p1=2-p2=10-computing
+check_job_finished
+ -          job_id: p1=2-p2=10-computing
+job_succeeded
+ -          job_id: p1=2-p2=10-computing
+considering parents
+ -    parents_todo: set(['p1=2-p2=10-drawing'])
+considering opportuniny
+ -     opportunity: p1=2-p2=10-drawing
+ -          job_id: p1=2-p2=10-computing
+parent is ready
+ -     opportunity: p1=2-p2=10-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=10-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=2-p2=10-drawing
+start_job
+ -          job_id: p1=2-p2=10-drawing
+check_job_finished
+ -          job_id: p1=2-p2=10-drawing
+job_succeeded
+ -          job_id: p1=2-p2=10-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=2-p2=10-drawing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=11-preparing
+start_job
+ -          job_id: p1=3-p2=11-preparing
+check_job_finished
+ -          job_id: p1=3-p2=11-preparing
+job_succeeded
+ -          job_id: p1=3-p2=11-preparing
+considering parents
+ -    parents_todo: set(['p1=3-p2=11-computing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=11-computing
+ -          job_id: p1=3-p2=11-preparing
+parent is ready
+ -     opportunity: p1=3-p2=11-computing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=11-preparing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=11-computing
+start_job
+ -          job_id: p1=3-p2=11-computing
+check_job_finished
+ -          job_id: p1=3-p2=11-computing
+job_succeeded
+ -          job_id: p1=3-p2=11-computing
+considering parents
+ -    parents_todo: set(['p1=3-p2=11-drawing'])
+considering opportuniny
+ -     opportunity: p1=3-p2=11-drawing
+ -          job_id: p1=3-p2=11-computing
+parent is ready
+ -     opportunity: p1=3-p2=11-drawing
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=11-computing
+ - user_object_deps: set([])
+chosen next_job
+ -          job_id: p1=3-p2=11-drawing
+start_job
+ -          job_id: p1=3-p2=11-drawing
+check_job_finished
+ -          job_id: p1=3-p2=11-drawing
+job_succeeded
+ -          job_id: p1=3-p2=11-drawing
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: p1=3-p2=11-drawing
+ - user_object_deps: set([])

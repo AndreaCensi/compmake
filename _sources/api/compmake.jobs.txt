@@ -1,0 +1,114 @@
+jobs Package
+============
+
+:mod:`jobs` Package
+-------------------
+
+.. automodule:: compmake.jobs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`actions` Module
+---------------------
+
+.. automodule:: compmake.jobs.actions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`cluster_conf` Module
+--------------------------
+
+.. automodule:: compmake.jobs.cluster_conf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager` Module
+---------------------
+
+.. automodule:: compmake.jobs.manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_local` Module
+---------------------------
+
+.. automodule:: compmake.jobs.manager_local
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_multiprocessing` Module
+-------------------------------------
+
+.. automodule:: compmake.jobs.manager_multiprocessing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_sge` Module
+-------------------------
+
+.. automodule:: compmake.jobs.manager_sge
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_ssh_cluster` Module
+---------------------------------
+
+.. automodule:: compmake.jobs.manager_ssh_cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`priority` Module
+----------------------
+
+.. automodule:: compmake.jobs.priority
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`progress` Module
+----------------------
+
+.. automodule:: compmake.jobs.progress
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`queries` Module
+---------------------
+
+.. automodule:: compmake.jobs.queries
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`storage` Module
+---------------------
+
+.. automodule:: compmake.jobs.storage
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`uptodate` Module
+----------------------
+
+.. automodule:: compmake.jobs.uptodate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    compmake.jobs.syntax
+

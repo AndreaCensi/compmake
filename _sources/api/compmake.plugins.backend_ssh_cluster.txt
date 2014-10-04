@@ -1,0 +1,35 @@
+backend_ssh_cluster Package
+===========================
+
+:mod:`backend_ssh_cluster` Package
+----------------------------------
+
+.. automodule:: compmake.plugins.backend_ssh_cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`cluster_conf` Module
+--------------------------
+
+.. automodule:: compmake.plugins.backend_ssh_cluster.cluster_conf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`commands` Module
+----------------------
+
+.. automodule:: compmake.plugins.backend_ssh_cluster.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_ssh_cluster` Module
+---------------------------------
+
+.. automodule:: compmake.plugins.backend_ssh_cluster.manager_ssh_cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

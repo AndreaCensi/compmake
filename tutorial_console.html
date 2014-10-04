@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,23 +8,21 @@
     
     <title>The compmake console &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.9.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/underscore.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
-    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
     <link rel="next" title="Embedding compmake in your application" href="tutorial_embedding.html" />
     <link rel="prev" title="Compmake on a cluster" href="tutorial_cluster.html" />
@@ -234,12 +230,12 @@ set configuration, and other related tasks.</p>
 If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called <tt class="docutils literal"><span class="pre">example.py</span></tt>, you will
 see:</p>
-<div class="highlight-python"><pre>$ compmake example 
+<div class="highlight-python"><div class="highlight"><pre>$ compmake example 
 compmake 2.2.0   ``Keep calm and carry on,,                                                                                                                                       
-Welcome to the compmake console. (write 'help' for a list of commands)                                                                                                            
-27 jobs loaded in namespace 'using_compmake1'.                                                                                                                                    
+Welcome to the compmake console. (write &#39;help&#39; for a list of commands)                                                                                                            
+27 jobs loaded in namespace &#39;using_compmake1&#39;.                                                                                                                                    
 @:
-</pre>
+</pre></div>
 </div>
 <p>The <span class="compmake-brand">compmake</span> console is designed to be friendly. You can use auto-completion
 with <tt class="docutils literal"><span class="pre">&lt;tab&gt;</span></tt>.
@@ -249,11 +245,13 @@ The complete list of the console commands is in the  section <a class="reference
 <div class="section" id="the-help-command">
 <h2><a class="toc-backref" href="#id2">The <tt class="docutils literal"><span class="pre">help</span></tt> command</a><a class="headerlink" href="#the-help-command" title="Permalink to this headline">¶</a></h2>
 <p>If you write:</p>
-<div class="highlight-python"><pre>@&gt; help</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; help
+</pre></div>
 </div>
 <p>you will see a list of all the available commands.
 If you write:</p>
-<div class="highlight-python"><pre>@&gt; help &lt;command&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; help &lt;command&gt;
+</pre></div>
 </div>
 <p>you will see a description of the specified command.
 This is necessary because many commands can accept optional arguments.</p>
@@ -262,14 +260,17 @@ This is necessary because many commands can accept optional arguments.</p>
 <div class="section" id="the-config-command">
 <h2><a class="toc-backref" href="#id3">The <tt class="docutils literal"><span class="pre">config</span></tt> command</a><a class="headerlink" href="#the-config-command" title="Permalink to this headline">¶</a></h2>
 <p>To see all configuration switches, use:</p>
-<div class="highlight-python"><pre>@&gt; config</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; config
+</pre></div>
 </div>
 <p>To set a configuration switch, use:</p>
-<div class="highlight-python"><pre>@&gt; config &lt;name&gt; &lt;value&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; config &lt;name&gt; &lt;value&gt;
+</pre></div>
 </div>
 <p>For example, the following command suppresses echoing of the
 jobs&#8217; stdout to the console:</p>
-<div class="highlight-python"><pre>@&gt; config echo_stdout False</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; config echo_stdout False
+</pre></div>
 </div>
 </div>
 <div class="section" id="advanced-console-syntax">
@@ -278,26 +279,30 @@ jobs&#8217; stdout to the console:</p>
 There are several shortcuts available to specify lists of jobs.</p>
 <ul>
 <li><p class="first"><strong>Wildcards.</strong> In the previous section, we have seen the use of wildcards:</p>
-<div class="highlight-python"><pre>@&gt; list  *-drawing    # list all jobs that end with "-drawing"
-@&gt; list  *            # list all jobs</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; list  *-drawing    # list all jobs that end with &quot;-drawing&quot;
+@&gt; list  *            # list all jobs
+</pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Selection by state.</strong> We can select jobs based on their computational state.
 (see <em class="xref std std-ref">job_states</em> for a complete description of the meaning of these states):</p>
-<div class="highlight-python"><pre>@&gt; list done         # list all completed jobs
+<div class="highlight-python"><div class="highlight"><pre>@&gt; list done         # list all completed jobs
 @&gt; list failed       # list all failed jobs
-@&gt; list blocked      # list all blocked jobs (dependencies failed)</pre>
+@&gt; list blocked      # list all blocked jobs (dependencies failed)
+</pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Selection by function name</strong></p>
-<div class="highlight-python"><pre>@&gt; list f1()        # all jobs that use the function f1()</pre>
+<div class="highlight-python"><div class="highlight"><pre>@&gt; list f1()        # all jobs that use the function f1()
+</pre></div>
 </div>
 </li>
 <li><p class="first"><strong>Use of logical operator</strong>. Compmake implements a simple syntax for
 defining sets of jobs. Some examples The following commands:</p>
-<div class="highlight-python"><pre>@&gt; list not failed in func1()   # list all func1() instances that did not fail
+<div class="highlight-python"><div class="highlight"><pre>@&gt; list not failed in func1()   # list all func1() instances that did not fail
 @&gt; list *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
-@&gt; list all except job1 job2    # list all except "job1" and "job2"</pre>
+@&gt; list all except job1 job2    # list all except &quot;job1&quot; and &quot;job2&quot;
+</pre></div>
 </div>
 </li>
 </ul>
@@ -305,10 +310,11 @@ defining sets of jobs. Some examples The following commands:</p>
 <div><p>There are three keywords: <tt class="docutils literal"><span class="pre">in</span></tt> (intersection), <tt class="docutils literal"><span class="pre">except</span></tt> (set difference), and <tt class="docutils literal"><span class="pre">not</span></tt>
 (complement). Their semantics are defined as follows. (Here, <tt class="docutils literal"><span class="pre">A</span></tt> and <tt class="docutils literal"><span class="pre">B</span></tt> are
 job lists):</p>
-<div class="highlight-python"><pre>[A] except [B]   ==  jobs in A that are not in B
+<div class="highlight-python"><div class="highlight"><pre>[A] except [B]   ==  jobs in A that are not in B
 [A] in [B]       ==  jobs both in A and B
 not [A]          ==  all jobs except those in A
-                     (equivalent to "all except [A]")</pre>
+                     (equivalent to &quot;all except [A]&quot;)
+</pre></div>
 </div>
 </div></blockquote>
 <ul class="simple">
@@ -334,7 +340,7 @@ not [A]          ==  all jobs except those in A
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

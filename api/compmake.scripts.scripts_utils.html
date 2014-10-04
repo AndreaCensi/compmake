@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,9 +8,8 @@
     
     <title>scripts_utils Package &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,10 +20,9 @@
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../static/jquery.js"></script>
-    <script type="text/javascript" src="../static/underscore.js"></script>
-    <script type="text/javascript" src="../static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
 	 
 	
@@ -213,6 +209,25 @@ Y.Remarkbox.render();
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">scripts_utils</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-compmake.scripts.scripts_utils"></span></div>
+<div class="section" id="module-compmake.scripts.scripts_utils.script_utils">
+<span id="script-utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">script_utils</span></tt> Module<a class="headerlink" href="#module-compmake.scripts.scripts_utils.script_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.scripts.scripts_utils.script_utils.wrap_script_entry_point">
+<tt class="descclassname">compmake.scripts.scripts_utils.script_utils.</tt><tt class="descname">wrap_script_entry_point</tt><big>(</big><em>function</em>, <em>exceptions_no_traceback</em><big>)</big><a class="headerlink" href="#compmake.scripts.scripts_utils.script_utils.wrap_script_entry_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps the main() of a script.
+For Exception: we exit with value 2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exceptions_no_traceback</strong> &#8211; tuple of exceptions for which we 
+just print the error, and return 1.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -228,7 +243,7 @@ Y.Remarkbox.render();
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

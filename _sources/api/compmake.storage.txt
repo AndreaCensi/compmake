@@ -1,0 +1,43 @@
+storage Package
+===============
+
+:mod:`storage` Package
+----------------------
+
+.. automodule:: compmake.storage
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`filesystem` Module
+------------------------
+
+.. automodule:: compmake.storage.filesystem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`filesystem2` Module
+-------------------------
+
+.. automodule:: compmake.storage.filesystem2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`memorycache` Module
+-------------------------
+
+.. automodule:: compmake.storage.memorycache
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`redisdb` Module
+---------------------
+
+.. automodule:: compmake.storage.redisdb
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

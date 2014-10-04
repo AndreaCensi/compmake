@@ -1,0 +1,8 @@
+$ compmake example list
+                    p1=1-p2=10-computing    not started
+                    p1=1-p2=10-drawing      not started
+                    p1=1-p2=10-preparing    not started
+                    p1=1-p2=11-computing    not started
+                    p1=1-p2=11-drawing      not started
+                    p1=1-p2=11-preparing    not started
+    [...]

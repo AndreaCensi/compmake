@@ -1,0 +1,18 @@
+scripts Package
+===============
+
+:mod:`master` Module
+--------------------
+
+.. automodule:: compmake.scripts.master
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    compmake.scripts.scripts_utils
+

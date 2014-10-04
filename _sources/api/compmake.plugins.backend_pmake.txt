@@ -1,0 +1,43 @@
+backend_pmake Package
+=====================
+
+:mod:`backend_pmake` Package
+----------------------------
+
+.. automodule:: compmake.plugins.backend_pmake
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`commands` Module
+----------------------
+
+.. automodule:: compmake.plugins.backend_pmake.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`parmake_job2_imp` Module
+------------------------------
+
+.. automodule:: compmake.plugins.backend_pmake.parmake_job2_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`pmake_manager` Module
+---------------------------
+
+.. automodule:: compmake.plugins.backend_pmake.pmake_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`pmakesub` Module
+----------------------
+
+.. automodule:: compmake.plugins.backend_pmake.pmakesub
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

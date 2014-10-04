@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,9 +8,8 @@
     
     <title>unittests Package &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,10 +20,9 @@
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../static/jquery.js"></script>
-    <script type="text/javascript" src="../static/underscore.js"></script>
-    <script type="text/javascript" src="../static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
 	 
 	
@@ -210,12 +206,95 @@ Y.Remarkbox.render();
         
   <div class="section" id="unittests-package">
 <h1>unittests Package<a class="headerlink" href="#unittests-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">unittests</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-compmake.unittests"></span></div>
 <div class="section" id="module-compmake.unittests.compmake_test">
 <span id="compmake-test-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">compmake_test</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.compmake_test" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.unittests.compmake_test.CompmakeTest">
 <em class="property">class </em><tt class="descclassname">compmake.unittests.compmake_test.</tt><tt class="descname">CompmakeTest</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assertEqualSet">
+<tt class="descname">assertEqualSet</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assertEqualSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assertJobsEqual">
+<tt class="descname">assertJobsEqual</tt><big>(</big><em>expr</em>, <em>jobs</em>, <em>ignore_dyn_reports=True</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assertJobsEqual" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expr</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assertMakeFailed">
+<tt class="descname">assertMakeFailed</tt><big>(</big><em>func</em>, <em>nfailed</em>, <em>nblocked</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assertMakeFailed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assert_cmd_fail">
+<tt class="descname">assert_cmd_fail</tt><big>(</big><em>cmds</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assert_cmd_fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the (list of) commands and checks it was succesful.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assert_cmd_success">
+<tt class="descname">assert_cmd_success</tt><big>(</big><em>cmds</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assert_cmd_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the (list of) commands and checks it was succesful.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assert_cmd_success_script">
+<tt class="descname">assert_cmd_success_script</tt><big>(</big><em>cmd_string</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assert_cmd_success_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>This runs the &#8220;compmake_main&#8221; script which recreates the DB and context from disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd_string</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.assert_defined_by">
+<tt class="descname">assert_defined_by</tt><big>(</big><em>job_id</em>, <em>expected</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.assert_defined_by" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.comp">
+<tt class="descname">comp</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.comp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.get_job">
+<tt class="descname">get_job</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.get_job" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>job_id</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">Job</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.compmake_test.CompmakeTest.get_jobs">
+<tt class="descname">get_jobs</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.get_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of jobs corresponding to the given expression.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="compmake.unittests.compmake_test.CompmakeTest.mySetUp">
 <tt class="descname">mySetUp</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.CompmakeTest.mySetUp" title="Permalink to this definition">¶</a></dt>
@@ -233,17 +312,57 @@ Y.Remarkbox.render();
 
 </dd></dl>
 
+</div>
+<div class="section" id="module-compmake.unittests.test_assertions">
+<span id="test-assertions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_assertions</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.test_assertions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.unittests.test_assertions.TestAssertion">
+<em class="property">class </em><tt class="descclassname">compmake.unittests.test_assertions.</tt><tt class="descname">TestAssertion</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_assertions.TestAssertion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.unittests.compmake_test.CompmakeTest" title="compmake.unittests.compmake_test.CompmakeTest"><tt class="xref py py-class docutils literal"><span class="pre">compmake.unittests.compmake_test.CompmakeTest</span></tt></a></p>
+<dl class="method">
+<dt id="compmake.unittests.test_assertions.TestAssertion.mySetUp">
+<tt class="descname">mySetUp</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_assertions.TestAssertion.mySetUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.test_assertions.TestAssertion.testAssertion1">
+<tt class="descname">testAssertion1</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_assertions.TestAssertion.testAssertion1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="function">
-<dt id="compmake.unittests.compmake_test.compmake_environment">
-<tt class="descclassname">compmake.unittests.compmake_test.</tt><tt class="descname">compmake_environment</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#compmake.unittests.compmake_test.compmake_environment" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.unittests.test_assertions.job_failure">
+<tt class="descclassname">compmake.unittests.test_assertions.</tt><tt class="descname">job_failure</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_assertions.job_failure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.unittests.test_assertions.job_success">
+<tt class="descclassname">compmake.unittests.test_assertions.</tt><tt class="descname">job_success</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_assertions.job_success" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 <div class="section" id="module-compmake.unittests.test_blocked">
 <span id="test-blocked-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_blocked</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.test_blocked" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.unittests.test_blocked.TestBlocked">
+<em class="property">class </em><tt class="descclassname">compmake.unittests.test_blocked.</tt><tt class="descname">TestBlocked</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.TestBlocked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.unittests.compmake_test.CompmakeTest" title="compmake.unittests.compmake_test.CompmakeTest"><tt class="xref py py-class docutils literal"><span class="pre">compmake.unittests.compmake_test.CompmakeTest</span></tt></a></p>
+<dl class="method">
+<dt id="compmake.unittests.test_blocked.TestBlocked.mySetUp">
+<tt class="descname">mySetUp</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.TestBlocked.mySetUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.test_blocked.TestBlocked.testAdding">
+<tt class="descname">testAdding</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.TestBlocked.testAdding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="compmake.unittests.test_blocked.check_job_states">
-<tt class="descclassname">compmake.unittests.test_blocked.</tt><tt class="descname">check_job_states</tt><big>(</big><em>**expected</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.check_job_states" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.unittests.test_blocked.</tt><tt class="descname">check_job_states</tt><big>(</big><em>db</em>, <em>**expected</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.check_job_states" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -256,18 +375,13 @@ Y.Remarkbox.render();
 <tt class="descclassname">compmake.unittests.test_blocked.</tt><tt class="descname">job_success</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.job_success" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="compmake.unittests.test_blocked.test_order">
-<tt class="descclassname">compmake.unittests.test_blocked.</tt><tt class="descname">test_order</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_blocked.test_order" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-compmake.unittests.test_invalid_functions">
 <span id="test-invalid-functions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_invalid_functions</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.test_invalid_functions" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.unittests.test_invalid_functions.TestInvalidFunctions">
 <em class="property">class </em><tt class="descclassname">compmake.unittests.test_invalid_functions.</tt><tt class="descname">TestInvalidFunctions</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.TestInvalidFunctions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dd><p>Bases: <a class="reference internal" href="#compmake.unittests.compmake_test.CompmakeTest" title="compmake.unittests.compmake_test.CompmakeTest"><tt class="xref py py-class docutils literal"><span class="pre">compmake.unittests.compmake_test.CompmakeTest</span></tt></a></p>
 <dl class="method">
 <dt id="compmake.unittests.test_invalid_functions.TestInvalidFunctions.test_invalid_function_lambda">
 <tt class="descname">test_invalid_function_lambda</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.TestInvalidFunctions.test_invalid_function_lambda" title="Permalink to this definition">¶</a></dt>
@@ -282,12 +396,12 @@ Y.Remarkbox.render();
 
 <dl class="function">
 <dt id="compmake.unittests.test_invalid_functions.uses_lambda">
-<tt class="descclassname">compmake.unittests.test_invalid_functions.</tt><tt class="descname">uses_lambda</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.uses_lambda" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.unittests.test_invalid_functions.</tt><tt class="descname">uses_lambda</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.uses_lambda" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="compmake.unittests.test_invalid_functions.uses_nested">
-<tt class="descclassname">compmake.unittests.test_invalid_functions.</tt><tt class="descname">uses_nested</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.uses_nested" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.unittests.test_invalid_functions.</tt><tt class="descname">uses_nested</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_invalid_functions.uses_nested" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -462,6 +576,45 @@ as a parameter in the function</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.unittests.test_stats">
+<span id="test-stats-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_stats</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.test_stats" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.unittests.test_stats.TestExecutionStats">
+<em class="property">class </em><tt class="descclassname">compmake.unittests.test_stats.</tt><tt class="descname">TestExecutionStats</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.TestExecutionStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#compmake.unittests.compmake_test.CompmakeTest" title="compmake.unittests.compmake_test.CompmakeTest"><tt class="xref py py-class docutils literal"><span class="pre">compmake.unittests.compmake_test.CompmakeTest</span></tt></a></p>
+<dl class="method">
+<dt id="compmake.unittests.test_stats.TestExecutionStats.test_execution_stats">
+<tt class="descname">test_execution_stats</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.TestExecutionStats.test_execution_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.test_stats.TestExecutionStats.test_execution_stats2">
+<tt class="descname">test_execution_stats2</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.TestExecutionStats.test_execution_stats2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.unittests.test_stats.check_result">
+<tt class="descclassname">compmake.unittests.test_stats.</tt><tt class="descname">check_result</tt><big>(</big><em>res</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.check_result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.unittests.test_stats.ff">
+<tt class="descclassname">compmake.unittests.test_stats.</tt><tt class="descname">ff</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.ff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.unittests.test_stats.gg">
+<tt class="descclassname">compmake.unittests.test_stats.</tt><tt class="descname">gg</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.gg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.unittests.test_stats.hh">
+<tt class="descclassname">compmake.unittests.test_stats.</tt><tt class="descname">hh</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_stats.hh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-compmake.unittests.test_storage">
 <span id="test-storage-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_storage</span></tt> Module<a class="headerlink" href="#module-compmake.unittests.test_storage" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -517,11 +670,6 @@ as a parameter in the function</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="compmake.unittests.test_syntax.Test1.setUp">
-<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_syntax.Test1.setUp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="compmake.unittests.test_syntax.Test1.syntaxError">
 <tt class="descname">syntaxError</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_syntax.Test1.syntaxError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -540,6 +688,11 @@ as a parameter in the function</p>
 <dl class="method">
 <dt id="compmake.unittests.test_syntax.Test1.testCatchErrors">
 <tt class="descname">testCatchErrors</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_syntax.Test1.testCatchErrors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.unittests.test_syntax.Test1.testFailed">
+<tt class="descname">testFailed</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_syntax.Test1.testFailed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -578,18 +731,13 @@ as a parameter in the function</p>
 <em class="property">class </em><tt class="descclassname">compmake.unittests.test_unpickable_result.</tt><tt class="descname">TestUnpickable</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_unpickable_result.TestUnpickable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#compmake.unittests.compmake_test.CompmakeTest" title="compmake.unittests.compmake_test.CompmakeTest"><tt class="xref py py-class docutils literal"><span class="pre">compmake.unittests.compmake_test.CompmakeTest</span></tt></a></p>
 <dl class="method">
-<dt id="compmake.unittests.test_unpickable_result.TestUnpickable.add_and_execute">
-<tt class="descname">add_and_execute</tt><big>(</big><em>function</em><big>)</big><a class="headerlink" href="#compmake.unittests.test_unpickable_result.TestUnpickable.add_and_execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="compmake.unittests.test_unpickable_result.TestUnpickable.mySetUp">
 <tt class="descname">mySetUp</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_unpickable_result.TestUnpickable.mySetUp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="compmake.unittests.test_unpickable_result.TestUnpickable.test_unpickable">
-<tt class="descname">test_unpickable</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_unpickable_result.TestUnpickable.test_unpickable" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.unittests.test_unpickable_result.TestUnpickable.test_unpickable_result">
+<tt class="descname">test_unpickable_result</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.unittests.test_unpickable_result.TestUnpickable.test_unpickable_result" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -615,7 +763,7 @@ as a parameter in the function</p>
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">

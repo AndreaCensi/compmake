@@ -1,0 +1,35 @@
+old_backend_multiprocessing Package
+===================================
+
+:mod:`old_backend_multiprocessing` Package
+------------------------------------------
+
+.. automodule:: compmake.plugins.old_backend_multiprocessing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`commands` Module
+----------------------
+
+.. automodule:: compmake.plugins.old_backend_multiprocessing.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manager_multiprocessing` Module
+-------------------------------------
+
+.. automodule:: compmake.plugins.old_backend_multiprocessing.manager_multiprocessing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`shared` Module
+--------------------
+
+.. automodule:: compmake.plugins.old_backend_multiprocessing.shared
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

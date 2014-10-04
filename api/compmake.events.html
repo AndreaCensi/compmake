@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,9 +8,8 @@
     
     <title>events Package &mdash; Compmake make for batch Python processes</title>
     
-    <link rel="stylesheet" href="../static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,10 +20,9 @@
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../static/jquery.js"></script>
-    <script type="text/javascript" src="../static/underscore.js"></script>
-    <script type="text/javascript" src="../static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="../index.html" />
 	 
 	
@@ -215,23 +211,33 @@ Y.Remarkbox.render();
 <span class="target" id="module-compmake.events"></span></div>
 <div class="section" id="module-compmake.events.registered_events">
 <span id="registered-events-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">registered_events</span></tt> Module<a class="headerlink" href="#module-compmake.events.registered_events" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="compmake.events.registered_events.add">
-<tt class="descclassname">compmake.events.registered_events.</tt><tt class="descname">add</tt><big>(</big><em>e</em><big>)</big><a class="headerlink" href="#compmake.events.registered_events.add" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-compmake.events.registrar">
 <span id="registrar-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">registrar</span></tt> Module<a class="headerlink" href="#module-compmake.events.registrar" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.events.registrar.broadcast_event">
-<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">broadcast_event</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.broadcast_event" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">broadcast_event</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.broadcast_event" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>event</strong> (<tt class="docutils literal"><span class="pre">Event</span></tt>) &#8211; </li>
+<li><strong>context</strong> (<tt class="docutils literal"><span class="pre">Context</span></tt>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
-<dt id="compmake.events.registrar.publish">
-<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">publish</tt><big>(</big><em>event_name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.publish" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="compmake.events.registrar.remove_all_handlers">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">remove_all_handlers</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.events.registrar.remove_all_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all event handlers. Useful when
+events must not be processed locally but routed
+to the original process somewhere else.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="compmake.events.registrar.register_fallback_handler">
@@ -244,31 +250,45 @@ can deal with an event. Useful to see if we are ignoring some event.</p>
 <dt id="compmake.events.registrar.register_handler">
 <tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">register_handler</tt><big>(</big><em>event_name</em>, <em>handler</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.register_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers an handler with an event name.
-The event name might contain asterisks. &#8220;*&#8221; matches 
-all.</p>
+The event name might contain asterisks. &#8220;*&#8221; matches all.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="compmake.events.registrar.remove_all_handlers">
-<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">remove_all_handlers</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.events.registrar.remove_all_handlers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes all event handlers. Useful when
-events must not be processed locally but routed
-to the original process.</p>
+<dt id="compmake.events.registrar.publish">
+<tt class="descclassname">compmake.events.registrar.</tt><tt class="descname">publish</tt><big>(</big><em>context</em>, <em>event_name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.registrar.publish" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Publishes an event. Checks that it is registered and with the right</dt>
+<dd>attributes. Then it is passed to broadcast_event().</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>event_name</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </li>
+<li><strong>context</strong> (<tt class="docutils literal"><span class="pre">Context</span></tt>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
 <div class="section" id="module-compmake.events.structures">
 <span id="structures-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structures</span></tt> Module<a class="headerlink" href="#module-compmake.events.structures" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="compmake.events.structures.Event">
-<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">Event</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.structures.Event" title="Permalink to this definition">¶</a></dt>
-<dd><p>This, instead, is an event itself</p>
+<dt id="compmake.events.structures.EventSpec">
+<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">EventSpec</tt><big>(</big><em>name</em>, <em>attrs=[]</em>, <em>desc=None</em><big>)</big><a class="headerlink" href="#compmake.events.structures.EventSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This is a specification of the events that can be generated</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="compmake.events.structures.EventSpec">
-<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">EventSpec</tt><big>(</big><em>name</em>, <em>attrs=</em><span class="optional">[</span><span class="optional">]</span>, <em>desc=None</em><big>)</big><a class="headerlink" href="#compmake.events.structures.EventSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a specification of the events that can be generated</p>
+<dt id="compmake.events.structures.Event">
+<em class="property">class </em><tt class="descclassname">compmake.events.structures.</tt><tt class="descname">Event</tt><big>(</big><em>name</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#compmake.events.structures.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This, instead, is an event itself</p>
 </dd></dl>
 
 </div>
@@ -287,7 +307,7 @@ to the original process.</p>
 	
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
 	
 	<script type="text/javascript">
