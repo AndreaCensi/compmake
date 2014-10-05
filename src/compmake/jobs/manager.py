@@ -32,11 +32,10 @@ class AsyncResultInterface(object):
     @abstractmethod
     def ready(self):
         """ Returns True if it is ready (completed or failed). """
-        
 
     @abstractmethod
     def get(self, timeout=0):
-        ''' Either:
+        """ Either:
             - returns a dictionary with fields:
                 new_jobs: list of jobs created
                 user_object_deps: ...
@@ -45,7 +44,7 @@ class AsyncResultInterface(object):
             - raises HostFailed
             - raises JobInterrupted
             - raises TimeoutError (not ready)
-        '''
+        """
         
 
 class ManagerLog(object):
@@ -56,8 +55,7 @@ class ManagerLog(object):
         log = os.path.join(storage, 'manager.log')
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
-        
-    
+
     def log(self, s, **kwargs):
         for k, v in kwargs.items():
             s += '\n - %15s: %s' % (k, v)
@@ -67,13 +65,13 @@ class ManagerLog(object):
             
         self.f.flush()
 
+
 class Manager(ManagerLog):
 
     @contract(recurse='bool')
     def __init__(self, context, cq, recurse=False):
-        # print('Initialized manager, recurse=%s' % recurse)
         self.context = context
-#         self.cq = cq
+        #  self.cq = cq
         self.db = context.get_compmake_db()
         ManagerLog.__init__(self, db=self.db)
 
@@ -105,36 +103,36 @@ class Manager(ManagerLog):
         self.blocked = set() 
         
         # contains job_id -> priority
-        # computed by precompute_priorities() called by process()
+        # computed by ``precompute_priorities()`` called by process()
         self.priorities = {}
 
         self.check_invariants()
         
 # ## Derived class interface 
     def process_init(self):
-        ''' Called before processing '''
+        """ Called before processing """
 
     def process_finished(self):
-        ''' Called after successful processing (before cleanup) '''
+        """ Called after successful processing (before cleanup) """
 
     @abstractmethod
     def can_accept_job(self):
-        ''' Return true if a new job can be accepted right away'''
+        """ Return true if a new job can be accepted right away"""
 
     @abstractmethod
     def instance_job(self, job_id):
-        ''' Instances a job. '''
+        """ Instances a job. """
 
     def cleanup(self):
-        ''' free up any resource, called wheter succesfull or not.'''
+        """ free up any resource, called wheter succesfull or not."""
         pass
 
     @contract(returns='str')
     def next_job(self):
-        ''' 
-            Returns one job from the ready_todo list 
-            Uses self.priorities to decide which job to use. 
-        '''
+        """
+            Returns one job from the ready_todo list
+            Uses self.priorities to decide which job to use.
+        """
         self.check_invariants()
         
         ordered = sorted(self.ready_todo,

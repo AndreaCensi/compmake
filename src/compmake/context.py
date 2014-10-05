@@ -11,6 +11,8 @@ __all__ = [
 
 class Context(object):
 
+    @contract(db='None|str|isinstance(StorageFilesystem)',
+              currenty_executing='list(str)')
     def __init__(self, db=None, currently_executing=['root']):
         """
             currently_executing: str, job currently executing
