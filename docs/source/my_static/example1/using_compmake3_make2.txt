@@ -1,5 +1,0 @@
-INFO:compmake:Loading existing jobs from DB directory 'out-using_compmake3'
-INFO:compmake:Found 27 existing jobs.
-INFO:compmake:Reading configuration from '/Users/andrea/.compmake/compmake.rc'
-compmake_main()
-                                                                                                                                        Nothing to do.                                                                                                                          

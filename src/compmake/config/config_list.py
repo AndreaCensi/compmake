@@ -72,8 +72,12 @@ add_config_switch('status_line_enabled', True,
 # bandwidth.", section=CONFIG_JOB_EXEC)
 
 add_config_switch('colorize', True,
-       desc="Use colors in terminals if possible.",
-       section=CONFIG_APPEARANCE)
+                  desc='Use colors in terminals if possible.',
+                  section=CONFIG_APPEARANCE)
+
+add_config_switch('readline', True,
+                  desc='Try to use readline or pyreadline module.',
+                  section=CONFIG_APPEARANCE)
 
 add_config_switch('set_proc_title', True,
                   desc='Set the process title to the name of current job.',

@@ -1,8 +1,0 @@
-$ compmake example ls
-compmake_main()
-                        p1=1-p2=10-computing     todo           
-                        p1=1-p2=10-drawing       todo           
-                        p1=1-p2=10-preparing     todo           
-                        p1=1-p2=11-computing     todo           
-                        p1=1-p2=11-drawing       todo           
-    [...]

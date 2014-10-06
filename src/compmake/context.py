@@ -3,14 +3,14 @@ from contracts import contract
 import os
 import sys
 
-
 __all__ = [
     'Context',
 ]
 
-
 class Context(object):
 
+    @contract(db='None|str|isinstance(StorageFilesystem)',
+              currently_executing='list(str)')
     def __init__(self, db=None, currently_executing=['root']):
         """
             db: if a string, it is used as path for the DB

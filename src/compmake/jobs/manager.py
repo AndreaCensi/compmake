@@ -1,9 +1,15 @@
+from multiprocessing import TimeoutError
+import itertools
+import time
+import traceback
+
 from ..events import publish
-from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
-    get_job_cache, job_cache_exists, job_exists, job_userobject_exists)
+from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
+                    get_job_cache, job_cache_exists, job_exists,
+                    job_userobject_exists)
 from ..jobs.actions_newprocess import _check_result_dict
-from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed, 
-    JobInterrupted)
+from ..structures import (Cache, CompmakeBug, HostFailed, JobFailed,
+                          JobInterrupted)
 from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
 from .priority import compute_priorities
@@ -13,15 +19,11 @@ from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
 from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from contracts import ContractsMeta, check_isinstance, contract, indent
-from multiprocessing import TimeoutError
-import itertools
 import os
-import time
-import traceback
 
 
 __all__ = [
-    'Manager', 
+    'Manager',
     'AsyncResultInterface',
 ]
 
@@ -32,11 +34,10 @@ class AsyncResultInterface(object):
     @abstractmethod
     def ready(self):
         """ Returns True if it is ready (completed or failed). """
-        
 
     @abstractmethod
     def get(self, timeout=0):
-        ''' Either:
+        """ Either:
             - returns a dictionary with fields:
                 new_jobs: list of jobs created
                 user_object_deps: ...
@@ -45,35 +46,33 @@ class AsyncResultInterface(object):
             - raises HostFailed
             - raises JobInterrupted
             - raises TimeoutError (not ready)
-        '''
-        
+        """
+
 
 class ManagerLog(object):
     __metaclass__ = ContractsMeta
-    
+
     def __init__(self, db):
         storage = os.path.abspath(db.basepath)
         log = os.path.join(storage, 'manager.log')
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
-        
-    
+
     def log(self, s, **kwargs):
         for k, v in kwargs.items():
             s += '\n - %15s: %s' % (k, v)
         self.f.write(s)
-        #print(s)
+        # print(s)
         self.f.write('\n')
-            
+
         self.f.flush()
 
-class Manager(ManagerLog):
 
+class Manager(ManagerLog):
     @contract(recurse='bool')
     def __init__(self, context, cq, recurse=False):
-        # print('Initialized manager, recurse=%s' % recurse)
         self.context = context
-#         self.cq = cq
+        # self.cq = cq
         self.db = context.get_compmake_db()
         ManagerLog.__init__(self, db=self.db)
 
@@ -81,10 +80,10 @@ class Manager(ManagerLog):
 
         # top-level targets added by users
         self.targets = set()
-        
+
         # top-level targets + all their dependencies
-        self.all_targets = set() 
-        
+        self.all_targets = set()
+
         # a job is in exactly one of these states
         self.todo = set()
         # |
@@ -102,46 +101,46 @@ class Manager(ManagerLog):
         # final states
         self.done = set()
         self.failed = set()
-        self.blocked = set() 
-        
+        self.blocked = set()
+
         # contains job_id -> priority
-        # computed by precompute_priorities() called by process()
+        # computed by ``precompute_priorities()`` called by process()
         self.priorities = {}
 
         self.check_invariants()
-        
-# ## Derived class interface 
+
+    # ## Derived class interface
     def process_init(self):
-        ''' Called before processing '''
+        """ Called before processing """
 
     def process_finished(self):
-        ''' Called after successful processing (before cleanup) '''
+        """ Called after successful processing (before cleanup) """
 
     @abstractmethod
     def can_accept_job(self):
-        ''' Return true if a new job can be accepted right away'''
+        """ Return true if a new job can be accepted right away"""
 
     @abstractmethod
     def instance_job(self, job_id):
-        ''' Instances a job. '''
+        """ Instances a job. """
 
     def cleanup(self):
-        ''' free up any resource, called wheter succesfull or not.'''
+        """ free up any resource, called wheter succesfull or not."""
         pass
 
     @contract(returns='str')
     def next_job(self):
-        ''' 
-            Returns one job from the ready_todo list 
-            Uses self.priorities to decide which job to use. 
-        '''
+        """
+            Returns one job from the ready_todo list
+            Uses self.priorities to decide which job to use.
+        """
         self.check_invariants()
-        
+
         ordered = sorted(self.ready_todo,
                          key=lambda job: self.priorities[job])
         best = ordered[-1]
-        
-        #print('choosing %s job %r' % (self.priorities[best], best))
+
+        # print('choosing %s job %r' % (self.priorities[best], best))
         return best
 
     def add_targets(self, targets):
@@ -149,11 +148,11 @@ class Manager(ManagerLog):
         self.check_invariants()
         for t in targets:
             assert_job_exists(t, self.db)
-            
+
             if t in self.processing:
                 msg = 'Adding a job already in processing: %r' % t
                 raise CompmakeBug(msg)
-            
+
             if t in self.targets:
                 if t in self.ready_todo:
                     self.ready_todo.remove(t)
@@ -163,64 +162,63 @@ class Manager(ManagerLog):
                     self.all_targets.remove(t)
                 if t in self.done:
                     self.done.remove(t)
-        
+
         # self.targets contains all the top-level targets we were passed
         self.targets.update(targets)
 
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
         # Note this would not work for recursive jobs
-        #  cq = self.cq
+        # cq = self.cq
         targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
         not_ready = targets_todo_plus_deps - ready_todo
-    
-        self.log('computed todo', 
+
+        self.log('computed todo',
                  targets_todo_plus_deps=targets_todo_plus_deps,
                  targets_done=targets_done,
-                ready_todo=ready_todo,
-                not_ready=not_ready)
+                 ready_todo=ready_todo,
+                 not_ready=not_ready)
 
         self.log('targets_todo_plus_deps: %s' % targets_todo_plus_deps)
-        
+
         #print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
         #print('           targets_done: %s ' % targets_done)
         #print('             ready_todo: %s ' % ready_todo)
         # both done and todo jobs are added to self.all_targets
-        
+
         # let's check the additional jobs exist
         for d in targets_todo_plus_deps - set(targets):
             if not job_exists(d, self.db):
                 msg = 'Adding job that does not exist: %r.' % t
-                raise CompmakeBug(msg)        
-        
+                raise CompmakeBug(msg)
+
         self.all_targets.update(targets_todo_plus_deps)
         self.all_targets.update(targets_done)
-        
+
         # ok, careful here, there might be jobs that are
         # already in processing
-        
+
         # XXX: we should clean the Cache of a job before making it
-        self.done.update(targets_done - self.processing) 
-        
+        self.done.update(targets_done - self.processing)
+
         self.todo.update(not_ready - self.processing)
         self.ready_todo.update(ready_todo - self.processing)
-        
+
         needs_priorities = self.todo | self.ready_todo
         misses_priorities = needs_priorities - set(self.priorities)
         new_priorities = compute_priorities(misses_priorities, cq=cq,
                                             priorities=self.priorities)
         self.priorities.update(new_priorities)
-        
+
         self.check_invariants()
 
     def instance_some_jobs(self):
-        ''' 
+        """
             Instances some of the jobs. Uses the
             functions can_accept_job(), next_job(), and ...
-            
+
             Returns a dictionary of wait conditions.
-        '''
-        # add jobs up to saturations
+        """
         self.check_invariants()
 
         while True:
@@ -228,26 +226,26 @@ class Manager(ManagerLog):
             if not self.ready_todo:
                 reasons['jobs'] = 'no jobs ready'
                 break
-            
+
             if not self.can_accept_job(reasons):
                 break
-                        
+
             # todo: add task priority
             job_id = self.next_job()
             assert job_id in self.ready_todo
-            
+
             self.log('chosen next_job', job_id=job_id)
 
             self.start_job(job_id)
 
         self.check_invariants()
         return reasons
-        
+
     def _raise_bug(self, func, job_id):
         msg = "%s: Assumptions violated with job %r." % (func, job_id)
-        #msg += '\n' + self._get_situation_string()
-        
-        sets = [ 
+        # msg += '\n' + self._get_situation_string()
+
+        sets = [
             ('done', self.done),
             ('all_targets', self.all_targets),
             ('todo', self.todo),
@@ -260,13 +258,13 @@ class Manager(ManagerLog):
         for name, cont in sets:
             contained = job_id in cont
             msg += '\n in %15s? %s' % (name, contained)
-                    
+
         raise CompmakeBug(msg)
-        
+
     def start_job(self, job_id):
         self.log('start_job', job_id=job_id)
         self.check_invariants()
-        if not job_id in self.ready_todo: 
+        if not job_id in self.ready_todo:
             self._raise_bug('start_job', job_id)
 
         publish(self.context, 'manager-job-starting', job_id=job_id)
@@ -278,9 +276,8 @@ class Manager(ManagerLog):
         # the next line actually does something now
         self.publish_progress()
 
-            
         self.check_invariants()
-        
+
 
     def check_job_finished(self, job_id):
         self.log('check_job_finished', job_id=job_id)
@@ -297,11 +294,12 @@ class Manager(ManagerLog):
             Handles update of various sets. 
         '''
         self.check_invariants()
-        
+
         def bug():
             self._raise_bug('check_job_finished', job_id)
-        
-        if not job_id in self.processing: bug() 
+
+        if not job_id in self.processing:
+            bug()
 
         async_result = self.processing2result[job_id]
 
@@ -310,20 +308,20 @@ class Manager(ManagerLog):
                 result = async_result.get()
                 check_isinstance(result, dict)
                 _check_result_dict(result)
-                
+
                 self.job_succeeded(job_id)
                 self.check_invariants()
-                
+
                 self.check_job_finished_handle_result(job_id, result)
                 self.check_invariants()
                 # this will schedule the parents, so let's do it later
-                
+
                 self.check_invariants()
-                                            
+
                 return True
             else:
                 return False
-            
+
         except TimeoutError:
             # Result not ready yet
             return False
@@ -348,64 +346,63 @@ class Manager(ManagerLog):
             # XXX
             print(traceback.format_exc(e))
             raise JobInterrupted('Keyboard interrupt')
-    
-    
-#     def _update_parents_relation(self, new_jobs):
-#         
-#         def add_parent(child, parent, db):
-#             print('adding %r to parents of %r' % (parent, child))
-#             child_comp = get_job(child, db=db)
-#             child_comp.parents.add(new_job)
-#             set_job(child, child_comp, db=db)
-#             print('  cur parents: %s' % child_comp.parents)
-# 
-#         print('updating parents relation for %r ' % new_jobs)
-#         for new_job in new_jobs:
-#             for child in children(new_job, db=self.db):
-#                 add_parent(child, new_job, db=self.db)
-                
+
+
+        # def _update_parents_relation(self, new_jobs):
+        #
+        #         def add_parent(child, parent, db):
+        #             print('adding %r to parents of %r' % (parent, child))
+        #             child_comp = get_job(child, db=db)
+        #             child_comp.parents.add(new_job)
+        #             set_job(child, child_comp, db=db)
+        #             print('  cur parents: %s' % child_comp.parents)
+        #
+        #         print('updating parents relation for %r ' % new_jobs)
+        #         for new_job in new_jobs:
+        #             for child in children(new_job, db=self.db):
+        #                 add_parent(child, new_job, db=self.db)
+
     def check_job_finished_handle_result(self, job_id, result):
-#         print('result of %r: %s' % (job_id, result))
+        # print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
-                 new_jobs=result['new_jobs'], 
+                 new_jobs=result['new_jobs'],
                  user_object_deps=result['user_object_deps'])
-        
+
         new_jobs = result['new_jobs']
-#         print('Job %r generated %r' % (job_id, new_jobs))
+        #         print('Job %r generated %r' % (job_id, new_jobs))
 
         # Update the child->parent relation        
         # self._update_parents_relation(new_jobs)
-        
+
         # Job succeeded? we can check in the DB
-        if True: # XXX: extra check
+        if True:  # XXX: extra check
             check_job_cache_says_done(job_id=job_id, db=self.db)
-        
+
         # print('job %r succeeded' % job_id)
         self.check_invariants()
-        
+
         # Check if the result of this job contains references
         # to other jobs
         deps = result['user_object_deps']
         if deps:
             # print('Job %r results contain references to jobs: %s' 
             #       % (job_id, deps))
-    
+
             # We first add extra dependencies to all those jobs
             jobs_depending_on_this = direct_parents(job_id, self.db)
             #print('need to update %s' % jobs_depending_on_this)
             for parent in jobs_depending_on_this:
-                db_job_add_dynamic_children(job_id=parent, children=deps, 
+                db_job_add_dynamic_children(job_id=parent, children=deps,
                                             returned_by=job_id, db=self.db)
-    
+
                 # also add inverse relation
                 for d in deps:
                     self.log('updating dep', job_id=job_id, parent=parent, d=d)
                     db_job_add_parent(job_id=d, parent=parent, db=self.db)
-    
-    
-            for parent in jobs_depending_on_this:           
-                self.log('rescheduling parent', 
+
+            for parent in jobs_depending_on_this:
+                self.log('rescheduling parent',
                          job_id=job_id,
                          parent=parent)
                 #print(' its parent %r' % parent)     
@@ -413,12 +410,12 @@ class Manager(ManagerLog):
                     #print('was also in targets')
                     # Remove it from the "ready_todo_list"
                     if parent in self.processing2result:
-                        msg =(' parent %s of %s is already processing?'%
-                              (job_id, parent))
+                        msg = (' parent %s of %s is already processing?' %
+                               (job_id, parent))
                         raise CompmakeBug(msg)
                     if parent in self.done:
-                        msg =(' parent %s of %s is already done?'%
-                              (job_id, parent))
+                        msg = (' parent %s of %s is already done?' %
+                               (job_id, parent))
                         raise CompmakeBug(msg)
                     self.all_targets.remove(parent)
                     if parent in self.failed:
@@ -435,7 +432,7 @@ class Manager(ManagerLog):
 
                     self.add_targets([parent])
                     self.check_invariants()
-        
+
         if self.recurse:
             # print('adding targets %s' % new_jobs)
             cocher = set()
@@ -449,21 +446,21 @@ class Manager(ManagerLog):
                 else:
                     cocher.add(j)
             self.add_targets(cocher)
-    
+
         self.check_invariants()
-                                     
+
     def host_failed(self, job_id):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()
-        
+
         print('host failed, rescheduling %r\n\n' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
         self.ready_todo.add(job_id)
-        
+
         self.publish_progress()
-        
+
         self.check_invariants()
 
     def job_failed(self, job_id):
@@ -472,13 +469,13 @@ class Manager(ManagerLog):
         self.log('job_failed', job_id=job_id)
         self.check_invariants()
         assert job_id in self.processing
-        
+
         self.failed.add(job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
-        
+
         self.check_invariants()
-        
+
         publish(self.context, 'manager-job-failed', job_id=job_id)
 
         # TODO: more efficient query
@@ -499,14 +496,14 @@ class Manager(ManagerLog):
         self.check_invariants()
         publish(self.context, 'manager-job-succeeded', job_id=job_id)
         assert job_id in self.processing
-        
+
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
 
         parent_jobs = set(direct_parents(job_id, db=self.db))
         cq = CacheQueryDB(self.db)
-        
+
         parents_todo = set(self.todo & parent_jobs)
         self.log('considering parents', parents_todo=parents_todo)
         for opportunity in parents_todo:
@@ -519,31 +516,31 @@ class Manager(ManagerLog):
                 else:
                     raise CompmakeBug(msg)
             assert opportunity not in self.processing
-            
+
             self.log('considering opportuniny', opportunity=opportunity,
                      job_id=job_id)
 
             its_children = direct_children(opportunity, db=self.db)
             # print('its children: %r' % its_children) 
-            
+
             for child in its_children:
                 # If child is part of all_targets, check that it is done
                 # otherwise check that it is done by the DB.
                 if child in self.all_targets:
                     if not child in self.done:
-                        self.log('parent still waiting another child', 
+                        self.log('parent still waiting another child',
                                  opportunity=opportunity,
                                  child=child)
                         # logger.info('parent %r still waiting on %r' % 
-                        #            (opportunity, child))
+                        # (opportunity, child))
                         # still some dependency left
-                        break                    
+                        break
                 else:
-                    up, _, _  = cq.up_to_date(child)
+                    up, _, _ = cq.up_to_date(child)
                     if not up:
                         # print('The child %s is not up_to_date' % child)
-                        break 
-                    
+                        break
+
             else:
                 # print('parent %r is now ready' % (opportunity))
                 self.log('parent is ready', opportunity=opportunity)
@@ -589,11 +586,11 @@ class Manager(ManagerLog):
             from compmake.ui import info
             info('Nothing to do.')
             publish(self.context, 'manager-succeeded',
-                targets=self.targets, done=self.done,
-                all_targets=self.all_targets,
-                todo=self.todo, failed=self.failed,
-                ready=self.ready_todo,
-                processing=self.processing)
+                    targets=self.targets, done=self.done,
+                    all_targets=self.all_targets,
+                    todo=self.todo, failed=self.failed,
+                    ready=self.ready_todo,
+                    processing=self.processing)
 
             return True
 
@@ -608,27 +605,27 @@ class Manager(ManagerLog):
                 # otherwise, we are completely blocked
                 if (not self.ready_todo) and (not self.processing):
                     msg = ('Nothing ready to do, and nothing cooking. '
-                    'This probably means that the Compmake job database was inconsistent. '
-                    'This might happen if the job creation is interrupted. Use the command "check-consistency" '
-                    'to check the database consistency.\n'
-                    +  self._get_situation_string())
+                           'This probably means that the Compmake job database was inconsistent. '
+                           'This might happen if the job creation is interrupted. Use the command "check-consistency" '
+                           'to check the database consistency.\n'
+                           + self._get_situation_string())
                     raise CompmakeBug(msg)
-                
+
                 self.publish_progress()
                 waiting_on = self.instance_some_jobs()
                 # self.publish_progress()
 
                 publish(self.context, 'manager-wait', reasons=waiting_on)
-                
+
                 if self.ready_todo and not self.processing:
                     # We time out as there are no resources
                     publish(self.context, 'manager-phase', phase='wait')
-                
+
                     # TODO: make child raise exception if there are no
                     # resources
                     # publish('manager-waits')
                     # publish('manager-failed', reason='No resources.',
-                    #    targets=self.targets, done=self.done,
+                    # targets=self.targets, done=self.done,
                     #    todo=self.todo, failed=self.failed,
                     #    ready=self.ready_todo,
                     #    processing=self.processing,
@@ -648,22 +645,22 @@ class Manager(ManagerLog):
             self.publish_progress()
 
             self.process_finished()
-            
 
             publish(self.context, 'manager-succeeded',
-                targets=self.targets, done=self.done,
-                all_targets=self.all_targets,
-                todo=self.todo, failed=self.failed, ready=self.ready_todo,
-                processing=self.processing)
+                    targets=self.targets, done=self.done,
+                    all_targets=self.all_targets,
+                    todo=self.todo, failed=self.failed, ready=self.ready_todo,
+                    processing=self.processing)
 
             return True
 
         except JobInterrupted as e:
             from ..ui import error
+
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt as e:
-            #print('will cleanup')
+            # print('will cleanup')
             raise KeyboardInterrupt('Manager interrupted.')
         finally:
             self.cleanup()
@@ -678,7 +675,7 @@ class Manager(ManagerLog):
                 failed=self.failed,
                 ready=self.ready_todo,
                 processing=self.processing)
-        
+
     def _get_situation_string(self):
         """ Returns a string summarizing the current situation """
         lists = dict(done=self.done,
@@ -693,17 +690,17 @@ class Manager(ManagerLog):
             jobs = lists[t]
             s += '- %12s: %d\n' % (t, len(jobs))
 
-#         if False:
+        # if False:
         s += '\n In more details:'
         for t, jobs in lists.items():
             jobs = lists[t]
             if len(jobs) < 20:
                 s += '\n- %12s: %d %s' % (t, len(jobs), jobs)
         return s
-    
+
     def check_invariants(self):
         if not CompmakeConstants.debug_check_invariants:
-            return 
+            return
         lists = dict(done=self.done,
                      all_targets=self.all_targets,
                      todo=self.todo,
@@ -711,7 +708,7 @@ class Manager(ManagerLog):
                      failed=self.failed,
                      ready_todo=self.ready_todo,
                      processing=self.processing)
-        
+
         def empty_intersection(a, b):
             inter = lists[a] & lists[b]
             if inter:
@@ -721,61 +718,62 @@ class Manager(ManagerLog):
                 st = self._get_situation_string()
                 if len(st) < 500:
                     msg += '\n' + st
-                    
+
                 raise CompmakeBug(msg)
 
         def partition(sets, result):
             S = set()
             for s in sets:
                 S = S | lists[s]
-                
+
             if S != lists[result]:
                 msg = 'These two sets should be the same:\n'
                 msg += ' %s = %s\n' % (" + ".join(list(sets)), result)
                 msg += ' first = %s\n' % S
                 msg += ' second = %s\n' % lists[result]
-                msg += ' first-second = %s\n' % (S -lists[result])
-                msg += ' second-first = %s\n' % (lists[result]-S)
-                
+                msg += ' first-second = %s\n' % (S - lists[result])
+                msg += ' second-first = %s\n' % (lists[result] - S)
+
                 st = self._get_situation_string()
                 if len(st) < 500:
                     msg += '\n' + st
 
                 raise CompmakeBug(msg)
-                
+
             for a, b in itertools.product(sets, sets):
                 if a == b:
                     continue
                 empty_intersection(a, b)
-        
-        partition(['done', 'failed','blocked',
+
+        partition(['done', 'failed', 'blocked',
                    'todo', 'ready_todo', 'processing'],
-                   'all_targets')
-        
+                  'all_targets')
+
         if False:
-            
+
             for job_id in self.done:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug('job %r in done does not exist' % job_id)
-            
-            for job_id in self.todo:    
+
+            for job_id in self.todo:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug('job %r in todo does not exist' % job_id)
-            
-            for job_id in self.failed:    
+
+            for job_id in self.failed:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug('job %r in failed does not exist' % job_id)
-                 
-            for job_id in self.blocked:    
+
+            for job_id in self.blocked:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug('job %r in blocked does not exist' % job_id)
+
 
 def check_job_cache_says_done(job_id, db):
     """ Raises CompmakeBug if the job is not marked as done. """
     if not job_cache_exists(job_id, db):
-        msg = ('The job %r was reported as failed but no record of ' 
-               'it was found.' % job_id) 
-        raise CompmakeBug(msg)                
+        msg = ('The job %r was reported as failed but no record of '
+               'it was found.' % job_id)
+        raise CompmakeBug(msg)
     else:
         cache = get_job_cache(job_id, db)
         if not cache.state == Cache.DONE:
@@ -783,17 +781,18 @@ def check_job_cache_says_done(job_id, db):
                    'not marked as such in the DB.' % job_id)
             msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
             raise CompmakeBug(msg)
-        
+
         if not job_userobject_exists(job_id, db):
             msg = 'Job %r marked as DONE but no userobject exists' % job_id
             raise CompmakeBug(msg)
- 
+
+
 if False:
     def clean_other_jobs(self, job_id, new_jobs):
         """ job_id has finished and the jobs in new_jobs have been
             generated. We should look in the DB if in the past 
             it had generated other jobs and delete them """
-        #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
+        # print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
         db = self.db
         extra = []
         # XXX: slow
@@ -801,7 +800,7 @@ if False:
             if get_job(g, db=db).defined_by[-1] == job_id:
                 if not g in new_jobs:
                     extra.append(g)
-                     
+
         for g in extra:
             if g in self.processing:
                 print('a mess - cannot eliminate job %s because processing' % g)
@@ -821,23 +820,22 @@ if False:
                     self.failed.remove(g)
                 if g in self.blocked:
                     self.blocked.remove(g)
-        
+
             #print('Erasing previously generated job %r (%s) removed.' % (g, job.defined_by))
             delete_all_job_data(g, db=db)
-            
+
             # clean dependencies as well
             self.clean_other_jobs(g, [])
-
 
 
 def check_job_cache_says_failed(job_id, db, e):
     """ Raises CompmakeBug if the job is not marked as failed. """
     if not job_cache_exists(job_id, db):
-        msg = ('The job %r was reported as failed but no record of ' 
+        msg = ('The job %r was reported as failed but no record of '
                'it was found.' % job_id)
         msg += '\n' + 'JobFailed exception:'
         msg += '\n' + indent(str(e), "| ")
-        raise CompmakeBug(msg)                
+        raise CompmakeBug(msg)
     else:
         cache = get_job_cache(job_id, db)
         if not cache.state == Cache.FAILED:
@@ -848,7 +846,7 @@ def check_job_cache_says_failed(job_id, db, e):
             msg += '\n' + indent(str(e), "| ")
             raise CompmakeBug(msg)
 
-#             
+#
 #          
 # def clean_other_jobs_distributed(db, job_id, new_jobs, recurse=False):
 #     """ job_id has finished and the jobs in new_jobs have been

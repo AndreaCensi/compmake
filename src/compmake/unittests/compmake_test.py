@@ -28,6 +28,7 @@ class CompmakeTest(unittest.TestCase):
             rmtree(self.root0)
 
     # optional init
+    # noinspection PyPep8Naming
     def mySetUp(self):
         pass
 

@@ -1,5 +1,0 @@
-$ compmake out-example 
-compmake_main()
-compmake 3.3   ``Keep calm and carry on,,                                                                                               
-Welcome to the compmake console. (write 'help' for a list of commands)                                                                  
-@:
