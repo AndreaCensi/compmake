@@ -59,5 +59,4 @@ Remember that jobs run on different processes_ -- not threads_. This means that 
 .. _threads: http://en.wikipedia.org/wiki/Thread_%28computer_science%29
 
 
-
 * Go on to the next chapter :ref:`tutorial_embedding`.

@@ -1,4 +1,4 @@
-from mycomputations import func1, func2, draw
+from mycomputations import funcA, funcB, draw
 
 if __name__ == '__main__':
     from compmake import Context
@@ -10,8 +10,8 @@ if __name__ == '__main__':
             # for easy reference 
             context.comp_prefix('p1=%s-p2=%s' % (param1,param2))
                     
-            res1 = context.comp(func1, param1)
-            res2 = context.comp(func2, res1, param2)
+            res1 = context.comp(funcA, param1)
+            res2 = context.comp(funcB, res1, param2)
             context.comp(draw, res2)
 
     context.compmake_console()

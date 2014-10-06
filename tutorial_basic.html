@@ -245,17 +245,17 @@ puts this &#8220;job&#8221; in the job database. It returns (immediately) a <a c
 the delayed result. You can use this value in successive calls to <tt class="docutils literal"><span class="pre">comp()</span></tt> (but not directly).
 In this way, <span class="compmake-brand">compmake</span> learns the computational structure of your program.</p>
 <p>For example, consider the source code:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">funcA</span><span class="p">,</span> <span class="n">funcB</span><span class="p">,</span> <span class="n">draw</span>
 
 <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
     <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
-        <span class="n">res1</span> <span class="o">=</span> <span class="n">func1</span><span class="p">(</span><span class="n">param1</span><span class="p">)</span>
-        <span class="n">res2</span> <span class="o">=</span> <span class="n">func2</span><span class="p">(</span><span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+        <span class="n">res1</span> <span class="o">=</span> <span class="n">funcA</span><span class="p">(</span><span class="n">param1</span><span class="p">)</span>
+        <span class="n">res2</span> <span class="o">=</span> <span class="n">funcB</span><span class="p">(</span><span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
         <span class="n">draw</span><span class="p">(</span><span class="n">res2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this example, the source code becomes (file <tt class="docutils literal"><span class="pre">using_compmake.py</span></tt>):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">funcA</span><span class="p">,</span> <span class="n">funcB</span><span class="p">,</span> <span class="n">draw</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
@@ -263,8 +263,8 @@ In this way, <span class="compmake-brand">compmake</span> learns the computation
     
     <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
@@ -357,7 +357,7 @@ two mechanisms to that effect. The first is the function <tt class="docutils lit
 which takes a string used as a prefix for the job ids generated.
 That command is particularly useful in scenarios like the example
 where we presumably want to group the functions by the parameters:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">funcA</span><span class="p">,</span> <span class="n">funcB</span><span class="p">,</span> <span class="n">draw</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
@@ -369,8 +369,8 @@ where we presumably want to group the functions by the parameters:</p>
             <span class="c"># for easy reference </span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
                     
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
@@ -388,7 +388,7 @@ where we presumably want to group the functions by the parameters:</p>
 </pre></div>
 </div>
 <p>Another method  is using the <tt class="docutils literal"><span class="pre">job_id</span></tt> keyword argument to <tt class="docutils literal"><span class="pre">comp()</span></tt>.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">,</span> <span class="n">draw</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mycomputations</span> <span class="kn">import</span> <span class="n">funcA</span><span class="p">,</span> <span class="n">funcB</span><span class="p">,</span> <span class="n">draw</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
@@ -399,8 +399,8 @@ where we presumably want to group the functions by the parameters:</p>
             <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
             
             <span class="c"># use job_id to override default naming</span>
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funca</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;drawing&#39;</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
