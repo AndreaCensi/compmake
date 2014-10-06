@@ -46,8 +46,9 @@ state2color = {
 
  
 def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
+
     job_list = list(job_list)
-    # print('%s jobs in total' % len(job_list))
+    #print('%s jobs in total' % len(job_list))
     if not job_list:
         print('No jobs found.')
         return

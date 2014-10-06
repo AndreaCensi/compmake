@@ -60,6 +60,7 @@ def main():
                             exceptions_no_traceback=(UserError,))
 
 def compmake_main(args):
+    print('compmake_main()')
     if not '' in sys.path:
         sys.path.append('')
     
@@ -95,7 +96,7 @@ def compmake_main(args):
     (options, args) = parser.parse_args(args)
 
     if not options.contracts:
-        info('Disabling PyContracts; use --contracts to activate.')
+        #info('Disabling PyContracts; use --contracts to activate.')
         contracts.disable_all()
 
     # We load plugins after we parsed the configuration

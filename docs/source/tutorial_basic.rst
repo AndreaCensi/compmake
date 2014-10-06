@@ -114,7 +114,6 @@ You can give the number of parallel processes: ::
   @: parmake n=5
 
 
-
 **Making in parallel using SGE**: The command ``sgemake`` runs the computation using SGE: ::
 
   @: sgemake

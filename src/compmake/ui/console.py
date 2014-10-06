@@ -20,10 +20,11 @@ __all__ = [
 ]
 
 
-use_readline = True
+use_readline = False # XXX
 
 if use_readline:
     try:
+        # TODO: do not import if using terminal
         import readline        # @UnusedImport
     except BaseException as e:      
         try:
@@ -35,6 +36,7 @@ if use_readline:
             msg += '\n- readline error: %s' % e
             msg += '\n- pyreadline error: %s' % e2
             logger.warning(msg)
+
 
 
 @contract(cq=CacheQueryDB, returns='None')

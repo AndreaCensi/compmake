@@ -17,6 +17,7 @@ def clean_console_line(stream):
     stream.write(s)
 
 
+
 def warning(s):
     write_message(s, lambda x: compmake_colored(x, 'yellow'))
 

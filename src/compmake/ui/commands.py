@@ -13,7 +13,6 @@ from .console import ask_question
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .visualization import error, info
 
-
 ui_section(GENERAL)
 
 __all__ = [
