@@ -22,7 +22,8 @@ def config_populate_optparser(parser):
 
             command = '--%s' % switch.name
     
-            def option_callback(option, opt, value, par, switch):  # @UnusedVariable
+            def option_callback(option, opt, value, par, switch):
+                #print('executing option %r' % switch)
                 try:
                     set_config_from_strings(switch.name, value)
                 except:

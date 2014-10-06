@@ -59,6 +59,8 @@ def main():
     wrap_script_entry_point(compmake_main,
                             exceptions_no_traceback=(UserError,))
 
+
+# noinspection PyUnresolvedReferences
 def compmake_main(args):
     if not '' in sys.path:
         sys.path.append('')
@@ -88,8 +90,7 @@ def compmake_main(args):
 
     parser.add_option('--nosysexit',  default=False, action='store_true',
                       help='Does not sys.exit(ret); useful for debugging.')
-    
-    
+
     config_populate_optparser(parser)
 
     (options, args) = parser.parse_args(args)
