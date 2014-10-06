@@ -1,8 +1,8 @@
-$ compmake example list
-                                 draw       not started
-                                 draw-0     not started
-                                 draw-1     not started
-                                 draw-2     not started
-                                 draw-3     not started
-                                 draw-4     not started
+$ compmake example ls
+                                     draw        todo           
+                                     draw-2      todo           
+                                     draw-3      todo           
+                                     draw-4      todo           
+                                     draw-5      todo           
+                                     draw-6      todo           
     [...]

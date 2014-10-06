@@ -1,8 +1,8 @@
-$ compmake example list
-                        p1=1-p2=10-draw     not started
-                        p1=1-p2=10-func1    not started
-                        p1=1-p2=10-func2    not started
-                        p1=1-p2=11-draw     not started
-                        p1=1-p2=11-func1    not started
-                        p1=1-p2=11-func2    not started
+$ compmake example ls
+                            p1=1-p2=10-draw      todo           
+                            p1=1-p2=10-funcA     todo           
+                            p1=1-p2=10-funcB     todo           
+                            p1=1-p2=11-draw      todo           
+                            p1=1-p2=11-funcA     todo           
+                            p1=1-p2=11-funcB     todo           
     [...]
