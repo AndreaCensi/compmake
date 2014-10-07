@@ -1,6 +1,7 @@
 from collections import defaultdict
 from compmake.jobs import CacheQueryDB, top_targets
-from compmake.structures import Cache, UserError
+from compmake.structures import Cache
+from compmake.exceptions import UserError
 from compmake.ui import COMMANDS_ADVANCED, info, ui_command
 import os
 
@@ -10,25 +11,25 @@ def graph(job_list, context, filename='compmake',
           filter='dot', format='png', # @ReservedAssignment
           compact=False, color=True,
           cluster=False):  
-    '''
-    
-        Creates a graph of the given targets and dependencies. 
-    
+    """
+
+        Creates a graph of the given targets and dependencies.
+
         Usage:
-            
+
             @: graph filename=filename compact=0,1 format=png,...
-         
+
         Options:
-        
+
             filename:  name of generated filename in the dot format
-            compact=0: whether to include the job names in the nodes  
+            compact=0: whether to include the job names in the nodes
             filter=[dot,circo,twopi,...]  which algorithm to use to arrange
-                       the nodes. The best choice depends on 
-                       the topology of your 
-                       computation. The default is 'dot' 
-                       (hierarchy top-bottom). 
+                       the nodes. The best choice depends on
+                       the topology of your
+                       computation. The default is 'dot'
+                       (hierarchy top-bottom).
             format=[png,...]  The output file format.
-    '''
+    """
     db = context.get_compmake_db()
     if not job_list:
         job_list = top_targets(db)

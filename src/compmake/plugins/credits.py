@@ -12,7 +12,8 @@ banner = """\
                     |_| Tame your Python computations!                         
 """
 
+
 @ui_command(alias='about', section=GENERAL)
 def credits():  # @ReservedAssignment
-    '''Shows the credits for compmake.'''
+    """ Shows the credits for compmake. """
     print(banner)

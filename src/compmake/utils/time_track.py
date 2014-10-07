@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import sys
+
 import time
 
 
@@ -7,8 +8,8 @@ __all__ = [
     'TimeTrack',
 ]
 
-class TimeTrack(object):
 
+class TimeTrack(object):
     def __init__(self, what=None):
         self.t0 = time.time()
         self.c0 = time.clock()
@@ -31,20 +32,21 @@ class TimeTrack(object):
                 what = what[:(MAX - 3)] + '...'
             # msg = '%s - %s' % (msg, what)
             msg = '%s - %s' % (msg, what)
-        #         stream.write(msg)
+        # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()
 
         from compmake.ui.visualization import warning
+
         warning(msg)
-    
+
     @staticmethod
     @contextmanager
     def measure(what=None, min_td=0.001):
         t = TimeTrack(what)
         yield
         t.show(min_td=min_td)
-        
+
 
     @staticmethod
     def decorator(f):
@@ -56,6 +58,7 @@ class TimeTrack(object):
             what = "%15s(%s)" % (f.__name__, sargs)
             with TimeTrack.measure(what, min_td=0.1):
                 return f(self, *args, **kwargs)
+
         return wrapper
 
 

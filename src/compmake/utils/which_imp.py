@@ -4,11 +4,12 @@ __all__ = [
     'which',
 ]
 
+
 def which(program):
     """ Returns string or raise ValueError. """
-    PATH =  os.environ["PATH"]
+    PATH = os.environ["PATH"]
     PATHs = PATH.split(os.pathsep)
-    
+
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 

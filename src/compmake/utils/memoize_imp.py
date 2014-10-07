@@ -1,16 +1,13 @@
-# from decorator import decorator
-# from .frozen import frozendict2
 import functools
 
 
 __all__ = [
-#     'memoize_simple', 
     'memoized_reset',
 ]
 
 
 # def memoize_simple(obj):
-#     # TODO: make sure it's not iterator
+# # TODO: make sure it's not iterator
 #     cache = obj.cache = {}
 # 
 #     def memoizer(f, *args, **kwargs):
@@ -29,9 +26,11 @@ class memoized_reset(object):
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.
     """
+
     def __init__(self, func):
         self.func = func
         self.cache = {}
+
     def __call__(self, *args):
         try:
             return self.cache[args]
@@ -43,15 +42,16 @@ class memoized_reset(object):
             # uncachable -- for instance, passing a list as an argument.
             # Better to not cache than to blow up entirely.
             return self.func(*args)
+
     def __repr__(self):
         """Return the function's docstring."""
         return self.func.__doc__
-    
+
     def __get__(self, obj, objtype):  # @UnusedVariable
         """Support instance methods."""
         fn = functools.partial(self.__call__, obj)
         fn.reset = self._reset
         return fn
-    
-    def _reset(self):   
+
+    def _reset(self):
         self.cache = {}

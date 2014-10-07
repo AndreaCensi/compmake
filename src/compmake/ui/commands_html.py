@@ -1,11 +1,13 @@
-from .helpers import COMMANDS_ADVANCED, ui_command, UIState
 import sys
+
+from .helpers import COMMANDS_ADVANCED, ui_command, UIState
 
 
 __all__ = [
-   'create_commands_html',
-   'commands_html',
+    'create_commands_html',
+    'commands_html',
 ]
+
 
 def create_commands_html(file=sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(),
@@ -37,7 +39,7 @@ def create_commands_html(file=sys.stdout):  # @ReservedAssignment
 
 @ui_command(section=COMMANDS_ADVANCED)
 def commands_html(output_file=''):
-    ''' Dumps the commands description in html on the specified file. '''
+    """ Dumps the commands description in html on the specified file. """
     if output_file:
         f = open(output_file, 'w')
     else:

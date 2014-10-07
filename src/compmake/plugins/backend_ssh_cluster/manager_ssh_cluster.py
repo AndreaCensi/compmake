@@ -7,12 +7,15 @@
 # import time
 # import traceback
 # 
-# from cjson import encode, decode, EncodeError, DecodeError  # @UnresolvedImport
+# from cjson import encode, decode, EncodeError, DecodeError  #
+# @UnresolvedImport
 # from compmake import CompmakeConstants
 # 
 # from ..events import register_handler, remove_all_handlers, broadcast_event
-# from ..jobs import (colorize_loglevel, get_job, set_job_userobject, set_job_cache,
-#     mark_as_failed)
+# from ..jobs import (colorize_loglevel, get_job, set_job_userobject,
+# set_job_cache,
+
+# mark_as_failed)
 # from ..structures import Cache, CompmakeException, JobFailed, HostFailed
 # from ..ui import info, error
 # from ..utils import OutputCapture, setproctitle
@@ -103,7 +106,8 @@
 # 
 #         f = cluster_job
 #         nice = None
-#         fargs = self.context, job_id, host_config.name, host_config.username, nice
+#         fargs = self.context, job_id, host_config.name,
+# host_config.username, nice
 # 
 #         debug = False
 #         if not debug:

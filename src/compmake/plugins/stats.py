@@ -1,4 +1,4 @@
-''' The actual interface of some commands in commands.py '''
+""" The actual interface of some commands in commands.py """
 from ..jobs import get_job, get_job_cache, parse_job_list
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
@@ -18,7 +18,7 @@ state2color = {
 
 @ui_command(section=VISUALIZATION)
 def stats(args, context, cq):
-    '''Displays a coarse summary of the jobs state. '''
+    """ Displays a coarse summary of the jobs state. """
     if not args:
         job_list = cq.all_jobs()
     else:

@@ -9,24 +9,29 @@ from compmake.state import get_compmake_config
 def command_interrupted(context, event):  # @UnusedVariable
     error('Command %r interrupted.' % event.kwargs['command'])
 
+
 register_handler('command-interrupted', command_interrupted)
 
 
 def command_failed(context, event):  # @UnusedVariable
     error('Command %r failed: %s' % (event.kwargs['command'],
-                                      event.kwargs['reason']))
+                                     event.kwargs['reason']))
+
+
 register_handler('command-failed', command_failed)
 
 # my_prefix = '(plugin commands_status) '
 my_prefix = ''
+
 
 def command_line_interrupted(context, event):  # @UnusedVariable
     # Only write something if it is more than one
     command = event.kwargs['command']
     if not ';' in command:
         return
-    error(my_prefix+'Command sequence %r interrupted.' % command)
-    
+    error(my_prefix + 'Command sequence %r interrupted.' % command)
+
+
 register_handler('command-line-interrupted', command_line_interrupted)
 
 
@@ -35,36 +40,42 @@ def command_line_failed(context, event):  # @UnusedVariable
     command = event.kwargs['command']
     if not ';' in command:
         return
-    error(my_prefix+'Command sequence %r failed.' % command)
-    
-    
+    error(my_prefix + 'Command sequence %r failed.' % command)
+
+
 register_handler('command-line-failed', command_line_failed)
+
 
 def job_failed(context, event):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     reason = event.kwargs['reason']
     bt = event.kwargs['bt']
-    
+
     msg = 'Job %r failed:' % job_id
     s = reason.strip
     if get_compmake_config('echo'):
-        s += '\n' + bt 
-    
+        s += '\n' + bt
+
     msg += '\n' + indent(reason.strip(), '| ')
-    error(my_prefix+msg)
-    
+    error(my_prefix + msg)
+
+
 register_handler('job-failed', job_failed)
 
 
 def job_interrupted(context, event):  # @UnusedVariable
-    error(my_prefix+'Job %r interrupted:\n %s' % 
+    error(my_prefix + 'Job %r interrupted:\n %s' %
           (event.kwargs['job_id'],
-            indent(event.kwargs['bt'], '> ')))
+           indent(event.kwargs['bt'], '> ')))
+
+
 register_handler('job-interrupted', job_interrupted)
 
+
 def compmake_bug(context, event):  # @UnusedVariable
-    error(my_prefix+event.kwargs['user_msg'])
-    error(my_prefix+event.kwargs['dev_msg'])
+    error(my_prefix + event.kwargs['user_msg'])
+    error(my_prefix + event.kwargs['dev_msg'])
+
 
 register_handler('compmake-bug', compmake_bug)
 
@@ -73,6 +84,7 @@ register_handler('compmake-bug', compmake_bug)
 # by the default handler
 def ignore(context, event):
     pass
+
 
 register_handler('command-starting', ignore)
 register_handler('command-line-starting', ignore)

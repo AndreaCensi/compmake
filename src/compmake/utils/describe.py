@@ -1,4 +1,3 @@
-
-from contracts import describe_type, describe_value  # @UnusedImport
+from contracts import describe_type, describe_value
 
 

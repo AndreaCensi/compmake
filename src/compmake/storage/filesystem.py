@@ -1,20 +1,22 @@
-from compmake import logger
-from compmake.structures import CompmakeBug, SerializationError
-from compmake.utils import (find_pickling_error, safe_pickle_dump, 
-    safe_pickle_load)
 from glob import glob
 from os.path import basename
 import os
 import traceback
 
+from compmake import logger
+from compmake.exceptions import CompmakeBug, SerializationError
+from compmake.utils import (find_pickling_error, safe_pickle_dump,
+                            safe_pickle_load)
+
+
 if True:
     track_time = lambda x: x
 else:
     from ..utils import TimeTrack
+
     track_time = TimeTrack.decorator
 
 trace_queries = False
-
 
 __all__ = [
     'StorageFilesystem',
@@ -22,7 +24,6 @@ __all__ = [
 
 
 class StorageFilesystem(object):
-
     def __init__(self, basepath, compress=False):
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
@@ -39,25 +40,25 @@ class StorageFilesystem(object):
         filename = self.filename_for_key(key)
         statinfo = os.stat(filename)
         return statinfo.st_size
-        
+
     @track_time
     def __getitem__(self, key):
         if trace_queries:
             logger.debug('R %s' % str(key))
-        
+
         self.check_existence()
-        
+
         filename = self.filename_for_key(key)
-        
+
         if not os.path.exists(filename):
             msg = 'Could not find key %r.' % key
             msg += '\n file: %s' % filename
             raise CompmakeBug(msg)
-        
+
         try:
             return safe_pickle_load(filename)
         except Exception as e:
-            msg =( "Could not unpickle data for key %r. \n file: %s" % 
+            msg = ("Could not unpickle data for key %r. \n file: %s" %
                    (key, filename))
             logger.error(msg)
             logger.exception(e)
@@ -79,14 +80,14 @@ class StorageFilesystem(object):
         self.check_existence()
 
         filename = self.filename_for_key(key)
-        
+
         try:
             safe_pickle_dump(value, filename)
             assert os.path.exists(filename)
-            
+
         except BaseException as e:
             msg = ('Cannot set key %s: cannot pickle object '
-                    'of class %s: %s' % (key, value.__class__.__name__, e))
+                   'of class %s: %s' % (key, value.__class__.__name__, e))
             logger.error(msg)
             logger.exception(e)
             emsg = find_pickling_error(value)
@@ -108,10 +109,10 @@ class StorageFilesystem(object):
 
         filename = self.filename_for_key(key)
         ex = os.path.exists(filename)
-        
-        #  logger.debug('? %s %s %s' % (str(key), filename, ex))
+
+        # logger.debug('? %s %s %s' % (str(key), filename, ex))
         return ex
-  
+
     @track_time
     def keys0(self):
         filename = self.filename_for_key('*')
@@ -120,7 +121,7 @@ class StorageFilesystem(object):
             b = basename(x.replace(self.file_extension, ''))
             key = self.basename2key(b)
             yield key
-    
+
     @track_time
     def keys(self):
         # slow process
@@ -131,19 +132,19 @@ class StorageFilesystem(object):
         pass
 
     dangerous_chars = {
-       '/': 'CMSLASH',
-       '..': 'CMDOT',
-       '~': 'CMHOME'
+        '/': 'CMSLASH',
+        '..': 'CMDOT',
+        '~': 'CMHOME'
     }
 
     def key2basename(self, key):
-        '''turns a key into a reasonable filename'''
+        """ turns a key into a reasonable filename"""
         for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
     def basename2key(self, key):
-        ''' Undoes key2basename '''
+        """ Undoes key2basename """
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key

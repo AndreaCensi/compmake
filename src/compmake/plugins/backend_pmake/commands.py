@@ -13,22 +13,25 @@ __all__ = [
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def parmake(job_list, context, cq, 
-            n=DefaultsToConfig('max_parallel_jobs'), 
+def parmake(job_list, context, cq,
+            n=DefaultsToConfig('max_parallel_jobs'),
             recurse=DefaultsToConfig('recurse'),
             new_process=DefaultsToConfig('new_process'),
-            echo=DefaultsToConfig('echo')):    
+            echo=DefaultsToConfig('echo')):
     ''' 
         Parallel equivalent of make. 
         
-        Uses multiprocessing.Process as a backend and a Python queue to communicate with the workers. 
+        Uses multiprocessing.Process as a backend and a Python queue to
+        communicate with the workers.
     
         Options:
         
           parmake n=10             Uses 10 workers
-          parmake recurse=1        Recursive make: put generated jobs in the queue.
+          parmake recurse=1        Recursive make: put generated jobs in the
+          queue.
           parmake new_process=1    Run the jobs in a new Python process.
-          parmake echo=1           Shows the output of the jobs. This might slow down everything.
+          parmake echo=1           Shows the output of the jobs. This might
+          slow down everything.
           
           parmake new_process=1 echo=1   Not supported yet.
 
@@ -36,7 +39,7 @@ def parmake(job_list, context, cq,
 
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
-    
+
     db = context.get_compmake_db()
     if not job_list:
         # XXX
@@ -44,19 +47,20 @@ def parmake(job_list, context, cq,
 
     publish(context, 'parmake-status',
             status='Starting multiprocessing manager (forking)')
-    manager = PmakeManager(num_processes=n, 
+    manager = PmakeManager(num_processes=n,
                            context=context,
-                           cq=cq, 
+                           cq=cq,
                            recurse=recurse,
                            new_process=new_process,
                            show_output=echo)
 
-    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
+    publish(context, 'parmake-status',
+            status='Adding %d targets.' % len(job_list))
     manager.add_targets(job_list)
 
     publish(context, 'parmake-status', status='Processing')
     manager.process()
- 
+
     return _raise_if_failed(manager)
 
 

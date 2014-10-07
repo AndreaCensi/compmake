@@ -1,14 +1,15 @@
-
 from system_cmd import system_cmd_result
 import os
 
 __all__ = [
-  'JobNotRunYet',
-  'get_qacct',
+    'JobNotRunYet',
+    'get_qacct',
 ]
+
 
 class JobNotRunYet(Exception):
     pass
+
 
 def get_qacct(sge_id):
     """ 

@@ -12,8 +12,8 @@ from ..utils import pad_to_screen
 compmake_issues_url = 'http://compmake.org'
 name = 'compmake'
 banners = [
-   "Tame your Python computations!",
-   "Keep calm and carry on",
+    "Tame your Python computations!",
+    "Keep calm and carry on",
 ]
 
 
@@ -30,7 +30,7 @@ def console_starting(event, context):  # @UnusedVariable
         compmake_colored(version, 'green'),
         compmake_colored(banner, 'cyan')))
 
-    printb(("Welcome to the compmake console. " + 
+    printb(("Welcome to the compmake console. " +
             "(write 'help' for a list of commands)"))
     njobs = len(list(all_jobs(db)))
 

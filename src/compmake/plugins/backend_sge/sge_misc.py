@@ -1,14 +1,15 @@
-from compmake.structures import UserError
-from compmake.utils.which_imp import which
+from compmake.exceptions import UserError
+from compmake.utils import which
 from contracts.utils import raise_wrapped
 
 __all__ = [
     'check_sge_environment',
 ]
 
+
 def check_sge_environment():
     msg_install = (
-    " Please install SGE properly. "
+        " Please install SGE properly. "
     )
     try:
         _ = which('qsub')

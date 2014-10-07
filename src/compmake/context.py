@@ -1,14 +1,16 @@
-from compmake import logger
-from contracts import contract
 import os
 import sys
+
+from compmake import logger
+from contracts import contract
+
 
 __all__ = [
     'Context',
 ]
 
-class Context(object):
 
+class Context(object):
     @contract(db='None|str|isinstance(StorageFilesystem)',
               currently_executing='list(str)')
     def __init__(self, db=None, currently_executing=['root']):
@@ -18,17 +20,17 @@ class Context(object):
             currently_executing: str, job currently executing
         """
         from compmake import StorageFilesystem
-        
-        if db is None:    
+
+        if db is None:
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
-            
+
             logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = 'out-%s' % prog
             db = StorageFilesystem(dirname)
-            
+
         if isinstance(db, str):
             db = StorageFilesystem(db)
-            
+
         assert db is not None
         self.compmake_db = db
         self._jobs_defined_in_this_session = set()
@@ -63,24 +65,27 @@ class Context(object):
             if ' ' in prefix:
                 msg = 'Invalid job prefix %r.' % prefix
                 from .structures import UserError
+
                 raise UserError(msg)
 
         self._job_prefix = prefix
 
-#     _default = None  # singleton
+    # _default = None  # singleton
 
     # setting up jobs
     def comp_dynamic(self, command_, *args, **kwargs):
         from compmake.ui.ui import comp_
+
         return comp_(self, command_, *args, needs_context=True, **kwargs)
 
     def comp(self, command_, *args, **kwargs):
         from compmake.ui.ui import comp_
+
         return comp_(self, command_, *args, **kwargs)
 
     def comp_store(self, x, job_id=None):
         return comp_store_(x=x, context=self, job_id=job_id)
- 
+
     def interpret_commands_wrap(self, commands):
         """ 
             Returns:
@@ -93,20 +98,23 @@ class Context(object):
         """
         from .ui import interpret_commands_wrap
         from .jobs import CacheQueryDB
+
         cq = CacheQueryDB(self.get_compmake_db())
         return interpret_commands_wrap(commands, context=self, cq=cq)
-     
+
     @contract(returns='None')
     def batch_command(self, s):
         from .ui import batch_command
         from .jobs import CacheQueryDB
+
         cq = CacheQueryDB(self.get_compmake_db())
         return batch_command(s, context=self, cq=cq)
 
     def compmake_console(self):
         from .ui import compmake_console
+
         return compmake_console(context=self)
- 
+
 
 def comp_store_(x, context, job_id=None):
     """ 
@@ -130,4 +138,3 @@ def comp_store_(x, context, job_id=None):
 
 def load_static_storage(x):  # XXX: this uses double the memory though
     return x
-

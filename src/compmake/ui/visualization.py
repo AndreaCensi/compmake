@@ -1,21 +1,22 @@
-from ..utils import get_screen_columns
-from compmake.utils import compmake_colored
 import sys
 
-__all__ = [ 
+from ..utils import get_screen_columns
+from compmake.utils import compmake_colored
+
+
+__all__ = [
     'compmake_colored',
     'warning',
     'error',
     'user_error',
     'info',
-    'debug'           
+    'debug'
 ]
 
 
 def clean_console_line(stream):
     s = '\r' + (' ' * (get_screen_columns() - 0)) + '\r'  # was : 2
     stream.write(s)
-
 
 
 def warning(s):
@@ -43,6 +44,7 @@ def write_message(s, formatting):
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState
+
     stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 

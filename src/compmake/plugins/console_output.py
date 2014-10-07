@@ -1,9 +1,11 @@
+import sys
+
 from .. import get_compmake_config
 from ..events import register_handler
 from ..ui import compmake_colored
-from ..utils import (get_length_on_screen, get_screen_columns, pad_to_screen, 
-    pad_to_screen_length)
-import sys
+from ..utils import (get_length_on_screen, get_screen_columns, pad_to_screen,
+                     pad_to_screen_length)
+
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -58,7 +60,6 @@ def plot_with_prefix(job_id, lines, is_stderr):
             stream.write('\n')
 
 
-
 def write_screen_line(s):
     """ Writes and pads """
     # TODO: check that it is not too long
@@ -79,8 +80,8 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
 
         max_size = get_screen_columns()
         # if debug_padding:
-        #     prefix = compmake_colored('>', color='red')
-        #     postfix = compmake_colored('<', color='blue')
+        # prefix = compmake_colored('>', color='red')
+        # postfix = compmake_colored('<', color='blue')
         # else:
         prefix = ""
         postfix = ""
@@ -103,7 +104,7 @@ def pad_line_to_screen_length(prefix, line, postfix, max_size):
 
     lines = []
     for _, subline in enumerate(sublines):
-        #pad = '+' if debug_padding else ' '
+        # pad = '+' if debug_padding else ' '
         pad = ' '
         subline = pad_to_screen_length(subline, max_space, pad=pad)
         line = '%s%s%s' % (prefix, subline, postfix)
@@ -137,6 +138,7 @@ def clip_to_length(line, max_len):
 def handle_event_stdout(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stdout'):
         handle_event(event, False)
+
 
 def handle_event_stderr(event, context):  # @UnusedVariable
     if get_compmake_config('echo_stderr'):

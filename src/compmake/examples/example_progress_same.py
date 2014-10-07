@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
-from compmake import progress
-import time
 import sys
 
+from compmake import progress
+import time
+
+
 wait = 0.01
+
 
 def mylongfunction():
     N = 4
@@ -22,10 +25,11 @@ if __name__ == '__main__':
     print('This is an example of how to use the "progress" function.')
 
     from compmake import Context
+
     c = Context()
-    
+
     c.comp(mylongfunction)
-        
+
     # Run command passed on command line or otherwise run console.    
     cmds = sys.argv[1:]
     if cmds:

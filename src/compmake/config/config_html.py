@@ -4,6 +4,7 @@ __all__ = [
     'create_config_html',
 ]
 
+
 def create_config_html(file):  # @ReservedAssignment
     config_switches = CompmakeGlobalState.config_switches
     config_sections = CompmakeGlobalState.config_sections
@@ -27,7 +28,7 @@ def create_config_html(file):  # @ReservedAssignment
 
             file.write("<tr> <td class='config-name'><tt>%s</tt></td> \
 <td class='config-value'><tt>%s<tt></td> \
-<td class='config-desc'>%s</td> </tr> \n" % 
+<td class='config-desc'>%s</td> </tr> \n" %
                        (name, switch.default_value, desc))
 
     file.write("</table>\n")

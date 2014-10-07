@@ -1,16 +1,18 @@
+from io import BytesIO as StringIO
+from pickle import (
+    EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE,
+    _tuplesize2code)
+import pickle
+
 from .. import logger
 from .format_exceptions import my_format_exc
 from contracts import describe_type
-from io import BytesIO as StringIO
-from pickle import (
-    EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE, 
-    _tuplesize2code)
-import pickle
 
 
 __all__ = [
     'find_pickling_error',
 ]
+
 
 def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()
@@ -20,15 +22,15 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
         pass
     else:
         msg = ('Strange! I could not reproduce the pickling error '
-                'for the object of class %s' % describe_type(obj))
+               'for the object of class %s' % describe_type(obj))
         logger.info(msg)
 
     pickler = MyPickler(sio, protocol)
     try:
         pickler.dump(obj)
     except Exception as e1:
-        msg = pickler.get_stack_description() 
-        
+        msg = pickler.get_stack_description()
+
         msg += '\n --- Current exception----\n%s' % my_format_exc(e1)
         msg += '\n --- Old exception----\n%s' % my_format_exc(e1)
         return msg
@@ -45,7 +47,7 @@ class MyPickler(Pickler):
     def save(self, obj):
         desc = 'object of type %s' % (describe_type(obj))
         # , describe_value(obj, 100))
-        #  self.stack.append(describe_value(obj, 120))
+        # self.stack.append(describe_value(obj, 120))
         self.stack.append(desc)
         Pickler.save(self, obj)
         self.stack.pop()
@@ -63,7 +65,7 @@ class MyPickler(Pickler):
         self.stack.pop()
 
     def _batch_setitems(self, items):
-        
+
         # Helper to batch up SETITEMS sequences; proto >= 1 only
         # save = self.save
         write = self.write
@@ -99,7 +101,7 @@ class MyPickler(Pickler):
                 self.save_pair(k, v)
                 self.stack.pop()
                 write(SETITEM)
-            # else tmp is empty, and we're done
+                # else tmp is empty, and we're done
 
 
     def save_tuple(self, obj):

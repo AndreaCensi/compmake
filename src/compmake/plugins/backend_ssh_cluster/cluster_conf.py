@@ -17,6 +17,7 @@ def parse_yaml_configuration(file):  # @ReservedAssignment
             config[k] = config.get(k, v)
 
     import yaml
+
     configuration = yaml.load(file)
 
     pprint(configuration)
@@ -57,6 +58,7 @@ def parse_yaml_configuration(file):  # @ReservedAssignment
         results[hostname] = Host(**config)
 
     return results
+
 
 if __name__ == '__main__':
     hosts = parse_yaml_configuration(sys.stdin)

@@ -1,17 +1,16 @@
 import sys
 import traceback
+import os
 
 from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
 from ..events import publish
 from ..jobs import CacheQueryDB, all_jobs
-from ..structures import (CommandFailed, CompmakeBug, ShellExitRequested,
-                          UserError)
+from ..exceptions import (CommandFailed, CompmakeBug, ShellExitRequested,
+                          UserError,JobInterrupted)
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger, get_compmake_config
 from contracts import contract, indent, raise_wrapped
-import os
-from ..structures import JobInterrupted
 
 
 __all__ = [
@@ -21,7 +20,7 @@ __all__ = [
     'compmake_console',
 ]
 
-  
+
 def get_readline():
     """
     Returns a reference to the readline (or Pyreadline) module if they
@@ -46,7 +45,6 @@ def get_readline():
                 msg += '\n- pyreadline error: %s' % e2
                 logger.warning(msg)
                 return None
-
 
 
 @contract(cq=CacheQueryDB, returns='None')
@@ -253,7 +251,7 @@ def compmake_console(context):
     # msg = 'I detected that we were imported by "compmake".
     # compmake_console() will not do anything.'
 
-    #         error(msg)
+    # error(msg)
     #         return
     #
     #     if get_compmake_status() !=

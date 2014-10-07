@@ -1,10 +1,10 @@
 import sys
 
 from nose.tools import istest
-
 from . import CompmakeTest
 from ..jobs import get_job_cache, set_job_cache
-from ..structures import Cache, UserError, CompmakeSyntaxError
+from ..structures import Cache
+from ..exceptions import UserError, CompmakeSyntaxError
 from ..ui import parse_job_list
 
 
@@ -14,25 +14,23 @@ def dummy():
 
 @istest
 class Test1(CompmakeTest):
-
-
     def mySetUp(self):
         # Removed when refactoring
         # remove_all_jobs()
-#         reset_jobs_definition_set()
+        # reset_jobs_definition_set()
 
         self.jobs = [
-                ('a', Cache.DONE),
-                ('b', Cache.FAILED),
-                ('c', Cache.NOT_STARTED),
-                ('d', Cache.DONE),
-                ('e', Cache.DONE),
-                ('f', Cache.IN_PROGRESS),
-                ('g', Cache.DONE),
-                ('h', Cache.FAILED),
-                ('i', Cache.DONE),
-                ('ii', Cache.DONE),
-                ('v_rangefinder_nonunif-plot_tensors_tex-0', Cache.DONE),
+            ('a', Cache.DONE),
+            ('b', Cache.FAILED),
+            ('c', Cache.NOT_STARTED),
+            ('d', Cache.DONE),
+            ('e', Cache.DONE),
+            ('f', Cache.IN_PROGRESS),
+            ('g', Cache.DONE),
+            ('h', Cache.FAILED),
+            ('i', Cache.DONE),
+            ('ii', Cache.DONE),
+            ('v_rangefinder_nonunif-plot_tensors_tex-0', Cache.DONE),
         ]
 
         for job_id, state in self.jobs:
@@ -78,12 +76,14 @@ class Test1(CompmakeTest):
         try:
             self.assertEqualSet(a, b)
         except:
-            sys.stdout.write('Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n' % (A, a, B, b))
+            sys.stdout.write(
+                'Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n' % (
+                A, a, B, b))
             raise
 
 
     def syntaxError(self, s):
-        def f(s): # it's a generator, you should try to read it
+        def f(s):  # it's a generator, you should try to read it
             return list(parse_job_list(s, context=self.cc))
 
         self.assertRaises(CompmakeSyntaxError, f, s)

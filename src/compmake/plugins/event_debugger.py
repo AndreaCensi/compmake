@@ -1,4 +1,4 @@
-'''This plugin dumps all events received'''
+""" This plugin dumps all events received. """
 import sys
 
 from ..events import register_fallback_handler, register_handler

@@ -4,7 +4,7 @@ __all__ = [
     'termcolor_colored',
 ]
 
-#  Available text colors:
+# Available text colors:
 #         red, green, yellow, blue, magenta, cyan, white.
 # 
 #     Available text highlights:
@@ -18,7 +18,7 @@ try:
     from termcolor import colored as t_colored  # @UnresolvedImport
 
     def termcolor_colored(s, color=None, on_color=None, attrs=None):
-        return "\n".join(t_colored(x, color, on_color, attrs) for x in 
+        return "\n".join(t_colored(x, color, on_color, attrs) for x in
                          s.split("\n"))
 except:
     # TODO: logger
@@ -26,7 +26,8 @@ except:
                      ' Please install it.\n')
 
     def termcolor_colored(x,
-                color=None, on_color=None, attrs=None):  # @UnusedVariable
+                          color=None, on_color=None,
+                          attrs=None):  # @UnusedVariable
         ''' emulation of the termcolor interface '''
         return x
 

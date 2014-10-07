@@ -1,9 +1,11 @@
+import sys
+
 from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED
 from .. import CompmakeGlobalState, get_compmake_config
 from ..config import create_config_html, show_config, set_config_from_strings
-from ..structures import UserError
+from ..exceptions import UserError
 from .visualization import info
-import sys
+
 
 __all__ = [
     'config',
@@ -13,14 +15,14 @@ __all__ = [
 
 @ui_command(section=GENERAL)
 def config(args):
-    ''' Get/set configuration parameters.
+    """ Get/set configuration parameters.
 
 Call like:
 
     @> config  <switch>  <value>
-         
+
 Without arguments, shows all configuration switches.
- '''
+ """
     if not args:
         # show
         show_config(sys.stdout)
@@ -39,7 +41,7 @@ Without arguments, shows all configuration switches.
 
 @ui_command(section=COMMANDS_ADVANCED)
 def config_html(output_file=''):
-    ''' Dumps the config description in html on the specified file. '''
+    """ Dumps the config description in html on the specified file. """
     if output_file:
         f = open(output_file, 'w')
     else:

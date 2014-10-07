@@ -1,10 +1,7 @@
-
-
-
-# 
+#
 # @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
 # def clustmake(job_list, context, cq):
-#     ''' (experimental) Cluster equivalent of "make". '''
+# ''' (experimental) Cluster equivalent of "make". '''
 #     # job_list = list(job_list) # don't ask me why XXX
 #     job_list = [x for x in job_list]
 # 

@@ -3,8 +3,8 @@ from .structures import EventSpec
 
 compmake_registered_events = {}
 
-
 __all__ = []
+
 
 def add(e):
     compmake_registered_events[e.name] = e
@@ -26,8 +26,8 @@ add(EventSpec('job-now-ready', ['job_id']))
 add(EventSpec('manager-phase', ['phase']))
 add(EventSpec('manager-loop', ['processing'],
               desc='called each time the manager loops waiting for jobs'
-              'to finish. processing is the list of jobs currently processing.'
-              ))
+                   'to finish. processing is the list of jobs currently '
+                   'processing.'))
 # These are called when the manager updates its data structure
 add(EventSpec('manager-job-starting', ['job_id']))
 add(EventSpec('manager-job-failed', ['job_id']))
@@ -37,13 +37,17 @@ add(EventSpec('manager-init', ['targets', 'more']))
 add(EventSpec('manager-wait', ['reasons'],  # dict str -> str
               desc='Reasons why no jobs cannot be instantiated.'))
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
-                                    'failed', 'ready', 'processing', 'blocked']))
+                                   'failed', 'ready', 'processing',
+                                   'blocked']))
 add(EventSpec('manager-succeeded', ['targets', 'all_targets', 'done', 'todo',
-                                     'failed', 'ready', 'processing', 'blocked']))
+                                    'failed', 'ready', 'processing',
+                                    'blocked']))
 add(EventSpec('manager-interrupted', ['targets', 'all_targets', 'done',
-                                    'todo', 'failed', 'ready', 'processing', 'blocked']))
+                                      'todo', 'failed', 'ready', 'processing',
+                                      'blocked']))
 add(EventSpec('manager-failed', ['reason', 'targets', 'all_targets', 'done',
-                                  'todo', 'failed', 'ready', 'processing', 'blocked']))
+                                 'todo', 'failed', 'ready', 'processing',
+                                 'blocked']))
 add(EventSpec('worker-status', ['status', 'job_id']))
 add(EventSpec('console-starting'))
 add(EventSpec('console-ending'))

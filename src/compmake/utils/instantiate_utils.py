@@ -1,7 +1,9 @@
 # Jan 14 copied from conf_tools
+import traceback
+
 from contracts import contract
 from contracts.utils import indent
-import traceback
+
 
 __all__ = [
     'import_name',
@@ -30,7 +32,8 @@ def import_name(name):
                 except ImportError as e:
                     msg = ('Cannot load %r (tried also with %r):\n' %
                            (name, module_name))
-                    msg += '\n' + indent('%s\n%s' % (e, traceback.format_exc(e)), '> ')
+                    msg += '\n' + indent(
+                        '%s\n%s' % (e, traceback.format_exc(e)), '> ')
                     raise ValueError(msg)
 
                 if not field in module.__dict__:
@@ -47,7 +50,8 @@ def import_name(name):
                 except ImportError as e:
                     msg = ('Cannot load %r (tried also with %r):\n' %
                            (name, module_name))
-                    msg += '\n' + indent('%s\n%s' % (e, traceback.format_exc(e)), '> ')
+                    msg += '\n' + indent(
+                        '%s\n%s' % (e, traceback.format_exc(e)), '> ')
                     raise ValueError(msg)
 
                 if not field in module.__dict__:
@@ -57,7 +61,8 @@ def import_name(name):
 
                 f = module.__dict__[field]
 
-                # "staticmethod" are not functions but descriptors, we need extra magic
+                # "staticmethod" are not functions but descriptors, we need
+                # extra magic
                 if isinstance(f, staticmethod):
                     return f.__get__(module, None)
                 else:

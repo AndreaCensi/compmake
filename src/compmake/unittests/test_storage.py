@@ -7,13 +7,12 @@ from . import CompmakeTest
 
 @istest
 class Simple(CompmakeTest):
-
     def mySetUp(self):
         pass
 
     def testExists1(self):
         key = 'not-existent'
-        assert(not key in self.db)
+        assert (not key in self.db)
 
     def testExists2(self):
         k = 'ciao'
@@ -32,13 +31,13 @@ class Simple(CompmakeTest):
 
     def testSearch(self):
         db = self.db
-        
+
         def search(pattern):
             r = wildcard_to_regexp(pattern)
             for k in db.keys():
                 if r.match(k):
                     yield k
-            
+
         self.assertEqual([], list(search('*')))
         db['key1'] = 1
         db['key2'] = 1

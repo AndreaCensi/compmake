@@ -1,7 +1,7 @@
-
 __all__ = [
-    'CompmakeConstants',   
+    'CompmakeConstants',
 ]
+
 
 class CompmakeConstants():
     ''' Arbitrary constants used in the code. '''
@@ -10,9 +10,9 @@ class CompmakeConstants():
     job_id_key = 'job_id'
     extra_dep_key = 'extra_dep'
     command_name_key = 'command_name'
-    
+
     # Compmake returns:
-    #  0                      if everything all right
+    # 0                      if everything all right
     #  RET_CODE_JOB_FAILED    if some job failed
     #  RET_CODE_COMPMAKE_BUG  if compmake itself had some errors
     RET_CODE_JOB_FAILED = 113
@@ -33,18 +33,18 @@ class CompmakeConstants():
 
     # debug_origin_of_prints = True
     debug_check_invariants = False
-    
+
     disable_interproc_queue = False
 
     # Try to recover from anomalous situations
     try_recover = False
-    
-    
+
     aliases = {}
 
 
 class DefaultsToConfig():
     """ Used to mean the param's default is from a config switch. """
+
     def __init__(self, switch):
         self.switch = switch
         

@@ -1,11 +1,13 @@
-from ..structures import CompmakeException
+import inspect
+
+from ..exceptions import CompmakeException
 from ..utils import my_format_exc, wildcard_to_regexp
 from .registered_events import compmake_registered_events
 from .structures import Event
 from compmake import CompmakeGlobalState, logger
 from compmake.context import Context
 from contracts import contract, indent
-import inspect
+
 
 __all__ = [
     'broadcast_event',
@@ -15,35 +17,38 @@ __all__ = [
     "publish",
 ]
 
+
 def remove_all_handlers():
-    ''' 
+    """
         Removes all event handlers. Useful when
         events must not be processed locally but routed
-        to the original process somewhere else. 
-    '''
+        to the original process somewhere else.
+    """
     CompmakeGlobalState.EventHandlers.handlers = {}
     CompmakeGlobalState.EventHandlers.fallback = []
 
 
 def register_fallback_handler(handler):
-    '''
+    """
         Registers an handler who is going to be called when no other handler
         can deal with an event. Useful to see if we are ignoring some event.
-    '''
+    """
     CompmakeGlobalState.EventHandlers.fallback.append(handler)
 
 
 # TODO: make decorator
 def register_handler(event_name, handler):
-    ''' 
+    """
         Registers an handler with an event name.
-        The event name might contain asterisks. "*" matches all. 
-    '''
+        The event name might contain asterisks. "*" matches all.
+    """
 
     spec = inspect.getargspec(handler)
     args = spec.args
     if not 'context' in args and 'event' in args:
-        msg = 'Function is not valid event handler:\n function = %s\n args = %s' % (handler, spec)
+        msg = 'Function is not valid event handler:\n function = %s\n args = ' \
+              '%s' % (
+        handler, spec)
         raise ValueError(msg)
 
     handlers = CompmakeGlobalState.EventHandlers.handlers
@@ -59,6 +64,7 @@ def register_handler(event_name, handler):
         if not event_name in handlers:
             handlers[event_name] = []
         handlers[event_name].append(handler)
+
 
 @contract(context=Context, event_name=str)
 def publish(context, event_name, **kwargs):
@@ -93,12 +99,12 @@ def broadcast_event(context, event):
                 try:
                     # e = traceback.format_exc(e)
                     msg = [
-                       'compmake BUG: Error in event handler.',
-                       '  event: %s' % event.name,
-                       'handler: %s' % handler,
-                       ' kwargs: %s' % list(event.kwargs.keys()),
-                       '     bt: ',
-                       indent(my_format_exc(e), '| '),
+                        'compmake BUG: Error in event handler.',
+                        '  event: %s' % event.name,
+                        'handler: %s' % handler,
+                        ' kwargs: %s' % list(event.kwargs.keys()),
+                        '     bt: ',
+                        indent(my_format_exc(e), '| '),
                     ]
                     msg = "\n".join(msg)
                     CompmakeGlobalState.original_stderr.write(msg)

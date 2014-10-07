@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 import sys
 
+
 def func1(param1):
     result = param1 * 2
     return result
 
+
 def cases():
     return [1, 2, 3]
+
 
 def generate_tests(context, values):
     res = []
@@ -14,11 +17,14 @@ def generate_tests(context, values):
         res.append(context.comp(func1, v))
     return context.comp(summary, res)
 
+
 def summary(results):
     print('I finished with this: %s' % results)
 
+
 def main():
     from compmake import Context
+
     c = Context()
     values = c.comp(cases)
     # comp_dynamic gives the function an extra argument 

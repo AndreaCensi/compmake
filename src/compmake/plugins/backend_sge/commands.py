@@ -8,11 +8,12 @@ __all__ = [
     'sgemake',
 ]
 
+
 @ui_command(section=ACTIONS, dbchange=True)
-def sgemake(job_list, context, cq, 
-            n=DefaultsToConfig('max_parallel_jobs'), 
+def sgemake(job_list, context, cq,
+            n=DefaultsToConfig('max_parallel_jobs'),
             recurse=DefaultsToConfig('recurse')):
-    ''' Cluster equivalent of "make" using the Sun Grid Engine. '''
+    """ Cluster equivalent of "make" using the Sun Grid Engine. """
     job_list = [x for x in job_list]
 
     if not job_list:

@@ -1,0 +1,5 @@
+$ compmake out-example 
+compmake_main()
+compmake 3.3   ``Tame your Python computations!,,                                                                                       
+Welcome to the compmake console. (write 'help' for a list of commands)                                                                  
+@:

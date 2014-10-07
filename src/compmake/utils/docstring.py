@@ -4,6 +4,7 @@ import sys
 
 __all__ = ['docstring_trim', 'docstring_components']
 
+
 def docstring_trim(docstring):
     if not docstring:
         return ''
@@ -29,6 +30,7 @@ def docstring_trim(docstring):
     # Return a single string:
     return '\n'.join(trimmed)
 
+
 def docstring_components(docstring):
     """ 
     
@@ -38,7 +40,7 @@ def docstring_components(docstring):
         This is the rest.
     
     """
-    
+
     # first, remove whitespace
     docstring = docstring_trim(docstring)
     # split in newlines
@@ -51,28 +53,22 @@ def docstring_components(docstring):
     first = []
     while lines and lines[0] != '':
         first.append(lines.pop(0))
-    
+
     # remove separation
     while lines and lines[0] == '':
         lines.pop(0)
     rest = lines
-    
-    res = {}
+
+    res = {'first': ' '.join(first),
+           'rest': '\n'.join(rest)}
     # remove newlines here
-    res['first'] = ' '.join(first)
-    res['rest'] = '\n'.join(rest)
     return res
+
 
 def docstring_components_test():
     res = docstring_components(docstring_components.__doc__)
     print(res)
-    
-    assert res['first'] == 'Removes leading whitespace and returns a dict with fields "first" and "rest".'
+
+    assert res['first'] == 'Removes leading whitespace and returns a dict ' \
+                           'with fields "first" and "rest".'
     assert res['rest'] == 'This is the rest.'
-    
-    
-    
-        
-        
-        
-        
