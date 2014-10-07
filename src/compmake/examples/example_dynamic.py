@@ -22,7 +22,7 @@ def summary(results):
     print('I finished with this: %s' % results)
 
 
-def main():
+if __name__ == '__main__':
     from compmake import Context
 
     c = Context()
@@ -40,5 +40,3 @@ def main():
         c.compmake_console()
 
 
-if __name__ == '__main__':
-    main()

@@ -1,5 +1,5 @@
 """
-These are all wrappers around the raw methods in storage
+    These are all wrappers around the raw methods in storage
 """
 
 from ..structures import Cache, Job
@@ -131,7 +131,7 @@ def job2userobjectkey(job_id):
 def get_job_userobject(job_id, db):
     # available = is_job_userobject_available(job_id, db)
     # if not available:
-    #         available_job = job_exists(job_id, db)
+    # available_job = job_exists(job_id, db)
     #         available_cache = job_cache_exists(job_id, db)
     #         msg = 'Job user object %r does not exist.' % job_id
     #         msg += ' Job exists: %s. Cache exists: %s. ' % (available_job,
@@ -252,6 +252,3 @@ def db_job_add_parent_relation(child, parent, db):
             want = want | child_comp.parents
         else:
             break
-            
-
-    

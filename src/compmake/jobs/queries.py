@@ -48,7 +48,7 @@ def top_targets(db):
 
 # def bottom_targets(db):
 # """ Returns a list of all jobs with no dependencies. """
-#     return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
+# return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
 @contract(jobs='list|set')
@@ -71,10 +71,6 @@ def parents(job_id, db):
     assert (isinstance(job_id, str))
     t = set()
     parents_jobs = direct_parents(job_id, db=db)
-    if job_id in parents_jobs:
-        raise ValueError('Compmake BUG: job is parent of itself: %s -> %s' % (
-        job_id, parents_jobs))
-    #     print('%s -> %s' % (job_id, parents_jobs))
     for p in parents_jobs:
         t.add(p)
         t.update(parents(p, db=db))

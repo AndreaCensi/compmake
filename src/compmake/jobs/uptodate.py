@@ -1,11 +1,12 @@
 """ Contains functions concerning the up-to-date status of jobs """
+
 from ..structures import Cache, Job
 from ..utils import memoized_reset
 from contracts import contract
 from ..exceptions import CompmakeBug
 from compmake.jobs.dependencies import collect_dependencies
 from compmake.jobs.storage import get_job_userobject
-from contracts.utils import check_isinstance
+from contracts import check_isinstance
 
 
 __all__ = [
@@ -99,8 +100,8 @@ class CacheQueryDB(object):
                 return False, 'Children not up to date.', cache.timestamp
             else:
                 if child_timestamp > cache.timestamp:
-                    return False, 'Children have been updated.', \
-                           cache.timestamp
+                    return (
+                        False, 'Children have been updated.', cache.timestamp)
 
         # FIXME BUG if I start (in progress), children get updated,
         # I still finish the computation instead of starting again
@@ -198,7 +199,6 @@ class CacheQueryDB(object):
 
         return todo, done, todo_and_ready
 
-
     @contract(returns=set, jobs='str|set(str)')
     def tree_children_and_uodeps(self, jobs):
         """ Closure of the relation children and dependencies of userobject.
@@ -211,9 +211,9 @@ class CacheQueryDB(object):
 
         result = set()
 
-        def descendants(job_id):
-            deps = collect_dependencies(get_job_userobject(job_id, self.db))
-            children = self.direct_children(job_id)
+        def descendants(a_job_id):
+            deps = collect_dependencies(get_job_userobject(a_job_id, self.db))
+            children = self.direct_children(a_job_id)
             check_isinstance(children, set)
             r = children | deps
             check_isinstance(r, set)
@@ -230,6 +230,3 @@ class CacheQueryDB(object):
                     stack.append(c)
 
         return result
-    
-    
-    
