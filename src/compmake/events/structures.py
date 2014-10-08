@@ -10,7 +10,9 @@ __all__ = [
 class EventSpec(object):
     """ This is a specification of the events that can be generated """
 
-    def __init__(self, name, attrs=[], desc=None):
+    def __init__(self, name, attrs=None, desc=None):
+        if attrs is None:
+            attrs = []
         self.name = name
         self.attrs = attrs
         self.desc = desc
@@ -27,4 +29,3 @@ class Event(object):
 
     def __str__(self):
         return 'Event(%s, %s)' % (self.name, self.kwargs)
-

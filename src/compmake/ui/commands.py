@@ -32,21 +32,14 @@ def quit(context):
 
 
 def _raise_if_failed(manager):
+    """
+    Raises MakeFailed if there are failed jobs in the manager.
+
+    :param manager: The Manager
+    """
     if manager.failed:
         raise MakeFailed(failed=manager.failed,
                          blocked=manager.blocked)
-
-
-# if manager.blocked:
-# msg = ('%d job(s) failed, %d job(s) blocked.' %
-# (len(manager.failed), len(manager.blocked)))
-#         else:
-#             msg =  ('%d job(s) failed.' % len(manager.failed))
-# 
-#         if len(manager.failed) < 5:
-#             for f in manager.failed:
-#                 msg += '\n- %s' % f
-#         raise CommandFailed(msg)
 
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
@@ -99,17 +92,18 @@ def make_single(job_list, context, out_result):
     if len(job_list) > 1:
         raise UserError("I want only one job")
 
+    job_id = job_list[0]
+
     from compmake.jobs import actions
 
     try:
-        job_id = job_list[0]
-        #info('making job %s' % job_id)
+        # info('making job %s' % job_id)
         res = actions.make(job_id=job_id, context=context)
         #info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0
     except JobFailed as e:
-        #info('Writing to %r' % out_result)
+        # info('Writing to %r' % out_result)
         safe_pickle_dump(e.get_result_dict(), out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:

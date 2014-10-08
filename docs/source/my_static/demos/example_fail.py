@@ -1,4 +1,3 @@
-import time
 
 print("""
 Same example as 'example.py', but for some values
@@ -7,31 +6,28 @@ This will show how compmake deals with failure.
 
 """)
 
-def funcA(param1):
-    print('funcA(%s)' % param1)
-    time.sleep(1) # ... which takes some time
-    return param1
+def funcA(param_a):
+    return param_a
 
-def funcB(res1, param2):
+def funcB(res1, param_b):
     # we now add an exception
-    if param2 == 11:
-        raise Exception('11 is your unlucky number.')
-    print('funcB(%s, %s)' % (res1, param2))
-    time.sleep(1) 
-    return res1 + param1
+    if param_b == 11:
+        raise Exception('Exception raised for b = %d.' % param_b)
+    return res1 + param_a
 
 def draw(res2):
-    print('draw(%s)' % res2)
+    pass
 
 if __name__ == '__main__':
     from compmake import Context
     context = Context()
     
-    for param1 in [1,2,3]:
-        for param2 in [10,11,12]:
-            res1 = context.comp(funcA, param1)
-            res2 = context.comp(funcB, res1, param2)
-            context.comp(draw, res2)
+    for param_a in [1,2,3]:
+        for param_b in [10,11,12]:
+            context.comp_prefix('a%s-b%s' % (param_a, param_b))
+            res1 = context.comp(funcA, param_a, job_id='preparing')
+            res2 = context.comp(funcB, res1, param_b, job_id='computing')
+            context.comp(draw, res2, job_id='drawing')
 
     import sys
     if len(sys.argv) == 1:

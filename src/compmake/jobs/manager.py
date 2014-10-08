@@ -119,7 +119,7 @@ class Manager(ManagerLog):
         """ Called after successful processing (before cleanup) """
 
     @abstractmethod
-    def can_accept_job(self):
+    def can_accept_job(self, reasons):
         """ Return true if a new job can be accepted right away"""
 
     @abstractmethod
@@ -193,7 +193,7 @@ class Manager(ManagerLog):
         # let's check the additional jobs exist
         for d in targets_todo_plus_deps - set(targets):
             if not job_exists(d, self.db):
-                msg = 'Adding job that does not exist: %r.' % t
+                msg = 'Adding job that does not exist: %r.' % d
                 raise CompmakeBug(msg)
 
         self.all_targets.update(targets_todo_plus_deps)
@@ -225,8 +225,8 @@ class Manager(ManagerLog):
         """
         self.check_invariants()
 
+        reasons = {}
         while True:
-            reasons = {}
             if not self.ready_todo:
                 reasons['jobs'] = 'no jobs ready'
                 break
@@ -666,11 +666,9 @@ class Manager(ManagerLog):
 
         except JobInterrupted as e:
             from ..ui import error
-
             error('Received JobInterrupted: %s' % e)
             raise
-        except KeyboardInterrupt as e:
-            # print('will cleanup')
+        except KeyboardInterrupt:
             raise KeyboardInterrupt('Manager interrupted.')
         finally:
             self.cleanup()

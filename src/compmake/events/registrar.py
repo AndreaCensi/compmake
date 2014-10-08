@@ -46,11 +46,9 @@ def register_handler(event_name, handler):
     spec = inspect.getargspec(handler)
     args = spec.args
     if not 'context' in args and 'event' in args:
-        msg = 'Function is not valid event handler:\n function = %s\n args = ' \
-              '%s' % (
-        handler, spec)
+        msg = (('Function is not valid event handler:\n function = %s\n args '
+                '= %s') % (handler, spec))
         raise ValueError(msg)
-
     handlers = CompmakeGlobalState.EventHandlers.handlers
 
     if event_name.find('*') > -1:
@@ -113,4 +111,3 @@ def broadcast_event(context, event):
     else:
         for handler in CompmakeGlobalState.EventHandlers.fallback:
             handler(context=context, event=event)
-

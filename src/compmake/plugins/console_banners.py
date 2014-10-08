@@ -1,4 +1,4 @@
-''' Implements the initial and final banner '''
+""" Implements the initial and final banner """
 import random
 
 from .. import version
@@ -10,31 +10,31 @@ from ..utils import pad_to_screen
 
 # compmake_url = 'http://compmake.org'
 compmake_issues_url = 'http://compmake.org'
-name = 'compmake'
+name = 'Compmake'
 banners = [
     "Tame your Python computations!",
     "Keep calm and carry on",
 ]
 
 
-def console_starting(event, context):  # @UnusedVariable
+def console_starting(event, context):
     db = context.get_compmake_db()
+
     # starting console
     def printb(s):
         print(pad_to_screen(s))
 
     random_banner = random.choice(banners)
     banner = "   ``%s,," % random_banner
-    printb("%s %s%s" % (
-        compmake_colored(name, attrs=['bold']),
-        compmake_colored(version, 'green'),
-        compmake_colored(banner, 'cyan')))
 
-    printb(("Welcome to the compmake console. " +
-            "(write 'help' for a list of commands)"))
+    version_string = ('%s %s' % (compmake_colored(name, attrs=['bold']),
+                                 compmake_colored(version, attrs=['bold'])))
+
+    banner_s = compmake_colored(banner, 'cyan')
+
+    # printb("Welcome to the Compmake console. ")
     njobs = len(list(all_jobs(db)))
-
-    printb("%d jobs loaded." % njobs)
+    printb(version_string + ("  (%d jobs loaded)" % njobs) + banner_s)
 
 
 def console_ending(event, context):  # @UnusedVariable

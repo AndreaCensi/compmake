@@ -1,4 +1,5 @@
 import logging
+from time import clock, time
 
 from ..events import publish
 from ..structures import Cache
@@ -13,7 +14,6 @@ from .storage import (delete_job_cache, delete_job_userobject, get_job,
                       set_job_cache, set_job_userobject)
 from .uptodate import up_to_date
 from compmake import get_compmake_config, logger
-from time import clock, time
 
 
 def clean_target(job_id, db):
@@ -25,7 +25,7 @@ def clean_target(job_id, db):
 
 
 def mark_remake(job_id, db):
-    ''' Delets and invalidates the cache for this object '''
+    """ Delets and invalidates the cache for this object """
     # TODO: think of the difference between this and clean_target
     cache = Cache(Cache.NOT_STARTED)
     set_job_cache(job_id, cache, db=db)
@@ -42,7 +42,7 @@ def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
 
 
 def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
-    ''' Marks job_id and its parents as failed '''
+    """ Marks job_id and its parents as failed """
     # OK, it's night, but no need to query the DB to set the cache state
     cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
@@ -92,7 +92,6 @@ def make(job_id, context, echo=False):
     set_job_cache(job_id, cache, db=db)
     # TODO: delete previous user object
 
-
     # update state
     time_start = time()
     cpu_start = clock()
@@ -116,13 +115,13 @@ def make(job_id, context, echo=False):
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
-        msg = colorize_loglevel(log_record.levelno, str(log_record.msg))
+        msg2 = colorize_loglevel(log_record.levelno, str(log_record.msg))
         # levelname = log_record.levelname
         name = log_record.name
         # print('%s:%s:%s' % (name, levelname, msg))
 
         # this will be captured by OutputCapture anyway 
-        print('%s:%s' % (name, msg))
+        print('%s:%s' % (name, msg2))
 
     logging.StreamHandler.emit = my_emit
 
@@ -131,8 +130,8 @@ def make(job_id, context, echo=False):
         user_object = result['user_object']
         new_jobs = result['new_jobs']
 
-    except KeyboardInterrupt as e:
-        bt = my_format_exc(e)
+    except KeyboardInterrupt:
+        #bt = my_format_exc(e)
         raise JobInterrupted('Keyboard interrupt')
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError,
@@ -162,4 +161,3 @@ def make(job_id, context, echo=False):
     return dict(user_object=user_object,
                 user_object_deps=collect_dependencies(user_object),
                 new_jobs=new_jobs)
-

@@ -107,4 +107,3 @@ class SGEManager(Manager):
             print('Cleaning up %d SGE jobs. Please be patient.' % n)
         for _, job in self.processing2result.items():
             job.delete_job()
-                        

@@ -1,8 +1,8 @@
-$ compmake example ls
-compmake_main()
-                            p1=1-p2=10-draw      todo           
-                            p1=1-p2=10-funcA     todo           
-                            p1=1-p2=10-funcB     todo           
-                            p1=1-p2=11-draw      todo           
-                            p1=1-p2=11-funcA     todo           
-    [...]
+@: ls
+      a1-b10-draw   todo      
+      a1-b10-funcA  todo      
+      a1-b10-funcB  todo      
+      a1-b11-draw   todo      
+      a1-b11-funcA  todo      
+      a1-b11-funcB  todo      
+[...]

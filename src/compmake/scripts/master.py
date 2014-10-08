@@ -8,7 +8,7 @@ from ..context import Context
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
 from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
-from ..ui import interpret_commands_wrap
+from ..ui import interpret_commands_wrap, info
 from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
@@ -38,7 +38,7 @@ def read_commands_from_file(filename, context):
 
     cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None
-    logger.info('Reading configuration from %r' % filename)
+    info('Reading configuration from %r.' % filename)
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip()
@@ -214,8 +214,7 @@ def write_atomic(filename, contents):
 @contract(returns=Context)
 def load_existing_db(dirname):
     assert os.path.isdir(dirname)
-    logger.info('Loading existing jobs from DB directory %r' % dirname)
-
+    info('Loading existing jobs DB %r.' % dirname)
     # check if it is compressed
     files = os.listdir(dirname)
     for one in files:
@@ -228,7 +227,7 @@ def load_existing_db(dirname):
     db = StorageFilesystem(dirname, compress=compress)
     context = Context(db=db)
     jobs = list(all_jobs(db=db))
-    logger.info('Found %d existing jobs.' % len(jobs))
+    #logger.info('Found %d existing jobs.' % len(jobs))
     context.reset_jobs_defined_in_this_session(jobs)
 
     return context

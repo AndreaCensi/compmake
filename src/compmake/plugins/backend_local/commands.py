@@ -43,14 +43,16 @@ def make(job_list, context, cq,
 def remake(non_empty_job_list, context, cq,
            echo=DefaultsToConfig('echo'),
            new_process=DefaultsToConfig('new_process'),
-           recurse=DefaultsToConfig('recurse'),
-):
+           recurse=DefaultsToConfig('recurse')):
     """
         Remake the selected targets (equivalent to clean and make).
 
-            remake recurse=1      Recursive remake: put generated jobs in
-            the queue.
-            remake new_process=1  Run the jobs in a new Python process.
+        :param non_empty_job_list:
+        :param context:
+        :param cq:
+        :param echo:
+        :param new_process:Run the jobs in a new Python process.
+        :param recurse:   Recursive remake: put generated jobs in
     """
     non_empty_job_list = list(non_empty_job_list)
 

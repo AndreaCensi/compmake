@@ -18,24 +18,24 @@ def parmake(job_list, context, cq,
             recurse=DefaultsToConfig('recurse'),
             new_process=DefaultsToConfig('new_process'),
             echo=DefaultsToConfig('echo')):
-    ''' 
-        Parallel equivalent of make. 
-        
+    """
+        Parallel equivalent of make.
+
         Uses multiprocessing.Process as a backend and a Python queue to
         communicate with the workers.
-    
+
         Options:
-        
+
           parmake n=10             Uses 10 workers
           parmake recurse=1        Recursive make: put generated jobs in the
           queue.
           parmake new_process=1    Run the jobs in a new Python process.
           parmake echo=1           Shows the output of the jobs. This might
           slow down everything.
-          
+
           parmake new_process=1 echo=1   Not supported yet.
 
-    '''
+    """
 
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
@@ -66,9 +66,9 @@ def parmake(job_list, context, cq,
 
 @ui_command(section=ACTIONS, dbchange=True)
 def parremake(non_empty_job_list, context, cq):
-    '''
-        Parallel equivalent of "remake". 
-    '''
+    """
+        Parallel equivalent of "remake".
+    """
     db = context.get_compmake_db()
     non_empty_job_list = list(non_empty_job_list)
 

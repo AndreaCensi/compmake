@@ -25,12 +25,12 @@ debug_padding = False
 
 
 def pad_to_screen(s, pad=" ", last=None):
-    ''' 
+    """
         Pads a string to the terminal size.
-    
-        The string length is computed after removing shell 
-        escape sequences. 
-    '''
+
+        The string length is computed after removing shell
+        escape sequences.
+    """
 
     total_screen_length = get_screen_columns()
 
@@ -47,12 +47,12 @@ def pad_to_screen(s, pad=" ", last=None):
 def pad_to_screen_length(s, desired_screen_length,
                          pad=" ", last=None,
                          align_right=False):
-    ''' 
-        Pads a string so that it will appear of the given size 
+    """
+        Pads a string so that it will appear of the given size
         on the terminal.
-        
-        align_right: aligns right instead of left (default) 
-    '''
+
+        align_right: aligns right instead of left (default)
+    """
     assert isinstance(desired_screen_length, int)
     # todo: assert pad = 1
     current_size = get_length_on_screen(s)

@@ -24,17 +24,17 @@ def config_populate_optparser(parser):
 
             command = '--%s' % switch.name
 
-            def option_callback(option, opt, value, par, theswitch):
-                try:
-                    set_config_from_strings(theswitch.name, value)
-                except:
-                    raise OptionValueError(
-                        'Could not parse value "%s" passed to "%s".' %
-                        (value, opt))
-
             group.add_option(command, nargs=1, help=switch.desc, type='string',
                              action="callback", callback=option_callback,
                              callback_kwargs={'switch': switch})
 
         parser.add_option_group(group)
+
+def option_callback(option, opt, value, par, switch):
+    try:
+        set_config_from_strings(switch.name, value)
+    except:
+        raise OptionValueError(
+            'Could not parse value "%s" passed to "%s".' %
+            (value, opt))
 

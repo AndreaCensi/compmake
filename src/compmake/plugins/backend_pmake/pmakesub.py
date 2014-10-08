@@ -12,9 +12,9 @@ from contracts import check_isinstance, indent
 
 
 if sys.version_info[0] >= 3:
-    from queue import Empty  # @UnresolvedImport @UnusedImport
+    from queue import Empty
 else:
-    from Queue import Empty  # @Reimport
+    from Queue import Empty
 
 __all__ = [
     'PmakeSub',

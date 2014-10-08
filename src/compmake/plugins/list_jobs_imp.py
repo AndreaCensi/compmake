@@ -1,4 +1,6 @@
 """ The actual interface of some commands in commands.py """
+from time import time
+
 from ..jobs import parse_job_list
 from ..jobs.storage import (job_args_sizeof, job_cache_exists,
                             job_cache_sizeof,
@@ -6,18 +8,21 @@ from ..jobs.storage import (job_args_sizeof, job_cache_exists,
 from ..jobs.syntax.parsing import is_root_job
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
-from ..utils import duration_compact
+from ..utils import (duration_compact, pad_to_screen_length,
+                     get_length_on_screen)
 from contracts import contract
-from time import time
 from compmake.constants import CompmakeConstants
 
 
 @ui_command(section=VISUALIZATION, alias='list')
 def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
-    """ Lists the status of the selected targets (or all targets if not
+    """
+        Lists the status of the given jobs (or all jobs if none specified
     specified).
 
-        If only one job is specified, then it is listed in more detail.
+        Options:
+
+            ls complete_names=1   # do not abbreviate names
     """
 
     if not args:
@@ -66,12 +71,16 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             r = max_len - b - len(' ... ')
             return job_id[:15] + ' ... ' + job_id[-r:]
 
-
     jlen = max(len(format_job_id(x)) for x in job_list)
 
     cpu_total = []
     wall_total = []
+
+    tf = TableFormatter(sep="  ")
+
     for job_id in job_list:
+        tf.row()
+
         cache = cq.get_job_cache(job_id)
 
         # TODO: only ask up_to_date if necessary
@@ -90,12 +99,17 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         is_root = is_root_job(job)
         if not is_root:
             s += '%d ' % (len(job.defined_by) - 1)
+
+            tf.cell('%d' % (len(job.defined_by) - 1))
         else:
+            tf.cell('')
             s += '  '
 
         if job.needs_context:
             s += 'd '
+            tf.cell('d')
         else:
+            tf.cell('')
             s += '  '
 
         job_name_formatted = format_job_id(job_id).ljust(jlen)
@@ -109,17 +123,26 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
 
         s += job_name_formatted + '  '
 
+        tf.cell(format_job_id(job_id))
+
         tag = Cache.state2desc[cache.state]
 
         k = (cache.state, up)
         assert k in state2color, "I found strange state %s" % str(k)
 
-        s += compmake_colored('%7s' % tag, **state2color[k])
+        tag_s = compmake_colored(tag, **state2color[k])
+        if not up and cache.state in [Cache.DONE, Cache.FAILED]:
+            tag_s += '*'
+        tf.cell(tag_s)
+        s += pad_to_screen_length(tag_s, 7)
 
         db = context.get_compmake_db()
         sizes = get_sizes(job_id, db=db)
-        s += '%10s ' % format_size(sizes['total'])
-        if up:
+        size_s = format_size(sizes['total'])
+        tf.cell(size_s)
+        s += '%10s ' % size_s
+
+        if cache.state in [Cache.DONE]:
             wall_total.append(cache.walltime_used)
             cpu = cache.cputime_used
             cpu_total.append(cpu)
@@ -128,28 +151,51 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
                 s_cpu = duration_compact(cpu)
             else:
                 s_cpu = ''
+            tf.cell(s_cpu)
             s += ' ' + s_cpu.rjust(10) + ' '
-
-            when = duration_compact(time() - cache.timestamp)
-            s += " (%s ago)" % when
         else:
-            if cache.state in [Cache.DONE]:
-                s += " (needs update: %s)" % reason
+            tf.cell('')  # cpu
 
-            if cache.state == Cache.FAILED:
-                age = time() - cache.timestamp
-                when = duration_compact(age)
-                age_str = " (%s ago)" % when
+        if cache.state in [Cache.DONE, Cache.FAILED]:
+            when = duration_compact(time() - cache.timestamp)
+            when_s = "(%s ago)" % when
+            tf.cell(when_s)
+            s += " " + when_s
+        else:
+            tf.cell('')  # when
 
-                s += age_str.rjust(10)
+            # if cache.state in [Cache.DONE]:
+            # # up_s = "(needs update: %s)" % reason
+            # # up_s = "(needs update)"
+            #     up_s = ''
+            # else:
+            #     up_s = ""
+            #
+            # tf.cell(up_s)
+            # s += " " + up_s
+            # pass
+            #
+            # if cache.state == Cache.FAILED:
+            #     age = time() - cache.timestamp
+            #     when = duration_compact(age)
+            #     age_s = "(%s ago)" % when
+            #
+            #     tf.cell(age_s)
+            #     s += " " + age_s.rjust(10)
+            # else:
+            #     tf.cell('')
+        #print(s)
 
-        print(s)
+    tf.done()
+
+    for line in tf.get_lines():
+        print('  ' + line)
 
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
         wall_time = duration_compact(sum(wall_total))
         scpu = (' total %d jobs   CPU time: %s   wall: %s' % (
-        len(job_list), cpu_time, wall_time))
+            len(job_list), cpu_time, wall_time))
         print(scpu)
 
 
@@ -183,6 +229,63 @@ def get_sizes(job_id, db):
 
     res['total'] = res['cache'] + res['args'] + res['result']
     return res
+
+
+class TableFormatter():
+    def __init__(self, sep='|'):
+        self.rows = []
+        self.cur_row = None
+        self.sep = sep
+
+        self.padleft = lambda s, l: pad_to_screen_length(s, l)
+        self.strlen = get_length_on_screen
+
+    def row(self):
+        if self.cur_row is not None:
+            self._push_row()
+
+        self.cur_row = []
+
+    def _push_row(self):
+        if self.rows:
+            if not len(self.rows[0]) == len(self.cur_row):
+                msg = 'Invalid row: %s' % str(self.cur_row)
+                raise ValueError(msg)
+        self.rows.append(self.cur_row)
+
+    def cell(self, s):
+        if self.cur_row is None:
+            raise ValueError('Call row() before cell().')
+        self.cur_row.append(str(s))
+
+    def done(self):
+        if self.cur_row is None:
+            raise ValueError('Call row() before done().')
+        self._push_row()
+
+    def _get_cols(self):
+        ncols = len(self.rows[0])
+        cols = [list() for _ in range(ncols)]
+        for j in range(ncols):
+            for r in self.rows:
+                cols[j].append(r[j])
+        return cols
+
+    def get_lines(self):
+        cols = self._get_cols()
+        # width of each cols
+        wcol = [max(self.strlen(s) for s in col) for col in cols]
+        for r in self.rows:
+            r = self._get_row_formatted(r, wcol)
+            yield r
+
+    def _get_row_formatted(self, row, wcol):
+        ss = []
+        for j, cell in enumerate(row):
+            entry = self.padleft(cell, wcol[j])
+            ss.append(entry)
+        return self.sep.join(ss)
+
 
 
 
