@@ -4,6 +4,7 @@ __all__ = [
     'MemoryCache',
 ]
 
+
 class MemoryCache(object):
 
     def __init__(self, db, cache_values=True):

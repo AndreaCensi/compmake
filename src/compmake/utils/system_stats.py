@@ -5,7 +5,7 @@ __all__ = [
 ]
 
 try:
-    import psutil as test_import  # @UnresolvedImport @UnusedImport
+    import psutil
 except ImportError:
     from compmake import logger
 

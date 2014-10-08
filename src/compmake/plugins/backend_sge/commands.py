@@ -1,7 +1,7 @@
 from compmake.ui.helpers import ACTIONS, ui_command
 from compmake.jobs.queries import top_targets
 from compmake.plugins.backend_sge.sge_manager import SGEManager
-from compmake.ui.commands import _raise_if_failed
+from compmake.ui.commands import raise_error_if_manager_failed
 from compmake.constants import DefaultsToConfig
 
 __all__ = [
@@ -24,4 +24,4 @@ def sgemake(job_list, context, cq,
                          num_processes=n)
     manager.add_targets(job_list)
     manager.process()
-    return _raise_if_failed(manager)
+    return raise_error_if_manager_failed(manager)

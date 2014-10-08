@@ -1,26 +1,25 @@
 #!/usr/bin/env python
 import sys
 
-import numpy
-
+import random
 
 failure_prob = 0.3
 
 
 def fail_randomly():
-    if numpy.random.rand() < failure_prob:
+    if random.random() < failure_prob:
         raise Exception('Unlucky job failed randomly')
 
 
-def first(children=[]):  # @UnusedVariable
+def first(children=[]):
     fail_randomly()
 
 
-def second(children=[]):  # @UnusedVariable
+def second(children=[]):
     fail_randomly()
 
 
-def third(children=[]):  # @UnusedVariable
+def third(children=[]):
     fail_randomly()
 
 
@@ -47,7 +46,6 @@ def main():
             ijobs.append(c.comp(second, kjobs, job_id='%d-%d' % (i, j)))
 
         c.comp(first, ijobs, job_id='%d' % i)
-
 
     # Run command passed on command line or otherwise run console.    
     cmds = sys.argv[1:]

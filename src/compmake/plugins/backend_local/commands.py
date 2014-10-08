@@ -2,7 +2,7 @@ from .manager_local import ManagerLocal
 from compmake.constants import DefaultsToConfig
 from compmake.jobs.queries import top_targets
 from compmake.ui import ACTIONS, ui_command
-from compmake.ui.commands import _raise_if_failed, ask_if_sure_remake
+from compmake.ui.commands import raise_error_if_manager_failed, ask_if_sure_remake
 from compmake.jobs.actions import mark_remake
 
 
@@ -36,7 +36,7 @@ def make(job_list, context, cq,
                            recurse=recurse, new_process=new_process, echo=echo)
     manager.add_targets(job_list)
     manager.process()
-    return _raise_if_failed(manager)
+    return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
@@ -69,6 +69,6 @@ def remake(non_empty_job_list, context, cq,
 
     manager.add_targets(non_empty_job_list)
     manager.process()
-    return _raise_if_failed(manager)
+    return raise_error_if_manager_failed(manager)
 
 

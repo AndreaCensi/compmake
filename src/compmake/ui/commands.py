@@ -19,7 +19,7 @@ ui_section(GENERAL)
 __all__ = [
     'make_single',
     'quit',
-    '_raise_if_failed',
+    'raise_error_if_manager_failed',
     'ask_if_sure_remake',
 ]
 
@@ -31,7 +31,7 @@ def quit(context):
     raise ShellExitRequested()
 
 
-def _raise_if_failed(manager):
+def raise_error_if_manager_failed(manager):
     """
     Raises MakeFailed if there are failed jobs in the manager.
 
@@ -99,7 +99,7 @@ def make_single(job_list, context, out_result):
     try:
         # info('making job %s' % job_id)
         res = actions.make(job_id=job_id, context=context)
-        #info('Writing to %r' % out_result)
+        # info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0
     except JobFailed as e:

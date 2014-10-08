@@ -2,7 +2,7 @@ from .manager_multiprocessing import MultiprocessingManager
 from compmake.events import publish
 from compmake.jobs.queries import top_targets
 from compmake.ui import COMMANDS_ADVANCED, ui_command
-from compmake.ui.commands import _raise_if_failed
+from compmake.ui.commands import raise_error_if_manager_failed
 from compmake.constants import DefaultsToConfig
 
 __all__ = [
@@ -38,4 +38,4 @@ Usage:
 
     publish(context, 'parmake-status', status='Processing')
     manager.process()
-    return _raise_if_failed(manager)
+    return raise_error_if_manager_failed(manager)

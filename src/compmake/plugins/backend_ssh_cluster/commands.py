@@ -19,4 +19,4 @@
 #     manager = ClusterManager(hosts=hosts, context=context, cq=cq)
 #     manager.add_targets(job_list)
 #     manager.process()
-#     return _raise_if_failed(manager)
+#     return raise_error_if_manager_failed(manager)

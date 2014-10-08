@@ -22,6 +22,8 @@ def compmake_execution_stats(context, promise, use_job_id=None):
     elif isinstance(promise, str):
         job_id = promise    
         promise = Promise(job_id)
+    else:
+        assert False
         
     p2 = context.comp(dummy, promise)
     if use_job_id is not None:
