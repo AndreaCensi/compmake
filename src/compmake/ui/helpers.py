@@ -2,10 +2,11 @@ from collections import namedtuple
 import sys
 import types
 
+from contracts import contract
+
 from ..exceptions import UserError
 from .visualization import compmake_colored
 from ..utils import docstring_components, docstring_trim
-
 
 # Storage for the commands
 Command = namedtuple('Command', 'function name doc alias section dbchange')
@@ -52,8 +53,8 @@ ui_section(VISUALIZATION, order=1)
 ui_section(ACTIONS, order=2)
 # ui_section(COMMANDS_CLUSTER, order=2.5,
 # desc='Experimental: These assume that you have a cluster '
-#            ' configuration file as explained in the documentation.',
-#            experimental=True)
+# ' configuration file as explained in the documentation.',
+# experimental=True)
 ui_section(COMMANDS_ADVANCED, order=4,
            desc='These are advanced commands not for general use.',
            experimental=True)
@@ -65,18 +66,23 @@ ui_section(COMMANDS_ADVANCED, order=4,
 # This is a decorator with arguments -- 
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
-def ui_command(name=None, alias=[], section=None, dbchange=False):
-    def wrap(func, name, alias, section, dbchange):
-        """ Decorator for a UI command -- wrapper for register_command """
-        if name is None:
-            name = func.__name__
-        docs = func.__doc__
-        register_command(name=name, func=func, docs=docs,
-                         alias=alias, section=section,
-                         dbchange=dbchange)
-        return func
 
-    if type(name) is types.FunctionType:
+def wrap(func, name, alias, section, dbchange):
+    """ Decorator for a UI command -- wrapper for register_command """
+    if name is None:
+        name = func.__name__
+    docs = func.__doc__
+    register_command(name=name, func=func, docs=docs,
+                     alias=alias, section=section,
+                     dbchange=dbchange)
+    return func
+
+
+@contract(alias="None|str|list(str)")
+def ui_command(name=None, alias=None, section=None, dbchange=False):
+    if alias is None:
+        alias = []
+    if isinstance(name, types.FunctionType):
         func = name
         return wrap(func, name=None, alias=[], section=None,
                     dbchange=False)
@@ -84,8 +90,10 @@ def ui_command(name=None, alias=[], section=None, dbchange=False):
     return lambda x: wrap(x, name, alias, section, dbchange)
 
 
-def register_command(name, func, docs, alias=[], section=None,
+def register_command(name, func, docs, alias=None, section=None,
                      dbchange=False):
+    if alias is None:
+        alias = []
     if isinstance(alias, str):
         alias = [alias]
     if not section:
@@ -97,7 +105,7 @@ def register_command(name, func, docs, alias=[], section=None,
                                      alias=alias, section=section,
                                      dbchange=dbchange)
     assert section in UIState.sections, \
-        "Section '%s' not defined" % section
+        "Section %r not defined" % section
     UIState.sections[section].commands.append(name)
     for a in alias:
         assert not a in UIState.alias2name, 'Alias "%s" already used' % a
@@ -109,6 +117,7 @@ def get_commands():
     return UIState.commands
 
 
+# noinspection PyShadowingBuiltins
 @ui_command(section=GENERAL)
 def help(args):
     """
@@ -144,7 +153,7 @@ def help(args):
 
 def list_commands_with_sections(file=sys.stdout):
     ordered_sections = sorted(UIState.sections.values(),
-                              key=lambda section: section.order)
+                              key=lambda _section: _section.order)
 
     max_len = 1 + max([len(cmd.name) for cmd in UIState.commands.values()])
     for section in ordered_sections:
@@ -171,7 +180,3 @@ def list_commands_with_sections(file=sys.stdout):
             if not is_experimental:
                 n = compmake_colored(n, attrs=['bold'])
             file.write("  | %s  %s\n" % (n, short_doc))
-
-
-
-

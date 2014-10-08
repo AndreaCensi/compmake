@@ -63,13 +63,13 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
 
     max_len = 100
 
-    def format_job_id(job_id):
-        if complete_names or len(job_id) < max_len:
-            return job_id
+    def format_job_id(ajob_id):
+        if complete_names or len(ajob_id) < max_len:
+            return ajob_id
         else:
             b = 15
             r = max_len - b - len(' ... ')
-            return job_id[:15] + ' ... ' + job_id[-r:]
+            return ajob_id[:15] + ' ... ' + ajob_id[-r:]
 
     jlen = max(len(format_job_id(x)) for x in job_list)
 

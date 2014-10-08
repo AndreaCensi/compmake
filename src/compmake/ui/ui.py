@@ -11,11 +11,10 @@ from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies,
                     parse_job_list,
                     set_job, set_job_args)
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
-from ..exceptions import (CommandFailed, UserError
-                          )
+from ..exceptions import CommandFailed, UserError
 from ..structures import Job, Promise, same_computation
-from ..utils import (describe_type, describe_value,
-                     interpret_strings_like, try_pickling)
+from contracts import describe_type, describe_value
+from ..utils import interpret_strings_like, try_pickling
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
@@ -78,7 +77,7 @@ def generate_job_id(base, context):
 # '''
 # Generates a unique job_id for the specified commmand.
 # Takes into account job_prefix if that's defined.
-#     '''
+# '''
 #
 #     job_prefix = context.get_comp_prefix()
 #     if job_prefix:
@@ -335,6 +334,7 @@ def comp_(context, command_, *args, **kwargs):
             raise ValueError(msg)
         if isinstance(extra_dep, Promise):
             extra_dep = [extra_dep]
+        assert isinstance(extra_dep, list)
         for ed in extra_dep:
             if not isinstance(ed, Promise):
                 msg = ('The "extra_dep" argument must be a list of promises; '
@@ -366,7 +366,7 @@ def comp_(context, command_, *args, **kwargs):
 
         if old_job.defined_by != c.defined_by:
             warning('Redefinition of %s: ' % job_id)
-            warning(' cur defined_by: %s' % (c.defined_by))
+            warning(' cur defined_by: %s' % c.defined_by)
             warning(' old defined_by: %s' % old_job.defined_by)
 
         if old_job.children != c.children:
@@ -599,7 +599,7 @@ def interpret_single_command(commands_line, context, cq):
 
     try:
         res = function(**kwargs)
-        if res != None and res != 0:
+        if (res is not None) and (res != 0):
             msg = 'Command %r failed: %s' % (commands_line, res)
             raise CommandFailed(msg)
         return None

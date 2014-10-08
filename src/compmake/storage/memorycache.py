@@ -5,6 +5,7 @@ __all__ = [
 ]
 
 
+# noinspection PyArgumentList
 class MemoryCache(object):
 
     def __init__(self, db, cache_values=True):

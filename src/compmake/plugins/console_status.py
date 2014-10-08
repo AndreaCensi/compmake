@@ -29,7 +29,7 @@ def system_status():
     if swap > 20:
         s_mem += ' swap %2.0f%%' % swap
 
-    return ('cpu %2.0f%% %s' % (cpu, s_mem))
+    return 'cpu %2.0f%% %s' % (cpu, s_mem)
 
 
 def spinner():
@@ -223,4 +223,3 @@ if get_compmake_config('status_line_enabled'):
     register_handler('job-stdout', handle_event)
     register_handler('job-stderr', handle_event)
     register_handler('manager-host-failed', manager_host_failed)
- 

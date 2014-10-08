@@ -6,7 +6,7 @@ from compmake.jobs.manager import AsyncResultInterface, Manager
 from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.state import get_compmake_config
-from compmake.structures import HostFailed
+from compmake.exceptions import HostFailed
 from contracts import contract
 from multiprocessing import Pool
 from multiprocessing.queues import Queue

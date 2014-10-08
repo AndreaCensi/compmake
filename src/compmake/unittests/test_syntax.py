@@ -1,6 +1,7 @@
 import sys
 
 from nose.tools import istest
+
 from . import CompmakeTest
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache
@@ -41,8 +42,8 @@ class Test1(CompmakeTest):
 
         self.all = set([job_id for job_id, state in self.jobs])
         selectf = lambda S: set([nid
-                                 for nid, state in self.jobs
-                                 if state == S])
+                                 for nid, state_ in self.jobs
+                                 if state_ == S])
         self.failed = selectf(Cache.FAILED)
         self.done = selectf(Cache.DONE)
         self.in_progress = selectf(Cache.IN_PROGRESS)
@@ -52,11 +53,11 @@ class Test1(CompmakeTest):
         return set([nid for nid, state in self.jobs if crit(nid, state)])
 
     def expandsTo(self, A, B):
-        ''' A, B can be:
+        """ A, B can be:
         - set or list: list of jobs
         - string: passed to expands_jobs
         - lambda: passed to selection()
-        '''
+        """
 
         def expand_to_set(X):
             if isinstance(X, set):
@@ -78,13 +79,12 @@ class Test1(CompmakeTest):
         except:
             sys.stdout.write(
                 'Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n' % (
-                A, a, B, b))
+                    A, a, B, b))
             raise
 
-
     def syntaxError(self, s):
-        def f(s):  # it's a generator, you should try to read it
-            return list(parse_job_list(s, context=self.cc))
+        def f(x):  # it's a generator, you should try to read it
+            return list(parse_job_list(x, context=self.cc))
 
         self.assertRaises(CompmakeSyntaxError, f, s)
 
@@ -100,7 +100,7 @@ class Test1(CompmakeTest):
         self.syntaxError('all not e')
 
     def testSpecial(self):
-        ''' Test that the special variables work'''
+        """ Test that the special variables work"""
         self.expandsTo('  ', set())
         self.expandsTo('all', self.all)
         self.expandsTo('failed', self.failed)
@@ -109,7 +109,7 @@ class Test1(CompmakeTest):
         self.expandsTo('in_progress', self.in_progress)
 
     def testBasicUnion(self):
-        ''' Testing basic union operator '''
+        """ Testing basic union operator """
         self.expandsTo('failed e', self.failed.union('e'))
         self.expandsTo('e failed', self.failed.union('e'))
 
@@ -135,7 +135,6 @@ class Test1(CompmakeTest):
         self.expandsTo('all except failed',
                        lambda _, state: state != Cache.FAILED)
         self.expandsTo('not failed', lambda _, state: state != Cache.FAILED)
-
 
     def testIntersection(self):
         self.expandsTo('a b in a b c', ['a', 'b'])

@@ -6,6 +6,7 @@ from ..exceptions import UserError
 from ..ui import COMMANDS_ADVANCED, ui_command, user_error, info
 
 
+# noinspection PyShadowingBuiltins
 @ui_command(section=COMMANDS_ADVANCED)
 def reload(module):  # @ReservedAssignment
     """ Reloads a module.
@@ -37,4 +38,3 @@ def reload(module):  # @ReservedAssignment
         raise UserError(msg)
 
     info('Reloaded module "%s".' % module)
-

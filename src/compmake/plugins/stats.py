@@ -1,9 +1,10 @@
 """ The actual interface of some commands in commands.py """
+from collections import defaultdict
+
 from ..jobs import get_job, get_job_cache, parse_job_list
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
-from collections import defaultdict
 from compmake.constants import CompmakeConstants
 
 
@@ -61,29 +62,29 @@ def display_stats(job_list, context):
         print(pad_to_screen('No jobs found.'))
         return
 
-#     print("Found %s jobs in total." % total)
-# 
-#     for state in states_order:
-#         desc = "%30s" % Cache.state2desc[state]
-#         # colorize output
-#         desc = compmake_colored(desc, **state2color[state])
-# 
-#         num = states2count[state]
-#         if num > 0:
-#             print("%s: %5d" % (desc, num))
+        # print("Found %s jobs in total." % total)
+    #
+    #     for state in states_order:
+    #         desc = "%30s" % Cache.state2desc[state]
+    #         # colorize output
+    #         desc = compmake_colored(desc, **state2color[state])
+    #
+    #         num = states2count[state]
+    #         if num > 0:
+    #             print("%s: %5d" % (desc, num))
 
     print("Summary by function name:")
 
-    flen = max((len(x)+len('()')) for x in function2state2count)
-    
+    flen = max((len(x) + len('()')) for x in function2state2count)
+
     states = [
-      (Cache.DONE, 'done'),
-      (Cache.FAILED, 'failed'),
-      (Cache.BLOCKED, 'blocked'),
-      (Cache.IN_PROGRESS, 'in progress'),
-      (Cache.NOT_STARTED, 'to do'),
+        (Cache.DONE, 'done'),
+        (Cache.FAILED, 'failed'),
+        (Cache.BLOCKED, 'blocked'),
+        (Cache.IN_PROGRESS, 'in progress'),
+        (Cache.NOT_STARTED, 'to do'),
     ]
-    
+
     totals = defaultdict(lambda: 0)
     for function_id in sorted(function2state2count):
         function_stats = function2state2count[function_id]
@@ -96,7 +97,7 @@ def display_stats(job_list, context):
             alls.append(s)
             totals[state] += num
         s = ",".join(alls)
-        function_id_pad = (function_id+'()').ljust(flen)
+        function_id_pad = (function_id + '()').ljust(flen)
         print("    %s: %s." % (function_id_pad, s))
 
     final = []
@@ -106,7 +107,4 @@ def display_stats(job_list, context):
             s = compmake_colored(s, **state2color[state])
         final.append(s)
     final = ",".join(final)
-    print("    %s: %s." % ("total".rjust(flen),final))
-     
-
-
+    print("    %s: %s." % ("total".rjust(flen), final))

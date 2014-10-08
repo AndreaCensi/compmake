@@ -1,9 +1,8 @@
 import time
 
-from contracts import contract
+from contracts import contract, describe_type
 
 from ..structures import ProgressStage
-from ..utils import describe_type
 
 
 class Globals():

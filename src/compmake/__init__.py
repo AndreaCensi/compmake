@@ -1,5 +1,3 @@
-import sys
-
 version = '3.3'
 __version__ = version
 
@@ -23,7 +21,6 @@ from .plugins.execution_stats import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
-
 
 if CompmakeConstants.debug_check_invariants:
     logger.warn('debug_check_invariants = True: this might slow down quite a bit')

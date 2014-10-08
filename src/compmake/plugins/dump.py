@@ -46,4 +46,3 @@ def dump_stdout(non_empty_job_list, context, resolve=False):
             print(user_object)
         else:
             user_error('Job %s is not ready yet.' % job_id)
-

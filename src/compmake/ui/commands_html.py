@@ -11,7 +11,7 @@ __all__ = [
 
 def create_commands_html(file=sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(),
-                              key=lambda section: section.order)
+                              key=lambda section_: section_.order)
 
     file.write("<table class='compmake-config'>\n")
     for section in ordered_sections:

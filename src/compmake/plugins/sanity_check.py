@@ -48,9 +48,9 @@ def check_job(job_id, context):
 
     for dp in dparents:
         if not job_id in direct_children(dp, db=db):
-            e(('%s thinks %s is its direct parent;' % (job_id, dp))
-              + (
-            'but %s does not think %s is its direct child' % (dp, job_id)))
+            s = '%s thinks %s is its direct parent;' % (job_id, dp)
+            s += 'but %s does not think %s is its direct child' % (dp, job_id)
+            e(s)
 
     for ap in all_parents:
         if not job_id in children(ap, db=db):
@@ -71,4 +71,3 @@ def check_job(job_id, context):
         return False, errors
     else:
         return True, []
-

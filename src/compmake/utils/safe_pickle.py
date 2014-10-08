@@ -35,4 +35,3 @@ def safe_pickle_load(filename):
     with safe_read(filename) as f:
         return pickle.load(f)
         # TODO: add pickling debug
-    

@@ -30,16 +30,16 @@ def safe_write(filename, mode='wb', compresslevel=5):
             except:
                 pass
 
-            # Dont do this!
-            # if os.path.exists(filename):
-            #         os.unlink(filename)
-            #     assert not os.path.exists(filename)
-            #
+                # Dont do this!
+                # if os.path.exists(filename):
+                # os.unlink(filename)
+                #     assert not os.path.exists(filename)
+                #
     tmp_filename = '%s.tmp.%s' % (filename, os.getpid())
     try:
         if is_gzip_filename(filename):
-            fopen = lambda f, mode: gzip.open(filename=f, mode=mode,
-                                              compresslevel=compresslevel)
+            fopen = lambda fname, fmode: gzip.open(filename=fname, mode=fmode,
+                                                   compresslevel=compresslevel)
         else:
             fopen = open
 
@@ -48,7 +48,7 @@ def safe_write(filename, mode='wb', compresslevel=5):
         f.close()
 
         # if os.path.exists(filename):
-        #             msg = 'Race condition for writing to %r.' % filename
+        # msg = 'Race condition for writing to %r.' % filename
         #             raise Exception(msg)
         #
         # On Unix, if dst exists and is a file, it will be replaced silently

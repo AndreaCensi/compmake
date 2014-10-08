@@ -1,4 +1,6 @@
+
 from io import BytesIO as StringIO
+# noinspection PyProtectedMember
 from pickle import (
     EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE,
     _tuplesize2code)
@@ -18,7 +20,7 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     sio = StringIO()
     try:
         pickle.dumps(obj)
-    except Exception as e1:
+    except Exception:
         pass
     else:
         msg = ('Strange! I could not reproduce the pickling error '
@@ -102,7 +104,6 @@ class MyPickler(Pickler):
                 self.stack.pop()
                 write(SETITEM)
                 # else tmp is empty, and we're done
-
 
     def save_tuple(self, obj):
         write = self.write

@@ -55,7 +55,7 @@ def show_config(file):  # @ReservedAssignment
     config_switches = CompmakeGlobalState.config_switches
 
     ordered_sections = sorted(config_sections.values(),
-                              key=lambda section: section.order)
+                              key=lambda _section: _section.order)
 
     max_len_name = 1 + max([len(s.name) for s in config_switches.values()])
     max_len_val = 1 + max([len(str(get_compmake_config(s.name)))

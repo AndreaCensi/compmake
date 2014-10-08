@@ -12,11 +12,11 @@ __all__ = [
 
 @contract(name='str')
 def import_name(name):
-    ''' 
-        Loads the python object with the given name. 
-    
+    """
+        Loads the python object with the given name.
+
         Note that "name" might be "module.module.name" as well.
-    '''
+    """
     try:
         return __import__(name, fromlist=['dummy'])
     except ImportError as e:
@@ -37,8 +37,8 @@ def import_name(name):
                     raise ValueError(msg)
 
                 if not field in module.__dict__:
-                    msg = 'No field  %r\n' % (field)
-                    msg += ' found in %r.' % (module)
+                    msg = 'No field  %r\n' % field
+                    msg += ' found in %r.' % module
                     raise ValueError(msg)
 
                 return module.__dict__[field]
@@ -55,8 +55,8 @@ def import_name(name):
                     raise ValueError(msg)
 
                 if not field in module.__dict__:
-                    msg = 'No field  %r\n' % (field)
-                    msg += ' found in %r.' % (module)
+                    msg = 'No field %r\n' % field
+                    msg += ' found in %r.' % module
                     raise ValueError(msg)
 
                 f = module.__dict__[field]
@@ -69,7 +69,6 @@ def import_name(name):
                     return f
 
         else:
-            msg = 'Cannot import name %r.' % (name)
+            msg = 'Cannot import name %r.' % name
             msg += indent(traceback.format_exc(e), '> ')
             raise ValueError(msg)
-

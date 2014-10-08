@@ -23,8 +23,8 @@ class PluginsTest(CompmakeTest):
         # empty list
         #self.assert_cmd_success('ls block* and done')
 
-    def testCredits(self):
-        self.assert_cmd_success('credits')
+    # def testCredits(self):
+    #     self.assert_cmd_success('credits')
 
     def testCheckConsistency(self):
         self.assert_cmd_success('check-consistency')

@@ -87,7 +87,7 @@ def publish(context, event_name, **kwargs):
 def broadcast_event(context, event):
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
-    handlers = all_handlers.get(event.name, None)
+    handlers = all_handlers.get(event.name, [])
     if handlers:
         for handler in handlers:
             try:

@@ -11,7 +11,7 @@ def create_config_html(file):  # @ReservedAssignment
 
     # TODO: HTML escaping?
     ordered_sections = sorted(config_sections.values(),
-                              key=lambda section: section.order)
+                              key=lambda _section: _section.order)
 
     file.write("<table class='compmake-config'>\n")
 

@@ -25,6 +25,7 @@ def getTerminalSize():
         try:
             fd = os.open(os.ctermid(), os.O_RDONLY)
             cr = ioctl_GWINSZ(fd)
+            # noinspection PyTypeChecker
             os.close(fd)
         except:
             pass
