@@ -192,7 +192,8 @@ class SGEJob(AsyncResultInterface):
             ret = int(ret_str)
         except ValueError:
             msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
-            raise HostFailed(msg)  # XXX
+            raise HostFailed(host='localhost',
+                             job_id=self.job_id, reason=msg, bt='')
             #
         #
         #         raise HostFailed(host="xxx",

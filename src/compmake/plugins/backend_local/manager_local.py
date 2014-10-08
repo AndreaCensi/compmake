@@ -11,7 +11,7 @@ __all__ = [
 
 
 class ManagerLocal(Manager):
-    ''' Specialization of manager for local execution '''
+    """ Specialization of manager for local execution """
 
     @contract(new_process='bool', echo='bool')
     def __init__(self, new_process, echo, *args, **kwargs):

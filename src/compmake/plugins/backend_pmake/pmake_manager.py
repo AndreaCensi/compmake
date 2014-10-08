@@ -14,9 +14,11 @@ from contracts import contract
 
 
 if sys.version_info[0] >= 3:
-    from queue import Empty  # @UnresolvedImport @UnusedImport
+    # noinspection PyUnresolvedReferences
+    from queue import Empty
 else:
-    from Queue import Empty  # @Reimport
+    # noinspection PyUnresolvedReferences
+    from Queue import Empty
 
 __all__ = [
     'PmakeManager',
@@ -205,8 +207,5 @@ class PmakeManager(Manager):
         # put in sub_aborted
         self.sub_aborted.add(name)
 
-
     def cleanup(self):
         self.process_finished()
-        
-        

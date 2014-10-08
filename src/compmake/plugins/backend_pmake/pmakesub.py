@@ -12,8 +12,10 @@ from contracts import check_isinstance, indent
 
 
 if sys.version_info[0] >= 3:
+    # noinspection PyUnresolvedReferences
     from queue import Empty
 else:
+    # noinspection PyUnresolvedReferences
     from Queue import Empty
 
 __all__ = [
@@ -143,6 +145,3 @@ class PmakeResult(AsyncResultInterface):
         check_isinstance(self.result, dict)
         result_dict_raise_if_error(self.result)
         return self.result
-    
-    
-    
