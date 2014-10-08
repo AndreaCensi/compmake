@@ -1,6 +1,6 @@
 import os
 
-from .result_dict import _check_result_dict
+from .result_dict import result_dict_check
 from compmake.constants import CompmakeConstants
 from compmake.exceptions import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
@@ -9,7 +9,7 @@ from system_cmd import system_cmd_result
 
 
 __all__ = [
-    '_check_result_dict',
+    'result_dict_check',
     'parmake_job2_new_process',
 
 ]
@@ -62,7 +62,7 @@ def parmake_job2_new_process(args):
 
         res = safe_pickle_load(out_result)
         os.unlink(out_result)
-        _check_result_dict(res)
+        result_dict_check(res)
 
         raise JobFailed.from_dict(res)
 
@@ -75,5 +75,5 @@ def parmake_job2_new_process(args):
 
     res = safe_pickle_load(out_result)
     os.unlink(out_result)
-    _check_result_dict(res)
+    result_dict_check(res)
     return res

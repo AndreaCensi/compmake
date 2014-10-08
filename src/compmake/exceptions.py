@@ -16,9 +16,9 @@ class CompmakeBug(CompmakeException):
 
     @staticmethod
     def from_dict(res):
-        from compmake.jobs.result_dict import _check_result_dict
+        from compmake.jobs.result_dict import result_dict_check
 
-        _check_result_dict(res)
+        result_dict_check(res)
         assert 'bug' in res
         e = CompmakeBug(res['bug'])
         return e
@@ -76,9 +76,9 @@ class JobFailed(CompmakeException):
 
     @staticmethod
     def from_dict(res):
-        from compmake.jobs.result_dict import _check_result_dict
+        from compmake.jobs.result_dict import result_dict_check
 
-        _check_result_dict(res)
+        result_dict_check(res)
         assert 'fail' in res
         e = JobFailed(job_id=res['job_id'],
                       bt=res['bt'],
@@ -117,9 +117,9 @@ class HostFailed(CompmakeException):
 
     @staticmethod
     def from_dict(res):
-        from compmake.jobs.result_dict import _check_result_dict
+        from compmake.jobs.result_dict import result_dict_check
 
-        _check_result_dict(res)
+        result_dict_check(res)
         try:
             res['abort']
             e = HostFailed(host=res['host'],

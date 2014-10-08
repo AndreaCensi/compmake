@@ -9,7 +9,7 @@ from ..events import publish
 from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
                     get_job_cache, job_cache_exists, job_exists,
                     job_userobject_exists)
-from ..jobs.actions_newprocess import _check_result_dict
+from ..jobs.actions_newprocess import result_dict_check
 from ..exceptions import (CompmakeBug, HostFailed, JobFailed,
                           JobInterrupted)
 from ..structures import (Cache)
@@ -311,7 +311,7 @@ class Manager(ManagerLog):
             if async_result.ready():
                 result = async_result.get()
                 check_isinstance(result, dict)
-                _check_result_dict(result)
+                result_dict_check(result)
 
                 self.job_succeeded(job_id)
                 self.check_invariants()
