@@ -28,6 +28,6 @@ except:
     def termcolor_colored(x,
                           color=None, on_color=None,
                           attrs=None):  # @UnusedVariable
-        ''' emulation of the termcolor interface '''
+        """ emulation of the termcolor interface """
         return x
 

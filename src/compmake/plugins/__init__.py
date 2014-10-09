@@ -1,8 +1,8 @@
-''' 
+"""
     These are all the functionalities that build on the API. All visualization
-    stuff is built in as a plugin. 
+    stuff is built in as a plugin.
 
-'''
+"""
 
 from . import dump
 from . import graph

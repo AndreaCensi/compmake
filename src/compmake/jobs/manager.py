@@ -2,9 +2,9 @@ from multiprocessing import TimeoutError
 import traceback
 from abc import ABCMeta, abstractmethod
 import os
-
 import itertools
 import time
+
 from ..events import publish
 from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
                     get_job_cache, job_cache_exists, job_exists,
@@ -358,7 +358,7 @@ class Manager(ManagerLog):
             # print('adding %r to parents of %r' % (parent, child))
             # child_comp = get_job(child, db=db)
             # child_comp.parents.add(new_job)
-            #             set_job(child, child_comp, db=db)
+            # set_job(child, child_comp, db=db)
             #             print('  cur parents: %s' % child_comp.parents)
             #
             #         print('updating parents relation for %r ' % new_jobs)
@@ -411,7 +411,7 @@ class Manager(ManagerLog):
                          parent=parent)
                 # print(' its parent %r' % parent)
                 if parent in self.all_targets:
-                    #print('was also in targets')
+                    # print('was also in targets')
                     # Remove it from the "ready_todo_list"
                     if parent in self.processing2result:
                         msg = (' parent %s of %s is already processing?' %
@@ -469,8 +469,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_failed(self, job_id):
-        ''' The specified job has failed. Update the structures,
-            mark any parent as failed as well. '''
+        """ The specified job has failed. Update the structures,
+            mark any parent as failed as well. """
         self.log('job_failed', job_id=job_id)
         self.check_invariants()
         assert job_id in self.processing
@@ -495,8 +495,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_succeeded(self, job_id):
-        ''' Mark the specified job as succeeded. Update the structures,
-            mark any parents which are ready as ready_todo. '''
+        """ Mark the specified job as succeeded. Update the structures,
+            mark any parents which are ready as ready_todo. """
         self.log('job_succeeded', job_id=job_id)
         self.check_invariants()
         publish(self.context, 'manager-job-succeeded', job_id=job_id)
@@ -583,9 +583,8 @@ class Manager(ManagerLog):
             self.event_check()
             self.check_invariants()
 
-
     def process(self):
-        ''' Start processing jobs. '''
+        """ Start processing jobs. """
         # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
 
@@ -666,6 +665,7 @@ class Manager(ManagerLog):
 
         except JobInterrupted as e:
             from ..ui import error
+
             error('Received JobInterrupted: %s' % e)
             raise
         except KeyboardInterrupt:
@@ -866,7 +866,7 @@ def check_job_cache_says_failed(job_id, db, e):
 # """ job_id has finished and the jobs in new_jobs have been
 # generated. We should look in the DB if in the past
 # it had generated other jobs and delete them """
-#     #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
+# #print('cleaning other jobs after %r generated %r' % (job_id, new_jobs))
 #     extra = []
 #     # XXX: slow
 #     for g in all_jobs(db=db):

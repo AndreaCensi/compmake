@@ -54,7 +54,7 @@ def set_compmake_status(s):
 
 
 def is_interactive_session():
-    ''' If this is true, we will ask questions to the user. '''
+    """ If this is true, we will ask questions to the user. """
     return (get_compmake_status() ==
             CompmakeConstants.compmake_status_interactive)
 

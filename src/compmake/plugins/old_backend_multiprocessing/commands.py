@@ -9,15 +9,19 @@ __all__ = [
     'parmake_pool',
 ]
 
-@ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-def parmake_pool(job_list, context, cq, n=DefaultsToConfig('max_parallel_jobs'), recurse=False):
-    '''Parallel equivalent of "make", using multiprocessing.Pool. (buggy)
 
-Usage:
-       
-       parmake [n=<num>] [joblist]
- '''
-    
+@ui_command(section=COMMANDS_ADVANCED, dbchange=True)
+def parmake_pool(job_list, context, cq,
+                 n=DefaultsToConfig('max_parallel_jobs'), recurse=False):
+    """
+        Parallel equivalent of "make", using multiprocessing.Pool. (buggy)
+
+        Usage:
+
+           parmake [n=<num>] [joblist]
+
+     """
+
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
 
@@ -29,10 +33,11 @@ Usage:
             status='Starting multiprocessing manager (forking)')
     manager = MultiprocessingManager(num_processes=n,
                                      cq=cq,
-                                     context=context, 
+                                     context=context,
                                      recurse=recurse)
 
-    publish(context, 'parmake-status', status='Adding %d targets.' % len(job_list))
+    publish(context, 'parmake-status',
+            status='Adding %d targets.' % len(job_list))
 
     manager.add_targets(job_list)
 

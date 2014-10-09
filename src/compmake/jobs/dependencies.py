@@ -56,8 +56,8 @@ def substitute_dependencies(a, db):
 
 @contract(returns='set(str)')
 def collect_dependencies(ob):
-    ''' Returns a set of dependencies (i.e., Promise objects that
-        are mentioned somewhere in the structure '''
+    """ Returns a set of dependencies (i.e., Promise objects that
+        are mentioned somewhere in the structure """
     from compmake import Promise
 
     if isinstance(ob, Promise):

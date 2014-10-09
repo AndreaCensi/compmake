@@ -5,7 +5,7 @@ from . import interpret_strings_like
 
 class InterpretTest(TestCase):
     def test_bool(self):
-        ''' Testing boolean interpretation'''
+        """ Testing boolean interpretation"""
         m = interpret_strings_like
         abool = True
         self.assertEqual(True, m('True', abool))
