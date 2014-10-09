@@ -203,7 +203,12 @@ def handle_event(context, event):  # @UnusedVariable
     # line = pad_to_screen_length(choice, remaining, align_right=True) + s
 
     stream.write(line)
-    stream.write('\r')
+
+    interactive = get_compmake_config('interactive')
+    if interactive:
+        stream.write('\r')
+    else:
+        stream.write('\n')
 
 
 def manager_host_failed(context, event):  # @UnusedVariable

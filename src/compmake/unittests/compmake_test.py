@@ -4,6 +4,7 @@ from tempfile import mkdtemp
 import os
 import unittest
 
+from compmake import set_compmake_config
 from compmake.context import Context
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
@@ -21,6 +22,8 @@ class CompmakeTest(unittest.TestCase):
         self.root = os.path.join(self.root0, 'compmake')
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)
+        # don't use '\r'
+        set_compmake_config('interactive', False)
         self.mySetUp()
 
     def tearDown(self):

@@ -57,6 +57,12 @@ add_config_switch('colorize', True,
                   desc='Use colors in terminals if possible.',
                   section=CONFIG_APPEARANCE)
 
+add_config_switch('interactive', True,
+                  desc='Assumes that this is an interactive console. (Uses '
+                       '\\r to repaint line.)',
+                  section=CONFIG_APPEARANCE)
+
+
 add_config_switch('readline', True,
                   desc='Try to use readline or pyreadline module.',
                   section=CONFIG_APPEARANCE)

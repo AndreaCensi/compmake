@@ -52,9 +52,9 @@ def job_failed(context, event):  # @UnusedVariable
     bt = event.kwargs['bt']
 
     msg = 'Job %r failed:' % job_id
-    s = reason.strip
-    if get_compmake_config('echo'):
-        s += '\n' + bt
+    # s = reason.strip
+    # if get_compmake_config('echo'):
+    #     s += '\n' + bt
 
     msg += '\n' + indent(reason.strip(), '| ')
     error(my_prefix + msg)
