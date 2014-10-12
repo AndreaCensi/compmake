@@ -17,9 +17,9 @@ __all__ = [
 def config(args):
     """ Get/set configuration parameters.
 
-Call like:
+Usage:
 
-    @> config  <switch>  <value>
+    @: config  <switch>  <value>
 
 Without arguments, shows all configuration switches.
  """

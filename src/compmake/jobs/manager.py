@@ -146,7 +146,7 @@ class Manager(ManagerLog):
         return best
 
     def add_targets(self, targets):
-        self.log('adding targets', targets=targets)
+        self.log('add_targets()', targets=targets)
         self.check_invariants()
         for t in targets:
             assert_job_exists(t, self.db)
@@ -205,8 +205,20 @@ class Manager(ManagerLog):
         # XXX: we should clean the Cache of a job before making it
         self.done.update(targets_done - self.processing)
 
+        
+        todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
-        self.ready_todo.update(ready_todo - self.processing)
+        self.log('add_targets():adding to todo', todo_add=todo_add, todo=self.todo)
+        ready_add = ready_todo - self.processing
+        self.log('add_targets():adding to ready', ready=self.ready_todo, ready_add=ready_add)
+        self.ready_todo.update(ready_add)
+        # this is a quick fix but I'm sure more thought is to be given
+        for a in ready_add:
+            if a in self.todo:
+                self.todo.remove(a)
+        for a in todo_add:
+            if a in self.ready_todo:
+                self.ready_todo.remove(a)
 
         needs_priorities = self.todo | self.ready_todo
         misses_priorities = needs_priorities - set(self.priorities)
@@ -215,6 +227,12 @@ class Manager(ManagerLog):
         self.priorities.update(new_priorities)
 
         self.check_invariants()
+        
+        self.log('after add_targets()',
+                 processing=self.processing,
+                 ready_todo=self.ready_todo,
+                 todo=self.todo,
+                 done=self.done)
 
     def instance_some_jobs(self):
         """
@@ -414,9 +432,10 @@ class Manager(ManagerLog):
                     # print('was also in targets')
                     # Remove it from the "ready_todo_list"
                     if parent in self.processing2result:
-                        msg = (' parent %s of %s is already processing?' %
+                        msg = ('parent %s of %s is already processing?' %
                                (job_id, parent))
                         raise CompmakeBug(msg)
+                    
                     if parent in self.done:
                         msg = (' parent %s of %s is already done?' %
                                (job_id, parent))
@@ -450,7 +469,8 @@ class Manager(ManagerLog):
                     pass
                 else:
                     cocher.add(j)
-            self.add_targets(cocher)
+            if cocher:
+                self.add_targets(cocher)
 
         self.check_invariants()
 
@@ -589,13 +609,13 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         if not self.todo and not self.ready_todo:
-            from compmake.ui import info
-
-            info('Nothing to do.')
             publish(self.context, 'manager-succeeded',
+                    nothing_to_do=True,
                     targets=self.targets, done=self.done,
                     all_targets=self.all_targets,
-                    todo=self.todo, failed=self.failed,
+                    todo=self.todo, 
+                    failed=self.failed,
+                    blocked=self.blocked,
                     ready=self.ready_todo,
                     processing=self.processing)
 
@@ -656,9 +676,11 @@ class Manager(ManagerLog):
             self.process_finished()
 
             publish(self.context, 'manager-succeeded',
+                    nothing_to_do=False,
                     targets=self.targets, done=self.done,
                     all_targets=self.all_targets,
                     todo=self.todo, failed=self.failed, ready=self.ready_todo,
+                    blocked=self.blocked,
                     processing=self.processing)
 
             return True

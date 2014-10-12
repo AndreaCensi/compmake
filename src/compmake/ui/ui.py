@@ -128,6 +128,8 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
+            print('Job %r not defined in this session defined_by = %r.' % (job_id, job.defined_by))
+
             if not clean_all:
                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
                 text = ('Found spurious job %s; cleaning? '

@@ -1,5 +1,5 @@
 $ compmake out-example 
-Compmake 3.3  (27 jobs loaded)   ``Tame your Python computations!,,                                                                     
-                                                                                                                                        @:                                                                                                                                         @: (end of input detected)
+Compmake 3.3  (27 jobs loaded)   ``Keep calm and carry on,,                                                                                              
+                                                                                                                                                         @:                                                                                                                                                          @: (end of input detected)
 Thanks for using compmake. Problems? Suggestions? Praise? Go to http://compmake.org
 @:

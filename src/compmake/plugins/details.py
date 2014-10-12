@@ -52,25 +52,26 @@ def list_job_detail(job_id, context, cq, max_lines):
     # TODO: make it work in Python3K
     print(bold('Job ID:') + '%s' % job_id)
     print(bold('Defined by:') + '%s' % job.defined_by)
-    print(bold('Uptodate:') + '%s (%s)' % (up, reason))
 
     job_args = get_job_args(job_id, db=db)
     command, args, kwargs = job_args  # @UnusedVariable
     print(bold('command:') + '%s' % command)
 
     print(
-        bold('Dependences: (direct)') + ' (%d) ' % len(
+        bold('Dependencies: (direct)') + ' (%d) ' % len(
             dchildren) + format_list(dchildren))
-    print(bold('Dependences: (other)') + ' (%d) ' % len(
+    print(bold('Dependencies: (other)') + ' (%d) ' % len(
         other_children) + format_list(other_children))
-    print(bold('Jobs depending on this (direct):') + format_list(dparents))
-    print(bold('Jobs depending on this (other levels):') + format_list(
+    print(bold('Depending on this (direct):') + format_list(dparents))
+    print(bold('Depending on this (other):') + format_list(
         other_parents))
 
     if job_cache_exists(job_id, db=db):
         cache2 = get_job_cache(job_id, db=db)
 
         print(bold('Status:') + '%s' % Cache.state2desc[cache2.state])
+        print(bold('Uptodate:') + '%s (%s)' % (up, reason))
+
         if cache2.state == Cache.DONE:  # and cache.done_iterations > 1:
             # print(bold('Iterations:') + '%s' % cache.done_iterations)
             print(bold('Wall Time:') + '%.4f s' % cache2.walltime_used)

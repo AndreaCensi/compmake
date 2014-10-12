@@ -24,6 +24,8 @@ class CompmakeTest(unittest.TestCase):
         self.cc = Context(db=self.db)
         # don't use '\r'
         set_compmake_config('interactive', False)
+        from compmake.constants import CompmakeConstants
+        CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
 
     def tearDown(self):

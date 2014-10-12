@@ -32,7 +32,7 @@ class CompmakeConstants():
     compmake_status_embedded = 'embedded'
 
     # debug_origin_of_prints = True
-    debug_check_invariants = False
+    debug_check_invariants = False # TODO: make config
 
     disable_interproc_queue = False
 

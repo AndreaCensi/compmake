@@ -32,6 +32,7 @@ def user_error(s):  # XXX: what's the difference with above?
 
 
 def info(s):
+    # write_message(s, lambda x: compmake_colored(x, 'green'))
     write_message(s, lambda x: compmake_colored(x, 'green'))
 
 

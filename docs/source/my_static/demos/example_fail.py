@@ -1,21 +1,23 @@
 
-print("""
-Same example as 'example.py', but for some values
-of the parameters we are going to throw an exception. 
-This will show how compmake deals with failure.
-
-""")
+print("""\
+This demo 'example_fail.py' is the same as 'example.py', but for some values of the \
+parameters we are going to throw an exception. This will show how Compmake \
+deals with failure.""")
 
 def funcA(param_a):
+    print('funcA(%r)' % param_a)
     return param_a
 
 def funcB(res1, param_b):
+    print('funcB(%r, %r)' % (res1, param_b))
     # we now add an exception
     if param_b == 11:
-        raise Exception('Exception raised for b = %d.' % param_b)
+        msg = 'Exception raised for b = %d.' % param_b
+        raise Exception(msg)
     return res1 + param_a
 
 def draw(res2):
+    print('draw(%r)' % res2)
     pass
 
 if __name__ == '__main__':
@@ -36,4 +38,7 @@ if __name__ == '__main__':
     else:
         print('Running the computation in batch mode')
         cmd = " ".join(sys.argv[1:])
-        context.batch_command(cmd)
+        try:
+            context.batch_command(cmd)
+        except Exception as e:
+            print('Command failed: %s' % e)

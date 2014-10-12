@@ -39,7 +39,8 @@ add(EventSpec('manager-wait', ['reasons'],  # dict str -> str
 add(EventSpec('manager-progress', ['targets', 'all_targets', 'done', 'todo',
                                    'failed', 'ready', 'processing',
                                    'blocked']))
-add(EventSpec('manager-succeeded', ['targets', 'all_targets', 'done', 'todo',
+add(EventSpec('manager-succeeded', ['nothing_to_do', # there was nothing to do (bool)
+                                    'targets', 'all_targets', 'done', 'todo',
                                     'failed', 'ready', 'processing',
                                     'blocked']))
 add(EventSpec('manager-interrupted', ['targets', 'all_targets', 'done',

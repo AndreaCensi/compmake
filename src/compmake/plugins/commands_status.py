@@ -1,5 +1,5 @@
 from compmake.events import register_handler
-from compmake.ui import error
+from compmake.ui import error, info
 from contracts import indent
 from compmake.state import get_compmake_config
 
@@ -105,6 +105,30 @@ if True:  # debugging
     register_handler('manager-job-failed', ignore)
     register_handler('manager-job-starting', ignore)
 
-register_handler('manager-succeeded', ignore)  # TODO: maybe write sth
+def manager_succeeded(context, event):
+    if event.kwargs['nothing_to_do']:
+        info('Nothing to do.')
+    else:
+        ntargets = len(event.kwargs['all_targets'])
+        ndone = len(event.kwargs['done'])
+        nfailed = len(event.kwargs['failed'])
+        nblocked = len(event.kwargs['blocked'])
+        if ntargets:
+            s = 'Processed %d jobs (' % ntargets 
+            ss = []
+            if ndone:
+                ss.append('%d done' % ndone)
+            if nfailed:
+                ss.append('%d failed' % nfailed)
+            if nblocked:
+                ss.append('%d blocked' % nblocked)
+            s += ", ".join(ss)
+            s += ').'
+            if nfailed:
+                error(s)
+            else:
+                info(s)
+            
+register_handler('manager-succeeded', manager_succeeded)  # TODO: maybe write sth
 
 

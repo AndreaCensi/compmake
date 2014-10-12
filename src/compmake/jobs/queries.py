@@ -25,7 +25,7 @@ def direct_parents(job_id, db):
 
 
 def direct_children(job_id, db):
-    """ Returns the direct children (dependences) of the specified job """
+    """ Returns the direct children (dependencies) of the specified job """
     assert isinstance(job_id, str)
     computation = get_job(job_id, db=db)
     return computation.children
