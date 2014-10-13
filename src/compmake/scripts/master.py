@@ -19,7 +19,14 @@ import contracts
 @contract(context=Context)
 def read_rc_files(context):
     assert context is not None
-    possible = ['compmake.rc', '~/.compmake/compmake.rc']
+    possible = [
+        '~/.compmake/compmake.rc',
+        '~/.config/compmake.rc' 
+        '~/.compmake.rc',
+        '~/compmake.rc',
+        '.compmake.rc',
+        'compmake.rc', 
+    ]
     done = False
     for x in possible:
         x = os.path.expanduser(x)

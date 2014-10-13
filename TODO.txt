@@ -1,7 +1,0 @@
-Please see 
-
-	https://github.com/AndreaCensi/compmake/issues
-
-for current issues.
-
-
