@@ -1,4 +1,4 @@
-Compmake is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
+**Compmake** is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
 
 - Minimal effort **parallelization**.
 - **Caching** of temporary results: you can interrupt your program 
