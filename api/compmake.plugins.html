@@ -253,6 +253,11 @@ stuff is built in as a plugin.</p>
 <tt class="descclassname">compmake.plugins.commands_status.</tt><tt class="descname">job_interrupted</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.commands_status.job_interrupted" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="function">
+<dt id="compmake.plugins.commands_status.manager_succeeded">
+<tt class="descclassname">compmake.plugins.commands_status.</tt><tt class="descname">manager_succeeded</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.commands_status.manager_succeeded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-compmake.plugins.console_banners">
 <span id="console-banners-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">console_banners</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.console_banners" title="Permalink to this headline">¶</a></h2>
@@ -334,7 +339,7 @@ stuff is built in as a plugin.</p>
 <em class="property">class </em><tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">Tmp</tt><a class="headerlink" href="#compmake.plugins.console_status.Tmp" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="attribute">
 <dt id="compmake.plugins.console_status.Tmp.last_manager_loop">
-<tt class="descname">last_manager_loop</tt><em class="property"> = 1412609971.003756</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">last_manager_loop</tt><em class="property"> = 1413296922.801068</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -347,7 +352,7 @@ stuff is built in as a plugin.</p>
 <dl class="function">
 <dt id="compmake.plugins.console_status.display_rotating">
 <tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">display_rotating</tt><big>(</big><em>strings</em>, <em>intervals</em>, <em>align_right=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_status.display_rotating" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotates the display of the given strings. 
+<dd><p>Rotates the display of the given strings.
 For now, we assume intervals to be round integers.</p>
 </dd></dl>
 
@@ -399,12 +404,6 @@ For now, we assume intervals to be round integers.</p>
 </div>
 <div class="section" id="module-compmake.plugins.credits">
 <span id="credits-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">credits</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.credits" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="compmake.plugins.credits.credits">
-<tt class="descclassname">compmake.plugins.credits.</tt><tt class="descname">credits</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.plugins.credits.credits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shows the credits for compmake.</p>
-</dd></dl>
-
 </div>
 <div class="section" id="module-compmake.plugins.details">
 <span id="details-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">details</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.details" title="Permalink to this headline">¶</a></h2>
@@ -433,7 +432,7 @@ argument to see more:</p>
 <tt class="descclassname">compmake.plugins.dump.</tt><tt class="descname">dump</tt><big>(</big><em>non_empty_job_list</em>, <em>context</em>, <em>directory='.'</em><big>)</big><a class="headerlink" href="#compmake.plugins.dump.dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dumps the result of jobs as pickle files.</p>
 <dl class="docutils">
-<dt>Arguments: </dt>
+<dt>Arguments:</dt>
 <dd>directory=&#8217;.&#8217;   where to dump the files</dd>
 </dl>
 </dd></dl>
@@ -447,7 +446,7 @@ argument to see more:</p>
 </div>
 <div class="section" id="module-compmake.plugins.event_debugger">
 <span id="event-debugger-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event_debugger</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.event_debugger" title="Permalink to this headline">¶</a></h2>
-<p>This plugin dumps all events received</p>
+<p>This plugin dumps all events received.</p>
 <dl class="function">
 <dt id="compmake.plugins.event_debugger.print_event">
 <tt class="descclassname">compmake.plugins.event_debugger.</tt><tt class="descname">print_event</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.event_debugger.print_event" title="Permalink to this definition">¶</a></dt>
@@ -476,12 +475,12 @@ argument to see more:</p>
 <p>Options:</p>
 <blockquote>
 <div><p>filename:  name of generated filename in the dot format
-compact=0: whether to include the job names in the nodes  
+compact=0: whether to include the job names in the nodes
 filter=[dot,circo,twopi,...]  which algorithm to use to arrange</p>
 <blockquote>
-<div>the nodes. The best choice depends on 
-the topology of your 
-computation. The default is &#8216;dot&#8217; 
+<div>the nodes. The best choice depends on
+the topology of your
+computation. The default is &#8216;dot&#8217;
 (hierarchy top-bottom).</div></blockquote>
 <p>format=[png,...]  The output file format.</p>
 </div></blockquote>

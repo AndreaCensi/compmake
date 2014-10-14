@@ -74,9 +74,7 @@ You would run the modified program using::
 
 This gives you a prompt: ::
   
-  compmake 3.2   ``Keep calm and carry on,,
-  Welcome to the compmake console. (write 'help' for a list of commands)
-  27 jobs loaded.
+  Compmake 3.3  (27 jobs loaded)
   @:
 
 Run "parmake" at the prompt: ::
@@ -140,66 +138,66 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 .. If you feel adventorous, this is a perfect time to
 .. get support and influence |compmake|'s evolution!
 
-Documentation
--------------
+.. Documentation
+.. -------------
 
-Still unsure you need this?  Read :ref:`why`.
-And check out :ref:`limitations` to see if |compmake| can help you.
+.. Still unsure you need this?  Read :ref:`why`.
+.. And check out :ref:`limitations` to see if |compmake| can help you.
 
-Still interested? Start with the tutorial :ref:`tutorial_basic`.
+.. Still interested? Start with the tutorial :ref:`tutorial_basic`.
 
 
-.. container:: col1
+.. .. container:: col1
 
-	**Design**
+.. 	**Design**
 
-	* :ref:`why`
-	* :ref:`limitations`
+.. 	* :ref:`why`
+.. 	* :ref:`limitations`
 
-	**Getting started**
+.. 	**Getting started**
 	
-	* :ref:`tutorial_basic`
-	* :ref:`tutorial_console`
-	* :ref:`tutorial_parmake`
-	* :ref:`tutorial_embedding`
+.. 	* :ref:`tutorial_basic`
+.. 	* :ref:`tutorial_console`
+.. 	* :ref:`tutorial_parmake`
+.. 	* :ref:`tutorial_embedding`
 	
-.. container:: col2
+.. .. container:: col2
 
-	.. **Advanced usage**
-	.. 
-	.. 	* :ref:`tutorial_suspend`
-	.. 	* :ref:`tutorial_more`
+.. 	.. **Advanced usage**
+.. 	.. 
+.. 	.. 	* :ref:`tutorial_suspend`
+.. 	.. 	* :ref:`tutorial_more`
 	
-	**Reference**
+.. 	**Reference**
 
-	* :ref:`commands`
-	* :ref:`config`
+.. 	* :ref:`commands`
+.. 	* :ref:`config`
 
-	**Developement**
+.. 	**Developement**
 
-	* :ref:`developer`
-	* :ref:`extending`
-	* :ref:`building_docs`
+.. 	* :ref:`developer`
+.. 	* :ref:`extending`
+.. 	* :ref:`building_docs`
 
-.. raw:: html
+.. .. raw:: html
 
-   <div style="clear:left"/>
+..    <div style="clear:left"/>
 
-.. 
-   * :ref:`tutorial_cluster`
+.. .. 
+..    * :ref:`tutorial_cluster`
     
  
-.. toctree::
-   :hidden:
-   :glob:
+.. .. toctree::
+..    :hidden:
+..    :glob:
 
-   features*
-   tutorial*
-   config*
-   commands*
-   *
+..    features*
+..    tutorial*
+..    config*
+..    commands*
+..    *
 
 
 
-* :ref:`search`
+.. * :ref:`search`
 

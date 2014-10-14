@@ -1,0 +1,22 @@
+w00: started pmake_worker()
+w00: Listening for job
+w00: got job: (<function parmake_job2 at 0x109039578>, ('f', <compmake.context.Context object at 0x108f1f090>, '4446221264', True))
+w00: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w00: job finished. Putting in queue...
+w00: (put)
+w00: ...done.
+w00: Listening for job
+w00: got job: (<function parmake_job2 at 0x109039578>, ('statistics', <compmake.context.Context object at 0x108f96190>, '4446221264', True))
+w00: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w00: job finished. Putting in queue...
+w00: (put)
+w00: ...done.
+w00: Listening for job
+w00: got job: (<function parmake_job2 at 0x109039578>, ('report', <compmake.context.Context object at 0x108f96490>, '4446221264', True))
+w00: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w00: job finished. Putting in queue...
+w00: (put)
+w00: ...done.
+w00: Listening for job
+w00: got job: please-exit
+w00: clean exit.

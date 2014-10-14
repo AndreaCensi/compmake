@@ -210,18 +210,21 @@ Y.Remarkbox.render();
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">backend_pmake</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-compmake.plugins.backend_pmake"></span></div>
 <div class="section" id="module-compmake.plugins.backend_pmake.commands">
-<span id="commands-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">commands</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.backend_pmake.commands" title="Permalink to this headline">¶</a></h2>
+<span id="commands-module"></span><h2><a class="reference external" href="http://docs.python.org/library/commands.html#module-commands" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">commands</span></tt></a> Module<a class="headerlink" href="#module-compmake.plugins.backend_pmake.commands" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.backend_pmake.commands.parmake">
-<tt class="descclassname">compmake.plugins.backend_pmake.commands.</tt><tt class="descname">parmake</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>cq</em>, <em>n=&lt;compmake.constants.DefaultsToConfig instance at 0x103817a70&gt;</em>, <em>recurse=&lt;compmake.constants.DefaultsToConfig instance at 0x103817998&gt;</em>, <em>new_process=&lt;compmake.constants.DefaultsToConfig instance at 0x103823e60&gt;</em>, <em>echo=&lt;compmake.constants.DefaultsToConfig instance at 0x103823dd0&gt;</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_pmake.commands.parmake" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.backend_pmake.commands.</tt><tt class="descname">parmake</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>cq</em>, <em>n=&lt;compmake.constants.DefaultsToConfig instance at 0x10b1d3b00&gt;</em>, <em>recurse=&lt;compmake.constants.DefaultsToConfig instance at 0x10b1f5c68&gt;</em>, <em>new_process=&lt;compmake.constants.DefaultsToConfig instance at 0x10b1f5bd8&gt;</em>, <em>echo=&lt;compmake.constants.DefaultsToConfig instance at 0x10b1f5cb0&gt;</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_pmake.commands.parmake" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parallel equivalent of make.</p>
-<p>Uses multiprocessing.Process as a backend and a Python queue to communicate with the workers.</p>
+<p>Uses multiprocessing.Process as a backend and a Python queue to
+communicate with the workers.</p>
 <p>Options:</p>
 <blockquote>
 <div><p>parmake n=10             Uses 10 workers
-parmake recurse=1        Recursive make: put generated jobs in the queue.
+parmake recurse=1        Recursive make: put generated jobs in the
+queue.
 parmake new_process=1    Run the jobs in a new Python process.
-parmake echo=1           Shows the output of the jobs. This might slow down everything.</p>
+parmake echo=1           Shows the output of the jobs. This might
+slow down everything.</p>
 <p>parmake new_process=1 echo=1   Not supported yet.</p>
 </div></blockquote>
 </dd></dl>
@@ -263,7 +266,7 @@ because it might contain a Promise.</p>
 <em class="property">class </em><tt class="descclassname">compmake.plugins.backend_pmake.pmake_manager.</tt><tt class="descname">PmakeManager</tt><big>(</big><em>context</em>, <em>cq</em>, <em>num_processes</em>, <em>recurse=False</em>, <em>new_process=False</em>, <em>show_output=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_pmake.pmake_manager.PmakeManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="compmake.jobs.html#compmake.jobs.manager.Manager" title="compmake.jobs.manager.Manager"><tt class="xref py py-class docutils literal"><span class="pre">compmake.jobs.manager.Manager</span></tt></a></p>
 <p>Specialization of Manager for local multiprocessing, using
-an adhoc implementation of &#8220;pool&#8221; because of bugs of the 
+an adhoc implementation of &#8220;pool&#8221; because of bugs of the
 Python 2.7 implementation of pool multiprocessing.</p>
 <dl class="method">
 <dt id="compmake.plugins.backend_pmake.pmake_manager.PmakeManager.can_accept_job">
@@ -336,7 +339,7 @@ Python 2.7 implementation of pool multiprocessing.</p>
 <dl class="class">
 <dt id="compmake.plugins.backend_pmake.pmakesub.PmakeSub">
 <em class="property">class </em><tt class="descclassname">compmake.plugins.backend_pmake.pmakesub.</tt><tt class="descname">PmakeSub</tt><big>(</big><em>name</em>, <em>write_log=None</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_pmake.pmakesub.PmakeSub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <dl class="attribute">
 <dt id="compmake.plugins.backend_pmake.pmakesub.PmakeSub.EXIT_TOKEN">
 <tt class="descname">EXIT_TOKEN</tt><em class="property"> = 'please-exit'</em><a class="headerlink" href="#compmake.plugins.backend_pmake.pmakesub.PmakeSub.EXIT_TOKEN" title="Permalink to this definition">¶</a></dt>

@@ -1,37 +1,35 @@
-import time
 
-print("""
-Same example as 'example.py', but for some values
-of the parameters we are going to throw an exception. 
-This will show how compmake deals with failure.
+print("""\
+This demo 'example_fail.py' is the same as 'example.py', but for some values of the \
+parameters we are going to throw an exception. This will show how Compmake \
+deals with failure.""")
 
-""")
+def funcA(param_a):
+    print('funcA(%r)' % param_a)
+    return param_a
 
-def funcA(param1):
-    print('funcA(%s)' % param1)
-    time.sleep(1) # ... which takes some time
-    return param1
-
-def funcB(res1, param2):
+def funcB(res1, param_b):
+    print('funcB(%r, %r)' % (res1, param_b))
     # we now add an exception
-    if param2 == 11:
-        raise Exception('11 is your unlucky number.')
-    print('funcB(%s, %s)' % (res1, param2))
-    time.sleep(1) 
-    return res1 + param1
+    if param_b == 11:
+        msg = 'Exception raised for b = %d.' % param_b
+        raise Exception(msg)
+    return res1 + param_a
 
 def draw(res2):
-    print('draw(%s)' % res2)
+    print('draw(%r)' % res2)
+    pass
 
 if __name__ == '__main__':
     from compmake import Context
     context = Context()
     
-    for param1 in [1,2,3]:
-        for param2 in [10,11,12]:
-            res1 = context.comp(funcA, param1)
-            res2 = context.comp(funcB, res1, param2)
-            context.comp(draw, res2)
+    for param_a in [1,2,3]:
+        for param_b in [10,11,12]:
+            context.comp_prefix('a%s-b%s' % (param_a, param_b))
+            res1 = context.comp(funcA, param_a, job_id='preparing')
+            res2 = context.comp(funcB, res1, param_b, job_id='computing')
+            context.comp(draw, res2, job_id='drawing')
 
     import sys
     if len(sys.argv) == 1:
@@ -40,4 +38,7 @@ if __name__ == '__main__':
     else:
         print('Running the computation in batch mode')
         cmd = " ".join(sys.argv[1:])
-        context.batch_command(cmd)
+        try:
+            context.batch_command(cmd)
+        except Exception as e:
+            print('Command failed: %s' % e)

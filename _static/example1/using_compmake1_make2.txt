@@ -1,4 +1,3 @@
-                                                                                                                                                                                  Using namespace 'using_compmake1'.
-INFO:compmake:Checking dependencies...
-INFO:compmake:Checking if up to date...
-INFO:compmake:Started job manager with 0 jobs.
+                                                                                                                                                         Loading existing jobs DB 'out-using_compmake1'.                                                                                                          
+                                                                                                                                                         Reading configuration from '/Users/andrea/.compmake/compmake.rc'.                                                                                        
+                                                                                                                                                         Nothing to do.                                                                                                                                           

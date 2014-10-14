@@ -1,0 +1,10 @@
+w01: started pmake_worker()
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x10903a668>, ('f', <compmake.context.Context object at 0x108f17e50>, '4445983888', True))
+w01: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w01: job finished. Putting in queue...
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: please-exit
+w01: clean exit.

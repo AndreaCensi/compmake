@@ -24,8 +24,6 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Compmake make for batch Python processes" href="index.html" />
-    <link rel="next" title="The compmake console" href="tutorial_console.html" />
-    <link rel="prev" title="Features and limitations" href="features.html" />
 	 
 	
    <style type="text/css">
@@ -199,11 +197,7 @@ Y.Remarkbox.render();
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="features.html">Features and limitations</a>
-        &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="tutorial_console.html">The compmake console</a>&#160;&#160;»
         </p>
 
       </div>
@@ -261,10 +255,10 @@ In this way, <span class="compmake-brand">compmake</span> learns the computation
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">()</span>
     
-    <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">param_a</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">param_b</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param_a</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
@@ -340,14 +334,14 @@ Each job is described by a unique ID. By default, the ID is generated
 by the name of the function, with a progressive number postponed.
 You can use the command <tt class="docutils literal"><span class="pre">list</span></tt> to obtain a list of the jobs.
 For this example, the output would be:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example list
-                                 draw       not started
-                                 draw-0     not started
-                                 draw-1     not started
-                                 draw-2     not started
-                                 draw-3     not started
-                                 draw-4     not started
-    [...]
+<div class="highlight-python"><div class="highlight"><pre>@: ls
+      draw     todo      
+      draw-2   todo      
+      draw-3   todo      
+      draw-4   todo      
+      draw-5   todo      
+      draw-6   todo      
+[...]
 </pre></div>
 </div>
 <p>As you can see, the jobs are named <tt class="docutils literal"><span class="pre">func1-&lt;n&gt;</span></tt>, <tt class="docutils literal"><span class="pre">func2-&lt;n&gt;</span></tt>,
@@ -363,28 +357,28 @@ where we presumably want to group the functions by the parameters:</p>
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
-            <span class="c"># Add a prefix to the job ids</span>
-            <span class="c"># for easy reference </span>
-            <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
-                    
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param1</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">param_a</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">param_b</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span>
+            <span class="c"># Add a prefix to the job ids for easy reference </span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;a</span><span class="si">%s</span><span class="s">-b</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param_a</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param_a</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
             <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example list
-                        p1=1-p2=10-draw     not started
-                        p1=1-p2=10-func1    not started
-                        p1=1-p2=10-func2    not started
-                        p1=1-p2=11-draw     not started
-                        p1=1-p2=11-func1    not started
-                        p1=1-p2=11-func2    not started
-    [...]
+<div class="highlight-python"><div class="highlight"><pre>@: ls
+      a1-b10-draw   todo      
+      a1-b10-funcA  todo      
+      a1-b10-funcB  todo      
+      a1-b11-draw   todo      
+      a1-b11-funcA  todo      
+      a1-b11-funcB  todo      
+[...]
 </pre></div>
 </div>
 <p>Another method  is using the <tt class="docutils literal"><span class="pre">job_id</span></tt> keyword argument to <tt class="docutils literal"><span class="pre">comp()</span></tt>.:</p>
@@ -394,27 +388,31 @@ where we presumably want to group the functions by the parameters:</p>
     <span class="kn">from</span> <span class="nn">compmake</span> <span class="kn">import</span> <span class="n">Context</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">param1</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">param2</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span> 
-            <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="s">&#39;p1=</span><span class="si">%s</span><span class="s">-p2=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param1</span><span class="p">,</span><span class="n">param2</span><span class="p">))</span>
-            
+    <span class="k">for</span> <span class="n">param_a</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">param_b</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]:</span> 
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;a</span><span class="si">%s</span><span class="s">-b</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param_a</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">comp_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
             <span class="c"># use job_id to override default naming</span>
-            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funca</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
-            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;drawing&#39;</span><span class="p">)</span>
+            <span class="n">res1</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcA</span><span class="p">,</span> <span class="n">param_a</span><span class="p">,</span> 
+                                <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;preparing&#39;</span><span class="p">)</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">funcB</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">param_b</span><span class="p">,</span> 
+                                <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;computing&#39;</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> 
+                         <span class="n">job_id</span><span class="o">=</span><span class="s">&#39;drawing&#39;</span><span class="p">)</span>
 
     <span class="n">context</span><span class="o">.</span><span class="n">compmake_console</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Now the <tt class="docutils literal"><span class="pre">list</span></tt> command gives:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ compmake example list
-                    p1=1-p2=10-computing    not started
-                    p1=1-p2=10-drawing      not started
-                    p1=1-p2=10-preparing    not started
-                    p1=1-p2=11-computing    not started
-                    p1=1-p2=11-drawing      not started
-                    p1=1-p2=11-preparing    not started
-    [...]
+<div class="highlight-python"><div class="highlight"><pre>@: ls
+      a1-b10-computing  todo      
+      a1-b10-drawing    todo      
+      a1-b10-preparing  todo      
+      a1-b11-computing  todo      
+      a1-b11-drawing    todo      
+      a1-b11-preparing  todo      
+[...]
 </pre></div>
 </div>
 </div>
@@ -447,11 +445,7 @@ of the parameters. Or, you can remake the last stage of the computation:</p>
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="features.html">Features and limitations</a>
-        &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="tutorial_console.html">The compmake console</a>&#160;&#160;»
         </p>
 
       </div>

@@ -214,7 +214,7 @@ Y.Remarkbox.render();
 <dl class="class">
 <dt id="compmake.storage.filesystem.StorageFilesystem">
 <em class="property">class </em><tt class="descclassname">compmake.storage.filesystem.</tt><tt class="descname">StorageFilesystem</tt><big>(</big><em>basepath</em>, <em>compress=False</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <dl class="method">
 <dt id="compmake.storage.filesystem.StorageFilesystem.basename2key">
 <tt class="descname">basename2key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.filesystem.StorageFilesystem.basename2key" title="Permalink to this definition">¶</a></dt>
@@ -266,15 +266,15 @@ Y.Remarkbox.render();
 </dd></dl>
 
 </div>
-<div class="section" id="module-compmake.storage.filesystem2">
-<span id="filesystem2-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">filesystem2</span></tt> Module<a class="headerlink" href="#module-compmake.storage.filesystem2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="filesystem2-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">filesystem2</span></tt> Module<a class="headerlink" href="#filesystem2-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-compmake.storage.memorycache">
 <span id="memorycache-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">memorycache</span></tt> Module<a class="headerlink" href="#module-compmake.storage.memorycache" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.storage.memorycache.MemoryCache">
 <em class="property">class </em><tt class="descclassname">compmake.storage.memorycache.</tt><tt class="descname">MemoryCache</tt><big>(</big><em>db</em>, <em>cache_values=True</em><big>)</big><a class="headerlink" href="#compmake.storage.memorycache.MemoryCache" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
 <dl class="method">
 <dt id="compmake.storage.memorycache.MemoryCache.keys">
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.memorycache.MemoryCache.keys" title="Permalink to this definition">¶</a></dt>
@@ -295,98 +295,6 @@ Y.Remarkbox.render();
 </div>
 <div class="section" id="module-compmake.storage.redisdb">
 <span id="redisdb-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">redisdb</span></tt> Module<a class="headerlink" href="#module-compmake.storage.redisdb" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="compmake.storage.redisdb.RedisInterface">
-<em class="property">class </em><tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">RedisInterface</tt><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.delete">
-<em class="property">static </em><tt class="descname">delete</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.delete" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.events_push">
-<em class="property">static </em><tt class="descname">events_push</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.events_push" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pushes an event over the queue</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.events_read">
-<em class="property">static </em><tt class="descname">events_read</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.events_read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of events</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.exists">
-<em class="property">static </em><tt class="descname">exists</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.exists" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.get">
-<em class="property">static </em><tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.get" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="compmake.storage.redisdb.RedisInterface.host">
-<tt class="descname">host</tt><em class="property"> = 'localhost'</em><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.host" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.keys">
-<em class="property">static </em><tt class="descname">keys</tt><big>(</big><em>pattern='*'</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.keys" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="compmake.storage.redisdb.RedisInterface.local_cache">
-<tt class="descname">local_cache</tt><em class="property"> = {}</em><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.local_cache" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="compmake.storage.redisdb.RedisInterface.port">
-<tt class="descname">port</tt><em class="property"> = 6379</em><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.port" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.reopen_after_fork">
-<em class="property">static </em><tt class="descname">reopen_after_fork</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.reopen_after_fork" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.set">
-<em class="property">static </em><tt class="descname">set</tt><big>(</big><em>name</em>, <em>value</em>, <em>precious=False</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.set" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="compmake.storage.redisdb.RedisInterface.supports_concurrency">
-<em class="property">static </em><tt class="descname">supports_concurrency</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.RedisInterface.supports_concurrency" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.redisdb.get_redis">
-<tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">get_redis</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.get_redis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.redisdb.key2rediskey">
-<tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">key2rediskey</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.key2rediskey" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.redisdb.object2string">
-<tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">object2string</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.object2string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.redisdb.rediskey2key">
-<tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">rediskey2key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.rediskey2key" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="compmake.storage.redisdb.string2object">
-<tt class="descclassname">compmake.storage.redisdb.</tt><tt class="descname">string2object</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.storage.redisdb.string2object" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 </div>
 

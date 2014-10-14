@@ -1,0 +1,10 @@
+w02: started pmake_worker()
+w02: Listening for job
+w02: got job: (<function parmake_job2 at 0x10910d500>, ('a1-b11-computing', <compmake.context.Context object at 0x1090e1b90>, '4447090576', False))
+w02: Job failed, putting notice.
+w02: result: 
+w02: (put)
+w02: ...done.
+w02: Listening for job
+w02: got job: please-exit
+w02: clean exit.
