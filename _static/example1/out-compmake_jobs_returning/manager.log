@@ -1,0 +1,19 @@
+add_targets()
+ -         targets: ['report']
+computed todo
+ -    targets_done: set(['report'])
+ -      ready_todo: set([])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set([])
+targets_todo_plus_deps: set([])
+add_targets():adding to todo
+ -            todo: set([])
+ -        todo_add: set([])
+add_targets():adding to ready
+ -           ready: set([])
+ -       ready_add: set([])
+after add_targets()
+ -            done: set(['report'])
+ -      ready_todo: set([])
+ -      processing: set([])
+ -            todo: set([])

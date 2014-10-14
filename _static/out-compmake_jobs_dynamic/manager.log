@@ -1,0 +1,120 @@
+adding targets
+ -         targets: ['f', 'f-2', 'f-3', 'schedule']
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set(['schedule', 'f-2', 'f-3', 'f'])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set(['f', 'f-2', 'f-3', 'schedule'])
+targets_todo_plus_deps: set(['f', 'f-2', 'f-3', 'schedule'])
+chosen next_job
+ -          job_id: schedule
+start_job
+ -          job_id: schedule
+chosen next_job
+ -          job_id: f
+start_job
+ -          job_id: f
+chosen next_job
+ -          job_id: f-3
+start_job
+ -          job_id: f-3
+chosen next_job
+ -          job_id: f-2
+start_job
+ -          job_id: f-2
+check_job_finished
+ -          job_id: schedule
+check_job_finished
+ -          job_id: f-2
+check_job_finished
+ -          job_id: f-3
+check_job_finished
+ -          job_id: f
+check_job_finished
+ -          job_id: schedule
+check_job_finished
+ -          job_id: f-2
+check_job_finished
+ -          job_id: f-3
+check_job_finished
+ -          job_id: f
+check_job_finished
+ -          job_id: schedule
+check_job_finished
+ -          job_id: f-2
+check_job_finished
+ -          job_id: f-3
+check_job_finished
+ -          job_id: f
+check_job_finished
+ -          job_id: schedule
+job_succeeded
+ -          job_id: schedule
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: set(['f-2', 'f-3', 'f'])
+ -          job_id: schedule
+ - user_object_deps: set([])
+adding targets
+ -         targets: set([])
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set([])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set([])
+targets_todo_plus_deps: set([])
+check_job_finished
+ -          job_id: f-2
+job_succeeded
+ -          job_id: f-2
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: f-2
+ - user_object_deps: set([])
+adding targets
+ -         targets: set([])
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set([])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set([])
+targets_todo_plus_deps: set([])
+check_job_finished
+ -          job_id: f-3
+job_succeeded
+ -          job_id: f-3
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: f-3
+ - user_object_deps: set([])
+adding targets
+ -         targets: set([])
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set([])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set([])
+targets_todo_plus_deps: set([])
+check_job_finished
+ -          job_id: f
+job_succeeded
+ -          job_id: f
+considering parents
+ -    parents_todo: set([])
+check_job_finished_handle_result
+ -        new_jobs: []
+ -          job_id: f
+ - user_object_deps: set([])
+adding targets
+ -         targets: set([])
+computed todo
+ -    targets_done: set([])
+ -      ready_todo: set([])
+ -       not_ready: set([])
+ - targets_todo_plus_deps: set([])
+targets_todo_plus_deps: set([])

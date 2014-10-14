@@ -68,12 +68,12 @@ To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.
 
-.. image:: my_static/initial.png 
+.. image:: _static/initial.png 
    :class: bigpicture
 
 Download `a demo example.py`_ that you can try.
 
-.. _`a demo example.py`: static/demos/example.py
+.. _`a demo example.py`: _static/demos/example.py
 
 You would run the modified program using::
 
@@ -124,7 +124,7 @@ you will see how compmake completes all jobs that can be completed. If you run a
 
 Compmake will try again to run the jobs that failed.
 
-.. _`example_fail.py`: static/demos/example_fail.py
+.. _`example_fail.py`: _static/demos/example_fail.py
 
 
 Feedback

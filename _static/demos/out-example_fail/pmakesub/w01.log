@@ -1,0 +1,40 @@
+w01: started pmake_worker()
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a2-b12-preparing', <compmake.context.Context object at 0x108727cd0>, '4437888592', False))
+w01: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w01: job finished. Putting in queue...
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a2-b12-computing', <compmake.context.Context object at 0x1087af750>, '4437888592', False))
+w01: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w01: job finished. Putting in queue...
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a2-b12-drawing', <compmake.context.Context object at 0x1087af6d0>, '4437888592', False))
+w01: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w01: job finished. Putting in queue...
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a3-b11-preparing', <compmake.context.Context object at 0x1087af490>, '4437888592', False))
+w01: result: {'new_jobs': [], 'user_object': None, 'user_object_deps': set([])}
+w01: job finished. Putting in queue...
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a3-b11-computing', <compmake.context.Context object at 0x1087afa90>, '4437888592', False))
+w01: Job failed, putting notice.
+w01: result: 
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: (<function parmake_job2 at 0x108849d70>, ('a2-b11-computing', <compmake.context.Context object at 0x1087afd50>, '4437888592', False))
+w01: Job failed, putting notice.
+w01: result: 
+w01: (put)
+w01: ...done.
+w01: Listening for job
+w01: got job: please-exit
+w01: clean exit.
