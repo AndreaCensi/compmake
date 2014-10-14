@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Compmake: keep calm and carry on &mdash; Compmake make for batch Python processes</title>
+    <title>Compmake &mdash; Compmake make for batch Python processes</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -192,7 +192,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="#">
           <span></span></a></h1>
-        <h2 class="heading"><span>Compmake: keep calm and carry on</span></h2>
+        <h2 class="heading"><span>Compmake</span></h2>
       </div>
       <div class="topnav">
       
@@ -205,21 +205,20 @@ Y.Remarkbox.render();
         
         
   <a href="http://github.com/AndreaCensi/compmake"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-<div class="section" id="compmake-keep-calm-and-carry-on">
-<h1>Compmake: keep calm and carry on<a class="headerlink" href="#compmake-keep-calm-and-carry-on" title="Permalink to this headline">¶</a></h1>
-<style type='text/css'>
-/* let's get rid of the header */
-div.topnav, div.header { display: none;}
-html { background: white; background-image: none !important;}
-</style>
-<div id='logo'>
-    <img src='static/logo/compmake-logo.png' alt='COMPMAKE LOGO'/>
-</div><div class="intro container">
-<p><span class="compmake-brand">Compmake</span> is a non-obtrusive module that provides Makefile&#8211;like facilities to your Python computations, including:</p>
+<div class="section" id="compmake">
+<h1>Compmake<a class="headerlink" href="#compmake" title="Permalink to this headline">¶</a></h1>
+<div style='float:right'>
+
+<a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
+    <p style='text-align: center'>The Compmake Manual</p>
+    <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
+</a>
+</div><p><span class="compmake-brand">Compmake</span> is a non-obtrusive module that provides Make&#8211;like facilities to your Python computations, including:</p>
 <ul>
-<li><p class="first">Minimal effort <strong>parallelization</strong>.</p>
+<li><p class="first">Minimal effort parallelization.</p>
 </li>
-<li><p class="first"><strong>Caching</strong> of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.</p>
+<li><p class="first"><strong>Caching</strong> of temporary results: you can interrupt your program
+and restart it without losing what was already computed.</p>
 </li>
 <li><p class="first">Tolerance to job failure.</p>
 </li>
@@ -230,12 +229,7 @@ html { background: white; background-image: none !important;}
 </dl>
 </li>
 </ul>
-<p><span class="compmake-brand">Compmake</span> has been designed primarily for handling long computational-intensive
-batch processes.</p>
-</div>
-<a style="display: block; float: left" href="http://purl.org/censi/compmake-manual">
-    <img style="float: left; border: solid 1px red" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
-</a><div class="section" id="installation">
+<div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way to install <span class="compmake-brand">Compmake</span> is:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ easy_install compmake
@@ -249,6 +243,25 @@ batch processes.</p>
 such that it can understand the processing layout and
 the opportunities for parallelization.</p>
 <img alt="_static/initial.png" class="bigpicture" src="_static/initial.png" />
+<p>An invocation of the kind:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">function</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>becomes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result of <tt class="docutils literal"><span class="pre">comp()</span></tt> is a promise that can be reused in
+defining other jobs. For example, a program like ::</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">res</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+<span class="n">function2</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>becomes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">res_promise</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function2</span><span class="p">,</span> <span class="n">res_promise</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Download <a class="reference external" href="_static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ python example
@@ -287,6 +300,12 @@ compmake will go forward with the rest.</p>
 </pre></div>
 </div>
 <p>Compmake will try again to run the jobs that failed.</p>
+</div>
+<div class="section" id="manual">
+<h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
+<p>For more information, please read the manual:</p>
+<blockquote>
+<div><a class="reference external" href="http://purl.org/censi/compmake-manual">http://purl.org/censi/compmake-manual</a></div></blockquote>
 </div>
 <div class="section" id="feedback">
 <h2>Feedback<a class="headerlink" href="#feedback" title="Permalink to this headline">¶</a></h2>
