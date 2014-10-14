@@ -152,10 +152,15 @@ Compmake will try again to run the jobs that failed.
 Manual
 ------
 
-For more information, please read the manual:
+For more information, please read 
 
-  http://purl.org/censi/compmake-manual
-
+.. raw:: html
+  
+  <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
+      <p style='text-align: center'>The Compmake Manual</p>
+      <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
+  </a>
+  
 Feedback
 ---------
 
