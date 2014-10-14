@@ -1,4 +1,0 @@
-                                                                                                                                                                                  Using namespace 'using_compmake1'.
-INFO:compmake:Checking dependencies...
-INFO:compmake:Checking if up to date...
-INFO:compmake:Started job manager with 0 jobs.

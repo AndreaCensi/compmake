@@ -1,8 +1,0 @@
-@: ls
-      a1-b10-draw   todo      
-      a1-b10-funcA  todo      
-      a1-b10-funcB  todo      
-      a1-b11-draw   todo      
-      a1-b11-funcA  todo      
-      a1-b11-funcB  todo      
-[...]

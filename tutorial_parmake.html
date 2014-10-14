@@ -227,14 +227,14 @@ Y.Remarkbox.render();
 <div class="highlight-python"><div class="highlight"><pre>@: parmake n=11  [jobs]
 </pre></div>
 </div>
-<p>If you don&#8217;t specify a number, <span class="compmake-brand">compmake</span> will use the number of detected processors.
+<p>If you don&#8217;t specify a number, <span class="compmake-brand">Compmake</span> will use the number of detected processors.
 If your jobs are <a class="reference external" href="http://en.wikipedia.org/wiki/I/O_bound">IO-bound</a> rather than <a class="reference external" href="http://en.wikipedia.org/wiki/CPU_bound">CPU-bound</a>, you should specify a larger number.</p>
-<p>What&#8217;s happening under the hood is that <span class="compmake-brand">compmake</span> spawns <tt class="docutils literal"><span class="pre">n</span></tt> workers thread using
+<p>What&#8217;s happening under the hood is that <span class="compmake-brand">Compmake</span> spawns <tt class="docutils literal"><span class="pre">n</span></tt> workers thread using
 the <a class="reference external" href="http://docs.python.org/library/multiprocessing.html#module-multiprocessing" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">multiprocessing</span></tt></a> module. So be aware that each job will run in a different
 process.</p>
 <div class="section" id="troubleshooting-problems">
 <h2><a class="toc-backref" href="#id2">Troubleshooting problems</a><a class="headerlink" href="#troubleshooting-problems" title="Permalink to this headline">¶</a></h2>
-<p><span class="compmake-brand">compmake</span> turns your original program into a parallel program. For you, it is almost as easy as it could ever get. However, there might be some issues to be aware about that are documented here.</p>
+<p><span class="compmake-brand">Compmake</span> turns your original program into a parallel program. For you, it is almost as easy as it could ever get. However, there might be some issues to be aware about that are documented here.</p>
 <div class="section" id="some-libraries-are-picky">
 <h3><a class="toc-backref" href="#id3">Some libraries are picky</a><a class="headerlink" href="#some-libraries-are-picky" title="Permalink to this headline">¶</a></h3>
 <p>Some libraries don&#8217;t like to run in child processes. For example, <tt class="docutils literal"><span class="pre">matplotlib</span></tt> on OS X will complain and not work properly. The errors might mention <tt class="docutils literal"><span class="pre">exec()</span></tt>. For example, this is thrown by <tt class="docutils literal"><span class="pre">matplotlib</span></tt>:</p>

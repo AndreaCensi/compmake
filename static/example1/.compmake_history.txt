@@ -1,6 +1,0 @@
-ls
-make
-ls
-clean
-make
-

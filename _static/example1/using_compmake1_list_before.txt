@@ -1,8 +1,0 @@
-@: ls
-      draw     todo      
-      draw-2   todo      
-      draw-3   todo      
-      draw-4   todo      
-      draw-5   todo      
-      draw-6   todo      
-[...]

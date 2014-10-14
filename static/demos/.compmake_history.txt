@@ -1,8 +1,0 @@
-ls
-parmake
-ls
-make
-ls
-help
-config
-exit

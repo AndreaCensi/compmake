@@ -1,8 +1,0 @@
-@: ls 
-      draw     done      (1s ago)
-      draw-2   done      (1s ago)
-      draw-3   done      (1s ago)
-      draw-4   done      (1s ago)
-      draw-5   done      (1s ago)
-      draw-6   done      (1s ago)
-[...]

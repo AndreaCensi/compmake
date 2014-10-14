@@ -1,8 +1,0 @@
-$ compmake example -c list
-                                 draw       done   0.0 min.   (2 seconds ago)
-                                 draw-0     done   0.0 min.   (3 seconds ago)
-                                 draw-1     done   0.0 min.   (3 seconds ago)
-                                 draw-2     done   0.0 min.   (3 seconds ago)
-                                 draw-3     done   0.0 min.   (2 seconds ago)
-                                 draw-4     done   0.0 min.   (2 seconds ago)
-[...]
