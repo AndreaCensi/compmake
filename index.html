@@ -235,7 +235,8 @@ and restart it without losing what was already computed.</p>
 <div class="highlight-python"><div class="highlight"><pre>$ easy_install compmake
 </pre></div>
 </div>
-<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>. You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
+<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>.</p>
+<p>You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
 </div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
@@ -258,13 +259,13 @@ defining other jobs. For example, a program like ::</p>
 </pre></div>
 </div>
 <p>becomes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">res_promise</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
-<span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function2</span><span class="p">,</span> <span class="n">res_promise</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">function2</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Download <a class="reference external" href="_static/demos/example.py">a demo example.py</a> that you can try.</p>
 <p>You would run the modified program using:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python example
+<div class="highlight-python"><div class="highlight"><pre>$ python example.py
 </pre></div>
 </div>
 <p>This gives you a prompt:</p>

@@ -48,7 +48,9 @@ The simplest way to install |compmake| is::
 
 $ easy_install compmake
 
-or, alternatively, using ``pip install compmake``. You can also `fork the project on GitHub`_.
+or, alternatively, using ``pip install compmake``. 
+
+You can also `fork the project on GitHub`_.
 
 .. _`fork the project on GitHub`: http://github.com/AndreaCensi/compmake
 
@@ -88,8 +90,8 @@ defining other jobs. For example, a program like :::
 
 becomes: ::
 
-    res_promise = context.comp(function, param)
-    context.comp(function2, res_promise)
+    r = context.comp(function, param)
+    context.comp(function2, r)
 
 
 Download `a demo example.py`_ that you can try.
@@ -98,7 +100,7 @@ Download `a demo example.py`_ that you can try.
 
 You would run the modified program using::
 
-    $ python example 
+    $ python example.py
 
 This gives you a prompt: ::
   
