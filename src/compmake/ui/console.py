@@ -6,7 +6,7 @@ from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
 from ..events import publish
 from ..jobs import CacheQueryDB, all_jobs
 from ..exceptions import (CommandFailed, CompmakeBug, ShellExitRequested,
-                          UserError,JobInterrupted)
+                          UserError, JobInterrupted)
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger, get_compmake_config
