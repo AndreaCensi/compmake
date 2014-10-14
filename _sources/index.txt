@@ -22,7 +22,7 @@ Compmake
 
   .. raw:: html
 
-    <div style='float:right'> 
+    <div style='float:right; margin-right: 3em'> 
     
     <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
         <p style='text-align: center'>The Compmake Manual</p>
