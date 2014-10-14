@@ -214,14 +214,15 @@ Y.Remarkbox.render();
     <p style='text-align: center'>The Compmake Manual</p>
     <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
 </a>
-</div><p><span class="compmake-brand">Compmake</span> is a non-obtrusive module that provides Make&#8211;like facilities to your Python computations, including:</p>
+</div><p><span class="compmake-brand">Compmake</span> is a non-obtrusive module that provides Make&#8211;like facilities to a Python applciation, including:</p>
 <ul>
 <li><p class="first">Minimal effort <strong>parallelization</strong>.</p>
 </li>
 <li><p class="first"><strong>Caching</strong> of temporary results: you can interrupt your program
 and restart it without losing what was already computed.</p>
 </li>
-<li><p class="first">Tolerance to job failure.</p>
+<li><p class="first"><strong>Failure tolerance</strong>: if a job fails, other jobs that do
+not depend on it continue to be executed.</p>
 </li>
 <li><dl class="first docutils">
 <dt>A <strong>console</strong> for inspecting failures and partial completion,</dt>
@@ -275,10 +276,11 @@ defining other jobs. For example, a program like ::</p>
 @:
 </pre></div>
 </div>
-<p>Run &#8220;parmake&#8221; at the prompt:</p>
+<p>Run &#8220;make&#8221; at the prompt:</p>
 <div class="highlight-python"><div class="highlight"><pre>@: make
 </pre></div>
 </div>
+<p>This will run the jobs serially.</p>
 <p><strong>Parallel execution</strong>: To run jobs in parallel, use the <tt class="docutils literal"><span class="pre">parmake</span></tt> command:</p>
 <div class="highlight-python"><div class="highlight"><pre>@: parmake n=6  # runs at most 6 in parallel
 </pre></div>
