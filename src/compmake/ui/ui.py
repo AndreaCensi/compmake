@@ -115,7 +115,7 @@ def clean_other_jobs(context):
     #                ' Previous: %d' % len(defined_now))
 
     for job_id in all_jobs(force_db=True, db=db):
-        #print('Considering %s' % job_id)
+#         print('Considering %s' % job_id)
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
             job = get_job(job_id, db=db)
