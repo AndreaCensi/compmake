@@ -20,10 +20,6 @@ class CompmakeConstants():
     RET_CODE_COMPMAKE_BUG = 114
 
     # Statuses ------------------------------------------------
-    # Compmake can be run in different "states"
-    # If run as an interactive session ("compmake module")
-    # - command() is ignored (?)
-    # - confirmation is asked for dangerous operations such as clean
     compmake_status_interactive = 'interactive'
     # If run as a ssh-spawned slave session.
     # - Jobs cannot be created 
