@@ -1,3 +1,5 @@
+import sys
+
 from ..events import register_handler
 from ..state import get_compmake_config
 from ..ui import compmake_colored
@@ -5,8 +7,8 @@ from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
 from compmake import CompmakeGlobalState
 from contracts import indent
-import sys
 import time
+
 
 stream = sys.stderr
 
@@ -22,12 +24,12 @@ def system_status():
     cpu = stats.avg_cpu_percent()
     cur_mem = stats.cur_phymem_usage_percent()
     swap = stats.cur_virtmem_usage_percent()
-    
-    s_mem = 'mem %2.0f%%' % cur_mem  
+
+    s_mem = 'mem %2.0f%%' % cur_mem
     if swap > 20:
-        s_mem += ' swap %2.0f%%' % swap 
-        
-    return ('cpu %2.0f%% %s' % (cpu, s_mem))
+        s_mem += ' swap %2.0f%%' % swap
+
+    return 'cpu %2.0f%% %s' % (cpu, s_mem)
 
 
 def spinner():
@@ -45,25 +47,30 @@ def job_counts():
     s += compmake_colored("%d done" % len(tracker.done), **done_style)
 
     if tracker.processing:
-        s += compmake_colored(" %d proc" % len(tracker.processing), **proc_style)
+        s += compmake_colored(" %d proc" % len(tracker.processing),
+                              **proc_style)
 
     if tracker.failed:
-        s += compmake_colored(" %d failed" % len(tracker.failed), **failed_style)
+        s += compmake_colored(" %d failed" % len(tracker.failed),
+                              **failed_style)
 
     if tracker.blocked:
-        s += compmake_colored(" %d blocked" % len(tracker.blocked), **blocked_style)
+        s += compmake_colored(" %d blocked" % len(tracker.blocked),
+                              **blocked_style)
 
     s += compmake_colored(" %d todo" % len(tracker.todo), **ready_style)
 
     if tracker.ready:
-        s += compmake_colored(" (%d ready)" % len(tracker.ready), **ready_style)
+        s += compmake_colored(" (%d ready)" % len(tracker.ready),
+                              **ready_style)
 
     return s
 
 
 def wait_reasons():
-#    s += "(" + ",".join(["%s:%s" % (k, v) 
-#                         for (k, v) in  tracker.wait_reasons.items()]) + ')'
+    # s += "(" + ",".join(["%s:%s" % (k, v)
+    #                         for (k, v) in  tracker.wait_reasons.items()])
+    # + ')'
     if tracker.wait_reasons:
         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
     else:
@@ -84,13 +91,13 @@ def current_slot(intervals):
 
 
 def display_rotating(strings, intervals, align_right=False):
-    ''' Rotates the display of the given strings. 
+    """ Rotates the display of the given strings.
         For now, we assume intervals to be round integers.
-    '''
+    """
     which = current_slot(intervals)
     L = max(get_length_on_screen(x) for x in strings)
     aligned = pad_to_screen_length(strings[which], L, align_right=align_right)
-    return  aligned
+    return aligned
 
 
 def get_string(level):
@@ -106,7 +113,7 @@ def get_string(level):
         x = []
         if level >= 1:
             x += [job_id]
-            
+
         if level <= 1 or not job_id in tracker.status_plus:
             x += [status]
         elif job_id in tracker.status_plus:
@@ -119,12 +126,13 @@ def get_string(level):
                 if level >= 2:
                     # XXX: this is never used somehow, see tracker
                     # that's where the code is executed to display iterations
-                    if (isinstance(frame.iterations[0], int) 
-                        and isinstance(frame.iterations[1], int)):                    
-                        x += ["%s of %s" % (frame.iterations[0]+1,
-                                         frame.iterations[1])]
+                    if (isinstance(frame.iterations[0], int)
+                        and isinstance(frame.iterations[1], int)):
+                        x += ["%s of %s" % (frame.iterations[0] + 1,
+                                            frame.iterations[1])]
                     else:
-                        perc=frame.iterations[0]*100.0/frame.iterations[1]
+                        perc = frame.iterations[0] * 100.0 / frame.iterations[
+                            1]
                         x += ['%.1f%%' % perc]
 
                 if level >= 4 and frame.iteration_desc is not None:
@@ -133,11 +141,12 @@ def get_string(level):
                 if i < len(stack) - 1:
                     x += ['>>']
         X += [" ".join(x)]
-    return  " ".join(X)
+    return " ".join(X)
 
 
 class Tmp():
     last_manager_loop = time.time()
+
 
 def its_time():
     delta = 0.33
@@ -148,11 +157,13 @@ def its_time():
         return True
     else:
         return False
-        
+
+
 def handle_event_period(context, event):
     if its_time():
         handle_event(context, event)
-        
+
+
 def handle_event(context, event):  # @UnusedVariable
     text_right = ' '
 
@@ -173,36 +184,43 @@ def handle_event(context, event):  # @UnusedVariable
     cols, _ = getTerminalSize()
 
     remaining = cols - get_length_on_screen(text_right)
-    
+
     options_left = [spinner() + '  ' + get_string(level)
                     for level in [4, 3, 2, 1, 0, -1, -2, -3]]
-    
+
     for x in options_left:
         if get_length_on_screen(x) <= remaining:
             text_left = x
             break
     else:
         text_left = ''
-    
-    nspaces = (cols 
-               - get_length_on_screen(text_right) 
+
+    nspaces = (cols
+               - get_length_on_screen(text_right)
                - get_length_on_screen(text_left))
     line = text_left + ' ' * nspaces + text_right
-    
+
     # line = pad_to_screen_length(choice, remaining, align_right=True) + s
-    
+
     stream.write(line)
-    stream.write('\r')
+
+    interactive = get_compmake_config('interactive')
+    if interactive:
+        stream.write('\r')
+    else:
+        stream.write('\n')
+
 
 def manager_host_failed(context, event):  # @UnusedVariable
-    s =  'Host failed for job %s: %s' % (event.job_id, event.reason)
+    s = 'Host failed for job %s: %s' % (event.job_id, event.reason)
     s += indent(event.bt, '| ')
     from compmake.utils import termcolor_colored
+
     s = termcolor_colored(s, 'red')
     stream.write(s)
-    
-    
-if get_compmake_config('status_line_enabled'):    
+
+
+if get_compmake_config('status_line_enabled'):
     register_handler('manager-loop', handle_event_period)
     register_handler('manager-progress', handle_event_period)
     register_handler('job-progress', handle_event)
@@ -210,4 +228,3 @@ if get_compmake_config('status_line_enabled'):
     register_handler('job-stdout', handle_event)
     register_handler('job-stderr', handle_event)
     register_handler('manager-host-failed', manager_host_failed)
- 

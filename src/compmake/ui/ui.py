@@ -1,35 +1,38 @@
-from .. import (CompmakeConstants, get_compmake_config, get_compmake_status, 
-    is_interactive_session)
+import inspect
+import warnings
+
+from .. import (CompmakeConstants, get_compmake_config, get_compmake_status,
+                is_interactive_session)
 from ..events import publish
-from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies, 
-    delete_job, delete_job_args, delete_job_userobject, get_job, 
-    is_job_userobject_available, job_args_exists, job_exists, parse_job_list, 
-    set_job, set_job_args)
+from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies,
+                    delete_job, delete_job_args, delete_job_userobject,
+                    get_job,
+                    is_job_userobject_available, job_args_exists, job_exists,
+                    parse_job_list,
+                    set_job, set_job_args)
 from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
-from ..structures import (CommandFailed, Job, Promise, UserError, 
-    same_computation)
-from ..utils import (describe_type, describe_value, 
-    interpret_strings_like, try_pickling)
+from ..exceptions import CommandFailed, UserError
+from ..structures import Job, Promise, same_computation
+from contracts import describe_type, describe_value
+from ..utils import interpret_strings_like, try_pickling
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
 from contracts import check_isinstance, contract, raise_wrapped
-import inspect
-import warnings
 from compmake.jobs.storage import db_job_add_parent_relation
 
 
-
 def generate_job_id(base, context):
-    ''' 
+    """
         Generates a unique job_id for the specified commmand.
-        Takes into account job_prefix if that's defined.     
-    '''
+        Takes into account job_prefix if that's defined.
+    """
 
     stack = context.currently_executing
     # print('generating an ID with base = %s and stack %s' % (base, stack))
-    # print('  jobs defined in session: %s' % (context.get_jobs_defined_in_this_session()))
+    # print('  jobs defined in session: %s' % (
+    # context.get_jobs_defined_in_this_session()))
 
     job_prefix = context.get_comp_prefix()
 
@@ -55,11 +58,12 @@ def generate_job_id(base, context):
             # print('  Found, he was defined by %s' % defined_by)
             if defined_by == stack:
                 # print('  same stack, continuing')
-                # wonder why you need this? Consider the code in test_priorities
+                # wonder why you need this? Consider the code in
+                # test_priorities
                 #
-                #         # add two copies
-                #         self.comp(top, self.comp(bottom))
-                #         self.comp(top, self.comp(bottom))
+                # # add two copies
+                # self.comp(top, self.comp(bottom))
+                # self.comp(top, self.comp(bottom))
                 if context.was_job_defined_in_this_session(x):
                     continue
                 return x
@@ -70,10 +74,10 @@ def generate_job_id(base, context):
 
 
 # def generate_job_id_old(base, context):
-#     '''
-#         Generates a unique job_id for the specified commmand.
-#         Takes into account job_prefix if that's defined.
-#     '''
+# '''
+# Generates a unique job_id for the specified commmand.
+# Takes into account job_prefix if that's defined.
+# '''
 #
 #     job_prefix = context.get_comp_prefix()
 #     if job_prefix:
@@ -97,8 +101,9 @@ def generate_job_id(base, context):
 
 
 def clean_other_jobs(context):
-    ''' Cleans jobs not defined in the session '''
-    #print('cleaning other jobs. Defined: %r' % context.get_jobs_defined_in_this_session())
+    """ Cleans jobs not defined in the session """
+    #print('cleaning other jobs. Defined: %r' %
+    # context.get_jobs_defined_in_this_session())
     db = context.get_compmake_db()
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return
@@ -123,6 +128,8 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
+            print('Job %r not defined in this session defined_by = %r.' % (job_id, job.defined_by))
+
             if not clean_all:
                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
                 text = ('Found spurious job %s; cleaning? '
@@ -139,7 +146,8 @@ def clean_other_jobs(context):
                     clean_all = True
             else:
                 pass
-                #logger.info('Cleaning job: %r (defined by %s)' % (job_id, job.defined_by))
+                #logger.info('Cleaning job: %r (defined by %s)' % (job_id,
+                # job.defined_by))
 
             print('deleting job %r' % job_id)
             clean_target(job_id, db=db)
@@ -149,32 +157,32 @@ def clean_other_jobs(context):
 
             if job_args_exists(job_id, db=db):
                 delete_job_args(job_id, db=db)
- 
+
+
 class WarningStorage():
     warned = set()
- 
-# @contract(context=CompmakeContext)
+
+
 def comp_(context, command_, *args, **kwargs):
-    ''' 
+    """
         Main method to define a computation step.
-    
+
         Extra arguments:
-    
+
         :arg:job_id:   sets the job id (respects job_prefix)
         :arg:extra_dep: extra dependencies (not passed as arguments)
         :arg:command_name: used to define job name if job_id not provided.
         If not given, command_.__name__ is used.
-        
+
         :arg:needs_context: if this is a dynamic job
-        
+
         Raises UserError if command is not pickable.
-    '''
+    """
 
     db = context.get_compmake_db()
 
-    
     command = command_
-    
+
     if hasattr(command, '__module__') and command.__module__ == '__main__':
         if not command in WarningStorage.warned:
             if WarningStorage.warned:
@@ -182,17 +190,20 @@ def comp_(context, command_, *args, **kwargs):
                 msg = ('(Same warning for function %r.)' % command.__name__)
             else:
                 msg = ("A warning about the function %r: " % command.__name__)
-                msg +=(
-                "This function is defined directly in the __main__ module, "
-                "which means that it cannot be pickled correctly due to "
-                "a limitation of Python and 'make new_process=1' will fail. "
-                "For best results, please define functions in external modules. "
-                'For more info, read http://stefaanlippens.net/pickleproblem '
-                'and the bug report http://bugs.python.org/issue5509.')
+                msg += (
+                    "This function is defined directly in the __main__ "
+                    "module, "
+                    "which means that it cannot be pickled correctly due to "
+                    "a limitation of Python and 'make new_process=1' will "
+                    "fail. "
+                    "For best results, please define functions in external "
+                    "modules. "
+                    'For more info, read '
+                    'http://stefaanlippens.net/pickleproblem '
+                    'and the bug report http://bugs.python.org/issue5509.')
             warning(msg)
             WarningStorage.warned.add(command)
-            
-            
+
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return None
 
@@ -205,20 +216,20 @@ def comp_(context, command_, *args, **kwargs):
                'Python)')
         raise_wrapped(UserError, e, msg, command=command)
 
-#     if command.__module__ == '__main__':
-#         main_module = sys.modules['__main__']
-#         filename = main_module.__file__
-#         filename = os.path.splitext(filename)[0]
-#         if filename.startswith('./'):
-#             filename = filename[2:]
-#         try:
-#             m = import_name(filename)
-# 
-#             fname = command.__name__
-#             if fname in m.__dict__:
-#                 command = m.__dict__[fname]
-#         except:
-#             pass
+    #     if command.__module__ == '__main__':
+    #         main_module = sys.modules['__main__']
+    #         filename = main_module.__file__
+    #         filename = os.path.splitext(filename)[0]
+    #         if filename.startswith('./'):
+    #             filename = filename[2:]
+    #         try:
+    #             m = import_name(filename)
+    #
+    #             fname = command.__name__
+    #             if fname in m.__dict__:
+    #                 command = m.__dict__[fname]
+    #         except:
+    #             pass
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
@@ -226,7 +237,6 @@ def comp_(context, command_, *args, **kwargs):
         command_desc = command.__name__
     else:
         command_desc = type(command).__name__
-    
 
     args = list(args)  # args is a non iterable tuple
 
@@ -238,7 +248,7 @@ def comp_(context, command_, *args, **kwargs):
         if CompmakeConstants.job_id_key in argspec.args:
             msg = ("You cannot define the job id in this way because %r "
                    "is already a parameter of this function." %
-                    CompmakeConstants.job_id_key)
+                   CompmakeConstants.job_id_key)
             raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
@@ -256,18 +266,27 @@ def comp_(context, command_, *args, **kwargs):
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
-                print('The job %r was defined but not found in DB. I will let it slide.' % job_id)
+                print(
+                    'The job %r was defined but not found in DB. I will let '
+                    'it '
+                    'slide.' % job_id)
             else:
-                print('The job %r was already defined in this session.' % job_id)
+                print(
+                    'The job %r was already defined in this session.' % job_id)
                 old_job = get_job(job_id, db=db)
                 print('  old_job.defined_by: %s ' % old_job.defined_by)
-                print(' context.currently_executing: %s ' % context.currently_executing)
-                print(' others defined in session: %s' % context. get_jobs_defined_in_this_session())
+                print(
+                    ' context.currently_executing: %s ' %
+                    context.currently_executing)
+                print(
+                    ' others defined in session: %s' %
+                    context.get_jobs_defined_in_this_session())
                 warnings.warn('I know something is more complicated here')
-    #             if old_job.defined_by is not None and old_job.defined_by == context.currently_executing:
-    #                 # exception, it's ok
-    #                 pass
-    #             else:
+                #             if old_job.defined_by is not None and
+                # old_job.defined_by == context.currently_executing:
+                #                 # exception, it's ok
+                #                 pass
+                #             else:
 
                 msg = 'Job %r already defined.' % job_id
                 raise UserError(msg)
@@ -282,13 +301,15 @@ def comp_(context, command_, *args, **kwargs):
                     pass
                 else:
 
-                    for i in range(100): # XXX
+                    for i in range(100):  # XXX
                         n = '%s-%d' % (job_id, i)
                         if not job_exists(n, db=db):
                             job_id = n
                             break
                     if False:
-                        print('The job_id %r was given explicitly but already defined.' % job_id)
+                        print(
+                            'The job_id %r was given explicitly but already '
+                            'defined.' % job_id)
                         print('current stack: %s' % stack)
                         print('    its stack: %s' % defined_by)
                         print('New job_id is %s' % job_id)
@@ -315,6 +336,7 @@ def comp_(context, command_, *args, **kwargs):
             raise ValueError(msg)
         if isinstance(extra_dep, Promise):
             extra_dep = [extra_dep]
+        assert isinstance(extra_dep, list)
         for ed in extra_dep:
             if not isinstance(ed, Promise):
                 msg = ('The "extra_dep" argument must be a list of promises; '
@@ -327,7 +349,7 @@ def comp_(context, command_, *args, **kwargs):
 
     children = collect_dependencies([args, kwargs])
     children.update(extra_dep)
-    
+
     for c in children:
         if not job_exists(c, db):
             msg = "Job %r references a job %r that doesnt exist." % (job_id, c)
@@ -343,10 +365,10 @@ def comp_(context, command_, *args, **kwargs):
 
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)
-        
+
         if old_job.defined_by != c.defined_by:
             warning('Redefinition of %s: ' % job_id)
-            warning(' cur defined_by: %s' % (c.defined_by))
+            warning(' cur defined_by: %s' % c.defined_by)
             warning(' old defined_by: %s' % old_job.defined_by)
 
         if old_job.children != c.children:
@@ -354,7 +376,7 @@ def comp_(context, command_, *args, **kwargs):
             #warning(' old children: %s' % (old_job.children))
             #warning(' old dyn children: %s' % old_job.dynamic_children)
             #warning(' new children: %s' % (c.children))
-            
+
             # fixing this
             for x, deps in old_job.dynamic_children.items():
                 if not x in c.children:
@@ -366,23 +388,24 @@ def comp_(context, command_, *args, **kwargs):
                 for j in deps:
                     if not j in c.children:
                         c.children.add(j)
-                
+
         if old_job.parents != c.parents:
             # warning('Redefinition of %s: ' % job_id)
             #  warning(' cur parents: %s' % (c.parents))
             # warning(' old parents: %s' % old_job.parents)
             for p in old_job.parents:
                 c.parents.add(p)
-            
-            # TODO: preserve defines
-#     from compmake.ui.visualization import info
-#     info('defining job %r with children %r' % (job_id, c.children))
-    
-#     if True or c.defined_by == ['root']:
-        
+
+                # TODO: preserve defines
+                #     from compmake.ui.visualization import info
+                #     info('defining job %r with children %r' % (job_id,
+                # c.children))
+
+                #     if True or c.defined_by == ['root']:
+
     for child in children:
         db_job_add_parent_relation(child=child, parent=job_id, db=db)
-    
+
     if get_compmake_config('check_params') and job_exists(job_id, db):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
@@ -394,22 +417,24 @@ def comp_(context, command_, *args, **kwargs):
         # What we do, is that we temporarely switch to
         # slave mode, so that recursive calls to comp()
         # are disabled.
-#             old_status = get_compmake_status()
-#             set_compmake_status(CompmakeConstants.compmake_status_slave)
-            all_args_old = get_job_args(job_id, db=db)
-#             set_compmake_status(old_status)
-            same, reason = same_computation(all_args, all_args_old)
+        #             old_status = get_compmake_status()
+        #             set_compmake_status(
+        # CompmakeConstants.compmake_status_slave)
+        all_args_old = get_job_args(job_id, db=db)
+        #             set_compmake_status(old_status)
+        same, reason = same_computation(all_args, all_args_old)
 
-            if not same:
-                print('different job, cleaning cache:\n%s  ' % reason)
-                if job_cache_exists(job_id, db):
-                    delete_job_cache(job_id, db)
-                publish(context, 'job-redefined', job_id=job_id, reason=reason)
-            else:
-                print('ok, same job')
-                # XXX TODO clean the cache
-#             else:
-#                 publish(context, 'job-already-defined', job_id=job_id)
+        if not same:
+            print('different job, cleaning cache:\n%s  ' % reason)
+            if job_cache_exists(job_id, db):
+                delete_job_cache(job_id, db)
+            publish(context, 'job-redefined', job_id=job_id, reason=reason)
+        else:
+            print('ok, same job')
+            # XXX TODO clean the cache
+            #             else:
+            #                 publish(context, 'job-already-defined',
+            # job_id=job_id)
 
     set_job(job_id, c, db=db)
     set_job_args(job_id, all_args, db=db)
@@ -419,14 +444,14 @@ def comp_(context, command_, *args, **kwargs):
 
 
 @contract(commands_str='str', context=Context,
-          cq=CacheQueryDB, 
+          cq=CacheQueryDB,
           returns="None")
 def interpret_commands(commands_str, context, cq, separator=';'):
-    ''' 
+    """
         Interprets what could possibly be a list of commands (separated by ";")
-        
+
         Returns None
-    '''
+    """
     if not isinstance(commands_str, str):
         msg = 'I expected a string, got %s.' % describe_type(commands_str)
         raise ValueError(msg)
@@ -455,24 +480,23 @@ def interpret_commands(commands_str, context, cq, separator=';'):
             raise
         # TODO: all the rest is unexpected
 
-
         if retcode == 0 or retcode is None:
             continue
         else:
             if isinstance(retcode, int):
                 publish(context, 'command-failed', command=cmd,
                         reason='Return code %r' % retcode)
-                raise CommandFailed('ret code %s'%retcode)
+                raise CommandFailed('ret code %s' % retcode)
             else:
                 publish(context, 'command-failed', command=cmd, reason=retcode)
-                raise CommandFailed('ret code %s'%retcode)
- 
+                raise CommandFailed('ret code %s' % retcode)
+
 
 @contract(returns='None', commands_line='str')
 def interpret_single_command(commands_line, context, cq):
     """ Returns None or raises CommandFailed """
     if not isinstance(commands_line, str):
-        raise ValueError('Expected a string') 
+        raise ValueError('Expected a string')
 
     ui_commands = get_commands()
 
@@ -500,10 +524,9 @@ def interpret_single_command(commands_line, context, cq):
     kwargs = {}
     argspec = inspect.getargspec(function)
 
-    
     defaults = get_defaults(argspec)
     args_without_default = get_args_without_defaults(argspec)
-    
+
     for a in args:
         if a.find('=') > 0:
             k, v = a.split('=')
@@ -511,9 +534,9 @@ def interpret_single_command(commands_line, context, cq):
             if not k in argspec.args:
                 msg = ("You passed the argument %r for command %r, "
                        "but the only available arguments are %s." %
-                        (k, cmd.name, argspec.args))
+                       (k, cmd.name, argspec.args))
                 raise UserError(msg)
-            
+
             # look if we have a default value
             if not k in defaults:
                 # no default, pass as string
@@ -527,11 +550,11 @@ def interpret_single_command(commands_line, context, cq):
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
                     msg = ('Could not parse %s=%s as %s.' %
-                            (k, v, type(default_value)))
+                           (k, v, type(default_value)))
                     raise UserError(msg)
         else:
             other.append(a)
-            
+
     args = other
 
     function_args = argspec.args
@@ -540,8 +563,7 @@ def interpret_single_command(commands_line, context, cq):
         if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
             v = get_compmake_config(argdefault.switch)
             kwargs[argname] = v
-        
- 
+
     if 'args' in function_args:
         kwargs['args'] = args
 
@@ -554,7 +576,7 @@ def interpret_single_command(commands_line, context, cq):
                    "argument." % command_name)
             raise UserError(msg)
 
-        job_list = parse_job_list(args, context=context,cq=cq)
+        job_list = parse_job_list(args, context=context, cq=cq)
 
         # TODO: check non empty
         job_list = list(job_list)
@@ -562,7 +584,7 @@ def interpret_single_command(commands_line, context, cq):
         kwargs['non_empty_job_list'] = job_list
 
     if 'job_list' in function_args:
-        job_list = parse_job_list(args, context=context,cq=cq)
+        job_list = parse_job_list(args, context=context, cq=cq)
         job_list = list(job_list)
         CompmakeConstants.aliases['last'] = job_list
         # TODO: this does not survive reboots
@@ -576,10 +598,10 @@ def interpret_single_command(commands_line, context, cq):
         if not x in kwargs:
             msg = 'Required argument %r not given.' % x
             raise UserError(msg)
-        
+
     try:
         res = function(**kwargs)
-        if res != None and res != 0:
+        if (res is not None) and (res != 0):
             msg = 'Command %r failed: %s' % (commands_line, res)
             raise CommandFailed(msg)
         return None
@@ -587,21 +609,23 @@ def interpret_single_command(commands_line, context, cq):
         if dbchange:
             cq.invalidate()
 
-@contract(returns=dict)    
+
+@contract(returns=dict)
 def get_defaults(argspec):
     defaults = {}
     if argspec.defaults:
         num_args_with_default = len(argspec.defaults)
     else:
         num_args_with_default = 0
-        
+
     num_args = len(argspec.args)
     num_args_without_default = num_args - num_args_with_default
     for k in range(num_args_without_default, num_args):
         argname = argspec.args[k]
-        argdefault = argspec.defaults[k-num_args_without_default]
+        argdefault = argspec.defaults[k - num_args_without_default]
         defaults[argname] = argdefault
     return defaults
+
 
 def get_args_without_defaults(argspec):
     if argspec.defaults:

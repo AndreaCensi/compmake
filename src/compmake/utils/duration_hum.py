@@ -1,12 +1,12 @@
 import math
 
 __all__ = [
-#     'duration_human', 
+    # 'duration_human',
     'duration_compact',
 ]
 # 
 # def duration_human(seconds):
-#     ''' Code modified from 
+# ''' Code modified from
 #     http://darklaunch.com/2009/10/06
 #     /python-time-duration-human-friendly-timestamp
 #     '''
@@ -62,7 +62,7 @@ def duration_compact(seconds):
             duration.append('%dd' % days)
         if (days < 3) and (years == 0):
             if hours > 0:
-                duration.append('%dh' % hours )
+                duration.append('%dh' % hours)
             if (hours < 3) and (days == 0):
                 if minutes > 0:
                     duration.append('%dm' % minutes)

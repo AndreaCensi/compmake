@@ -1,17 +1,16 @@
 import sys
 import traceback
+import os
 
 from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
 from ..events import publish
 from ..jobs import CacheQueryDB, all_jobs
-from ..structures import (CommandFailed, CompmakeBug, ShellExitRequested,
-                          UserError)
+from ..exceptions import (CommandFailed, CompmakeBug, ShellExitRequested,
+                          UserError, JobInterrupted)
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger, get_compmake_config
 from contracts import contract, indent, raise_wrapped
-import os
-from ..structures import JobInterrupted
 
 
 __all__ = [
@@ -169,15 +168,19 @@ def compmake_console_lines(context):
                         f.write('%s\n' % word)
                         last_word = word
 
+            # noinspection PyUnresolvedReferences
             readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
         except:
             pass
 
-        # small enough to be saved every time
+        # noinspection PyUnresolvedReferences
         readline.set_history_length(300)
         completer = lambda text, state: tab_completion2(context, text, state)
+        # noinspection PyUnresolvedReferences
         readline.set_completer(completer)
+        # noinspection PyUnresolvedReferences
         readline.set_completer_delims(" ")
+        # noinspection PyUnresolvedReferences
         readline.parse_and_bind('tab: complete')
 
     while True:
@@ -191,11 +194,13 @@ def compmake_console_lines(context):
             continue
 
         if readline is not None:
+            # noinspection PyUnresolvedReferences
             readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
 
         yield line
 
 
+# noinspection PyUnresolvedReferences
 def ask_question(question, allowed=None):
     """ Asks a yes/no question to the user """
     readline = get_readline()
@@ -215,9 +220,9 @@ def ask_question(question, allowed=None):
         # we don't want these to go into the history
         if readline is not None:
             try:
-                l = readline.get_current_history_length()  # @UndefinedVariable
+                l = readline.get_current_history_length()
                 if l:
-                    readline.remove_history_item(l - 1)  # @UndefinedVariable
+                    readline.remove_history_item(l - 1)
             except:
                 pass
 
@@ -252,7 +257,7 @@ def compmake_console(context):
     # msg = 'I detected that we were imported by "compmake".
     # compmake_console() will not do anything.'
 
-    #         error(msg)
+    # error(msg)
     #         return
     #
     #     if get_compmake_status() !=
@@ -262,4 +267,3 @@ def compmake_console(context):
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
     interactive_console(context=context)
-

@@ -1,23 +1,32 @@
+from optparse import OptionParser
+import os
+import sys
+
 from .. import CompmakeConstants, logger, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
-from ..structures import CommandFailed, CompmakeBug, MakeFailed, UserError
-from ..ui import info, interpret_commands_wrap
+from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
+from ..ui import interpret_commands_wrap, info
 from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
-from optparse import OptionParser
 import contracts
-import os
-import sys
+
 
 # TODO: revise all of this
 @contract(context=Context)
 def read_rc_files(context):
     assert context is not None
-    possible = ['compmake.rc', '~/.compmake/compmake.rc']
+    possible = [
+        '~/.compmake/compmake.rc',
+        '~/.config/compmake.rc' 
+        '~/.compmake.rc',
+        '~/compmake.rc',
+        '.compmake.rc',
+        'compmake.rc', 
+    ]
     done = False
     for x in possible:
         x = os.path.expanduser(x)
@@ -25,15 +34,18 @@ def read_rc_files(context):
             read_commands_from_file(filename=x, context=context)
             done = True
     if not done:
-        # logger.info('No configuration found (looked for %s)' % "; ".join(possible))
+        # logger.info('No configuration found (looked for %s)'
+        # % "; ".join(possible))
         pass
-            
+
+
 @contract(context=Context, filename=str)
 def read_commands_from_file(filename, context):
     from compmake.jobs.uptodate import CacheQueryDB
+
     cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None
-    logger.info('Reading configuration from %r' % filename)
+    info('Reading configuration from %r.' % filename)
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip()
@@ -42,6 +54,7 @@ def read_commands_from_file(filename, context):
             if line[0] == '#':
                 continue
             interpret_commands_wrap(line, context=context, cq=cq)
+
 
 usage = """
 The "compmake" script takes a DB directory as argument:
@@ -53,7 +66,7 @@ For example:
     $ compmake out-compmake -c "clean; parmake n=2"
    
 """
- 
+
 
 def main():
     wrap_script_entry_point(compmake_main,
@@ -64,7 +77,6 @@ def main():
 def compmake_main(args):
     if not '' in sys.path:
         sys.path.append('')
-    
 
     setproctitle('compmake')
 
@@ -79,16 +91,17 @@ def compmake_main(args):
     parser.add_option("-c", "--command",
                       default=None,
                       help="Run the given command")
-    
+
     parser.add_option('-n', '--namespace',
                       default='default')
 
     parser.add_option('--retcodefile',
-                      help='If given, the return value is written in this file. '
-                           'Useful to check when compmake finished in a grid environment. ',
+                      help='If given, the return value is written in this '
+                           'file. Useful to check when compmake finished in '
+                           'a grid environment. ',
                       default=None)
 
-    parser.add_option('--nosysexit',  default=False, action='store_true',
+    parser.add_option('--nosysexit', default=False, action='store_true',
                       help='Does not sys.exit(ret); useful for debugging.')
 
     config_populate_optparser(parser)
@@ -96,7 +109,7 @@ def compmake_main(args):
     (options, args) = parser.parse_args(args)
 
     if not options.contracts:
-        info('Disabling PyContracts; use --contracts to activate.')
+        # info('Disabling PyContracts; use --contracts to activate.')
         contracts.disable_all()
 
     # We load plugins after we parsed the configuration
@@ -109,12 +122,13 @@ def compmake_main(args):
         raise UserError(msg)
 
     if len(args) >= 2:
-        msg = 'I only expect one argument. Use "compmake -h" for usage information.'
+        msg = 'I only expect one argument. Use "compmake -h" for usage ' \
+              'information.'
         msg += '\n args: %s' % args
         raise UserError(msg)
 
     # if the argument looks like a dirname
-    one_arg = args[0]     
+    one_arg = args[0]
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
         # If there is a compmake/ folder inside, take it as the root
         child = os.path.join(one_arg, 'compmake')
@@ -125,29 +139,29 @@ def compmake_main(args):
         # If the context was custom we load it
         if 'context' in context.compmake_db:
             context = context.compmake_db['context']
-            
-        # TODO: check number of jobs is nonzero
+
+            # TODO: check number of jobs is nonzero
     else:
         msg = 'Directory not found: %s' % one_arg
-        raise UserError(msg) 
+        raise UserError(msg)
 
     args = args[1:]
- 
-    def go(context):
-        assert context is not None
+
+    def go(context2):
+        assert context2 is not None
 
         if options.command:
             set_compmake_status(CompmakeConstants.compmake_status_slave)
-        else:    
+        else:
             set_compmake_status(CompmakeConstants.compmake_status_interactive)
-            
-        read_rc_files(context)
-        
+
+        read_rc_files(context2)
+
         try:
             if options.command:
-                context.batch_command(options.command)
+                context2.batch_command(options.command)
             else:
-                context.compmake_console()
+                context2.compmake_console()
         except MakeFailed:
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
@@ -161,23 +175,26 @@ def compmake_main(args):
         except:
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         else:
-            retcode = 0    
-        
+            retcode = 0
+
         if options.retcodefile is not None:
             write_atomic(options.retcodefile, str(retcode))
-        
+
         if options.nosysexit:
             return retcode
         else:
             sys.exit(retcode)
 
     if not options.profile:
-        return go(context)
+        return go(context2=context)
     else:
         # XXX: change variables
         import cProfile
-        cProfile.runctx('go(context)', globals(), locals(), 'out/compmake.profile')
+
+        cProfile.runctx('go(context)', globals(), locals(),
+                        'out/compmake.profile')
         import pstats
+
         p = pstats.Stats('out/compmake.profile')
         n = 30
         p.sort_stats('cumulative').print_stats(n)
@@ -192,20 +209,19 @@ def write_atomic(filename, contents):
                 os.makedirs(dirname)
             except:
                 pass
-    tmpFile = filename + '.tmp'
-    f = open(tmpFile, 'w')
+    tmpfile = filename + '.tmp'
+    f = open(tmpfile, 'w')
     f.write(contents)
     f.flush()
-    os.fsync(f.fileno()) 
+    os.fsync(f.fileno())
     f.close()
-    os.rename(tmpFile, filename)
+    os.rename(tmpfile, filename)
 
 
 @contract(returns=Context)
 def load_existing_db(dirname):
     assert os.path.isdir(dirname)
-    logger.info('Loading existing jobs from DB directory %r' % dirname)
-    
+    info('Loading existing jobs DB %r.' % dirname)
     # check if it is compressed
     files = os.listdir(dirname)
     for one in files:
@@ -218,8 +234,8 @@ def load_existing_db(dirname):
     db = StorageFilesystem(dirname, compress=compress)
     context = Context(db=db)
     jobs = list(all_jobs(db=db))
-    logger.info('Found %d existing jobs.' % len(jobs))
+    #logger.info('Found %d existing jobs.' % len(jobs))
     context.reset_jobs_defined_in_this_session(jobs)
-    
+
     return context
 

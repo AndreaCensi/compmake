@@ -10,13 +10,14 @@ Host = namedtuple('Host',
                   'name host username processors init test instance')
 
 
+def fill_in(config, defaults):
+    for k, v in defaults.items():
+        config[k] = config.get(k, v)
+
+
 def parse_yaml_configuration(file):  # @ReservedAssignment
-
-    def fill_in(config, defaults):
-        for k, v in defaults.items():
-            config[k] = config.get(k, v)
-
     import yaml
+
     configuration = yaml.load(file)
 
     pprint(configuration)
@@ -58,7 +59,8 @@ def parse_yaml_configuration(file):  # @ReservedAssignment
 
     return results
 
+
 if __name__ == '__main__':
-    hosts = parse_yaml_configuration(sys.stdin)
-    print(hosts)
+    hosts_config = parse_yaml_configuration(sys.stdin)
+    print(hosts_config)
 

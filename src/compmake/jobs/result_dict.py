@@ -1,12 +1,13 @@
 from contracts import check_isinstance
 
 __all__ = [
-    '_check_result_dict',
+    'result_dict_check',
     'result_dict_raise_if_error',
 ]
 
-def _check_result_dict(res):
-    check_isinstance(res,dict)
+
+def result_dict_check(res):
+    check_isinstance(res, dict)
     if 'new_jobs' in res:
         assert 'user_object_deps' in res
     elif 'fail' in res:
@@ -18,18 +19,19 @@ def _check_result_dict(res):
     else:
         msg = 'Malformed result dict: %s' % res
         raise ValueError(msg)
-    
+
+
 def result_dict_raise_if_error(res):
     from compmake.exceptions import JobFailed
     from compmake.exceptions import HostFailed, CompmakeBug
 
-    _check_result_dict(res)
-        
+    result_dict_check(res)
+
     if 'fail' in res:
         raise JobFailed.from_dict(res)
-    
+
     if 'abort' in res:
         raise HostFailed.from_dict(res)
-    
+
     if 'bug' in res:
         raise CompmakeBug.from_dict(res)

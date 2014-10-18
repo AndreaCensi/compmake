@@ -1,4 +1,3 @@
-                                                                                                                                        Disabling PyContracts; use --contracts to activate.                                                                                     
-INFO:compmake:Loading existing jobs from DB directory 'out-using_compmake1'
-INFO:compmake:Found 27 existing jobs.
-INFO:compmake:Reading configuration from '/Users/andrea/.compmake/compmake.rc'
+                                                                                                                                                         Loading existing jobs DB 'out-using_compmake1'.                                                                                                          
+                                                                                                                                                         Reading configuration from '/Users/andrea/.compmake/compmake.rc'.                                                                                        
+                                                                                                                                                         Nothing to do.                                                                                                                                           

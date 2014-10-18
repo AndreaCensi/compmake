@@ -11,28 +11,36 @@
 
 .. include:: definitions.txt
 
-Compmake: keep calm and carry on
-================================
+Compmake
+=================================================================
 
-.. raw:: html
-   :file: index-logo.html
+.. .. raw:: html
+..    :file: index-logo.html
 
-.. container:: intro
 
-  |compmake| is a non-obtrusive module that provides Makefile--like facilities to your Python computations, including:
+.. container:: maincon
 
-  * **Familiar commands** such as ``make``, ``clean``, etc.
+  .. raw:: html
 
-  * Zero-effort **parallelization**.
+    <div style='float:right; margin-right: 3em'> 
+    
+    <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
+        <p style='text-align: center'>The Compmake Manual</p>
+        <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
+    </a>
+    </div>
 
-  * **Caching** of temporary results: you can interrupt your program (CTRL-C), and restart it without losing what was already computed.
 
-  * A **console** for inspecting failures and partial completion.
+  |compmake| is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
 
-  |compmake| has been designed primarily for handling long computational-intensive
-  batch processes. It assumes that the computational layout is fixed and that 
-  all intermediate results can be cached to disk. If these two conditions are met,
-  you can use |compmake| to gain considerable peace of mind. Read :ref:`why`.
+  - Minimal effort **parallelization**.
+  - **Caching** of temporary results: you can interrupt your program 
+    and restart it without losing what was already computed.
+  - **Failure tolerance**: if a job fails, other jobs that do
+    not depend on it continue to be executed.
+  - A **console** for inspecting failures and partial completion,
+    with familiar commands such as ``make``, ``clean``, etc.
+
 
 
 Installation
@@ -42,7 +50,9 @@ The simplest way to install |compmake| is::
 
 $ easy_install compmake
 
-or, alternatively, using ``pip install compmake``. You can also `fork the project on GitHub`_.
+or, alternatively, using ``pip install compmake``. 
+
+You can also `fork the project on GitHub`_.
 
 .. _`fork the project on GitHub`: http://github.com/AndreaCensi/compmake
 
@@ -58,46 +68,71 @@ or, alternatively, using ``pip install compmake``. You can also `fork the projec
 Basic usage
 ------------
 
+
 To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.
 
-.. image:: my_static/initial.png 
+.. image:: _static/initial.png 
    :class: bigpicture
+
+An invocation of the kind: ::
+  
+    function(param)    
+
+becomes: ::
+
+    context.comp(function, param)
+
+The result of ``comp()`` is a promise that can be reused in
+defining other jobs. For example, a program like :::
+  
+    res = function(param)    
+    function2(res)
+
+becomes: ::
+
+    r = context.comp(function, param)
+    context.comp(function2, r)
+
 
 Download `a demo example.py`_ that you can try.
 
-.. _`a demo example.py`: static/demos/example.py
+.. _`a demo example.py`: _static/demos/example.py
 
 You would run the modified program using::
 
-    $ compmake example -c make            # runs serially
+    $ python example.py
+
+This gives you a prompt: ::
+  
+  Compmake 3.3  (27 jobs loaded)
+  @:
+
+Run "make" at the prompt: ::
+  
+  @: make
+
+This will run the jobs serially.
 
 
 **Parallel execution**: To run jobs in parallel, use the ``parmake`` command::
 
-    $ compmake example -c "parmake n=6"   # runs at most 6 in parallel
+  @: parmake n=6  # runs at most 6 in parallel
 
-There are all sorts of configuration options for being nice to other
-users of the machine; for example, Compmake can be instructed  
-not to start other jobs if the CPU or memory usage is already above a certain 
-percentage::
-
-    $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
-
+.. There are all sorts of configuration options for being nice to other
+.. users of the machine; for example, Compmake can be instructed  
+.. not to start other jobs if the CPU or memory usage is already above a certain 
+.. percentage
+..     $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
 
 ..
-    $ compmake example -c clustmake  # runs on a cluster
-
-**Console**: Moreover, by running ``compmake example`` only, you have access to a
-console that allows you to inspect the status of the computations,
-cleaning/remaking jobs, etc.
 
 **Selective re-make**: You can selectively remake part of the computations. For example,
 suppose that you modify the ``draw()`` function, and you want to
 rerun only the last step. You can achieve that by::
 
-    $ compmake example -c "remake draw*"
+    @: remake draw*
 
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
@@ -108,22 +143,31 @@ compmake will go forward with the rest.
 
 To try this behavior, download the file `example_fail.py`_. If you run::
 
-    $ compmake example_fail -c "parmake n=4"
+    $ python example_fail.py "parmake n=4"
 
 you will see how compmake completes all jobs that can be completed. If you run again::
 
-    $ compmake example_fail -c "make"
+    $ python example_fail.py "make"
 
 Compmake will try again to run the jobs that failed.
 
-.. _`example_fail.py`: static/demos/example_fail.py
+.. _`example_fail.py`: _static/demos/example_fail.py
 
+Manual
+------
 
+For more information, please read 
+
+.. raw:: html
+  
+  <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
+      <p style='text-align: center'>The Compmake Manual</p>
+      <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
+  </a>
 
 Feedback
 ---------
 
-Compmake is currently developed by `Andrea Censi`_. Contributors are most welcome.
 Please use the `issue tracker on github`_ for bugs and feature requests.
 
 .. _`issue tracker on github`: http://github.com/AndreaCensi/compmake/issues
@@ -139,66 +183,66 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 .. If you feel adventorous, this is a perfect time to
 .. get support and influence |compmake|'s evolution!
 
-Documentation
--------------
+.. Documentation
+.. -------------
 
-Still unsure you need this?  Read :ref:`why`.
-And check out :ref:`limitations` to see if |compmake| can help you.
+.. Still unsure you need this?  Read :ref:`why`.
+.. And check out :ref:`limitations` to see if |compmake| can help you.
 
-Still interested? Start with the tutorial :ref:`tutorial_basic`.
+.. Still interested? Start with the tutorial :ref:`tutorial_basic`.
 
 
-.. container:: col1
+.. .. container:: col1
 
-	**Design**
+.. 	**Design**
 
-	* :ref:`why`
-	* :ref:`limitations`
+.. 	* :ref:`why`
+.. 	* :ref:`limitations`
 
-	**Getting started**
+.. 	**Getting started**
 	
-	* :ref:`tutorial_basic`
-	* :ref:`tutorial_console`
-	* :ref:`tutorial_parmake`
-	* :ref:`tutorial_embedding`
+.. 	* :ref:`tutorial_basic`
+.. 	* :ref:`tutorial_console`
+.. 	* :ref:`tutorial_parmake`
+.. 	* :ref:`tutorial_embedding`
 	
-.. container:: col2
+.. .. container:: col2
 
-	.. **Advanced usage**
-	.. 
-	.. 	* :ref:`tutorial_suspend`
-	.. 	* :ref:`tutorial_more`
+.. 	.. **Advanced usage**
+.. 	.. 
+.. 	.. 	* :ref:`tutorial_suspend`
+.. 	.. 	* :ref:`tutorial_more`
 	
-	**Reference**
+.. 	**Reference**
 
-	* :ref:`commands`
-	* :ref:`config`
+.. 	* :ref:`commands`
+.. 	* :ref:`config`
 
-	**Developement**
+.. 	**Developement**
 
-	* :ref:`developer`
-	* :ref:`extending`
-	* :ref:`building_docs`
+.. 	* :ref:`developer`
+.. 	* :ref:`extending`
+.. 	* :ref:`building_docs`
 
-.. raw:: html
+.. .. raw:: html
 
-   <div style="clear:left"/>
+..    <div style="clear:left"/>
 
-.. 
-   * :ref:`tutorial_cluster`
+.. .. 
+..    * :ref:`tutorial_cluster`
     
  
-.. toctree::
-   :hidden:
-   :glob:
+.. .. toctree::
+..    :hidden:
+..    :glob:
 
-   features*
-   tutorial*
-   config*
-   commands*
-   *
+..    features*
+..    tutorial*
+..    config*
+..    commands*
+..    *
 
 
 
-* :ref:`search`
+.. * :ref:`search`
 

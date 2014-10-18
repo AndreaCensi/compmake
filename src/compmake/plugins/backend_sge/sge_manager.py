@@ -1,9 +1,11 @@
+import os
+
 from .sge_misc import check_sge_environment
 from .sge_sub import SGESub
 from compmake.jobs.manager import Manager
 from compmake.utils import isodate_with_secs
 from contracts import contract
-import os
+
 
 __all__ = [
     'SGEManager',
@@ -16,41 +18,42 @@ class SGEManager(Manager):
     @contract(num_processes=int, recurse='bool')
     def __init__(self, context, cq, recurse, num_processes):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
-        
+
         self.num_processes = num_processes
-        
+
         check_sge_environment()
-        
+
         storage = os.path.abspath(self.db.basepath)
-        timestamp = isodate_with_secs().replace(':','-')
+        timestamp = isodate_with_secs().replace(':', '-')
         spool = os.path.join(storage, 'sge', timestamp)
         if not os.path.exists(spool):
             os.makedirs(spool)
 
         self.sub_available = set()
-        self.sub_processing = set() # available + processing = subs.keys
-        self.subs = {} # name -> sub
+        self.sub_processing = set()  # available + processing = subs.keys
+        self.subs = {}  # name -> sub
         for i in range(self.num_processes):
             name = 'w%02d' % i
-            self.subs[name] = SGESub(name, db=self.db, spool=spool) 
+            self.subs[name] = SGESub(name, db=self.db, spool=spool)
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)
-                
+
     def get_resources_status(self):
         resource_available = {}
-        
+
         assert len(self.sub_processing) == len(self.processing)
         # only one job at a time
         process_limit_ok = len(self.sub_processing) < self.num_processes
         if not process_limit_ok:
             resource_available['nproc'] = (False,
-                                           'max %d nproc' % (self.num_processes))
+                                           'max %d nproc' % (
+                                           self.num_processes))
             # this is enough to continue
             return resource_available
         else:
             resource_available['nproc'] = (True, '')
-                        
+
         return resource_available
 
     @contract(reasons_why_not=dict)
@@ -75,19 +78,19 @@ class SGEManager(Manager):
         self.job2subname[job_id] = name
         ares = sub.instance_job(job_id)
         return ares
-    
+
     def host_failed(self, job_id):
         Manager.host_failed(self, job_id)
         self._clear(job_id)
-        
+
     def job_failed(self, job_id):
         Manager.job_failed(self, job_id)
         self._clear(job_id)
-        
+
     def job_succeeded(self, job_id):
         Manager.job_succeeded(self, job_id)
         self._clear(job_id)
-              
+
     def _clear(self, job_id):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
@@ -104,4 +107,3 @@ class SGEManager(Manager):
             print('Cleaning up %d SGE jobs. Please be patient.' % n)
         for _, job in self.processing2result.items():
             job.delete_job()
-                        

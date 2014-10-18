@@ -5,23 +5,24 @@ __all__ = [
 ]
 
 try:
-    import psutil as test_import  # @UnresolvedImport @UnusedImport
+    import psutil
 except ImportError:
     from compmake import logger
+
     logger.warning('Package "psutil" not found; load balancing '
                    'and system stats (CPU, MEM) not available.')
 
 
 class AvgSystemStats(object):
-    ''' Collects average statistics about the system using psutil. '''
+    """ Collects average statistics about the system using psutil. """
 
     def __init__(self, interval, history_len):
-        '''
-        
+        """
+
         :param interval: Collect statistics according to this interval.
         :param history_len: Use this many to compute avg/max statistics.
-        '''
-        
+        """
+
         self.interval = interval
         self.history_len = history_len
         try:
@@ -30,17 +31,17 @@ class AvgSystemStats(object):
             self._available = False
         else:
             self._available = True
-            
+
             self.cpu = Collect('cpu', lambda: psutil.cpu_percent(interval=0),
                                interval, history_len)
-            
+
             try:
                 # new in 0.8
                 psutil.virtual_memory().percent
                 get_mem = lambda: psutil.virtual_memory().percent
             except:
                 get_mem = lambda: psutil.phymem_usage().percent
-            
+
             self.mem = Collect('mem', get_mem, interval, history_len)
             try:
                 # new in 0.8
@@ -50,7 +51,6 @@ class AvgSystemStats(object):
                 get_mem = lambda: psutil.virtmem_usage().percent
 
             self.swap_mem = Collect('swap', get_mem, interval, history_len)
-
 
     def avg_cpu_percent(self):
         self._check_available()
@@ -73,7 +73,7 @@ class AvgSystemStats(object):
         return self.swap_mem.get_cur()
 
     def available(self):
-        ''' returns false if psutil is not installed '''
+        """ returns false if psutil is not installed """
         return self._available
 
     def _check_available(self):
@@ -92,7 +92,7 @@ class Collect(object):
         self.values = []
 
     def get_cur(self):
-        ''' Returns the last value. '''
+        """ Returns the last value. """
         self.update_if_necessary()
         return self.values[-1]
 
@@ -117,7 +117,7 @@ class Collect(object):
 
         if len(self.values) > self.history_len:
             self.values.pop(0)
-        # print('%s: %s' % (self.name, self.values))
+            # print('%s: %s' % (self.name, self.values))
 
     def time_from_last(self):
         if self.last_time is None:

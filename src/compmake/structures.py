@@ -1,4 +1,3 @@
-from .exceptions import * # @UnusedWildImport
 from contracts import contract, describe_value
 
 '''
@@ -81,6 +80,7 @@ __all__ = [
     'execute_with_context'
 ]
 
+
 class Promise(object):
     def __init__(self, job_id):
         self.job_id = job_id
@@ -90,7 +90,6 @@ class Promise(object):
 
 
 class Job(object):
-
     @contract(defined_by='list(str)', children=set)
     def __init__(self, job_id, children, command_desc,
                  needs_context=False,
@@ -112,13 +111,14 @@ class Job(object):
 
         # str -> set(str), where the key is one
         # of the direct children 
-        self.dynamic_children = {} 
+        self.dynamic_children = {}
+
 
 def same_computation(jobargs1, jobargs2):
-    ''' Returns boolean, string tuple '''
+    """ Returns boolean, string tuple """
     cmd1, args1, kwargs1 = jobargs1
     cmd2, args2, kwargs2 = jobargs2
-    
+
     equal_command = cmd1 == cmd2
     equal_args = args1 == args2
     equal_kwargs = kwargs1 == kwargs2
@@ -137,7 +137,7 @@ def same_computation(jobargs1, jobargs2):
         warn = ' (or you did not implement proper __eq__)'
         if len(args1) != len(args2):
             reason += '* different number of arguments (%d -> %d)\n' % \
-                (len(args1), len(args2))
+                      (len(args1), len(args2))
         else:
             for i, ob in enumerate(args1):
                 if ob != args2[i]:
@@ -148,11 +148,11 @@ def same_computation(jobargs1, jobargs2):
         for key, value in kwargs1.items():
             if key not in kwargs2:
                 reason += '* kwarg "%s" not found\n' % key
-            elif  value != kwargs2[key]:
+            elif value != kwargs2[key]:
                 reason += '* argument "%s" changed %s \n' % (key, warn)
                 reason += '  - old: %s \n' % describe_value(value)
                 reason += '  - new: %s \n' % describe_value(kwargs2[key])
-        
+
         # TODO: different lengths
 
         return False, reason
@@ -179,7 +179,7 @@ class Cache(object):
         DONE: 'done'}
 
     def __init__(self, state):
-        assert(state in Cache.allowed_states)
+        assert (state in Cache.allowed_states)
         self.state = state
         # if DONE:
         self.timestamp = 0.0
@@ -187,19 +187,18 @@ class Cache(object):
         self.walltime_used = None
 
         # in case of failure
-        self.exception = None # a short string
-        self.backtrace = None # a long string
+        self.exception = None  # a short string
+        self.backtrace = None  # a long string
         # 
         self.captured_stdout = None
         self.captured_stderr = None
 
 
     def __repr__(self):
-        return ('Cache(%s;%s;cpu:%s;wall:%s)' % 
+        return ('Cache(%s;%s;cpu:%s;wall:%s)' %
                 (Cache.state2desc[self.state],
                  self.timestamp, self.cputime_used,
-                 self.walltime_used)) 
-
+                 self.walltime_used))
 
 
 class ProgressStage(object):
@@ -217,7 +216,7 @@ class ProgressStage(object):
     def was_finished(self):
         # allow off-by-one conventions
         if isinstance(self.iterations[1], int):
-            return  (self.iterations[0] >= self.iterations[1] - 1)
+            return (self.iterations[0] >= self.iterations[1] - 1)
         else:
             return self.iterations[0] >= self.iterations[1]
             

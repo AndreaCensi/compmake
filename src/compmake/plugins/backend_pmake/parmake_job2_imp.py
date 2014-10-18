@@ -1,9 +1,10 @@
 from Queue import Full
+
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
 from compmake.events.registrar import register_handler, remove_all_handlers
 from compmake.jobs.actions import make
-from compmake.structures import JobFailed, JobInterrupted
+from compmake.exceptions import JobFailed, JobInterrupted
 from compmake.utils import setproctitle
 from contracts import check_isinstance, contract
 
@@ -11,6 +12,7 @@ from contracts import check_isinstance, contract
 __all__ = [
     'parmake_job2',
 ]
+
 
 @contract(args='tuple(str, *,  str, bool)')
 def parmake_job2(args):
@@ -27,39 +29,40 @@ def parmake_job2(args):
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
+
     event_queue = PmakeManager.queues[event_queue_name]
-    
+
     db = context.get_compmake_db()
 
     setproctitle('compmake:%s' % job_id)
-    
+
     class G():
         nlostmessages = 0
-        
+
     try:
         # We register a handler for the events to be passed back 
         # to the main process
-        def handler(context, event):  # @UnusedVariable
+        def handler(context, event):
             try:
                 if not CompmakeConstants.disable_interproc_queue:
-                    event_queue.put(event, block=False)  
+                    event_queue.put(event, block=False)
             except Full:
                 G.nlostmessages += 1
                 # Do not write messages here, it might create a recursive
                 # problem.
                 # sys.stderr.write('job %s: Queue is full, message is lost.\n'
-                #                 % job_id)
-                
+                # % job_id)
+
         remove_all_handlers()
-        
+
         if show_output:
             register_handler("*", handler)
 
-        def proctitle(context, event):  # @UnusedVariable
+        def proctitle(context, event):
             stat = '[%s/%s %s] (compmake)' % (event.progress,
                                               event.goal, event.job_id)
             setproctitle(stat)
-            
+
         register_handler("job-progress", proctitle)
 
         publish(context, 'worker-status', job_id=job_id, status='started')
@@ -72,7 +75,7 @@ def parmake_job2(args):
             pass
 
         publish(context, 'worker-status', job_id=job_id, status='connected')
-        
+
         res = make(job_id, context=context)
 
         publish(context, 'worker-status', job_id=job_id, status='ended')
@@ -82,7 +85,8 @@ def parmake_job2(args):
                     user_object_deps=res['user_object_deps'])
 
     except KeyboardInterrupt:
-        assert False, 'KeyboardInterrupt should be captured by make() (inside Job.compute())'
+        assert False, 'KeyboardInterrupt should be captured by make() (' \
+                      'inside Job.compute())'
     except JobInterrupted:
         publish(context, 'worker-status', job_id=job_id, status='interrupted')
         raise

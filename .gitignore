@@ -22,3 +22,8 @@ default-compmake-storage
 .coverage
 coverage_information
 out-example_dynamic_explicitcontext
+docs/source/my_static/example1/out-using_compmake3/
+docs/source/my_static/example1/out-using_compmake2/
+docs/source/my_static/example1/out-using_compmake1/
+docs/out-example/
+docs/source/my_static/example1/gvgen/

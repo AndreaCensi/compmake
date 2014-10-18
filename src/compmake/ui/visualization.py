@@ -1,14 +1,16 @@
-from ..utils import get_screen_columns
-from compmake.utils import compmake_colored
 import sys
 
-__all__ = [ 
+from ..utils import get_screen_columns
+from compmake.utils import compmake_colored
+
+
+__all__ = [
     'compmake_colored',
     'warning',
     'error',
     'user_error',
     'info',
-    'debug'           
+    'debug'
 ]
 
 
@@ -30,6 +32,7 @@ def user_error(s):  # XXX: what's the difference with above?
 
 
 def info(s):
+    # write_message(s, lambda x: compmake_colored(x, 'green'))
     write_message(s, lambda x: compmake_colored(x, 'green'))
 
 
@@ -42,6 +45,7 @@ def write_message(s, formatting):
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState
+
     stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 

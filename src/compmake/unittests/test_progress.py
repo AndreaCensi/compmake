@@ -19,13 +19,13 @@ class TestProgress(unittest.TestCase):
         init_progress_tracking(self.stack_update)
 
     def test_bad(self):
-        ''' Many ways to call it in the wrong way. '''
+        """ Many ways to call it in the wrong way. """
         self.assertRaises((ValueError, ContractNotRespected),
                           progress, 'task', 1)
 
     @nottest # FIXME, known failure
     def test_hierarchy_flat(self):
-        ''' Testing basic case. '''
+        """ Testing basic case. """
         init_progress_tracking(lambda _: None)
         self.assert_stack_len(0)
         progress('A', (0, 2))

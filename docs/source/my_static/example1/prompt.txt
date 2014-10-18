@@ -1,5 +1,5 @@
 $ compmake out-example 
-compmake 3.2   ``Keep calm and carry on,,                                                                                               
-Welcome to the compmake console. (write 'help' for a list of commands)                                                                  
-27 jobs loaded.                                                                                                                         
+Compmake 3.3  (27 jobs loaded)   ``Keep calm and carry on,,                                                                                              
+                                                                                                                                                         @:                                                                                                                                                          @: (end of input detected)
+Thanks for using compmake. Problems? Suggestions? Praise? Go to http://compmake.org
 @:

@@ -1,9 +1,11 @@
 import sys
 
 if sys.version_info[0] >= 3:
-    from queue import Empty, Full  # @UnresolvedImport @UnusedImport
+    # noinspection PyUnresolvedReferences
+    from queue import Empty, Full
 else:
-    from Queue import Empty, Full  # @Reimport @UnusedImport
+    # noinspection PyUnresolvedReferences
+    from Queue import Empty, Full
 
  
 class Shared(object):

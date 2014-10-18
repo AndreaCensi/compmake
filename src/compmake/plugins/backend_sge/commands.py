@@ -1,18 +1,19 @@
 from compmake.ui.helpers import ACTIONS, ui_command
 from compmake.jobs.queries import top_targets
 from compmake.plugins.backend_sge.sge_manager import SGEManager
-from compmake.ui.commands import _raise_if_failed
+from compmake.ui.commands import raise_error_if_manager_failed
 from compmake.constants import DefaultsToConfig
 
 __all__ = [
     'sgemake',
 ]
 
+
 @ui_command(section=ACTIONS, dbchange=True)
-def sgemake(job_list, context, cq, 
-            n=DefaultsToConfig('max_parallel_jobs'), 
+def sgemake(job_list, context, cq,
+            n=DefaultsToConfig('max_parallel_jobs'),
             recurse=DefaultsToConfig('recurse')):
-    ''' Cluster equivalent of "make" using the Sun Grid Engine. '''
+    """ Cluster equivalent of "make" using the Sun Grid Engine. """
     job_list = [x for x in job_list]
 
     if not job_list:
@@ -23,4 +24,4 @@ def sgemake(job_list, context, cq,
                          num_processes=n)
     manager.add_targets(job_list)
     manager.process()
-    return _raise_if_failed(manager)
+    return raise_error_if_manager_failed(manager)

@@ -22,6 +22,8 @@ def compmake_execution_stats(context, promise, use_job_id=None):
     elif isinstance(promise, str):
         job_id = promise    
         promise = Promise(job_id)
+    else:
+        assert False
         
     p2 = context.comp(dummy, promise)
     if use_job_id is not None:
@@ -32,8 +34,10 @@ def compmake_execution_stats(context, promise, use_job_id=None):
         return context.comp_dynamic(count_resources, the_job=job_id,
                                     extra_dep=p2)
 
+
 def dummy(*args):
     pass
+
 
 def count_resources(context, the_job):
     db = context.get_compmake_db()
