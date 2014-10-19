@@ -119,8 +119,11 @@ def clean_other_jobs(context):
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
 
+    from compmake.ui import info
+    
+    todelete = set()
+    
     for job_id in all_jobs(force_db=True, db=db):
-#         print('Considering %s' % job_id)
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
             job = get_job(job_id, db=db)
@@ -128,36 +131,78 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
-            print('Job %r not defined in this session defined_by = %r.' % (job_id, job.defined_by))
+            info('Job %r not defined in this session defined_by = %r.' 
+                 % (job_id, job.defined_by))
+# 
+#             if not clean_all:
+#                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
+#                 text = ('Found spurious job %s; cleaning? '
+#                         '[y]es, [a]ll, [n]o, [N]one ' % job_id)
+#                 answer = ask_question(text, allowed=answers)
+# 
+#                 if answer == 'n':
+#                     continue
+# 
+#                 if answer == 'N':
+#                     break
+# 
+#                 if answer == 'a':
+#                     clean_all = True
+#             else:
+#                 pass
+#                 #logger.info('Cleaning job: %r (defined by %s)' % (job_id,
+#                 # job.defined_by))
 
-            if not clean_all:
-                # info('Job %s defined-by %s' % (job_id, job.defined_by))
-                text = ('Found spurious job %s; cleaning? '
-                        '[y]es, [a]ll, [n]o, [N]one ' % job_id)
-                answer = ask_question(text, allowed=answers)
+            
+            todelete.add(job_id)
+            
+    todelete = definition_closure2(context, todelete)
+     
+    for job_id in todelete:
+        info('Deleting job %r.' % job_id)    
+        clean_target(job_id, db=db)
+        delete_job(job_id, db=db)
+        if is_job_userobject_available(job_id, db=db):
+            delete_job_userobject(job_id, db=db)    
+        if job_args_exists(job_id, db=db):
+            delete_job_args(job_id, db=db)
+# 
+# def definition_closure(context, start):
+#     cq = CacheQueryDB(context.get_compmake_db())
+#     stack = set(start)
+#     result = set()
+#     while stack:
+#         a = stack.pop()
+#         result.add(a)
+#         for x in all_defined_by(job_id=a, cq=cq):
+#             if not x in result:
+#                 stack.add(x)
+#     return result
+# 
+# def all_defined_by(job_id, cq):
+#     res = set()
+#     for g in cq.all_jobs():
+#         if cq.get_job(g).defined_by[-1] == job_id:
+#             res.add(g)
+#     return res
 
-                if answer == 'n':
-                    continue
 
-                if answer == 'N':
-                    break
+def definition_closure2(context, start):
+    cq = CacheQueryDB(context.get_compmake_db())
 
-                if answer == 'a':
-                    clean_all = True
-            else:
-                pass
-                #logger.info('Cleaning job: %r (defined by %s)' % (job_id,
-                # job.defined_by))
-
-            print('deleting job %r' % job_id)
-            clean_target(job_id, db=db)
-            delete_job(job_id, db=db)
-            if is_job_userobject_available(job_id, db=db):
-                delete_job_userobject(job_id, db=db)
-
-            if job_args_exists(job_id, db=db):
-                delete_job_args(job_id, db=db)
-
+    result = set(start)
+    while True:
+        new = set()
+        for g in cq.all_jobs():
+            defined_by = cq.get_job(g).defined_by[-1] 
+            if defined_by in result:
+                if not g in result:
+                    new.add(g)        
+        if not new:
+            break
+        result.update(new)
+        
+    return result
 
 class WarningStorage():
     warned = set()

@@ -56,7 +56,8 @@ class CompmakeTest(unittest.TestCase):
         """ Executes the (list of) commands and checks it was succesful. """
         try:
             print('@ %s' % cmds)
-            self.cc.interpret_commands_wrap(cmds)
+            
+            self.cc.batch_command(cmds)
 
         except MakeFailed as e:
             print('Detected MakeFailed')
@@ -74,7 +75,7 @@ class CompmakeTest(unittest.TestCase):
         """ Executes the (list of) commands and checks it was succesful. """
 
         try:
-            self.cc.interpret_commands_wrap(cmds)
+            self.cc.batch_command(cmds)
         except CommandFailed:
             pass
         else:

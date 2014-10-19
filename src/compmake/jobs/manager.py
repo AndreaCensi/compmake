@@ -1,28 +1,23 @@
-from multiprocessing import TimeoutError
-import traceback
-from abc import ABCMeta, abstractmethod
-import os
-import itertools
-import time
-
 from ..events import publish
-from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
-                    get_job_cache, job_cache_exists, job_exists,
-                    job_userobject_exists)
+from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
+from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
+    get_job_cache, job_cache_exists, job_exists, job_userobject_exists)
 from ..jobs.actions_newprocess import result_dict_check
-from ..exceptions import (CompmakeBug, HostFailed, JobFailed,
-                          JobInterrupted)
-from ..structures import (Cache)
+from ..structures import Cache
 from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents, parents
 from .uptodate import CacheQueryDB
+from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
-from compmake.jobs.storage import db_job_add_dynamic_children, \
-    db_job_add_parent
+from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from contracts import ContractsMeta, check_isinstance, contract, indent
-
+from multiprocessing import TimeoutError
+import itertools
+import os
+import time
+import traceback 
 
 __all__ = [
     'Manager',

@@ -35,9 +35,8 @@ def list_job_detail(job_id, context, cq, max_lines):
     dparents = direct_parents(job_id, db=db)
     all_parents = parents(job_id, db=db)
     other_parents = set(all_parents) - set(dparents)
-    dchildren = direct_children(job_id, db=db)
-    all_children = children(job_id, db=db)
-    other_children = set(all_children) - set(dchildren)
+    
+    
     # TODO: use quicker up to date
     up, reason, _ = cq.up_to_date(job_id)
 
@@ -57,9 +56,13 @@ def list_job_detail(job_id, context, cq, max_lines):
     command, args, kwargs = job_args  # @UnusedVariable
     print(bold('command:') + '%s' % command)
 
+    dchildren = direct_children(job_id, db=db)
     print(
         bold('Dependencies: (direct)') + ' (%d) ' % len(
             dchildren) + format_list(dchildren))
+    
+    all_children = children(job_id, db=db)
+    other_children = set(all_children) - set(dchildren)
     print(bold('Dependencies: (other)') + ' (%d) ' % len(
         other_children) + format_list(other_children))
     print(bold('Depending on this (direct):') + format_list(dparents))
