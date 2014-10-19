@@ -5,4 +5,3 @@ setproctitle
 PyYaml
 psutil
 decorator
-contextlib
