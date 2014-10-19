@@ -59,6 +59,7 @@ setup(
         'PyYaml',
         'psutil',
         'decorator',
+        'contextlib',
         'SystemCmd',
         #'pyreadline',
     ],

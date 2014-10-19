@@ -3,6 +3,9 @@ import warnings
 
 from ..jobs import all_jobs, get_job
 from contracts import contract
+from contextlib import contextmanager
+from contracts.utils import raise_wrapped
+from compmake.exceptions import CompmakeBug
 
 
 __all__ = [
@@ -15,30 +18,39 @@ __all__ = [
     'tree',
 ]
 
+@contextmanager
+def trace_bugs(msg):
+    try:
+        yield
+    except CompmakeBug as e:
+        raise_wrapped(CompmakeBug, e, msg) 
 
 def direct_parents(job_id, db):
     """ Returns the direct parents of the specified job.
-        (Jobs that depend directly on this one) """
+        (Jobs that depend directly on this one) """        
     assert isinstance(job_id, str)
-    computation = get_job(job_id, db=db)
-    return computation.parents
+    with trace_bugs('direct_parents(%r)' % job_id):
+        computation = get_job(job_id, db=db)
+        return computation.parents
 
 
 def direct_children(job_id, db):
     """ Returns the direct children (dependencies) of the specified job """
     assert isinstance(job_id, str)
-    computation = get_job(job_id, db=db)
-    return computation.children
+    with trace_bugs('direct_children(%r)' % job_id):
+        computation = get_job(job_id, db=db)
+        return computation.children
 
 
 def children(job_id, db):
     """ Returns children, children of children, etc. """
     assert isinstance(job_id, str)
-    t = set()
-    for c in direct_children(job_id, db=db):
-        t.add(c)
-        t.update(children(c, db=db))
-    return t
+    with trace_bugs('children(%r)' % job_id):
+        t = set()
+        for c in direct_children(job_id, db=db):
+            t.add(c)
+            t.update(children(c, db=db))
+        return t
 
 
 def top_targets(db):
@@ -68,10 +80,12 @@ def tree(jobs, db):
 def parents(job_id, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """
-    assert (isinstance(job_id, str))
-    t = set()
-    parents_jobs = direct_parents(job_id, db=db)
-    for p in parents_jobs:
-        t.add(p)
-        t.update(parents(p, db=db))
-    return t
+    assert isinstance(job_id, str)
+    
+    with trace_bugs('parents(%r)' % job_id):
+        t = set()
+        parents_jobs = direct_parents(job_id, db=db)
+        for p in parents_jobs:
+            t.add(p)
+            t.update(parents(p, db=db))
+        return t
