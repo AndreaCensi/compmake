@@ -44,8 +44,11 @@ def register_handler(event_name, handler):
     """
 
     spec = inspect.getargspec(handler)
-    args = spec.args
-    if not 'context' in args and 'event' in args:
+    args = set(spec.args)
+    possible_args = set(['event', 'context', 'self'])
+    # to be valid 
+    if not (args.issubset(possible_args)):
+#     if not 'context' in args and 'event' in args:
         msg = (('Function is not valid event handler:\n function = %s\n args '
                 '= %s') % (handler, spec))
         raise ValueError(msg)
@@ -90,8 +93,14 @@ def broadcast_event(context, event):
     handlers = all_handlers.get(event.name, [])
     if handlers:
         for handler in handlers:
+            spec = inspect.getargspec(handler)
             try:
-                handler(context=context, event=event)
+                kwargs = {}
+                if 'event' in spec.args:
+                    kwargs['event'] = event
+                if 'context' in spec.args:
+                    kwargs['context'] = context
+                handler(**kwargs)
                 # TODO: do not catch interrupted, etc.
             except Exception as e:
                 try:

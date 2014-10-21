@@ -26,7 +26,7 @@ __all__ = [
 
 # noinspection PyUnusedLocal
 @ui_command(alias=['exit'])
-def quit(context):
+def quit(context):  # @ReservedAssignment
     """ Exits Compmake's console. """
     raise ShellExitRequested()
 

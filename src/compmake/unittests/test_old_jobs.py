@@ -2,7 +2,6 @@ from compmake import Context, StorageFilesystem
 from compmake.jobs.storage import all_jobs
 from compmake.state import set_compmake_config
 from compmake.ui.visualization import info
-from compmake.unittests.expected_fail import expected_failure
 from nose.tools import istest
 from tempfile import mkdtemp
 import unittest

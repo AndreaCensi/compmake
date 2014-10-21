@@ -13,7 +13,6 @@ Command = namedtuple('Command', 'function name doc alias section dbchange')
 # Storage for the sections
 Section = namedtuple('Section', 'name desc order commands experimental')
 
-
 # noinspection PyClassHasNoInit
 class UIState():
     # name (string) -> tuple (function, name, docs, alias, section)
@@ -119,7 +118,7 @@ def get_commands():
 
 # noinspection PyShadowingBuiltins
 @ui_command(section=GENERAL)
-def help(args):
+def help(args):  # @ReservedAssignment
     """
         Prints help about the other commands. (try 'help help')
 
@@ -151,7 +150,7 @@ def help(args):
         print(doc)
 
 
-def list_commands_with_sections(file=sys.stdout):
+def list_commands_with_sections(file=sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(),
                               key=lambda _section: _section.order)
 

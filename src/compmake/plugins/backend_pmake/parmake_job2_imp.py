@@ -43,7 +43,7 @@ def parmake_job2(args):
     try:
         # We register a handler for the events to be passed back 
         # to the main process
-        def handler(context, event):
+        def handler( event):
             try:
                 if not CompmakeConstants.disable_interproc_queue:
                     event_queue.put(event, block=False)
@@ -59,7 +59,7 @@ def parmake_job2(args):
         if show_output:
             register_handler("*", handler)
 
-        def proctitle(context, event):
+        def proctitle(event):
             stat = '[%s/%s %s] (compmake)' % (event.progress,
                                               event.goal, event.job_id)
             setproctitle(stat)

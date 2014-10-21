@@ -1,10 +1,9 @@
-from compmake.context import Context
+from .compmake_test import CompmakeTest
+from compmake import Context
+from compmake.jobs import direct_children, get_job, jobs_defined
 from compmake.storage.filesystem import StorageFilesystem
-from compmake.unittests.compmake_test import CompmakeTest
-from nose.tools import istest
-from compmake.jobs.queries import jobs_defined, direct_children
-from compmake.jobs.storage import get_job
 from compmake.ui.ui import clean_other_jobs
+from nose.tools import istest
 
 def g2(): 
     return 'g2'

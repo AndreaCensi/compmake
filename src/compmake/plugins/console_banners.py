@@ -16,7 +16,7 @@ banners = [
 ]
 
 
-def console_starting(event, context):
+def console_starting(context):
     db = context.get_compmake_db()
 
     # starting console

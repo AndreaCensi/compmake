@@ -1,11 +1,10 @@
+from ..exceptions import CompmakeBug
 from ..structures import Cache, Job
 from ..utils import memoized_reset
-from contracts import contract
-from ..exceptions import CompmakeBug
-from compmake.jobs.dependencies import collect_dependencies
-from compmake.jobs.storage import get_job_userobject
-from contracts import check_isinstance
-from compmake.jobs.queries import jobs_defined
+from .dependencies import collect_dependencies
+from .queries import jobs_defined
+from .storage import get_job_userobject
+from contracts import check_isinstance, contract
 
 
 __all__ = [
@@ -53,6 +52,7 @@ def direct_uptodate_deps(job_id, db):
         dependencies.add(last)
     return dependencies
 
+
 @contract(returns='set(str)')
 def direct_uptodate_deps_inverse(job_id, db):
     """ Returns all jobs that have this as 
@@ -66,6 +66,7 @@ def direct_uptodate_deps_inverse(job_id, db):
     dep_inv = direct_parents(job_id, db)
     dep_inv.update(jobs_defined(job_id, db))
     return dep_inv 
+
 
 @contract(returns='set(str)', job_id='str')
 def direct_uptodate_deps_inverse_closure(job_id, db):
