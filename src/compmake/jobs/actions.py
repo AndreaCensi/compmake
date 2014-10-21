@@ -18,7 +18,7 @@ from compmake.jobs.queries import direct_parents
 
 
 def clean_targets(job_list, db):
-    print('clean_targets (%r)' % job_list)
+#     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
     
     # now we need to delete the definition closure
@@ -33,11 +33,11 @@ def clean_targets(job_list, db):
     for job_id in job_list:
         other_clean.update(parents(job_id, db))
     other_clean = other_clean - closure
-    
-    print('deleting: %r' % closure)
-    print('only cleaning: %r' % basic)
-    print('other cleaning: %r' % other_clean)
-        
+#     
+#     print('deleting: %r' % closure)
+#     print('only cleaning: %r' % basic)
+#     print('other cleaning: %r' % other_clean)
+#         
     for job_id in closure | basic | other_clean:
         clean_cache_relations(job_id, db)
         
