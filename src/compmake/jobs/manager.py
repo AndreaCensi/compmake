@@ -404,7 +404,7 @@ class Manager(ManagerLog):
 
         new_jobs = result['new_jobs']
         deleted_jobs = result['deleted_jobs']
-        print('deleted jobs: %r' % deleted_jobs)
+        #print('deleted jobs: %r' % deleted_jobs)
         map(self.job_is_deleted, deleted_jobs)
         # print('Job %r generated %r' % (job_id, new_jobs))
 

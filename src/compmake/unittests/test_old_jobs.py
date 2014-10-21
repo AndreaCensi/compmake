@@ -101,7 +101,7 @@ def e2(context):
 class TestCleaning3(Utils):
     """ Now with multi level """
     
-    @expected_failure
+#     @expected_failure
     def test_cleaning3(self):
         set_compmake_config('check_params', True)
         root = mkdtemp()
@@ -118,7 +118,7 @@ class TestCleaning3(Utils):
         cc = Context(db=db)
         # 
         cc.comp_dynamic(e1, job_id='e')
-        cc.batch_command('make recurse=1; details e f')
+        cc.batch_command('make recurse=1; ls')
         
     def run_second(self, root):
         print('run_second()')

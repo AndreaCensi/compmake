@@ -161,7 +161,7 @@ def delete_jobs_recurse_definition(jobs, db):
         Returns the set of jobs deleted. """
     from compmake.jobs.queries import definition_closure
     closure = definition_closure(jobs, db)
-    print('jobs %s closure %s' % (jobs, closure))
+    #print('jobs %s closure %s' % (jobs, closure))
     all_jobs = jobs | closure
     for job_id in all_jobs:
         clean_cache_relations(job_id, db)
@@ -441,8 +441,10 @@ def comp_(context, command_, *args, **kwargs):
 
         if not same:
             print('different job, cleaning cache:\n%s  ' % reason)
-            if job_cache_exists(job_id, db):
-                delete_job_cache(job_id, db)
+            from compmake.jobs.actions import clean_targets
+            clean_targets([job_id], db)
+#             if job_cache_exists(job_id, db):
+#                 delete_job_cache(job_id, db)
             publish(context, 'job-redefined', job_id=job_id, reason=reason)
         else:
             print('ok, same job')

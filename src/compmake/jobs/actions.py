@@ -62,7 +62,7 @@ def clean_targets(job_list, db):
     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
     
 def clean_cache_relations(job_id, db):
-    print('cleaning cache relations for %r ' % job_id)
+    #print('cleaning cache relations for %r ' % job_id)
 
     # for all jobs that were done
     cache = get_job_cache(job_id, db)
@@ -70,18 +70,18 @@ def clean_cache_relations(job_id, db):
         for parent in direct_parents(job_id, db):
             
             parent_job = get_job(parent, db)
-            print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
+            #print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
             if not job_id in parent_job.dynamic_children:
-                print('    skipping parent %r ' % parent)
+                #print('    skipping parent %r ' % parent)
                 continue 
             else:
                 dynamic_children = parent_job.dynamic_children[job_id]
-                print('    dynamic_children %s' % parent_job.dynamic_children)
-                print('    children %s' % parent_job.children)
+                #print('    dynamic_children %s' % parent_job.dynamic_children)
+                #print('    children %s' % parent_job.children)
                 del parent_job.dynamic_children[job_id]
                 parent_job.children = parent_job.children - dynamic_children
                 set_job(parent, parent_job, db) 
-                print('     changed in %s' % parent_job.children)
+                #print('     changed in %s' % parent_job.children)
         
     
 
@@ -152,9 +152,9 @@ def make(job_id, context, echo=False):
     
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
-        print('%s had previously defined %s' % (job_id, prev_defined_jobs))
+        #print('%s had previously defined %s' % (job_id, prev_defined_jobs))
     else:
-        print('%s was not DONE' % job_id)
+        #print('%s was not DONE' % job_id)
         prev_defined_jobs = None
         
     cache.state = Cache.IN_PROGRESS
@@ -217,7 +217,7 @@ def make(job_id, context, echo=False):
         set_job_cache(job_id, cache, db=db)
         logging.StreamHandler.emit = old_emit
 
-    print('Now %s has defined %s' % (job_id, new_jobs))
+    #print('Now %s has defined %s' % (job_id, new_jobs))
     if prev_defined_jobs is not None:
         # did we defined fewer jobs this time around?
         # then we need to delete them
@@ -230,7 +230,7 @@ def make(job_id, context, echo=False):
     else:
         deleted_jobs = set()
     
-    print('Now %s has deleted %s' % (job_id, deleted_jobs))
+    #print('Now %s has deleted %s' % (job_id, deleted_jobs))
     
     set_job_userobject(job_id, user_object, db=db)
     cache.state = Cache.DONE

@@ -22,7 +22,7 @@ def check_consistency(args, context, cq,
         job_list = parse_job_list(args, context=context)
 
     job_list = list(job_list)
-    print('Checking consistency of %d jobs.' % len(job_list))
+    #print('Checking consistency of %d jobs.' % len(job_list))
     errors = {}
     for job_id in job_list:
         try:
