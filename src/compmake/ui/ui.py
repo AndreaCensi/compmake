@@ -294,7 +294,7 @@ def comp_(context, command_, *args, **kwargs):
                 print(
                     ' others defined in session: %s' %
                     context.get_jobs_defined_in_this_session())
-                warnings.warn('I know something is more complicated here')
+#                 warnings.warn('I know something is more complicated here')
                 #             if old_job.defined_by is not None and
                 # old_job.defined_by == context.currently_executing:
                 #                 # exception, it's ok
