@@ -197,6 +197,7 @@ def delete_job_args(job_id, db):
 
 
 def delete_all_job_data(job_id, db):
+    print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
         delete_job(**args)
@@ -206,7 +207,6 @@ def delete_all_job_data(job_id, db):
         delete_job_userobject(**args)
     if job_cache_exists(**args):
         delete_job_cache(**args)
-
 
 # These are delicate and should be implemented differently
 def db_job_add_dynamic_children(job_id, children, returned_by, db):

@@ -84,27 +84,12 @@ def test_example_dynamic_explicitcontext1():
 def test_example_dynamic_explicitcontext2():
     run_example('example_dynamic_explicitcontext', cmd_make2)
     
-@expected_failure
-def test_example_dynamic_explicitcontext3():
-    run_example('example_dynamic_explicitcontext', cmd_make3)
-
-@expected_failure
-def test_example_dynamic_explicitcontext4():
-    run_example('example_dynamic_explicitcontext', cmd_make4)
-
 def test_example_progress1():
     run_example('example_progress', cmd_make1)
 
 def test_example_progress2():
     run_example('example_progress', cmd_make2)
 
-@expected_failure
-def test_example_progress3():
-    run_example('example_progress', cmd_make3)
-    
-@expected_failure
-def test_example_progress4():
-    run_example('example_progress', cmd_make4)
 
 def test_example_progress_same1():
     run_example('example_progress_same', cmd_make1)
@@ -126,14 +111,6 @@ def test_example_simple1():
 def test_example_simple2():
     run_example('example_simple', cmd_make2)
 
-@expected_failure
-def test_example_simple3():
-    run_example('example_simple', cmd_make3)
-    
-@expected_failure
-def test_example_simple4():
-    run_example('example_simple', cmd_make4)
-
 def example_external_support1():
     run_example('example_external_support', cmd_make1)
 
@@ -147,3 +124,30 @@ def example_external_support4():
     run_example('example_external_support', cmd_make4)
 
     
+if False:  
+        
+    # Fails for pickle reasons
+    @expected_failure
+    def test_example_dynamic_explicitcontext3():
+        run_example('example_dynamic_explicitcontext', cmd_make3)
+     
+    @expected_failure
+    def test_example_dynamic_explicitcontext4():
+        run_example('example_dynamic_explicitcontext', cmd_make4)
+    
+    @expected_failure
+    def test_example_progress3():
+        run_example('example_progress', cmd_make3)
+        
+    @expected_failure
+    def test_example_progress4():
+        run_example('example_progress', cmd_make4)
+        
+    @expected_failure
+    def test_example_simple3():
+        run_example('example_simple', cmd_make3)
+        
+    @expected_failure
+    def test_example_simple4():
+        run_example('example_simple', cmd_make4)
+        

@@ -58,7 +58,7 @@ setup(
         'setproctitle',
         'PyYaml',
         'psutil',
-        'decorator',
+        'decorator', 
         'SystemCmd',
         #'pyreadline',
     ],

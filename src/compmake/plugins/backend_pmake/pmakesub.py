@@ -13,7 +13,7 @@ from contracts import check_isinstance, indent
 
 if sys.version_info[0] >= 3:
     # noinspection PyUnresolvedReferences
-    from queue import Empty
+    from queue import Empty  # @UnresolvedImport
 else:
     # noinspection PyUnresolvedReferences
     from Queue import Empty

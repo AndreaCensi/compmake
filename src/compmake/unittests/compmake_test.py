@@ -24,6 +24,7 @@ class CompmakeTest(unittest.TestCase):
         self.cc = Context(db=self.db)
         # don't use '\r'
         set_compmake_config('interactive', False)
+        set_compmake_config('console_status', False)
         from compmake.constants import CompmakeConstants
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
@@ -56,7 +57,8 @@ class CompmakeTest(unittest.TestCase):
         """ Executes the (list of) commands and checks it was succesful. """
         try:
             print('@ %s' % cmds)
-            self.cc.interpret_commands_wrap(cmds)
+            
+            self.cc.batch_command(cmds)
 
         except MakeFailed as e:
             print('Detected MakeFailed')
@@ -72,9 +74,8 @@ class CompmakeTest(unittest.TestCase):
 
     def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
-
         try:
-            self.cc.interpret_commands_wrap(cmds)
+            self.cc.batch_command(cmds)
         except CommandFailed:
             pass
         else:
@@ -123,3 +124,16 @@ class CompmakeTest(unittest.TestCase):
                 raise Exception(msg)
         except Exception as e:
             raise Exception('unexpected: %s' % e)
+     
+    def assert_job_uptodate(self, job_id, status):
+        res = self.up_to_date(job_id)
+        self.assertEqual(res, status, 'Want %r uptodate? %s' % (job_id, status))
+    
+    @contract(returns=bool)
+    def up_to_date(self, job_id):
+        from compmake.jobs.uptodate import CacheQueryDB
+        cq = CacheQueryDB(db=self.db)
+        up, reason, timestamp = cq.up_to_date(job_id)
+        print('up_to_date(%r): %s, %r, %s' % 
+              (job_id, up, reason, timestamp))
+        return up

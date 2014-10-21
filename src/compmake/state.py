@@ -58,7 +58,6 @@ def is_interactive_session():
     return (get_compmake_status() ==
             CompmakeConstants.compmake_status_interactive)
 
-
 def get_compmake_status():
     return CompmakeGlobalState.compmake_status
 

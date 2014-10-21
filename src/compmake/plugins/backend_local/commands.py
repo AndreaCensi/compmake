@@ -3,7 +3,7 @@ from compmake.constants import DefaultsToConfig
 from compmake.jobs.queries import top_targets
 from compmake.ui import ACTIONS, ui_command
 from compmake.ui.commands import raise_error_if_manager_failed, ask_if_sure_remake
-from compmake.jobs.actions import mark_remake
+from compmake.jobs.actions import mark_to_remake
 
 
 __all__ = [
@@ -61,7 +61,7 @@ def remake(non_empty_job_list, context, cq,
 
     for job in non_empty_job_list:
         db = context.get_compmake_db()
-        mark_remake(job, db=db)
+        mark_to_remake(job, db=db)
 
     manager = ManagerLocal(context=context, cq=cq,
                            recurse=recurse, new_process=new_process,

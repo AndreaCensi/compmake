@@ -9,7 +9,12 @@ __all__ = [
 def result_dict_check(res):
     check_isinstance(res, dict)
     if 'new_jobs' in res:
-        assert 'user_object_deps' in res
+        msg = 'Invalid result dict: %r' % res
+        assert 'new_jobs' in res, msg
+        assert 'deleted_jobs' in res, msg
+        assert 'user_object_deps' in res, msg
+        
+        
     elif 'fail' in res:
         pass
     elif 'bug' in res:

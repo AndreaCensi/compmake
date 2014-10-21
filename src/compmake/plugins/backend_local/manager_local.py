@@ -3,6 +3,7 @@ from compmake.jobs import (AsyncResultInterface, Manager, make,
                            parmake_job2_new_process)
 from compmake.ui import warning
 from contracts import contract
+from compmake.jobs.result_dict import result_dict_check
 
 __all__ = [
     'ManagerLocal',
@@ -62,8 +63,8 @@ class FakeAsync(AsyncResultInterface):
             raise CompmakeBug(msg)
 
         res = self._execute()
-        return dict(new_jobs=res['new_jobs'],
-                    user_object_deps=res['user_object_deps'])
+        result_dict_check(res)
+        return res
 
     def _execute(self):
         if self.new_process:

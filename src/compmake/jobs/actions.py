@@ -8,31 +8,91 @@ from ..utils import OutputCapture, my_format_exc, setproctitle
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
-from .storage import (delete_job_cache, delete_job_userobject, get_job,
-                      get_job_cache, get_job_userobject,
-                      is_job_userobject_available,
+from .storage import (delete_job_cache, get_job,
+                      get_job_cache,
                       set_job_cache, set_job_userobject)
 from .uptodate import up_to_date
 from compmake import get_compmake_config, logger
+from compmake.jobs.storage import job_cache_exists, set_job
+from compmake.jobs.queries import direct_parents
 
 
-def clean_target(job_id, db):
-    # TODO: think of the difference between this and mark_remake
-    # Cleans associated objects
-    mark_remake(job_id, db=db)
-    # Removes also the Cache object 
-    delete_job_cache(job_id, db=db)
+def clean_targets(job_list, db):
+    print('clean_targets (%r)' % job_list)
+    job_list = set(job_list)
+    
+    # now we need to delete the definition closure
+    
+    from compmake.jobs.queries import definition_closure
+    closure = definition_closure(job_list, db)
+    
+    basic = job_list - closure
+    
+    from compmake.jobs.queries import parents
+    other_clean = set()
+    for job_id in job_list:
+        other_clean.update(parents(job_id, db))
+    other_clean = other_clean - closure
+    
+    print('deleting: %r' % closure)
+    print('only cleaning: %r' % basic)
+    print('other cleaning: %r' % other_clean)
+        
+    for job_id in closure | basic | other_clean:
+        clean_cache_relations(job_id, db)
+        
+    # delete all in closure
+    for job_id in closure:
+        from compmake.jobs.storage import delete_all_job_data
+        delete_all_job_data(job_id, db)
 
+    # just remove cache in basic
+    for job_id in basic:
+        # Cleans associated objects
+        if job_cache_exists(job_id, db):
+            delete_job_cache(job_id, db)
+    
+    # now we have to undo this one:
+    # jobs_depending_on_this = direct_parents(job_id, self.db)
+    # deps = result['user_object_deps']
+    # for parent in jobs_depending_on_this:
+    #     db_job_add_dynamic_children(job_id=parent, children=deps,
+    #                                 returned_by=job_id, db=self.db)
+    #     for d in deps:
+    #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
+    
+def clean_cache_relations(job_id, db):
+    #print('cleaning cache relations for %r ' % job_id)
 
-def mark_remake(job_id, db):
+    # for all jobs that were done
+    cache = get_job_cache(job_id, db)
+    if cache.state == Cache.DONE:
+        for parent in direct_parents(job_id, db):
+            
+            parent_job = get_job(parent, db)
+            #print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
+            if not job_id in parent_job.dynamic_children:
+                #print('    skipping parent %r ' % parent)
+                continue 
+            else:
+                dynamic_children = parent_job.dynamic_children[job_id]
+                #print('    dynamic_children %s' % parent_job.dynamic_children)
+                #print('    children %s' % parent_job.children)
+                del parent_job.dynamic_children[job_id]
+                parent_job.children = parent_job.children - dynamic_children
+                set_job(parent, parent_job, db) 
+                #print('     changed in %s' % parent_job.children)
+        
+    
+
+def mark_to_remake(job_id, db):
     """ Delets and invalidates the cache for this object """
     # TODO: think of the difference between this and clean_target
-    cache = Cache(Cache.NOT_STARTED)
+    cache = get_job_cache(job_id, db)
+    if cache.state == Cache.DONE:
+        cache.timestamp = Cache.TIMESTAMP_TO_REMAKE
     set_job_cache(job_id, cache, db=db)
-
-    if is_job_userobject_available(job_id, db=db):
-        delete_job_userobject(job_id, db=db)
-
+ 
 
 def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
     cache = Cache(Cache.BLOCKED)
@@ -60,6 +120,7 @@ def make(job_id, context, echo=False):
              "user_object"
              "user_object_deps" = set of Promises
              "new_jobs" -> new jobs defined 
+             "deleted_jobs" -> jobs that were defined but not anymore
         
         Raises JobFailed
         or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
@@ -79,19 +140,27 @@ def make(job_id, context, echo=False):
         msg += 'This can only happen if another compmake process uses the ' \
                'same DB.'
         logger.error(msg)
-        user_object = get_job_userobject(job_id, db=db)
-        # XXX: this is not right anyway
-
-        return dict(user_object=user_object,
-                    user_object_deps=collect_dependencies(user_object),
-                    new_jobs=[])
+#         user_object = get_job_userobject(job_id, db=db)
+#         # XXX: this is not right anyway
+#         return dict(user_object=user_object,
+#                     user_object_deps=collect_dependencies(user_object),
+#                     deleted_jobs=[],
+#                     new_jobs=[])
 
     job = get_job(job_id, db=db)
     cache = get_job_cache(job_id, db=db)
+    
+    if cache.state == Cache.DONE:
+        prev_defined_jobs = set(cache.jobs_defined)
+        #print('%s had previously defined %s' % (job_id, prev_defined_jobs))
+    else:
+        #print('%s was not DONE' % job_id)
+        prev_defined_jobs = None
+        
     cache.state = Cache.IN_PROGRESS
     set_job_cache(job_id, cache, db=db)
     # TODO: delete previous user object
-
+    
     # update state
     time_start = time()
     cpu_start = clock()
@@ -127,11 +196,11 @@ def make(job_id, context, echo=False):
 
     try:
         result = job_compute(job=job, context=context)
+        assert isinstance(result, dict) and len(result) == 2
         user_object = result['user_object']
         new_jobs = result['new_jobs']
 
     except KeyboardInterrupt:
-        #bt = my_format_exc(e)
         raise JobInterrupted('Keyboard interrupt')
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError,
@@ -148,6 +217,21 @@ def make(job_id, context, echo=False):
         set_job_cache(job_id, cache, db=db)
         logging.StreamHandler.emit = old_emit
 
+    #print('Now %s has defined %s' % (job_id, new_jobs))
+    if prev_defined_jobs is not None:
+        # did we defined fewer jobs this time around?
+        # then we need to delete them
+        todelete = set()
+        for x in prev_defined_jobs:
+            if not x in new_jobs:
+                todelete.add(x)
+        from compmake.ui.ui import delete_jobs_recurse_definition
+        deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
+    else:
+        deleted_jobs = set()
+    
+    #print('Now %s has deleted %s' % (job_id, deleted_jobs))
+    
     set_job_userobject(job_id, user_object, db=db)
     cache.state = Cache.DONE
     cache.timestamp = time()
@@ -156,8 +240,16 @@ def make(job_id, context, echo=False):
     cache.walltime_used = walltime
     cache.cputime_used = cputime
     cache.host = host
+    cache.jobs_defined = new_jobs
     set_job_cache(job_id, cache, db=db)
 
     return dict(user_object=user_object,
                 user_object_deps=collect_dependencies(user_object),
-                new_jobs=new_jobs)
+                new_jobs=new_jobs,
+                deleted_jobs=deleted_jobs)
+
+
+
+
+
+

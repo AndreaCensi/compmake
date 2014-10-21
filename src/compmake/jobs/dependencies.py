@@ -31,15 +31,17 @@ def substitute_dependencies(a, db):
     # XXX: this is a workaround
     if type(a).__name__ in ['ObjectSpec']:
         return deepcopy(a)
+    
     if isinstance(a, dict):
         ca = type(a)
         rest = [(k, substitute_dependencies(v, db=db)) for k, v in a.items()]
         try:
-            return ca(rest)
+            res = ca(rest)
+            #print('%s->%s' % (a, str(res)))
+            return res
         except (BaseException, TypeError) as e:
-            raise_wrapped(Exception, e,
-                          'Could not instance something looking like a list',
-                          ca=ca)
+            msg = 'Could not instance something looking like a dict.',
+            raise_wrapped(Exception, e, msg, ca=ca)
 
     elif isinstance(a, list):
         # XXX: This fails for subclasses of list

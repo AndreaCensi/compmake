@@ -6,13 +6,13 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 """
 from .. import CompmakeConstants, get_compmake_status
-from ..jobs import all_jobs, clean_target
 from ..exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
+from ..jobs import all_jobs
 from ..utils import safe_pickle_dump
 from .console import ask_question
-from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, \
-    ui_section
+from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .visualization import error, info
+from compmake.jobs.actions import clean_targets
 
 ui_section(GENERAL)
 
@@ -60,6 +60,8 @@ def clean(job_list, context):
     """
         Cleans the result of the selected computation (or everything if
         nothing specified).
+        
+        If cleaning a dynamic job, it *deletes* all jobs it created.
 
     """
     db = context.get_compmake_db()
@@ -81,8 +83,9 @@ def clean(job_list, context):
             info('Not cleaned.')
             return
 
-    for job_id in job_list:
-        clean_target(job_id, db=db)
+    clean_targets(job_list, db=db)
+
+        
 
 
 # TODO: add hidden

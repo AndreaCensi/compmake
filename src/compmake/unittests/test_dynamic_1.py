@@ -1,5 +1,4 @@
 from .compmake_test import CompmakeTest
-from compmake.unittests.expected_fail import expected_failure
 from nose.tools import istest
 
 
@@ -33,7 +32,6 @@ class TestDynamic1(CompmakeTest):
 
     howmany = None  # used by cases()
 
-    @expected_failure # we don't clean previously defined jobs
     def test_dynamic1_cleaning(self):
         mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs
@@ -61,10 +59,9 @@ class TestDynamic1(CompmakeTest):
 
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
-        
-        
+                
         self.assert_cmd_success('clean values; make generate')
-        self.assert_cmd_success('ls')
+        self.assert_cmd_success('ls reason=1')
 
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'finish'])
         # some are done

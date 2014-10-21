@@ -15,7 +15,7 @@ from compmake.constants import CompmakeConstants
 
 
 @ui_command(section=VISUALIZATION, alias='list')
-def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
+def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified
     specified).
@@ -23,6 +23,7 @@ def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
         Options:
 
             ls complete_names=1   # do not abbreviate names
+            ls reason=1  # show why jobs are not uptodate
     """
 
     if not args:
@@ -32,7 +33,8 @@ def ls(args, context, cq, complete_names=False):  # @ReservedAssignment
 
     job_list = list(job_list)
     CompmakeConstants.aliases['last'] = job_list
-    list_jobs(context, job_list, cq=cq, complete_names=complete_names)
+    list_jobs(context, job_list, cq=cq, complete_names=complete_names,
+              reason=reason)
     return 0
 
 
@@ -51,7 +53,8 @@ state2color = {
 }
 
 
-def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
+def list_jobs(context, job_list, cq, complete_names=False,
+              reason=False):  # @UnusedVariable
 
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
@@ -84,33 +87,26 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         cache = cq.get_job_cache(job_id)
 
         # TODO: only ask up_to_date if necessary
-        up, reason, _ = cq.up_to_date(job_id)
+        up, up_reason, up_ts = cq.up_to_date(job_id)
 
         job = cq.get_job(job_id)
 
-        Mmin = 4
-        M = 40
-        if jlen < M:
-            indent = M - jlen
-        else:
-            indent = Mmin
-        s = " " * indent
-
         is_root = is_root_job(job)
         if not is_root:
-            s += '%d ' % (len(job.defined_by) - 1)
-
-            tf.cell('%d' % (len(job.defined_by) - 1))
+            msg = (job_id, job, job.defined_by)
+            assert len(job.defined_by) >= 1, msg
+            assert job.defined_by[0] == 'root', msg
+            
+            level = len(job.defined_by) - 1
+            assert level>=1
+            tf.cell('%d' % level)
         else:
             tf.cell('')
-            s += '  '
-
+            
         if job.needs_context:
-            s += 'd '
             tf.cell('d')
         else:
             tf.cell('')
-            s += '  '
 
         job_name_formatted = format_job_id(job_id).ljust(jlen)
 
@@ -121,7 +117,6 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
                                                   'white',
                                                   attrs=['dark'])
 
-        s += job_name_formatted + '  '
 
         tf.cell(format_job_id(job_id))
 
@@ -134,13 +129,15 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
         if not up and cache.state in [Cache.DONE, Cache.FAILED]:
             tag_s += '*'
         tf.cell(tag_s)
-        s += pad_to_screen_length(tag_s, 7)
+        
+        if reason:
+            tf.cell(up_reason)
+            tf.cell(duration_compact(time() - up_ts))
 
         db = context.get_compmake_db()
         sizes = get_sizes(job_id, db=db)
         size_s = format_size(sizes['total'])
         tf.cell(size_s)
-        s += '%10s ' % size_s
 
         if cache.state in [Cache.DONE]:
             wall_total.append(cache.walltime_used)
@@ -152,7 +149,6 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             else:
                 s_cpu = ''
             tf.cell(s_cpu)
-            s += ' ' + s_cpu.rjust(10) + ' '
         else:
             tf.cell('')  # cpu
 
@@ -160,31 +156,9 @@ def list_jobs(context, job_list, cq, complete_names=False):  # @UnusedVariable
             when = duration_compact(time() - cache.timestamp)
             when_s = "(%s ago)" % when
             tf.cell(when_s)
-            s += " " + when_s
         else:
             tf.cell('')  # when
-
-            # if cache.state in [Cache.DONE]:
-            # # up_s = "(needs update: %s)" % reason
-            # # up_s = "(needs update)"
-            #     up_s = ''
-            # else:
-            #     up_s = ""
-            #
-            # tf.cell(up_s)
-            # s += " " + up_s
-            # pass
-            #
-            # if cache.state == Cache.FAILED:
-            #     age = time() - cache.timestamp
-            #     when = duration_compact(age)
-            #     age_s = "(%s ago)" % when
-            #
-            #     tf.cell(age_s)
-            #     s += " " + age_s.rjust(10)
-            # else:
-            #     tf.cell('')
-        #print(s)
+ 
 
     tf.done()
 

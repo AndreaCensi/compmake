@@ -1,28 +1,23 @@
-from multiprocessing import TimeoutError
-import traceback
-from abc import ABCMeta, abstractmethod
-import os
-import itertools
-import time
-
 from ..events import publish
-from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job,
-                    get_job_cache, job_cache_exists, job_exists,
-                    job_userobject_exists)
+from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
+from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
+    get_job_cache, job_cache_exists, job_exists, job_userobject_exists)
 from ..jobs.actions_newprocess import result_dict_check
-from ..exceptions import (CompmakeBug, HostFailed, JobFailed,
-                          JobInterrupted)
-from ..structures import (Cache)
+from ..structures import Cache
 from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
 from .priority import compute_priorities
-from .queries import direct_children, direct_parents, parents
+from .queries import direct_children, direct_parents
 from .uptodate import CacheQueryDB
+from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
-from compmake.jobs.storage import db_job_add_dynamic_children, \
-    db_job_add_parent
+from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from contracts import ContractsMeta, check_isinstance, contract, indent
-
+from multiprocessing import TimeoutError
+import itertools
+import os
+import time
+import traceback 
 
 __all__ = [
     'Manager',
@@ -85,6 +80,10 @@ class Manager(ManagerLog):
 
         # top-level targets + all their dependencies
         self.all_targets = set()
+        # some jobs might be deleted, they go here
+        self.deleted = set()
+        
+        # all_targets - targets_delted = sum of rest:
 
         # a job is in exactly one of these states
         self.todo = set()
@@ -204,8 +203,7 @@ class Manager(ManagerLog):
 
         # XXX: we should clean the Cache of a job before making it
         self.done.update(targets_done - self.processing)
-
-        
+ 
         todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
         self.log('add_targets():adding to todo', todo_add=todo_add, todo=self.todo)
@@ -384,14 +382,30 @@ class Manager(ManagerLog):
             #             for child in children(new_job, db=self.db):
             #                 add_parent(child, new_job, db=self.db)
 
+
+    def job_is_deleted(self, job_id):
+        if job_exists(job_id, self.db):
+            msg = 'Job %r declared deleted still exists' % job_id
+            raise CompmakeBug(msg)
+        if job_id in self.all_targets:
+            if job_id in self.todo:
+                self.todo.remove(job_id)
+            if job_id in self.ready_todo:
+                self.ready_todo.remove(job_id)
+            self.deleted.add(job_id)
+                
     def check_job_finished_handle_result(self, job_id, result):
         # print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
                  new_jobs=result['new_jobs'],
-                 user_object_deps=result['user_object_deps'])
+                 user_object_deps=result['user_object_deps'],
+                 deleted_jobs=result['deleted_jobs'])
 
         new_jobs = result['new_jobs']
+        deleted_jobs = result['deleted_jobs']
+        #print('deleted jobs: %r' % deleted_jobs)
+        map(self.job_is_deleted, deleted_jobs)
         # print('Job %r generated %r' % (job_id, new_jobs))
 
         # Update the child->parent relation        
@@ -504,7 +518,10 @@ class Manager(ManagerLog):
         publish(self.context, 'manager-job-failed', job_id=job_id)
 
         # TODO: more efficient query
-        parent_jobs = set(parents(job_id, db=self.db))
+        #parent_jobs = set(parents(job_id, db=self.db))
+        from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
+        parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)
+
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
             mark_as_blocked(p, job_id, db=self.db)
@@ -526,7 +543,9 @@ class Manager(ManagerLog):
         del self.processing2result[job_id]
         self.done.add(job_id)
 
-        parent_jobs = set(direct_parents(job_id, db=self.db))
+        # parent_jobs = set(direct_parents(job_id, db=self.db))
+        from compmake.jobs.uptodate import direct_uptodate_deps_inverse
+        parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
         cq = CacheQueryDB(self.db)
 
         parents_todo = set(self.todo & parent_jobs)
@@ -704,7 +723,8 @@ class Manager(ManagerLog):
                 blocked=self.blocked,
                 failed=self.failed,
                 ready=self.ready_todo,
-                processing=self.processing)
+                processing=self.processing,
+                deleted=self.deleted)
 
     def _get_situation_string(self):
         """ Returns a string summarizing the current situation """
@@ -714,6 +734,7 @@ class Manager(ManagerLog):
                      blocked=self.blocked,
                      failed=self.failed,
                      ready=self.ready_todo,
+                     deleted=self.deleted,
                      processing=self.processing)
         s = ""
         for t, jobs in lists.items():
@@ -724,8 +745,11 @@ class Manager(ManagerLog):
         s += '\n In more details:'
         for t, jobs in lists.items():
             jobs = lists[t]
-            if len(jobs) < 20:
-                s += '\n- %12s: %d %s' % (t, len(jobs), jobs)
+            if not jobs:
+                s += '\n- %12s: -' % (t)
+            elif len(jobs) < 20:
+                s += '\n- %12s: %d %s' % (t, len(jobs), sorted(jobs))
+                
         return s
 
     def check_invariants(self):
@@ -737,7 +761,8 @@ class Manager(ManagerLog):
                      blocked=self.blocked,
                      failed=self.failed,
                      ready_todo=self.ready_todo,
-                     processing=self.processing)
+                     processing=self.processing,
+                     deleted=self.deleted)
 
         def empty_intersection(a, b):
             inter = lists[a] & lists[b]
@@ -777,7 +802,7 @@ class Manager(ManagerLog):
                 empty_intersection(a, b)
 
         partition(['done', 'failed', 'blocked',
-                   'todo', 'ready_todo', 'processing'],
+                   'todo', 'ready_todo', 'processing', 'deleted'],
                   'all_targets')
 
         if False:
@@ -819,49 +844,49 @@ def check_job_cache_says_done(job_id, db):
             msg = 'Job %r marked as DONE but no userobject exists' % job_id
             raise CompmakeBug(msg)
 
-
-if False:
-    def clean_other_jobs(self, job_id, new_jobs):
-        """ job_id has finished and the jobs in new_jobs have been
-            generated. We should look in the DB if in the past 
-            it had generated other jobs and delete them """
-        # print('cleaning other jobs after %r generated %r' % (job_id,
-        # new_jobs))
-        db = self.db
-        extra = []
-        # XXX: slow
-        for g in all_jobs(db=db):
-            if get_job(g, db=db).defined_by[-1] == job_id:
-                if not g in new_jobs:
-                    extra.append(g)
-
-        for g in extra:
-            if g in self.processing:
-                print(
-                    'a mess - cannot eliminate job %s because processing' % g)
-            else:
-                if g in self.targets:
-                    # print('removing job %r which was an explicit target' % g)
-                    self.targets.remove(g)
-                if g in self.all_targets:
-                    self.all_targets.remove(g)
-                if g in self.todo:
-                    self.todo.remove(g)
-                if g in self.ready_todo:
-                    self.ready_todo.remove(g)
-                if g in self.ready_todo:
-                    self.todo.remove(g)
-                if g in self.failed:
-                    self.failed.remove(g)
-                if g in self.blocked:
-                    self.blocked.remove(g)
-
-            # print('Erasing previously generated job %r (%s) removed.' % (
-            # g, job.defined_by))
-            delete_all_job_data(g, db=db)
-
-            # clean dependencies as well
-            self.clean_other_jobs(g, [])
+# 
+# if False:
+#     def clean_other_jobs(self, job_id, new_jobs):
+#         """ job_id has finished and the jobs in new_jobs have been
+#             generated. We should look in the DB if in the past 
+#             it had generated other jobs and delete them """
+#         # print('cleaning other jobs after %r generated %r' % (job_id,
+#         # new_jobs))
+#         db = self.db
+#         extra = []
+#         # XXX: slow
+#         for g in all_jobs(db=db):
+#             if get_job(g, db=db).defined_by[-1] == job_id:
+#                 if not g in new_jobs:
+#                     extra.append(g)
+# 
+#         for g in extra:
+#             if g in self.processing:
+#                 print(
+#                     'a mess - cannot eliminate job %s because processing' % g)
+#             else:
+#                 if g in self.targets:
+#                     # print('removing job %r which was an explicit target' % g)
+#                     self.targets.remove(g)
+#                 if g in self.all_targets:
+#                     self.all_targets.remove(g)
+#                 if g in self.todo:
+#                     self.todo.remove(g)
+#                 if g in self.ready_todo:
+#                     self.ready_todo.remove(g)
+#                 if g in self.ready_todo:
+#                     self.todo.remove(g)
+#                 if g in self.failed:
+#                     self.failed.remove(g)
+#                 if g in self.blocked:
+#                     self.blocked.remove(g)
+# 
+#             # print('Erasing previously generated job %r (%s) removed.' % (
+#             # g, job.defined_by))
+#             delete_all_job_data(g, db=db)
+# 
+#             # clean dependencies as well
+#             self.clean_other_jobs(g, [])
 
 
 def check_job_cache_says_failed(job_id, db, e):

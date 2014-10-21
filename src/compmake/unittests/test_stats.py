@@ -1,6 +1,7 @@
+from nose.tools import istest
+
 from .compmake_test import CompmakeTest
 from compmake import compmake_execution_stats
-from nose.tools import istest
 from contracts.utils import check_isinstance
 from compmake.jobs.dependencies import get_job_userobject_resolved
 
@@ -58,4 +59,3 @@ def check_result(res):
     res['cpu_time']
     res['wall_time']
     res['jobs']
-    

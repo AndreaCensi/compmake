@@ -2,7 +2,7 @@ from optparse import OptionParser
 import os
 import sys
 
-from .. import CompmakeConstants, logger, set_compmake_status, version
+from .. import CompmakeConstants, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
 from ..jobs import all_jobs

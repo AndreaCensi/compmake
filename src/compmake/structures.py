@@ -27,18 +27,7 @@ from contracts import contract, describe_value
        timestamp:   when computation was completed 
        timetaken:   time taken by the computation
        tmp_result:  None
-       
-    *) MORE_REQUESTED:  The computation has been done, but the
-       user has requested more. We still have the previous result
-       that the other objects can use. 
-    
-       computation:  current computation
-       user_object: (safe) the safe result of the computation
-       timestamp:   (safe) when computation was completed 
-       timetaken:   (safe) time taken by the computation
-       
-       tmp_result:  set to the temporary result (if any)
-                    or non-existent if more has not been started yet
+        
        
     *) FAILED
        The computation has failed for some reason
@@ -90,7 +79,7 @@ class Promise(object):
 
 
 class Job(object):
-    @contract(defined_by='list(str)', children=set)
+    @contract(defined_by='list[>=1](str)', children=set)
     def __init__(self, job_id, children, command_desc,
                  needs_context=False,
                  defined_by=None):
@@ -108,7 +97,8 @@ class Job(object):
         self.parents = set()
         self.needs_context = needs_context
         self.defined_by = defined_by
-
+        assert len(defined_by) >= 1, defined_by
+        assert defined_by[0] == 'root', defined_by
         # str -> set(str), where the key is one
         # of the direct children 
         self.dynamic_children = {}
@@ -168,6 +158,8 @@ class Cache(object):
     FAILED = 3
     BLOCKED = 5
     DONE = 4
+    
+    TIMESTAMP_TO_REMAKE = 0.0
 
     allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]
 
@@ -185,6 +177,8 @@ class Cache(object):
         self.timestamp = 0.0
         self.cputime_used = None
         self.walltime_used = None
+
+        self.jobs_defined = set()
 
         # in case of failure
         self.exception = None  # a short string

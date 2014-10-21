@@ -1,26 +1,23 @@
-import inspect
-import warnings
 
-from .. import (CompmakeConstants, get_compmake_config, get_compmake_status,
-                is_interactive_session)
+from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..events import publish
-from ..jobs import (CacheQueryDB, all_jobs, clean_target, collect_dependencies,
-                    delete_job, delete_job_args, delete_job_userobject,
-                    get_job,
-                    is_job_userobject_available, job_args_exists, job_exists,
-                    parse_job_list,
-                    set_job, set_job_args)
-from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..exceptions import CommandFailed, UserError
+from ..jobs import (CacheQueryDB, all_jobs, collect_dependencies, get_job, 
+    job_exists, parse_job_list, set_job, set_job_args)
+from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
 from ..structures import Job, Promise, same_computation
-from contracts import describe_type, describe_value
 from ..utils import interpret_strings_like, try_pickling
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
-from contracts import check_isinstance, contract, raise_wrapped
 from compmake.jobs.storage import db_job_add_parent_relation
+from contracts import (
+    check_isinstance, contract, describe_type, describe_value, raise_wrapped)
+import inspect
+import warnings
+from compmake.jobs.actions import clean_cache_relations
+
 
 
 def generate_job_id(base, context):
@@ -107,20 +104,23 @@ def clean_other_jobs(context):
     db = context.get_compmake_db()
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
         return
-    from .console import ask_question
-
-    answers = {'a': 'a', 'n': 'n', 'y': 'y', 'N': 'N'}
-
-    if is_interactive_session():
-        clean_all = False
-    else:
-        clean_all = True
+#     from .console import ask_question
+# 
+#     answers = {'a': 'a', 'n': 'n', 'y': 'y', 'N': 'N'}
+# 
+#     if is_interactive_session():
+#         clean_all = False
+#     else:
+#         clean_all = True
 
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
 
+    from compmake.ui import info
+    
+    todelete = set()
+    
     for job_id in all_jobs(force_db=True, db=db):
-        #print('Considering %s' % job_id)
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
             job = get_job(job_id, db=db)
@@ -128,37 +128,50 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
-            print('Job %r not defined in this session defined_by = %r.' % (job_id, job.defined_by))
+            info('Job %r not defined in this session %s defined_by = %r.' 
+                 % (job_id, id(context), job.defined_by))
+# 
+#             if not clean_all:
+#                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
+#                 text = ('Found spurious job %s; cleaning? '
+#                         '[y]es, [a]ll, [n]o, [N]one ' % job_id)
+#                 answer = ask_question(text, allowed=answers)
+# 
+#                 if answer == 'n':
+#                     continue
+# 
+#                 if answer == 'N':
+#                     break
+# 
+#                 if answer == 'a':
+#                     clean_all = True
+#             else:
+#                 pass
+#                 #logger.info('Cleaning job: %r (defined by %s)' % (job_id,
+#                 # job.defined_by))
 
-            if not clean_all:
-                # info('Job %s defined-by %s' % (job_id, job.defined_by))
-                text = ('Found spurious job %s; cleaning? '
-                        '[y]es, [a]ll, [n]o, [N]one ' % job_id)
-                answer = ask_question(text, allowed=answers)
-
-                if answer == 'n':
-                    continue
-
-                if answer == 'N':
-                    break
-
-                if answer == 'a':
-                    clean_all = True
-            else:
-                pass
-                #logger.info('Cleaning job: %r (defined by %s)' % (job_id,
-                # job.defined_by))
-
-            print('deleting job %r' % job_id)
-            clean_target(job_id, db=db)
-            delete_job(job_id, db=db)
-            if is_job_userobject_available(job_id, db=db):
-                delete_job_userobject(job_id, db=db)
-
-            if job_args_exists(job_id, db=db):
-                delete_job_args(job_id, db=db)
+            
+            todelete.add(job_id)
+    delete_jobs_recurse_definition(todelete, db)
 
 
+@contract(returns='set(str)')
+def delete_jobs_recurse_definition(jobs, db):
+    """ Deletes all jobs given and the jobs that they defined.
+        Returns the set of jobs deleted. """
+    from compmake.jobs.queries import definition_closure
+    closure = definition_closure(jobs, db)
+    #print('jobs %s closure %s' % (jobs, closure))
+    all_jobs = jobs | closure
+    for job_id in all_jobs:
+        clean_cache_relations(job_id, db)
+    for job_id in all_jobs:
+        from compmake.jobs.storage import delete_all_job_data
+        delete_all_job_data(job_id, db)
+        
+    return all_jobs
+
+ 
 class WarningStorage():
     warned = set()
 
@@ -281,7 +294,7 @@ def comp_(context, command_, *args, **kwargs):
                 print(
                     ' others defined in session: %s' %
                     context.get_jobs_defined_in_this_session())
-                warnings.warn('I know something is more complicated here')
+#                 warnings.warn('I know something is more complicated here')
                 #             if old_job.defined_by is not None and
                 # old_job.defined_by == context.currently_executing:
                 #                 # exception, it's ok
@@ -357,6 +370,8 @@ def comp_(context, command_, *args, **kwargs):
 
     all_args = (command, args, kwargs)
 
+    assert len(context.currently_executing) >= 1
+    assert context.currently_executing[0] == 'root'
     c = Job(job_id=job_id,
             children=children,
             command_desc=command_desc,
@@ -426,8 +441,10 @@ def comp_(context, command_, *args, **kwargs):
 
         if not same:
             print('different job, cleaning cache:\n%s  ' % reason)
-            if job_cache_exists(job_id, db):
-                delete_job_cache(job_id, db)
+            from compmake.jobs.actions import clean_targets
+            clean_targets([job_id], db)
+#             if job_cache_exists(job_id, db):
+#                 delete_job_cache(job_id, db)
             publish(context, 'job-redefined', job_id=job_id, reason=reason)
         else:
             print('ok, same job')

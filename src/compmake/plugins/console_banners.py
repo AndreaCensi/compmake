@@ -37,7 +37,8 @@ def console_starting(event, context):
 
 
 def console_ending(event, context):  # @UnusedVariable
-    print("Thanks for using compmake. Problems? Suggestions? Praise? "
+    from compmake.ui import info
+    info("Thanks for using compmake. Problems? Suggestions? Praise? "
           "Go to %s" % compmake_colored(compmake_issues_url, attrs=['bold']))
 
 
