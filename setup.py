@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = "3.3.3"
+version = "3.3.4"
 
 
 setup(
