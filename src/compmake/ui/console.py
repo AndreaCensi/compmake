@@ -36,7 +36,7 @@ def get_readline():
             return readline
         except BaseException as e:
             try:
-                import pyreadline as readline
+                import pyreadline as readline  # @UnresolvedImport
                 return readline
             except Exception as e2:
                 # TODO: write message

@@ -39,6 +39,10 @@ def job_compute(job, context):
         res = execute_with_context(db=db, context=context,
                                    job_id=job_id,
                                    command=command, args=args, kwargs=kwargs)
+        assert isinstance(res,dict)
+        assert len(res) == 2, list(res.keys())
+        assert 'user_object' in res
+        assert 'new_jobs' in res
         return res
     else:
         res = command(*args, **kwargs)

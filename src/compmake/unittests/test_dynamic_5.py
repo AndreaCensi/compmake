@@ -2,6 +2,7 @@ from compmake.context import Context
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.unittests.compmake_test import CompmakeTest
 from nose.tools import istest
+from compmake.jobs.queries import definition_closure
 
 def g2(): 
     pass
@@ -37,7 +38,11 @@ class TestDynamic5(CompmakeTest):
         
         self.assertJobsEqual('all', ['fd', 'gd', 'g2',  'hd', 'id', 'i2'])
         self.assertJobsEqual('done',  ['fd', 'gd', 'g2',  'hd', 'id', 'i2'])
-        
+
+        self.assert_cmd_success('details id')
+        self.assert_cmd_success('details i2')
+        self.assertEqualSet(definition_closure(['id'], self.db), ['i2'])
+        self.assertEqualSet(definition_closure(['hd'], self.db), ['id', 'i2'])        
         # now redo it 
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)

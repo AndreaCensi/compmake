@@ -62,6 +62,10 @@ add_config_switch('interactive', True,
                        '\\r to repaint line.)',
                   section=CONFIG_APPEARANCE)
 
+add_config_switch('console_status', True,
+                  desc='Enables the console_status plugin.',
+                  section=CONFIG_APPEARANCE)
+
 
 add_config_switch('readline', True,
                   desc='Try to use readline or pyreadline module.',

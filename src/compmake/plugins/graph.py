@@ -8,7 +8,7 @@ from compmake.ui import COMMANDS_ADVANCED, info, ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def graph(job_list, context, filename='compmake',
+def graph(job_list, context, filename='compmake-graph',
           filter='dot', format='png',  # @ReservedAssignment
           compact=False, color=True,
           cluster=False):
@@ -18,12 +18,13 @@ def graph(job_list, context, filename='compmake',
 
         Usage:
 
-            @: graph filename=filename compact=0,1 format=png,...
+            @: graph filename=filename compact=[0|1] color=[0|1] format=png filter=[dot|circo|...]
 
         Options:
 
             filename:  name of generated filename in the dot format
             compact=0: whether to include the job names in the nodes
+            color=[0|1]: whether to color the nodes
             filter=[dot,circo,twopi,...]  which algorithm to use to arrange
                        the nodes. The best choice depends on
                        the topology of your

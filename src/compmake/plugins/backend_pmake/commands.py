@@ -2,7 +2,7 @@ from .pmake_manager import PmakeManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish
 from compmake.jobs import top_targets
-from compmake.jobs.actions import mark_remake
+from compmake.jobs.actions import mark_to_remake
 from compmake.ui import ACTIONS, ui_command
 from compmake.ui.commands import raise_error_if_manager_failed, ask_if_sure_remake
 
@@ -76,7 +76,7 @@ def parremake(non_empty_job_list, context, cq):
         return
 
     for job in non_empty_job_list:
-        mark_remake(job, db=db)
+        mark_to_remake(job, db=db)
 
     manager = PmakeManager(context=context, cq=cq)
     manager.add_targets(non_empty_job_list)

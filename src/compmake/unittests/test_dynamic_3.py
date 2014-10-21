@@ -12,9 +12,6 @@ def g(context):
     
 @istest
 class TestDynamic3(CompmakeTest):
-
-    howmany = None  # used by cases()
-
     @expected_failure
     def test_dynamic1(self):
         context = self.cc

@@ -7,6 +7,7 @@ from compmake.jobs.actions import make
 from compmake.exceptions import JobFailed, JobInterrupted
 from compmake.utils import setproctitle
 from contracts import check_isinstance, contract
+from compmake.jobs.result_dict import result_dict_check
 
 
 __all__ = [
@@ -19,7 +20,7 @@ def parmake_job2(args):
     """
     args = tuple job_id, context,  queue_name, show_events
         
-    Returns a dictionary with fields "user_object" and "new_jobs".
+    Returns a dictionary with fields "user_object", "new_jobs", 'delete_jobs'.
     "user_object" is set to None because we do not want to 
     load in our thread if not necessary. Sometimes it is necessary
     because it might contain a Promise. 
@@ -80,10 +81,10 @@ def parmake_job2(args):
 
         publish(context, 'worker-status', job_id=job_id, status='ended')
 
-        return dict(new_jobs=res['new_jobs'],
-                    user_object=None,
-                    user_object_deps=res['user_object_deps'])
-
+        res['user_object'] = None
+        result_dict_check(res)
+        return res
+        
     except KeyboardInterrupt:
         assert False, 'KeyboardInterrupt should be captured by make() (' \
                       'inside Job.compute())'

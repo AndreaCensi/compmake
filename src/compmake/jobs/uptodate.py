@@ -5,6 +5,7 @@ from ..exceptions import CompmakeBug
 from compmake.jobs.dependencies import collect_dependencies
 from compmake.jobs.storage import get_job_userobject
 from contracts import check_isinstance
+from compmake.jobs.queries import jobs_defined
 
 
 __all__ = [
@@ -35,6 +36,58 @@ def up_to_date(job_id, db):
     return res, reason
 
 
+@contract(returns='set(str)')
+def direct_uptodate_deps(job_id, db):
+    """ Returns all direct 'dependencies' of this job:
+        the jobs that are children (arguemnts)
+        plus the job that defined it (if not root).
+    """
+    from compmake.jobs.queries import direct_children
+    dependencies = direct_children(job_id, db)
+    
+    # plus jobs that defined it
+    from compmake.jobs.storage import get_job
+    defined_by = get_job(job_id, db).defined_by
+    last = defined_by[-1]
+    if last != 'root':
+        dependencies.add(last)
+    return dependencies
+
+@contract(returns='set(str)')
+def direct_uptodate_deps_inverse(job_id, db):
+    """ Returns all jobs that have this as 
+        a direct 'dependency'
+        the jobs that are direct parents
+        plus the jobs that were defined by it.
+        
+        Assumes that the job is DONE.
+    """
+    from compmake.jobs.queries import direct_parents
+    dep_inv = direct_parents(job_id, db)
+    dep_inv.update(jobs_defined(job_id, db))
+    return dep_inv 
+
+@contract(returns='set(str)', job_id='str')
+def direct_uptodate_deps_inverse_closure(job_id, db):
+    """ 
+        Closure of direct_uptodate_deps_inverse:
+        all jobs that depend on this.
+    """
+    from compmake.jobs.queries import parents
+    # all parents
+    dep_inv = parents(job_id, db)
+    # plus their definition closure
+    from compmake.jobs.queries import definition_closure
+    closure = definition_closure(dep_inv, db)
+    assert not closure & dep_inv
+    dep_inv.update(closure)
+    # plus the ones that were defined by it
+    from compmake.jobs.storage import get_job_cache
+    if get_job_cache(job_id, db).state == Cache.DONE:
+        dep_inv.update(jobs_defined(job_id, db))
+    return dep_inv 
+
+
 class CacheQueryDB(object):
     """ 
         This works as a view on a DB which is assumed not to change
@@ -53,6 +106,7 @@ class CacheQueryDB(object):
         self.direct_children.reset()
         self.direct_parents.reset()
         self.dependencies_up_to_date.reset()
+        self.jobs_defined.reset()
 
     @memoized_reset
     @contract(returns=Cache)
@@ -60,6 +114,11 @@ class CacheQueryDB(object):
         from .storage import get_job_cache
 
         return get_job_cache(job_id, db=self.db)
+    
+    @memoized_reset
+    def jobs_defined(self, job_id):
+        from compmake.jobs.queries import jobs_defined
+        return jobs_defined(job_id, db=self.db)
 
     @memoized_reset
     @contract(returns=Job)
@@ -92,14 +151,31 @@ class CacheQueryDB(object):
         if cache.state == Cache.NOT_STARTED:
             return False, 'Not started', cache.timestamp
 
-        for child in self.direct_children(job_id):
+        if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
+            return False, 'Marked invalid', cache.timestamp
+                 
+        dependencies = self.direct_children(job_id)
+         
+
+        for child in dependencies:
             child_up, _, child_timestamp = self.up_to_date(child)
             if not child_up:
-                return False, 'Children not up to date.', cache.timestamp
+                return False, 'At least: Dep %r not up to date.' % child, cache.timestamp
             else:
                 if child_timestamp > cache.timestamp:
                     return (
-                        False, 'Children have been updated.', cache.timestamp)
+                        False, 'At least: Dep %r have been updated.' % child, cache.timestamp)
+                    
+        # plus jobs that defined it
+        defined_by = list(self.get_job(job_id).defined_by)
+        defined_by.remove('root')
+        dependencies.update(defined_by)
+
+        for defby in defined_by:
+            defby_up, _, _ = self.up_to_date(defby)
+            if not defby_up:
+                return False, 'Definer %r not up to date.' % defby,  cache.timestamp
+            # don't check timestamp for definers                
 
         # FIXME BUG if I start (in progress), children get updated,
         # I still finish the computation instead of starting again

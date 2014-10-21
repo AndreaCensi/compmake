@@ -62,7 +62,6 @@ def f2(context):
 @istest
 class TestCleaning2(Utils):
     
-    @expected_failure
     def test_cleaning2(self):
         root = mkdtemp()
         self.run_first(root)
@@ -104,7 +103,6 @@ class TestCleaning3(Utils):
     
     @expected_failure
     def test_cleaning3(self):
-        
         set_compmake_config('check_params', True)
         root = mkdtemp()
         self.run_first(root)

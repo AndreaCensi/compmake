@@ -65,6 +65,9 @@ def list_job_detail(job_id, context, cq, max_lines):
     other_children = set(all_children) - set(dchildren)
     print(bold('Dependencies: (other)') + ' (%d) ' % len(
         other_children) + format_list(other_children))
+    
+    print(bold('Dependencies: (dynamic)') + '%s' % job.dynamic_children)
+    
     print(bold('Depending on this (direct):') + format_list(dparents))
     print(bold('Depending on this (other):') + format_list(
         other_parents))
