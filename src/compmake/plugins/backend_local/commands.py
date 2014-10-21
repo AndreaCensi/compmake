@@ -38,6 +38,13 @@ def make(job_list, context, cq,
     manager.process()
     return raise_error_if_manager_failed(manager)
 
+@ui_command(section=ACTIONS, dbchange=True)
+def invalidate(non_empty_job_list, context):
+    """ Invalidates the cache of a job so that it will be remade. """
+    db = context.get_compmake_db()
+    for job in non_empty_job_list:
+        mark_to_remake(job, db=db)
+
 
 @ui_command(section=ACTIONS, dbchange=True)
 def remake(non_empty_job_list, context, cq,
@@ -59,8 +66,8 @@ def remake(non_empty_job_list, context, cq,
     if not ask_if_sure_remake(non_empty_job_list):
         return
 
+    db = context.get_compmake_db()
     for job in non_empty_job_list:
-        db = context.get_compmake_db()
         mark_to_remake(job, db=db)
 
     manager = ManagerLocal(context=context, cq=cq,

@@ -79,7 +79,8 @@ def direct_uptodate_deps_inverse_closure(job_id, db):
     # plus their definition closure
     from compmake.jobs.queries import definition_closure
     closure = definition_closure(dep_inv, db)
-    assert not closure & dep_inv
+    # this is not true in general
+    # assert not closure & dep_inv
     dep_inv.update(closure)
     # plus the ones that were defined by it
     from compmake.jobs.storage import get_job_cache

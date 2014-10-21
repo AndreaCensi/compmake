@@ -134,12 +134,12 @@ def make(job_id, context, echo=False):
         setproctitle('cm-%s' % job_id)
 
     # TODO: should we make sure we are up to date???
-    up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
-    if up:
-        msg = 'Job %r appears already done.' % job_id
-        msg += 'This can only happen if another compmake process uses the ' \
-               'same DB.'
-        logger.error(msg)
+#     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
+#     if up:
+#         msg = 'Job %r appears already done.' % job_id
+#         msg += 'This can only happen if another compmake process uses the ' \
+#                'same DB.'
+        #logger.error(msg)
 #         user_object = get_job_userobject(job_id, db=db)
 #         # XXX: this is not right anyway
 #         return dict(user_object=user_object,
