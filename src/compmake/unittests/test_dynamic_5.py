@@ -16,7 +16,7 @@ def fd(context):
 def i2():
     pass
 
-def id(context):
+def id(context):  # @ReservedAssignment
     context.comp(i2)
     
 def hd(context):

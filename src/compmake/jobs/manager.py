@@ -1,7 +1,7 @@
 from ..events import publish
 from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from ..jobs import (all_jobs, assert_job_exists, delete_all_job_data, get_job, 
-    get_job_cache, job_cache_exists, job_exists, job_userobject_exists)
+from ..jobs import (assert_job_exists, get_job_cache, job_cache_exists, 
+    job_exists, job_userobject_exists)
 from ..jobs.actions_newprocess import result_dict_check
 from ..structures import Cache
 from ..utils import make_sure_dir_exists
@@ -17,7 +17,7 @@ from multiprocessing import TimeoutError
 import itertools
 import os
 import time
-import traceback 
+import traceback
 
 __all__ = [
     'Manager',
@@ -67,7 +67,7 @@ class ManagerLog(object):
 
 class Manager(ManagerLog):
     @contract(recurse='bool')
-    def __init__(self, context, cq, recurse=False):
+    def __init__(self, context, cq, recurse=False):  # @UnusedVariable
         self.context = context
         # self.cq = cq
         self.db = context.get_compmake_db()

@@ -24,13 +24,17 @@ def config_populate_optparser(parser):
 
             command = '--%s' % switch.name
 
-            group.add_option(command, nargs=1, help=switch.desc, type='string',
-                             action="callback", callback=option_callback,
+            group.add_option(command,
+                             nargs=1, 
+                             help=switch.desc, 
+                             type='string',
+                             action="callback", 
+                             callback=option_callback,
                              callback_kwargs={'switch': switch})
 
         parser.add_option_group(group)
 
-def option_callback(option, opt, value, par, switch):
+def option_callback(option, opt, value, par, switch):  # @UnusedVariable
     try:
         set_config_from_strings(switch.name, value)
     except:

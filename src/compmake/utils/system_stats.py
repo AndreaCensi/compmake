@@ -5,7 +5,7 @@ __all__ = [
 ]
 
 try:
-    import psutil
+    import psutil  # @UnusedImport
 except ImportError:
     from compmake import logger
 
@@ -26,7 +26,7 @@ class AvgSystemStats(object):
         self.interval = interval
         self.history_len = history_len
         try:
-            import psutil  # @UnresolvedImport
+            import psutil  # @UnresolvedImport @Reimport
         except:
             self._available = False
         else:

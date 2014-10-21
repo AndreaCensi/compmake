@@ -26,7 +26,7 @@ except:
                      ' Please install it.\n')
 
     def termcolor_colored(x,
-                          color=None, on_color=None,
+                          color=None, on_color=None,  # @UnusedVariable
                           attrs=None):  # @UnusedVariable
         """ emulation of the termcolor interface """
         return x

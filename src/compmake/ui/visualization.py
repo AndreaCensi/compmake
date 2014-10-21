@@ -1,5 +1,3 @@
-import sys
-
 from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
 
@@ -46,7 +44,7 @@ def write_message(s, formatting):
 
     from .. import CompmakeGlobalState
 
-    stderr = CompmakeGlobalState.original_stderr
+    #stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 
     stdout.flush()

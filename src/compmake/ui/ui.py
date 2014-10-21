@@ -4,19 +4,18 @@ from ..events import publish
 from ..exceptions import CommandFailed, UserError
 from ..jobs import (CacheQueryDB, all_jobs, collect_dependencies, get_job, 
     job_exists, parse_job_list, set_job, set_job_args)
-from ..jobs.storage import delete_job_cache, get_job_args, job_cache_exists
+from ..jobs.storage import get_job_args
 from ..structures import Job, Promise, same_computation
 from ..utils import interpret_strings_like, try_pickling
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
+from compmake.jobs.actions import clean_cache_relations
 from compmake.jobs.storage import db_job_add_parent_relation
 from contracts import (
     check_isinstance, contract, describe_type, describe_value, raise_wrapped)
 import inspect
-import warnings
-from compmake.jobs.actions import clean_cache_relations
 
 
 

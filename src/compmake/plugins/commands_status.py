@@ -1,7 +1,6 @@
 from compmake.events import register_handler
 from compmake.ui import error, info
 from contracts import indent
-from compmake.state import get_compmake_config
 
 
 # TODO: command-succeeded: {'command': '
@@ -49,7 +48,7 @@ register_handler('command-line-failed', command_line_failed)
 def job_failed(context, event):  # @UnusedVariable
     job_id = event.kwargs['job_id']
     reason = event.kwargs['reason']
-    bt = event.kwargs['bt']
+    _ = event.kwargs['bt']
 
     msg = 'Job %r failed:' % job_id
     # s = reason.strip
@@ -105,7 +104,7 @@ if True:  # debugging
     register_handler('manager-job-failed', ignore)
     register_handler('manager-job-starting', ignore)
 
-def manager_succeeded(context, event):
+def manager_succeeded(event):
     if event.kwargs['nothing_to_do']:
         info('Nothing to do.')
     else:

@@ -197,7 +197,7 @@ def delete_job_args(job_id, db):
 
 
 def delete_all_job_data(job_id, db):
-    print('deleting_all_job_data(%r)' % job_id)
+    #print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
         delete_job(**args)

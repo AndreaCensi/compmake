@@ -1,7 +1,5 @@
-
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 from nose.tools import istest
-from compmake.jobs.uptodate import CacheQueryDB
 
 def g2(): 
     return 'g2'

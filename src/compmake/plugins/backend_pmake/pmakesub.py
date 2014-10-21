@@ -13,10 +13,10 @@ from contracts import check_isinstance, indent
 
 if sys.version_info[0] >= 3:
     # noinspection PyUnresolvedReferences
-    from queue import Empty  # @UnresolvedImport
+    from queue import Empty  # @UnresolvedImport @UnusedImport
 else:
     # noinspection PyUnresolvedReferences
-    from Queue import Empty
+    from Queue import Empty  # @Reimport
 
 __all__ = [
     'PmakeSub',

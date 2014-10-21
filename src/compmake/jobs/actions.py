@@ -11,8 +11,7 @@ from .progress_imp2 import init_progress_tracking
 from .storage import (delete_job_cache, get_job,
                       get_job_cache,
                       set_job_cache, set_job_userobject)
-from .uptodate import up_to_date
-from compmake import get_compmake_config, logger
+from compmake import get_compmake_config
 from compmake.jobs.storage import job_cache_exists, set_job
 from compmake.jobs.queries import direct_parents
 

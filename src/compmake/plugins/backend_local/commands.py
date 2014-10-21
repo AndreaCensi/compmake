@@ -1,9 +1,8 @@
 from .manager_local import ManagerLocal
 from compmake.constants import DefaultsToConfig
-from compmake.jobs.queries import top_targets
-from compmake.ui import ACTIONS, ui_command
-from compmake.ui.commands import raise_error_if_manager_failed, ask_if_sure_remake
-from compmake.jobs.actions import mark_to_remake
+from compmake.jobs import mark_to_remake, top_targets
+from compmake.ui import (ACTIONS, ask_if_sure_remake, 
+    raise_error_if_manager_failed, ui_command)
 
 
 __all__ = [
