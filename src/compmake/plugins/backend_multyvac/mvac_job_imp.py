@@ -1,5 +1,4 @@
 from compmake.exceptions import CompmakeException, JobFailed
-from compmake.jobs.actions import mark_as_failed
 from compmake.jobs.dependencies import collect_dependencies
 from compmake.jobs.job_execution import get_cmd_args_kwargs
 from compmake.jobs.result_dict import result_dict_check

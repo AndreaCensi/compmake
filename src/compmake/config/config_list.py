@@ -108,8 +108,6 @@ if False: # To re-implement
                       section=CONFIG_PARALLEL)
     
     
-    
-    
 add_config_switch('multyvac_layer', '',
                       desc="Multyvac 'layer'",
                       section=CONFIG_PARALLEL)
