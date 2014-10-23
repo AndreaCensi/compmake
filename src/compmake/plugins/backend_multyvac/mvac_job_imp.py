@@ -9,6 +9,7 @@ from compmake.structures import Cache
 from contracts import check_isinstance, contract
 
 import time
+from compmake.state import get_compmake_config
 
 
 __all__ = [
@@ -33,7 +34,8 @@ def mvac_job(args):
     
     # Disable multyvac logging
     import logging
-    logging.getLogger("multyvac").setLevel(logging.WARNING)
+    if not get_compmake_config('multyvac_debug'):
+        logging.getLogger("multyvac").setLevel(logging.WARNING)
     
     db = context.get_compmake_db()
     job = get_job(job_id=job_id, db=db)
@@ -47,15 +49,26 @@ def mvac_job(args):
     cpu_start = time.clock()
 
     import multyvac    
-    multyvac_job_id = multyvac.submit(command, *args, **kwargs)
+    layer = get_compmake_config('multyvac_layer')
+    if not layer:
+        layer = None
+    multyvac_job_id = multyvac.submit(command, *args, _layer=layer, **kwargs)
     multyvac_job = multyvac.get(multyvac_job_id)
     multyvac_job.wait()
     
     errors = [multyvac_job.status_error, multyvac_job.status_killed]
     if multyvac_job.status in errors:
-        e = 'Multyvac error (no more details available)'
-        bt = 'Backtrace not available'
-        mark_as_failed(job_id, str(e), bt, db=db)
+        e = 'Multyvac error (status: %r)' % multyvac_job.status 
+        bt = multyvac_job.stderr
+
+        cache = Cache(Cache.FAILED)
+        cache.exception = str(e)
+        cache.backtrace = bt
+        cache.timestamp = time.time()
+        cache.captured_stderr = str(multyvac_job.stderr)
+        cache.captured_stdout = str(multyvac_job.stdout)
+        set_job_cache(job_id, cache, db=db)
+
         raise JobFailed(job_id=job_id, reason=str(e), bt=bt)
         
     user_object = multyvac_job.result
@@ -64,15 +77,15 @@ def mvac_job(args):
     set_job_userobject(job_id, user_object, db=db)
     
     cache = get_job_cache(job_id, db=db)
-    cache.captured_stderr = "(not available for multyvac)"
-    cache.captured_stdout = "(not available for multyvac)"
+    cache.captured_stderr = str(multyvac_job.stderr)
+    cache.captured_stdout = str(multyvac_job.stdout)
 
     cache.state = Cache.DONE
     cache.timestamp = time.time()
     walltime = cache.timestamp - time_start
     cputime = time.clock() - cpu_start
     cache.walltime_used = walltime
-    cache.cputime_used = cputime
+    cache.cputime_used = multyvac_job.cputime_system
     cache.host = 'multyvac'
     cache.jobs_defined = set()
     set_job_cache(job_id, cache, db=db)

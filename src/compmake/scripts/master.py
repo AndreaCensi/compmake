@@ -42,6 +42,12 @@ def read_rc_files(context):
 @contract(context=Context, filename=str)
 def read_commands_from_file(filename, context):
     from compmake.jobs.uptodate import CacheQueryDB
+    
+    filename = os.path.realpath(filename)
+    if filename in context.rc_files_read:
+        return
+    else:
+        context.rc_files_read.append(filename)
 
     cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None

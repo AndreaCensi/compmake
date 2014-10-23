@@ -245,7 +245,8 @@ def batch_command(s, context, cq):
 
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
-
+    from compmake.scripts.master import read_rc_files
+    read_rc_files(context=context)
     return interpret_commands_wrap(s, context=context, cq=cq)
 
 
@@ -266,4 +267,6 @@ def compmake_console(context):
 
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
+    from compmake.scripts.master import read_rc_files
+    read_rc_files(context=context)
     interactive_console(context=context)

@@ -16,6 +16,7 @@ from compmake.jobs.storage import db_job_add_parent_relation
 from contracts import (
     check_isinstance, contract, describe_type, describe_value, raise_wrapped)
 import inspect
+from compmake.exceptions import CompmakeBug
 
 
 
@@ -32,14 +33,15 @@ def generate_job_id(base, context):
 
     job_prefix = context.get_comp_prefix()
 
+    max_options = 1000*1000
     def get_options():
         if job_prefix:
             yield '%s-%s' % (job_prefix, base)
-            for i in range(2, 1000):
+            for i in range(2, max_options):
                 yield '%s-%s-%d' % (job_prefix, base, i)
         else:
             yield base
-            for i in range(2, 1000):
+            for i in range(2, max_options):
                 yield '%s-%d' % (base, i)
 
     db = context.get_compmake_db()
@@ -66,7 +68,7 @@ def generate_job_id(base, context):
             else:
                 continue
 
-    assert False
+    raise CompmakeBug('Could not generate a job id')
 
 
 

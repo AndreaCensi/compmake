@@ -110,5 +110,15 @@ if False: # To re-implement
     
     
     
+add_config_switch('multyvac_layer', '',
+                      desc="Multyvac 'layer'",
+                      section=CONFIG_PARALLEL)
+
+add_config_switch('multyvac_debug', False,
+                      desc="If true, shows multyvac's logging output.",
+                      section=CONFIG_PARALLEL)
+    
+    
+    
     
     

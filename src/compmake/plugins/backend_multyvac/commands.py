@@ -38,8 +38,8 @@ def cloudmake(job_list, context, cq,
                            context=context,
                            cq=cq,
                            recurse=recurse,
-#                            new_process=new_process,
-#                            show_output=echo,
+                            new_process=new_process,
+                            show_output=echo,
                            )
 
     publish(context, 'parmake-status',

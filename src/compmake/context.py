@@ -38,6 +38,9 @@ class Context(object):
         self._jobs_defined_in_this_session = set()
         self.currently_executing = currently_executing
         self._job_prefix = None
+        
+        # RC files read
+        self.rc_files_read = []
 
     # This is used to make sure that the user doesn't define the same job
     # twice.
