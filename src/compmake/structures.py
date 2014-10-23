@@ -61,6 +61,8 @@ from contracts import contract, describe_value
      
     
 '''
+import os
+from compmake.utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
     'Promise',
@@ -103,7 +105,8 @@ class Job(object):
         # of the direct children 
         self.dynamic_children = {}
 
-
+        self.pickle_main_context = pickle_main_context_save() 
+        
 def same_computation(jobargs1, jobargs2):
     """ Returns boolean, string tuple """
     cmd1, args1, kwargs1 = jobargs1

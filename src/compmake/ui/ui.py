@@ -69,32 +69,6 @@ def generate_job_id(base, context):
     assert False
 
 
-# def generate_job_id_old(base, context):
-# '''
-# Generates a unique job_id for the specified commmand.
-# Takes into account job_prefix if that's defined.
-# '''
-#
-#     job_prefix = context.get_comp_prefix()
-#     if job_prefix:
-#         job_id = '%s-%s' % (job_prefix, base)
-#         if not context.was_job_defined_in_this_session(job_id):
-#             return job_id
-#     else:
-#         if not context.was_job_defined_in_this_session(base):
-#             return base
-#
-#     for i in xrange(1000000):
-#         if job_prefix:
-#             job_id = ('%s-%s-%d' % (job_prefix, base, i))
-#         else:
-#             job_id = '%s-%d' % (base, i)
-#
-#         if not context.was_job_defined_in_this_session(job_id):
-#             return job_id
-#
-#     assert False
-
 
 def clean_other_jobs(context):
     """ Cleans jobs not defined in the session """
@@ -376,6 +350,11 @@ def comp_(context, command_, *args, **kwargs):
             command_desc=command_desc,
             needs_context=needs_context,
             defined_by=context.currently_executing)
+    
+    # Need to inherit the pickle
+    if context.currently_executing[-1] != 'root':
+        parent_job = get_job(context.currently_executing[-1], db)
+        c.pickle_main_context = parent_job.pickle_main_context
 
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)

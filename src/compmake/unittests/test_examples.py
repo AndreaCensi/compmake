@@ -41,15 +41,14 @@ def run_example(name, command, expect_fail=False):
             stderr = e.res.stderr
             stdout = e.res.stdout
             if not expect_fail:
-                msg = 'Example %r: Command %r failed unexpectedly.' % (name, command)
+                msg = ('Example %r: Command %r failed unexpectedly.' % 
+                       (name, command))
                 msg += '\n retcode: %r' % e.res.ret
                 msg += '\n' + indent(stderr, 'stderr| ')
                 msg += '\n' + indent(stdout, 'stdout| ')
                 raise Exception(msg)
             
-            
-        
-    
+                 
 @contextmanager
 def create_tmp_dir():
     # FIXME: does not delete dir
@@ -97,13 +96,11 @@ def test_example_progress_same1():
 def test_example_progress_same2():
     run_example('example_progress_same', cmd_make2)
 
-# @expected_failure
 def test_example_progress_same3():
-    run_example('example_progress_same', cmd_make3, expect_fail=True)
+    run_example('example_progress_same', cmd_make3)
     
-# @expected_failure
 def test_example_progress_same4():
-    run_example('example_progress_same', cmd_make4,  expect_fail=True)
+    run_example('example_progress_same', cmd_make4)
 
 def test_example_simple1():
     run_example('example_simple', cmd_make1)
@@ -124,30 +121,30 @@ def example_external_support4():
     run_example('example_external_support', cmd_make4)
 
     
-if False:  
+if True:  
         
     # Fails for pickle reasons
-    @expected_failure
+#     @expected_failure
     def test_example_dynamic_explicitcontext3():
         run_example('example_dynamic_explicitcontext', cmd_make3)
      
-    @expected_failure
+#     @expected_failure
     def test_example_dynamic_explicitcontext4():
         run_example('example_dynamic_explicitcontext', cmd_make4)
     
-    @expected_failure
+#     @expected_failure
     def test_example_progress3():
         run_example('example_progress', cmd_make3)
         
-    @expected_failure
+#     @expected_failure
     def test_example_progress4():
         run_example('example_progress', cmd_make4)
         
-    @expected_failure
+#     @expected_failure
     def test_example_simple3():
         run_example('example_simple', cmd_make3)
         
-    @expected_failure
+#     @expected_failure
     def test_example_simple4():
         run_example('example_simple', cmd_make4)
         

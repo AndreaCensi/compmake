@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 if __name__ == '__main__':
     from compmake import Context
 
@@ -22,20 +21,3 @@ if __name__ == '__main__':
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
         c.compmake_console()
-
-
-
-
-        # import os
-        # module = os.path.splitext(os.path.basename(__file__))[0]
-
-        # cases.__module__ = module
-        # generate_tests.__module__ = module
-
-        # def check_pickable(x):
-        # import pickle
-        #     from io import BytesIO
-        #     s = BytesIO()
-        #     pickle.dump(x, s, pickle.HIGHEST_PROTOCOL)
-
-        # check_pickable(cases)

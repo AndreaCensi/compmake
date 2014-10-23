@@ -6,6 +6,7 @@ from ..structures import Cache, Job
 from ..utils import wildcard_to_regexp
 from compmake.exceptions import CompmakeBug, CompmakeException
 from contracts import contract
+from compmake.utils.pickle_frustration import pickle_main_context_load
 
 
 def job2key(job_id):
@@ -173,8 +174,15 @@ def job2jobargskey(job_id):
 
 def get_job_args(job_id, db):
     key = job2jobargskey(job_id)
-    return db[key]
-
+    
+    if False:
+        return db[key]
+    else:
+        job = get_job(job_id, db)
+        pickle_main_context = job.pickle_main_context
+        with pickle_main_context_load(pickle_main_context):     
+            return db[key]
+    
 
 def job_args_exists(job_id, db):
     key = job2jobargskey(job_id)

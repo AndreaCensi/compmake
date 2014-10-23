@@ -8,17 +8,9 @@ __all__ = [
     'job_compute',
 ]
 
-
-@contract(job=Job)
-def job_compute(job, context):
-    """ Returns a dictionary with fields "user_object" and "new_jobs" """
-    check_isinstance(job, Job)
-    job_id = job.job_id
-    db = context.get_compmake_db()
-
-    job_args = get_job_args(job_id, db=db)
-    command, args, kwargs = job_args
-
+def get_cmd_args_kwargs(job_id, db):
+    """ Substitutes dependencies and gets actual cmd, args, kwargs. """    
+    command, args, kwargs = get_job_args(job_id, db=db)
     kwargs = dict(**kwargs)
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
@@ -28,11 +20,18 @@ def job_compute(job, context):
         if not job_userobject_exists(dep, db):
             msg = 'Dependency %r was not done.' % dep
             raise CompmakeBug(msg)
-    # print('All deps: %r' % all_deps)
+    args2 = substitute_dependencies(args, db=db)
+    kwargs2 = substitute_dependencies(kwargs, db=db)
+    return command, args2, kwargs2
 
-    # TODO: move this to jobs.actions?
-    args = substitute_dependencies(args, db=db)
-    kwargs = substitute_dependencies(kwargs, db=db)
+@contract(job=Job)
+def job_compute(job, context):
+    """ Returns a dictionary with fields "user_object" and "new_jobs" """
+    check_isinstance(job, Job)
+    job_id = job.job_id
+    db = context.get_compmake_db()
+    
+    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
 
     if job.needs_context:
         args = tuple(list([context]) + list(args))
