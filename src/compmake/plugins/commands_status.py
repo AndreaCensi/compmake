@@ -60,7 +60,7 @@ def job_failed(context, event):  # @UnusedVariable
     if get_compmake_config('echo'):
         msg += '\n' + indent(bt.strip(), '> ')
     else:
-        msg += '\nUse "config echo 1" to have errors displayed.' % job_id
+        msg += '\nUse "config echo 1" to have errors displayed.' 
     msg += '\nWrite "details %s" to inspect the error.' % job_id
     error(my_prefix + msg)
 
