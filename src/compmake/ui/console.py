@@ -81,7 +81,8 @@ def interpret_commands_wrap(commands, context, cq):
         tb = traceback.format_exc()
         msg0 = ('Warning, I got this exception, while it should '
                 'have been filtered out already. '
-                'This is a compmake BUG that should be reported.')
+                'This is a compmake BUG that should be reported '
+                'at http://github.com/AndreaCensi/compmake/issues')
         msg = msg0 + "\n" + indent(tb, 'bug| ')
         publish(context, 'compmake-bug', user_msg=msg, dev_msg="")  # XXX
         raise_wrapped(CompmakeBug, e, msg0)
