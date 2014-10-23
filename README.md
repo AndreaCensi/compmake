@@ -20,4 +20,5 @@ http://purl.org/censi/compmake-manual
 Changelog
 ------------------
 
+* v3.3.7 - Bug fix.
 * v3.3.6 - Experimental multyvac backend.
