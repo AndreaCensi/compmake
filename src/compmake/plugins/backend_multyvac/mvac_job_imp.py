@@ -57,7 +57,6 @@ def mvac_job(args):
         raise CompmakeException(msg)
 
     time_start = time.time()
-    cpu_start = time.clock()
 
     multyvac_job = mvac_instance(db, job_id)
     multyvac_job.wait()
@@ -65,10 +64,10 @@ def mvac_job(args):
     errors = [multyvac_job.status_error, multyvac_job.status_killed]
     if multyvac_job.status in errors:
         e = 'Multyvac error (status: %r)' % multyvac_job.status 
-        bt = multyvac_job.stderr
+        bt = str(multyvac_job.stderr)
 
         cache = Cache(Cache.FAILED)
-        cache.exception = str(e)
+        cache.exception = e
         cache.backtrace = bt
         cache.timestamp = time.time()
         cache.captured_stderr = str(multyvac_job.stderr)
@@ -89,7 +88,6 @@ def mvac_job(args):
     cache.state = Cache.DONE
     cache.timestamp = time.time()
     walltime = cache.timestamp - time_start
-    cputime = time.clock() - cpu_start
     cache.walltime_used = walltime
     cache.cputime_used = multyvac_job.cputime_system
     cache.host = 'multyvac'

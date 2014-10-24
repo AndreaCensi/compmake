@@ -51,7 +51,7 @@ class PmakeManager(Manager):
         self.cleaned = False
 
     def process_init(self):
-        self.event_queue = Queue(self.num_processes * 1000)
+        self.event_queue = Queue(1000)
         self.event_queue_name = str(id(self))
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
@@ -182,7 +182,11 @@ class PmakeManager(Manager):
                 os.kill(pid, signal.SIGKILL)
 
                 #print('process_finished() finished')
-
+        
+        self.event_queue.close()
+        self.signal_queue.close()
+        del PmakeManager.queues[self.event_queue_name]
+        
 
     # Normal outcomes    
     def job_failed(self, job_id):

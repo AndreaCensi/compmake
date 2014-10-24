@@ -70,7 +70,8 @@ class MVacManager(Manager):
             write_log = os.path.join(logs, '%s.log' % name)
             make_sure_dir_exists(write_log)
             signal_token = name
-            self.subs[name] = PmakeSub(name, signal_queue=self.signal_queue,
+            self.subs[name] = PmakeSub(name, 
+                                       signal_queue=self.signal_queue,
                                        signal_token=signal_token,
                                        write_log=write_log)
         self.job2subname = {}
@@ -175,6 +176,7 @@ class MVacManager(Manager):
             return
         self.cleaned = True
         
+        #print('Clean up...')
         # TODO: write cleanup code
         
         for name in self.sub_processing:
@@ -183,19 +185,25 @@ class MVacManager(Manager):
         for name in self.sub_available:
             self.subs[name].terminate()
 
+        elegant = False
         # XXX: in practice this never works well
-        if False:
-            # print('joining')
+        if elegant:
             timeout = 1
             for name in self.sub_available:
                 self.subs[name].proc.join(timeout)
-
+            
         # XXX: ... so we just kill them mercilessly
-        if True:
+        else:
             #  print('killing')
             for name in self.sub_processing:
                 pid = self.subs[name].proc.pid
                 os.kill(pid, signal.SIGKILL)
+
+        self.event_queue.close()
+        self.signal_queue.close()
+        from compmake.plugins.backend_pmake.pmake_manager import PmakeManager
+        del PmakeManager.queues[self.event_queue_name]
+        
 
     # Normal outcomes    
     def job_failed(self, job_id):

@@ -42,6 +42,10 @@ class PmakeSub(object):
 
     def terminate(self):
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
+        self.job_queue.close()
+        self.result_queue.close()
+        self.job_queue = None
+        self.result_queue = None
 
     def apply_async(self, function, arguments):
         self.job_queue.put((function, arguments))
@@ -65,7 +69,6 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
 
     log('started pmake_worker()')
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-
 
     def put_result(x):
         result_queue.put(x, block=True)
@@ -118,6 +121,9 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         put_result(mye.get_result_dict())
         log('(put)')
 
+
+    signal_queue.close()
+    result_queue.close()
     log('clean exit.')
 
 
