@@ -46,7 +46,7 @@ class MVacManager(Manager):
         self.new_process = new_process
 
     def process_init(self):
-        nevents = 1000 # max(self.num_processes, 10) * 1000
+        nevents = 1000 
         self.event_queue = Queue(nevents)
         self.event_queue_name = str(id(self))
         from compmake.plugins.backend_pmake.pmake_manager import PmakeManager
@@ -60,6 +60,8 @@ class MVacManager(Manager):
         self.sub_processing = set()
         self.sub_aborted = set()
 
+        self.signal_queue = Queue(1000)
+
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
         logs = os.path.join(storage, 'pmakesub')
@@ -67,13 +69,29 @@ class MVacManager(Manager):
             name = 'w%02d' % i
             write_log = os.path.join(logs, '%s.log' % name)
             make_sure_dir_exists(write_log)
-            self.subs[name] = PmakeSub(name, write_log)
+            signal_token = name
+            self.subs[name] = PmakeSub(name, signal_queue=self.signal_queue,
+                                       signal_token=signal_token,
+                                       write_log=write_log)
         self.job2subname = {}
-        # all are available
+        self.subname2job = {}
+        # all are available at the beginning
         self.sub_available.update(self.subs)
 
         self.max_num_processing = self.num_processes
 
+    def check_any_finished(self):
+        # We make a copy because processing is updated during the loop
+        try:
+            token = self.signal_queue.get(block=False)
+        except Empty:
+            return False
+        #print('received %r' % token)
+        job_id = self.subname2job[token]
+        self.subs[token].last
+        self.check_job_finished(job_id, assume_ready=True)
+        return True 
+    
     # XXX: boiler plate
     def get_resources_status(self):
         resource_available = {}
@@ -120,6 +138,7 @@ class MVacManager(Manager):
         sub = self.subs[name]
 
         self.job2subname[job_id] = name
+        self.subname2job[name] = job_id
 
         job = get_job(job_id, self.db)
 
@@ -191,6 +210,7 @@ class MVacManager(Manager):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
+        del self.subname2job[name]
         assert name in self.sub_processing
         assert name not in self.sub_available
         self.sub_processing.remove(name)
@@ -202,6 +222,7 @@ class MVacManager(Manager):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
+        del self.subname2job[name]
         assert name in self.sub_processing
         assert name not in self.sub_available
         self.sub_processing.remove(name)

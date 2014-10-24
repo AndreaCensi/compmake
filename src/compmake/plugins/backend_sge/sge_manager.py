@@ -29,6 +29,7 @@ class SGEManager(Manager):
         if not os.path.exists(spool):
             os.makedirs(spool)
 
+
         self.sub_available = set()
         self.sub_processing = set()  # available + processing = subs.keys
         self.subs = {}  # name -> sub

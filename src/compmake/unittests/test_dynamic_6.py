@@ -4,8 +4,12 @@ from compmake.jobs import direct_children, get_job, jobs_defined
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.ui.ui import clean_other_jobs
 from nose.tools import istest
+from compmake.structures import Cache
+from compmake.jobs.manager import check_job_cache_state
+from compmake.exceptions import CompmakeBug
 
 def g2(): 
+    print('returning g2')
     return 'g2'
 
 def gd(context):
@@ -41,15 +45,17 @@ class TestDynamic6(CompmakeTest):
         
         # first define with job and run
         mockup6(self.cc, both=True)
+        db = self.db
         
-        self.assertRaises(ValueError, jobs_defined, job_id='hd', db=self.db)
+        self.assertRaises(CompmakeBug, jobs_defined, job_id='hd', db=db)
         
         self.assert_cmd_success('make recurse=1')
-        self.assertEqual(jobs_defined(job_id='hd', db=self.db),
+        check_job_cache_state(job_id='hd', states=[Cache.DONE], db=db)
+        self.assertEqual(jobs_defined(job_id='hd', db=db),
                          set(['id']))
         
-        self.assert_cmd_success('graph compact=0 color=0 '
-                                'cluster=1 filter=dot')
+        # self.assert_cmd_success('graph compact=0 color=0 '
+        #                         'cluster=1 filter=dot')
         
         self.assertJobsEqual('all', ['fd', 'gd', 'g2',  
                                      'hd', 'id', 'i2', 
@@ -75,7 +81,7 @@ class TestDynamic6(CompmakeTest):
         self.assertEqual(job.dynamic_children, {'fd': set(['gd'])})
         self.assertEqualSet(direct_children('summary', self.db), ['fd', 'gd'])
         self.assert_cmd_success('ls')
-#         self.assert_cmd_success('clean')
+
         self.assert_cmd_success('make recurse=1')
         self.assertJobsEqual('all',  ['fd', 'gd', 'g2', 'summary'])
         self.assertJobsEqual('done', ['fd', 'gd', 'g2', 'summary']) 

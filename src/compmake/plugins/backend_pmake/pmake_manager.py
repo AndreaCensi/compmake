@@ -66,11 +66,19 @@ class PmakeManager(Manager):
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
         logs = os.path.join(storage, 'pmakesub')
+        
+        self.signal_queue = Queue(1000)
+        
         for i in range(self.num_processes):
             name = 'w%02d' % i
             write_log = os.path.join(logs, '%s.log' % name)
             make_sure_dir_exists(write_log)
-            self.subs[name] = PmakeSub(name, write_log)
+            signal_token = name
+            
+            self.subs[name] = PmakeSub(name=name, 
+                                       signal_queue=self.signal_queue, 
+                                       signal_token=signal_token, 
+                                       write_log=write_log)
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)

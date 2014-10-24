@@ -26,28 +26,31 @@ __all__ = [
 class PmakeSub(object):
     EXIT_TOKEN = 'please-exit'
 
-    def __init__(self, name, write_log=None):
+    def __init__(self, name, signal_queue, signal_token, write_log=None):
         self.name = name
-
+        
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
         self.proc = multiprocessing.Process(target=pmake_worker,
                                             args=(self.name,
                                                   self.job_queue,
                                                   self.result_queue,
+                                                  signal_queue,
+                                                  signal_token,
                                                   write_log))
         self.proc.start()
 
     def terminate(self):
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
-        # self.proc.terminate()
 
     def apply_async(self, function, arguments):
         self.job_queue.put((function, arguments))
-        return PmakeResult(self.result_queue)
+        self.last = PmakeResult(self.result_queue)
+        return self.last
 
 
-def pmake_worker(name, job_queue, result_queue, write_log=None):
+def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, 
+                 write_log=None):
     if write_log:
         f = open(write_log, 'w')
 
@@ -63,6 +66,11 @@ def pmake_worker(name, job_queue, result_queue, write_log=None):
     log('started pmake_worker()')
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+
+    def put_result(x):
+        result_queue.put(x, block=True)
+        signal_queue.put(signal_token, block=True)
+        
     try:
         while True:
             log('Listening for job')
@@ -76,20 +84,20 @@ def pmake_worker(name, job_queue, result_queue, write_log=None):
             except JobFailed as e:
                 log('Job failed, putting notice.')
                 log('result: %s' % str(e))  # debug
-                result_queue.put(e.get_result_dict(), block=True)
+                put_result(e.get_result_dict())
                 log('(put)')
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
-                result_queue.put(dict(abort=str(e)), block=True)  # XXX
+                put_result(dict(abort=str(e))) # XXX
                 log('(put)')
             except CompmakeBug as e:  # XXX :to finish
                 log('CompmakeBug')
-                result_queue.put(e.get_result_dict(), block=True)
+                put_result(e.get_result_dict())
                 log('(put)')
             else:
                 log('result: %s' % str(result))
                 log('job finished. Putting in queue...')
-                result_queue.put(result, block=True)
+                put_result(result)
                 log('(put)')
 
             log('...done.')
@@ -101,13 +109,13 @@ def pmake_worker(name, job_queue, result_queue, write_log=None):
         mye = HostFailed(host="???", job_id="???",
                          reason=reason, bt=traceback.format_exc(e))
         log(str(mye))
-        result_queue.put(mye.get_result_dict(), block=True)
+        put_result(mye.get_result_dict())
     except:
         mye = HostFailed(host="???", job_id="???",
                          reason='Uknown exception (not BaseException)',
                          bt="not available")
         log(str(mye))
-        result_queue.put(mye.get_result_dict(), block=True)
+        put_result(mye.get_result_dict())
         log('(put)')
 
     log('clean exit.')
@@ -119,12 +127,10 @@ class PmakeResult(AsyncResultInterface):
     def __init__(self, result_queue):
         self.result_queue = result_queue
         self.result = None
-
-    # self.count = 0
+        # self.count = 0
 
     def ready(self):
         # self.count += 1
-
         try:
             self.result = self.result_queue.get(block=False)
         except Empty:

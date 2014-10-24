@@ -18,6 +18,7 @@ import itertools
 import os
 import time
 import traceback
+from compmake.state import get_compmake_config
 
 __all__ = [
     'Manager',
@@ -298,9 +299,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-
-    def check_job_finished(self, job_id):
-        self.log('check_job_finished', job_id=job_id)
+    def check_job_finished(self, job_id, assume_ready=False):
         ''' 
             Checks that the job finished succesfully or unsuccesfully. 
             
@@ -313,6 +312,7 @@ class Manager(ManagerLog):
             
             Handles update of various sets. 
         '''
+        self.log('check_job_finished', job_id=job_id)
         self.check_invariants()
 
         def bug():
@@ -324,31 +324,40 @@ class Manager(ManagerLog):
         async_result = self.processing2result[job_id]
 
         try:
-            if async_result.ready():
-                result = async_result.get()
-                check_isinstance(result, dict)
-                result_dict_check(result)
-
-                self.job_succeeded(job_id)
-                self.check_invariants()
-
-                self.check_job_finished_handle_result(job_id, result)
-                self.check_invariants()
-                # this will schedule the parents, so let's do it later
-
-                self.check_invariants()
-
-                return True
-            else:
+            if not assume_ready and not async_result.ready():
                 return False
 
+            if assume_ready:
+                timeout = 10
+            else:
+                timeout = 0
+                
+            result = async_result.get(timeout=timeout)
+            result_dict_check(result)
+
+            check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
+
+            self.job_succeeded(job_id)
+            self.check_invariants()
+
+            self.check_job_finished_handle_result(job_id, result)
+            self.check_invariants()
+            # this will schedule the parents, so let's do it later
+
+            self.check_invariants()
+
+            return True
+
         except TimeoutError:
+            if assume_ready:
+                msg ='Got Timeout while assume_ready for %r' % job_id
+                raise CompmakeBug(msg)
             # Result not ready yet
             return False
         except JobFailed as e:
             # it is the responsibility of the executer to mark_job_as_failed, 
             # so we can check that
-            check_job_cache_says_failed(job_id=job_id, db=self.db, e=e)
+            check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
             self.job_failed(job_id)
             publish(self.context, 'job-failed', job_id=job_id,
                     host="XXX", reason=e.reason, bt=e.bt)
@@ -366,21 +375,6 @@ class Manager(ManagerLog):
             # XXX
             print(traceback.format_exc(e))
             raise JobInterrupted('Keyboard interrupt')
-
-
-            # def _update_parents_relation(self, new_jobs):
-            #
-            # def add_parent(child, parent, db):
-            # print('adding %r to parents of %r' % (parent, child))
-            # child_comp = get_job(child, db=db)
-            # child_comp.parents.add(new_job)
-            # set_job(child, child_comp, db=db)
-            #             print('  cur parents: %s' % child_comp.parents)
-            #
-            #         print('updating parents relation for %r ' % new_jobs)
-            #         for new_job in new_jobs:
-            #             for child in children(new_job, db=self.db):
-            #                 add_parent(child, new_job, db=self.db)
 
 
     def job_is_deleted(self, job_id):
@@ -413,7 +407,8 @@ class Manager(ManagerLog):
 
         # Job succeeded? we can check in the DB
         if True:  # XXX: extra check
-            check_job_cache_says_done(job_id=job_id, db=self.db)
+            check_job_cache_state(job_id=job_id, db=self.db, 
+                                  states=[Cache.DONE])
 
         # print('job %r succeeded' % job_id)
         self.check_invariants()
@@ -598,25 +593,37 @@ class Manager(ManagerLog):
     def event_check(self):
         pass
 
+
+    def check_any_finished(self):
+        """ 
+            Checks that any of the jobs finished.
+            
+            Returns True if something finished (either success or failure).
+            Returns False if something finished unseccesfully.
+        """
+        # We make a copy because processing is updated during the loop
+        received = False
+        for job_id in self.processing.copy():
+            received = received or self.check_job_finished(job_id)
+            self.check_invariants()
+        return received
+
     def loop_until_something_finishes(self):
         self.check_invariants()
+        
+        manager_wait = get_compmake_config('manager_wait')
 
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
         for _ in range(10):  # XXX
-            received = False
-
-            # We make a copy because processing is updated during the loop
-            for job_id in self.processing.copy():
-                received = received or self.check_job_finished(job_id)
-                self.check_invariants()
+            received = self.check_any_finished()
 
             if received:
                 break
             else:
                 publish(self.context, 'manager-loop',
                         processing=list(self.processing))
-                time.sleep(0.001)  # TODO: make param
+                time.sleep(manager_wait)  # TODO: make param
 
             # Process events
             self.event_check()
@@ -637,7 +644,6 @@ class Manager(ManagerLog):
                     blocked=self.blocked,
                     ready=self.ready_todo,
                     processing=self.processing)
-
             return True
 
         publish(self.context, 'manager-phase', phase='init')
@@ -826,23 +832,24 @@ class Manager(ManagerLog):
                         'job %r in blocked does not exist' % job_id)
 
 
-def check_job_cache_says_done(job_id, db):
+def check_job_cache_state(job_id, states, db):
     """ Raises CompmakeBug if the job is not marked as done. """
     if not job_cache_exists(job_id, db):
-        msg = ('The job %r was reported as failed but no record of '
+        msg = ('The job %r was reported as done/failed but no record of '
                'it was found.' % job_id)
         raise CompmakeBug(msg)
     else:
         cache = get_job_cache(job_id, db)
-        if not cache.state == Cache.DONE:
-            msg = ('The job %r was reported as failed but it was '
-                   'not marked as such in the DB.' % job_id)
-            msg += '\n seen state: %s ' % Cache.state2desc[cache.state]
+        if not cache.state in states:
+            msg = ('Wrong state for %r: %s instead of %r ' %
+                   (job_id, Cache.state2desc[cache.state],
+                    [Cache.state2desc[s] for s in states]))
             raise CompmakeBug(msg)
 
-        if not job_userobject_exists(job_id, db):
-            msg = 'Job %r marked as DONE but no userobject exists' % job_id
-            raise CompmakeBug(msg)
+        if cache.state == Cache.DONE:
+            if not job_userobject_exists(job_id, db):
+                msg = 'Job %r marked as DONE but no userobject exists' % job_id
+                raise CompmakeBug(msg)
 
 # 
 # if False:

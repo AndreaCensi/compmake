@@ -71,12 +71,15 @@ def show_config(f):
             switch = config_switches[name]
             value = get_compmake_config(name)
             changed = (value != switch.default_value)
-            if changed:
-                attrs = ['bold']
-            else:
-                attrs = []
             value = str(value)
             desc = str(switch.desc)
+
+            if changed:
+                attrs = ['bold']
+                if not get_compmake_config('colorize'):
+                    value += '*'
+            else:
+                attrs = []
 
             from compmake.utils.colored import compmake_colored
 

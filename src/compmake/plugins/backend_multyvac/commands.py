@@ -13,7 +13,7 @@ __all__ = [
 
 @ui_command(section=ACTIONS, dbchange=True)
 def cloudmake(job_list, context, cq,
-            n=DefaultsToConfig('max_parallel_jobs'),
+            n=DefaultsToConfig('multyvac_max_jobs'),
             recurse=DefaultsToConfig('recurse'),
             new_process=DefaultsToConfig('new_process'),
             echo=DefaultsToConfig('echo')):

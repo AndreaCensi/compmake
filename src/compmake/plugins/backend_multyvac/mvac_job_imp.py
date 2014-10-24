@@ -4,11 +4,11 @@ from compmake.jobs.job_execution import get_cmd_args_kwargs
 from compmake.jobs.result_dict import result_dict_check
 from compmake.jobs.storage import (get_job, get_job_cache, set_job_cache, 
     set_job_userobject)
+from compmake.state import get_compmake_config
 from compmake.structures import Cache
 from contracts import check_isinstance, contract
-
 import time
-from compmake.state import get_compmake_config
+
 
 
 __all__ = [
@@ -16,6 +16,19 @@ __all__ = [
 ]
 
 
+def mvac_instance(db, job_id):
+    import multyvac    
+    layer = get_compmake_config('multyvac_layer')
+    if not layer:
+        layer = None
+
+    command, args, kwargs = get_cmd_args_kwargs(job_id=job_id, db=db)
+
+    multyvac_job_id = multyvac.submit(command, *args, _layer=layer, **kwargs)
+    multyvac_job = multyvac.get(multyvac_job_id)
+    return multyvac_job
+    
+    
 @contract(args='tuple(str, *,  str, bool)')
 def mvac_job(args):
     """
@@ -38,7 +51,6 @@ def mvac_job(args):
     
     db = context.get_compmake_db()
     job = get_job(job_id=job_id, db=db)
-    command, args, kwargs = get_cmd_args_kwargs(job_id=job_id, db=db)
 
     if job.needs_context:
         msg = 'Cannot use multyvac for dynamic job.'
@@ -47,12 +59,7 @@ def mvac_job(args):
     time_start = time.time()
     cpu_start = time.clock()
 
-    import multyvac    
-    layer = get_compmake_config('multyvac_layer')
-    if not layer:
-        layer = None
-    multyvac_job_id = multyvac.submit(command, *args, _layer=layer, **kwargs)
-    multyvac_job = multyvac.get(multyvac_job_id)
+    multyvac_job = mvac_instance(db, job_id)
     multyvac_job.wait()
     
     errors = [multyvac_job.status_error, multyvac_job.status_killed]

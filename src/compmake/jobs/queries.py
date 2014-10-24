@@ -40,7 +40,7 @@ def jobs_defined(job_id, db):
         if cache.state != Cache.DONE:
             msg = ('Cannot get jobs_defined for job not done '
                    +'(status: %s)' % Cache.state2desc[cache.state])
-            raise ValueError(msg)
+            raise CompmakeBug(msg)
         return set(cache.jobs_defined)
         
         
