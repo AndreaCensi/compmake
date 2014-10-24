@@ -11,11 +11,13 @@ __all__ = [
 
 CONFIG_GENERAL = 'General configuration'
 CONFIG_APPEARANCE = 'Visualization'
-CONFIG_PARALLEL = 'Multiprocessing'
+CONFIG_PARALLEL = 'Multiprocessing backend'
+CONFIG_MULTYVAC = 'Multyvac backend'
 
 add_config_section(name=CONFIG_GENERAL, desc='', order=-1)
 add_config_section(name=CONFIG_APPEARANCE, desc='', order=2)
 add_config_section(name=CONFIG_PARALLEL, desc='', order=3)
+add_config_section(name=CONFIG_MULTYVAC, desc='', order=4)
 
 add_config_switch('recurse', False,
                   desc="Default choice for parmake and make whether to run "
@@ -32,6 +34,11 @@ add_config_switch('check_params', False,
                        "to change.",
                   # Very useful but you need to define __eq__() in all the
                   # objects you use as parameters.",
+                  section=CONFIG_GENERAL)
+
+add_config_switch('manager_wait', 0.1,
+                  desc="Sleep time, in seconds, to wait if no job has finished. ",
+#                   "Low value gives responsiveness but higher CPU usage",
                   section=CONFIG_GENERAL)
 
 add_config_switch('echo', False,
@@ -65,7 +72,6 @@ add_config_switch('interactive', True,
 add_config_switch('console_status', True,
                   desc='Enables the console_status plugin.',
                   section=CONFIG_APPEARANCE)
-
 
 add_config_switch('readline', True,
                   desc='Try to use readline or pyreadline module.',
@@ -107,16 +113,15 @@ if False: # To re-implement
                       desc='Minimum time interval between instantiating jobs.',
                       section=CONFIG_PARALLEL)
     
-    
-add_config_switch('multyvac_layer', '',
-                      desc="Multyvac 'layer'",
-                      section=CONFIG_PARALLEL)
 
 add_config_switch('multyvac_debug', False,
                       desc="If true, shows multyvac's logging output.",
-                      section=CONFIG_PARALLEL)
+                      section=CONFIG_MULTYVAC)
     
+add_config_switch('multyvac_max_jobs', 50,
+                      desc="Default number of cloud jobs to be instantiated",
+                      section=CONFIG_MULTYVAC)
     
-    
-    
-    
+add_config_switch('multyvac_layer', '',
+                      desc="Multyvac 'layer'",
+                      section=CONFIG_MULTYVAC)
