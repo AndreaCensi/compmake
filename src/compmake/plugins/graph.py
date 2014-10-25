@@ -5,6 +5,7 @@ from compmake.jobs import CacheQueryDB, top_targets
 from compmake.structures import Cache
 from compmake.exceptions import UserError
 from compmake.ui import COMMANDS_ADVANCED, info, ui_command
+from compmake.jobs.queries import definition_closure, jobs_defined
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -34,8 +35,9 @@ def graph(job_list, context, filename='compmake-graph',
     """
     db = context.get_compmake_db()
     if not job_list:
-        job_list = top_targets(db)
+        job_list = list(top_targets(db))
 
+    print('jobs: %s' % job_list)
     print('Importing gvgen')
     try:
         import gvgen  # @UnresolvedImport @UnusedImport
@@ -45,10 +47,19 @@ def graph(job_list, context, filename='compmake-graph',
                'package from %s') % gvgen_url
         raise UserError(msg)
 
-    print('Getting all jobs')
+    print('Getting all jobs in tree')
 
     cq = CacheQueryDB(db)
-    job_list = cq.tree(job_list)
+    job_list = set(job_list)
+    # all the dependencies
+    job_list.update(cq.tree(job_list))
+
+    # plus all the jobs that were defined by them
+    job_list.update(definition_closure(job_list, db))
+    
+    job_list = set(job_list)
+
+    print('closure: %s' % sorted(job_list))
 
     if cluster:
         ggraph = create_graph2_clusters(cq, job_list, compact=compact,
@@ -78,7 +89,8 @@ def create_graph1(cq, job_list, compact, color):
     import gvgen  # @UnresolvedImport
 
     print('Creating graph')
-
+    job_list = list(job_list)
+    print('create_graph1(%s)' % job_list)
     ggraph = gvgen.GvGen()
 
     state2color = {
@@ -110,7 +122,9 @@ def create_graph1(cq, job_list, compact, color):
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
         for child in cq.direct_children(job_id):
-            ggraph.newLink(job2node[job_id], job2node[child])
+            # arrows follows flux of data
+            print('%s->%s' % (job2node[child], job2node[job_id]))
+            ggraph.newLink(job2node[child], job2node[job_id])
 
     return ggraph
 
@@ -178,7 +192,7 @@ def create_graph2_clusters(cq, job_list, compact, color):
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
         for child in cq.direct_children(job_id):
-            ggraph.newLink(job2node[job_id], job2node[child])
+            ggraph.newLink(job2node[child], job2node[job_id])
 
     # generation
     for cluster in cluster2jobs:

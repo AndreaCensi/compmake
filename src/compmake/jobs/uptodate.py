@@ -64,7 +64,10 @@ def direct_uptodate_deps_inverse(job_id, db):
     """
     from compmake.jobs.queries import direct_parents
     dep_inv = direct_parents(job_id, db)
-    dep_inv.update(jobs_defined(job_id, db))
+    from compmake.jobs.storage import get_job_cache
+    # Not sure if need to be here --- added when doing graph-animation for jobs in progress
+    if get_job_cache(job_id, db).state == Cache.DONE: 
+        dep_inv.update(jobs_defined(job_id, db))
     return dep_inv 
 
 

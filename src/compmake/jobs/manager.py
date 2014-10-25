@@ -11,7 +11,8 @@ from .queries import direct_children, direct_parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
-from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
+from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent,\
+    set_job_cache
 from contracts import ContractsMeta, check_isinstance, contract, indent
 from multiprocessing import TimeoutError
 import itertools
@@ -288,6 +289,12 @@ class Manager(ManagerLog):
         if not job_id in self.ready_todo:
             self._raise_bug('start_job', job_id)
 
+        # usually it's done low-level, but useful to do before
+        # the event so that it looks like it's processing
+        cache = get_job_cache(job_id, self.db)
+        cache.state = Cache.IN_PROGRESS
+        set_job_cache(job_id, cache, db=self.db)
+    
         publish(self.context, 'manager-job-starting', job_id=job_id)
         self.ready_todo.remove(job_id)
         self.processing.add(job_id)
@@ -337,6 +344,7 @@ class Manager(ManagerLog):
 
             check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
 
+            
             self.job_succeeded(job_id)
             self.check_invariants()
 

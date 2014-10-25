@@ -33,3 +33,4 @@ from . import backend_ssh_cluster
 from . import backend_multyvac
 
 from . import debug_priority
+from . import graph_animation_imp
