@@ -8,10 +8,11 @@ from ..jobs.storage import (job_args_sizeof, job_cache_exists,
 from ..jobs.syntax.parsing import is_root_job
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
-from ..utils import (duration_compact, pad_to_screen_length,
-                     get_length_on_screen)
+from ..utils import (duration_compact)
 from contracts import contract
 from compmake.constants import CompmakeConstants
+from compmake.utils.terminal_size import get_screen_columns
+from compmake.utils.table_formatter import TableFormatter
 
 
 @ui_command(section=VISUALIZATION, alias='list')
@@ -117,7 +118,6 @@ def list_jobs(context, job_list, cq, complete_names=False,
                                                   'white',
                                                   attrs=['dark'])
 
-
         tf.cell(format_job_id(job_id))
 
         tag = Cache.state2desc[cache.state]
@@ -155,6 +155,9 @@ def list_jobs(context, job_list, cq, complete_names=False,
         if cache.state in [Cache.DONE, Cache.FAILED]:
             when = duration_compact(time() - cache.timestamp)
             when_s = "(%s ago)" % when
+            
+            when_s = compmake_colored(when_s, color='white', attrs=['dark'])
+            
             tf.cell(when_s)
         else:
             tf.cell('')  # when
@@ -162,8 +165,16 @@ def list_jobs(context, job_list, cq, complete_names=False,
 
     tf.done()
 
-    for line in tf.get_lines():
-        print('  ' + line)
+    ind = '  '
+    if False:
+        for line in tf.get_lines():
+            print('  ' + line)
+    else:
+        linewidth = get_screen_columns()
+        #print('*'*linewidth)
+        sep = compmake_colored('   |   ', color='white', attrs=['dark'])
+        for line in tf.get_lines_multi(linewidth-len(ind), sep=sep):
+            print(ind + line)
 
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
@@ -203,63 +214,6 @@ def get_sizes(job_id, db):
 
     res['total'] = res['cache'] + res['args'] + res['result']
     return res
-
-
-class TableFormatter():
-    def __init__(self, sep='|'):
-        self.rows = []
-        self.cur_row = None
-        self.sep = sep
-
-        self.padleft = lambda s, l: pad_to_screen_length(s, l)
-        self.strlen = get_length_on_screen
-
-    def row(self):
-        if self.cur_row is not None:
-            self._push_row()
-
-        self.cur_row = []
-
-    def _push_row(self):
-        if self.rows:
-            if not len(self.rows[0]) == len(self.cur_row):
-                msg = 'Invalid row: %s' % str(self.cur_row)
-                raise ValueError(msg)
-        self.rows.append(self.cur_row)
-
-    def cell(self, s):
-        if self.cur_row is None:
-            raise ValueError('Call row() before cell().')
-        self.cur_row.append(str(s))
-
-    def done(self):
-        if self.cur_row is None:
-            raise ValueError('Call row() before done().')
-        self._push_row()
-
-    def _get_cols(self):
-        ncols = len(self.rows[0])
-        cols = [list() for _ in range(ncols)]
-        for j in range(ncols):
-            for r in self.rows:
-                cols[j].append(r[j])
-        return cols
-
-    def get_lines(self):
-        cols = self._get_cols()
-        # width of each cols
-        wcol = [max(self.strlen(s) for s in col) for col in cols]
-        for r in self.rows:
-            r = self._get_row_formatted(r, wcol)
-            yield r
-
-    def _get_row_formatted(self, row, wcol):
-        ss = []
-        for j, cell in enumerate(row):
-            entry = self.padleft(cell, wcol[j])
-            ss.append(entry)
-        return self.sep.join(ss)
-
 
 
 

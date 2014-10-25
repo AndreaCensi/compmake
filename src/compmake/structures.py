@@ -168,7 +168,7 @@ class Cache(object):
 
     state2desc = {
         NOT_STARTED: 'todo',
-        IN_PROGRESS: 'in progress',
+        IN_PROGRESS: 'in prog.',
         BLOCKED: 'blocked',
         FAILED: 'failed',
         DONE: 'done'}

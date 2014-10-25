@@ -76,7 +76,7 @@ def display_stats(job_list, context):
     print("Summary by function name:")
 
     flen = max((len(x) + len('()')) for x in function2state2count)
-
+    flen = max(flen, len('total'))
     states = [
         (Cache.DONE, 'done'),
         (Cache.FAILED, 'failed'),

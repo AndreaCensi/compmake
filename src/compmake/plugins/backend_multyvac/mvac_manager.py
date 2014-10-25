@@ -1,19 +1,16 @@
+from compmake.events import broadcast_event, publish
+from compmake.exceptions import MakeHostFailed
+from compmake.jobs import Manager
+from compmake.jobs.storage import get_job
+from compmake.plugins.backend_multyvac.mvac_job_imp import mvac_job
+from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
+from compmake.plugins.backend_pmake.pmakesub import PmakeSub
+from compmake.utils import make_sure_dir_exists
+from contracts import contract
 from multiprocessing.queues import Queue
 import os
 import signal
 import sys
-
-
-from compmake.events import broadcast_event, publish
-from compmake.exceptions import MakeHostFailed
-from compmake.jobs import Manager 
-from compmake.utils import make_sure_dir_exists
-from contracts import contract
-from compmake.plugins.backend_pmake.pmakesub import PmakeSub
-from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
-from compmake.jobs.storage import get_job
-from compmake.plugins.backend_multyvac.mvac_job_imp import mvac_job
-
 
 if sys.version_info[0] >= 3:
     # noinspection PyUnresolvedReferences
@@ -176,8 +173,7 @@ class MVacManager(Manager):
             return
         self.cleaned = True
         
-        #print('Clean up...')
-        # TODO: write cleanup code
+        #print('Clean up...') 
         
         for name in self.sub_processing:
             self.subs[name].proc.terminate()
