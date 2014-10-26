@@ -91,7 +91,7 @@ def get_color_for(x, cq):
 
     state2color = {
         Cache.NOT_STARTED: 'grey',
-        Cache.IN_PROGRESS: 'yellow',
+#         Cache.IN_PROGRESS: 'yellow',
         Cache.FAILED: 'red',
         Cache.DONE: 'green',
         Cache.BLOCKED: 'brown',
@@ -99,7 +99,7 @@ def get_color_for(x, cq):
 
     state = cache.state
     if cache.debug_in_progress:
-        state = Cache.IN_PROGRESS
+        return 'yellow'
         
     return state2color[state]
 

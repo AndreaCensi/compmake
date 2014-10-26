@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-from system_cmd import system_cmd_show
+from system_cmd import system_cmd_result, system_cmd_show
 import compmake
-import shutil
 import os
-from system_cmd.meat import system_cmd_result
+import shutil
 
 
 def go(filename, cm_cmd, video_name):
@@ -47,13 +46,13 @@ def go(filename, cm_cmd, video_name):
 
 if __name__ == '__main__':
     context = compmake.Context()
-    context.comp(go, 'example_simplest.py', 'make', 'anim-simplest-make')
-    context.comp(go, 'example_fail.py', 'make', 'anim-fail-make')
-#     context.comp(go, '../example_simplest.py', 
-#                  'parmake n=2', 'anim-simple-parmake2')
-
-#     context.comp(go, '../example_simple.py', 
-#                  'make', 'anim-simple-make')
-#     context.comp(go, '../example_simple.py', 
-#                  'parmake n=2', 'anim-simple-parmake2')
+    context.comp(go, 'example_simplest.py', 'make', 
+                 'anim-simplest-make',
+                 job_id='anim-simplest-make')
+    context.comp(go, 'example_simplest.py', 'parmake n=2', 
+                 'anim-simplest-parmake2',
+                 job_id='anim-simplest-parmake2')
+    context.comp(go, 'example_fail.py', 'make', 
+                 'anim-fail-make',
+                 job_id='anim-fail-make')
     context.compmake_console()

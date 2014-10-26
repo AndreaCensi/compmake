@@ -106,7 +106,7 @@ class Test1(CompmakeTest):
         self.expandsTo('failed', self.failed)
         self.expandsTo('done', self.done)
         self.expandsTo('DONE', self.done)
-        self.expandsTo('in_progress', self.in_progress)
+#         self.expandsTo('in_progress', self.in_progress)
 
     def testBasicUnion(self):
         """ Testing basic union operator """
@@ -138,7 +138,7 @@ class Test1(CompmakeTest):
 
     def testIntersection(self):
         self.expandsTo('a b in a b c', ['a', 'b'])
-        self.expandsTo('a b c in d e f', [])
+        self.expandsTo('a b c in d e', [])
 
     def tearDown(self):
         pass
