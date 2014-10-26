@@ -16,6 +16,24 @@ http://purl.org/censi/compmake-manual
     <img style="float: left; border: solid 1px red" src="docs/source/my_static/2015-compmake-v3.png"/>
 </a>
 
+Some animations of the job graph
+---------------------------------
+
+*Robustness to job failure*
+
+<img src="http://purl.org/censi/research/201410-compmake-animations/anim-fail-make-function.gif"/>
+
+*Simple dynamic jobs*
+
+<img src="http://purl.org/censi/research/201410-compmake-animations/anim-dynamic-make-function.gif"/>
+
+*Dynamic jobs and recursive parallel executions*
+
+<img src="http://purl.org/censi/research/201410-compmake-animations/anim-recursion-parmake16-none.gif"/>
+
+
+
+
 Issues
 ------
 
