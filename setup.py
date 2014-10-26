@@ -1,11 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
-version = "3.3.7"
+version = "3.4.0"
 
 
 setup(
@@ -49,7 +45,7 @@ setup(
     entry_points={
      'console_scripts': [
        'compmake = compmake.scripts.master:main',
-       'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
+       #'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
       ]
     },
     install_requires=[
@@ -63,11 +59,6 @@ setup(
         #'pyreadline',
     ],
 
-    tests_require=['nose']
-    # extras_require={
-    # 'multiprocessing':  ['redis']
-    # # TODO: learn how to use this feature
-    # # TODO: add gvgen
-    # }
+    tests_require=['nose'],
 )
 
