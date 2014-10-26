@@ -255,7 +255,7 @@ stuff is built in as a plugin.</p>
 
 <dl class="function">
 <dt id="compmake.plugins.commands_status.manager_succeeded">
-<tt class="descclassname">compmake.plugins.commands_status.</tt><tt class="descname">manager_succeeded</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.commands_status.manager_succeeded" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.commands_status.</tt><tt class="descname">manager_succeeded</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.commands_status.manager_succeeded" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -269,7 +269,7 @@ stuff is built in as a plugin.</p>
 
 <dl class="function">
 <dt id="compmake.plugins.console_banners.console_starting">
-<tt class="descclassname">compmake.plugins.console_banners.</tt><tt class="descname">console_starting</tt><big>(</big><em>event</em>, <em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_banners.console_starting" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.console_banners.</tt><tt class="descname">console_starting</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.console_banners.console_starting" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -339,7 +339,7 @@ stuff is built in as a plugin.</p>
 <em class="property">class </em><tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">Tmp</tt><a class="headerlink" href="#compmake.plugins.console_status.Tmp" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="attribute">
 <dt id="compmake.plugins.console_status.Tmp.last_manager_loop">
-<tt class="descname">last_manager_loop</tt><em class="property"> = 1413298522.848226</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">last_manager_loop</tt><em class="property"> = 1414363376.096746</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -457,25 +457,36 @@ argument to see more:</p>
 <span id="graph-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">graph</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.graph" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.graph.create_graph1">
-<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">create_graph1</tt><big>(</big><em>cq</em>, <em>job_list</em>, <em>compact</em>, <em>color</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.create_graph1" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">create_graph1</tt><big>(</big><em>cq</em>, <em>job_list</em>, <em>label</em>, <em>color</em>, <em>processing</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.create_graph1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="compmake.plugins.graph.create_graph2_clusters">
-<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">create_graph2_clusters</tt><big>(</big><em>cq</em>, <em>job_list</em>, <em>compact</em>, <em>color</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.create_graph2_clusters" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">create_graph2_clusters</tt><big>(</big><em>cq</em>, <em>job_list</em>, <em>label</em>, <em>color</em>, <em>processing</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.create_graph2_clusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.graph.get_color_for">
+<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">get_color_for</tt><big>(</big><em>x</em>, <em>cq</em>, <em>processing</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.get_color_for" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.graph.get_node_label">
+<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">get_node_label</tt><big>(</big><em>cq</em>, <em>job_id</em>, <em>label</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.get_node_label" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="compmake.plugins.graph.graph">
-<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">graph</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>filename='compmake'</em>, <em>filter='dot'</em>, <em>format='png'</em>, <em>compact=False</em>, <em>color=True</em>, <em>cluster=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.graph" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">graph</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>filename='compmake-graph'</em>, <em>filter='dot'</em>, <em>format='png'</em>, <em>label='id'</em>, <em>color=True</em>, <em>cluster=False</em>, <em>processing=set([])</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a graph of the given targets and dependencies.</p>
 <p>Usage:</p>
 <blockquote>
-<div>&#64;: graph filename=filename compact=0,1 format=png,...</div></blockquote>
+<div>&#64;: graph filename=filename label=[id,function,none] color=[0|1] format=png filter=[dot|circo|...]</div></blockquote>
 <p>Options:</p>
 <blockquote>
 <div><p>filename:  name of generated filename in the dot format
-compact=0: whether to include the job names in the nodes
+label=&#8217;none&#8217;,&#8217;id&#8217;,&#8217;function&#8217;
+color=[0|1]: whether to color the nodes
 filter=[dot,circo,twopi,...]  which algorithm to use to arrange</p>
 <blockquote>
 <div>the nodes. The best choice depends on

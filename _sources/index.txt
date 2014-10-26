@@ -31,15 +31,80 @@ Compmake
     </div>
 
 
-  |compmake| is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
+  |compmake| is a non-obtrusive module that provides Make--like facilities to a Python 
+  application, including:
 
-  - Minimal effort **parallelization**.
+  - Minimal effort **parallelization** (multiple CPU on a single host, cluster computing using SGE, and experimental support for cloud computing using Multyvac).
   - **Caching** of temporary results: you can interrupt your program 
     and restart it without losing what was already computed.
   - **Failure tolerance**: if a job fails, other jobs that do
     not depend on it continue to be executed.
   - A **console** for inspecting failures and partial completion,
-     with familiar commands such as ``make``, ``clean``, etc.
+    with familiar commands such as ``make``, ``clean``, etc.
+
+
+Screencast
+----------
+
+
+  .. raw:: html
+
+    <iframe src="http://player.vimeo.com/video/110090252" width="500" height="375" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+Some visualizations of the jobs graph during execution
+-------------------------------------------------------
+
+
+  .. raw:: html
+
+    <style type='text/css'>
+      div#animations { 
+      }
+      div#animations p { font-style: italic; }
+      div#animations img { border: solid 1px black;}
+      span { font-weight: normal; font-family: monospace; padding: 5px}
+      .DONE { background-color: #00FF00; }
+      .FAILED { background-color: red; }
+      .INPROGRESS { background-color: yellow; }
+      .BLOCKED { background-color: brown; }
+      dt, dd { padding: 0; margin: 0}
+      dt { float: left; width: 8em; clear:left;}
+      dd { margin-left: 8em; }
+      div#code { max-width: 25em; margin: 2em; 
+        float: right; padding: 1em; border: dashed 1px gray;}
+      div#code p { font-style: italic}
+    </style>
+
+    <div id='animations'>
+    <p>Robustness to job failure</p>
+       
+    <img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-fail-make-function.gif"/>
+
+    <div id='code'>
+       <p>Color code for job states</p>
+       <dl>
+       <dt><span class="DONE">done</span></dt>
+       <dd>Job executed succesfully</dd>
+
+       <dt><span class="INPROGRESS">in&nbsp;progress</span></dt>
+       <dd>Job currently executing</dd>
+
+       <dt><span class="FAILED">failed</span></dt>
+       <dd>Job failed</dd>
+
+       <dt><span class="BLOCKED">blocked</span></dt>
+       <dd>Job blocked because a dependency failed</dd>
+       </dl>
+    </div>
+
+    <p>Simple dynamic jobs</p>
+
+    <img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-dynamic-make-function.gif"/>
+
+    <p>Dynamic jobs and recursive parallel executions</p>
+
+    <img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-recursion-parmake16-none.gif"/>
+    </div>
 
 
 

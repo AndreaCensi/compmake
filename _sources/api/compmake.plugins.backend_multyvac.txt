@@ -1,0 +1,38 @@
+compmake.plugins.backend_multyvac package
+=========================================
+
+Submodules
+----------
+
+compmake.plugins.backend_multyvac.commands module
+-------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.commands
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.backend_multyvac.mvac_job_imp module
+-----------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.mvac_job_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.backend_multyvac.mvac_manager module
+-----------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.mvac_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: compmake.plugins.backend_multyvac
+    :members:
+    :undoc-members:
+    :show-inheritance:

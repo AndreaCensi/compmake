@@ -212,8 +212,13 @@ Y.Remarkbox.render();
 <div class="section" id="module-compmake.jobs.actions">
 <span id="actions-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">actions</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.actions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="compmake.jobs.actions.clean_target">
-<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">clean_target</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.clean_target" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.jobs.actions.clean_cache_relations">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">clean_cache_relations</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.clean_cache_relations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.actions.clean_targets">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">clean_targets</tt><big>(</big><em>job_list</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.clean_targets" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -224,7 +229,8 @@ Y.Remarkbox.render();
 <dt>Returns a dictionary with fields:</dt>
 <dd>&#8220;user_object&#8221;
 &#8220;user_object_deps&#8221; = set of Promises
-&#8220;new_jobs&#8221; -&gt; new jobs defined</dd>
+&#8220;new_jobs&#8221; -&gt; new jobs defined 
+&#8220;deleted_jobs&#8221; -&gt; jobs that were defined but not anymore</dd>
 </dl>
 <p>Raises JobFailed
 or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
@@ -243,8 +249,8 @@ captured.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="compmake.jobs.actions.mark_remake">
-<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_remake</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_remake" title="Permalink to this definition">¶</a></dt>
+<dt id="compmake.jobs.actions.mark_to_remake">
+<tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_to_remake</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_to_remake" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delets and invalidates the cache for this object</p>
 </dd></dl>
 
@@ -270,14 +276,28 @@ captured.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="compmake.jobs.manager.Manager.check_any_finished">
+<tt class="descname">check_any_finished</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_any_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that any of the jobs finished.</p>
+<p>Returns True if something finished (either success or failure).
+Returns False if something finished unseccesfully.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="compmake.jobs.manager.Manager.check_invariants">
 <tt class="descname">check_invariants</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_invariants" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.check_job_finished">
-<tt class="descname">check_job_finished</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_job_finished" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descname">check_job_finished</tt><big>(</big><em>job_id</em>, <em>assume_ready=False</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.check_job_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that the job finished succesfully or unsuccesfully.</p>
+<p>Returns True if that&#8217;s the case.
+Captures HostFailed, JobFailed and returns True.</p>
+<p>Returns False if the job is still processing.</p>
+<p>Capture KeyboardInterrupt and raises JobInterrupted.</p>
+<p>Handles update of various sets.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.check_job_finished_handle_result">
@@ -320,6 +340,11 @@ functions can_accept_job(), next_job(), and ...</p>
 <dd><p>The specified job has failed. Update the structures,
 mark any parent as failed as well.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="compmake.jobs.manager.Manager.job_is_deleted">
+<tt class="descname">job_is_deleted</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.job_is_deleted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.job_succeeded">
@@ -445,8 +470,18 @@ user_object_deps: ...</div></blockquote>
 <dl class="function">
 <dt id="compmake.jobs.queries.parents">
 <tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">parents</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.parents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the set of all the parents, grandparents, etc.
-(does not include job_id)</p>
+<dd><dl class="docutils">
+<dt>Returns the set of all the parents, grandparents, etc.</dt>
+<dd>(does not include job_id)</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>job_id</strong> (<tt class="docutils literal"><span class="pre">str</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -485,6 +520,38 @@ Note this is very inefficient because recursive.</div></blockquote>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobs</strong> (<tt class="docutils literal"><span class="pre">list|set</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.jobs_defined">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">jobs_defined</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.jobs_defined" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Gets the jobs defined by the given job.
+The job must be DONE.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">set(str)</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.jobs.queries.definition_closure">
+<tt class="descclassname">compmake.jobs.queries.</tt><tt class="descname">definition_closure</tt><big>(</big><em>jobs</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.queries.definition_closure" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result does not contain jobs (unless one job defines another)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobs</strong> (<tt class="docutils literal"><span class="pre">Iterable</span></tt>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">set(str)</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -672,7 +739,6 @@ Otherwise, use local cache.</p>
 </div>
 <div class="section" id="module-compmake.jobs.uptodate">
 <span id="uptodate-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">uptodate</span></tt> Module<a class="headerlink" href="#module-compmake.jobs.uptodate" title="Permalink to this headline">¶</a></h2>
-<p>Contains functions concerning the up-to-date status of jobs</p>
 <dl class="class">
 <dt id="compmake.jobs.uptodate.CacheQueryDB">
 <em class="property">class </em><tt class="descclassname">compmake.jobs.uptodate.</tt><tt class="descname">CacheQueryDB</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB" title="Permalink to this definition">¶</a></dt>
@@ -681,32 +747,32 @@ Otherwise, use local cache.</p>
 between calls.</p>
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.all_jobs">
-<tt class="descname">all_jobs</tt><em class="property"> = &lt;functools.partial object at 0x10c593cb0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.all_jobs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">all_jobs</tt><em class="property"> = &lt;functools.partial object at 0x10dd848e8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.all_jobs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date">
-<tt class="descname">dependencies_up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10c593db8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dependencies_up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dd849f0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.direct_children">
-<tt class="descname">direct_children</tt><em class="property"> = &lt;functools.partial object at 0x10c593e10&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_children" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">direct_children</tt><em class="property"> = &lt;functools.partial object at 0x10dd84a48&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_children" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.direct_parents">
-<tt class="descname">direct_parents</tt><em class="property"> = &lt;functools.partial object at 0x10c593e68&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_parents" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">direct_parents</tt><em class="property"> = &lt;functools.partial object at 0x10dd84aa0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_parents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.get_job">
-<tt class="descname">get_job</tt><em class="property"> = &lt;functools.partial object at 0x10c593d60&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_job</tt><em class="property"> = &lt;functools.partial object at 0x10dd84998&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.get_job_cache">
-<tt class="descname">get_job_cache</tt><em class="property"> = &lt;functools.partial object at 0x10c593fc8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_job_cache</tt><em class="property"> = &lt;functools.partial object at 0x10dd84c00&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -716,7 +782,12 @@ between calls.</p>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.job_exists">
-<tt class="descname">job_exists</tt><em class="property"> = &lt;functools.partial object at 0x10c593f70&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.job_exists" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">job_exists</tt><em class="property"> = &lt;functools.partial object at 0x10dd84c58&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.job_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.jobs.uptodate.CacheQueryDB.jobs_defined">
+<tt class="descname">jobs_defined</tt><em class="property"> = &lt;functools.partial object at 0x10dd84d08&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.jobs_defined" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -753,7 +824,7 @@ which is direct_children() recursively.</p>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.up_to_date">
-<tt class="descname">up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10c5b5208&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dd84e68&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
