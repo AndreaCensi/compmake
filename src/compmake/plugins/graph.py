@@ -6,6 +6,7 @@ from compmake.structures import Cache
 from compmake.exceptions import UserError
 from compmake.ui import COMMANDS_ADVANCED, info, ui_command
 from compmake.jobs.queries import definition_closure, jobs_defined
+from compmake.jobs.storage import get_job_cache
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -85,13 +86,8 @@ def graph(job_list, context, filename='compmake-graph',
     info("Written output on files %s, %s." % (filename, output))
 
 
-def create_graph1(cq, job_list, compact, color):
-    import gvgen  # @UnresolvedImport
-
-    print('Creating graph')
-    job_list = list(job_list)
-    print('create_graph1(%s)' % job_list)
-    ggraph = gvgen.GvGen()
+def get_color_for(x, cq):
+    cache = cq.get_job_cache(x)
 
     state2color = {
         Cache.NOT_STARTED: 'grey',
@@ -101,16 +97,30 @@ def create_graph1(cq, job_list, compact, color):
         Cache.BLOCKED: 'brown',
     }
 
+    state = cache.state
+    if cache.debug_in_progress:
+        state = Cache.IN_PROGRESS
+        
+    return state2color[state]
+
+def create_graph1(cq, job_list, compact, color):
+    import gvgen  # @UnresolvedImport
+
+    print('Creating graph')
+    job_list = list(job_list)
+    print('create_graph1(%s)' % job_list)
+    ggraph = gvgen.GvGen()
+ 
+
     job2node = {}
     for job_id in job_list:
         if int(compact):
             job2node[job_id] = ggraph.newItem("")
         else:
             job2node[job_id] = ggraph.newItem(job_id)
-        cache = cq.get_job_cache(job_id)
         if color:
             ggraph.styleAppend(job_id, "style", "filled")
-            ggraph.styleAppend(job_id, "fillcolor", state2color[cache.state])
+            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq))
             ggraph.styleApply(job_id, job2node[job_id])
         else:
             ggraph.styleAppend(job_id, "style", "filled")
@@ -135,14 +145,6 @@ def create_graph2_clusters(cq, job_list, compact, color):
     print('Creating graph')
 
     ggraph = gvgen.GvGen()
-
-    state2color = {
-        Cache.NOT_STARTED: 'grey',
-        Cache.IN_PROGRESS: 'yellow',
-        Cache.FAILED: 'red',
-        Cache.DONE: 'green',
-        Cache.BLOCKED: 'brown',
-    }
 
     cluster2jobs = defaultdict(lambda: set())
     job2cluster = {}
@@ -175,11 +177,9 @@ def create_graph2_clusters(cq, job_list, compact, color):
 
             job2node[job_id] = ggraph.newItem(label, cluster2node[cluster])
 
-            cache = cq.get_job_cache(job_id)
             if color:
                 ggraph.styleAppend(job_id, "style", "filled")
-                ggraph.styleAppend(job_id, "fillcolor", state2color[
-                    cache.state])
+                ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq))
                 ggraph.styleApply(job_id, job2node[job_id])
             else:
                 ggraph.styleAppend(job_id, "style", "filled")

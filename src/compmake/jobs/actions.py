@@ -80,8 +80,7 @@ def clean_cache_relations(job_id, db):
                 del parent_job.dynamic_children[job_id]
                 parent_job.children = parent_job.children - dynamic_children
                 set_job(parent, parent_job, db) 
-                #print('     changed in %s' % parent_job.children)
-        
+                #print('     changed in %s' % parent_job.children)    
     
 
 def mark_to_remake(job_id, db):
@@ -155,9 +154,13 @@ def make(job_id, context, echo=False):
     else:
         #print('%s was not DONE' % job_id)
         prev_defined_jobs = None
-        
-    cache.state = Cache.IN_PROGRESS
-    set_job_cache(job_id, cache, db=db)
+      
+    # Note that at this point we save important information in the Cache
+    # so if we set this then it's going to destroy it
+    # cache.state = Cache.IN _ PROGRESS
+    # set_job_cache(job_id, cache, db=db)
+    
+    
     # TODO: delete previous user object
     
     # update state
@@ -232,7 +235,7 @@ def make(job_id, context, echo=False):
     #print('Now %s has deleted %s' % (job_id, deleted_jobs))
     
     set_job_userobject(job_id, user_object, db=db)
-    cache.state = Cache.DONE
+    cache = Cache(Cache.DONE)
     cache.timestamp = time()
     walltime = cache.timestamp - time_start
     cputime = clock() - cpu_start

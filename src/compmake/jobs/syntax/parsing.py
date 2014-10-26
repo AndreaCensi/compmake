@@ -304,9 +304,9 @@ add_alias('bottom', list_bottom_jobs)
 add_alias('done',
           lambda context, cq: 
           list_jobs_with_state(Cache.DONE, context=context, cq=cq))
-add_alias('in_progress',
-          lambda context, cq: 
-          list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
+# add_alias('in_progress',
+#           lambda context, cq: 
+#           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
 add_alias('not_started',
           lambda context, cq: 
           list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))

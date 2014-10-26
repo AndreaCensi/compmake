@@ -4,6 +4,7 @@ from system_cmd import system_cmd_show
 import compmake
 import shutil
 import os
+from system_cmd.meat import system_cmd_result
 
 
 def go(filename, cm_cmd, video_name):
@@ -13,23 +14,46 @@ def go(filename, cm_cmd, video_name):
         shutil.rmtree(dirname)
     if os.path.exists(out):
         os.unlink(out)
-    cmd1 = ['python', filename, 
-            "clean; graph-animation dirname=%s; %s" % (dirname, cm_cmd)]
-    system_cmd_show('.', cmd1)
+    
+    reldir = 'animation'
+    animdir = os.path.join(dirname, reldir)
+    if not os.path.exists(animdir):
+        os.makedirs(animdir)
+        
+    cmd1 = ['python', os.path.realpath(filename), 
+            "clean; graph-animation dirname=%s; %s" % (reldir, cm_cmd)]
+    
+    print(dirname, cmd1)
+    system_cmd_result(
+            dirname, cmd1,
+            display_stdout=True,
+            display_stderr=True,
+            raise_on_error=False)
+    
     cmd2 = ['pg-video-join',
-            '-d', dirname,
+            '-d', animdir,
             '-p', '.*.png',
             '--fps', '5',
             '-o', out]
-    os.unlink(out + '.metadata.yaml')
+    
     system_cmd_show('.', cmd2)
+    
+    metadata = out + '.metadata.yaml'
+    if os.path.exists(metadata):
+        os.unlink(metadata)
+    
     
     
 
 if __name__ == '__main__':
     context = compmake.Context()
-    context.comp(go, '../example_simple.py', 
-                 'make', 'anim-simple-make')
-    context.comp(go, '../example_simple.py', 
-                 'parmake n=2', 'anim-simple-parmake2')
-    context.batch_command('parmake')
+    context.comp(go, 'example_simplest.py', 'make', 'anim-simplest-make')
+    context.comp(go, 'example_fail.py', 'make', 'anim-fail-make')
+#     context.comp(go, '../example_simplest.py', 
+#                  'parmake n=2', 'anim-simple-parmake2')
+
+#     context.comp(go, '../example_simple.py', 
+#                  'make', 'anim-simple-make')
+#     context.comp(go, '../example_simple.py', 
+#                  'parmake n=2', 'anim-simple-parmake2')
+    context.compmake_console()

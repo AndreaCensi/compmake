@@ -44,7 +44,7 @@ state2color = {
     # (Cache.NOT_STARTED, True): None,
     (Cache.NOT_STARTED, False): {},  # 'attrs': ['dark']},
     # (Cache.IN_PROGRESS, True): None,
-    (Cache.IN_PROGRESS, False): {'color': 'yellow'},
+#     (Cache.IN_PROGRESS, False): {'color': 'yellow'},
     # (Cache.FAILED, True): None,
     (Cache.FAILED, False): {'color': 'red'},
     (Cache.BLOCKED, True): {'color': 'yellow'},
@@ -166,9 +166,12 @@ def list_jobs(context, job_list, cq, complete_names=False,
     tf.done()
 
     ind = '  '
-    if False:
+    
+    do_one_column = len(job_list) <= 5
+    
+    if do_one_column:
         for line in tf.get_lines():
-            print('  ' + line)
+            print(ind + line)
     else:
         linewidth = get_screen_columns()
         #print('*'*linewidth)

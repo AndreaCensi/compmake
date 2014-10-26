@@ -157,18 +157,22 @@ class Cache(object):
     # TODO: add blocked
 
     NOT_STARTED = 0
-    IN_PROGRESS = 1
+#     IN_PROGRESS = 1
     FAILED = 3
     BLOCKED = 5
     DONE = 4
     
     TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]
+    allowed_states = [NOT_STARTED, 
+#                       IN_PROGRESS, 
+                      FAILED, 
+                      DONE, 
+                      BLOCKED]
 
     state2desc = {
         NOT_STARTED: 'todo',
-        IN_PROGRESS: 'in prog.',
+#         IN_PROGRESS: 'in prog.',
         BLOCKED: 'blocked',
         FAILED: 'failed',
         DONE: 'done'}
@@ -189,6 +193,9 @@ class Cache(object):
         # 
         self.captured_stdout = None
         self.captured_stderr = None
+
+        # used for visualization
+        self.debug_in_progress = False
 
 
     def __repr__(self):

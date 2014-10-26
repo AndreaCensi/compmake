@@ -26,7 +26,7 @@ class Test1(CompmakeTest):
             ('c', Cache.NOT_STARTED),
             ('d', Cache.DONE),
             ('e', Cache.DONE),
-            ('f', Cache.IN_PROGRESS),
+#             ('f', Cache.IN_PROGRESS),
             ('g', Cache.DONE),
             ('h', Cache.FAILED),
             ('i', Cache.DONE),
@@ -46,7 +46,7 @@ class Test1(CompmakeTest):
                                  if state_ == S])
         self.failed = selectf(Cache.FAILED)
         self.done = selectf(Cache.DONE)
-        self.in_progress = selectf(Cache.IN_PROGRESS)
+#         self.in_progress = selectf(Cache.IN_PROGRESS)
         self.not_started = selectf(Cache.NOT_STARTED)
 
     def selection(self, crit):

@@ -184,9 +184,7 @@ class CacheQueryDB(object):
 
         # FIXME BUG if I start (in progress), children get updated,
         # I still finish the computation instead of starting again
-        if cache.state == Cache.IN_PROGRESS:
-            return False, 'Resuming progress', cache.timestamp
-        elif cache.state == Cache.FAILED:
+        if cache.state == Cache.FAILED:
             return False, 'Failed', cache.timestamp
 
         assert (cache.state == Cache.DONE)

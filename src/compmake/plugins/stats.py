@@ -10,7 +10,7 @@ from compmake.constants import CompmakeConstants
 
 state2color = {
     Cache.NOT_STARTED: {'color': 'yellow'},  # {'attrs': ['dark']},
-    Cache.IN_PROGRESS: {'color': 'yellow'},
+#     Cache.IN_PROGRESS: {'color': 'yellow'},
     Cache.BLOCKED: {'color': 'yellow'},
     Cache.FAILED: {'color': 'red'},
     Cache.DONE: {'color': 'green'},
@@ -32,7 +32,8 @@ def stats(args, context, cq):
 
 def display_stats(job_list, context):
     db = context.get_compmake_db()
-    states_order = [Cache.NOT_STARTED, Cache.IN_PROGRESS,
+    states_order = [Cache.NOT_STARTED, 
+                    #Cache.IN_PROGRESS,
                     Cache.FAILED, Cache.BLOCKED, Cache.DONE]
     # initialize counters to 0
     states2count = dict(list(map(lambda x: (x, 0), states_order)))
@@ -81,7 +82,7 @@ def display_stats(job_list, context):
         (Cache.DONE, 'done'),
         (Cache.FAILED, 'failed'),
         (Cache.BLOCKED, 'blocked'),
-        (Cache.IN_PROGRESS, 'in progress'),
+#         (Cache.IN_PROGRESS, 'in progress'),
         (Cache.NOT_STARTED, 'to do'),
     ]
 

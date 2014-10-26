@@ -292,7 +292,7 @@ class Manager(ManagerLog):
         # usually it's done low-level, but useful to do before
         # the event so that it looks like it's processing
         cache = get_job_cache(job_id, self.db)
-        cache.state = Cache.IN_PROGRESS
+        cache.debug_in_progress = True 
         set_job_cache(job_id, cache, db=self.db)
     
         publish(self.context, 'manager-job-starting', job_id=job_id)
