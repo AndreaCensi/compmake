@@ -36,13 +36,13 @@ class TestDynamic5(CompmakeTest):
         mockup5(self.cc, both=True)
         self.assert_cmd_success('make recurse=1')
         
-        self.assertJobsEqual('all', ['fd', 'gd', 'g2',  'hd', 'id', 'i2'])
-        self.assertJobsEqual('done',  ['fd', 'gd', 'g2',  'hd', 'id', 'i2'])
+        self.assertJobsEqual('all', ['fd', 'fd-gd', 'fd-gd-g2',  'hd', 'hd-id', 'hd-id-i2'])
+        self.assertJobsEqual('done',  ['fd', 'fd-gd', 'fd-gd-g2',  'hd', 'hd-id', 'hd-id-i2'])
 
-        self.assert_cmd_success('details id')
-        self.assert_cmd_success('details i2')
-        self.assertEqualSet(definition_closure(['id'], self.db), ['i2'])
-        self.assertEqualSet(definition_closure(['hd'], self.db), ['id', 'i2'])        
+        self.assert_cmd_success('details hd-id')
+        self.assert_cmd_success('details hd-id-i2')
+        self.assertEqualSet(definition_closure(['hd-id'], self.db), ['hd-id-i2'])
+        self.assertEqualSet(definition_closure(['hd'], self.db), ['hd-id', 'hd-id-i2'])        
         # now redo it 
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)
@@ -50,5 +50,6 @@ class TestDynamic5(CompmakeTest):
         mockup5(self.cc, both=False)
         self.assert_cmd_success('clean')
         self.assert_cmd_success('make recurse=1')
-        self.assertJobsEqual('all',  ['fd', 'gd', 'g2'])
-        self.assertJobsEqual('done', ['fd', 'gd', 'g2']) 
+        self.assertJobsEqual('all',  ['fd', 'fd-gd', 'fd-gd-g2'])
+        self.assertJobsEqual('done', ['fd', 'fd-gd', 'fd-gd-g2']) 
+        

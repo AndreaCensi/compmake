@@ -91,6 +91,9 @@ def get_job_cache(job_id, db):
         # if not job_id in known:
         # raise CompmakeException("invalid job %s, I know %s"
         # % (job_id, known)) 
+        if not job_exists(job_id, db):
+            msg = 'Cannot get cache for nonexisting job %r.' % job_id
+            raise ValueError(msg)
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # get_compmake_db().set(cache_key, cache)

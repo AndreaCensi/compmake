@@ -40,7 +40,7 @@ class TestDelegation5(unittest.TestCase):
         cc.batch_command('make;ls')
         
         job = get_job('h', db)
-        self.assertEqual(job.children, set(['e', 'g', 'f']))
+        self.assertEqual(job.children, set(['e', 'e-f', 'e-f-g']))
         print('parents: %s' % job.parents)
         print('children: %s' % job.children)
 
@@ -50,5 +50,5 @@ class TestDelegation5(unittest.TestCase):
         db, cc = define_jobs(root)
         cc.batch_command('check_consistency raise_if_error=1')
         job2 = get_job('h', db)
-        self.assertEqual(job2.children, set(['e', 'g', 'f']))
+        self.assertEqual(job2.children, set(['e', 'e-f', 'e-f-g']))
             

@@ -65,10 +65,10 @@ class TestCleaning2(Utils):
         root = mkdtemp()
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['f', 'g','h'])
+        self.assertEqual(jobs1, ['f', 'f-g', 'f-h'])
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['f', 'g'])
+        self.assertEqual(jobs2, ['f', 'f-g'])
     
     def run_first(self, root):
         info('run_first()')
@@ -106,10 +106,10 @@ class TestCleaning3(Utils):
         root = mkdtemp()
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['e', 'f', 'g', 'h'])
+        self.assertEqual(jobs1, ['e', 'f', 'f-g', 'f-h'])
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['e', 'f', 'g'])
+        self.assertEqual(jobs2, ['e', 'f', 'f-g'])
     
     def run_first(self, root):
         print('run_first()')

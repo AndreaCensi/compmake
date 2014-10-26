@@ -151,6 +151,7 @@ class CacheQueryDB(object):
 
     @contract(returns='tuple(bool, str, float)')
     def _up_to_date_actual(self, job_id):
+        
         cache = self.get_job_cache(job_id)  # OK
 
         if cache.state == Cache.NOT_STARTED:

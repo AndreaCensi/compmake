@@ -20,6 +20,7 @@ def hh(context):
 
 @istest
 class TestExecutionStats(CompmakeTest):
+    
     def test_execution_stats(self):
         # schedule some commands
         res = self.cc.comp_dynamic(gg)
@@ -35,7 +36,7 @@ class TestExecutionStats(CompmakeTest):
         res['wall_time']
 
         print(res)
-        self.assertEqual(res['jobs'], set(['ff', 'gg']))
+        self.assertEqual(res['jobs'], set(['gg-ff', 'gg']))
 
     def test_execution_stats2(self):
         # schedule some commands
@@ -51,8 +52,8 @@ class TestExecutionStats(CompmakeTest):
 
         print(res)
 
-        self.assertEqual(res['jobs'], set(['ff', 'gg', 'hh']))
-
+        self.assertEqual(res['jobs'], set(['hh-gg-ff', 'hh-gg', 'hh']))
+        
 
 def check_result(res):
     check_isinstance(res, dict)

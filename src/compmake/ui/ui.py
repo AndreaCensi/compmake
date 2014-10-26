@@ -19,7 +19,6 @@ import inspect
 from compmake.exceptions import CompmakeBug
 
 
-
 def generate_job_id(base, context):
     """
         Generates a unique job_id for the specified commmand.
@@ -28,10 +27,10 @@ def generate_job_id(base, context):
 
     stack = context.currently_executing
     # print('generating an ID with base = %s and stack %s' % (base, stack))
-    # print('  jobs defined in session: %s' % (
-    # context.get_jobs_defined_in_this_session()))
-
     job_prefix = context.get_comp_prefix()
+    # Use the job id as prefix
+    if job_prefix is None and len(stack) > 1:
+        job_prefix = stack[-1]
 
     max_options = 1000*1000
     def get_options():
@@ -46,22 +45,15 @@ def generate_job_id(base, context):
 
     db = context.get_compmake_db()
     for x in get_options():
-        # print(' considering %s' % x)
+        #print(' considering %s' % x)
         if not job_exists(x, db):
             return x
         else:
-            # print('  it already exists')
+            #print('  it already exists')
             # if it is the same job defined in the same stack
             defined_by = get_job(x, db).defined_by
-            # print('  Found, he was defined by %s' % defined_by)
+            #print('  Found, he was defined by %s' % defined_by)
             if defined_by == stack:
-                # print('  same stack, continuing')
-                # wonder why you need this? Consider the code in
-                # test_priorities
-                #
-                # # add two copies
-                # self.comp(top, self.comp(bottom))
-                # self.comp(top, self.comp(bottom))
                 if context.was_job_defined_in_this_session(x):
                     continue
                 return x
@@ -103,8 +95,8 @@ def clean_other_jobs(context):
                 # keeping this around
                 continue
 
-            info('Job %r not defined in this session %s defined_by = %r.' 
-                 % (job_id, id(context), job.defined_by))
+            info('Job %r not defined in this session (defined by %s); cleaning.' 
+                 % (job_id, "->".join(job.defined_by[1:])))
 # 
 #             if not clean_all:
 #                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
@@ -136,10 +128,11 @@ def delete_jobs_recurse_definition(jobs, db):
         Returns the set of jobs deleted. """
     from compmake.jobs.queries import definition_closure
     closure = definition_closure(jobs, db)
-    #print('jobs %s closure %s' % (jobs, closure))
+
     all_jobs = jobs | closure
     for job_id in all_jobs:
         clean_cache_relations(job_id, db)
+    
     for job_id in all_jobs:
         from compmake.jobs.storage import delete_all_job_data
         delete_all_job_data(job_id, db)
@@ -204,21 +197,6 @@ def comp_(context, command_, *args, **kwargs):
                'Python)')
         raise_wrapped(UserError, e, msg, command=command)
 
-    #     if command.__module__ == '__main__':
-    #         main_module = sys.modules['__main__']
-    #         filename = main_module.__file__
-    #         filename = os.path.splitext(filename)[0]
-    #         if filename.startswith('./'):
-    #             filename = filename[2:]
-    #         try:
-    #             m = import_name(filename)
-    #
-    #             fname = command.__name__
-    #             if fname in m.__dict__:
-    #                 command = m.__dict__[fname]
-    #         except:
-    #             pass
-
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
     elif hasattr(command, '__name__'):
@@ -254,6 +232,7 @@ def comp_(context, command_, *args, **kwargs):
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
+                pass
                 print(
                     'The job %r was defined but not found in DB. I will let '
                     'it '
@@ -289,11 +268,12 @@ def comp_(context, command_, *args, **kwargs):
                     pass
                 else:
 
-                    for i in range(100):  # XXX
+                    for i in range(1000):  # XXX
                         n = '%s-%d' % (job_id, i)
                         if not job_exists(n, db=db):
                             job_id = n
                             break
+                        
                     if False:
                         print(
                             'The job_id %r was given explicitly but already '
@@ -347,6 +327,7 @@ def comp_(context, command_, *args, **kwargs):
 
     assert len(context.currently_executing) >= 1
     assert context.currently_executing[0] == 'root'
+    
     c = Job(job_id=job_id,
             children=children,
             command_desc=command_desc,
@@ -427,7 +408,8 @@ def comp_(context, command_, *args, **kwargs):
 #                 delete_job_cache(job_id, db)
             publish(context, 'job-redefined', job_id=job_id, reason=reason)
         else:
-            print('ok, same job')
+            # print('ok, same job')
+            pass
             # XXX TODO clean the cache
             #             else:
             #                 publish(context, 'job-already-defined',

@@ -243,6 +243,7 @@ class Manager(ManagerLog):
         """
         self.check_invariants()
 
+        n = 0
         reasons = {}
         while True:
             if not self.ready_todo:
@@ -259,6 +260,9 @@ class Manager(ManagerLog):
             self.log('chosen next_job', job_id=job_id)
 
             self.start_job(job_id)
+            n += 1
+            
+#         print('cur %d Instanced %d, %s' % (len(self.processing2result), n, reasons))
 
         self.check_invariants()
         return reasons
@@ -277,6 +281,7 @@ class Manager(ManagerLog):
             ('processing', self.processing),
             ('proc2result', self.processing2result),
         ]
+        
         for name, cont in sets:
             contained = job_id in cont
             msg += '\n in %15s? %s' % (name, contained)
@@ -289,12 +294,6 @@ class Manager(ManagerLog):
         if not job_id in self.ready_todo:
             self._raise_bug('start_job', job_id)
 
-        # usually it's done low-level, but useful to do before
-        # the event so that it looks like it's processing
-        cache = get_job_cache(job_id, self.db)
-        cache.debug_in_progress = True 
-        set_job_cache(job_id, cache, db=self.db)
-    
         publish(self.context, 'manager-job-starting', job_id=job_id)
         self.ready_todo.remove(job_id)
         self.processing.add(job_id)
@@ -682,22 +681,10 @@ class Manager(ManagerLog):
                 if self.ready_todo and not self.processing:
                     # We time out as there are no resources
                     publish(self.context, 'manager-phase', phase='wait')
-
-                    # TODO: make child raise exception if there are no
-                    # resources
-                    # publish('manager-waits')
-                    # publish('manager-failed', reason='No resources.',
-                    # targets=self.targets, done=self.done,
-                    # todo=self.todo, failed=self.failed,
-                    # ready=self.ready_todo,
-                    # processing=self.processing,
-                    # all_targets=self.all_targets)
-                    #
-                    # msg = 'Cannot find computing resources, giving up.'
-                    # raise CompmakeException(msg)
-
+ 
                 self.loop_until_something_finishes()
                 self.check_invariants()
+                
             # end while
             assert not self.todo
             assert not self.ready_todo

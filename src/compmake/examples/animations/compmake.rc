@@ -1,0 +1,2 @@
+config status_line_enabled 0
+config echo 1

@@ -45,15 +45,17 @@ class TestDynamic1(CompmakeTest):
 
         # this will have created new jobs
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
-                                     'actual1', 'actual2', 'finish'])
+                                     'actual1', 'actual2', 'generate-finish'])
         # ... still to do
-        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 
+                                      'generate-finish'])
 
         # we can make them
         self.assert_cmd_success('make')
         self.assert_cmd_success('ls')
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
-                                      'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('done', ['generate', 'values', 
+                                      'actual0', 'actual1', 'actual2', 
+                                      'generate-finish'])
 
         # Now let's suppose we re-run values and it generates different number of tests
 
@@ -63,9 +65,9 @@ class TestDynamic1(CompmakeTest):
         self.assert_cmd_success('clean values; make generate')
         self.assert_cmd_success('ls reason=1')
 
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'finish'])
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'generate-finish'])
         # some are done
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'generate-finish'])
         # but finish is not updtodate
         self.assertJobsEqual('uptodate', ['generate', 'values', 'actual0', 'actual1', 'actual2'])
         # some others are not
@@ -81,7 +83,7 @@ class TestDynamic1(CompmakeTest):
         
         # Now we should have on job less because actual2 and 3 was not re-defined
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
-                                     'actual1', 'finish'])
+                                     'actual1', 'generate-finish'])
         # they should be all done, by the way
         self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
-                                      'actual1', 'finish'])
+                                      'actual1', 'generate-finish'])
