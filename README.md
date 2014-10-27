@@ -1,3 +1,6 @@
+Compmake: you need it but you don't know it yet
+===============================================
+
 **Compmake** is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
 
 - Minimal effort **parallelization** (multiple CPU on a single host, 
