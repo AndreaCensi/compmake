@@ -1,6 +1,7 @@
 **Compmake** is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
 
-- Minimal effort **parallelization**.
+- Minimal effort **parallelization** (multiple CPU on a single host, 
+cluster computing using SGE, and experimental support for cloud computing using Multyvac).
 - **Caching** of temporary results: you can interrupt your program 
 and restart it without losing what was already computed.
 - **Failure tolerance**: if a job fails, other jobs that do
