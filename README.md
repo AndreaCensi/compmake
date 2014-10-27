@@ -46,13 +46,25 @@ Some animations of the job graph
 Issues
 ------
 
-Please report any problem at: http://github.com/AndreaCensi/compmake/issues
+Please report any problem using Github's issue tracker at
+
+   http://github.com/AndreaCensi/compmake/issues
 
 
 Changelog
 ---------
 
-* v3.4.0 - Changed the way that dynamic job IDs are generated to avoid a race condition in a corner case.
+* v3.4.0 - Changed the way that dynamic job IDs are generated 
+           to avoid a race condition in a corner case.
 * v3.3.7 - Bug fix.
-* v3.3.6 - Experimental multyvac backend.
+* v3.3.6 - Experimental Multyvac backend.
+
+
+Acknowledgements
+----------------
+
+Your tax dollars at work! Compmake development was supported 
+by the [National Science Foundation](http://www.nsf.gov/)
+in the *National Robotics Initiative* program under grant #1405259.
+
 
