@@ -20,7 +20,9 @@ http://purl.org/censi/compmake-manual
 Screencasts
 ---------------------------------
 
-<iframe src="http://player.vimeo.com/video/110090252" width="750" height="560" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<a href="https://vimeo.com/110090252">
+    <img style="width: 300px" src="http://censi.mit.edu/pub/research/201410-compmake-animations/demo2-screenshot.png"/>
+</a>
 
 
 Some animations of the job graph
