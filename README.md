@@ -16,6 +16,13 @@ http://purl.org/censi/compmake-manual
     <img style="float: left; border: solid 1px red" src="docs/source/my_static/2015-compmake-v3.png"/>
 </a>
 
+
+Screencasts
+---------------------------------
+
+<iframe src="http://player.vimeo.com/video/110090252" width="750" height="560" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
 Some animations of the job graph
 ---------------------------------
 
