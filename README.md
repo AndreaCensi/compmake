@@ -1,7 +1,8 @@
 Compmake: you need it but you don't know it yet
 ===============================================
 
-**Compmake** is a non-obtrusive module that provides Make--like facilities to a Python applciation, including:
+**Compmake** is an unobstrusive Python library that provides 
+Make--like facilities to a Python applciation, including:
 
 - Minimal effort **parallelization** (multiple CPU on a single host, 
 cluster computing using SGE, and experimental support for cloud computing using Multyvac).
@@ -19,6 +20,24 @@ http://purl.org/censi/compmake-manual
 <a style="display: block; float: left" href="http://purl.org/censi/compmake-manual">
     <img style="float: left; border: solid 1px red" src="docs/source/my_static/2015-compmake-v3.png"/>
 </a>
+
+
+
+
+Issues
+------
+
+Please report any problem using Github's issue tracker at
+
+   http://github.com/AndreaCensi/compmake/issues
+
+
+Acknowledgements
+----------------
+
+Your tax dollars at work! Compmake development was supported 
+by the [National Science Foundation](http://www.nsf.gov/)
+in the *National Robotics Initiative* program under grant #1405259.
 
 
 Screencasts
@@ -46,15 +65,6 @@ Some animations of the job graph
 
 
 
-
-Issues
-------
-
-Please report any problem using Github's issue tracker at
-
-   http://github.com/AndreaCensi/compmake/issues
-
-
 Changelog
 ---------
 
@@ -62,13 +72,5 @@ Changelog
            to avoid a race condition in a corner case.
 * v3.3.7 - Bug fix.
 * v3.3.6 - Experimental Multyvac backend.
-
-
-Acknowledgements
-----------------
-
-Your tax dollars at work! Compmake development was supported 
-by the [National Science Foundation](http://www.nsf.gov/)
-in the *National Robotics Initiative* program under grant #1405259.
 
 

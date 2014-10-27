@@ -30,9 +30,8 @@ Compmake
     </a>
     </div>
 
-
-  |compmake| is a non-obtrusive module that provides Make--like facilities to a Python 
-  application, including:
+  |compmake| is an unobstrusive Python library that provides 
+  Make--like facilities to a Python applciation, including:
 
   - Minimal effort **parallelization** (multiple CPU on a single host, cluster computing using SGE, and experimental support for cloud computing using Multyvac).
   - **Caching** of temporary results: you can interrupt your program 
