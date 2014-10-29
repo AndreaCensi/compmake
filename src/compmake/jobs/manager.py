@@ -11,15 +11,16 @@ from .queries import direct_children, direct_parents
 from .uptodate import CacheQueryDB
 from abc import ABCMeta, abstractmethod
 from compmake.constants import CompmakeConstants
-from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent,\
-    set_job_cache
-from contracts import ContractsMeta, check_isinstance, contract, indent
+from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
+from compmake.state import get_compmake_config
+from contracts import ContractsMeta, contract, indent
 from multiprocessing import TimeoutError
 import itertools
 import os
+import shutil
 import time
 import traceback
-from compmake.state import get_compmake_config
+
 
 __all__ = [
     'Manager',
@@ -53,7 +54,10 @@ class ManagerLog(object):
 
     def __init__(self, db):
         storage = os.path.abspath(db.basepath)
-        log = os.path.join(storage, 'manager.log')
+        logdir =  os.path.join(storage, 'logs')
+        if os.path.exists(logdir):
+            shutil.rmtree(logdir)
+        log = os.path.join(logdir, 'manager.log')
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
 

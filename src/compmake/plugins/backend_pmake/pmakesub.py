@@ -71,8 +71,12 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     def put_result(x):
+        log('putting result in result_queue..')
         result_queue.put(x, block=True)
-        signal_queue.put(signal_token, block=True)
+        if signal_queue is not None:
+            log('putting result in signal_queue..')
+            signal_queue.put(signal_token, block=True)
+        log('(done)')
         
     try:
         while True:
@@ -88,21 +92,16 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                 log('Job failed, putting notice.')
                 log('result: %s' % str(e))  # debug
                 put_result(e.get_result_dict())
-                log('(put)')
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
                 put_result(dict(abort=str(e))) # XXX
-                log('(put)')
             except CompmakeBug as e:  # XXX :to finish
                 log('CompmakeBug')
                 put_result(e.get_result_dict())
-                log('(put)')
             else:
                 log('result: %s' % str(result))
-                log('job finished. Putting in queue...')
                 put_result(result)
-                log('(put)')
-
+                
             log('...done.')
 
             # except KeyboardInterrupt: pass
@@ -122,7 +121,8 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         log('(put)')
 
 
-    signal_queue.close()
+    if signal_queue is not None:
+        signal_queue.close()
     result_queue.close()
     log('clean exit.')
 

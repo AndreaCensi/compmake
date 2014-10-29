@@ -65,18 +65,18 @@ class PmakeManager(Manager):
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = os.path.join(storage, 'pmakesub')
+        logs = os.path.join(storage, 'logs')
         
-        self.signal_queue = Queue(1000)
+        #self.signal_queue = Queue()
         
         for i in range(self.num_processes):
-            name = 'w%02d' % i
+            name = 'parmake_sub_%02d' % i
             write_log = os.path.join(logs, '%s.log' % name)
             make_sure_dir_exists(write_log)
             signal_token = name
             
             self.subs[name] = PmakeSub(name=name, 
-                                       signal_queue=self.signal_queue, 
+                                       signal_queue=None, 
                                        signal_token=signal_token, 
                                        write_log=write_log)
         self.job2subname = {}
@@ -184,7 +184,6 @@ class PmakeManager(Manager):
                 #print('process_finished() finished')
         
         self.event_queue.close()
-        self.signal_queue.close()
         del PmakeManager.queues[self.event_queue_name]
         
 
