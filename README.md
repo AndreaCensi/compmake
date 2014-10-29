@@ -69,6 +69,7 @@ Some animations of the job graph
 Changelog
 ---------
 
+* v3.4.1 - Bug fix; experimental multyvac_sync
 * v3.4.0 - Changed the way that dynamic job IDs are generated 
            to avoid a race condition in a corner case.
 * v3.3.7 - Bug fix.
