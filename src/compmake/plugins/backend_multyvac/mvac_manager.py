@@ -34,17 +34,18 @@ class MVacManager(Manager):
     def __init__(self, context, cq, num_processes, 
                  recurse=False, 
                  show_output=False,
-                 new_process=False):
+                 new_process=False,
+                 volumes=[]):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.cleaned = False
         self.show_output = show_output
         self.new_process = new_process
+        self.volumes = volumes
 
     def process_init(self):
-        nevents = 1000 
-        self.event_queue = Queue(nevents)
+        self.event_queue = Queue()
         self.event_queue_name = str(id(self))
         from compmake.plugins.backend_pmake.pmake_manager import PmakeManager
         PmakeManager.queues[self.event_queue_name] = self.event_queue
@@ -57,11 +58,11 @@ class MVacManager(Manager):
         self.sub_processing = set()
         self.sub_aborted = set()
 
-        self.signal_queue = Queue(1000)
+        self.signal_queue = Queue()
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = os.path.join(storage, 'pmakesub')
+        logs = os.path.join(storage, 'logs')
         for i in range(self.num_processes):
             name = 'w%02d' % i
             write_log = os.path.join(logs, '%s.log' % name)
@@ -152,7 +153,8 @@ class MVacManager(Manager):
         else:
             f = mvac_job
             args = (job_id, self.context,
-                    self.event_queue_name, self.show_output)
+                    self.event_queue_name, self.show_output,
+                    self.volumes)
 
         async_result = sub.apply_async(f, args)
         return async_result

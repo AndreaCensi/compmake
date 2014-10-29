@@ -4,6 +4,7 @@ from compmake.jobs import top_targets
 from compmake.ui import ACTIONS, ui_command
 from compmake.ui.commands import raise_error_if_manager_failed
 from .mvac_manager import MVacManager
+from compmake.plugins.backend_multyvac.sync import synchronize
 
 __all__ = [
     'parmake',
@@ -32,6 +33,8 @@ def cloudmake(job_list, context, cq,
         # XXX
         job_list = list(top_targets(db=db))
 
+    volumes = synchronize(context)
+
     publish(context, 'parmake-status',
             status='Starting multiprocessing manager (forking)')
     manager = MVacManager(num_processes=n,
@@ -40,6 +43,7 @@ def cloudmake(job_list, context, cq,
                            recurse=recurse,
                             new_process=new_process,
                             show_output=echo,
+                            volumes=volumes,
                            )
 
     publish(context, 'parmake-status',

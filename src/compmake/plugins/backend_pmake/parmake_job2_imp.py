@@ -101,3 +101,4 @@ def parmake_job2(args):
     finally:
         publish(context, 'worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake-slave')
+        

@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-def mvac_instance(db, job_id):
+def mvac_instance(db, job_id, volumes):
     import multyvac    
     layer = get_compmake_config('multyvac_layer')
     if not layer:
@@ -24,12 +24,15 @@ def mvac_instance(db, job_id):
 
     command, args, kwargs = get_cmd_args_kwargs(job_id=job_id, db=db)
 
-    multyvac_job_id = multyvac.submit(command, *args, _layer=layer, **kwargs)
+    multyvac_job_id = multyvac.submit(command, *args, 
+                                      _layer=layer,
+                                      _vol=volumes,
+                                       **kwargs)
     multyvac_job = multyvac.get(multyvac_job_id)
     return multyvac_job
     
     
-@contract(args='tuple(str, *,  str, bool)')
+@contract(args='tuple(str, *,  str, bool, list)')
 def mvac_job(args):
     """
     args = tuple job_id, context,  queue_name, show_events
@@ -40,7 +43,7 @@ def mvac_job(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, event_queue_name, show_output = args  # @UnusedVariable
+    job_id, context, event_queue_name, show_output, volumes = args  # @UnusedVariable
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
     
@@ -58,7 +61,7 @@ def mvac_job(args):
 
     time_start = time.time()
 
-    multyvac_job = mvac_instance(db, job_id)
+    multyvac_job = mvac_instance(db, job_id, volumes)
     multyvac_job.wait()
     
     errors = [multyvac_job.status_error, multyvac_job.status_killed]

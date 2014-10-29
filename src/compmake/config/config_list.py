@@ -125,3 +125,7 @@ add_config_switch('multyvac_max_jobs', 50,
 add_config_switch('multyvac_layer', '',
                       desc="Multyvac 'layer'",
                       section=CONFIG_MULTYVAC)
+
+add_config_switch('multyvac_sync', '',
+                      desc="Multyvac synchronization directory",
+                      section=CONFIG_MULTYVAC)
