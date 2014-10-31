@@ -126,6 +126,14 @@ add_config_switch('multyvac_layer', '',
                       desc="Multyvac 'layer'",
                       section=CONFIG_MULTYVAC)
 
-add_config_switch('multyvac_sync', '',
-                      desc="Multyvac synchronization directory",
+add_config_switch('multyvac_sync_down', '',
+                      desc="Multyvac synchronization directory (output)",
+                      section=CONFIG_MULTYVAC)
+
+add_config_switch('multyvac_sync_up', '',
+                      desc="Multyvac synchronization directory (input)",
+                      section=CONFIG_MULTYVAC)
+
+add_config_switch('multyvac_core', 'c2',
+                      desc="Multyvac core (c1,c2,f2)",
                       section=CONFIG_MULTYVAC)

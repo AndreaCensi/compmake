@@ -29,8 +29,9 @@ def pickle_main_context_load(c):
             m.__name__ = '__main__'
             sys.modules['__main__'] = m
         except ImportError as e:
-            print('Cannot import %r: %s' % (main_module, e))
-        
+#             print('pickle_main_context_load: Cannot import %r: %s' 
+#                   % (main_module, e))
+            pass
         yield
         
     finally:

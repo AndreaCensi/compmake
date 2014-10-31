@@ -39,7 +39,6 @@ def debug(s):  # XXX: never used?
 
 
 def write_message(s, formatting):
-    s = str(s)
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState

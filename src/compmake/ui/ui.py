@@ -34,30 +34,41 @@ def generate_job_id(base, context):
 
     max_options = 1000*1000
     def get_options():
+        counters = context.generate_job_id_counters
+        if not job_prefix in counters:
+            counters[job_prefix] = 2
+            
         if job_prefix:
             yield '%s-%s' % (job_prefix, base)
-            for i in range(2, max_options):
-                yield '%s-%s-%d' % (job_prefix, base, i)
+            while counters[job_prefix] <= max_options:
+                yield '%s-%s-%d' % (job_prefix, base, counters[job_prefix])
+                counters[job_prefix] += 1
         else:
             yield base
-            for i in range(2, max_options):
-                yield '%s-%d' % (base, i)
-
+            while counters[job_prefix] <= max_options:
+                yield '%s-%d' % (base, counters[job_prefix])
+                counters[job_prefix] += 1
+                
     db = context.get_compmake_db()
+    cq = CacheQueryDB(db)
     for x in get_options():
-        #print(' considering %s' % x)
-        if not job_exists(x, db):
+        defined = context.was_job_defined_in_this_session(x)
+        if defined:
+            continue 
+        exists = defined or cq.job_exists(x)
+        if not exists:
+            #print('u')
             return x
         else:
-            #print('  it already exists')
             # if it is the same job defined in the same stack
-            defined_by = get_job(x, db).defined_by
+            defined_by = cq.get_job(x).defined_by
+            #print('a')
             #print('  Found, he was defined by %s' % defined_by)
             if defined_by == stack:
-                if context.was_job_defined_in_this_session(x):
-                    continue
+                #print('x')
                 return x
             else:
+                #print('-')
                 continue
 
     raise CompmakeBug('Could not generate a job id')

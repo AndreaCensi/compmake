@@ -18,7 +18,7 @@ __all__ = [
 @contract(args='tuple(str, *,  str, bool)')
 def parmake_job2(args):
     """
-    args = tuple job_id, context,  queue_name, show_events
+    args = tuple job_id, context, queue_name, show_events
         
     Returns a dictionary with fields "user_object", "new_jobs", 'delete_jobs'.
     "user_object" is set to None because we do not want to 

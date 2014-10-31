@@ -11,6 +11,7 @@ from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger, get_compmake_config
 from contracts import contract, indent, raise_wrapped
+from compmake.exceptions import MakeFailed
 
 
 __all__ = [
@@ -102,7 +103,8 @@ def interactive_console(context):
             for line in compmake_console_lines(context):
                 interpret_commands_wrap(line, context=context, cq=cq)
         except CommandFailed as e:
-            error(e)
+            if not isinstance(e, MakeFailed):
+                error(str(e))
             continue
         except CompmakeBug:
             raise

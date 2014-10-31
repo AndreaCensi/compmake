@@ -1,12 +1,11 @@
-import sys
-
 from ..events import register_handler
 from ..state import get_compmake_config
-from ..ui import compmake_colored
+from ..ui import compmake_colored, error
 from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
 from compmake import CompmakeGlobalState
 from contracts import indent
+import sys
 import time
 
 
@@ -214,12 +213,9 @@ def handle_event(context, event):  # @UnusedVariable
 
 def manager_host_failed(context, event):  # @UnusedVariable
     s = 'Host failed for job %s: %s' % (event.job_id, event.reason)
-    s += indent(event.bt, '| ')
-    from compmake.utils import termcolor_colored
-
-    s = termcolor_colored(s, 'red')
-    stream.write(s)
-
+    s += indent(event.bt.strip(), '| ')
+    error(s)
+    
 
 if get_compmake_config('status_line_enabled'):
     register_handler('manager-loop', handle_event_period)

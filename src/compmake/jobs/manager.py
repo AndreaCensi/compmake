@@ -416,9 +416,8 @@ class Manager(ManagerLog):
         # Update the child->parent relation        
         # self._update_parents_relation(new_jobs)
 
-        # Job succeeded? we can check in the DB
-        if True:  # XXX: extra check
-            check_job_cache_state(job_id=job_id, db=self.db, 
+        # Job succeeded? we can check in the DB    
+        check_job_cache_state(job_id=job_id, db=self.db, 
                                   states=[Cache.DONE])
 
         # print('job %r succeeded' % job_id)
@@ -498,7 +497,8 @@ class Manager(ManagerLog):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()
 
-        print('host failed, rescheduling %r\n\n' % job_id)
+        #from compmake.ui.visualization import error
+        #error('Host failed, rescheduling job %r.' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
@@ -833,6 +833,9 @@ class Manager(ManagerLog):
 
 def check_job_cache_state(job_id, states, db):
     """ Raises CompmakeBug if the job is not marked as done. """
+    if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
+        return
+    
     if not job_cache_exists(job_id, db):
         msg = ('The job %r was reported as done/failed but no record of '
                'it was found.' % job_id)

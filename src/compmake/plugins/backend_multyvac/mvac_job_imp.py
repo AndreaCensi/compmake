@@ -8,7 +8,7 @@ from compmake.state import get_compmake_config
 from compmake.structures import Cache
 from contracts import check_isinstance, contract
 import time
-
+ 
 
 
 __all__ = [
@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-def mvac_instance(db, job_id, volumes):
+def mvac_instance(db, job_id, volumes, cwd):
     import multyvac    
     layer = get_compmake_config('multyvac_layer')
     if not layer:
@@ -24,15 +24,18 @@ def mvac_instance(db, job_id, volumes):
 
     command, args, kwargs = get_cmd_args_kwargs(job_id=job_id, db=db)
 
+    core = get_compmake_config('multyvac_core')
     multyvac_job_id = multyvac.submit(command, *args, 
                                       _layer=layer,
                                       _vol=volumes,
+                                      _name=job_id,
+                                      _core=core,
                                        **kwargs)
     multyvac_job = multyvac.get(multyvac_job_id)
     return multyvac_job
     
-    
-@contract(args='tuple(str, *,  str, bool, list)')
+
+@contract(args='tuple(str, *,  str, bool, list, str)')
 def mvac_job(args):
     """
     args = tuple job_id, context,  queue_name, show_events
@@ -43,7 +46,7 @@ def mvac_job(args):
     because it might contain a Promise. 
    
     """
-    job_id, context, event_queue_name, show_output, volumes = args  # @UnusedVariable
+    job_id, context, event_queue_name, show_output, volumes, cwd = args  # @UnusedVariable
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
     
@@ -61,7 +64,7 @@ def mvac_job(args):
 
     time_start = time.time()
 
-    multyvac_job = mvac_instance(db, job_id, volumes)
+    multyvac_job = mvac_instance(db, job_id, volumes, cwd)
     multyvac_job.wait()
     
     errors = [multyvac_job.status_error, multyvac_job.status_killed]

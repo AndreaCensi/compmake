@@ -32,6 +32,8 @@ class CompmakeConstants():
     debug_check_invariants = False # TODO: make config
 
     disable_interproc_queue = False
+    
+    extra_checks_job_states = False
 
     # Try to recover from anomalous situations
     try_recover = False

@@ -41,6 +41,9 @@ class Context(object):
         
         # RC files read
         self.rc_files_read = []
+        
+        # counters for prefixes (generate_job_id)
+        self.generate_job_id_counters = {}
 
     # This is used to make sure that the user doesn't define the same job
     # twice.

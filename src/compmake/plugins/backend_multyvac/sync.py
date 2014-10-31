@@ -1,16 +1,21 @@
 from compmake.state import get_compmake_config
 from contracts import contract
 import os
+from compmake.ui.visualization import info
+from compmake.utils import friendly_path
 
-__all__ = ['synchronize']
+__all__ = ['sync_data_up', 'sync_data_down']
+
+up_arrow = u"\u25B2"
+down_arrow = u"\u25BC"
 
 @contract(returns='list(string)')
-def synchronize(context):
+def sync_data_up(context, skipsync=False):
     """ Synchronizes the data to the cloud. 
     
         Returns the list of volume names.
     """
-    syncdirs = get_compmake_config('multyvac_sync')
+    syncdirs = get_compmake_config('multyvac_sync_up')
     if not syncdirs:
         return []
 
@@ -18,28 +23,37 @@ def synchronize(context):
     for syncdir in syncdirs.split(':'):
         if not syncdir:
             continue
-        v = synchronize_dir(syncdir)
+        v = sync_data_up_dir(syncdir, skipsync)
         volumes.add(v)
         
     return sorted(volumes)
     
-def synchronize_dir(syncdir):
+def sync_data_up_dir(syncdir, skipsync=False):
     if not os.path.exists(syncdir):
         msg = 'Dir %r does not exist.' % syncdir
         raise ValueError(msg)
     
-    import multyvac
-
     syncdir = os.path.realpath(syncdir)
 
     if not syncdir or not syncdir[0] == '/':
-        msg = 'I expect the multyvac_sync dir to be an absolute path,'
+        msg = 'I expect the multyvac_sync_up dir to be an absolute path,'
         msg += ' got %r.' % syncdir
         raise ValueError(msg)
     
+    vol, rest, rest_minus = get_volume_for_dir(syncdir)
+    
+    vol.mkdir(rest)
+    if not skipsync:
+        info(up_arrow + ' Synchronizing directory %r up.' % friendly_path(syncdir))
+        vol.sync_up(syncdir, rest_minus)
+    
+    return vol.name
+
+def get_volume_for_dir(dirname):
+    import multyvac
     # local='/data/work/datasets/00-ldr21-logs/'
     # Let's use the first path 
-    tokens = syncdir.split('/')
+    tokens = dirname.split('/')
     if tokens < 3: 
         msg = 'Got %r.' % str(tokens)
         raise ValueError(msg)
@@ -50,17 +64,46 @@ def synchronize_dir(syncdir):
     
     volumes = [v.name for v in multyvac.volume.list()]  # @UndefinedVariable
     
-    print('obtained list of volumes %r' % volumes)
+    #print('obtained list of volumes %r' % volumes)
     if not volume_name in volumes:
-        print('creating new volume')
+        #print('creating new volume')
         multyvac.volume.create(volume_name, mount_path)  # @UndefinedVariable
     
     vol = multyvac.volume.get(volume_name)  # @UndefinedVariable
     
-    vol.mkdir(rest)
     rest_minus = "/".join(tokens[2:-1])
-    print('synchronizing up - sync_up(%r,%r)' % (syncdir, rest_minus))
-    vol.sync_up(syncdir, rest_minus)
-    print('synchronizing up done.')
     
-    return vol.name
+    return vol, rest, rest_minus
+
+@contract(returns='list(string)')
+def sync_data_down(context):
+    """ Synchronizes the data from the cloud. 
+    
+        Returns the list of volume names.
+    """
+    syncdirs = get_compmake_config('multyvac_sync_down')
+
+    for syncdir in syncdirs.split(':'):
+        if not syncdir:
+            continue
+        sync_data_down_dir(syncdir)
+        
+
+
+def sync_data_down_dir(syncdir):
+    
+    if not os.path.exists(syncdir):
+        os.makedirs(syncdir)
+    
+    syncdir = os.path.realpath(syncdir)
+
+    if not syncdir or not syncdir[0] == '/':
+        msg = 'I expect the multyvac_sync_down dir to be an absolute path,'
+        msg += ' got %r.' % syncdir
+        raise ValueError(msg)
+    
+    vol, rest, rest_minus = get_volume_for_dir(syncdir)
+    print(vol, rest, rest_minus)
+    info(down_arrow + ' Synchronizing directory %r down.' % friendly_path(syncdir))
+    vol.sync_down(rest, os.path.dirname(syncdir))
+

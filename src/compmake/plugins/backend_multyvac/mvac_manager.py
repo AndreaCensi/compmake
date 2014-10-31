@@ -11,6 +11,8 @@ from multiprocessing.queues import Queue
 import os
 import signal
 import sys
+from compmake.plugins.backend_multyvac.mvac_job_rdb_imp import mvac_job_rdb
+import warnings
 
 if sys.version_info[0] >= 3:
     # noinspection PyUnresolvedReferences
@@ -35,7 +37,10 @@ class MVacManager(Manager):
                  recurse=False, 
                  show_output=False,
                  new_process=False,
-                 volumes=[]):
+                 volumes=[],
+                 rdb=False,
+                 rdb_vol=None,
+                 rdb_db=None):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
@@ -43,7 +48,10 @@ class MVacManager(Manager):
         self.show_output = show_output
         self.new_process = new_process
         self.volumes = volumes
-
+        self.rdb = rdb
+        self.rdb_db = rdb_db
+        self.rdb_vol = rdb_vol
+        
     def process_init(self):
         self.event_queue = Queue()
         self.event_queue_name = str(id(self))
@@ -141,22 +149,33 @@ class MVacManager(Manager):
 
         job = get_job(job_id, self.db)
 
-        if job.needs_context:
-            # if self.new_process:
-            #     f = parmake_job2_new_process
-            #     args = (job_id, self.context)
-            # 
-            # else:
-            f = parmake_job2
-            args = (job_id, self.context,
-                    self.event_queue_name, self.show_output)
-        else:
-            f = mvac_job
+        if self.rdb:
+            f = mvac_job_rdb
             args = (job_id, self.context,
                     self.event_queue_name, self.show_output,
-                    self.volumes)
-
-        async_result = sub.apply_async(f, args)
+                    self.volumes, self.rdb_vol.name, self.rdb_db, os.getcwd())            
+        else:
+            if job.needs_context:
+                # if self.new_process:
+                #     f = parmake_job2_new_process
+                #     args = (job_id, self.context)
+                # 
+                # else:
+                f = parmake_job2
+                args = (job_id, self.context,
+                        self.event_queue_name, self.show_output)
+            else:
+                f = mvac_job
+                args = (job_id, self.context,
+                        self.event_queue_name, self.show_output,
+                        self.volumes, os.getcwd())
+    
+        if True:
+            async_result = sub.apply_async(f, args)
+        else:
+            warnings.warn('Debugging synchronously')
+            async_result = f(args)
+            
         return async_result
 
     def event_check(self):
