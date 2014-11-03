@@ -105,9 +105,15 @@ def clean_other_jobs(context):
             if job.defined_by != ['root']:
                 # keeping this around
                 continue
+            
+            who = job.defined_by[1:]
+            if who:
+                defined = ' (defined by %s)' % "->".join(who)
+            else:
+                defined = ""
 
-            info('Job %r not defined in this session (defined by %s); cleaning.' 
-                 % (job_id, "->".join(job.defined_by[1:])))
+            info('Job %r not defined in this session%s; cleaning.' 
+                 % (job_id,defined))
 # 
 #             if not clean_all:
 #                 # info('Job %s defined-by %s' % (job_id, job.defined_by))

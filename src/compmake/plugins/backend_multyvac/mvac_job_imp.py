@@ -1,3 +1,4 @@
+from .logging_imp import disable_logging_if_config
 from compmake.exceptions import CompmakeException, JobFailed
 from compmake.jobs.dependencies import collect_dependencies
 from compmake.jobs.job_execution import get_cmd_args_kwargs
@@ -8,7 +9,6 @@ from compmake.state import get_compmake_config
 from compmake.structures import Cache
 from contracts import check_isinstance, contract
 import time
- 
 
 
 __all__ = [
@@ -51,9 +51,7 @@ def mvac_job(args):
     check_isinstance(event_queue_name, str)
     
     # Disable multyvac logging
-    import logging
-    if not get_compmake_config('multyvac_debug'):
-        logging.getLogger("multyvac").setLevel(logging.WARNING)
+    disable_logging_if_config(context)
     
     db = context.get_compmake_db()
     job = get_job(job_id=job_id, db=db)

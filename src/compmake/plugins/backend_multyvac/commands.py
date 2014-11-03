@@ -2,16 +2,19 @@ from .mvac_manager import MVacManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish
 from compmake.jobs import top_targets
-from compmake.plugins.backend_multyvac.sync import sync_data_down, sync_data_up
+from compmake.plugins.backend_multyvac.sync import (clean_cloud_out, 
+    sync_data_down, sync_data_up)
 from compmake.plugins.backend_multyvac.sync_db import (delete_db_volume, 
     synchronize_db_up)
 from compmake.ui import ACTIONS, ui_command
 from compmake.ui.commands import raise_error_if_manager_failed
-from compmake.state import get_compmake_config
+from .logging_imp import disable_logging_if_config
 
 __all__ = [
     'cloudmake',
     'cloudclean',
+    'cloud_sync_up',
+    'cloud_sync_down'
 ]
 
 
@@ -23,18 +26,15 @@ def cloudmake(job_list, context, cq,
             new_process=DefaultsToConfig('new_process'),
             echo=DefaultsToConfig('echo'),
             skipsync=False,
-            rdb=False):
+            rdb=True):
     """
         Multyvac backend
 
-        
     """
     # TODO: check it exists
     import multyvac  # @UnusedImport
 
-    import logging
-    if not get_compmake_config('multyvac_debug'):
-        logging.getLogger("multyvac").setLevel(logging.WARNING)
+    disable_logging_if_config(context)
     
     publish(context, 'parmake-status', status='Obtaining job list')
     job_list = list(job_list)
@@ -77,21 +77,24 @@ def cloudmake(job_list, context, cq,
 
     return raise_error_if_manager_failed(manager)
 
-
 @ui_command(alias='cloud-clean', section=ACTIONS, dbchange=False)
-def cloudclean(context, cq):
+def cloudclean(context):
     """ Cleans all jobs and results on the remote DB. """
+    disable_logging_if_config(context)
     db = context.get_compmake_db()
     delete_db_volume(db)
+    clean_cloud_out()
     
 @ui_command(alias='cloud-sync-up', section=ACTIONS, dbchange=False)
 def cloud_sync_up(context):
     """ Synchronizes local input data to the cloud. """
+    disable_logging_if_config(context)
     sync_data_up(context)
 
 @ui_command(alias='cloud-sync-down', section=ACTIONS, dbchange=False)
 def cloud_sync_down(context):
     """ Synchronizes remote output data to local dir. """
+    disable_logging_if_config(context)
     sync_data_down(context)
     
         

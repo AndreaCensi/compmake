@@ -3,11 +3,13 @@ from contracts import contract
 import os
 from compmake.ui.visualization import info
 from compmake.utils import friendly_path
+import shutil
 
 __all__ = ['sync_data_up', 'sync_data_down']
 
 up_arrow = u"\u25B2"
 down_arrow = u"\u25BC"
+
 
 @contract(returns='list(string)')
 def sync_data_up(context, skipsync=False):
@@ -27,6 +29,7 @@ def sync_data_up(context, skipsync=False):
         volumes.add(v)
         
     return sorted(volumes)
+
     
 def sync_data_up_dir(syncdir, skipsync=False):
     if not os.path.exists(syncdir):
@@ -49,7 +52,12 @@ def sync_data_up_dir(syncdir, skipsync=False):
     
     return vol.name
 
+
 def get_volume_for_dir(dirname):
+    if not dirname or dirname[0] != '/':
+        msg = 'Expected absolute path for %r.' % dirname
+        raise ValueError(msg)
+    
     import multyvac
     # local='/data/work/datasets/00-ldr21-logs/'
     # Let's use the first path 
@@ -75,20 +83,41 @@ def get_volume_for_dir(dirname):
     
     return vol, rest, rest_minus
 
-@contract(returns='list(string)')
+def get_sync_dirs_down():
+    syncdirs = get_compmake_config('multyvac_sync_down')
+    for syncdir in syncdirs.split(':'):
+        if not syncdir:
+            continue
+        yield syncdir
+        
 def sync_data_down(context):
     """ Synchronizes the data from the cloud. 
     
         Returns the list of volume names.
     """
-    syncdirs = get_compmake_config('multyvac_sync_down')
-
-    for syncdir in syncdirs.split(':'):
-        if not syncdir:
-            continue
+    for syncdir in get_sync_dirs_down():
         sync_data_down_dir(syncdir)
         
-
+def clean_cloud_out():
+    """ Deletes all the content of the output directories """
+    for syncdir in get_sync_dirs_down():
+        clean_cloud_out_dir(syncdir)
+        
+def clean_cloud_out_dir(d):
+    d = os.path.realpath(d)
+    vol, _, _ = get_volume_for_dir(d)
+    import multyvac
+    multyvac_job_id = multyvac.submit(clean_cloud_out_dir_job, 
+                                      d, 
+                                      _vol=[vol.name],
+                                      _name='Cleaning directory %r' % d)
+    multyvac_job = multyvac.get(multyvac_job_id)
+    multyvac_job.get_result()
+    
+def clean_cloud_out_dir_job(d):
+    if os.path.exists(d):
+        shutil.rmtree(d)
+    os.makedirs(d)
 
 def sync_data_down_dir(syncdir):
     
@@ -103,7 +132,6 @@ def sync_data_down_dir(syncdir):
         raise ValueError(msg)
     
     vol, rest, rest_minus = get_volume_for_dir(syncdir)
-    print(vol, rest, rest_minus)
     info(down_arrow + ' Synchronizing directory %r down.' % friendly_path(syncdir))
     vol.sync_down(rest, os.path.dirname(syncdir))
 

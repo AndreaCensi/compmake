@@ -1,12 +1,12 @@
-from compmake.exceptions import HostFailed, JobFailed, CompmakeBug
-from compmake.jobs.result_dict import result_dict_check
-from compmake.state import get_compmake_config
-from contracts import check_isinstance, contract
 from compmake.context import Context
+from compmake.exceptions import CompmakeBug, HostFailed, JobFailed
+from compmake.jobs import result_dict_check
+from compmake.jobs import (get_job_args, job2cachekey, job2jobargskey, 
+    job2key, job2userobjectkey)
+from .logging_imp import disable_logging_if_config
+from compmake.state import get_compmake_config
 from compmake.storage.filesystem import StorageFilesystem
-import traceback
-from compmake.jobs.storage import get_job_args, job2userobjectkey, job2cachekey,\
-    job2jobargskey, job2key
+from contracts import check_isinstance, contract
 import os
 
 __all__ = [
@@ -21,7 +21,7 @@ def mvac_job_rdb_instance(context, job_id, volumes, rdb_vol_name, rdb_db, cwd):
         layer = None
     all_volumes = volumes + [rdb_vol_name]
     
-    command, args, kwargs = get_job_args(job_id, db=context.get_compmake_db())
+    command, _, _ = get_job_args(job_id, db=context.get_compmake_db())
     misc = dict(deps=[command])
     
     #print('Instancing (volumes: %r, layer=%r)' % (all_volumes, layer))
@@ -75,9 +75,7 @@ def mvac_job_rdb(args):
     check_isinstance(job_id, str)
     
     # Disable multyvac logging
-    import logging
-    if not get_compmake_config('multyvac_debug'):
-        logging.getLogger("multyvac").setLevel(logging.WARNING)
+    disable_logging_if_config(context)
 
     multyvac_job = mvac_job_rdb_instance(context, job_id, volumes, 
                                          rdb_vol_name, rdb_db, cwd)

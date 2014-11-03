@@ -13,6 +13,7 @@ from ..utils import my_format_exc, setproctitle
 from .scripts_utils import wrap_script_entry_point
 from contracts import contract
 import contracts
+from compmake.utils.friendly_path_imp import friendly_path
 
 
 # TODO: revise all of this
@@ -51,7 +52,7 @@ def read_commands_from_file(filename, context):
 
     cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None
-    info('Reading configuration from %r.' % filename)
+    info('Reading configuration from %r.' % friendly_path(filename))
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip()

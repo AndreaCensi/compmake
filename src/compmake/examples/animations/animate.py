@@ -52,6 +52,12 @@ if __name__ == '__main__':
       'dynamic': dict(script='example_dynamic.py'),
       'recursion': dict(script='example_recursion.py',
                              params=dict(width=1000, height=400)),
+             
+      'reduce_linear': dict(script='reduce_linear.py',
+                            params=dict(width=400, height=1000)),
+      'reduce_rec': dict(script='reduce_rec.py',
+                            params=dict(width=1000, height=600)),
+    
     }
     
     methods = {
@@ -84,31 +90,6 @@ if __name__ == '__main__':
                     os.makedirs(outdir)
                 context.comp(go,script, cmd, outdir, 
                              job_id=name, **all_params)
-
-
-#     
-#     context.comp(go, 'example_simplest.py', 'make', 
-#                  'anim-simplest-make',
-#                  job_id='anim-simplest-make')
-#     context.comp(go, 'example_simplest.py', 'parmake n=2', 
-#                  'anim-simplest-parmake2',
-#                  job_id='anim-simplest-parmake2')
-#     context.comp(go, 'example_simple.py', 'parmake n=4', 
-#                  'anim-simple-parmake4',
-#                  job_id='anim-simple-parmake4')
-#     context.comp(go, 'example_fail.py', 'make', 
-#                  'anim-fail-make',
-#                  job_id='anim-fail-make')
-#     context.comp(go, 'example_dynamic.py', 'make recurse=1', 
-#              'anim-dynamic-make',
-#              job_id='anim-dynamic-make')
-#     context.comp(go, 'example_recursion.py', 'make recurse=1', 
-#              'anim-recursion-make',
-#              job_id='anim-recursion-make')
-#     context.comp(go, 'example_recursion.py', 'parmake n=8 recurse=1', 
-#              'anim-recursion-parmake3',
-#              width=1000,
-#              height=400,
-#              job_id='anim-recursion-parmake3')
+ 
 
     context.compmake_console()

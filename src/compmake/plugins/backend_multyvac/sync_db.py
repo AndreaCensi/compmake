@@ -2,7 +2,7 @@ from compmake.jobs.storage import (job2cachekey, job2jobargskey, job2key,
     job2userobjectkey)
 from compmake.jobs.uptodate import CacheQueryDB
 from compmake.storage.filesystem import StorageFilesystem
-import multyvac
+
 import os
 
 __all__ = ['synchronize_db_up']
@@ -61,6 +61,7 @@ def synchronize_db_up(context, targets):
             assert os.path.join(db2.basepath, remote_path) == f2
             vol.put_file(local_path, remote_path, target_mode=None)
     
+    import multyvac
     multyvac_job_id = multyvac.submit(copy_files, filename2contents, 
                                       _vol=[vol.name])
     multyvac_job = multyvac.get(multyvac_job_id)
@@ -85,6 +86,7 @@ def delete_db_volume(db):
     
     entries = [os.path.join(vol.mount_path, x['path']) for x in entries]
     
+    import multyvac
     multyvac_job_id = multyvac.submit(delete_entries, entries, 
                                       _vol=[vol.name],
                                       _name='Reset Compmake DB')

@@ -36,8 +36,10 @@ def friendly_path(path, use_environment=True):
 
         for k, v in envs.items():
             if v:
+                if v and v[-1] == '/':
+                    v = v[:-1]
                 if v[0] == '/':
-                    rules.append(('$%s' % k, v))
+                    rules.append(('${%s}' % k, v))
 
     # apply longest first
     rules.sort(key=lambda x: (-len(x[1])))
