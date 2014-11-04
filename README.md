@@ -1,4 +1,4 @@
-Compmake: you need it but you don't know it yet
+Compmake
 ===============================================
 
 **Compmake** is an unobstrusive Python library that provides 
@@ -45,7 +45,7 @@ Screencasts
 ---------------------------------
 
 <a href="https://vimeo.com/110090252">
-    <img style="width: 300px" src="http://censi.mit.edu/pub/research/201410-compmake-animations/demo2-screenshot.png"/>
+    <img style="width: 150px" src="http://censi.mit.edu/pub/research/201410-compmake-animations/demo2-screenshot.png"/>
 </a>
 
 
