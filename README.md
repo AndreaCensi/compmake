@@ -44,9 +44,11 @@ in the *National Robotics Initiative* program under grant #1405259.
 Screencasts
 ---------------------------------
 
-<a href="https://vimeo.com/110090252">
-    <img style="width: 150px" src="http://censi.mit.edu/pub/research/201410-compmake-animations/demo2-screenshot.png"/>
-</a>
+* Screencast 1: [Compmake Basics](http://purl.org/censi/compmake-basics)
+* Screencast 2: [Compmake + Multyvac](http://purl.org/censi/compmake-multyvac)
+* Screencast 3: [Compmake + SGE](http://purl.org/censi/compmake-sge)
+
+* [Demo with images used in the screencasts](https://github.com/AndreaCensi/compmake-demo-images/)
 
 
 Some animations of the job graph
