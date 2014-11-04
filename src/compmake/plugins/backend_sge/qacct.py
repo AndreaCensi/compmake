@@ -25,6 +25,10 @@ def get_qacct(sge_id):
                             raise_on_error=False,
                             capture_keyboard_interrupt=False)
     if res.ret == 1:
+        if 'startup' in res.stderr or 'startup' in res.stdout:
+            # /opt/sge6/default/common/accounting: No such file or directory
+            # no jobs running since startup
+            raise JobNotRunYet(sge_id)
         if 'not found' in res.stderr:
             # todo
             raise JobNotRunYet(sge_id)

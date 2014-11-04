@@ -174,7 +174,8 @@ class SGEJob(AsyncResultInterface):
                 msg = 'The file %r does not exist but it looks like the job ' \
                       'is done' % self.retcode
                 msg += '\n %s ' % qacct
-                raise CompmakeBug(msg)
+                # All right, this is simply NFS that is not updated yet
+                # raise CompmakeBug(msg)
 
             return False
 
