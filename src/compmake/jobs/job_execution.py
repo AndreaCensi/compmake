@@ -68,6 +68,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
     # context is one of the arguments 
     assert context in args
+    
     res = command(*args, **kwargs)
 
     generated = set(context.get_jobs_defined_in_this_session())
@@ -82,31 +83,32 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
             # (job_id, len(generated), sorted(generated)[:M]))
             pass
             # # now remove the extra jobs that are not needed anymore
-    extra = []
+
+#     extra = []
 
     # FIXME this is a RACE CONDITION -- needs to be done in the main thread
     # from compmake.ui.visualization import info
 
     # info('now cleaning up; generated = %s' % generated)
-
-    if False:
-        for g in all_jobs(db=db):
-            try:
-                job = get_job(g, db=db)
-            except:
-                continue
-            if job.defined_by[-1] == job_id:
-                if not g in generated:
-                    extra.append(g)
-
-        for g in extra:
-            #info('Previously generated job %r (%s) removed.' % (g,
-            # job.defined_by))
-            delete_all_job_data(g, db=db)
-
-            #     from compmake.jobs.manager import
-            # clean_other_jobs_distributed
-            #     clean_other_jobs_distributed(db=db, job_id=job_id,
-            # new_jobs=generated)
+# 
+#     if False:
+#         for g in all_jobs(db=db):
+#             try:
+#                 job = get_job(g, db=db)
+#             except:
+#                 continue
+#             if job.defined_by[-1] == job_id:
+#                 if not g in generated:
+#                     extra.append(g)
+# 
+#         for g in extra:
+#             #info('Previously generated job %r (%s) removed.' % (g,
+#             # job.defined_by))
+#             delete_all_job_data(g, db=db)
+# 
+#             #     from compmake.jobs.manager import
+#             # clean_other_jobs_distributed
+#             #     clean_other_jobs_distributed(db=db, job_id=job_id,
+#             # new_jobs=generated)
 
     return dict(user_object=res, new_jobs=generated)

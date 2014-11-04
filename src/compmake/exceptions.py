@@ -62,15 +62,17 @@ class CompmakeSyntaxError(UserError):
 class JobFailed(CompmakeException):
     """ This signals that some job has failed """
 
-    def __init__(self, job_id, reason, bt):
+    def __init__(self, job_id, reason, bt, deleted_jobs=[]):
         self.job_id = job_id
         self.reason = reason
         self.bt = bt
+        self.deleted_jobs = set(deleted_jobs)
 
     def get_result_dict(self):
         res = dict(fail='Job %r failed.' % self.job_id,
                    job_id=self.job_id,
                    reason=self.reason,
+                   deleted_jobs=self.deleted_jobs,
                    bt=self.bt)
         return res
 
@@ -82,7 +84,8 @@ class JobFailed(CompmakeException):
         assert 'fail' in res
         e = JobFailed(job_id=res['job_id'],
                       bt=res['bt'],
-                      reason=res['reason'])
+                      reason=res['reason'],
+                      deleted_jobs=res['deleted_jobs'])
         return e
 
 

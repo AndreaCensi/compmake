@@ -12,7 +12,7 @@ from .storage import (delete_job_cache, get_job,
                       get_job_cache,
                       set_job_cache, set_job_userobject)
 from compmake import get_compmake_config
-from compmake.jobs.storage import job_cache_exists, set_job
+from compmake.jobs.storage import job_cache_exists, set_job, delete_job
 from compmake.jobs.queries import direct_parents
 
 
@@ -197,6 +197,8 @@ def make(job_id, context, echo=False):
     logging.StreamHandler.emit = my_emit
 
     try:
+        already = set(context.get_jobs_defined_in_this_session())
+    
         result = job_compute(job=job, context=context)
         assert isinstance(result, dict) and len(result) == 2
         user_object = result['user_object']
@@ -207,9 +209,27 @@ def make(job_id, context, echo=False):
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError,
             Exception, SystemExit, MemoryError) as e:
+    
+        generated = set(context.get_jobs_defined_in_this_session()) - already
+        #print('failure: rolling back %s' % generated)
+        
+        from compmake.ui.ui import delete_jobs_recurse_definition
+
+        todelete = set()
+        # delete the jobs that were previously defined
+        if prev_defined_jobs:
+            todelete.update(prev_defined_jobs)
+        # and also the ones that were generated
+        todelete.update(generated)
+        
+        deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
+        # now we failed, so we need to roll back other changes
+        # to the db
+            
         bt = my_format_exc(e)
-        mark_as_failed(job_id, str(e), bt, db=db)
-        raise JobFailed(job_id=job_id, reason=str(e), bt=bt)
+        mark_as_failed(job_id, str(e), bt, db=db)    
+        raise JobFailed(job_id=job_id, reason=str(e), bt=bt,
+                        deleted_jobs=deleted_jobs)
     finally:
         capture.deactivate()
         # even if we send an error, let's save the output of the process

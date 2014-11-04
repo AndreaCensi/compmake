@@ -223,8 +223,8 @@ class MVacManager(Manager):
         
 
     # Normal outcomes    
-    def job_failed(self, job_id):
-        Manager.job_failed(self, job_id)
+    def job_failed(self, job_id, deleted_jobs):
+        Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
 
     def job_succeeded(self, job_id):

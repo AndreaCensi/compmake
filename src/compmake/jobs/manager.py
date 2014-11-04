@@ -369,7 +369,8 @@ class Manager(ManagerLog):
             # it is the responsibility of the executer to mark_job_as_failed, 
             # so we can check that
             check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
-            self.job_failed(job_id)
+            self.job_failed(job_id, deleted_jobs=e.deleted_jobs)
+            
             publish(self.context, 'job-failed', job_id=job_id,
                     host="XXX", reason=e.reason, bt=e.bt)
             return True
@@ -508,12 +509,14 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def job_failed(self, job_id):
+    def job_failed(self, job_id, deleted_jobs):
         """ The specified job has failed. Update the structures,
             mark any parent as failed as well. """
         self.log('job_failed', job_id=job_id)
         self.check_invariants()
         assert job_id in self.processing
+        
+        map(self.job_is_deleted, deleted_jobs)
 
         self.failed.add(job_id)
         self.processing.remove(job_id)
