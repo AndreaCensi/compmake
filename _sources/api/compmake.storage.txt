@@ -1,43 +1,38 @@
-storage Package
-===============
+compmake.storage package
+========================
 
-:mod:`storage` Package
-----------------------
+Submodules
+----------
 
-.. automodule:: compmake.storage
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`filesystem` Module
-------------------------
+compmake.storage.filesystem module
+----------------------------------
 
 .. automodule:: compmake.storage.filesystem
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`filesystem2` Module
--------------------------
-
-.. automodule:: compmake.storage.filesystem2
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`memorycache` Module
--------------------------
+compmake.storage.memorycache module
+-----------------------------------
 
 .. automodule:: compmake.storage.memorycache
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`redisdb` Module
----------------------
+compmake.storage.redisdb module
+-------------------------------
 
 .. automodule:: compmake.storage.redisdb
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.storage
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>utils Package &mdash; Compmake make for batch Python processes</title>
+    <title>compmake.utils package &mdash; Compmake make for batch Python processes</title>
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -192,7 +192,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="../index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>utils Package</span></h2>
+        <h2 class="heading"><span>compmake.utils package</span></h2>
       </div>
       <div class="topnav">
       
@@ -204,16 +204,13 @@ Y.Remarkbox.render();
       <div class="content">
         
         
-  <div class="section" id="utils-package">
-<h1>utils Package<a class="headerlink" href="#utils-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">utils</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-compmake.utils"></span></div>
-<div class="section" id="calling-ext-programs-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">calling_ext_programs</span></tt> Module<a class="headerlink" href="#calling-ext-programs-module" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="compmake-utils-package">
+<h1>compmake.utils package<a class="headerlink" href="#compmake-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-compmake.utils.capture">
-<span id="capture-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">capture</span></tt> Module<a class="headerlink" href="#module-compmake.utils.capture" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-capture-module"></span><h2>compmake.utils.capture module<a class="headerlink" href="#module-compmake.utils.capture" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.capture.OutputCapture">
 <em class="property">class </em><tt class="descclassname">compmake.utils.capture.</tt><tt class="descname">OutputCapture</tt><big>(</big><em>context</em>, <em>prefix</em>, <em>echo_stdout=True</em>, <em>echo_stderr=True</em><big>)</big><a class="headerlink" href="#compmake.utils.capture.OutputCapture" title="Permalink to this definition">¶</a></dt>
@@ -236,8 +233,16 @@ Y.Remarkbox.render();
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.colored">
+<span id="compmake-utils-colored-module"></span><h2>compmake.utils.colored module<a class="headerlink" href="#module-compmake.utils.colored" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.colored.compmake_colored">
+<tt class="descclassname">compmake.utils.colored.</tt><tt class="descname">compmake_colored</tt><big>(</big><em>x</em>, <em>color=None</em>, <em>on_color=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#compmake.utils.colored.compmake_colored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.coloredterm">
-<span id="coloredterm-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">coloredterm</span></tt> Module<a class="headerlink" href="#module-compmake.utils.coloredterm" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-coloredterm-module"></span><h2>compmake.utils.coloredterm module<a class="headerlink" href="#module-compmake.utils.coloredterm" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.coloredterm.termcolor_colored">
 <tt class="descclassname">compmake.utils.coloredterm.</tt><tt class="descname">termcolor_colored</tt><big>(</big><em>s</em>, <em>color=None</em>, <em>on_color=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#compmake.utils.coloredterm.termcolor_colored" title="Permalink to this definition">¶</a></dt>
@@ -245,26 +250,74 @@ Y.Remarkbox.render();
 
 </div>
 <div class="section" id="module-compmake.utils.debug_pickler">
-<span id="debug-pickler-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">debug_pickler</span></tt> Module<a class="headerlink" href="#module-compmake.utils.debug_pickler" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-debug-pickler-module"></span><h2>compmake.utils.debug_pickler module<a class="headerlink" href="#module-compmake.utils.debug_pickler" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.debug_pickler.find_pickling_error">
 <tt class="descclassname">compmake.utils.debug_pickler.</tt><tt class="descname">find_pickling_error</tt><big>(</big><em>obj</em>, <em>protocol=2</em><big>)</big><a class="headerlink" href="#compmake.utils.debug_pickler.find_pickling_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<div class="section" id="describe-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">describe</span></tt> Module<a class="headerlink" href="#describe-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-compmake.utils.docstring">
+<span id="compmake-utils-docstring-module"></span><h2>compmake.utils.docstring module<a class="headerlink" href="#module-compmake.utils.docstring" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.docstring.docstring_trim">
+<tt class="descclassname">compmake.utils.docstring.</tt><tt class="descname">docstring_trim</tt><big>(</big><em>docstring</em><big>)</big><a class="headerlink" href="#compmake.utils.docstring.docstring_trim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.docstring.docstring_components">
+<tt class="descclassname">compmake.utils.docstring.</tt><tt class="descname">docstring_components</tt><big>(</big><em>docstring</em><big>)</big><a class="headerlink" href="#compmake.utils.docstring.docstring_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes leading whitespace and returns a dict
+with fields &#8220;first&#8221; and &#8220;rest&#8221;.</p>
+<p>This is the rest.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-compmake.utils.duration_hum">
-<span id="duration-hum-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">duration_hum</span></tt> Module<a class="headerlink" href="#module-compmake.utils.duration_hum" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-duration-hum-module"></span><h2>compmake.utils.duration_hum module<a class="headerlink" href="#module-compmake.utils.duration_hum" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.duration_hum.duration_compact">
 <tt class="descclassname">compmake.utils.duration_hum.</tt><tt class="descname">duration_compact</tt><big>(</big><em>seconds</em><big>)</big><a class="headerlink" href="#compmake.utils.duration_hum.duration_compact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.filesystem_utils">
+<span id="compmake-utils-filesystem-utils-module"></span><h2>compmake.utils.filesystem_utils module<a class="headerlink" href="#module-compmake.utils.filesystem_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.filesystem_utils.make_sure_dir_exists">
+<tt class="descclassname">compmake.utils.filesystem_utils.</tt><tt class="descname">make_sure_dir_exists</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#compmake.utils.filesystem_utils.make_sure_dir_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes sure that the path to file exists, but creating directories.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.filesystem_utils.mkdirs_thread_safe">
+<tt class="descclassname">compmake.utils.filesystem_utils.</tt><tt class="descname">mkdirs_thread_safe</tt><big>(</big><em>dst</em><big>)</big><a class="headerlink" href="#compmake.utils.filesystem_utils.mkdirs_thread_safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make directories leading to &#8216;dst&#8217; if they don&#8217;t exist yet</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.utils.format_exceptions">
+<span id="compmake-utils-format-exceptions-module"></span><h2>compmake.utils.format_exceptions module<a class="headerlink" href="#module-compmake.utils.format_exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.format_exceptions.my_format_exc">
+<tt class="descclassname">compmake.utils.format_exceptions.</tt><tt class="descname">my_format_exc</tt><big>(</big><em>e</em><big>)</big><a class="headerlink" href="#compmake.utils.format_exceptions.my_format_exc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-compmake.utils.friendly_path_imp">
+<span id="compmake-utils-friendly-path-imp-module"></span><h2>compmake.utils.friendly_path_imp module<a class="headerlink" href="#module-compmake.utils.friendly_path_imp" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for writing compact file paths.</p>
+<dl class="function">
+<dt id="compmake.utils.friendly_path_imp.friendly_path">
+<tt class="descclassname">compmake.utils.friendly_path_imp.</tt><tt class="descname">friendly_path</tt><big>(</big><em>path</em>, <em>use_environment=True</em><big>)</big><a class="headerlink" href="#compmake.utils.friendly_path_imp.friendly_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a friendly representation of the given path,
+using relative paths or environment variables
+(if use_environment = True).</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.frozen">
-<span id="frozen-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">frozen</span></tt> Module<a class="headerlink" href="#module-compmake.utils.frozen" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-frozen-module"></span><h2>compmake.utils.frozen module<a class="headerlink" href="#module-compmake.utils.frozen" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.frozen.frozendict2">
 <em class="property">class </em><tt class="descclassname">compmake.utils.frozen.</tt><tt class="descname">frozendict2</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#compmake.utils.frozen.frozendict2" title="Permalink to this definition">¶</a></dt>
@@ -273,7 +326,7 @@ Y.Remarkbox.render();
 
 </div>
 <div class="section" id="module-compmake.utils.instantiate_utils">
-<span id="instantiate-utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">instantiate_utils</span></tt> Module<a class="headerlink" href="#module-compmake.utils.instantiate_utils" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-instantiate-utils-module"></span><h2>compmake.utils.instantiate_utils module<a class="headerlink" href="#module-compmake.utils.instantiate_utils" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.instantiate_utils.import_name">
 <tt class="descclassname">compmake.utils.instantiate_utils.</tt><tt class="descname">import_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#compmake.utils.instantiate_utils.import_name" title="Permalink to this definition">¶</a></dt>
@@ -293,7 +346,7 @@ Y.Remarkbox.render();
 
 </div>
 <div class="section" id="module-compmake.utils.memoize_imp">
-<span id="memoize-imp-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">memoize_imp</span></tt> Module<a class="headerlink" href="#module-compmake.utils.memoize_imp" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-memoize-imp-module"></span><h2>compmake.utils.memoize_imp module<a class="headerlink" href="#module-compmake.utils.memoize_imp" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.memoize_imp.memoized_reset">
 <em class="property">class </em><tt class="descclassname">compmake.utils.memoize_imp.</tt><tt class="descname">memoized_reset</tt><big>(</big><em>func</em><big>)</big><a class="headerlink" href="#compmake.utils.memoize_imp.memoized_reset" title="Permalink to this definition">¶</a></dt>
@@ -304,8 +357,30 @@ not re-evaluated.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.pickle_frustration">
+<span id="compmake-utils-pickle-frustration-module"></span><h2>compmake.utils.pickle_frustration module<a class="headerlink" href="#module-compmake.utils.pickle_frustration" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.pickle_frustration.pickle_main_context_load">
+<tt class="descclassname">compmake.utils.pickle_frustration.</tt><tt class="descname">pickle_main_context_load</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#compmake.utils.pickle_frustration.pickle_main_context_load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.pickle_frustration.pickle_main_context_save">
+<tt class="descclassname">compmake.utils.pickle_frustration.</tt><tt class="descname">pickle_main_context_save</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.pickle_frustration.pickle_main_context_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remember who was the __main__ module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">dict</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.pickling_utils">
-<span id="pickling-utils-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">pickling_utils</span></tt> Module<a class="headerlink" href="#module-compmake.utils.pickling_utils" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-pickling-utils-module"></span><h2>compmake.utils.pickling_utils module<a class="headerlink" href="#module-compmake.utils.pickling_utils" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.pickling_utils.try_pickling">
 <tt class="descclassname">compmake.utils.pickling_utils.</tt><tt class="descname">try_pickling</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#compmake.utils.pickling_utils.try_pickling" title="Permalink to this definition">¶</a></dt>
@@ -314,7 +389,7 @@ not re-evaluated.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.proctitle">
-<span id="proctitle-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">proctitle</span></tt> Module<a class="headerlink" href="#module-compmake.utils.proctitle" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-proctitle-module"></span><h2>compmake.utils.proctitle module<a class="headerlink" href="#module-compmake.utils.proctitle" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.proctitle.setproctitle">
 <tt class="descclassname">compmake.utils.proctitle.</tt><tt class="descname">setproctitle</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.proctitle.setproctitle" title="Permalink to this definition">¶</a></dt>
@@ -323,7 +398,7 @@ not re-evaluated.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.safe_pickle">
-<span id="safe-pickle-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">safe_pickle</span></tt> Module<a class="headerlink" href="#module-compmake.utils.safe_pickle" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-safe-pickle-module"></span><h2>compmake.utils.safe_pickle module<a class="headerlink" href="#module-compmake.utils.safe_pickle" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.safe_pickle.safe_pickle_dump">
 <tt class="descclassname">compmake.utils.safe_pickle.</tt><tt class="descname">safe_pickle_dump</tt><big>(</big><em>value</em>, <em>filename</em>, <em>protocol=2</em>, <em>**safe_write_options</em><big>)</big><a class="headerlink" href="#compmake.utils.safe_pickle.safe_pickle_dump" title="Permalink to this definition">¶</a></dt>
@@ -336,7 +411,7 @@ not re-evaluated.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.safe_write">
-<span id="safe-write-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">safe_write</span></tt> Module<a class="headerlink" href="#module-compmake.utils.safe_write" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-safe-write-module"></span><h2>compmake.utils.safe_write module<a class="headerlink" href="#module-compmake.utils.safe_write" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.safe_write.safe_write">
 <tt class="descclassname">compmake.utils.safe_write.</tt><tt class="descname">safe_write</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#compmake.utils.safe_write.safe_write" title="Permalink to this definition">¶</a></dt>
@@ -356,7 +431,7 @@ Yields a file descriptor.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.strings_with_escapes">
-<span id="strings-with-escapes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">strings_with_escapes</span></tt> Module<a class="headerlink" href="#module-compmake.utils.strings_with_escapes" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-strings-with-escapes-module"></span><h2>compmake.utils.strings_with_escapes module<a class="headerlink" href="#module-compmake.utils.strings_with_escapes" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.strings_with_escapes.remove_escapes">
 <tt class="descclassname">compmake.utils.strings_with_escapes.</tt><tt class="descname">remove_escapes</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.utils.strings_with_escapes.remove_escapes" title="Permalink to this definition">¶</a></dt>
@@ -386,7 +461,7 @@ on the terminal.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.system_stats">
-<span id="system-stats-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">system_stats</span></tt> Module<a class="headerlink" href="#module-compmake.utils.system_stats" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-system-stats-module"></span><h2>compmake.utils.system_stats module<a class="headerlink" href="#module-compmake.utils.system_stats" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.system_stats.AvgSystemStats">
 <em class="property">class </em><tt class="descclassname">compmake.utils.system_stats.</tt><tt class="descname">AvgSystemStats</tt><big>(</big><em>interval</em>, <em>history_len</em><big>)</big><a class="headerlink" href="#compmake.utils.system_stats.AvgSystemStats" title="Permalink to this definition">¶</a></dt>
@@ -426,8 +501,52 @@ on the terminal.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.table_formatter">
+<span id="compmake-utils-table-formatter-module"></span><h2>compmake.utils.table_formatter module<a class="headerlink" href="#module-compmake.utils.table_formatter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.utils.table_formatter.TableFormatter">
+<em class="property">class </em><tt class="descclassname">compmake.utils.table_formatter.</tt><tt class="descname">TableFormatter</tt><big>(</big><em>sep='|'</em><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="compmake.utils.table_formatter.TableFormatter.cell">
+<tt class="descname">cell</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.utils.table_formatter.TableFormatter.done">
+<tt class="descname">done</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter.done" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.utils.table_formatter.TableFormatter.get_lines">
+<tt class="descname">get_lines</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter.get_lines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="compmake.utils.table_formatter.TableFormatter.get_lines_multi">
+<tt class="descname">get_lines_multi</tt><big>(</big><em>linewidth</em>, <em>sep='   '</em><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter.get_lines_multi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets lines, perhaps multiples on a line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="compmake.utils.table_formatter.TableFormatter.row">
+<tt class="descname">row</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.TableFormatter.row" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.table_formatter.groups">
+<tt class="descclassname">compmake.utils.table_formatter.</tt><tt class="descname">groups</tt><big>(</big><em>it</em>, <em>groupsize</em><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.utils.table_formatter.groups_match">
+<tt class="descclassname">compmake.utils.table_formatter.</tt><tt class="descname">groups_match</tt><big>(</big><em>it</em>, <em>groupsize</em><big>)</big><a class="headerlink" href="#compmake.utils.table_formatter.groups_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.terminal_size">
-<span id="terminal-size-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">terminal_size</span></tt> Module<a class="headerlink" href="#module-compmake.utils.terminal_size" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-terminal-size-module"></span><h2>compmake.utils.terminal_size module<a class="headerlink" href="#module-compmake.utils.terminal_size" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.terminal_size.get_screen_columns">
 <tt class="descclassname">compmake.utils.terminal_size.</tt><tt class="descname">get_screen_columns</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.terminal_size.get_screen_columns" title="Permalink to this definition">¶</a></dt>
@@ -441,7 +560,7 @@ on the terminal.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.time_track">
-<span id="time-track-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">time_track</span></tt> Module<a class="headerlink" href="#module-compmake.utils.time_track" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-time-track-module"></span><h2>compmake.utils.time_track module<a class="headerlink" href="#module-compmake.utils.time_track" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.time_track.TimeTrack">
 <em class="property">class </em><tt class="descclassname">compmake.utils.time_track.</tt><tt class="descname">TimeTrack</tt><big>(</big><em>what=None</em><big>)</big><a class="headerlink" href="#compmake.utils.time_track.TimeTrack" title="Permalink to this definition">¶</a></dt>
@@ -464,8 +583,17 @@ on the terminal.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.timedate">
+<span id="compmake-utils-timedate-module"></span><h2>compmake.utils.timedate module<a class="headerlink" href="#module-compmake.utils.timedate" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.timedate.isodate_with_secs">
+<tt class="descclassname">compmake.utils.timedate.</tt><tt class="descname">isodate_with_secs</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.utils.timedate.isodate_with_secs" title="Permalink to this definition">¶</a></dt>
+<dd><p>E.g., &#8216;2011-10-06-22:54:33&#8217;</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.values_interpretation">
-<span id="values-interpretation-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">values_interpretation</span></tt> Module<a class="headerlink" href="#module-compmake.utils.values_interpretation" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-values-interpretation-module"></span><h2>compmake.utils.values_interpretation module<a class="headerlink" href="#module-compmake.utils.values_interpretation" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.values_interpretation.interpret_strings_like">
 <tt class="descclassname">compmake.utils.values_interpretation.</tt><tt class="descname">interpret_strings_like</tt><big>(</big><em>args</em>, <em>reference_value</em><big>)</big><a class="headerlink" href="#compmake.utils.values_interpretation.interpret_strings_like" title="Permalink to this definition">¶</a></dt>
@@ -473,7 +601,7 @@ on the terminal.</p>
 
 </div>
 <div class="section" id="module-compmake.utils.values_interpretation_test">
-<span id="values-interpretation-test-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">values_interpretation_test</span></tt> Module<a class="headerlink" href="#module-compmake.utils.values_interpretation_test" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-values-interpretation-test-module"></span><h2>compmake.utils.values_interpretation_test module<a class="headerlink" href="#module-compmake.utils.values_interpretation_test" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.utils.values_interpretation_test.InterpretTest">
 <em class="property">class </em><tt class="descclassname">compmake.utils.values_interpretation_test.</tt><tt class="descname">InterpretTest</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#compmake.utils.values_interpretation_test.InterpretTest" title="Permalink to this definition">¶</a></dt>
@@ -487,8 +615,17 @@ on the terminal.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.utils.which_imp">
+<span id="compmake-utils-which-imp-module"></span><h2>compmake.utils.which_imp module<a class="headerlink" href="#module-compmake.utils.which_imp" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.utils.which_imp.which">
+<tt class="descclassname">compmake.utils.which_imp.</tt><tt class="descname">which</tt><big>(</big><em>program</em><big>)</big><a class="headerlink" href="#compmake.utils.which_imp.which" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns string or raise ValueError.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-compmake.utils.wildcards">
-<span id="wildcards-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">wildcards</span></tt> Module<a class="headerlink" href="#module-compmake.utils.wildcards" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-utils-wildcards-module"></span><h2>compmake.utils.wildcards module<a class="headerlink" href="#module-compmake.utils.wildcards" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.utils.wildcards.wildcard_to_regexp">
 <tt class="descclassname">compmake.utils.wildcards.</tt><tt class="descname">wildcard_to_regexp</tt><big>(</big><em>arg</em><big>)</big><a class="headerlink" href="#compmake.utils.wildcards.wildcard_to_regexp" title="Permalink to this definition">¶</a></dt>
@@ -503,6 +640,9 @@ wildcard: string with &#8216;*&#8217;
 universe: list of strings</p>
 </dd></dl>
 
+</div>
+<div class="section" id="module-compmake.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-compmake.utils" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

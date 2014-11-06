@@ -1,171 +1,230 @@
-utils Package
-=============
+compmake.utils package
+======================
 
-:mod:`utils` Package
---------------------
+Submodules
+----------
 
-.. automodule:: compmake.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`calling_ext_programs` Module
-----------------------------------
-
-.. automodule:: compmake.utils.calling_ext_programs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`capture` Module
----------------------
+compmake.utils.capture module
+-----------------------------
 
 .. automodule:: compmake.utils.capture
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`coloredterm` Module
--------------------------
+compmake.utils.colored module
+-----------------------------
+
+.. automodule:: compmake.utils.colored
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.coloredterm module
+---------------------------------
 
 .. automodule:: compmake.utils.coloredterm
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`debug_pickler` Module
----------------------------
+compmake.utils.debug_pickler module
+-----------------------------------
 
 .. automodule:: compmake.utils.debug_pickler
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`describe` Module
-----------------------
+compmake.utils.docstring module
+-------------------------------
 
-.. automodule:: compmake.utils.describe
+.. automodule:: compmake.utils.docstring
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`duration_hum` Module
---------------------------
+compmake.utils.duration_hum module
+----------------------------------
 
 .. automodule:: compmake.utils.duration_hum
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`frozen` Module
---------------------
+compmake.utils.filesystem_utils module
+--------------------------------------
+
+.. automodule:: compmake.utils.filesystem_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.format_exceptions module
+---------------------------------------
+
+.. automodule:: compmake.utils.format_exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.friendly_path_imp module
+---------------------------------------
+
+.. automodule:: compmake.utils.friendly_path_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.frozen module
+----------------------------
 
 .. automodule:: compmake.utils.frozen
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`instantiate_utils` Module
--------------------------------
+compmake.utils.instantiate_utils module
+---------------------------------------
 
 .. automodule:: compmake.utils.instantiate_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`memoize_imp` Module
--------------------------
+compmake.utils.memoize_imp module
+---------------------------------
 
 .. automodule:: compmake.utils.memoize_imp
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`pickling_utils` Module
-----------------------------
+compmake.utils.pickle_frustration module
+----------------------------------------
+
+.. automodule:: compmake.utils.pickle_frustration
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.pickling_utils module
+------------------------------------
 
 .. automodule:: compmake.utils.pickling_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`proctitle` Module
------------------------
+compmake.utils.proctitle module
+-------------------------------
 
 .. automodule:: compmake.utils.proctitle
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`safe_pickle` Module
--------------------------
+compmake.utils.safe_pickle module
+---------------------------------
 
 .. automodule:: compmake.utils.safe_pickle
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`safe_write` Module
-------------------------
+compmake.utils.safe_write module
+--------------------------------
 
 .. automodule:: compmake.utils.safe_write
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`strings_with_escapes` Module
-----------------------------------
+compmake.utils.strings_with_escapes module
+------------------------------------------
 
 .. automodule:: compmake.utils.strings_with_escapes
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`system_stats` Module
---------------------------
+compmake.utils.system_stats module
+----------------------------------
 
 .. automodule:: compmake.utils.system_stats
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`terminal_size` Module
----------------------------
+compmake.utils.table_formatter module
+-------------------------------------
+
+.. automodule:: compmake.utils.table_formatter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.terminal_size module
+-----------------------------------
 
 .. automodule:: compmake.utils.terminal_size
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`time_track` Module
-------------------------
+compmake.utils.time_track module
+--------------------------------
 
 .. automodule:: compmake.utils.time_track
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`values_interpretation` Module
------------------------------------
+compmake.utils.timedate module
+------------------------------
+
+.. automodule:: compmake.utils.timedate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.values_interpretation module
+-------------------------------------------
 
 .. automodule:: compmake.utils.values_interpretation
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`values_interpretation_test` Module
-----------------------------------------
+compmake.utils.values_interpretation_test module
+------------------------------------------------
 
 .. automodule:: compmake.utils.values_interpretation_test
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`wildcards` Module
------------------------
+compmake.utils.which_imp module
+-------------------------------
+
+.. automodule:: compmake.utils.which_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.utils.wildcards module
+-------------------------------
 
 .. automodule:: compmake.utils.wildcards
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:

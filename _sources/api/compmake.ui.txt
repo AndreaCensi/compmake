@@ -1,75 +1,78 @@
-ui Package
-==========
+compmake.ui package
+===================
 
-:mod:`ui` Package
------------------
+Submodules
+----------
 
-.. automodule:: compmake.ui
+compmake.ui.coloredlog module
+-----------------------------
+
+.. automodule:: compmake.ui.coloredlog
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`commands` Module
-----------------------
+compmake.ui.commands module
+---------------------------
 
 .. automodule:: compmake.ui.commands
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`commands_html` Module
----------------------------
+compmake.ui.commands_html module
+--------------------------------
 
 .. automodule:: compmake.ui.commands_html
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`config_ui` Module
------------------------
+compmake.ui.config_ui module
+----------------------------
 
 .. automodule:: compmake.ui.config_ui
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`console` Module
----------------------
+compmake.ui.console module
+--------------------------
 
 .. automodule:: compmake.ui.console
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`helpers` Module
----------------------
+compmake.ui.helpers module
+--------------------------
 
 .. automodule:: compmake.ui.helpers
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ui` Module
-----------------
+compmake.ui.ui module
+---------------------
 
 .. automodule:: compmake.ui.ui
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`user_utils` Module
-------------------------
-
-.. automodule:: compmake.ui.user_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`visualization` Module
----------------------------
+compmake.ui.visualization module
+--------------------------------
 
 .. automodule:: compmake.ui.visualization
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.ui
+    :members:
+    :undoc-members:
+    :show-inheritance:

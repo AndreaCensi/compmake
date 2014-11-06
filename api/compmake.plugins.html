@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>plugins Package &mdash; Compmake make for batch Python processes</title>
+    <title>compmake.plugins package &mdash; Compmake make for batch Python processes</title>
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -192,7 +192,7 @@ Y.Remarkbox.render();
   <body>
       <div class="header"><h1 class="heading"><a href="../index.html">
           <span></span></a></h1>
-        <h2 class="heading"><span>plugins Package</span></h2>
+        <h2 class="heading"><span>compmake.plugins package</span></h2>
       </div>
       <div class="topnav">
       
@@ -204,15 +204,89 @@ Y.Remarkbox.render();
       <div class="content">
         
         
-  <div class="section" id="plugins-package">
-<h1>plugins Package<a class="headerlink" href="#plugins-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">plugins</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-compmake.plugins"></span><p>These are all the functionalities that build on the API. All visualization
-stuff is built in as a plugin.</p>
+  <div class="section" id="compmake-plugins-package">
+<h1>compmake.plugins package<a class="headerlink" href="#compmake-plugins-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.backend_local.html">compmake.plugins.backend_local package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_local.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_local.html#module-compmake.plugins.backend_local.commands">compmake.plugins.backend_local.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_local.html#module-compmake.plugins.backend_local.manager_local">compmake.plugins.backend_local.manager_local module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_local.html#module-compmake.plugins.backend_local">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.backend_multyvac.html">compmake.plugins.backend_multyvac package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.commands">compmake.plugins.backend_multyvac.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.logging_imp">compmake.plugins.backend_multyvac.logging_imp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.mvac_job_imp">compmake.plugins.backend_multyvac.mvac_job_imp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.mvac_job_rdb_imp">compmake.plugins.backend_multyvac.mvac_job_rdb_imp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.mvac_manager">compmake.plugins.backend_multyvac.mvac_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.sync">compmake.plugins.backend_multyvac.sync module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac.sync_db">compmake.plugins.backend_multyvac.sync_db module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_multyvac.html#module-compmake.plugins.backend_multyvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.backend_pmake.html">compmake.plugins.backend_pmake package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#module-compmake.plugins.backend_pmake.commands">compmake.plugins.backend_pmake.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#module-compmake.plugins.backend_pmake.parmake_job2_imp">compmake.plugins.backend_pmake.parmake_job2_imp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#module-compmake.plugins.backend_pmake.pmake_manager">compmake.plugins.backend_pmake.pmake_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#module-compmake.plugins.backend_pmake.pmakesub">compmake.plugins.backend_pmake.pmakesub module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_pmake.html#module-compmake.plugins.backend_pmake">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.backend_sge.html">compmake.plugins.backend_sge package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge.commands">compmake.plugins.backend_sge.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge.qacct">compmake.plugins.backend_sge.qacct module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge.sge_manager">compmake.plugins.backend_sge.sge_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge.sge_misc">compmake.plugins.backend_sge.sge_misc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge.sge_sub">compmake.plugins.backend_sge.sge_sub module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_sge.html#module-compmake.plugins.backend_sge">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html">compmake.plugins.backend_ssh_cluster package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html#module-compmake.plugins.backend_ssh_cluster.cluster_conf">compmake.plugins.backend_ssh_cluster.cluster_conf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html#module-compmake.plugins.backend_ssh_cluster.commands">compmake.plugins.backend_ssh_cluster.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html#module-compmake.plugins.backend_ssh_cluster.manager_ssh_cluster">compmake.plugins.backend_ssh_cluster.manager_ssh_cluster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.backend_ssh_cluster.html#module-compmake.plugins.backend_ssh_cluster">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.execution_stats.html">compmake.plugins.execution_stats package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.execution_stats.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.execution_stats.html#module-compmake.plugins.execution_stats.ex_stats">compmake.plugins.execution_stats.ex_stats module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.execution_stats.html#module-compmake.plugins.execution_stats">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html">compmake.plugins.old_backend_multiprocessing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html#module-compmake.plugins.old_backend_multiprocessing.commands">compmake.plugins.old_backend_multiprocessing.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html#module-compmake.plugins.old_backend_multiprocessing.manager_multiprocessing">compmake.plugins.old_backend_multiprocessing.manager_multiprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html#module-compmake.plugins.old_backend_multiprocessing.shared">compmake.plugins.old_backend_multiprocessing.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compmake.plugins.old_backend_multiprocessing.html#module-compmake.plugins.old_backend_multiprocessing">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-compmake.plugins.clear_imp">
+<span id="compmake-plugins-clear-imp-module"></span><h2>compmake.plugins.clear_imp module<a class="headerlink" href="#module-compmake.plugins.clear_imp" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.clear_imp.clear">
+<tt class="descclassname">compmake.plugins.clear_imp.</tt><tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.plugins.clear_imp.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the screen.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-compmake.plugins.commands_status">
-<span id="commands-status-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">commands_status</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.commands_status" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-commands-status-module"></span><h2>compmake.plugins.commands_status module<a class="headerlink" href="#module-compmake.plugins.commands_status" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.commands_status.command_failed">
 <tt class="descclassname">compmake.plugins.commands_status.</tt><tt class="descname">command_failed</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.commands_status.command_failed" title="Permalink to this definition">¶</a></dt>
@@ -260,7 +334,7 @@ stuff is built in as a plugin.</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.console_banners">
-<span id="console-banners-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">console_banners</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.console_banners" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-console-banners-module"></span><h2>compmake.plugins.console_banners module<a class="headerlink" href="#module-compmake.plugins.console_banners" title="Permalink to this headline">¶</a></h2>
 <p>Implements the initial and final banner</p>
 <dl class="function">
 <dt id="compmake.plugins.console_banners.console_ending">
@@ -274,7 +348,7 @@ stuff is built in as a plugin.</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.console_output">
-<span id="console-output-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">console_output</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.console_output" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-console-output-module"></span><h2>compmake.plugins.console_output module<a class="headerlink" href="#module-compmake.plugins.console_output" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.plugins.console_output.Storage">
 <em class="property">class </em><tt class="descclassname">compmake.plugins.console_output.</tt><tt class="descname">Storage</tt><a class="headerlink" href="#compmake.plugins.console_output.Storage" title="Permalink to this definition">¶</a></dt>
@@ -333,13 +407,13 @@ stuff is built in as a plugin.</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.console_status">
-<span id="console-status-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">console_status</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.console_status" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-console-status-module"></span><h2>compmake.plugins.console_status module<a class="headerlink" href="#module-compmake.plugins.console_status" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.plugins.console_status.Tmp">
 <em class="property">class </em><tt class="descclassname">compmake.plugins.console_status.</tt><tt class="descname">Tmp</tt><a class="headerlink" href="#compmake.plugins.console_status.Tmp" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="attribute">
 <dt id="compmake.plugins.console_status.Tmp.last_manager_loop">
-<tt class="descname">last_manager_loop</tt><em class="property"> = 1414370283.60496</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">last_manager_loop</tt><em class="property"> = 1415250029.870523</em><a class="headerlink" href="#compmake.plugins.console_status.Tmp.last_manager_loop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -403,10 +477,19 @@ For now, we assume intervals to be round integers.</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.credits">
-<span id="credits-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">credits</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.credits" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-credits-module"></span><h2>compmake.plugins.credits module<a class="headerlink" href="#module-compmake.plugins.credits" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-compmake.plugins.debug_priority">
+<span id="compmake-plugins-debug-priority-module"></span><h2>compmake.plugins.debug_priority module<a class="headerlink" href="#module-compmake.plugins.debug_priority" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.debug_priority.debug_priority">
+<tt class="descclassname">compmake.plugins.debug_priority.</tt><tt class="descname">debug_priority</tt><big>(</big><em>non_empty_job_list</em>, <em>context</em>, <em>cq</em><big>)</big><a class="headerlink" href="#compmake.plugins.debug_priority.debug_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the priority of jobs.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-compmake.plugins.details">
-<span id="details-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">details</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.details" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-details-module"></span><h2>compmake.plugins.details module<a class="headerlink" href="#module-compmake.plugins.details" title="Permalink to this headline">¶</a></h2>
 <p>The actual interface of some commands in commands.py</p>
 <dl class="function">
 <dt id="compmake.plugins.details.details">
@@ -426,7 +509,7 @@ argument to see more:</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.dump">
-<span id="dump-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dump</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.dump" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-dump-module"></span><h2>compmake.plugins.dump module<a class="headerlink" href="#module-compmake.plugins.dump" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.dump.dump">
 <tt class="descclassname">compmake.plugins.dump.</tt><tt class="descname">dump</tt><big>(</big><em>non_empty_job_list</em>, <em>context</em>, <em>directory='.'</em><big>)</big><a class="headerlink" href="#compmake.plugins.dump.dump" title="Permalink to this definition">¶</a></dt>
@@ -445,7 +528,7 @@ argument to see more:</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.event_debugger">
-<span id="event-debugger-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">event_debugger</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.event_debugger" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-event-debugger-module"></span><h2>compmake.plugins.event_debugger module<a class="headerlink" href="#module-compmake.plugins.event_debugger" title="Permalink to this headline">¶</a></h2>
 <p>This plugin dumps all events received.</p>
 <dl class="function">
 <dt id="compmake.plugins.event_debugger.print_event">
@@ -454,7 +537,7 @@ argument to see more:</p>
 
 </div>
 <div class="section" id="module-compmake.plugins.graph">
-<span id="graph-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">graph</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.graph" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-graph-module"></span><h2>compmake.plugins.graph module<a class="headerlink" href="#module-compmake.plugins.graph" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.graph.create_graph1">
 <tt class="descclassname">compmake.plugins.graph.</tt><tt class="descname">create_graph1</tt><big>(</big><em>cq</em>, <em>job_list</em>, <em>label</em>, <em>color</em>, <em>processing</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph.create_graph1" title="Permalink to this definition">¶</a></dt>
@@ -498,8 +581,63 @@ computation. The default is &#8216;dot&#8217;
 </dd></dl>
 
 </div>
+<div class="section" id="module-compmake.plugins.graph_animation_imp">
+<span id="compmake-plugins-graph-animation-imp-module"></span><h2>compmake.plugins.graph_animation_imp module<a class="headerlink" href="#module-compmake.plugins.graph_animation_imp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="compmake.plugins.graph_animation_imp.Global">
+<em class="property">class </em><tt class="descclassname">compmake.plugins.graph_animation_imp.</tt><tt class="descname">Global</tt><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.dirname">
+<tt class="descname">dirname</tt><em class="property"> = '.'</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.dpi">
+<tt class="descname">dpi</tt><em class="property"> = None</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.dpi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.graph_params">
+<tt class="descname">graph_params</tt><em class="property"> = {}</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.graph_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.job_list">
+<tt class="descname">job_list</tt><em class="property"> = []</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.job_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.processing">
+<tt class="descname">processing</tt><em class="property"> = set([])</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.size">
+<tt class="descname">size</tt><em class="property"> = (None, None)</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="compmake.plugins.graph_animation_imp.Global.step">
+<tt class="descname">step</tt><em class="property"> = 0</em><a class="headerlink" href="#compmake.plugins.graph_animation_imp.Global.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.graph_animation_imp.graph_animation">
+<tt class="descclassname">compmake.plugins.graph_animation_imp.</tt><tt class="descname">graph_animation</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>dirname='compmake-graph-animation'</em>, <em>dpi=150</em>, <em>width=900</em>, <em>height=900</em>, <em>label='function'</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph_animation_imp.graph_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a step-by-step animation.</p>
+<p>Registers the handlers. Then call &#8216;make&#8217; or &#8216;parmake&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.graph_animation_imp.update_graph">
+<tt class="descclassname">compmake.plugins.graph_animation_imp.</tt><tt class="descname">update_graph</tt><big>(</big><em>context</em>, <em>event</em><big>)</big><a class="headerlink" href="#compmake.plugins.graph_animation_imp.update_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-compmake.plugins.job_definition_status">
-<span id="job-definition-status-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">job_definition_status</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.job_definition_status" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-job-definition-status-module"></span><h2>compmake.plugins.job_definition_status module<a class="headerlink" href="#module-compmake.plugins.job_definition_status" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.job_definition_status.console_write">
 <tt class="descclassname">compmake.plugins.job_definition_status.</tt><tt class="descname">console_write</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#compmake.plugins.job_definition_status.console_write" title="Permalink to this definition">¶</a></dt>
@@ -517,11 +655,52 @@ computation. The default is &#8216;dot&#8217;
 <dd></dd></dl>
 
 </div>
-<div class="section" id="list-jobs-module">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">list_jobs</span></tt> Module<a class="headerlink" href="#list-jobs-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-compmake.plugins.list_jobs_imp">
+<span id="compmake-plugins-list-jobs-imp-module"></span><h2>compmake.plugins.list_jobs_imp module<a class="headerlink" href="#module-compmake.plugins.list_jobs_imp" title="Permalink to this headline">¶</a></h2>
+<p>The actual interface of some commands in commands.py</p>
+<dl class="function">
+<dt id="compmake.plugins.list_jobs_imp.format_size">
+<tt class="descclassname">compmake.plugins.list_jobs_imp.</tt><tt class="descname">format_size</tt><big>(</big><em>nbytes</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs_imp.format_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.list_jobs_imp.get_sizes">
+<tt class="descclassname">compmake.plugins.list_jobs_imp.</tt><tt class="descname">get_sizes</tt><big>(</big><em>job_id</em>, <em>db</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs_imp.get_sizes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns byte sizes for jobs pieces.</p>
+<blockquote>
+<div>Returns dict with keys &#8216;args&#8217;,&#8217;cache&#8217;,&#8217;result&#8217;,&#8217;total&#8217;.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">dict</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.list_jobs_imp.list_jobs">
+<tt class="descclassname">compmake.plugins.list_jobs_imp.</tt><tt class="descname">list_jobs</tt><big>(</big><em>context</em>, <em>job_list</em>, <em>cq</em>, <em>complete_names=False</em>, <em>reason=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs_imp.list_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.list_jobs_imp.ls">
+<tt class="descclassname">compmake.plugins.list_jobs_imp.</tt><tt class="descname">ls</tt><big>(</big><em>args</em>, <em>context</em>, <em>cq</em>, <em>complete_names=False</em>, <em>reason=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.list_jobs_imp.ls" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Lists the status of the given jobs (or all jobs if none specified</div></blockquote>
+<p>specified).</p>
+<blockquote>
+<div><p>Options:</p>
+<blockquote>
+<div>ls complete_names=1   # do not abbreviate names
+ls reason=1  # show why jobs are not uptodate</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
 </div>
 <div class="section" id="module-compmake.plugins.reload_module">
-<span id="reload-module-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">reload_module</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.reload_module" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-reload-module-module"></span><h2>compmake.plugins.reload_module module<a class="headerlink" href="#module-compmake.plugins.reload_module" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="compmake.plugins.reload_module.reload">
 <tt class="descclassname">compmake.plugins.reload_module.</tt><tt class="descname">reload</tt><big>(</big><em>module</em><big>)</big><a class="headerlink" href="#compmake.plugins.reload_module.reload" title="Permalink to this definition">¶</a></dt>
@@ -534,7 +713,7 @@ computation. The default is &#8216;dot&#8217;
 
 </div>
 <div class="section" id="module-compmake.plugins.sanity_check">
-<span id="sanity-check-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">sanity_check</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.sanity_check" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-sanity-check-module"></span><h2>compmake.plugins.sanity_check module<a class="headerlink" href="#module-compmake.plugins.sanity_check" title="Permalink to this headline">¶</a></h2>
 <p>The actual interface of some commands in commands.py</p>
 <dl class="function">
 <dt id="compmake.plugins.sanity_check.check_consistency">
@@ -557,7 +736,7 @@ computation. The default is &#8216;dot&#8217;
 
 </div>
 <div class="section" id="module-compmake.plugins.stats">
-<span id="stats-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">stats</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.stats" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-stats-module"></span><h2>compmake.plugins.stats module<a class="headerlink" href="#module-compmake.plugins.stats" title="Permalink to this headline">¶</a></h2>
 <p>The actual interface of some commands in commands.py</p>
 <dl class="function">
 <dt id="compmake.plugins.stats.display_stats">
@@ -572,7 +751,7 @@ computation. The default is &#8216;dot&#8217;
 
 </div>
 <div class="section" id="module-compmake.plugins.tracker">
-<span id="tracker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">tracker</span></tt> Module<a class="headerlink" href="#module-compmake.plugins.tracker" title="Permalink to this headline">¶</a></h2>
+<span id="compmake-plugins-tracker-module"></span><h2>compmake.plugins.tracker module<a class="headerlink" href="#module-compmake.plugins.tracker" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.plugins.tracker.Tracker">
 <em class="property">class </em><tt class="descclassname">compmake.plugins.tracker.</tt><tt class="descname">Tracker</tt><a class="headerlink" href="#compmake.plugins.tracker.Tracker" title="Permalink to this definition">¶</a></dt>
@@ -607,6 +786,11 @@ It listens to progress events.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="module-compmake.plugins">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-compmake.plugins" title="Permalink to this headline">¶</a></h2>
+<p>These are all the functionalities that build on the API. All visualization
+stuff is built in as a plugin.</p>
 </div>
 </div>
 

@@ -1,37 +1,5 @@
-compmake Package
+compmake package
 ================
-
-:mod:`compmake` Package
------------------------
-
-.. automodule:: compmake
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`constants` Module
------------------------
-
-.. automodule:: compmake.constants
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`state` Module
--------------------
-
-.. automodule:: compmake.state
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`structures` Module
-------------------------
-
-.. automodule:: compmake.structures
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Subpackages
 -----------
@@ -43,9 +11,59 @@ Subpackages
     compmake.jobs
     compmake.plugins
     compmake.scripts
-    compmake.stats
     compmake.storage
     compmake.ui
     compmake.unittests
     compmake.utils
 
+Submodules
+----------
+
+compmake.constants module
+-------------------------
+
+.. automodule:: compmake.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.context module
+-----------------------
+
+.. automodule:: compmake.context
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.exceptions module
+--------------------------
+
+.. automodule:: compmake.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.state module
+---------------------
+
+.. automodule:: compmake.state
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.structures module
+--------------------------
+
+.. automodule:: compmake.structures
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: compmake
+    :members:
+    :undoc-members:
+    :show-inheritance:

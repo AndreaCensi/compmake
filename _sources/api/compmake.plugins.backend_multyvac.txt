@@ -12,6 +12,14 @@ compmake.plugins.backend_multyvac.commands module
     :undoc-members:
     :show-inheritance:
 
+compmake.plugins.backend_multyvac.logging_imp module
+----------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.logging_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 compmake.plugins.backend_multyvac.mvac_job_imp module
 -----------------------------------------------------
 
@@ -20,10 +28,34 @@ compmake.plugins.backend_multyvac.mvac_job_imp module
     :undoc-members:
     :show-inheritance:
 
+compmake.plugins.backend_multyvac.mvac_job_rdb_imp module
+---------------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.mvac_job_rdb_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 compmake.plugins.backend_multyvac.mvac_manager module
 -----------------------------------------------------
 
 .. automodule:: compmake.plugins.backend_multyvac.mvac_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.backend_multyvac.sync module
+---------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.sync
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.backend_multyvac.sync_db module
+------------------------------------------------
+
+.. automodule:: compmake.plugins.backend_multyvac.sync_db
     :members:
     :undoc-members:
     :show-inheritance:

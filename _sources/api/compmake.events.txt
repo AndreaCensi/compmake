@@ -1,35 +1,38 @@
-events Package
-==============
+compmake.events package
+=======================
 
-:mod:`events` Package
----------------------
+Submodules
+----------
 
-.. automodule:: compmake.events
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`registered_events` Module
--------------------------------
+compmake.events.registered_events module
+----------------------------------------
 
 .. automodule:: compmake.events.registered_events
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`registrar` Module
------------------------
+compmake.events.registrar module
+--------------------------------
 
 .. automodule:: compmake.events.registrar
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structures` Module
-------------------------
+compmake.events.structures module
+---------------------------------
 
 .. automodule:: compmake.events.structures
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.events
+    :members:
+    :undoc-members:
+    :show-inheritance:

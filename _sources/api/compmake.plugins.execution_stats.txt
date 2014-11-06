@@ -1,19 +1,22 @@
-execution_stats Package
-=======================
+compmake.plugins.execution_stats package
+========================================
 
-:mod:`execution_stats` Package
-------------------------------
+Submodules
+----------
 
-.. automodule:: compmake.plugins.execution_stats
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`ex_stats` Module
-----------------------
+compmake.plugins.execution_stats.ex_stats module
+------------------------------------------------
 
 .. automodule:: compmake.plugins.execution_stats.ex_stats
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.plugins.execution_stats
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,4 +1,4 @@
-add_targets()
+adding targets
  -         targets: ['draw', 'draw-2', 'draw-3', 'draw-4', 'draw-5', 'draw-6', 'draw-7', 'draw-8', 'draw-9']
 computed todo
  -    targets_done: set([])
@@ -6,17 +6,6 @@ computed todo
  -       not_ready: set(['draw', 'funcB-4', 'draw-9', 'draw-8', 'funcB-2', 'funcB-3', 'draw-3', 'funcB-8', 'funcB-9', 'draw-7', 'draw-6', 'draw-5', 'draw-4', 'funcB', 'funcB-7', 'draw-2', 'funcB-6', 'funcB-5'])
  - targets_todo_plus_deps: set(['draw-9', 'draw-8', 'draw-3', 'funcB-8', 'draw-7', 'draw-6', 'draw-5', 'draw-4', 'funcB', 'funcA', 'draw-2', 'draw', 'funcA-2', 'funcB-3', 'funcB-4', 'funcB-5', 'funcB-6', 'funcB-7', 'funcB-2', 'funcA-9', 'funcA-8', 'funcA-7', 'funcA-6', 'funcA-5', 'funcA-4', 'funcA-3', 'funcB-9'])
 targets_todo_plus_deps: set(['draw-9', 'draw-8', 'draw-3', 'funcB-8', 'draw-7', 'draw-6', 'draw-5', 'draw-4', 'funcB', 'funcA', 'draw-2', 'draw', 'funcA-2', 'funcB-3', 'funcB-4', 'funcB-5', 'funcB-6', 'funcB-7', 'funcB-2', 'funcA-9', 'funcA-8', 'funcA-7', 'funcA-6', 'funcA-5', 'funcA-4', 'funcA-3', 'funcB-9'])
-add_targets():adding to todo
- -            todo: set(['draw', 'draw-8', 'draw-3', 'draw-2', 'draw-7', 'draw-9', 'draw-5', 'draw-6', 'draw-4', 'funcB-4', 'funcB-5', 'funcB-6', 'funcB-7', 'funcB-2', 'funcB-3', 'funcB-8', 'funcB-9', 'funcB'])
- -        todo_add: set(['funcB-4', 'funcB-5', 'draw', 'draw-8', 'funcB-2', 'funcB-3', 'draw-3', 'draw-7', 'funcB-8', 'draw-9', 'draw-5', 'funcB-9', 'draw-6', 'funcB', 'funcB-7', 'draw-2', 'draw-4', 'funcB-6'])
-add_targets():adding to ready
- -           ready: set([])
- -       ready_add: set(['funcA-9', 'funcA-8', 'funcA-7', 'funcA-6', 'funcA-5', 'funcA-4', 'funcA-3', 'funcA-2', 'funcA'])
-after add_targets()
- -            done: set([])
- -      ready_todo: set(['funcA-9', 'funcA-8', 'funcA-7', 'funcA-6', 'funcA-5', 'funcA-4', 'funcA-3', 'funcA-2', 'funcA'])
- -      processing: set([])
- -            todo: set(['draw', 'draw-8', 'draw-3', 'draw-2', 'draw-7', 'draw-9', 'draw-5', 'draw-6', 'draw-4', 'funcB-4', 'funcB-5', 'funcB-6', 'funcB-7', 'funcB-2', 'funcB-3', 'funcB-8', 'funcB-9', 'funcB'])
 chosen next_job
  -          job_id: funcA
 start_job

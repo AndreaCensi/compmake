@@ -1,27 +1,30 @@
-backend_local Package
-=====================
+compmake.plugins.backend_local package
+======================================
 
-:mod:`backend_local` Package
-----------------------------
+Submodules
+----------
 
-.. automodule:: compmake.plugins.backend_local
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`commands` Module
-----------------------
+compmake.plugins.backend_local.commands module
+----------------------------------------------
 
 .. automodule:: compmake.plugins.backend_local.commands
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`manager_local` Module
----------------------------
+compmake.plugins.backend_local.manager_local module
+---------------------------------------------------
 
 .. automodule:: compmake.plugins.backend_local.manager_local
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.plugins.backend_local
+    :members:
+    :undoc-members:
+    :show-inheritance:

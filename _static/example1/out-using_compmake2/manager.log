@@ -1,19 +1,8 @@
-add_targets()
- -         targets: ['a1-b10-draw', 'a1-b11-draw', 'a1-b12-draw', 'a2-b10-draw', 'a2-b11-draw', 'a2-b12-draw', 'a3-b10-draw', 'a3-b11-draw', 'a3-b12-draw']
+adding targets
+ -         targets: ['p1=1-p2=10-draw', 'p1=1-p2=11-draw', 'p1=1-p2=12-draw', 'p1=2-p2=10-draw', 'p1=2-p2=11-draw', 'p1=2-p2=12-draw', 'p1=3-p2=10-draw', 'p1=3-p2=11-draw', 'p1=3-p2=12-draw']
 computed todo
- -    targets_done: set(['a1-b10-draw', 'a3-b10-draw', 'a2-b11-draw', 'a2-b10-draw', 'a2-b12-draw', 'a3-b12-draw', 'a1-b12-draw', 'a3-b11-draw', 'a1-b11-draw'])
+ -    targets_done: set(['p1=3-p2=11-draw', 'p1=2-p2=12-draw', 'p1=2-p2=10-draw', 'p1=1-p2=11-draw', 'p1=3-p2=12-draw', 'p1=3-p2=10-draw', 'p1=2-p2=11-draw', 'p1=1-p2=10-draw', 'p1=1-p2=12-draw'])
  -      ready_todo: set([])
  -       not_ready: set([])
  - targets_todo_plus_deps: set([])
 targets_todo_plus_deps: set([])
-add_targets():adding to todo
- -            todo: set([])
- -        todo_add: set([])
-add_targets():adding to ready
- -           ready: set([])
- -       ready_add: set([])
-after add_targets()
- -            done: set(['a1-b10-draw', 'a2-b11-draw', 'a3-b10-draw', 'a2-b10-draw', 'a2-b12-draw', 'a3-b12-draw', 'a1-b12-draw', 'a3-b11-draw', 'a1-b11-draw'])
- -      ready_todo: set([])
- -      processing: set([])
- -            todo: set([])

@@ -1,43 +1,46 @@
-config Package
-==============
+compmake.config package
+=======================
 
-:mod:`config` Package
----------------------
+Submodules
+----------
 
-.. automodule:: compmake.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`config_html` Module
--------------------------
+compmake.config.config_html module
+----------------------------------
 
 .. automodule:: compmake.config.config_html
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`config_list` Module
--------------------------
+compmake.config.config_list module
+----------------------------------
 
 .. automodule:: compmake.config.config_list
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`config_optparse` Module
------------------------------
+compmake.config.config_optparse module
+--------------------------------------
 
 .. automodule:: compmake.config.config_optparse
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure` Module
------------------------
+compmake.config.structure module
+--------------------------------
 
 .. automodule:: compmake.config.structure
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.config
+    :members:
+    :undoc-members:
+    :show-inheritance:

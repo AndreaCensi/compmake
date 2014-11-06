@@ -209,9 +209,42 @@ Y.Remarkbox.render();
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="compmake-plugins-backend-multyvac-commands-module">
-<h2>compmake.plugins.backend_multyvac.commands module<a class="headerlink" href="#compmake-plugins-backend-multyvac-commands-module" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-compmake.plugins.backend_multyvac.commands"></span></div>
+<div class="section" id="module-compmake.plugins.backend_multyvac.commands">
+<span id="compmake-plugins-backend-multyvac-commands-module"></span><h2>compmake.plugins.backend_multyvac.commands module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.commands" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.commands.cloudmake">
+<tt class="descclassname">compmake.plugins.backend_multyvac.commands.</tt><tt class="descname">cloudmake</tt><big>(</big><em>job_list</em>, <em>context</em>, <em>cq</em>, <em>n=&lt;compmake.constants.DefaultsToConfig instance at 0x10d10a908&gt;</em>, <em>recurse=&lt;compmake.constants.DefaultsToConfig instance at 0x10cae3170&gt;</em>, <em>new_process=&lt;compmake.constants.DefaultsToConfig instance at 0x10cae33f8&gt;</em>, <em>echo=&lt;compmake.constants.DefaultsToConfig instance at 0x10cae3b90&gt;</em>, <em>skipsync=False</em>, <em>rdb=True</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.commands.cloudmake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multyvac backend</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.commands.cloudclean">
+<tt class="descclassname">compmake.plugins.backend_multyvac.commands.</tt><tt class="descname">cloudclean</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.commands.cloudclean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleans all jobs and results on the remote DB.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.commands.cloud_sync_up">
+<tt class="descclassname">compmake.plugins.backend_multyvac.commands.</tt><tt class="descname">cloud_sync_up</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.commands.cloud_sync_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronizes local input data to the cloud.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.commands.cloud_sync_down">
+<tt class="descclassname">compmake.plugins.backend_multyvac.commands.</tt><tt class="descname">cloud_sync_down</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.commands.cloud_sync_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronizes remote output data to local dir.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.plugins.backend_multyvac.logging_imp">
+<span id="compmake-plugins-backend-multyvac-logging-imp-module"></span><h2>compmake.plugins.backend_multyvac.logging_imp module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.logging_imp" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.logging_imp.disable_logging_if_config">
+<tt class="descclassname">compmake.plugins.backend_multyvac.logging_imp.</tt><tt class="descname">disable_logging_if_config</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.logging_imp.disable_logging_if_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables Multyvac&#8217;s logging if specified in config.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-compmake.plugins.backend_multyvac.mvac_job_imp">
 <span id="compmake-plugins-backend-multyvac-mvac-job-imp-module"></span><h2>compmake.plugins.backend_multyvac.mvac_job_imp module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.mvac_job_imp" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
@@ -228,7 +261,23 @@ because it might contain a Promise.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<tt class="docutils literal"><span class="pre">tuple(str,*,str,bool)</span></tt>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<tt class="docutils literal"><span class="pre">tuple(str,*,str,bool,list,str)</span></tt>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.plugins.backend_multyvac.mvac_job_rdb_imp">
+<span id="compmake-plugins-backend-multyvac-mvac-job-rdb-imp-module"></span><h2>compmake.plugins.backend_multyvac.mvac_job_rdb_imp module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.mvac_job_rdb_imp" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.mvac_job_rdb_imp.mvac_job_rdb">
+<tt class="descclassname">compmake.plugins.backend_multyvac.mvac_job_rdb_imp.</tt><tt class="descname">mvac_job_rdb</tt><big>(</big><em>args</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_job_rdb_imp.mvac_job_rdb" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<tt class="docutils literal"><span class="pre">tuple(str,*,str,bool,list,*,*,str)</span></tt>) &#8211; </td>
 </tr>
 </tbody>
 </table>
@@ -239,7 +288,7 @@ because it might contain a Promise.</p>
 <span id="compmake-plugins-backend-multyvac-mvac-manager-module"></span><h2>compmake.plugins.backend_multyvac.mvac_manager module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.mvac_manager" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="compmake.plugins.backend_multyvac.mvac_manager.MVacManager">
-<em class="property">class </em><tt class="descclassname">compmake.plugins.backend_multyvac.mvac_manager.</tt><tt class="descname">MVacManager</tt><big>(</big><em>context</em>, <em>cq</em>, <em>num_processes</em>, <em>recurse=False</em>, <em>show_output=False</em>, <em>new_process=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_manager.MVacManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">compmake.plugins.backend_multyvac.mvac_manager.</tt><tt class="descname">MVacManager</tt><big>(</big><em>context</em>, <em>cq</em>, <em>num_processes</em>, <em>recurse=False</em>, <em>show_output=False</em>, <em>new_process=False</em>, <em>volumes=[]</em>, <em>rdb=False</em>, <em>rdb_vol=None</em>, <em>rdb_db=None</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_manager.MVacManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="compmake.jobs.html#compmake.jobs.manager.Manager" title="compmake.jobs.manager.Manager"><tt class="xref py py-class docutils literal"><span class="pre">compmake.jobs.manager.Manager</span></tt></a></p>
 <p>Multyvac backend.</p>
 <dl class="method">
@@ -287,7 +336,7 @@ because it might contain a Promise.</p>
 
 <dl class="method">
 <dt id="compmake.plugins.backend_multyvac.mvac_manager.MVacManager.job_failed">
-<tt class="descname">job_failed</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_manager.MVacManager.job_failed" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">job_failed</tt><big>(</big><em>job_id</em>, <em>deleted_jobs</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_manager.MVacManager.job_failed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -305,6 +354,41 @@ because it might contain a Promise.</p>
 <tt class="descname">process_init</tt><big>(</big><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.mvac_manager.MVacManager.process_init" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.plugins.backend_multyvac.sync">
+<span id="compmake-plugins-backend-multyvac-sync-module"></span><h2>compmake.plugins.backend_multyvac.sync module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.sync" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.sync.sync_data_up">
+<tt class="descclassname">compmake.plugins.backend_multyvac.sync.</tt><tt class="descname">sync_data_up</tt><big>(</big><em>context</em>, <em>skipsync=False</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.sync.sync_data_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronizes the data to the cloud.</p>
+<blockquote>
+<div>Returns the list of volume names.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">list(string)</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.sync.sync_data_down">
+<tt class="descclassname">compmake.plugins.backend_multyvac.sync.</tt><tt class="descname">sync_data_down</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.sync.sync_data_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronizes the data from the cloud.</p>
+<p>Returns the list of volume names.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-compmake.plugins.backend_multyvac.sync_db">
+<span id="compmake-plugins-backend-multyvac-sync-db-module"></span><h2>compmake.plugins.backend_multyvac.sync_db module<a class="headerlink" href="#module-compmake.plugins.backend_multyvac.sync_db" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="compmake.plugins.backend_multyvac.sync_db.synchronize_db_up">
+<tt class="descclassname">compmake.plugins.backend_multyvac.sync_db.</tt><tt class="descname">synchronize_db_up</tt><big>(</big><em>context</em>, <em>targets</em><big>)</big><a class="headerlink" href="#compmake.plugins.backend_multyvac.sync_db.synchronize_db_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Syncrhonizes the DB up</p>
 </dd></dl>
 
 </div>

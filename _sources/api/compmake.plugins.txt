@@ -1,131 +1,171 @@
-plugins Package
-===============
+compmake.plugins package
+========================
 
-:mod:`plugins` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: compmake.plugins
+.. toctree::
+
+    compmake.plugins.backend_local
+    compmake.plugins.backend_multyvac
+    compmake.plugins.backend_pmake
+    compmake.plugins.backend_sge
+    compmake.plugins.backend_ssh_cluster
+    compmake.plugins.execution_stats
+    compmake.plugins.old_backend_multiprocessing
+
+Submodules
+----------
+
+compmake.plugins.clear_imp module
+---------------------------------
+
+.. automodule:: compmake.plugins.clear_imp
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`commands_status` Module
------------------------------
+compmake.plugins.commands_status module
+---------------------------------------
 
 .. automodule:: compmake.plugins.commands_status
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`console_banners` Module
------------------------------
+compmake.plugins.console_banners module
+---------------------------------------
 
 .. automodule:: compmake.plugins.console_banners
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`console_output` Module
-----------------------------
+compmake.plugins.console_output module
+--------------------------------------
 
 .. automodule:: compmake.plugins.console_output
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`console_status` Module
-----------------------------
+compmake.plugins.console_status module
+--------------------------------------
 
 .. automodule:: compmake.plugins.console_status
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`credits` Module
----------------------
+compmake.plugins.credits module
+-------------------------------
 
 .. automodule:: compmake.plugins.credits
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`details` Module
----------------------
+compmake.plugins.debug_priority module
+--------------------------------------
+
+.. automodule:: compmake.plugins.debug_priority
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.details module
+-------------------------------
 
 .. automodule:: compmake.plugins.details
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`dump` Module
-------------------
+compmake.plugins.dump module
+----------------------------
 
 .. automodule:: compmake.plugins.dump
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`event_debugger` Module
-----------------------------
+compmake.plugins.event_debugger module
+--------------------------------------
 
 .. automodule:: compmake.plugins.event_debugger
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`graph` Module
--------------------
+compmake.plugins.graph module
+-----------------------------
 
 .. automodule:: compmake.plugins.graph
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`job_definition_status` Module
------------------------------------
+compmake.plugins.graph_animation_imp module
+-------------------------------------------
+
+.. automodule:: compmake.plugins.graph_animation_imp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.plugins.job_definition_status module
+---------------------------------------------
 
 .. automodule:: compmake.plugins.job_definition_status
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`list_jobs` Module
------------------------
+compmake.plugins.list_jobs_imp module
+-------------------------------------
 
-.. automodule:: compmake.plugins.list_jobs
+.. automodule:: compmake.plugins.list_jobs_imp
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`reload_module` Module
----------------------------
+compmake.plugins.reload_module module
+-------------------------------------
 
 .. automodule:: compmake.plugins.reload_module
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`sanity_check` Module
---------------------------
+compmake.plugins.sanity_check module
+------------------------------------
 
 .. automodule:: compmake.plugins.sanity_check
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`stats` Module
--------------------
+compmake.plugins.stats module
+-----------------------------
 
 .. automodule:: compmake.plugins.stats
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`tracker` Module
----------------------
+compmake.plugins.tracker module
+-------------------------------
 
 .. automodule:: compmake.plugins.tracker
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.plugins
+    :members:
+    :undoc-members:
+    :show-inheritance:

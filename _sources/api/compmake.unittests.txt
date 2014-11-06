@@ -1,99 +1,310 @@
-unittests Package
-=================
+compmake.unittests package
+==========================
 
-:mod:`unittests` Package
-------------------------
+Submodules
+----------
 
-.. automodule:: compmake.unittests
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`compmake_test` Module
----------------------------
+compmake.unittests.compmake_test module
+---------------------------------------
 
 .. automodule:: compmake.unittests.compmake_test
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_assertions` Module
------------------------------
+compmake.unittests.expected_fail module
+---------------------------------------
+
+.. automodule:: compmake.unittests.expected_fail
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.mockup module
+--------------------------------
+
+.. automodule:: compmake.unittests.mockup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.mockup_dynamic_4 module
+------------------------------------------
+
+.. automodule:: compmake.unittests.mockup_dynamic_4
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_assertions module
+-----------------------------------------
 
 .. automodule:: compmake.unittests.test_assertions
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_blocked` Module
---------------------------
+compmake.unittests.test_blocked module
+--------------------------------------
 
 .. automodule:: compmake.unittests.test_blocked
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_invalid_functions` Module
-------------------------------------
+compmake.unittests.test_delegation module
+-----------------------------------------
+
+.. automodule:: compmake.unittests.test_delegation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_delegation_2 module
+-------------------------------------------
+
+.. automodule:: compmake.unittests.test_delegation_2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_delegation_3 module
+-------------------------------------------
+
+.. automodule:: compmake.unittests.test_delegation_3
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_delegation_4 module
+-------------------------------------------
+
+.. automodule:: compmake.unittests.test_delegation_4
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_delegation_5 module
+-------------------------------------------
+
+.. automodule:: compmake.unittests.test_delegation_5
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_1 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_1
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_2 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_2rec module
+-------------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_2rec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_2rec_par module
+-----------------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_2rec_par
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_3 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_3
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_4 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_4
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_5 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_5
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_6 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_6
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_7 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_7
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_8 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_8
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_9 module
+----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_9
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_9_redefinition module
+-----------------------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_9_redefinition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_failure module
+----------------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_failure
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_new_process module
+--------------------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_new_process
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_dynamic_re module
+-----------------------------------------
+
+.. automodule:: compmake.unittests.test_dynamic_re
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_examples module
+---------------------------------------
+
+.. automodule:: compmake.unittests.test_examples
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_invalid_functions module
+------------------------------------------------
 
 .. automodule:: compmake.unittests.test_invalid_functions
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_more` Module
------------------------
+compmake.unittests.test_more module
+-----------------------------------
 
 .. automodule:: compmake.unittests.test_more
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_priorities` Module
------------------------------
+compmake.unittests.test_old_jobs module
+---------------------------------------
+
+.. automodule:: compmake.unittests.test_old_jobs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_plugins module
+--------------------------------------
+
+.. automodule:: compmake.unittests.test_plugins
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+compmake.unittests.test_priorities module
+-----------------------------------------
 
 .. automodule:: compmake.unittests.test_priorities
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_progress` Module
----------------------------
+compmake.unittests.test_progress module
+---------------------------------------
 
 .. automodule:: compmake.unittests.test_progress
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_stats` Module
-------------------------
+compmake.unittests.test_stats module
+------------------------------------
 
 .. automodule:: compmake.unittests.test_stats
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_storage` Module
---------------------------
+compmake.unittests.test_storage module
+--------------------------------------
 
 .. automodule:: compmake.unittests.test_storage
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_syntax` Module
--------------------------
+compmake.unittests.test_syntax module
+-------------------------------------
 
 .. automodule:: compmake.unittests.test_syntax
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_unpickable_result` Module
-------------------------------------
+compmake.unittests.test_unpickable_result module
+------------------------------------------------
 
 .. automodule:: compmake.unittests.test_unpickable_result
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: compmake.unittests
+    :members:
+    :undoc-members:
+    :show-inheritance:

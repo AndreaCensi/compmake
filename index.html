@@ -214,10 +214,9 @@ Y.Remarkbox.render();
     <p style='text-align: center'>The Compmake Manual</p>
     <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
 </a>
-</div><p><span class="compmake-brand">Compmake</span> is an unobstrusive Python library that provides
-Make&#8211;like facilities to a Python application, including:</p>
+</div><p><span class="compmake-brand">Compmake</span> is a non-obtrusive module that provides Make&#8211;like facilities to a Python applciation, including:</p>
 <ul class="simple">
-<li>Minimal effort job management and <strong>parallelization</strong> (multiple CPU on a single host, cluster computing using SGE, and experimental support for cloud computing using Multyvac).</li>
+<li>Minimal effort <strong>parallelization</strong>.</li>
 <li><strong>Caching</strong> of temporary results: you can interrupt your program
 and restart it without losing what was already computed.</li>
 <li><strong>Failure tolerance</strong>: if a job fails, other jobs that do
@@ -225,64 +224,6 @@ not depend on it continue to be executed.</li>
 <li>A <strong>console</strong> for inspecting failures and partial completion,
 with familiar commands such as <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">clean</span></tt>, etc.</li>
 </ul>
-</div>
-<div class="section" id="screencast">
-<h2>Screencast<a class="headerlink" href="#screencast" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><iframe src="http://player.vimeo.com/video/110090252" width="750" height="560" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div></blockquote>
-</div>
-<div class="section" id="some-visualizations-of-the-jobs-graph-during-execution">
-<h2>Some visualizations of the jobs graph during execution<a class="headerlink" href="#some-visualizations-of-the-jobs-graph-during-execution" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><style type='text/css'>
-  div#animations {
-  }
-  div#animations p { font-style: italic; }
-  div#animations img { border: solid 1px black;}
-  span { font-weight: normal; font-family: monospace; padding: 5px}
-  .DONE { background-color: #00FF00; }
-  .FAILED { background-color: red; }
-  .INPROGRESS { background-color: yellow; }
-  .BLOCKED { background-color: brown; }
-  dt, dd { padding: 0; margin: 0}
-  dt { float: left; width: 8em; clear:left;}
-  dd { margin-left: 8em; }
-  div#code { max-width: 25em; margin: 2em;
-
-    padding: 1em; border: dashed 1px gray;}
-  div#code p { font-style: italic}
-</style>
-
-<div id='animations'>
-<p>Robustness to job failure</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-fail-make-function.gif"/>
-
-<div id='code'>
-   <p>Color code for job states</p>
-   <dl>
-   <dt><span class="DONE">done</span></dt>
-   <dd>Job executed succesfully</dd>
-
-   <dt><span class="INPROGRESS">in&nbsp;progress</span></dt>
-   <dd>Job currently executing</dd>
-
-   <dt><span class="FAILED">failed</span></dt>
-   <dd>Job failed</dd>
-
-   <dt><span class="BLOCKED">blocked</span></dt>
-   <dd>Job blocked because a dependency failed</dd>
-   </dl>
-</div>
-
-<p>Simple dynamic jobs</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-dynamic-make-function.gif"/>
-
-<p>Dynamic jobs and recursive parallel executions</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-recursion-parmake16-none.gif"/>
-</div></div></blockquote>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
