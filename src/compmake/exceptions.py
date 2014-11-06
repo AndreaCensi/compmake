@@ -91,7 +91,25 @@ class JobFailed(CompmakeException):
 
 class JobInterrupted(CompmakeException):
     """ User requested to interrupt job"""
-    pass
+    def __init__(self, job_id, deleted_jobs=[]):
+        self.job_id = job_id
+        self.deleted_jobs = set(deleted_jobs)
+        
+    @staticmethod
+    def from_dict(res):
+        from compmake.jobs.result_dict import result_dict_check
+
+        result_dict_check(res)
+        assert 'interrupted' in res
+        e = JobInterrupted(job_id=res['job_id'],
+                      deleted_jobs=res['deleted_jobs'])
+        return e
+
+    def get_result_dict(self):
+        res = dict(interrupt='Job %r interrupted.' % self.job_id,
+                   job_id=self.job_id,
+                   deleted_jobs=sorted(self.deleted_jobs))
+        return res
 
 
 class HostFailed(CompmakeException):

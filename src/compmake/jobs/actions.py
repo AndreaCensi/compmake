@@ -196,20 +196,9 @@ def make(job_id, context, echo=False):
 
     logging.StreamHandler.emit = my_emit
 
-    try:
-        already = set(context.get_jobs_defined_in_this_session())
+    already = set(context.get_jobs_defined_in_this_session())
     
-        result = job_compute(job=job, context=context)
-        assert isinstance(result, dict) and len(result) == 2
-        user_object = result['user_object']
-        new_jobs = result['new_jobs']
-
-    except KeyboardInterrupt:
-        raise JobInterrupted('Keyboard interrupt')
-    except (BaseException, StandardError, ArithmeticError,
-            BufferError, LookupError,
-            Exception, SystemExit, MemoryError) as e:
-    
+    def get_deleted_jobs():
         generated = set(context.get_jobs_defined_in_this_session()) - already
         #print('failure: rolling back %s' % generated)
         
@@ -225,9 +214,23 @@ def make(job_id, context, echo=False):
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
         # now we failed, so we need to roll back other changes
         # to the db
-            
+        return deleted_jobs
+    
+    try:
+        
+        result = job_compute(job=job, context=context)
+        assert isinstance(result, dict) and len(result) == 2
+        user_object = result['user_object']
+        new_jobs = result['new_jobs']
+
+    except KeyboardInterrupt as e:
+        deleted_jobs = get_deleted_jobs()
+        raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
+    except (BaseException, StandardError, ArithmeticError,
+            BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
-        mark_as_failed(job_id, str(e), bt, db=db)    
+        mark_as_failed(job_id, str(e), bt, db=db)
+        deleted_jobs = get_deleted_jobs()    
         raise JobFailed(job_id=job_id, reason=str(e), bt=bt,
                         deleted_jobs=deleted_jobs)
     finally:

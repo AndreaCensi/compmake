@@ -20,8 +20,8 @@ def h(context):
 def fd(context):
     context.comp_dynamic(g)
 
-    if TestDynamicFailure.do_fail:
-        raise Exception('failed')
+    if TestDynamicFailure.do_fail is not None:
+        raise TestDynamicFailure.do_fail()
     
     context.comp_dynamic(h)
     
@@ -36,7 +36,7 @@ class TestDynamicFailure(CompmakeTest):
     def test_dynamic_failure1(self):
         mockup8(self.cc)
         # run it
-        TestDynamicFailure.do_fail = True
+        TestDynamicFailure.do_fail = ValueError
         self.assert_cmd_fail('make recurse=1')
         # we have three jobs defined
         self.assertJobsEqual('all', ['fd'])
@@ -44,7 +44,7 @@ class TestDynamicFailure(CompmakeTest):
     def test_dynamic_failure2(self):
         mockup8(self.cc)
         # run it
-        TestDynamicFailure.do_fail =False
+        TestDynamicFailure.do_fail = None
         self.assert_cmd_success('make recurse=1')
         # we have three jobs defined
         self.assertJobsEqual('all', ['fd', 'fd-h', 'fd-h-h2', 
@@ -52,9 +52,16 @@ class TestDynamicFailure(CompmakeTest):
         self.assertJobsEqual('done', ['fd', 'fd-h', 'fd-h-h2', 
                                      'fd-g', 'fd-g-g2'])
         
-        TestDynamicFailure.do_fail = True
+        TestDynamicFailure.do_fail = ValueError
         self.assert_cmd_fail('invalidate fd; make')
         self.assertJobsEqual('all', ['fd'])
         
         
+    def test_dynamic_failure3(self):
+        mockup8(self.cc)
+        # run it
+        TestDynamicFailure.do_fail = KeyboardInterrupt
+        self.assert_cmd_fail('make recurse=1')
+        # we have three jobs defined
+        self.assertJobsEqual('all', ['fd'])
         
