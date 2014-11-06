@@ -100,13 +100,11 @@ def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
 
 
 def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
-    """ Marks job_id and its parents as failed """
-    # OK, it's night, but no need to query the DB to set the cache state
+    """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
     cache.exception = str(exception)
     cache.backtrace = backtrace
     cache.timestamp = time()
-    # TODO: clean user object
     set_job_cache(job_id, cache, db=db)
 
 
@@ -217,19 +215,21 @@ def make(job_id, context, echo=False):
         return deleted_jobs
     
     try:
-        
         result = job_compute(job=job, context=context)
         assert isinstance(result, dict) and len(result) == 2
         user_object = result['user_object']
         new_jobs = result['new_jobs']
 
     except KeyboardInterrupt as e:
+        bt = my_format_exc(e)
         deleted_jobs = get_deleted_jobs()
+        mark_as_failed(job_id, str(e), backtrace=bt, db=db)
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
+    
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
-        mark_as_failed(job_id, str(e), bt, db=db)
+        mark_as_failed(job_id, str(e), backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()    
         raise JobFailed(job_id=job_id, reason=str(e), bt=bt,
                         deleted_jobs=deleted_jobs)

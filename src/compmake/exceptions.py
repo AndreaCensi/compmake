@@ -95,6 +95,9 @@ class JobInterrupted(CompmakeException):
         self.job_id = job_id
         self.deleted_jobs = set(deleted_jobs)
         
+    def __str__(self):
+        return 'Job %r received KeyboardInterrupt.' % self.job_id
+    
     @staticmethod
     def from_dict(res):
         from compmake.jobs.result_dict import result_dict_check

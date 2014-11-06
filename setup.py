@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = "3.4.5"
+version = "3.4.6"
 
 setup(
     name='compmake',

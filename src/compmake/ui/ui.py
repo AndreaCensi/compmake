@@ -11,12 +11,12 @@ from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
 from compmake.context import Context
+from compmake.exceptions import CompmakeBug
 from compmake.jobs.actions import clean_cache_relations
 from compmake.jobs.storage import db_job_add_parent_relation
 from contracts import (
     check_isinstance, contract, describe_type, describe_value, raise_wrapped)
 import inspect
-from compmake.exceptions import CompmakeBug
 
 
 def generate_job_id(base, context):
@@ -149,6 +149,7 @@ def delete_jobs_recurse_definition(jobs, db):
     all_jobs = jobs | closure
     for job_id in all_jobs:
         clean_cache_relations(job_id, db)
+
     
     for job_id in all_jobs:
         from compmake.jobs.storage import delete_all_job_data
@@ -418,7 +419,7 @@ def comp_(context, command_, *args, **kwargs):
         same, reason = same_computation(all_args, all_args_old)
 
         if not same:
-            print('different job, cleaning cache:\n%s  ' % reason)
+            #print('different job, cleaning cache:\n%s  ' % reason)
             from compmake.jobs.actions import clean_targets
             clean_targets([job_id], db)
 #             if job_cache_exists(job_id, db):
@@ -432,8 +433,8 @@ def comp_(context, command_, *args, **kwargs):
             #                 publish(context, 'job-already-defined',
             # job_id=job_id)
 
-    set_job(job_id, c, db=db)
     set_job_args(job_id, all_args, db=db)
+    set_job(job_id, c, db=db)
     publish(context, 'job-defined', job_id=job_id)
 
     return Promise(job_id)
