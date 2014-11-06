@@ -42,13 +42,18 @@ Compmake
     with familiar commands such as ``make``, ``clean``, etc.
 
 
-Screencast
-----------
+Screencasts
+------------
 
 
   .. raw:: html
 
-    <iframe src="http://player.vimeo.com/video/110090252" width="750" height="560" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <iframe src="http://player.vimeo.com/video/110090252" width="300" height="200" 
+            frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <iframe src="http://player.vimeo.com/video/110944533" width="300" height="200" 
+                frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <iframe src="http://player.vimeo.com/video/111047404" width="300" height="200" 
+                frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 Some visualizations of the jobs graph during execution
 -------------------------------------------------------
