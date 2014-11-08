@@ -30,7 +30,7 @@ Compmake
     </a>
     </div>
 
-  |compmake| is an unobstrusive Python library that provides 
+  Compmake is an unobstrusive Python library that provides 
   Make--like facilities to a Python application, including:
 
   - Minimal effort job management and **parallelization** (multiple CPU on a single host, cluster computing using SGE, and experimental support for cloud computing using Multyvac).
@@ -48,6 +48,8 @@ Screencasts
 
   .. raw:: html
 
+    <iframe src="http://player.vimeo.com/video/111290574" width="300" height="200" 
+            frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
     <iframe src="http://player.vimeo.com/video/110090252" width="300" height="200" 
             frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
     <iframe src="http://player.vimeo.com/video/110944533" width="300" height="200" 
