@@ -44,9 +44,10 @@ in the *National Robotics Initiative* program under grant #1405259.
 Screencasts
 ---------------------------------
 
-* Screencast 1: [Compmake Basics](http://purl.org/censi/compmake-basics)
-* Screencast 2: [Compmake + Multyvac](http://purl.org/censi/compmake-multyvac)
-* Screencast 3: [Compmake + SGE](http://purl.org/censi/compmake-sge)
+* Screencast 1: [Compmake overview](http://purl.org/censi/compmake-overview)
+* Screencast 2: [Compmake basic usage](http://purl.org/censi/compmake-basics)
+* Screencast 3: [Compmake + Multyvac](http://purl.org/censi/compmake-multyvac)
+* Screencast 4: [Compmake + SGE](http://purl.org/censi/compmake-sge)
 
 * [Demo with images used in the screencasts](https://github.com/AndreaCensi/compmake-demo-images/)
 
