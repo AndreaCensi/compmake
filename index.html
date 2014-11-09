@@ -238,66 +238,12 @@ with familiar commands such as <tt class="docutils literal"><span class="pre">ma
 <iframe src="http://player.vimeo.com/video/111047404" width="300" height="200"
             frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div></blockquote>
 </div>
-<div class="section" id="some-visualizations-of-the-jobs-graph-during-execution">
-<h2>Some visualizations of the jobs graph during execution<a class="headerlink" href="#some-visualizations-of-the-jobs-graph-during-execution" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><style type='text/css'>
-  div#animations {
-  }
-  div#animations p { font-style: italic; }
-  div#animations img { border: solid 1px black;}
-  span { font-weight: normal; font-family: monospace; padding: 5px}
-  .DONE { background-color: #00FF00; }
-  .FAILED { background-color: red; }
-  .INPROGRESS { background-color: yellow; }
-  .BLOCKED { background-color: brown; }
-  dt, dd { padding: 0; margin: 0}
-  dt { float: left; width: 8em; clear:left;}
-  dd { margin-left: 8em; }
-  div#code { max-width: 25em; margin: 2em;
-
-    padding: 1em; border: dashed 1px gray;}
-  div#code p { font-style: italic}
-</style>
-
-<div id='animations'>
-<p>Robustness to job failure</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-fail-make-function.gif"/>
-
-<div id='code'>
-   <p>Color code for job states</p>
-   <dl>
-   <dt><span class="DONE">done</span></dt>
-   <dd>Job executed succesfully</dd>
-
-   <dt><span class="INPROGRESS">in&nbsp;progress</span></dt>
-   <dd>Job currently executing</dd>
-
-   <dt><span class="FAILED">failed</span></dt>
-   <dd>Job failed</dd>
-
-   <dt><span class="BLOCKED">blocked</span></dt>
-   <dd>Job blocked because a dependency failed</dd>
-   </dl>
-</div>
-
-<p>Simple dynamic jobs</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-dynamic-make-function.gif"/>
-
-<p>Dynamic jobs and recursive parallel executions</p>
-
-<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-recursion-parmake16-none.gif"/>
-</div></div></blockquote>
-</div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>The simplest way to install <span class="compmake-brand">Compmake</span> is:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ easy_install compmake
+<div class="highlight-python"><div class="highlight"><pre>$ pip install -U compmake
 </pre></div>
 </div>
-<p>or, alternatively, using <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">compmake</span></tt>.</p>
 <p>You can also <a class="reference external" href="http://github.com/AndreaCensi/compmake">fork the project on GitHub</a>.</p>
 </div>
 <div class="section" id="basic-usage">
@@ -364,6 +310,59 @@ compmake will go forward with the rest.</p>
 </pre></div>
 </div>
 <p>Compmake will try again to run the jobs that failed.</p>
+</div>
+<div class="section" id="some-visualizations-of-the-jobs-graph-during-execution">
+<h2>Some visualizations of the jobs graph during execution<a class="headerlink" href="#some-visualizations-of-the-jobs-graph-during-execution" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><style type='text/css'>
+  div#animations {
+  }
+  div#animations p { font-style: italic; }
+  div#animations img { border: solid 1px black;}
+  span { font-weight: normal; font-family: monospace; padding: 5px}
+  .DONE { background-color: #00FF00; }
+  .FAILED { background-color: red; }
+  .INPROGRESS { background-color: yellow; }
+  .BLOCKED { background-color: brown; }
+  dt, dd { padding: 0; margin: 0}
+  dt { float: left; width: 8em; clear:left;}
+  dd { margin-left: 8em; }
+  div#code { max-width: 25em; margin: 2em;
+
+    padding: 1em; border: dashed 1px gray;}
+  div#code p { font-style: italic}
+</style>
+
+<div id='animations'>
+<p>Robustness to job failure</p>
+
+<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-fail-make-function.gif"/>
+
+<div id='code'>
+   <p>Color code for job states</p>
+   <dl>
+   <dt><span class="DONE">done</span></dt>
+   <dd>Job executed succesfully</dd>
+
+   <dt><span class="INPROGRESS">in&nbsp;progress</span></dt>
+   <dd>Job currently executing</dd>
+
+   <dt><span class="FAILED">failed</span></dt>
+   <dd>Job failed</dd>
+
+   <dt><span class="BLOCKED">blocked</span></dt>
+   <dd>Job blocked because a dependency failed</dd>
+   </dl>
+</div>
+
+<p>Simple dynamic jobs</p>
+
+<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-dynamic-make-function.gif"/>
+
+<p>Dynamic jobs and recursive parallel executions</p>
+
+<img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-recursion-parmake16-none.gif"/>
+</div></div></blockquote>
 </div>
 <div class="section" id="manual">
 <h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
