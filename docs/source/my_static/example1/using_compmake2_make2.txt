@@ -1,4 +1,2 @@
-                                                                                                                                                                                  Using namespace 'using_compmake2'.
-INFO:compmake:Checking dependencies...
-INFO:compmake:Checking if up to date...
-INFO:compmake:Started job manager with 0 jobs.
+[?1034h                                                                                Disabling PyContracts; use --contracts to activate.                             
+                                                                                Directory not found: using_compmake2                                            
