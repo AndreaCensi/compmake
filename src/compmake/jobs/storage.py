@@ -71,12 +71,13 @@ def job2cachekey(job_id):
     return '%s%s' % (prefix, job_id)
 
 
+
 def get_job_cache(job_id, db):
     cache_key = job2cachekey(job_id)
     if cache_key in db:
         try:
             cache = db[cache_key]
-            assert (isinstance(cache, Cache))
+            assert isinstance(cache, Cache)
         except Exception as e:
             del db[cache_key]
             # also remove user object?
