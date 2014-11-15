@@ -1,4 +1,4 @@
-version = '3.4.7'
+version = '3.5'
 __version__ = version
 
 import logging
