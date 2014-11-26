@@ -43,7 +43,9 @@ def job_counts():
     ready_style = dict(color='yellow')
     proc_style = dict(color='yellow')
     s = ""
-    s += compmake_colored("%d done" % len(tracker.done), **done_style)
+    if tracker.done:
+        s += compmake_colored("%d done" % len(tracker.done), 
+                              **done_style)
 
     if tracker.processing:
         s += compmake_colored(" %d proc" % len(tracker.processing),
@@ -57,12 +59,14 @@ def job_counts():
         s += compmake_colored(" %d blocked" % len(tracker.blocked),
                               **blocked_style)
 
-    s += compmake_colored(" %d todo" % len(tracker.todo), **ready_style)
-
     if tracker.ready:
-        s += compmake_colored(" (%d ready)" % len(tracker.ready),
+        s += compmake_colored(" %d ready" % len(tracker.ready),
                               **ready_style)
 
+    if tracker.todo:
+        s += compmake_colored(" %d waiting" % len(tracker.todo), 
+                              **ready_style)
+    
     return s
 
 
