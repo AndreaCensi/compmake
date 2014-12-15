@@ -9,7 +9,7 @@ def funcA(param1):
 def funcB(res1, param2):
     print('funcB(%s, %s)' % (res1, param2))
     time.sleep(1) # ... which takes some time
-    return res1 + param1
+    return res1 + param2
 
 def draw(res2):
     print('draw(%s)' % res2)
