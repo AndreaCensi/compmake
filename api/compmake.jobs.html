@@ -245,7 +245,7 @@ captured.</p>
 <dl class="function">
 <dt id="compmake.jobs.actions.mark_as_failed">
 <tt class="descclassname">compmake.jobs.actions.</tt><tt class="descname">mark_as_failed</tt><big>(</big><em>job_id</em>, <em>exception=None</em>, <em>backtrace=None</em>, <em>db=None</em><big>)</big><a class="headerlink" href="#compmake.jobs.actions.mark_as_failed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Marks job_id and its parents as failed</p>
+<dd><p>Marks job_id  as failed</p>
 </dd></dl>
 
 <dl class="function">
@@ -336,7 +336,7 @@ functions can_accept_job(), next_job(), and ...</p>
 
 <dl class="method">
 <dt id="compmake.jobs.manager.Manager.job_failed">
-<tt class="descname">job_failed</tt><big>(</big><em>job_id</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.job_failed" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">job_failed</tt><big>(</big><em>job_id</em>, <em>deleted_jobs</em><big>)</big><a class="headerlink" href="#compmake.jobs.manager.Manager.job_failed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The specified job has failed. Update the structures,
 mark any parent as failed as well.</p>
 </dd></dl>
@@ -747,32 +747,32 @@ Otherwise, use local cache.</p>
 between calls.</p>
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.all_jobs">
-<tt class="descname">all_jobs</tt><em class="property"> = &lt;functools.partial object at 0x10dac48e8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.all_jobs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">all_jobs</tt><em class="property"> = &lt;functools.partial object at 0x10dd496d8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.all_jobs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date">
-<tt class="descname">dependencies_up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dac49f0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dependencies_up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dd497e0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.dependencies_up_to_date" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.direct_children">
-<tt class="descname">direct_children</tt><em class="property"> = &lt;functools.partial object at 0x10dac4a48&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_children" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">direct_children</tt><em class="property"> = &lt;functools.partial object at 0x10dd49838&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_children" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.direct_parents">
-<tt class="descname">direct_parents</tt><em class="property"> = &lt;functools.partial object at 0x10dac4aa0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_parents" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">direct_parents</tt><em class="property"> = &lt;functools.partial object at 0x10dd49890&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.direct_parents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.get_job">
-<tt class="descname">get_job</tt><em class="property"> = &lt;functools.partial object at 0x10dac4998&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_job</tt><em class="property"> = &lt;functools.partial object at 0x10dd49788&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.get_job_cache">
-<tt class="descname">get_job_cache</tt><em class="property"> = &lt;functools.partial object at 0x10dac4c00&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_job_cache</tt><em class="property"> = &lt;functools.partial object at 0x10dd499f0&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.get_job_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -782,12 +782,12 @@ between calls.</p>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.job_exists">
-<tt class="descname">job_exists</tt><em class="property"> = &lt;functools.partial object at 0x10dac4c58&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.job_exists" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">job_exists</tt><em class="property"> = &lt;functools.partial object at 0x10dd49a48&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.job_exists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.jobs_defined">
-<tt class="descname">jobs_defined</tt><em class="property"> = &lt;functools.partial object at 0x10dac4d08&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.jobs_defined" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">jobs_defined</tt><em class="property"> = &lt;functools.partial object at 0x10dd49af8&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.jobs_defined" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -824,7 +824,7 @@ which is direct_children() recursively.</p>
 
 <dl class="attribute">
 <dt id="compmake.jobs.uptodate.CacheQueryDB.up_to_date">
-<tt class="descname">up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dac4e68&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">up_to_date</tt><em class="property"> = &lt;functools.partial object at 0x10dd49c58&gt;</em><a class="headerlink" href="#compmake.jobs.uptodate.CacheQueryDB.up_to_date" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
