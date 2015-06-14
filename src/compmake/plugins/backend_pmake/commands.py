@@ -67,10 +67,15 @@ def parmake(job_list, context, cq,
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def parremake(non_empty_job_list, context, cq):
+def parremake(non_empty_job_list, context, cq,
+              n=DefaultsToConfig('max_parallel_jobs'),
+            recurse=DefaultsToConfig('recurse'),
+            new_process=DefaultsToConfig('new_process'),
+            echo=DefaultsToConfig('echo')):
     """
         Parallel equivalent of "remake".
     """
+    # TODO: test this
     db = context.get_compmake_db()
     non_empty_job_list = list(non_empty_job_list)
 
@@ -80,7 +85,12 @@ def parremake(non_empty_job_list, context, cq):
     for job in non_empty_job_list:
         mark_to_remake(job, db=db)
 
-    manager = PmakeManager(context=context, cq=cq)
+    manager = PmakeManager(num_processes=n,
+                           context=context,
+                           cq=cq,
+                           recurse=recurse,
+                           new_process=new_process,
+                           show_output=echo)
     manager.add_targets(non_empty_job_list)
     manager.process()
     return raise_error_if_manager_failed(manager)
