@@ -1,13 +1,15 @@
 from .manager_local import ManagerLocal
 from compmake.constants import DefaultsToConfig
 from compmake.jobs import mark_to_remake, top_targets
-from compmake.ui import (ACTIONS, ask_if_sure_remake, 
+from compmake.ui import (ACTIONS, ask_if_sure_remake,
     raise_error_if_manager_failed, ui_command)
 
 
 __all__ = [
     'make',
+    'rmake',
 ]
+
 
 
 @ui_command(section=ACTIONS, dbchange=True)
@@ -78,3 +80,10 @@ def remake(non_empty_job_list, context, cq,
     return raise_error_if_manager_failed(manager)
 
 
+@ui_command(section=ACTIONS, dbchange=True)
+def rmake(job_list, context, cq,
+         echo=DefaultsToConfig('echo'),
+         new_process=DefaultsToConfig('new_process')):
+    """ make with recurse = 1 """
+    return make(job_list=job_list, context=context, cq=cq,
+                echo=echo, new_process=new_process, recurse=True)

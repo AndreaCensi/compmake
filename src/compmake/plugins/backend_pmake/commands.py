@@ -3,11 +3,13 @@ from compmake.constants import DefaultsToConfig
 from compmake.events import publish
 from compmake.jobs import top_targets
 from compmake.jobs.actions import mark_to_remake
-from compmake.ui import ACTIONS, ui_command
-from compmake.ui.commands import raise_error_if_manager_failed, ask_if_sure_remake
+from compmake.ui import (ACTIONS, ask_if_sure_remake,
+    raise_error_if_manager_failed, ui_command)
+
 
 __all__ = [
     'parmake',
+    'rparmake',
     'parremake',
 ]
 
@@ -82,3 +84,13 @@ def parremake(non_empty_job_list, context, cq):
     manager.add_targets(non_empty_job_list)
     manager.process()
     return raise_error_if_manager_failed(manager)
+
+
+@ui_command(section=ACTIONS, dbchange=True)
+def rparmake(job_list, context, cq,
+            n=DefaultsToConfig('max_parallel_jobs'),
+            new_process=DefaultsToConfig('new_process'),
+            echo=DefaultsToConfig('echo')):
+    """ Shortcut to parmake with default recurse = True. """
+    return parmake(job_list=job_list, context=context,
+                   cq=cq, n=n, new_process=new_process, echo=echo, recurse=True)
