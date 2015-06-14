@@ -1,6 +1,4 @@
 """ Implements the initial and final banner """
-# import random
-
 from .. import version
 from ..events import register_handler
 from ..jobs import all_jobs

@@ -14,11 +14,10 @@ def funcB(res1, param_b):
     if param_b == 11:
         msg = 'Exception raised for b = %d.' % param_b
         raise Exception(msg)
-    return res1 + param_a
+    return res1 + param_b
 
 def draw(res2):
-    print('draw(%r)' % res2)
-    pass
+    print('draw(%r)' % res2) 
 
 if __name__ == '__main__':
     from compmake import Context
