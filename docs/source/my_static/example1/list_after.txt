@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+$ compmake example -c list
+=======
 @: ls 
       draw     done      (1s ago)
       draw-2   done      (1s ago)
@@ -5,4 +8,5 @@
       draw-4   done      (1s ago)
       draw-5   done      (1s ago)
       draw-6   done      (1s ago)
+>>>>>>> origin/env_fault
 [...]

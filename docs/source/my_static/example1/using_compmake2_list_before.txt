@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+$ compmake example list
+[?1034h    [...]
+=======
 @: ls
       a1-b10-draw   todo      
       a1-b10-funcA  todo      
@@ -6,3 +10,4 @@
       a1-b11-funcA  todo      
       a1-b11-funcB  todo      
 [...]
+>>>>>>> origin/env_fault

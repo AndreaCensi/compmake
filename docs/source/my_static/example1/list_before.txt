@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+$ compmake example -c list
+[?1034h[...]
+=======
 @: ls 
       draw     todo      
       draw-2   todo      
@@ -6,3 +10,4 @@
       draw-5   todo      
       draw-6   todo      
 [...]
+>>>>>>> origin/env_fault
