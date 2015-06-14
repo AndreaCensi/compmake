@@ -2,12 +2,10 @@ from collections import namedtuple
 import sys
 
 from compmake import CompmakeConstants
-
 from .utils import AvgSystemStats
 
 
 class CompmakeGlobalState(object):
-
     original_stderr = sys.stderr
     original_stdout = sys.stdout
 
@@ -34,7 +32,12 @@ class CompmakeGlobalState(object):
 
 
 def get_compmake_config(key):
-    return CompmakeGlobalState.compmake_config[key]
+    config = CompmakeGlobalState.compmake_config
+    if not key in config:
+        msg = 'Config %r not found. Known: %s' % (key, list(config))
+        raise ValueError(msg)
+    return config[key]
+
 
 def set_compmake_config(key, value):
     # TODO: check exists
@@ -46,14 +49,14 @@ ConfigSwitch = namedtuple('ConfigSwitch',
 ConfigSection = namedtuple('ConfigSection', 'name desc order switches')
 
 
-    
 def set_compmake_status(s):
     CompmakeGlobalState.compmake_status = s
 
+
 def is_interactive_session():
-    ''' If this is true, we will ask questions to the user. '''
-    return (get_compmake_status() == 
-             CompmakeConstants.compmake_status_interactive)
+    """ If this is true, we will ask questions to the user. """
+    return (get_compmake_status() ==
+            CompmakeConstants.compmake_status_interactive)
 
 def get_compmake_status():
     return CompmakeGlobalState.compmake_status

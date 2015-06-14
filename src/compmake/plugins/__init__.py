@@ -1,8 +1,8 @@
-''' 
+"""
     These are all the functionalities that build on the API. All visualization
-    stuff is built in as a plugin. 
+    stuff is built in as a plugin.
 
-'''
+"""
 
 from . import dump
 from . import graph
@@ -29,7 +29,9 @@ from . import sanity_check
 from . import backend_local
 from . import backend_sge
 from . import backend_pmake
-from . import backend_multiprocessing
 from . import backend_ssh_cluster
+from . import backend_multyvac
 
 from . import debug_priority
+from . import graph_animation_imp
+from . import clear_imp

@@ -68,27 +68,27 @@ There are several shortcuts available to specify lists of jobs.
 
 * **Wildcards.** In the previous section, we have seen the use of wildcards::
 
-  	@> list  *-drawing    # list all jobs that end with "-drawing"
-  	@> list  *            # list all jobs
+  	@> ls  *-drawing    # list all jobs that end with "-drawing"
+  	@> ls  *            # list all jobs
 
 * **Selection by state.** We can select jobs based on their computational state.
   (see :ref:`job_states` for a complete description of the meaning of these states)::
 
-  	@> list done         # list all completed jobs
-  	@> list failed       # list all failed jobs
-  	@> list blocked      # list all blocked jobs (dependencies failed)
+  	@> ls done         # list all completed jobs
+  	@> ls failed       # list all failed jobs
+  	@> ls blocked      # list all blocked jobs (dependencies failed)
 
 * **Selection by function name**   ::
 
-  	@> list f1()        # all jobs that use the function f1()
+  	@> ls f1()        # all jobs that use the function f1()
 
 
 * **Use of logical operator**. Compmake implements a simple syntax for 
   defining sets of jobs. Some examples The following commands::
 
- 	@> list not failed in func1()   # list all func1() instances that did not fail
- 	@> list *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
- 	@> list all except job1 job2    # list all except "job1" and "job2"
+ 	@> ls not failed in func1()   # list all func1() instances that did not fail
+ 	@> ls *drawing except *p1=2*  # list those that match *drawing but not *p1=2*
+ 	@> ls all except job1 job2    # list all except "job1" and "job2"
 
  There are three keywords: ``in`` (intersection), ``except`` (set difference), and ``not``
  (complement). Their semantics are defined as follows. (Here, ``A`` and ``B`` are

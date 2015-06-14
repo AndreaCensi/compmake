@@ -7,10 +7,10 @@ __all__ = [
 try:
     from setproctitle import setproctitle  # @UnresolvedImport @UnusedImport
 except:
-    msg= ('compmake can make use of the package "setproctitle". '
-          'Please install it.\n')
+    msg = ('compmake can make use of the package "setproctitle". '
+           'Please install it.\n')
     sys.stderr.write(msg)
 
     def setproctitle(x):
-        ''' emulation of the setproctitle interface '''
+        """ emulation of the setproctitle interface """
         pass

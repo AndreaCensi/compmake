@@ -1,5 +1,4 @@
 from .compmake_test import CompmakeTest
-from compmake.unittests.expected_fail import expected_failure
 from nose.tools import istest
 
 
@@ -33,7 +32,6 @@ class TestDynamic1(CompmakeTest):
 
     howmany = None  # used by cases()
 
-    @expected_failure # we don't clean previously defined jobs
     def test_dynamic1_cleaning(self):
         mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs
@@ -47,28 +45,29 @@ class TestDynamic1(CompmakeTest):
 
         # this will have created new jobs
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
-                                     'actual1', 'actual2', 'finish'])
+                                     'actual1', 'actual2', 'generate-finish'])
         # ... still to do
-        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 
+                                      'generate-finish'])
 
         # we can make them
         self.assert_cmd_success('make')
         self.assert_cmd_success('ls')
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
-                                      'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('done', ['generate', 'values', 
+                                      'actual0', 'actual1', 'actual2', 
+                                      'generate-finish'])
 
         # Now let's suppose we re-run values and it generates different number of tests
 
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
-        
-        
+                
         self.assert_cmd_success('clean values; make generate')
-        self.assert_cmd_success('ls')
+        self.assert_cmd_success('ls reason=1')
 
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'finish'])
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'actual3', 'generate-finish'])
         # some are done
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'finish'])
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 'actual1', 'actual2', 'generate-finish'])
         # but finish is not updtodate
         self.assertJobsEqual('uptodate', ['generate', 'values', 'actual0', 'actual1', 'actual2'])
         # some others are not
@@ -84,7 +83,7 @@ class TestDynamic1(CompmakeTest):
         
         # Now we should have on job less because actual2 and 3 was not re-defined
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
-                                     'actual1', 'finish'])
+                                     'actual1', 'generate-finish'])
         # they should be all done, by the way
         self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
-                                      'actual1', 'finish'])
+                                      'actual1', 'generate-finish'])

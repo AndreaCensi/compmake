@@ -2,22 +2,25 @@ import time
 
 
 __all__ = [
-    'EventSpec', 
+    'EventSpec',
     'Event',
 ]
 
 
 class EventSpec(object):
-    ''' This is a specification of the events that can be generated '''
+    """ This is a specification of the events that can be generated """
 
-    def __init__(self, name, attrs=[], desc=None):
+    def __init__(self, name, attrs=None, desc=None):
+        if attrs is None:
+            attrs = []
         self.name = name
         self.attrs = attrs
         self.desc = desc
 
 
 class Event(object):
-    ''' This, instead, is an event itself '''
+    """ This, instead, is an event itself """
+
     def __init__(self, name, **kwargs):
         self.name = name
         self.__dict__.update(kwargs)
@@ -26,4 +29,3 @@ class Event(object):
 
     def __str__(self):
         return 'Event(%s, %s)' % (self.name, self.kwargs)
-

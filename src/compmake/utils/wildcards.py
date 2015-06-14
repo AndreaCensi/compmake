@@ -1,10 +1,13 @@
 import re
-from ..structures import UserError
+
+from ..exceptions import UserError
+
 
 __all__ = [
     'wildcard_to_regexp',
     'expand_wildcard',
 ]
+
 
 def wildcard_to_regexp(arg):
     """ Returns a regular expression from a shell wildcard expression. """
@@ -12,10 +15,10 @@ def wildcard_to_regexp(arg):
 
 
 def expand_wildcard(wildcard, universe):
-    ''' Expands a wildcard expression against the given list.
-        wildcard: string with '*' 
+    """ Expands a wildcard expression against the given list.
+        wildcard: string with '*'
         universe: list of strings
-     '''
+    """
     assert wildcard.find('*') > -1
     regexp = wildcard_to_regexp(wildcard)
     num_matches = 0

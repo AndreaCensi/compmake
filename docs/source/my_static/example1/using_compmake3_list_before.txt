@@ -1,2 +1,13 @@
+<<<<<<< HEAD
 $ compmake example list
 [?1034h    [...]
+=======
+@: ls
+      a1-b10-computing  todo      
+      a1-b10-drawing    todo      
+      a1-b10-preparing  todo      
+      a1-b11-computing  todo      
+      a1-b11-drawing    todo      
+      a1-b11-preparing  todo      
+[...]
+>>>>>>> origin/env_fault

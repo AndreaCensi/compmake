@@ -1,14 +1,14 @@
 from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
-import sys
 
-__all__ = [ 
+
+__all__ = [
     'compmake_colored',
     'warning',
     'error',
     'user_error',
     'info',
-    'debug'           
+    'debug'
 ]
 
 
@@ -30,6 +30,7 @@ def user_error(s):  # XXX: what's the difference with above?
 
 
 def info(s):
+    # write_message(s, lambda x: compmake_colored(x, 'green'))
     write_message(s, lambda x: compmake_colored(x, 'green'))
 
 
@@ -38,27 +39,28 @@ def debug(s):  # XXX: never used?
 
 
 def write_message(s, formatting):
-    s = str(s)
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState
-    stderr = CompmakeGlobalState.original_stderr
+
+    #stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 
     stdout.flush()
 
-    clean_console_line(sys.stderr)
+    write_on = stdout
+    clean_console_line(write_on)
     lines = s.rstrip().split('\n')
 
     if len(lines) == 1:
         l = formatting(lines[0])
         # not sure why this wasnt pad_to_screen()ed before
-        stderr.write(pad_to_screen(l) + '\n')
+        write_on.write(pad_to_screen(l) + '\n')
     else:
         for l in lines:
             l = formatting(l)
-            stderr.write(pad_to_screen(l))
-            stderr.write('\n')
+            write_on.write(pad_to_screen(l))
+            write_on.write('\n')
 
-    stderr.flush()
+    write_on.flush()
 

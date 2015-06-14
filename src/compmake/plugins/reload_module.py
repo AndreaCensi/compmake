@@ -2,19 +2,20 @@ import imp
 import os
 import pwd
 
-from ..structures import UserError
+from ..exceptions import UserError
 from ..ui import COMMANDS_ADVANCED, ui_command, user_error, info
 
 
+# noinspection PyShadowingBuiltins
 @ui_command(section=COMMANDS_ADVANCED)
 def reload(module):  # @ReservedAssignment
-    ''' Reloads a module. 
-    
+    """ Reloads a module.
+
         Usage::
-        
+
             reload module=my_module
-    
-    '''
+
+    """
 
     if module.startswith('compmake'):
         try:
@@ -37,4 +38,3 @@ def reload(module):  # @ReservedAssignment
         raise UserError(msg)
 
     info('Reloaded module "%s".' % module)
-

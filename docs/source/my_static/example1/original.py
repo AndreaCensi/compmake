@@ -1,7 +1,7 @@
-from mycomputations import func1, func2, draw
+from mycomputations import funcA, funcB, draw
 
 for param1 in [1, 2, 3]:
     for param2 in [10, 11, 12]:
-        res1 = func1(param1)
-        res2 = func2(res1, param2)
+        res1 = funcA(param1)
+        res2 = funcB(res1, param2)
         draw(res2)
