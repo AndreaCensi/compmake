@@ -1,5 +1,6 @@
 from .compmake_test import CompmakeTest
 from nose.tools import istest
+from compmake.exceptions import CompmakeDBError
 
 def g2(): 
     return 'g2'
@@ -28,7 +29,7 @@ class TestDynamic7(CompmakeTest):
         self.assert_cmd_success('clean fd')
         
         # job does not exist anynmore
-        self.assertRaises(ValueError, self.up_to_date, 'fd-gd-g2')
+        self.assertRaises(CompmakeDBError, self.up_to_date, 'fd-gd-g2')
     
     
     def test_dynamic7_invalidate(self):
