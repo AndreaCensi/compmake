@@ -4,9 +4,10 @@
 
 from ..structures import Cache, Job
 from ..utils import wildcard_to_regexp
-from compmake.exceptions import CompmakeBug, CompmakeException
+from compmake.exceptions import CompmakeBug, CompmakeException, CompmakeDBError
 from contracts import contract
 from compmake.utils.pickle_frustration import pickle_main_context_load
+from contracts.utils import raise_desc
 
 
 def job2key(job_id):
@@ -93,8 +94,10 @@ def get_job_cache(job_id, db):
         # raise CompmakeException("invalid job %s, I know %s"
         # % (job_id, known)) 
         if not job_exists(job_id, db):
-            msg = 'Cannot get cache for nonexisting job %r.' % job_id
-            raise ValueError(msg)
+            raise_desc(CompmakeDBError,
+                       'Requesting cache for job that does not exist.',
+                       job_id=job_id)
+
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent
         # get_compmake_db().set(cache_key, cache)

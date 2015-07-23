@@ -15,7 +15,8 @@ def mkdirs_thread_safe(dst):
         head += ':'
     mkdirs_thread_safe(head)
     try:
-        os.mkdir(dst, 0777)
+        mode = 511  # 0777 in octal
+        os.mkdir(dst, mode)
     except OSError as err:
         if err.errno != 17:  # file exists
             raise

@@ -5,6 +5,9 @@ from .dependencies import collect_dependencies
 from .queries import jobs_defined
 from .storage import get_job_userobject
 from contracts import check_isinstance, contract
+from compmake.exceptions import CompmakeDBError
+from contracts.utils import raise_wrapped, raise_desc
+from contextlib import contextmanager
 
 
 __all__ = [
@@ -122,7 +125,6 @@ class CacheQueryDB(object):
     
     @memoized_reset
     def jobs_defined(self, job_id):
-        from compmake.jobs.queries import jobs_defined
         return jobs_defined(job_id, db=self.db)
 
     @memoized_reset
@@ -147,50 +149,51 @@ class CacheQueryDB(object):
     @memoized_reset
     @contract(returns='tuple(bool, str, float)')
     def up_to_date(self, job_id):
-        return self._up_to_date_actual(job_id)
+        with db_error_wrap("up_to_date()", job_id=job_id):
+            return self._up_to_date_actual(job_id)
 
     @contract(returns='tuple(bool, str, float)')
     def _up_to_date_actual(self, job_id):
-        
-        cache = self.get_job_cache(job_id)  # OK
+        with db_error_wrap("_up_to_date_actual()", job_id=job_id):
+            cache = self.get_job_cache(job_id)  # OK
 
-        if cache.state == Cache.NOT_STARTED:
-            return False, 'Not started', cache.timestamp
+            if cache.state == Cache.NOT_STARTED:
+                return False, 'Not started', cache.timestamp
 
-        if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
-            return False, 'Marked invalid', cache.timestamp
-                 
-        dependencies = self.direct_children(job_id)
-         
+            if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
+                return False, 'Marked invalid', cache.timestamp
 
-        for child in dependencies:
-            child_up, _, child_timestamp = self.up_to_date(child)
-            if not child_up:
-                return False, 'At least: Dep %r not up to date.' % child, cache.timestamp
-            else:
-                if child_timestamp > cache.timestamp:
-                    return (
-                        False, 'At least: Dep %r have been updated.' % child, cache.timestamp)
-                    
-        # plus jobs that defined it
-        defined_by = list(self.get_job(job_id).defined_by)
-        defined_by.remove('root')
-        dependencies.update(defined_by)
+            dependencies = self.direct_children(job_id)
 
-        for defby in defined_by:
-            defby_up, _, _ = self.up_to_date(defby)
-            if not defby_up:
-                return False, 'Definer %r not up to date.' % defby,  cache.timestamp
-            # don't check timestamp for definers                
 
-        # FIXME BUG if I start (in progress), children get updated,
-        # I still finish the computation instead of starting again
-        if cache.state == Cache.FAILED:
-            return False, 'Failed', cache.timestamp
+            for child in dependencies:
+                child_up, _, child_timestamp = self.up_to_date(child)
+                if not child_up:
+                    return False, 'At least: Dep %r not up to date.' % child, cache.timestamp
+                else:
+                    if child_timestamp > cache.timestamp:
+                        return (
+                            False, 'At least: Dep %r have been updated.' % child, cache.timestamp)
 
-        assert (cache.state == Cache.DONE)
+            # plus jobs that defined it
+            defined_by = list(self.get_job(job_id).defined_by)
+            defined_by.remove('root')
+            dependencies.update(defined_by)
 
-        return True, '', cache.timestamp
+            for defby in defined_by:
+                defby_up, _, _ = self.up_to_date(defby)
+                if not defby_up:
+                    return False, 'Definer %r not up to date.' % defby, cache.timestamp
+                # don't check timestamp for definers
+
+            # FIXME BUG if I start (in progress), children get updated,
+            # I still finish the computation instead of starting again
+            if cache.state == Cache.FAILED:
+                return False, 'Failed', cache.timestamp
+
+            assert (cache.state == Cache.DONE)
+
+            return True, '', cache.timestamp
 
     @memoized_reset
     def direct_children(self, job_id):
@@ -232,53 +235,60 @@ class CacheQueryDB(object):
 
         return list(result)
 
+    @contract(returns='tuple(*,*,*)')
     def list_todo_targets(self, jobs):
-        """ returns a tuple (todo, jobs_done):
+        """
+            Returns a tuple (todo, jobs_done, ready):
              todo:  set of job ids to do (children that are not up to date) 
              done:  top level targets (in jobs) that are already done. 
              ready: ready to do (dependencies_up_to_date)
         """
-        todo = set()
-        done = set()
-        seen = set()
-        stack = list()
-        stack.extend(jobs)
+        with db_error_wrap("list_todo_targets()", jobs=jobs):
+            for j in jobs:
+                if not self.job_exists(j):
+                    raise_desc(CompmakeBug, "Job does not exist", job_id=j)
 
-        class A:
-            count = 0
+            todo = set()
+            done = set()
+            seen = set()
+            stack = list()
+            stack.extend(jobs)
 
-        def summary():
-            A.count += 1
-            if A.count % 100 != 0:
-                return
+            class A:
+                count = 0
 
-        while stack:
-            summary()
+            def summary():
+                A.count += 1
+                if A.count % 100 != 0:
+                    return
 
-            job_id = stack.pop()
-            seen.add(job_id)
-            res = self.up_to_date(job_id)
+            while stack:
+                summary()
 
-            up, _, _ = res
-            if up:
-                done.add(job_id)
-            else:
-                todo.add(job_id)
-                for child in self.direct_children(job_id):
-                    if not self.job_exists(child):
-                        msg = 'Job %r references a not existing job %r. ' % (
-                            job_id, child)
-                        msg += ('This might happen when you change a dynamic job '
-                                'so that it changes the jobs it created. '
-                                'Try "delete not root" to fix the DB.')
-                        raise CompmakeBug(msg)
-                    if not child in seen:
-                        stack.append(child)
+                job_id = stack.pop()
+                seen.add(job_id)
+                res = self.up_to_date(job_id)
 
-        todo_and_ready = set([job_id for job_id in todo
-                              if self.dependencies_up_to_date(job_id)])
+                up, _, _ = res
+                if up:
+                    done.add(job_id)
+                else:
+                    todo.add(job_id)
+                    for child in self.direct_children(job_id):
+                        if not self.job_exists(child):
+                            msg = 'Job %r references a not existing job %r. ' % (
+                                job_id, child)
+                            msg += ('This might happen when you change a dynamic job '
+                                    'so that it changes the jobs it created. '
+                                    'Try "delete not root" to fix the DB.')
+                            raise CompmakeBug(msg)
+                        if not child in seen:
+                            stack.append(child)
 
-        return todo, done, todo_and_ready
+            todo_and_ready = set([job_id for job_id in todo
+                                  if self.dependencies_up_to_date(job_id)])
+
+            return todo, done, todo_and_ready
 
     @contract(returns=set, jobs='str|set(str)')
     def tree_children_and_uodeps(self, jobs):
@@ -311,3 +321,15 @@ class CacheQueryDB(object):
                     stack.append(c)
 
         return result
+
+
+@contextmanager
+def db_error_wrap(what, **args):
+    try:
+        yield
+    except CompmakeDBError as e:
+            raise_wrapped(CompmakeDBError, e,
+                          what,
+                          compact=True,
+                          **args)
+

@@ -8,6 +8,9 @@ class ShellExitRequested(Exception):
 class CompmakeException(Exception):
     pass
 
+class CompmakeDBError(CompmakeException):
+    """ Raised for inconsistencies in the DB. """
+
 
 class CompmakeBug(CompmakeException):
     def get_result_dict(self):
