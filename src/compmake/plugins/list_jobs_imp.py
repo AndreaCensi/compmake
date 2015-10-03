@@ -13,6 +13,7 @@ from contracts import contract
 from compmake.constants import CompmakeConstants
 from compmake.utils.terminal_size import get_screen_columns
 from compmake.utils.table_formatter import TableFormatter
+import os
 
 # red, green, yellow, blue, magenta, cyan, white.
 state2color = {
@@ -39,7 +40,7 @@ else:
 def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified
-    specified).
+        specified).
 
         Options:
 
@@ -57,6 +58,50 @@ def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssig
     list_jobs(context, job_list, cq=cq, complete_names=complete_names,
               reason=reason)
     return 0
+
+
+@contract(objects='seq[N](str)', returns='tuple(str, list[N](str), str)')
+def minimal_names(objects):
+    """
+        Converts a list of object IDs to a minimal non-ambiguous list of names.
+        
+        For example, the names: ::
+        
+            test_learn_fast_10
+            test_learn_slow_10
+            test_learn_faster_10
+            
+        is converted to: ::
+        
+            fast
+            slow
+            faster
+            
+        Returns prefix, minimal, postfix
+    """
+    if len(objects) == 1:
+        return '', objects, ''
+
+    # find the common prefix
+    prefix = os.path.commonprefix(objects)
+    # invert strings
+    objects_i = [o[::-1] for o in objects]
+    # find postfix
+    postfix = os.path.commonprefix(objects_i)[::-1]
+#     print(objects)
+#     print('prefix: %r post: %r' % (prefix, postfix))
+    n1 = len(prefix)
+    n2 = len(postfix)
+    # remove it
+    minimal = [o[n1:len(o) - n2] for o in objects]
+
+    # recreate them to check everything is ok
+    objects2 = [prefix + m + postfix for m in minimal]
+
+    # print objects, objects2
+    assert objects == objects2, (prefix, minimal, postfix)
+    return prefix, minimal, postfix
+
 
 
 
@@ -80,6 +125,11 @@ def list_jobs(context, job_list, cq, complete_names=False,
             b = 15
             r = max_len - b - len(' ... ')
             return ajob_id[:15] + ' ... ' + ajob_id[-r:]
+
+    # abbreviates the names
+#     if not complete_names:
+#         prefix, abbreviated, postfix = minimal_names(job_list)
+#         job_list = abbreviated
 
     jlen = max(len(format_job_id(x)) for x in job_list)
 
