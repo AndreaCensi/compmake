@@ -14,6 +14,26 @@ from compmake.constants import CompmakeConstants
 from compmake.utils.terminal_size import get_screen_columns
 from compmake.utils.table_formatter import TableFormatter
 
+# red, green, yellow, blue, magenta, cyan, white.
+state2color = {
+    # (state, uptodate)
+    (Cache.NOT_STARTED, False): {},
+#     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
+    (Cache.FAILED, False): {'color': 'red'},
+    (Cache.BLOCKED, True): {'color': 'yellow'},
+    (Cache.BLOCKED, False): {'color': 'yellow'},  # XXX
+    (Cache.DONE, True): {'color': 'green'},
+    (Cache.DONE, False): {'color': 'magenta'},
+}
+
+if False:
+    format_utility_job = dict(color='white', attrs=['concealed'])
+    format_separator = dict(color='white', attrs=['concealed']) 
+    format_when = dict(color='white', attrs=['concealed'])
+else:
+    format_utility_job = dict()
+    format_separator = dict() 
+    format_when = dict()
 
 @ui_command(section=VISUALIZATION, alias='list')
 def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssignment
@@ -38,20 +58,6 @@ def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssig
               reason=reason)
     return 0
 
-
-state2color = {
-    # The ones commented out are not possible
-    # (Cache.NOT_STARTED, True): None,
-    (Cache.NOT_STARTED, False): {},  # 'attrs': ['dark']},
-    # (Cache.IN_PROGRESS, True): None,
-#     (Cache.IN_PROGRESS, False): {'color': 'yellow'},
-    # (Cache.FAILED, True): None,
-    (Cache.FAILED, False): {'color': 'red'},
-    (Cache.BLOCKED, True): {'color': 'yellow'},
-    (Cache.BLOCKED, False): {'color': 'yellow'},  # XXX
-    (Cache.DONE, True): {'color': 'green'},
-    (Cache.DONE, False): {'color': 'magenta'},
-}
 
 
 def list_jobs(context, job_list, cq, complete_names=False,
@@ -115,8 +121,8 @@ def list_jobs(context, job_list, cq, complete_names=False,
         is_utility = 'context' in job_id or 'dynrep' in job_id
         if is_utility:
             job_name_formatted = compmake_colored(job_name_formatted,
-                                                  'white',
-                                                  attrs=['dark'])
+                                                  **format_utility_job)
+            
 
         tf.cell(format_job_id(job_id))
 
@@ -156,8 +162,10 @@ def list_jobs(context, job_list, cq, complete_names=False,
             when = duration_compact(time() - cache.timestamp)
             when_s = "(%s ago)" % when
             
-            when_s = compmake_colored(when_s, color='white', attrs=['dark'])
+            when_s = compmake_colored(when_s, **format_when)
             
+             
+             
             tf.cell(when_s)
         else:
             tf.cell('')  # when
@@ -175,7 +183,9 @@ def list_jobs(context, job_list, cq, complete_names=False,
     else:
         linewidth = get_screen_columns()
         #print('*'*linewidth)
-        sep = compmake_colored('   |   ', color='white', attrs=['dark'])
+        #sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
+        sep = '   ' + compmake_colored('|', **format_separator)+ '   '
+        
         for line in tf.get_lines_multi(linewidth-len(ind), sep=sep):
             print(ind + line)
 

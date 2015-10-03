@@ -72,6 +72,8 @@ Some animations of the job graph
 Changelog
 ---------
 
+* v3.5 - Added ``why`` command --- compact error visualization. Removed 
+  color effects which might not be suitable for all console types.
 * v3.4.1 - Bug fix; experimental multyvac_sync
 * v3.4.0 - Changed the way that dynamic job IDs are generated 
            to avoid a race condition in a corner case.
