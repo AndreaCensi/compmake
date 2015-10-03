@@ -20,7 +20,7 @@ class TestDynamic1rec(CompmakeTest):
 
         # this will have created new jobs
         self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
-                                     'actual1', 'actual2', 'finish'])
+                                     'actual1', 'actual2', 'generate-finish'])
         # ... still to do
         self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
-                                      'actual1', 'actual2', 'finish'])
+                                      'actual1', 'actual2', 'generate-finish'])

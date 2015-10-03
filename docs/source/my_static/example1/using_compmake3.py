@@ -1,12 +1,21 @@
-from mycomputations import func1, func2, draw
-from compmake import comp, comp_prefix
+from mycomputations import funcA, funcB, draw
 
-for param1 in [1, 2, 3]:
-    for param2 in [10, 11, 12]: 
-        comp_prefix('p1=%s-p2=%s' % (param1,param2))
-        
-        # use job_id to override default naming
-        res1 = comp(func1, param1, job_id='preparing')
-        res2 = comp(func2, res1, param2, job_id='computing')
-        comp(draw, res2, job_id='drawing')
+if __name__ == '__main__':
+    from compmake import Context
+    context = Context()
+
+    for param_a in [1, 2, 3]:
+        for param_b in [10, 11, 12]: 
+            prefix = 'a%s-b%s' % (param_a, param_b)
+            context.comp_prefix(prefix)
+
+            # use job_id to override default naming
+            res1 = context.comp(funcA, param_a, 
+                                job_id='preparing')
+            res2 = context.comp(funcB, res1, param_b, 
+                                job_id='computing')
+            context.comp(draw, res2, 
+                         job_id='drawing')
+
+    context.compmake_console()
 

@@ -1,11 +1,12 @@
-def func1(param1): 
+def funcA(param1): 
+    print('funcA(%r)' % param1)
     return param1 * 10
     
-def func2(param1, param2): #@UnusedVariable
+def funcB(param1, param2): #@UnusedVariable
+    print('funcB(%r, %r)' % (param1, param2))
     return param1 + param2
     
 def draw(result): 
-    pass
-    #print('Computing draw(%r)' % result)
+    print('draw(%r)' % result)
 
     

@@ -1,4 +1,3 @@
-from .exceptions import * # @UnusedWildImport
 from contracts import contract, describe_value
 
 '''
@@ -28,18 +27,7 @@ from contracts import contract, describe_value
        timestamp:   when computation was completed 
        timetaken:   time taken by the computation
        tmp_result:  None
-       
-    *) MORE_REQUESTED:  The computation has been done, but the
-       user has requested more. We still have the previous result
-       that the other objects can use. 
-    
-       computation:  current computation
-       user_object: (safe) the safe result of the computation
-       timestamp:   (safe) when computation was completed 
-       timetaken:   (safe) time taken by the computation
-       
-       tmp_result:  set to the temporary result (if any)
-                    or non-existent if more has not been started yet
+        
        
     *) FAILED
        The computation has failed for some reason
@@ -73,6 +61,8 @@ from contracts import contract, describe_value
      
     
 '''
+import os
+from compmake.utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
     'Promise',
@@ -80,6 +70,7 @@ __all__ = [
     'Cache',
     'execute_with_context'
 ]
+
 
 class Promise(object):
     def __init__(self, job_id):
@@ -90,8 +81,7 @@ class Promise(object):
 
 
 class Job(object):
-
-    @contract(defined_by='list(str)', children=set)
+    @contract(defined_by='list[>=1](str)', children=set)
     def __init__(self, job_id, children, command_desc,
                  needs_context=False,
                  defined_by=None):
@@ -109,35 +99,19 @@ class Job(object):
         self.parents = set()
         self.needs_context = needs_context
         self.defined_by = defined_by
-
+        assert len(defined_by) >= 1, defined_by
+        assert defined_by[0] == 'root', defined_by
         # str -> set(str), where the key is one
         # of the direct children 
         self.dynamic_children = {}
 
-
-#         
-# 
-#     def get_actual_command(self):
-#         """ returns command, args, kwargs after deps subst."""
-#         from compmake.jobs.storage import get_job_args
-#         job_args = get_job_args(self.job_id)
-#         command, args, kwargs = job_args
-#         from compmake.jobs import substitute_dependencies
-#         # TODO: move this to jobs.actions?
-#         args = substitute_dependencies(args)
-#         kwargs = substitute_dependencies(kwargs)
-#         return command, args, kwargs
-# 
-#     def __eq__(self, other):
-#         ''' Note, this comparison has the semantics of "same promise" '''
-#         ''' Use same_computation() for serious comparison '''
-#         return self.job_id == other.job_id
-
+        self.pickle_main_context = pickle_main_context_save() 
+        
 def same_computation(jobargs1, jobargs2):
-    ''' Returns boolean, string tuple '''
+    """ Returns boolean, string tuple """
     cmd1, args1, kwargs1 = jobargs1
     cmd2, args2, kwargs2 = jobargs2
-    
+
     equal_command = cmd1 == cmd2
     equal_args = args1 == args2
     equal_kwargs = kwargs1 == kwargs2
@@ -156,7 +130,7 @@ def same_computation(jobargs1, jobargs2):
         warn = ' (or you did not implement proper __eq__)'
         if len(args1) != len(args2):
             reason += '* different number of arguments (%d -> %d)\n' % \
-                (len(args1), len(args2))
+                      (len(args1), len(args2))
         else:
             for i, ob in enumerate(args1):
                 if ob != args2[i]:
@@ -167,11 +141,11 @@ def same_computation(jobargs1, jobargs2):
         for key, value in kwargs1.items():
             if key not in kwargs2:
                 reason += '* kwarg "%s" not found\n' % key
-            elif  value != kwargs2[key]:
+            elif value != kwargs2[key]:
                 reason += '* argument "%s" changed %s \n' % (key, warn)
                 reason += '  - old: %s \n' % describe_value(value)
                 reason += '  - new: %s \n' % describe_value(kwargs2[key])
-        
+
         # TODO: different lengths
 
         return False, reason
@@ -183,42 +157,46 @@ class Cache(object):
     # TODO: add blocked
 
     NOT_STARTED = 0
-    IN_PROGRESS = 1
     FAILED = 3
     BLOCKED = 5
     DONE = 4
+    
+    TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states = [NOT_STARTED, IN_PROGRESS, FAILED, DONE, BLOCKED]
+    allowed_states = [NOT_STARTED, 
+                      FAILED, 
+                      DONE, 
+                      BLOCKED]
 
     state2desc = {
         NOT_STARTED: 'todo',
-        IN_PROGRESS: 'in progress',
         BLOCKED: 'blocked',
         FAILED: 'failed',
         DONE: 'done'}
 
     def __init__(self, state):
-        assert(state in Cache.allowed_states)
+        assert (state in Cache.allowed_states)
         self.state = state
-        # if DONE:
         self.timestamp = 0.0
         self.cputime_used = None
         self.walltime_used = None
 
+        self.jobs_defined = set()
+
         # in case of failure
-        self.exception = None # a short string
-        self.backtrace = None # a long string
+        self.exception = None  # a short string
+        self.backtrace = None  # a long string
         # 
         self.captured_stdout = None
         self.captured_stderr = None
+ 
 
 
     def __repr__(self):
-        return ('Cache(%s;%s;cpu:%s;wall:%s)' % 
+        return ('Cache(%s;%s;cpu:%s;wall:%s)' %
                 (Cache.state2desc[self.state],
                  self.timestamp, self.cputime_used,
-                 self.walltime_used)) 
-
+                 self.walltime_used))
 
 
 class ProgressStage(object):
@@ -236,7 +214,7 @@ class ProgressStage(object):
     def was_finished(self):
         # allow off-by-one conventions
         if isinstance(self.iterations[1], int):
-            return  (self.iterations[0] >= self.iterations[1] - 1)
+            return (self.iterations[0] >= self.iterations[1] - 1)
         else:
             return self.iterations[0] >= self.iterations[1]
             

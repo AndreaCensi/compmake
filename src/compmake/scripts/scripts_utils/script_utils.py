@@ -1,6 +1,8 @@
 import sys
 import traceback
+
 from compmake.ui.visualization import error
+
 
 def wrap_script_entry_point(function,
                             exceptions_no_traceback):

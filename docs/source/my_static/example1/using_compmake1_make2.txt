@@ -1,2 +1,8 @@
+<<<<<<< HEAD
 [?1034h                                                                                Disabling PyContracts; use --contracts to activate.                             
                                                                                 Directory not found: using_compmake1                                            
+=======
+                                                                                                                                                         Loading existing jobs DB 'out-using_compmake1'.                                                                                                          
+                                                                                                                                                         Reading configuration from '/Users/andrea/.compmake/compmake.rc'.                                                                                        
+                                                                                                                                                         Nothing to do.                                                                                                                                           
+>>>>>>> origin/env_fault

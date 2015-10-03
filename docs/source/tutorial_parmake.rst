@@ -11,11 +11,11 @@ Single-host multiprocessing
 
 To use single-host multiprocessing, instead of using ``make``, simply use ``parmake``: ::
 
-    @> parmake  [jobs]
+    @: parmake  [jobs]
 
 Optionally, you can specify the number of processes to spawn: ::
 
-    @> parmake n=11  [jobs]
+    @: parmake n=11  [jobs]
 
 If you don't specify a number, |compmake| will use the number of detected processors. 
 If your jobs are IO-bound_ rather than CPU-bound_, you should specify a larger number. 
@@ -48,7 +48,6 @@ Some libraries don't like to run in child processes. For example, ``matplotlib``
 The solution is to divide your tasks in  processing tasks and visualization tasks. Use ``parmake`` to run the former group, and then run ``make`` for the latter.
 
 
-
 Don't use shared state
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -58,7 +57,6 @@ Remember that jobs run on different processes_ -- not threads_. This means that 
 .. _processes: http://en.wikipedia.org/wiki/Process_%28computing%29
 
 .. _threads: http://en.wikipedia.org/wiki/Thread_%28computer_science%29
-
 
 
 * Go on to the next chapter :ref:`tutorial_embedding`.

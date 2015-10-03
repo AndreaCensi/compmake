@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v3.3 2014-10-04
+---------------
+
+Readying public release with an OO interface...
+
 Beta version (1.5) - 2012-03-04
 -------------------------------
 

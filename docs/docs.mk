@@ -34,6 +34,8 @@ generate: generate-custom
 	 
 compile: $(webdir) generate 
 	PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)
+	touch $(webdir)/.nojekyll
+	echo "compmake.org" > $(webdir)/CNAME
 	
 recompile: $(webdir) 
 		PYTHONPATH=`pwd`:$(PYTHONPATH) sphinx-build -E -n -a -b html $(source) $(webdir)

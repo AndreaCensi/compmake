@@ -2,7 +2,7 @@ from nose.tools import istest
 
 from compmake.unittests.compmake_test import CompmakeTest
 
-from ..structures import UserError
+from ..exceptions import UserError
 
 
 def uses_nested(context):

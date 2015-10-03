@@ -4,13 +4,14 @@ __all__ = [
     'create_config_html',
 ]
 
+
 def create_config_html(file):  # @ReservedAssignment
     config_switches = CompmakeGlobalState.config_switches
     config_sections = CompmakeGlobalState.config_sections
 
     # TODO: HTML escaping?
     ordered_sections = sorted(config_sections.values(),
-                              key=lambda section: section.order)
+                              key=lambda _section: _section.order)
 
     file.write("<table class='compmake-config'>\n")
 
@@ -27,7 +28,7 @@ def create_config_html(file):  # @ReservedAssignment
 
             file.write("<tr> <td class='config-name'><tt>%s</tt></td> \
 <td class='config-value'><tt>%s<tt></td> \
-<td class='config-desc'>%s</td> </tr> \n" % 
+<td class='config-desc'>%s</td> </tr> \n" %
                        (name, switch.default_value, desc))
 
     file.write("</table>\n")

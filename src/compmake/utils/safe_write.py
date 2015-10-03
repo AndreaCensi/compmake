@@ -7,8 +7,10 @@ __all__ = [
     'safe_read',
 ]
 
+
 def is_gzip_filename(filename):
-    return '.gz' in filename 
+    return '.gz' in filename
+
 
 @contextmanager
 def safe_write(filename, mode='wb', compresslevel=5):
@@ -28,28 +30,29 @@ def safe_write(filename, mode='wb', compresslevel=5):
             except:
                 pass
 
-# Dont do this!
-#     if os.path.exists(filename):
-#         os.unlink(filename)
-#     assert not os.path.exists(filename)
-#             
+                # Dont do this!
+                # if os.path.exists(filename):
+                # os.unlink(filename)
+                #     assert not os.path.exists(filename)
+                #
     tmp_filename = '%s.tmp.%s' % (filename, os.getpid())
     try:
         if is_gzip_filename(filename):
-            fopen = lambda f, mode: gzip.open(filename=f, mode=mode,
-                                              compresslevel=compresslevel)
+            fopen = lambda fname, fmode: gzip.open(filename=fname, mode=fmode,
+                                                   compresslevel=compresslevel)
         else:
             fopen = open
-                     
+
         with fopen(tmp_filename, mode) as f:
             yield f
         f.close()
-    
-#         if os.path.exists(filename):
-#             msg = 'Race condition for writing to %r.' % filename
-#             raise Exception(msg)
-#         
-        # On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. 
+
+        # if os.path.exists(filename):
+        # msg = 'Race condition for writing to %r.' % filename
+        #             raise Exception(msg)
+        #
+        # On Unix, if dst exists and is a file, it will be replaced silently
+        #  if the user has permission.
         os.rename(tmp_filename, filename)
     except:
         if os.path.exists(tmp_filename):
@@ -72,7 +75,7 @@ def safe_read(filename, mode='rb'):
                 yield f
             finally:
                 f.close()
-            
+
         else:
             with open(filename, mode) as f:
                 yield f

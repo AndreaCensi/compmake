@@ -1,6 +1,5 @@
 from compmake import logger
 
-from .describe import *
 from .safe_write import *
 from .wildcards import *
 from .coloredterm import *
@@ -28,6 +27,9 @@ from .filesystem_utils import *
 
 from .colored import *
 from .pickling_utils import *
+from .docstring import *
+from .friendly_path_imp import *
+
 # def find_print_statements():
 #     import sys
 #     

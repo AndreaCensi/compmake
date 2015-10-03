@@ -2,7 +2,6 @@ from compmake import Context, StorageFilesystem
 from compmake.jobs.storage import all_jobs
 from compmake.state import set_compmake_config
 from compmake.ui.visualization import info
-from compmake.unittests.expected_fail import expected_failure
 from nose.tools import istest
 from tempfile import mkdtemp
 import unittest
@@ -62,15 +61,14 @@ def f2(context):
 @istest
 class TestCleaning2(Utils):
     
-    @expected_failure
     def test_cleaning2(self):
         root = mkdtemp()
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['f', 'g','h'])
+        self.assertEqual(jobs1, ['f', 'f-g', 'f-h'])
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['f', 'g'])
+        self.assertEqual(jobs2, ['f', 'f-g'])
     
     def run_first(self, root):
         info('run_first()')
@@ -102,17 +100,16 @@ def e2(context):
 class TestCleaning3(Utils):
     """ Now with multi level """
     
-    @expected_failure
+#     @expected_failure
     def test_cleaning3(self):
-        
         set_compmake_config('check_params', True)
         root = mkdtemp()
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['e', 'f', 'g', 'h'])
+        self.assertEqual(jobs1, ['e', 'f', 'f-g', 'f-h'])
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['e', 'f', 'g'])
+        self.assertEqual(jobs2, ['e', 'f', 'f-g'])
     
     def run_first(self, root):
         print('run_first()')
@@ -120,7 +117,7 @@ class TestCleaning3(Utils):
         cc = Context(db=db)
         # 
         cc.comp_dynamic(e1, job_id='e')
-        cc.batch_command('make recurse=1; details e f')
+        cc.batch_command('make recurse=1; ls')
         
     def run_second(self, root):
         print('run_second()')

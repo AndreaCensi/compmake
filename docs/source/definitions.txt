@@ -1,6 +1,6 @@
 .. |compmake| raw:: html
       
-      <span class="compmake-brand">compmake</span>
+      <span class="compmake-brand">Compmake</span>
 
 
 .. |towrite| raw:: html
