@@ -29,7 +29,7 @@ def substitute_dependencies(a, db):
     from compmake import Promise
 
     # XXX: this is a workaround
-    if type(a).__name__ in ['ObjectSpec']:
+    if leave_it_alone(a):
         return deepcopy(a)
     
     if isinstance(a, dict):
@@ -48,7 +48,14 @@ def substitute_dependencies(a, db):
         return type(a)([substitute_dependencies(x, db=db) for x in a])
     elif isinstance(a, tuple):
         # XXX: This fails for subclasses of tuples
-        return type(a)([substitute_dependencies(x, db=db) for x in a])
+        assert not isnamedtupleinstance(a), a
+        ta = type(a)
+        contents = ([substitute_dependencies(x, db=db) for x in a])
+        try:
+            return ta(contents)
+        except TypeError as e:
+            msg = 'Cannot reconstruct complex tuple.'
+            raise_wrapped(ValueError, e, msg, ta=ta, contents=contents)
     elif isinstance(a, Promise):
         s = get_job_userobject(a.job_id, db=db)
         return substitute_dependencies(s, db=db)
@@ -65,6 +72,9 @@ def collect_dependencies(ob):
     if isinstance(ob, Promise):
         return set([ob.job_id])
     else:
+        if leave_it_alone(ob):
+            return set()
+
         depends = set()
         if isinstance(ob, (list, tuple)):
             for child in ob:
@@ -73,3 +83,26 @@ def collect_dependencies(ob):
             for child in ob.values():
                 depends.update(collect_dependencies(child))
         return depends
+
+def leave_it_alone(x):
+    """ Returns True for those objects that have trouble with factory methods
+        like namedtuples. """
+    if isnamedtupleinstance(x):
+        return True
+
+
+    # XXX: this is a workaround
+    if type(x).__name__ in ['ObjectSpec']:
+        return True
+
+    return False
+
+
+def isnamedtupleinstance(x):
+    t = type(x)
+    b = t.__bases__
+    if len(b) != 1 or b[0] != tuple: return False
+    f = getattr(t, '_fields', None)
+    if not isinstance(f, tuple): return False
+    return all(type(n) == str for n in f)
+
