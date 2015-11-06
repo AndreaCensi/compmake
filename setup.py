@@ -1,7 +1,22 @@
 import os
 from setuptools import setup, find_packages
 
-version = "3.5.1"
+
+def get_version(filename):
+    import ast
+    version = None
+    with file(filename) as f:
+        for line in f:
+            if line.startswith('__version__'):
+                version = ast.parse(line).body[0].value.s
+                break
+        else:
+            raise ValueError('No version found in %r.' % filename)
+    if version is None:
+        raise ValueError(filename)
+    return version
+
+version = get_version(filename='src/compmake/__init__.py')
 
 setup(
     name='compmake',
