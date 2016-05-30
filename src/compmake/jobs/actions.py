@@ -229,9 +229,16 @@ def make(job_id, context, echo=False):
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
-        mark_as_failed(job_id, str(e), backtrace=bt, db=db)
+        s = e.__str__()
+        try:
+            s = s.decode('utf-8','replace').encode('utf-8', 'replace')
+        except UnicodeDecodeError as ue:
+            print ue
+            s = 'could not represent string'
+
+        mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()    
-        raise JobFailed(job_id=job_id, reason=str(e), bt=bt,
+        raise JobFailed(job_id=job_id, reason=s, bt=bt,
                         deleted_jobs=deleted_jobs)
     finally:
         capture.deactivate()
