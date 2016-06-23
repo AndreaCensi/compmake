@@ -89,7 +89,7 @@ class CompmakeTest(unittest.TestCase):
         ret = compmake_main([self.root, '--nosysexit', '-c', cmd_string])
         self.assertEqual(ret, 0)
 
-    # useful tests
+    # useful mcdp_lang_tests
     def assert_defined_by(self, job_id, expected):
         self.assertEqual(self.get_job(job_id).defined_by, expected)
 

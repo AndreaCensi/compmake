@@ -57,7 +57,7 @@ class TestDynamic1(CompmakeTest):
                                       'actual0', 'actual1', 'actual2', 
                                       'generate-finish'])
 
-        # Now let's suppose we re-run values and it generates different number of tests
+        # Now let's suppose we re-run values and it generates different number of mcdp_lang_tests
 
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
