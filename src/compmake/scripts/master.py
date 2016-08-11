@@ -203,7 +203,7 @@ def compmake_main(args):
         import pstats
 
         p = pstats.Stats('out/compmake.profile')
-        n = 30
+        n = 50
         p.sort_stats('cumulative').print_stats(n)
         p.sort_stats('time').print_stats(n)
 

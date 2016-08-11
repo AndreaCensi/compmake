@@ -17,6 +17,7 @@ class Storage():
 
 
 def plot_with_prefix(job_id, lines, is_stderr):
+
     for line in lines:
 
         formats = '%%%ds' % Storage.max_len
@@ -37,20 +38,26 @@ def plot_with_prefix(job_id, lines, is_stderr):
             sep = compmake_colored('|', 'cyan')
 
         # Now let's take lines that do not fit the length
-        if True:
-            max_space = (get_screen_columns() - 1
-                         - len('%s%s%s' % (prefix, sep, '')))
+        if True:  # second
 
-            sublines = clip_to_length(line, max_space)  # FIXME
+            split_lines = False
+            if split_lines:
+                max_space = (get_screen_columns() - 1
+                             - len('%s%s%s' % (prefix, sep, '')))
 
-            for a, subline in enumerate(sublines):
-                if a == 0:
-                    screen_line = '%s%s%s' % (prefix, sep, subline)
-                else:
-                    screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
+                sublines = clip_to_length(line, max_space)  # FIXME
 
-                screen_line = pad_to_screen(screen_line)
-                stream.write(screen_line)
+                for a, subline in enumerate(sublines):
+                    if a == 0:
+                        screen_line = '%s%s%s' % (prefix, sep, subline)
+                    else:
+                        screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
+
+                    screen_line = pad_to_screen(screen_line)
+                    stream.write(screen_line)
+                    stream.write('\n')
+            else:
+                stream.write(line)
                 stream.write('\n')
         else:
             screen_line = '%s%s%s' % (prefix, sep, line)
@@ -85,10 +92,13 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         # else:
         prefix = ""
         postfix = ""
-        sublines = pad_line_to_screen_length(prefix, line, postfix, max_size)
+        if False:  # need to check unicode anyway
+            sublines = pad_line_to_screen_length(prefix, line, postfix, max_size)
 
-        for s in sublines:
-            write_screen_line(s)
+            for s in sublines:
+                write_screen_line(s)
+        else:
+            write_screen_line(line)
 
 
 # @contract(prefix='str', line='str', postfix='str', returns='list[>=1]x(str)')

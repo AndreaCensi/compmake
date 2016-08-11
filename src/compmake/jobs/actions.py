@@ -12,7 +12,8 @@ from .storage import (delete_job_cache, get_job,
                       get_job_cache,
                       set_job_cache, set_job_userobject)
 from compmake import get_compmake_config
-from compmake.jobs.storage import job_cache_exists, set_job, delete_job
+from compmake.jobs.storage import job_cache_exists, set_job, delete_job, \
+    job_exists
 from compmake.jobs.queries import direct_parents
 
 
@@ -62,6 +63,9 @@ def clean_targets(job_list, db):
     
 def clean_cache_relations(job_id, db):
     #print('cleaning cache relations for %r ' % job_id)
+    if not job_exists(job_id, db):
+        print('Cleaning cache for job %r which does not exist anymore; ignoring' % job_id)
+        return
 
     # for all jobs that were done
     cache = get_job_cache(job_id, db)

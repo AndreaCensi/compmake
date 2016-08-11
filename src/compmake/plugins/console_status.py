@@ -168,6 +168,9 @@ def handle_event_period(context, event):
 
 
 def handle_event(context, event):  # @UnusedVariable
+    if not get_compmake_config('status_line_enabled'):
+        return
+
     text_right = ' '
 
     status = system_status()

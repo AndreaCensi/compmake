@@ -57,6 +57,10 @@ def definition_closure(jobs, db):
     while stack:
         #print('stack: %s' % stack)
         a = stack.pop()
+        if not cq.job_exists(a):
+            print('Warning: job %r does not exist anymore; ignoring.' % a)
+            continue
+
         if cq.get_job_cache(a).state == Cache.DONE:
             a_d = cq.jobs_defined(a)
             #print('%s ->%s' % (a, a_d))
