@@ -147,8 +147,11 @@ def get_job_userobject(job_id, db):
     #         msg += '\n jobs: %s' % list(all_jobs(db))
     #         msg += '\n path: %s' % db.basepath
     #         raise CompmakeBug(msg)
+    # print('loading %r ' % job_id)
     key = job2userobjectkey(job_id)
-    return db[key]
+    res = db[key]
+    # print('... done')
+    return res
 
 
 def job_userobject_sizeof(job_id, db):

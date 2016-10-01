@@ -47,8 +47,14 @@ def substitute_dependencies(a, db):
         # XXX: This fails for subclasses of list
         return type(a)([substitute_dependencies(x, db=db) for x in a])
     elif isinstance(a, tuple):
+        # First, check that there are dependencies
+        deps_in_tuple = collect_dependencies(a)
+        if not deps_in_tuple:
+            # if not, just return the tuple
+            return a
         # XXX: This fails for subclasses of tuples
         assert not isnamedtupleinstance(a), a
+
         ta = type(a)
         contents = ([substitute_dependencies(x, db=db) for x in a])
         try:
@@ -60,7 +66,16 @@ def substitute_dependencies(a, db):
         s = get_job_userobject(a.job_id, db=db)
         return substitute_dependencies(s, db=db)
     else:
-        return deepcopy(a)
+        return a
+        # return deepcopy(a)
+        # Aug 16: not sure why we needed deepcopy
+
+#         # print(' %s' % type(a).__name__)
+#         if type(a).__name__ == 'ReportManager':
+#             return a
+#         else:
+#             print('deepcopying %s' % type(a).__name__)
+#             return deepcopy(a)
 
 
 @contract(returns='set(str)')
