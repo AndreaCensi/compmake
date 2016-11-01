@@ -227,18 +227,18 @@ def make(job_id, context, echo=False):
     except KeyboardInterrupt as e:
         bt = my_format_exc(e)
         deleted_jobs = get_deleted_jobs()
-        mark_as_failed(job_id, str(e), backtrace=bt, db=db)
+        mark_as_failed(job_id, 'KeyboardInterrupt: '+str(e), backtrace=bt, db=db)
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
     
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
-        s = e.__str__()
+        s = type(e).__name__ + ': ' + e.__str__()
         try:
             s = s.decode('utf-8','replace').encode('utf-8', 'replace')
         except UnicodeDecodeError as ue:
-            print ue
-            s = 'could not represent string'
+            print(ue)
+            s = 'Could not represent string.'
 
         mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()    
