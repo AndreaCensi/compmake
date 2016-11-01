@@ -233,7 +233,7 @@ def make(job_id, context, echo=False):
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
-        s = type(e).__name__ + ': ' + e.__str__()
+        s = type(e).__name__ + ': ' + e.__str__().strip()
         try:
             s = s.decode('utf-8','replace').encode('utf-8', 'replace')
         except UnicodeDecodeError as ue:
