@@ -1,6 +1,7 @@
 from compmake.ui.helpers import ui_command, VISUALIZATION
 from compmake.jobs.storage import job_cache_exists, get_job_cache
 from compmake.structures import Cache
+from compmake.utils.colored import compmake_colored
 
 
 @ui_command(section=VISUALIZATION)
@@ -16,7 +17,7 @@ def why(non_empty_job_list, context, cq):
     s = format_table(lines)
     print(s)
 
-def format_table(lines):
+def format_table(lines, sep = " | "):
     """ lines is a list of tuples """
     if not lines:
         return ""
@@ -27,12 +28,14 @@ def format_table(lines):
     
     s = ""
     for line in lines:
-#         print('line: %s' % line.__repr__())
         for i in range(ncols):
             spec = '%%-%ds' % maxc[i]
-            s += spec % line[i]
+            cell = spec % line[i]
+            if 'NotImplementedError' in cell:
+                cell = compmake_colored(cell, attrs=['dark'])
+            s +=  cell
             if i < ncols- 1:
-                s += " | "
+                s += sep
         s += '\n'
     return s
             

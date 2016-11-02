@@ -12,9 +12,8 @@ from .storage import (delete_job_cache, get_job,
                       get_job_cache,
                       set_job_cache, set_job_userobject)
 from compmake import get_compmake_config
-from compmake.jobs.storage import job_cache_exists, set_job, delete_job, \
-    job_exists
-from compmake.jobs.queries import direct_parents
+from .storage import job_cache_exists, set_job, job_exists
+from .queries import direct_parents
 
 
 def clean_targets(job_list, db):
@@ -237,7 +236,7 @@ def make(job_id, context, echo=False):
         try:
             s = s.decode('utf-8','replace').encode('utf-8', 'replace')
         except UnicodeDecodeError as ue:
-            print(ue)
+            print(ue) # XXX
             s = 'Could not represent string.'
 
         mark_as_failed(job_id, s, backtrace=bt, db=db)
@@ -283,9 +282,4 @@ def make(job_id, context, echo=False):
                 user_object_deps=collect_dependencies(user_object),
                 new_jobs=new_jobs,
                 deleted_jobs=deleted_jobs)
-
-
-
-
-
 
