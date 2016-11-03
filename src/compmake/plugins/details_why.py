@@ -32,7 +32,7 @@ def format_table(lines, sep = " | "):
             spec = '%%-%ds' % maxc[i]
             cell = spec % line[i]
             if 'NotImplementedError' in cell:
-                cell = compmake_colored(cell, attrs=['blue'])
+                cell = compmake_colored(cell, color='blue', attrs=[])
             s +=  cell
             if i < ncols- 1:
                 s += sep
