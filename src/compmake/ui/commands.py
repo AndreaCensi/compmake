@@ -40,7 +40,7 @@ def raise_error_if_manager_failed(manager):
     if manager.failed:
         raise MakeFailed(failed=manager.failed,
                          blocked=manager.blocked)
-
+    
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 def delete(job_list, context):

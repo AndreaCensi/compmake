@@ -24,6 +24,10 @@ def get_cmd_args_kwargs(job_id, db):
     kwargs2 = substitute_dependencies(kwargs, db=db)
     return command, args2, kwargs2
 
+class JobCompute:
+    # currently executing job id
+    current_job_id = None
+    
 @contract(job=Job)
 def job_compute(job, context):
     """ Returns a dictionary with fields "user_object" and "new_jobs" """
@@ -33,6 +37,7 @@ def job_compute(job, context):
     
     command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
 
+    JobCompute.current_job_id = job_id
     if job.needs_context:
         args = tuple(list([context]) + list(args))
         res = execute_with_context(db=db, context=context,

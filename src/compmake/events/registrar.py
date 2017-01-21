@@ -1,12 +1,11 @@
-import inspect
+from compmake import CompmakeGlobalState, logger
+from compmake.context import Context
+from contracts import contract, indent
 
 from ..exceptions import CompmakeException
 from ..utils import my_format_exc, wildcard_to_regexp
 from .registered_events import compmake_registered_events
 from .structures import Event
-from compmake import CompmakeGlobalState, logger
-from compmake.context import Context
-from contracts import contract, indent
 
 
 __all__ = [
@@ -14,7 +13,7 @@ __all__ = [
     'remove_all_handlers',
     'register_fallback_handler',
     'register_handler',
-    "publish",
+    'publish',
 ]
 
 
@@ -42,7 +41,7 @@ def register_handler(event_name, handler):
         Registers an handler with an event name.
         The event name might contain asterisks. "*" matches all.
     """
-
+    import inspect
     spec = inspect.getargspec(handler)
     args = set(spec.args)
     possible_args = set(['event', 'context', 'self'])
@@ -88,6 +87,7 @@ def publish(context, event_name, **kwargs):
 
 @contract(context=Context, event=Event)
 def broadcast_event(context, event):
+    import inspect
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
     handlers = all_handlers.get(event.name, [])
