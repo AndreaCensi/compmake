@@ -100,5 +100,5 @@ def parmake_job2(args):
         raise
     finally:
         publish(context, 'worker-status', job_id=job_id, status='cleanup')
-        setproctitle('compmake-worker-finished')
+        setproctitle('compmake-worker-finished %s' % job_id)
         
