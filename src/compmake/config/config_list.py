@@ -73,6 +73,10 @@ add_config_switch('console_status', True,
                   desc='Enables the console_status plugin.',
                   section=CONFIG_APPEARANCE)
 
+add_config_switch('console_status_delta', 0.33,
+                  desc='Refresh interval (seconds)',
+                  section=CONFIG_APPEARANCE)
+
 add_config_switch('readline', True,
                   desc='Try to use readline or pyreadline module.',
                   section=CONFIG_APPEARANCE)

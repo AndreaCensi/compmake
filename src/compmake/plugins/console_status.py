@@ -1,12 +1,14 @@
+import sys
+import time
+
+from compmake import CompmakeGlobalState
+from contracts import indent
+
 from ..events import register_handler
 from ..state import get_compmake_config
 from ..ui import compmake_colored, error
 from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
-from compmake import CompmakeGlobalState
-from contracts import indent
-import sys
-import time
 
 
 stream = sys.stderr
@@ -152,7 +154,7 @@ class Tmp():
 
 
 def its_time():
-    delta = 0.33
+    delta = float(get_compmake_config('console_status_delta'))
     t = time.time()
     dt = t - Tmp.last_manager_loop
     if dt > delta:
