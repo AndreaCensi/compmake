@@ -37,7 +37,10 @@ def plot_with_prefix(job_id, lines, is_stderr):
             sep = compmake_colored('|', 'cyan')
 
         # Now let's take lines that do not fit the length
-        if True:
+        split_lines = False
+        if split_lines:
+            # This has problems with escape characters
+            # (in addition to get_screen_columns() not functioning sometime.)
             max_space = (get_screen_columns() - 1
                          - len('%s%s%s' % (prefix, sep, '')))
 
