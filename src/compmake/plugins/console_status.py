@@ -52,6 +52,8 @@ def job_counts():
     if tracker.processing:
         s += compmake_colored(" %d proc" % len(tracker.processing),
                               **proc_style)
+        if len(tracker.processing) <= 2:
+            s += ' ' + " ".join(sorted(tracker.processing))
 
     if tracker.failed:
         s += compmake_colored(" %d failed" % len(tracker.failed),
