@@ -187,7 +187,11 @@ def make(job_id, context, echo=False):
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
-        msg2 = colorize_loglevel(log_record.levelno, str(log_record.msg))
+        try:
+            s = str(log_record.msg)
+        except UnicodeEncodeError:
+            s = unicode(log_record.msg)
+        msg2 = colorize_loglevel(log_record.levelno, s)
         # levelname = log_record.levelname
         name = log_record.name
         # print('%s:%s:%s' % (name, levelname, msg))
