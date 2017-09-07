@@ -13,7 +13,7 @@ jobs:
 
         - run:
             command:  |
-                nosetests
+                nosetests compmake
             environment:
                 MPLBACKEND: agg
 #
