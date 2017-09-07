@@ -39,6 +39,8 @@ def plot_with_prefix(job_id, lines, is_stderr):
 
         # Now let's take lines that do not fit the length
         if True:  # second
+            # This has problems with escape characters
+            # (in addition to get_screen_columns() not functioning sometime.)
 
             split_lines = False
             if split_lines:
