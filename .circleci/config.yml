@@ -1,0 +1,35 @@
+version: 2
+jobs:
+    build:
+     docker:
+        - image: andreacensi/duckietown-xenial-kinetic:18
+     steps:
+        - checkout
+
+        - run:
+            name: Install
+            command: |
+                python setup.py develop
+
+        - run:
+            command:  |
+                nosetests
+            environment:
+                MPLBACKEND: agg
+#
+# - run:
+#     when: always
+#     command: |
+#         mkdir -p out/comptests/junit
+#         comptests-to-junit  out/comptests/compmake >  out/comptests/junit/junit.xml
+# - test-results-store:
+#         path: out/comptests/junit
+#
+# - run:
+#     when: always
+#     command: |
+#         ./misc/generate-other-reports.sh
+#
+# - store_artifacts:
+#       path: out
+#       destination: out
