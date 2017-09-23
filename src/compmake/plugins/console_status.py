@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import time
 
@@ -9,6 +10,9 @@ from ..state import get_compmake_config
 from ..ui import compmake_colored, error
 from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 from .tracker import Tracker
+from collections import namedtuple
+import itertools 
+from datetime import datetime
 
 
 stream = sys.stderr
@@ -32,10 +36,54 @@ def system_status():
 
     return 'cpu %2.0f%% %s' % (cpu, s_mem)
 
+def get_spins():
+    
+    
+    toutf = lambda x: [_.encode('utf8') for _ in x]
+    from_sequence = lambda x: toutf(_ for _ in x)
+    
+    
+
+#     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
+
+    def get_spin_fish(n):
+        fish_right = u">))'>"
+        fish_left = u"<'((<"
+        s = []
+        for i in range(n):
+            s.append(' '*i + fish_right)
+        for i in range(n):
+            s.append(' '*(n-i) + fish_left)
+        m = max(len(_) for _ in s)
+        return [_.ljust(m).encode('utf8') for _ in s]    
+    options = []
+    options.append(get_spin_fish(12))
+    options.append(from_sequence( u"⣾⣽⣻⢿⡿⣟⣯⣷"))
+    options.append(from_sequence(u"◐◓◑◒"))
+    options.append(from_sequence(u"◰◳◲◱"))
+    options.append(from_sequence(u"◴◷◶◵"))
+#     options.append(from_sequence(u"🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛"))
+    options.append(from_sequence(u"▙▛▜▟"))
+#     options.append(['-', '/', '|', '\\'])
+
+    today = datetime.today()
+    # change every 3 days
+    i = today.day / 3 
+#     i = random.randint(0,100)
+    
+    return options[i % len(options)]
+    
+spins = get_spins()
+
+
 
 def spinner():
-    spins = ['-', '/', '|', '\\']
-    return spins[tracker.nloops % len(spins)]
+    spin_interval = get_compmake_config('console_status_delta') * 0.8
+    t = time.time()
+    i = t/spin_interval
+    i = int(i) % len(spins)
+#     return spins[tracker.nloops % len(spins)]
+    return spins[i]
 
 
 def job_counts():
@@ -52,8 +100,9 @@ def job_counts():
     if tracker.processing:
         s += compmake_colored(" %d proc" % len(tracker.processing),
                               **proc_style)
-        if len(tracker.processing) <= 2:
-            s += ' ' + " ".join(sorted(tracker.processing))
+        # Too long
+        #if len(tracker.processing) <= 2:
+        #    s += ' ' + " ".join(sorted(tracker.processing))
 
     if tracker.failed:
         s += compmake_colored(" %d failed" % len(tracker.failed),
@@ -79,6 +128,7 @@ def wait_reasons():
     #                         for (k, v) in  tracker.wait_reasons.items()])
     # + ')'
     if tracker.wait_reasons:
+#         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
     else:
         s = ""
@@ -171,47 +221,58 @@ def handle_event_period(context, event):
         handle_event(context, event)
 
 
+ShowOption = namedtuple('Option', 'length left right weight')
+
 def handle_event(context, event):  # @UnusedVariable
     if not get_compmake_config('status_line_enabled'):
         return
 
-    text_right = ' '
-
     status = system_status()
 
-    if status:  # available
-        if False:
-            if True:  # TODO: add configuration 
-                options = [wait_reasons() + " " + status, job_counts()]
-            else:
-                options = [status, job_counts()]
-            text_right += display_rotating(options, [3, 5], align_right=True)
-        else:
-            text_right += wait_reasons() + ' ' + status + ' ' + job_counts()
-    else:
-        text_right += job_counts()
+    options_right = []
+    
+    if status:   
+        options_right.append( status + ' ' + job_counts())
+        options_right.append( wait_reasons() + ' ' + status + ' ' + job_counts())
+    
+    options_right.append( job_counts())
 
+    sp = spinner()
+    options_left = []
+    options_left.append(sp)
+    
+    for level in [4, 3, 2, 1, 0, -1, -2, -3]:
+        options_left.append(' compmake ' + sp + '  ' + get_string(level))
+        options_left.append(sp + '  ' + get_string(level))
+                        
+    
+    
     cols, _ = getTerminalSize()
-
-    remaining = cols - get_length_on_screen(text_right)
-
-    options_left = [spinner() + '  ' + get_string(level)
-                    for level in [4, 3, 2, 1, 0, -1, -2, -3]]
-
-    for x in options_left:
-        if get_length_on_screen(x) <= remaining:
-            text_left = x
-            break
-    else:
-        text_left = ''
+    
+    
+    # Make all options together
+    options = []
+    for l, r in itertools.product(options_left, options_right):
+        length = get_length_on_screen(l) + get_length_on_screen(r)
+        weight = length
+        options.append(ShowOption(length=length, weight=weight, right=r, left=l))
+         
+    # sort by length decreasing
+    options.sort(key=lambda _: _.length)
+    choice = None
+    for _ in options:
+        if _.length < cols:
+            choice = _
+    
+    if choice is None:
+        # cannot find anything? 
+        choice = options[0]  
 
     nspaces = (cols
-               - get_length_on_screen(text_right)
-               - get_length_on_screen(text_left))
-    line = text_left + ' ' * nspaces + text_right
-
-    # line = pad_to_screen_length(choice, remaining, align_right=True) + s
-
+               - get_length_on_screen(choice.right)
+               - get_length_on_screen(choice.left))
+    line = choice.left + ' ' * nspaces + choice.right
+    
     if get_compmake_config('console_status'):
         stream.write(line)
     

@@ -45,7 +45,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
             split_lines = False
             if split_lines:
                 max_space = (get_screen_columns() - 1
-                             - len('%s%s%s' % (prefix, sep, '')))
+                             - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
 
                 sublines = clip_to_length(line, max_space)  # FIXME
 
@@ -94,17 +94,43 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         # else:
         prefix = ""
         postfix = ""
-        if False:  # need to check unicode anyway
-            sublines = pad_line_to_screen_length(prefix, line, postfix, max_size)
+        
+        # This is the controversial one
+        if True:  # need to check unicode anyway
+            sublines = break_lines(prefix, line, postfix, max_size)
 
+            for s in sublines:
+                write_screen_line(s)
+            
+        elif False:
+            sublines = break_lines_and_pad(prefix, line, postfix, max_size)
             for s in sublines:
                 write_screen_line(s)
         else:
             write_screen_line(line)
 
+def break_lines(prefix, line, postfix, max_size):
+    # Now let's take lines that do not fit the length
+    prefix_len = get_length_on_screen(prefix)
+    postfix_len = get_length_on_screen(postfix)
+
+    max_space = (max_size - postfix_len - prefix_len)
+
+    # XXX: might have problems with colors
+    sublines = clip_to_length(line, max_space)
+
+    lines = []
+    for _, subline in enumerate(sublines):
+        # pad = '+' if debug_padding else ' '
+#         pad = ' '
+#         subline = pad_to_screen_length(subline, max_space, pad=pad)
+        line = '%s%s%s' % (prefix, subline, postfix)
+        lines.append(line)
+    return lines
+
 
 # @contract(prefix='str', line='str', postfix='str', returns='list[>=1]x(str)')
-def pad_line_to_screen_length(prefix, line, postfix, max_size):
+def break_lines_and_pad(prefix, line, postfix, max_size):
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)
     postfix_len = get_length_on_screen(postfix)
