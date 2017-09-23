@@ -243,7 +243,7 @@ def handle_event(context, event):  # @UnusedVariable
     
     for level in [4, 3, 2, 1, 0, -1, -2, -3]:
         options_left.append(' compmake ' + sp + '  ' + get_string(level))
-        options_left.append(sp + '  ' + get_string(level))
+#         options_left.append(sp + '  ' + get_string(level))
                         
     
     
