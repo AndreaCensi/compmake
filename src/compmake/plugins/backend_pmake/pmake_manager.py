@@ -92,7 +92,7 @@ class PmakeManager(Manager):
         assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            msg = 'already %d nproc' % len(self.sub_processing)
+            msg = 'already %d processing' % len(self.sub_processing)
             if self.sub_aborted:
                 msg += ' (%d workers aborted)' % len(self.sub_aborted)
             resource_available['nproc'] = (False, msg)
