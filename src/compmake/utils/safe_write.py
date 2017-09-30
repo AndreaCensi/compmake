@@ -1,6 +1,9 @@
 from contextlib import contextmanager
 import gzip
 import os
+from compmake.utils.filesystem_utils import make_sure_dir_exists
+from compmake.utils.friendly_path_imp import friendly_path
+from compmake import logger
 
 __all__ = [
     'safe_write',
@@ -82,3 +85,35 @@ def safe_read(filename, mode='rb'):
     except:
         # TODO
         raise
+
+
+def write_data_to_file(data, filename, quiet=False):
+    """ 
+        Writes the data to the given filename. 
+        If the data did not change, the file is not touched.
+    
+    """
+    if not isinstance(data, str):
+        msg = 'Expected "data" to be a string, not %s.' % type(data).__name__
+        raise ValueError(msg)
+    if len(filename) > 256:
+        msg = 'Invalid argument filename: too long. Did you confuse it with data?'
+        raise ValueError(msg)
+    
+    
+    make_sure_dir_exists(filename)
+    
+    if os.path.exists(filename):
+        current = open(filename).read()
+        if current == data:
+            if not 'assets' in filename:
+                if not quiet:
+                    logger.debug('already up to date %s' % friendly_path(filename))
+            return
+         
+    with open(filename, 'w') as f:
+        f.write(data)
+        
+    if not quiet:
+        logger.debug('Written to: %s' % friendly_path(filename))
+    

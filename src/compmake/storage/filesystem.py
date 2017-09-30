@@ -1,12 +1,14 @@
 from glob import glob
-from os.path import basename
 import os
+from os.path import basename
+import stat
 import traceback
 
 from compmake import logger
 from compmake.exceptions import CompmakeBug, SerializationError
 from compmake.utils import (find_pickling_error, safe_pickle_dump,
                             safe_pickle_load)
+from compmake.utils.safe_write import write_data_to_file
 
 
 if True:
@@ -31,6 +33,9 @@ class StorageFilesystem(object):
             self.file_extension = '.pickle.gz'
         else:
             self.file_extension = '.pickle'
+            
+        # create a bunch of files that contain shortcuts
+        create_scripts(self.basepath)
 
     def __repr__(self):
         return "FilesystemDB(%r)" % self.basepath
@@ -156,4 +161,35 @@ class StorageFilesystem(object):
 
 
 
+def chmod_plus_x(filename):
+    st = os.stat(filename)
+    os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
+def create_scripts(basepath):
+    filename2cmd = \
+        {'ls_failed': 'ls failed',
+         'why_failed': 'why failed',
+         'remake': 'remake',
+         'make': 'make',
+         'parmake': 'parmake',
+         'ls': 'ls',
+         'stats': 'stats',
+         'details': 'details',
+         }
+    for fn, cmd in filename2cmd.items():
+        s = "#!/bin/bash\ncompmake %s -c \"%s $*\"\n" % (basepath, cmd)
+        f = os.path.join(basepath, fn)
+        write_data_to_file(s,f, quiet=True)
+        chmod_plus_x(f)
+    
+    s = "#!/bin/bash\ncompmake %s \n" % (basepath)
+    f = os.path.join(basepath, 'console')
+    write_data_to_file(s,f, quiet=True)
+    chmod_plus_x(f)
+    
+    s = "#!/bin/bash\ncompmake %s -c \"$*\" \n" % (basepath)
+    f = os.path.join(basepath, 'run')
+    write_data_to_file( s, f, quiet=True)
+    chmod_plus_x(f)
+    
+    
