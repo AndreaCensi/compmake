@@ -13,6 +13,7 @@ from .tracker import Tracker
 from collections import namedtuple
 import itertools 
 from datetime import datetime
+import math
 
 
 stream = sys.stderr
@@ -70,7 +71,7 @@ def get_spins():
     # change every 3 days
     i = today.day / 3 
 #     i = random.randint(0,100)
-    
+    i = int(math.ceil(i))    
     return options[i % len(options)]
     
 spins = get_spins()
