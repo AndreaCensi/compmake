@@ -5,6 +5,14 @@ from compmake.ui import warning
 from contracts import contract
 from compmake.jobs.result_dict import result_dict_check
 
+try:
+    from pympler import tracker
+    tr = tracker.SummaryTracker()
+except:
+    tr = None
+    pass
+
+
 __all__ = [
     'ManagerLocal',
     'FakeAsync',
@@ -71,5 +79,8 @@ class FakeAsync(AsyncResultInterface):
             args = (self.job_id, self.context)
             return parmake_job2_new_process(args)
         else:
+            if tr is not None:
+                tr.print_diff()     
+
             return make(self.job_id, context=self.context, echo=self.echo)
         
