@@ -24,7 +24,7 @@ def get_screen_columns():
 
 def getTerminalSize():
     """
-    max_x, max_y = getTerminalSize()
+        columns, lines = getTerminalSize()
     """
     import os
 
@@ -36,14 +36,18 @@ def getTerminalSize():
             # noinspection PyTypeChecker
             os.close(fd)
         except:
-            pass
-    if not cr:
-        try:
-            env = os.environ
-            cr = (env['LINES'], env['COLUMNS'])
-        except:
             cr = (25, 80)
-    return int(cr[1]), int(cr[0])
+                    
+    columns = int(cr[1])
+    lines = int(cr[0])
+    
+    env = os.environ
+    if 'COLUMNS' in env:
+        columns = int(env['COLUMNS'])
+    if 'LINES' in env:
+        lines = int(env['LINES'])
+            
+    return columns, lines
 
 
 def ioctl_GWINSZ(fd):
