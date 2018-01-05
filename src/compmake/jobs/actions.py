@@ -188,13 +188,13 @@ def make(job_id, context, echo=False):
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
-        if True:
+        try:
             s = str(log_record.msg)
-        else:    
-            try:
-                s = str(log_record.msg)
-            except UnicodeEncodeError:
-                s = unicode(log_record.msg)
+        except UnicodeEncodeError:
+            s = unicode(log_record.msg)
+        except:
+            s = 'Could not print log_record %s' % id(log_record)
+            
         msg2 = colorize_loglevel(log_record.levelno, s)
         
         
@@ -204,6 +204,8 @@ def make(job_id, context, echo=False):
 
         # this will be captured by OutputCapture anyway 
         print('%s:%s' % (name, msg2))
+        
+            
 
     logging.StreamHandler.emit = my_emit
 
