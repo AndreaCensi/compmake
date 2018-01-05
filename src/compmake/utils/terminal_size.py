@@ -1,15 +1,23 @@
+from compmake.utils.memoize_imp import memoized_reset
+import sys
+
 __all__ = [
     'get_screen_columns',
     'getTerminalSize',
 ]
 
-
+@memoized_reset
 def get_screen_columns():
     max_x, _ = getTerminalSize() 
 
+    fallback = 80
     if max_x <= 10 or max_x > 1024:
         msg = 'Very weird max screen size: %d' % max_x
-        raise ValueError(msg)
+        msg += '\n I will use %s.' % fallback
+        sys.stderr.write(msg+'\n')
+        
+        return fallback
+#         raise ValueError(msg)
     
     return max_x
 
