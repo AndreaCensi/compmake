@@ -14,6 +14,7 @@ from .storage import (delete_job_cache, get_job,
 from compmake import get_compmake_config
 from .storage import job_cache_exists, set_job, job_exists
 from .queries import direct_parents
+import sys
 
 
 def clean_targets(job_list, db):
@@ -187,11 +188,16 @@ def make(job_id, context, echo=False):
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
-        try:
+        if True:
             s = str(log_record.msg)
-        except UnicodeEncodeError:
-            s = unicode(log_record.msg)
+        else:    
+            try:
+                s = str(log_record.msg)
+            except UnicodeEncodeError:
+                s = unicode(log_record.msg)
         msg2 = colorize_loglevel(log_record.levelno, s)
+        
+        
         # levelname = log_record.levelname
         name = log_record.name
         # print('%s:%s:%s' % (name, levelname, msg))
