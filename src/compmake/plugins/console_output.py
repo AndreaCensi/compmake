@@ -47,7 +47,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
                 max_space = (get_screen_columns() - 1
                              - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
 
-                sublines = clip_to_length(line, max_space)  # FIXME
+                sublines = clip_to_length(line, max_space)
 
                 for a, subline in enumerate(sublines):
                     if a == 0:
@@ -95,25 +95,24 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         prefix = ""
         postfix = ""
         
-        # This is the controversial one
-        # reproducing 3.5.6
-        write_screen_line(line)
-        if False:
-            if True:  # need to check unicode anyway
-                # 3.5.10 -- most recent
-                
-                sublines = break_lines(prefix, line, postfix, max_size)
-    
-                for s in sublines:
-                    write_screen_line(s)
-                
-            elif False:
-                sublines = break_lines_and_pad(prefix, line, postfix, max_size)
-                for s in sublines:
-                    write_screen_line(s)
-            else:
-                # 3.5.6
-                write_screen_line(line)
+        # reproducing 3.5.6: safe
+        # write_screen_line(line)
+        
+        if True:  # need to check unicode anyway
+            # 3.5.10 -- most recent
+            
+            sublines = break_lines(prefix, line, postfix, max_size)
+
+            for s in sublines:
+                write_screen_line(s)
+            
+        elif False:
+            sublines = break_lines_and_pad(prefix, line, postfix, max_size)
+            for s in sublines:
+                write_screen_line(s)
+        else:
+            # 3.5.6
+            write_screen_line(line)
 
 def break_lines(prefix, line, postfix, max_size):
     # Now let's take lines that do not fit the length
@@ -121,6 +120,11 @@ def break_lines(prefix, line, postfix, max_size):
     postfix_len = get_length_on_screen(postfix)
 
     max_space = (max_size - postfix_len - prefix_len)
+    
+    if max_space < 10:
+        msg = 'Weird max space: %s' % max_space
+        msg += ' max_size: %s prefix: %s postfix: %s' % (max_size, prefix_len, postfix_len)
+        raise ValueError(msg)
 
     # XXX: might have problems with colors
     sublines = clip_to_length(line, max_space)
@@ -170,6 +174,9 @@ def handle_event(event, is_stderr):
 
 # XXX: this might have problems with colored versions
 def clip_to_length(line, max_len):
+    if max_len <= 0:
+        msg = 'Max length should be positive.'
+        raise ValueError(msg)
     sublines = []
     while len(line):
         clip = min(len(line), max_len)

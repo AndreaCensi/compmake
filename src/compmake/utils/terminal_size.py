@@ -5,12 +5,12 @@ __all__ = [
 
 
 def get_screen_columns():
-    max_x, _ = getTerminalSize()  # @UnusedVariable
+    max_x, _ = getTerminalSize() 
 
-    if max_x < 0 or max_x > 1024:
+    if max_x <= 10 or max_x > 1024:
         msg = 'Very weird max screen size: %d' % max_x
         raise ValueError(msg)
-
+    
     return max_x
 
 
