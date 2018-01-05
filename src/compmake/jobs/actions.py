@@ -186,25 +186,27 @@ def make(job_id, context, echo=False):
 
     from compmake.ui.coloredlog import colorize_loglevel
 
+    nhidden = 0
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
         try:
-            s = str(log_record.msg)
-        except UnicodeEncodeError:
-            s = unicode(log_record.msg)
-        except:
-            s = 'Could not print log_record %s' % id(log_record)
+            try:
+                s = str(log_record.msg)
+            except UnicodeEncodeError:
+                s = unicode(log_record.msg)
+            except:
+                s = 'Could not print log_record %s' % id(log_record)
+                
+            msg2 = colorize_loglevel(log_record.levelno, s)
             
-        msg2 = colorize_loglevel(log_record.levelno, s)
-        
-        
-        # levelname = log_record.levelname
-        name = log_record.name
-        # print('%s:%s:%s' % (name, levelname, msg))
-
-        # this will be captured by OutputCapture anyway 
-        print('%s:%s' % (name, msg2))
-        
+            # levelname = log_record.levelname
+            name = log_record.name
+            # print('%s:%s:%s' % (name, levelname, msg))
+    
+            # this will be captured by OutputCapture anyway 
+            print('%s:%s' % (name, msg2))
+        except:
+            nhidden += 1
             
 
     logging.StreamHandler.emit = my_emit
@@ -263,6 +265,9 @@ def make(job_id, context, echo=False):
         cache.captured_stdout = capture.get_logged_stdout()
         set_job_cache(job_id, cache, db=db)
         logging.StreamHandler.emit = old_emit
+        if nhidden > 0:
+            msg = 'compmake: There were %d messages hidden due to bugs in logging.' % nhidden
+            print(msg)
 
     #print('Now %s has defined %s' % (job_id, new_jobs))
     if prev_defined_jobs is not None:
