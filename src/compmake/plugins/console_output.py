@@ -96,18 +96,24 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         postfix = ""
         
         # This is the controversial one
-        if True:  # need to check unicode anyway
-            sublines = break_lines(prefix, line, postfix, max_size)
-
-            for s in sublines:
-                write_screen_line(s)
-            
-        elif False:
-            sublines = break_lines_and_pad(prefix, line, postfix, max_size)
-            for s in sublines:
-                write_screen_line(s)
-        else:
-            write_screen_line(line)
+        # reproducing 3.5.6
+        write_screen_line(line)
+        if False:
+            if True:  # need to check unicode anyway
+                # 3.5.10 -- most recent
+                
+                sublines = break_lines(prefix, line, postfix, max_size)
+    
+                for s in sublines:
+                    write_screen_line(s)
+                
+            elif False:
+                sublines = break_lines_and_pad(prefix, line, postfix, max_size)
+                for s in sublines:
+                    write_screen_line(s)
+            else:
+                # 3.5.6
+                write_screen_line(line)
 
 def break_lines(prefix, line, postfix, max_size):
     # Now let's take lines that do not fit the length
