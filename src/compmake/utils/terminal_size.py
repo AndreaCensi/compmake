@@ -12,9 +12,9 @@ def get_screen_columns():
 
     fallback = 80
     if max_x <= 10 or max_x > 1024:
-        msg = 'Very weird max screen size: %d' % max_x
-        msg += '\n I will use %s.' % fallback
-        sys.stderr.write(msg+'\n')
+#         msg = 'Very weird max screen size: %d' % max_x
+#         msg += '\n I will use %s.' % fallback
+#         sys.stderr.write(msg+'\n')
         
         return fallback
 #         raise ValueError(msg)
