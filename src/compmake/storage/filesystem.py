@@ -10,7 +10,6 @@ from compmake.utils import (find_pickling_error, safe_pickle_dump,
                             safe_pickle_load)
 from compmake.utils.safe_write import write_data_to_file
 
-
 if True:
     track_time = lambda x: x
 else:
@@ -26,6 +25,7 @@ __all__ = [
 
 
 class StorageFilesystem(object):
+
     def __init__(self, basepath, compress=False):
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
@@ -33,7 +33,7 @@ class StorageFilesystem(object):
             self.file_extension = '.pickle.gz'
         else:
             self.file_extension = '.pickle'
-            
+
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
 
@@ -160,18 +160,21 @@ class StorageFilesystem(object):
         return os.path.join(self.basepath, f)
 
 
-
 def chmod_plus_x(filename):
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
+
 
 def create_scripts(basepath):
     filename2cmd = \
         {'ls_failed': 'ls failed',
          'why_failed': 'why failed',
+         'make_failed': 'make failed',
          'remake': 'remake',
          'make': 'make',
          'parmake': 'parmake',
+         'rparmake': 'rparmake',
+         'rmake': 'rmake',
          'ls': 'ls',
          'stats': 'stats',
          'details': 'details',
@@ -179,17 +182,16 @@ def create_scripts(basepath):
     for fn, cmd in filename2cmd.items():
         s = "#!/bin/bash\ncompmake %s -c \"%s $*\"\n" % (basepath, cmd)
         f = os.path.join(basepath, fn)
-        write_data_to_file(s,f, quiet=True)
+        write_data_to_file(s, f, quiet=True)
         chmod_plus_x(f)
-    
+
     s = "#!/bin/bash\ncompmake %s \n" % (basepath)
     f = os.path.join(basepath, 'console')
-    write_data_to_file(s,f, quiet=True)
+    write_data_to_file(s, f, quiet=True)
     chmod_plus_x(f)
-    
+
     s = "#!/bin/bash\ncompmake %s -c \"$*\" \n" % (basepath)
     f = os.path.join(basepath, 'run')
-    write_data_to_file( s, f, quiet=True)
+    write_data_to_file(s, f, quiet=True)
     chmod_plus_x(f)
-    
-    
+
