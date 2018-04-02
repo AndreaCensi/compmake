@@ -15,7 +15,7 @@ __all__ = [
     'direct_parents',
     'direct_children',
     'children',
-    'top_targets', 
+    'top_targets',
     'tree',
     'jobs_defined',
     'definition_closure',
@@ -26,15 +26,15 @@ def trace_bugs(msg):
     try:
         yield
     except CompmakeBug as e:
-        raise_wrapped(CompmakeBug, e, msg) 
+        raise_wrapped(CompmakeBug, e, msg)
 
 @contract(returns='set(str)')
 def jobs_defined(job_id, db):
-    """ 
+    """
         Gets the jobs defined by the given job.
         The job must be DONE.
     """
-    assert isinstance(job_id, str)
+    check_isinstance(job_id, str)
     with trace_bugs('jobs_defined(%r)' % job_id):
         cache = get_job_cache(job_id, db=db)
         if cache.state != Cache.DONE:
@@ -42,8 +42,8 @@ def jobs_defined(job_id, db):
                    +'(status: %s)' % Cache.state2desc[cache.state])
             raise CompmakeBug(msg)
         return set(cache.jobs_defined)
-        
-        
+
+
 @contract(jobs='Iterable', returns='set(str)')
 def definition_closure(jobs, db):
     """ The result does not contain jobs (unless one job defines another) """
@@ -67,15 +67,15 @@ def definition_closure(jobs, db):
             for x in a_d:
                 result.add(x)
                 stack.add(x)
-                
+
     #print('  result = %s' % result)
     return result
 
 
 def direct_parents(job_id, db):
     """ Returns the direct parents of the specified job.
-        (Jobs that depend directly on this one) """        
-    assert isinstance(job_id, str)
+        (Jobs that depend directly on this one) """
+    check_isinstance(job_id, str)
     with trace_bugs('direct_parents(%r)' % job_id):
         computation = get_job(job_id, db=db)
         return set(computation.parents)
@@ -83,7 +83,7 @@ def direct_parents(job_id, db):
 
 def direct_children(job_id, db):
     """ Returns the direct children (dependencies) of the specified job """
-    assert isinstance(job_id, str)
+    check_isinstance(job_id, str)
     with trace_bugs('direct_children(%r)' % job_id):
         computation = get_job(job_id, db=db)
         return set(computation.children)
@@ -91,7 +91,7 @@ def direct_children(job_id, db):
 
 def children(job_id, db):
     """ Returns children, children of children, etc. """
-    assert isinstance(job_id, str)
+    check_isinstance(job_id, str)
     with trace_bugs('children(%r)' % job_id):
         t = set()
         for c in direct_children(job_id, db=db):
@@ -128,8 +128,8 @@ def tree(jobs, db):
 def parents(job_id, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """
-    assert isinstance(job_id, str), job_id
-    
+    check_isinstance(job_id, str)
+
     with trace_bugs('parents(%r)' % job_id):
         t = set()
         parents_jobs = direct_parents(job_id, db=db)

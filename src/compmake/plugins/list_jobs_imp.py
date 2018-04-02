@@ -1,5 +1,12 @@
 """ The actual interface of some commands in commands.py """
 from time import time
+import os
+
+from compmake.constants import CompmakeConstants
+from compmake.structures import timing_summary, cache_has_large_overhead
+from compmake.utils.table_formatter import TableFormatter
+from compmake.utils.terminal_size import get_screen_columns
+from contracts import contract
 
 from ..jobs import parse_job_list
 from ..jobs.storage import (job_args_sizeof, job_cache_exists,
@@ -9,11 +16,6 @@ from ..jobs.syntax.parsing import is_root_job
 from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import (duration_compact)
-from contracts import contract
-from compmake.constants import CompmakeConstants
-from compmake.utils.terminal_size import get_screen_columns
-from compmake.utils.table_formatter import TableFormatter
-import os
 
 # red, green, yellow, blue, magenta, cyan, white.
 state2color = {
@@ -29,12 +31,13 @@ state2color = {
 
 if False:
     format_utility_job = dict(color='white', attrs=['concealed'])
-    format_separator = dict(color='white', attrs=['concealed']) 
+    format_separator = dict(color='white', attrs=['concealed'])
     format_when = dict(color='white', attrs=['concealed'])
 else:
     format_utility_job = dict()
-    format_separator = dict() 
+    format_separator = dict()
     format_when = dict()
+
 
 @ui_command(section=VISUALIZATION, alias='list')
 def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssignment
@@ -64,19 +67,19 @@ def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssig
 def minimal_names(objects):
     """
         Converts a list of object IDs to a minimal non-ambiguous list of names.
-        
+
         For example, the names: ::
-        
+
             test_learn_fast_10
             test_learn_slow_10
             test_learn_faster_10
-            
+
         is converted to: ::
-        
+
             fast
             slow
             faster
-            
+
         Returns prefix, minimal, postfix
     """
     if len(objects) == 1:
@@ -101,8 +104,6 @@ def minimal_names(objects):
     # print objects, objects2
     assert objects == objects2, (prefix, minimal, postfix)
     return prefix, minimal, postfix
-
-
 
 
 def list_jobs(context, job_list, cq, complete_names=False,
@@ -153,13 +154,13 @@ def list_jobs(context, job_list, cq, complete_names=False,
             msg = (job_id, job, job.defined_by)
             assert len(job.defined_by) >= 1, msg
             assert job.defined_by[0] == 'root', msg
-            
+
             level = len(job.defined_by) - 1
-            assert level>=1
+            assert level >= 1
             tf.cell('%d' % level)
         else:
             tf.cell('')
-            
+
         if job.needs_context:
             tf.cell('d')
         else:
@@ -172,7 +173,6 @@ def list_jobs(context, job_list, cq, complete_names=False,
         if is_utility:
             job_name_formatted = compmake_colored(job_name_formatted,
                                                   **format_utility_job)
-            
 
         tf.cell(format_job_id(job_id))
 
@@ -185,7 +185,7 @@ def list_jobs(context, job_list, cq, complete_names=False,
         if not up and cache.state in [Cache.DONE, Cache.FAILED]:
             tag_s += '*'
         tf.cell(tag_s)
-        
+
         if reason:
             tf.cell(up_reason)
             tf.cell(duration_compact(time() - up_ts))
@@ -200,33 +200,33 @@ def list_jobs(context, job_list, cq, complete_names=False,
             cpu = cache.cputime_used
             cpu_total.append(cpu)
 
-            if cpu > 5:  # TODO: add param
-                s_cpu = duration_compact(cpu)
+            if cpu > 5 or cache_has_large_overhead(cache):  # TODO: add param
+                # s_cpu = duration_compact(cpu)
+                s_cpu = timing_summary(cache)
             else:
                 s_cpu = ''
+
             tf.cell(s_cpu)
+
         else:
             tf.cell('')  # cpu
 
         if cache.state in [Cache.DONE, Cache.FAILED]:
             when = duration_compact(time() - cache.timestamp)
             when_s = "(%s ago)" % when
-            
+
             when_s = compmake_colored(when_s, **format_when)
-            
-             
-             
+
             tf.cell(when_s)
         else:
             tf.cell('')  # when
- 
 
     tf.done()
 
     ind = '  '
-    
+
     do_one_column = len(job_list) <= 5
-    
+
     if do_one_column:
         for line in tf.get_lines():
             print(ind + line)
@@ -234,9 +234,9 @@ def list_jobs(context, job_list, cq, complete_names=False,
         linewidth = get_screen_columns()
         #print('*'*linewidth)
         #sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
-        sep = '   ' + compmake_colored('|', **format_separator)+ '   '
-        
-        for line in tf.get_lines_multi(linewidth-len(ind), sep=sep):
+        sep = '   ' + compmake_colored('|', **format_separator) + '   '
+
+        for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
             print(ind + line)
 
     if cpu_total:
@@ -258,8 +258,8 @@ def format_size(nbytes):
 
 @contract(returns='dict')
 def get_sizes(job_id, db):
-    """ Returns byte sizes for jobs pieces. 
-    
+    """ Returns byte sizes for jobs pieces.
+
         Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
@@ -277,10 +277,4 @@ def get_sizes(job_id, db):
 
     res['total'] = res['cache'] + res['args'] + res['result']
     return res
-
-
-
-
-
-
 

@@ -1,68 +1,70 @@
-from contracts import contract, describe_value
-
 '''
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
     (The state of the computation is represented by a Cache object.)
-    
+
     A Cache object can be in one of the following states:
-    
+
     *) non-existent / or NOT_STARTED
        (no difference between these states)
-       
-    *) IN_PROGRESS: The yielding mechanism is taking care of 
+
+    *) IN_PROGRESS: The yielding mechanism is taking care of
        the incremental computation.
-       
+
        computation:  current computation
        user_object:  None / invalid
        timestamp:    None / timestamp
        tmp_result:   set to the temporary result (if any)
-       
-       In this state, we also publish a progress report. 
-       
+
+       In this state, we also publish a progress report.
+
     *) DONE:  The computation has been completed
-    
+
        computation:  current computation
        user_object: the result of the computation
-       timestamp:   when computation was completed 
+       timestamp:   when computation was completed
        timetaken:   time taken by the computation
        tmp_result:  None
-        
-       
+
+
     *) FAILED
        The computation has failed for some reason
 
        computation:  failed computation
 
-    Note that user_object and tmp_result are stored separately 
+    Note that user_object and tmp_result are stored separately
     from the Cache element.
-    
+
     DB Layout:
-    
+
         'job_id:computation'       Job object
         'job_id:cache'             Cache object
         'job_id:user_object'       Result of the computation
-        'job_id:user_object_tmp'   
-    
-    
-    
+        'job_id:user_object_tmp'
+
+
+
     Up-to-date or not?
     =================
-    
+
     Here we have to be careful because of the fact that we have
-    the special state MORE_REQUESTED. 
-    Is it a computation done if MORE_REQUESTED? Well, we could say 
+    the special state MORE_REQUESTED.
+    Is it a computation done if MORE_REQUESTED? Well, we could say
     no, because when more is completed, the parents will need to be
     redone. However, the use case is that:
     1) you do the all computation
     2) you explicity ask MORE for some targets
     3) you explicitly ask to redo the parents of those targets
     Therefore, a MORE_REQUESTED state is considered as uptodate.
-     
-    
+
+
 '''
+
 import os
+
+from compmake.utils.duration_hum import duration_compact
 from compmake.utils.pickle_frustration import pickle_main_context_save
+from contracts import contract, describe_value
 
 __all__ = [
     'Promise',
@@ -73,6 +75,7 @@ __all__ = [
 
 
 class Promise(object):
+
     def __init__(self, job_id):
         self.job_id = job_id
 
@@ -81,16 +84,17 @@ class Promise(object):
 
 
 class Job(object):
+
     @contract(defined_by='list[>=1](str)', children=set)
     def __init__(self, job_id, children, command_desc,
                  needs_context=False,
                  defined_by=None):
         """
-        
+
             needs_context: new facility for dynamic jobs
             defined_by: name of jobs defining this job dynamically
                         This is the stack of jobs. 'root' is the first.
-                        
+
             children: the direct dependencies
         """
         self.job_id = job_id
@@ -102,11 +106,12 @@ class Job(object):
         assert len(defined_by) >= 1, defined_by
         assert defined_by[0] == 'root', defined_by
         # str -> set(str), where the key is one
-        # of the direct children 
+        # of the direct children
         self.dynamic_children = {}
 
-        self.pickle_main_context = pickle_main_context_save() 
-        
+        self.pickle_main_context = pickle_main_context_save()
+
+
 def same_computation(jobargs1, jobargs2):
     """ Returns boolean, string tuple """
     cmd1, args1, kwargs1 = jobargs1
@@ -160,12 +165,12 @@ class Cache(object):
     FAILED = 3
     BLOCKED = 5
     DONE = 4
-    
+
     TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states = [NOT_STARTED, 
-                      FAILED, 
-                      DONE, 
+    allowed_states = [NOT_STARTED,
+                      FAILED,
+                      DONE,
                       BLOCKED]
 
     state2desc = {
@@ -178,19 +183,29 @@ class Cache(object):
         assert (state in Cache.allowed_states)
         self.state = state
         self.timestamp = 0.0
-        self.cputime_used = None
-        self.walltime_used = None
 
         self.jobs_defined = set()
 
         # in case of failure
         self.exception = None  # a short string
         self.backtrace = None  # a long string
-        # 
         self.captured_stdout = None
         self.captured_stderr = None
- 
 
+        # total
+        self.cputime_used = None
+        self.walltime_used = None
+
+        # phases
+
+        self.walltime_save_result = None
+        self.cputime_save_result = None
+
+        self.walltime_load_args = None
+        self.cputime_load_args = None
+
+        self.walltime_compute = None
+        self.cputime_compute = None
 
     def __repr__(self):
         return ('Cache(%s;%s;cpu:%s;wall:%s)' %
@@ -199,7 +214,22 @@ class Cache(object):
                  self.walltime_used))
 
 
+def cache_has_large_overhead(cache):
+    overhead = cache.walltime_load_args + cache.walltime_save_result
+    return overhead - cache.walltime_compute > 1.0
+
+
+def timing_summary(cache):
+    dc = duration_compact
+    s = '%7s (L %s C %s S %s)' % (dc(cache.walltime_used),
+                                   dc(cache.walltime_load_args),
+                                   dc(cache.walltime_compute),
+                                   dc(cache.walltime_save_result),)
+    return s
+
+
 class ProgressStage(object):
+
     @contract(name=str, iterations='tuple((float|int),(float|int))')
     def __init__(self, name, iterations, iteration_desc):
         self.name = name
@@ -217,7 +247,4 @@ class ProgressStage(object):
             return (self.iterations[0] >= self.iterations[1] - 1)
         else:
             return self.iterations[0] >= self.iterations[1]
-            
-
-
 

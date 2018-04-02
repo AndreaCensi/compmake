@@ -1,6 +1,6 @@
 from glob import glob
-import os
 from os.path import basename
+import os
 import stat
 import traceback
 
@@ -89,7 +89,8 @@ class StorageFilesystem(object):
         try:
             safe_pickle_dump(value, filename)
             assert os.path.exists(filename)
-
+        except KeyboardInterrupt:
+            raise
         except BaseException as e:
             msg = ('Cannot set key %s: cannot pickle object '
                    'of class %s: %s' % (key, value.__class__.__name__, e))

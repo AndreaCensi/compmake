@@ -1,46 +1,47 @@
-import logging
+from logging import Formatter
 from time import clock, time
+import logging
+
+from compmake import get_compmake_config, logger
 
 from ..events import publish
-from ..structures import Cache
 from ..exceptions import JobFailed, JobInterrupted
+from ..structures import Cache
 from ..utils import OutputCapture, my_format_exc, setproctitle
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
+from .queries import direct_parents
 from .storage import (delete_job_cache, get_job,
                       get_job_cache,
                       set_job_cache, set_job_userobject)
-from compmake import get_compmake_config
 from .storage import job_cache_exists, set_job, job_exists
-from .queries import direct_parents
-import sys
 
 
 def clean_targets(job_list, db):
 #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
-    
+
     # now we need to delete the definition closure
-    
+
     from compmake.jobs.queries import definition_closure
     closure = definition_closure(job_list, db)
-    
+
     basic = job_list - closure
-    
+
     from compmake.jobs.queries import parents
     other_clean = set()
     for job_id in job_list:
         other_clean.update(parents(job_id, db))
     other_clean = other_clean - closure
-#     
+#
 #     print('deleting: %r' % closure)
 #     print('only cleaning: %r' % basic)
 #     print('other cleaning: %r' % other_clean)
-#         
+#
     for job_id in closure | basic | other_clean:
         clean_cache_relations(job_id, db)
-        
+
     # delete all in closure
     for job_id in closure:
         from compmake.jobs.storage import delete_all_job_data
@@ -51,7 +52,7 @@ def clean_targets(job_list, db):
         # Cleans associated objects
         if job_cache_exists(job_id, db):
             delete_job_cache(job_id, db)
-    
+
     # now we have to undo this one:
     # jobs_depending_on_this = direct_parents(job_id, self.db)
     # deps = result['user_object_deps']
@@ -60,7 +61,8 @@ def clean_targets(job_list, db):
     #                                 returned_by=job_id, db=self.db)
     #     for d in deps:
     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
-    
+
+
 def clean_cache_relations(job_id, db):
     #print('cleaning cache relations for %r ' % job_id)
     if not job_exists(job_id, db):
@@ -71,21 +73,21 @@ def clean_cache_relations(job_id, db):
     cache = get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
         for parent in direct_parents(job_id, db):
-            
+
             parent_job = get_job(parent, db)
             #print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
             if not job_id in parent_job.dynamic_children:
                 #print('    skipping parent %r ' % parent)
-                continue 
+                continue
             else:
                 dynamic_children = parent_job.dynamic_children[job_id]
                 #print('    dynamic_children %s' % parent_job.dynamic_children)
                 #print('    children %s' % parent_job.children)
                 del parent_job.dynamic_children[job_id]
                 parent_job.children = parent_job.children - dynamic_children
-                set_job(parent, parent_job, db) 
-                #print('     changed in %s' % parent_job.children)    
-    
+                set_job(parent, parent_job, db)
+                #print('     changed in %s' % parent_job.children)
+
 
 def mark_to_remake(job_id, db):
     """ Delets and invalidates the cache for this object """
@@ -94,7 +96,7 @@ def mark_to_remake(job_id, db):
     if cache.state == Cache.DONE:
         cache.timestamp = Cache.TIMESTAMP_TO_REMAKE
     set_job_cache(job_id, cache, db=db)
- 
+
 
 def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
     cache = Cache(Cache.BLOCKED)
@@ -113,17 +115,17 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
 
 
 def make(job_id, context, echo=False):
-    """ 
-        Makes a single job. 
-        
+    """
+        Makes a single job.
+
         Returns a dictionary with fields:
              "user_object"
              "user_object_deps" = set of Promises
-             "new_jobs" -> new jobs defined 
+             "new_jobs" -> new jobs defined
              "deleted_jobs" -> jobs that were defined but not anymore
-        
+
         Raises JobFailed
-        or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are 
+        or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
         captured.
     """
     db = context.get_compmake_db()
@@ -149,22 +151,21 @@ def make(job_id, context, echo=False):
 
     job = get_job(job_id, db=db)
     cache = get_job_cache(job_id, db=db)
-    
+
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
         #print('%s had previously defined %s' % (job_id, prev_defined_jobs))
     else:
         #print('%s was not DONE' % job_id)
         prev_defined_jobs = None
-      
+
     # Note that at this point we save important information in the Cache
     # so if we set this then it's going to destroy it
     # cache.state = Cache.IN _ PROGRESS
     # set_job_cache(job_id, cache, db=db)
-    
-    
+
     # TODO: delete previous user object
-    
+
     # update state
     time_start = time()
     cpu_start = clock()
@@ -186,7 +187,11 @@ def make(job_id, context, echo=False):
 
     from compmake.ui.coloredlog import colorize_loglevel
 
+    FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
+
+    formatter = Formatter(FORMAT)
     nhidden = 0
+
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
         try:
@@ -196,27 +201,26 @@ def make(job_id, context, echo=False):
                 s = unicode(log_record.msg)
             except:
                 s = 'Could not print log_record %s' % id(log_record)
-                
-            msg2 = colorize_loglevel(log_record.levelno, s)
-            
-            # levelname = log_record.levelname
-            name = log_record.name
-            # print('%s:%s:%s' % (name, levelname, msg))
-    
-            # this will be captured by OutputCapture anyway 
-            print('%s:%s' % (name, msg2))
+
+#            msg2 = colorize_loglevel(log_record.levelno, s)
+#            name = log_record.name
+#            s0 = ('%s:%s' % (name, msg2))
+
+            log_record.msg = colorize_loglevel(log_record.levelno, s)
+            res = formatter.format(log_record)
+            print(res)
+            # this will be captured by OutputCapture anyway
         except:
             nhidden += 1
-            
 
     logging.StreamHandler.emit = my_emit
 
     already = set(context.get_jobs_defined_in_this_session())
-    
+
     def get_deleted_jobs():
         generated = set(context.get_jobs_defined_in_this_session()) - already
         #print('failure: rolling back %s' % generated)
-        
+
         from compmake.ui.ui import delete_jobs_recurse_definition
 
         todelete = set()
@@ -225,36 +229,40 @@ def make(job_id, context, echo=False):
             todelete.update(prev_defined_jobs)
         # and also the ones that were generated
         todelete.update(generated)
-        
+
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
         # now we failed, so we need to roll back other changes
         # to the db
         return deleted_jobs
-    
+
     try:
         result = job_compute(job=job, context=context)
-        assert isinstance(result, dict) and len(result) == 2
+        assert isinstance(result, dict) and len(result) == 6
         user_object = result['user_object']
         new_jobs = result['new_jobs']
+        walltime_load_results = result['walltime_load_results']
+        cputime_load_results = result['cputime_load_results']
+        walltime_compute = result['walltime_compute']
+        cputime_compute = result['cputime_compute']
 
     except KeyboardInterrupt as e:
         bt = my_format_exc(e)
         deleted_jobs = get_deleted_jobs()
-        mark_as_failed(job_id, 'KeyboardInterrupt: '+str(e), backtrace=bt, db=db)
+        mark_as_failed(job_id, 'KeyboardInterrupt: ' + str(e), backtrace=bt, db=db)
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
-    
+
     except (BaseException, StandardError, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = my_format_exc(e)
         s = type(e).__name__ + ': ' + e.__str__().strip()
         try:
-            s = s.decode('utf-8','replace').encode('utf-8', 'replace')
+            s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
         except UnicodeDecodeError as ue:
-            print(ue) # XXX
+            print(ue)  # XXX
             s = 'Could not represent string.'
 
         mark_as_failed(job_id, s, backtrace=bt, db=db)
-        deleted_jobs = get_deleted_jobs()    
+        deleted_jobs = get_deleted_jobs()
         raise JobFailed(job_id=job_id, reason=s, bt=bt,
                         deleted_jobs=deleted_jobs)
     finally:
@@ -281,18 +289,38 @@ def make(job_id, context, echo=False):
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
     else:
         deleted_jobs = set()
-    
+
     #print('Now %s has deleted %s' % (job_id, deleted_jobs))
-    
+
+    c0 = time()
+    cpu0 = clock()
     set_job_userobject(job_id, user_object, db=db)
-    cache = Cache(Cache.DONE)
-    cache.timestamp = time()
-    walltime = cache.timestamp - time_start
+    c1 = time()
+    cpu1 = clock()
+    walltime_save_result = c1 - c0
+    cputime_save_result = cpu1 - cpu0
+
+#    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
+
+    end_time = time()
+    walltime = end_time - time_start
     cputime = clock() - cpu_start
+
+    cache = Cache(Cache.DONE)
+
+    cache.timestamp = end_time
+
     cache.walltime_used = walltime
     cache.cputime_used = cputime
     cache.host = host
     cache.jobs_defined = new_jobs
+    cache.walltime_save_result = walltime_save_result
+    cache.cputime_save_result = cputime_save_result
+    cache.walltime_load_args = walltime_load_results
+    cache.cputime_load_args = cputime_load_results
+    cache.walltime_compute = walltime_compute
+    cache.cputime_compute = cputime_compute
+
     set_job_cache(job_id, cache, db=db)
 
     return dict(user_object=user_object,
