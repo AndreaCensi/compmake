@@ -158,6 +158,39 @@ def same_computation(jobargs1, jobargs2):
         return True, None
 
 
+class IntervalTimer(object):
+
+    def __init__(self):
+        import time
+        self.c0 = time.clock()
+        self.t0 = time.time()
+        self.stopped = False
+
+    def stop(self):
+        self.stopped = True
+        import time
+        self.c1 = time.clock()
+        self.t1 = time.time()
+
+    def get_walltime_used(self):
+        if not self.stopped:
+            raise ValueError('not stopped')
+        return self.t1 - self.t0
+
+    def get_cputime_used(self):
+        if not self.stopped:
+            raise ValueError('not stopped')
+        return self.c1 - self.c0
+
+    def walltime_interval(self):
+        if not self.stopped:
+            raise ValueError('not stopped')
+        return (self.t0, self.t1)
+
+    def __str__(self):
+        return 'Timer(t0: %s; t1: %s; delta %s) ' % (self.t0, self.t1, self.t1 - self.t0)
+
+
 class Cache(object):
     # TODO: add blocked
 
@@ -182,7 +215,13 @@ class Cache(object):
     def __init__(self, state):
         assert (state in Cache.allowed_states)
         self.state = state
+        # time start
+        self.timestamp_started = None
+        # time end
         self.timestamp = 0.0
+
+        # Hash for dependencies when this was computed
+        self.hashes_dependencies = {}
 
         self.jobs_defined = set()
 
@@ -197,15 +236,13 @@ class Cache(object):
         self.walltime_used = None
 
         # phases
+        # make = load + compute + save
 
-        self.walltime_save_result = None
-        self.cputime_save_result = None
-
-        self.walltime_load_args = None
-        self.cputime_load_args = None
-
-        self.walltime_compute = None
-        self.cputime_compute = None
+        self.int_make = None
+        self.int_load_results = None
+        self.int_compute = None
+        self.int_save_results = None
+        self.int_gc = None
 
     def __repr__(self):
         return ('Cache(%s;%s;cpu:%s;wall:%s)' %
@@ -215,16 +252,20 @@ class Cache(object):
 
 
 def cache_has_large_overhead(cache):
-    overhead = cache.walltime_load_args + cache.walltime_save_result
-    return overhead - cache.walltime_compute > 1.0
+
+    overhead = (cache.int_load_results.get_walltime_used() +
+                cache.int_save_results.get_walltime_used() +
+                cache.int_gc.get_walltime_used())
+    return overhead - cache.int_make.get_walltime_used() > 1.0
 
 
 def timing_summary(cache):
     dc = duration_compact
-    s = '%7s (L %s C %s S %s)' % (dc(cache.walltime_used),
-                                   dc(cache.walltime_load_args),
-                                   dc(cache.walltime_compute),
-                                   dc(cache.walltime_save_result),)
+    s = '%7s (L %s C %s GC %s S %s)' % (dc(cache.int_make.get_walltime_used()),
+                                   dc(cache.int_load_results.get_walltime_used()),
+                                   dc(cache.int_compute.get_walltime_used()),
+                                   dc(cache.int_gc.get_walltime_used()),
+                                   dc(cache.int_save_results.get_walltime_used()),)
     return s
 
 

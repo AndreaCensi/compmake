@@ -1,6 +1,6 @@
-import time
 
-from compmake import logger
+
+from compmake.structures import IntervalTimer
 from contracts import check_isinstance, contract
 
 from ..exceptions import CompmakeBug
@@ -30,7 +30,7 @@ def get_cmd_args_kwargs(job_id, db):
     return command, args2, kwargs2
 
 
-class JobCompute:
+class JobCompute(object):
     # currently executing job id
     current_job_id = None
 
@@ -42,52 +42,42 @@ def job_compute(job, context):
     job_id = job.job_id
     db = context.get_compmake_db()
 
-    c0 = time.time()
-    cpu0 = time.clock()
+    int_load_results = IntervalTimer()
+
     command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
-    c1 = time.time()
-    cpu1 = time.clock()
-    walltime_load_results = c1 - c0
-    cputime_load_results = cpu1 - cpu0
+
+    int_load_results.stop()
 
     JobCompute.current_job_id = job_id
     if job.needs_context:
         args = tuple(list([context]) + list(args))
-        c0 = time.time()
-        cpu0 = time.clock()
 
+        int_compute = IntervalTimer()
         res = execute_with_context(db=db, context=context,
                                    job_id=job_id,
                                    command=command, args=args, kwargs=kwargs)
-        c1 = time.time()
-        cpu1 = time.clock()
-        walltime_compute = c1 - c0
-        cputime_compute = cpu1 - cpu0
+        int_compute.stop()
 
         assert isinstance(res, dict)
         assert len(res) == 2, list(res.keys())
         assert 'user_object' in res
         assert 'new_jobs' in res
 
-        res['walltime_load_results'] = walltime_load_results
-        res['cputime_load_results'] = cputime_load_results
-        res['walltime_compute'] = walltime_compute
-        res['cputime_compute'] = cputime_compute
+        res['int_load_results'] = int_load_results
+        res['int_compute'] = int_compute
+        res['int_gc'] = IntervalTimer()
         return res
     else:
-        c0 = time.time()
-        cpu0 = time.clock()
+        int_compute = IntervalTimer()
         user_object = command(*args, **kwargs)
-        c1 = time.time()
-        cpu1 = time.clock()
-        walltime_compute = c1 - c0
-        cputime_compute = cpu1 - cpu0
+        int_compute.stop()
 
         res = dict(user_object=user_object, new_jobs=[])
-        res['walltime_load_results'] = walltime_load_results
-        res['cputime_load_results'] = cputime_load_results
-        res['walltime_compute'] = walltime_compute
-        res['cputime_compute'] = cputime_compute
+
+        res['int_load_results'] = int_load_results
+        res['int_compute'] = int_compute
+        res['int_gc'] = IntervalTimer()
+
         return res
 
 
@@ -116,16 +106,17 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
     generated = set(context.get_jobs_defined_in_this_session())
     context.reset_jobs_defined_in_this_session(already)
+    return dict(user_object=res, new_jobs=generated)
 
-    if generated:
-        if len(generated) < 4:
-            # info('Job %r generated %s.' % (job_id, generated))
-            pass
-        else:
-            # info('Job %r generated %d jobs such as %s.' %
-            # (job_id, len(generated), sorted(generated)[:M]))
-            pass
-            # # now remove the extra jobs that are not needed anymore
+#    if generated:
+#        if len(generated) < 4:
+#            # info('Job %r generated %s.' % (job_id, generated))
+#            pass
+#        else:
+#            # info('Job %r generated %d jobs such as %s.' %
+#            # (job_id, len(generated), sorted(generated)[:M]))
+#            pass
+#            # # now remove the extra jobs that are not needed anymore
 
 #     extra = []
 
@@ -154,4 +145,3 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 #             #     clean_other_jobs_distributed(db=db, job_id=job_id,
 #             # new_jobs=generated)
 
-    return dict(user_object=res, new_jobs=generated)

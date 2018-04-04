@@ -2,7 +2,8 @@ from logging import Formatter
 from time import clock, time
 import logging
 
-from compmake import get_compmake_config, logger
+from compmake import get_compmake_config
+from compmake.structures import IntervalTimer
 
 from ..events import publish
 from ..exceptions import JobFailed, JobInterrupted
@@ -114,7 +115,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     set_job_cache(job_id, cache, db=db)
 
 
-def make(job_id, context, echo=False):
+def make(job_id, context, echo=False):  #@UnusedVariable
     """
         Makes a single job.
 
@@ -129,6 +130,8 @@ def make(job_id, context, echo=False):
         captured.
     """
     db = context.get_compmake_db()
+
+    int_make = IntervalTimer()
 
     host = 'hostname'  # XXX
 
@@ -165,10 +168,6 @@ def make(job_id, context, echo=False):
     # set_job_cache(job_id, cache, db=db)
 
     # TODO: delete previous user object
-
-    # update state
-    time_start = time()
-    cpu_start = clock()
 
     def progress_callback(stack):
         publish(context, 'job-progress-plus', job_id=job_id, host=host,
@@ -237,18 +236,25 @@ def make(job_id, context, echo=False):
 
     try:
         result = job_compute(job=job, context=context)
-        assert isinstance(result, dict) and len(result) == 6
+
+        assert isinstance(result, dict) and len(result) == 5
         user_object = result['user_object']
         new_jobs = result['new_jobs']
-        walltime_load_results = result['walltime_load_results']
-        cputime_load_results = result['cputime_load_results']
-        walltime_compute = result['walltime_compute']
-        cputime_compute = result['cputime_compute']
+        int_load_results = result['int_load_results']
+        int_compute = result['int_compute']
+        int_gc = result['int_gc']
+        int_gc.stop()
 
     except KeyboardInterrupt as e:
         bt = my_format_exc(e)
         deleted_jobs = get_deleted_jobs()
         mark_as_failed(job_id, 'KeyboardInterrupt: ' + str(e), backtrace=bt, db=db)
+
+        cache = get_job_cache(job_id, db=db)
+        cache.captured_stderr = capture.get_logged_stderr()
+        cache.captured_stdout = capture.get_logged_stdout()
+        set_job_cache(job_id, cache, db=db)
+
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
     except (BaseException, StandardError, ArithmeticError,
@@ -263,19 +269,26 @@ def make(job_id, context, echo=False):
 
         mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()
-        raise JobFailed(job_id=job_id, reason=s, bt=bt,
-                        deleted_jobs=deleted_jobs)
-    finally:
-        capture.deactivate()
-        # even if we send an error, let's save the output of the process
+
         cache = get_job_cache(job_id, db=db)
         cache.captured_stderr = capture.get_logged_stderr()
         cache.captured_stdout = capture.get_logged_stdout()
         set_job_cache(job_id, cache, db=db)
+
+        raise JobFailed(job_id=job_id, reason=s, bt=bt,
+                        deleted_jobs=deleted_jobs)
+    finally:
+        int_finally = IntervalTimer()
+        capture.deactivate()
+        # even if we send an error, let's save the output of the process
         logging.StreamHandler.emit = old_emit
         if nhidden > 0:
             msg = 'compmake: There were %d messages hidden due to bugs in logging.' % nhidden
             print(msg)
+        int_finally.stop()
+#        print('finally: %s' % int_finally)
+
+    int_save_results = IntervalTimer()
 
     #print('Now %s has defined %s' % (job_id, new_jobs))
     if prev_defined_jobs is not None:
@@ -292,35 +305,35 @@ def make(job_id, context, echo=False):
 
     #print('Now %s has deleted %s' % (job_id, deleted_jobs))
 
-    c0 = time()
-    cpu0 = clock()
     set_job_userobject(job_id, user_object, db=db)
-    c1 = time()
-    cpu1 = clock()
-    walltime_save_result = c1 - c0
-    cputime_save_result = cpu1 - cpu0
+    int_save_results.stop()
 
 #    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
 
+    int_make.stop()
     end_time = time()
-    walltime = end_time - time_start
-    cputime = clock() - cpu_start
 
     cache = Cache(Cache.DONE)
 
+#    print('int_make: %s' % int_make)
+#    print('int_load_results: %s' % int_load_results)
+#    print('int_compute: %s' % int_compute)
+    if int_gc.get_walltime_used() > 1.0:
+        print('Expensive garbage collection detected: %s' % int_gc)
+#    print('int_save_results: %s' % int_save_results)
+
+    cache.int_make = int_make
+    cache.int_load_results = int_load_results
+    cache.int_compute = int_compute
+    cache.int_gc = int_gc
+    cache.int_save_results = int_save_results
+
     cache.timestamp = end_time
 
-    cache.walltime_used = walltime
-    cache.cputime_used = cputime
+    cache.walltime_used = int_make.get_walltime_used()
+    cache.cputime_used = int_make.get_cputime_used()
     cache.host = host
     cache.jobs_defined = new_jobs
-    cache.walltime_save_result = walltime_save_result
-    cache.cputime_save_result = cputime_save_result
-    cache.walltime_load_args = walltime_load_results
-    cache.cputime_load_args = cputime_load_results
-    cache.walltime_compute = walltime_compute
-    cache.cputime_compute = cputime_compute
-
     set_job_cache(job_id, cache, db=db)
 
     return dict(user_object=user_object,

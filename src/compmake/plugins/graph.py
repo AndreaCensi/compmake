@@ -1,11 +1,11 @@
 from collections import defaultdict
+import os
+
 from compmake.exceptions import UserError
 from compmake.jobs import CacheQueryDB, top_targets
 from compmake.jobs.queries import definition_closure
 from compmake.structures import Cache
 from compmake.ui import COMMANDS_ADVANCED, info, ui_command
-import os
-
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -33,7 +33,7 @@ def graph(job_list, context, filename='compmake-graph',
                        (hierarchy top-bottom).
             format=[png,...]  The output file format.
     """
-    possible =  ['none', 'id', 'function']
+    possible = ['none', 'id', 'function']
     if not label in possible:
         msg = 'Invalid label method %r not in %r.' % (label, possible)
         raise ValueError(msg)
@@ -45,8 +45,10 @@ def graph(job_list, context, filename='compmake-graph',
     print('jobs: %s' % job_list)
     print('processing: %s' % processing)
     print('Importing gvgen')
+
     try:
-        import gvgen  # @UnresolvedImport @UnusedImport
+#        import gvgen
+        pass
     except:
         gvgen_url = 'https://github.com/stricaud/gvgen'
         msg = ('To use the "graph" command you have to install the "gvgen" '
@@ -62,7 +64,7 @@ def graph(job_list, context, filename='compmake-graph',
 
     # plus all the jobs that were defined by them
     job_list.update(definition_closure(job_list, db))
-    
+
     job_list = set(job_list)
 
 #     print('closure: %s' % sorted(job_list))
@@ -105,13 +107,13 @@ def get_color_for(x, cq, processing):
 
     if x in processing:
         return 'yellow'
-        
+
     state = cache.state
     return state2color[state]
 
 
 def get_node_label(cq, job_id, label):
-    possible =  ['none', 'id', 'function']
+    possible = ['none', 'id', 'function']
     if not label in possible:
         msg = 'Invalid label method %r not in %r.' % (label, possible)
         raise ValueError(msg)
@@ -123,24 +125,25 @@ def get_node_label(cq, job_id, label):
         job = cq.get_job(job_id)
         return job.command_desc + '()'
     assert False
-    # 
-    # 
-    # 
+    #
+    #
+    #
+
 
 def create_graph1(cq, job_list, label, color, processing):
-    import gvgen  # @UnresolvedImport
+
+    from mcdp_report.my_gvgen import GvGen
 
     print('Creating graph')
     job_list = list(job_list)
     print('create_graph1(%s)' % job_list)
-    ggraph = gvgen.GvGen()
- 
+    ggraph = GvGen()
 
     job2node = {}
     for job_id in job_list:
         job_label = get_node_label(cq, job_id, label)
         job2node[job_id] = ggraph.newItem(job_label)
-    
+
         if color:
             ggraph.styleAppend(job_id, "style", "filled")
             ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing))
@@ -163,11 +166,11 @@ def create_graph1(cq, job_list, label, color, processing):
 
 
 def create_graph2_clusters(cq, job_list, label, color, processing):
-    import gvgen  # @UnresolvedImport
+    from mcdp_report.my_gvgen import GvGen
 
     print('Creating graph')
 
-    ggraph = gvgen.GvGen()
+    ggraph = GvGen()
 
     cluster2jobs = defaultdict(lambda: set())
     job2cluster = {}
@@ -184,7 +187,7 @@ def create_graph2_clusters(cq, job_list, label, color, processing):
     rel_generated_color = 'brown'
 
     for cluster, cluster_jobs in cluster2jobs.items():
-        cluster_label = "" # if compact else cluster
+        cluster_label = ""  # if compact else cluster
         if cluster == 'root':
             cluster2node[cluster] = None
         else:
@@ -195,7 +198,7 @@ def create_graph2_clusters(cq, job_list, label, color, processing):
 
         for job_id in cluster_jobs:
             #job = cq.get_job(job_id)
-            
+
             job_label = get_node_label(cq, job_id, label)
             job2node[job_id] = ggraph.newItem(job_label, cluster2node[cluster])
 
@@ -208,7 +211,7 @@ def create_graph2_clusters(cq, job_list, label, color, processing):
                 ggraph.styleAppend(job_id, "fillcolor", '#c0c0c0')
             ggraph.styleAppend(job_id, "shape", "box")
             ggraph.styleAppend(job_id, "fontname", "Anka/Coder")
-            
+
             ggraph.styleApply(job_id, job2node[job_id])
 
     # dependency

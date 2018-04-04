@@ -1,14 +1,15 @@
+from contextlib import contextmanager
+
+from compmake.exceptions import CompmakeDBError
+from contracts import check_isinstance, contract
+from contracts.utils import raise_wrapped, raise_desc
+
 from ..exceptions import CompmakeBug
 from ..structures import Cache, Job
 from ..utils import memoized_reset
 from .dependencies import collect_dependencies
 from .queries import jobs_defined
 from .storage import get_job_userobject
-from contracts import check_isinstance, contract
-from compmake.exceptions import CompmakeDBError
-from contracts.utils import raise_wrapped, raise_desc
-from contextlib import contextmanager
-
 
 __all__ = [
     'CacheQueryDB',
@@ -17,21 +18,28 @@ __all__ = [
 
 @contract(returns='tuple(bool, str)')
 def up_to_date(job_id, db):
-    """ 
-    
-    Check that the job is up to date. 
+    """
+
+    Check that the job is up to date.
     We are up to date if:
     *) we are in the up_to_date_cache
        (nothing uptodate can become not uptodate so this is generally safe)
     OR
     1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
     2) the children are up to date AND
-    3) the children timestamp is older than this timestamp 
-    
-    Returns:
-    
-        boolean, explanation 
-    
+
+    3a) Original case:
+
+        the children timestamp is older than this timestamp
+
+    3b) New strategy
+
+        the hash of the cache is the same as the hash of the arguments
+
+    Returns a pair:
+
+        boolean, explanation
+
     """
     cq = CacheQueryDB(db)
     res, reason, _ = cq.up_to_date(job_id)
@@ -46,7 +54,7 @@ def direct_uptodate_deps(job_id, db):
     """
     from compmake.jobs.queries import direct_children
     dependencies = direct_children(job_id, db)
-    
+
     # plus jobs that defined it
     from compmake.jobs.storage import get_job
     defined_by = get_job(job_id, db).defined_by
@@ -58,25 +66,25 @@ def direct_uptodate_deps(job_id, db):
 
 @contract(returns='set(str)')
 def direct_uptodate_deps_inverse(job_id, db):
-    """ Returns all jobs that have this as 
+    """ Returns all jobs that have this as
         a direct 'dependency'
         the jobs that are direct parents
         plus the jobs that were defined by it.
-        
+
         Assumes that the job is DONE.
     """
     from compmake.jobs.queries import direct_parents
     dep_inv = direct_parents(job_id, db)
     from compmake.jobs.storage import get_job_cache
     # Not sure if need to be here --- added when doing graph-animation for jobs in progress
-    if get_job_cache(job_id, db).state == Cache.DONE: 
+    if get_job_cache(job_id, db).state == Cache.DONE:
         dep_inv.update(jobs_defined(job_id, db))
-    return dep_inv 
+    return dep_inv
 
 
 @contract(returns='set(str)', job_id='str')
 def direct_uptodate_deps_inverse_closure(job_id, db):
-    """ 
+    """
         Closure of direct_uptodate_deps_inverse:
         all jobs that depend on this.
     """
@@ -93,13 +101,13 @@ def direct_uptodate_deps_inverse_closure(job_id, db):
     from compmake.jobs.storage import get_job_cache
     if get_job_cache(job_id, db).state == Cache.DONE:
         dep_inv.update(jobs_defined(job_id, db))
-    return dep_inv 
+    return dep_inv
 
 
 class CacheQueryDB(object):
-    """ 
+    """
         This works as a view on a DB which is assumed not to change
-        between calls. 
+        between calls.
     """
 
     def __init__(self, db):
@@ -122,7 +130,7 @@ class CacheQueryDB(object):
         from .storage import get_job_cache
 
         return get_job_cache(job_id, db=self.db)
-    
+
     @memoized_reset
     def jobs_defined(self, job_id):
         return jobs_defined(job_id, db=self.db)
@@ -164,7 +172,6 @@ class CacheQueryDB(object):
                 return False, 'Marked invalid', cache.timestamp
 
             dependencies = self.direct_children(job_id)
-
 
             for child in dependencies:
                 child_up, _, child_timestamp = self.up_to_date(child)
@@ -217,7 +224,7 @@ class CacheQueryDB(object):
         return True
 
     def tree(self, jobs):
-        """ More efficient version of tree() 
+        """ More efficient version of tree()
             which is direct_children() recursively. """
         stack = []
 
@@ -239,8 +246,8 @@ class CacheQueryDB(object):
     def list_todo_targets(self, jobs):
         """
             Returns a tuple (todo, jobs_done, ready):
-             todo:  set of job ids to do (children that are not up to date) 
-             done:  top level targets (in jobs) that are already done. 
+             todo:  set of job ids to do (children that are not up to date)
+             done:  top level targets (in jobs) that are already done.
              ready: ready to do (dependencies_up_to_date)
         """
         with db_error_wrap("list_todo_targets()", jobs=jobs):
