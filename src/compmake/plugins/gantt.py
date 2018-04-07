@@ -1,10 +1,9 @@
 from collections import  OrderedDict, namedtuple
 
-from networkx.algorithms.dag import topological_sort
-
 from compmake.jobs import CacheQueryDB
 from compmake.jobs.storage import all_jobs
 from compmake.ui import COMMANDS_ADVANCED, ui_command
+from networkx.algorithms.dag import topological_sort
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -29,7 +28,7 @@ def gantt(job_list, context, filename='gantt.html'):
         cache = cq.get_job_cache(job_id)
         length = cache.int_make.get_cputime_used()
         attr_dict = dict(cache=cache, length=length)
-        G.add_node(job_id, attr_dict)
+        G.add_node(job_id, **attr_dict)
 
         dependencies = cq.direct_children(job_id)
         for c in dependencies:
