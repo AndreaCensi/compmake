@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 from compmake.jobs.queries import definition_closure, jobs_defined
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse
@@ -64,4 +65,3 @@ class TestDynamicFailure(CompmakeTest):
         self.assert_cmd_fail('make recurse=1')
         # we have three jobs defined
         self.assertJobsEqual('all', ['fd'])
-        

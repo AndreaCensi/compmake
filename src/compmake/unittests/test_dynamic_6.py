@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .compmake_test import CompmakeTest
 from compmake import Context
 from compmake.jobs import direct_children, get_job, jobs_defined
@@ -85,5 +86,4 @@ class TestDynamic6(CompmakeTest):
         self.assert_cmd_success('make recurse=1')
         self.assertJobsEqual('all',  ['fd', 'fd-gd', 'fd-gd-g2', 'summary'])
         self.assertJobsEqual('done', ['fd', 'fd-gd', 'fd-gd-g2', 'summary']) 
-        
         

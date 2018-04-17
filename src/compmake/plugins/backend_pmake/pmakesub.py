@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from multiprocessing import TimeoutError
 import multiprocessing
 import signal

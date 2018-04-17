@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Contains queries of the job DB. """
 import warnings
 

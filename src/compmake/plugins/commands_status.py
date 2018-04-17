@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.events import register_handler
 from compmake.ui import error, info
 from contracts import indent

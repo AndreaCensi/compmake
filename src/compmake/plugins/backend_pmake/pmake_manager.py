@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from multiprocessing.queues import Queue
 import os
 import signal

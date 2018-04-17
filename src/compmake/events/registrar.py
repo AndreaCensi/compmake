@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake import CompmakeGlobalState, logger
 from compmake.context import Context
 from contracts import contract, indent

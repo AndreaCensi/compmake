@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 
 from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED

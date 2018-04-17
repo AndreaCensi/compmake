@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
 

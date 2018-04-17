@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ These are the commands available from the CLI.
 
 There are 3 special variables:

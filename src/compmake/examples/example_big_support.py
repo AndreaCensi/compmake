@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import random
 
 failure_prob = 0.3

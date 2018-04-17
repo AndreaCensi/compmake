@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 from compmake.jobs.queries import definition_closure, jobs_defined
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse
@@ -83,4 +84,3 @@ class TestDynamic8(CompmakeTest):
         # now the "other" job should disappear
         self.assertJobsEqual('all', ['fd', 'fd-always', 'fd-other'])
         self.assertJobsEqual('done', ['fd', 'fd-always'])
-        

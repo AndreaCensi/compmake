@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from .result_dict import result_dict_check

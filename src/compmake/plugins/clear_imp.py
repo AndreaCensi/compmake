@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.ui.helpers import GENERAL, ui_command
 
 

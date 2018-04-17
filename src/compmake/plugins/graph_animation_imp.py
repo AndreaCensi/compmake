@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.events.registrar import register_handler
 from compmake.plugins.graph import graph
 from compmake.ui.helpers import COMMANDS_ADVANCED, ui_command
@@ -111,4 +112,3 @@ def graph_animation(job_list, context, dirname="compmake-graph-animation",
     for e in events:
         register_handler(e, update_graph)
 
-    

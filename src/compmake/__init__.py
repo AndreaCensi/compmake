@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __version__ = '3.5.22'
 version = __version__ 
 

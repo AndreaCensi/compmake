@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # from ..ui import ui_command, GENERAL
 #
 #

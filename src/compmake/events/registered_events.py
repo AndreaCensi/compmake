@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Warning: this is an auto-generated file
 from .structures import EventSpec
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .mockup import mockup_recursive_5
 from nose.tools import istest
 from .compmake_test import CompmakeTest

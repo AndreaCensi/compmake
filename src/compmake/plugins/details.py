@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 import sys
 
@@ -82,6 +83,13 @@ def list_job_detail(job_id, context, cq, max_lines):
             # print(bold('Iterations:') + '%s' % cache.done_iterations)
             print(bold('Wall Time:') + '%.4f s' % cache2.walltime_used)
             print(bold('CPU Time:') + '%.4f s' % cache2.cputime_used)
+
+            print('making: %s' % cache2.int_make)
+            print('-- load: %s' % cache2.int_load_results)
+            print('-- comp: %s' % cache2.int_compute)
+            print('--   GC: %s' % cache2.int_gc)
+            print('-- save: %s' % cache2.int_save_results)
+
             print(bold('Host:') + '%s' % cache2.host)
 
             if not job_userobject_exists(job_id, db):

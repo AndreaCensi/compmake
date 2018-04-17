@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 from ..jobs import (children, direct_children, direct_parents, parents,
                     parse_job_list)

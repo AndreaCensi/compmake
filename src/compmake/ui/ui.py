@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..events import publish
 from ..exceptions import CommandFailed, UserError

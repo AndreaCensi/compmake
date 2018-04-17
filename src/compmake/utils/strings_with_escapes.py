@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 
 from .terminal_size import get_screen_columns

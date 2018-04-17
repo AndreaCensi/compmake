@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .coloredterm import termcolor_colored
 
 __all__ = [

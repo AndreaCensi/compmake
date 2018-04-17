@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from contracts import check_isinstance
 
 __all__ = [

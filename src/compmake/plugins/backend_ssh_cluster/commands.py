@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # @ui_command(section=COMMANDS_CLUSTER, dbchange=True)
 # def clustmake(job_list, context, cq):

@@ -1,26 +1,25 @@
-from logging import Formatter
-from time import clock, time
+# -*- coding: utf-8 -*-
 import logging
+from logging import Formatter
+from time import time
 
 from compmake import get_compmake_config
 from compmake.structures import IntervalTimer
 
-from ..events import publish
-from ..exceptions import JobFailed, JobInterrupted
-from ..structures import Cache
-from ..utils import OutputCapture, my_format_exc, setproctitle
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
-from .storage import (delete_job_cache, get_job,
-                      get_job_cache,
-                      set_job_cache, set_job_userobject)
-from .storage import job_cache_exists, set_job, job_exists
+from .storage import delete_job_cache, get_job, get_job_cache, set_job_cache, set_job_userobject, job_cache_exists, \
+    set_job, job_exists
+from ..events import publish
+from ..exceptions import JobFailed, JobInterrupted
+from ..structures import Cache
+from ..utils import OutputCapture, my_format_exc, setproctitle
 
 
 def clean_targets(job_list, db):
-#     print('clean_targets (%r)' % job_list)
+    #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
 
     # now we need to delete the definition closure
@@ -35,11 +34,11 @@ def clean_targets(job_list, db):
     for job_id in job_list:
         other_clean.update(parents(job_id, db))
     other_clean = other_clean - closure
-#
-#     print('deleting: %r' % closure)
-#     print('only cleaning: %r' % basic)
-#     print('other cleaning: %r' % other_clean)
-#
+    #
+    #     print('deleting: %r' % closure)
+    #     print('only cleaning: %r' % basic)
+    #     print('other cleaning: %r' % other_clean)
+    #
     for job_id in closure | basic | other_clean:
         clean_cache_relations(job_id, db)
 
@@ -65,7 +64,7 @@ def clean_targets(job_list, db):
 
 
 def clean_cache_relations(job_id, db):
-    #print('cleaning cache relations for %r ' % job_id)
+    # print('cleaning cache relations for %r ' % job_id)
     if not job_exists(job_id, db):
         print('Cleaning cache for job %r which does not exist anymore; ignoring' % job_id)
         return
@@ -76,18 +75,18 @@ def clean_cache_relations(job_id, db):
         for parent in direct_parents(job_id, db):
 
             parent_job = get_job(parent, db)
-            #print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
+            # print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
             if not job_id in parent_job.dynamic_children:
-                #print('    skipping parent %r ' % parent)
+                # print('    skipping parent %r ' % parent)
                 continue
             else:
                 dynamic_children = parent_job.dynamic_children[job_id]
-                #print('    dynamic_children %s' % parent_job.dynamic_children)
-                #print('    children %s' % parent_job.children)
+                # print('    dynamic_children %s' % parent_job.dynamic_children)
+                # print('    children %s' % parent_job.children)
                 del parent_job.dynamic_children[job_id]
                 parent_job.children = parent_job.children - dynamic_children
                 set_job(parent, parent_job, db)
-                #print('     changed in %s' % parent_job.children)
+                # print('     changed in %s' % parent_job.children)
 
 
 def mark_to_remake(job_id, db):
@@ -115,7 +114,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     set_job_cache(job_id, cache, db=db)
 
 
-def make(job_id, context, echo=False):  #@UnusedVariable
+def make(job_id, context, echo=False):  # @UnusedVariable
     """
         Makes a single job.
 
@@ -139,27 +138,27 @@ def make(job_id, context, echo=False):  #@UnusedVariable
         setproctitle('cm-%s' % job_id)
 
     # TODO: should we make sure we are up to date???
-#     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
-#     if up:
-#         msg = 'Job %r appears already done.' % job_id
-#         msg += 'This can only happen if another compmake process uses the ' \
-#                'same DB.'
-        #logger.error(msg)
-#         user_object = get_job_userobject(job_id, db=db)
-#         # XXX: this is not right anyway
-#         return dict(user_object=user_object,
-#                     user_object_deps=collect_dependencies(user_object),
-#                     deleted_jobs=[],
-#                     new_jobs=[])
+    #     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
+    #     if up:
+    #         msg = 'Job %r appears already done.' % job_id
+    #         msg += 'This can only happen if another compmake process uses the ' \
+    #                'same DB.'
+    # logger.error(msg)
+    #         user_object = get_job_userobject(job_id, db=db)
+    #         # XXX: this is not right anyway
+    #         return dict(user_object=user_object,
+    #                     user_object_deps=collect_dependencies(user_object),
+    #                     deleted_jobs=[],
+    #                     new_jobs=[])
 
     job = get_job(job_id, db=db)
     cache = get_job_cache(job_id, db=db)
 
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
-        #print('%s had previously defined %s' % (job_id, prev_defined_jobs))
+        # print('%s had previously defined %s' % (job_id, prev_defined_jobs))
     else:
-        #print('%s was not DONE' % job_id)
+        # print('%s was not DONE' % job_id)
         prev_defined_jobs = None
 
     # Note that at this point we save important information in the Cache
@@ -201,15 +200,16 @@ def make(job_id, context, echo=False):  #@UnusedVariable
             except:
                 s = 'Could not print log_record %s' % id(log_record)
 
-#            msg2 = colorize_loglevel(log_record.levelno, s)
-#            name = log_record.name
-#            s0 = ('%s:%s' % (name, msg2))
+            #            msg2 = colorize_loglevel(log_record.levelno, s)
+            #            name = log_record.name
+            #            s0 = ('%s:%s' % (name, msg2))
 
             log_record.msg = colorize_loglevel(log_record.levelno, s)
             res = formatter.format(log_record)
             print(res)
             # this will be captured by OutputCapture anyway
         except:
+            global nhidden
             nhidden += 1
 
     logging.StreamHandler.emit = my_emit
@@ -218,21 +218,21 @@ def make(job_id, context, echo=False):  #@UnusedVariable
 
     def get_deleted_jobs():
         generated = set(context.get_jobs_defined_in_this_session()) - already
-        #print('failure: rolling back %s' % generated)
+        # print('failure: rolling back %s' % generated)
 
         from compmake.ui.ui import delete_jobs_recurse_definition
 
-        todelete = set()
+        todelete_ = set()
         # delete the jobs that were previously defined
         if prev_defined_jobs:
-            todelete.update(prev_defined_jobs)
+            todelete_.update(prev_defined_jobs)
         # and also the ones that were generated
-        todelete.update(generated)
+        todelete_.update(generated)
 
-        deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
+        deleted_jobs_ = delete_jobs_recurse_definition(jobs=todelete_, db=db)
         # now we failed, so we need to roll back other changes
         # to the db
-        return deleted_jobs
+        return deleted_jobs_
 
     try:
         result = job_compute(job=job, context=context)
@@ -286,41 +286,41 @@ def make(job_id, context, echo=False):  #@UnusedVariable
             msg = 'compmake: There were %d messages hidden due to bugs in logging.' % nhidden
             print(msg)
         int_finally.stop()
-#        print('finally: %s' % int_finally)
+    #        print('finally: %s' % int_finally)
 
     int_save_results = IntervalTimer()
 
-    #print('Now %s has defined %s' % (job_id, new_jobs))
+    # print('Now %s has defined %s' % (job_id, new_jobs))
     if prev_defined_jobs is not None:
         # did we defined fewer jobs this time around?
         # then we need to delete them
         todelete = set()
         for x in prev_defined_jobs:
-            if not x in new_jobs:
+            if x not in new_jobs:
                 todelete.add(x)
         from compmake.ui.ui import delete_jobs_recurse_definition
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
     else:
         deleted_jobs = set()
 
-    #print('Now %s has deleted %s' % (job_id, deleted_jobs))
+    # print('Now %s has deleted %s' % (job_id, deleted_jobs))
 
     set_job_userobject(job_id, user_object, db=db)
     int_save_results.stop()
 
-#    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
+    #    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
 
     int_make.stop()
     end_time = time()
 
     cache = Cache(Cache.DONE)
 
-#    print('int_make: %s' % int_make)
-#    print('int_load_results: %s' % int_load_results)
-#    print('int_compute: %s' % int_compute)
+    #    print('int_make: %s' % int_make)
+    #    print('int_load_results: %s' % int_load_results)
+    #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
         print('Expensive garbage collection detected: %s' % int_gc)
-#    print('int_save_results: %s' % int_save_results)
+    #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make
     cache.int_load_results = int_load_results
@@ -340,4 +340,3 @@ def make(job_id, context, echo=False):  #@UnusedVariable
                 user_object_deps=collect_dependencies(user_object),
                 new_jobs=new_jobs,
                 deleted_jobs=deleted_jobs)
-

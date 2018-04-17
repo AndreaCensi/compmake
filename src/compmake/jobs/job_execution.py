@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 from compmake.structures import IntervalTimer
 from contracts import check_isinstance, contract
@@ -6,7 +6,7 @@ from contracts import check_isinstance, contract
 from ..exceptions import CompmakeBug
 from ..structures import Job
 from .dependencies import collect_dependencies, substitute_dependencies
-from .storage import get_job_args
+from .storage import get_job_args, job_userobject_exists
 
 __all__ = [
     'job_compute',
@@ -20,8 +20,6 @@ def get_cmd_args_kwargs(job_id, db):
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
-        from compmake.jobs.storage import job_userobject_exists
-
         if not job_userobject_exists(dep, db):
             msg = 'Dependency %r was not done.' % dep
             raise CompmakeBug(msg)

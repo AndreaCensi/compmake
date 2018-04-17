@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.context import Context
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.unittests.compmake_test import CompmakeTest
@@ -52,4 +53,3 @@ class TestDynamic5(CompmakeTest):
         self.assert_cmd_success('make recurse=1')
         self.assertJobsEqual('all',  ['fd', 'fd-gd', 'fd-gd-g2'])
         self.assertJobsEqual('done', ['fd', 'fd-gd', 'fd-gd-g2']) 
-        

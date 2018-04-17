@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .visualization import *
 from .helpers import *
 from .commands import *

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.utils.memoize_imp import memoized_reset
 import sys
 

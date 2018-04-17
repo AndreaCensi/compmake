@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from contracts import indent, raise_wrapped
 
 

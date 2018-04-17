@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 from collections import defaultdict
 

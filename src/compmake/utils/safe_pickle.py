@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 
 from .debug_pickler import find_pickling_error
