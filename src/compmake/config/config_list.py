@@ -37,7 +37,7 @@ add_config_switch('check_params', False,
                   # objects you use as parameters.",
                   section=CONFIG_GENERAL)
 
-add_config_switch('manager_wait', 0.1,
+add_config_switch('manager_wait', 0.001,
                   desc="Sleep time, in seconds, to wait if no job has finished. ",
 #                   "Low value gives responsiveness but higher CPU usage",
                   section=CONFIG_GENERAL)

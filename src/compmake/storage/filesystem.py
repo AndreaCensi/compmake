@@ -8,7 +8,7 @@ import traceback
 from compmake import logger
 from compmake.exceptions import CompmakeBug, SerializationError
 from compmake.utils import (find_pickling_error, safe_pickle_dump,
-                            safe_pickle_load)
+                            safe_pickle_load, memoized_reset)
 from compmake.utils.safe_write import write_data_to_file
 
 if True:
@@ -144,18 +144,21 @@ class StorageFilesystem(object):
         '~': 'CMHOME'
     }
 
+    @memoized_reset
     def key2basename(self, key):
         """ turns a key into a reasonable filename"""
         for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
+    @memoized_reset
     def basename2key(self, key):
         """ Undoes key2basename """
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key
 
+    @memoized_reset
     def filename_for_key(self, key):
         """ Returns the pickle storage filename corresponding to the job id """
         f = self.key2basename(key) + self.file_extension
