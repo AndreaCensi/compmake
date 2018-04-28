@@ -3,19 +3,17 @@ import logging
 from logging import Formatter
 from time import time
 
-from compmake import get_compmake_config
-from compmake.structures import IntervalTimer
+from compmake import get_compmake_config, logger
+from compmake.events import publish
+from compmake.exceptions import JobFailed, JobInterrupted
+from compmake.structures import IntervalTimer, Cache
+from compmake.utils import OutputCapture, my_format_exc, setproctitle
 
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
-from .storage import delete_job_cache, get_job, get_job_cache, set_job_cache, set_job_userobject, job_cache_exists, \
-    set_job, job_exists
-from ..events import publish
-from ..exceptions import JobFailed, JobInterrupted
-from ..structures import Cache
-from ..utils import OutputCapture, my_format_exc, setproctitle
+from .storage import delete_job_cache, get_job, get_job_cache, set_job_cache, set_job_userobject, job_cache_exists, set_job, job_exists
 
 
 def clean_targets(job_list, db):
@@ -73,7 +71,11 @@ def clean_cache_relations(job_id, db):
     cache = get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
         for parent in direct_parents(job_id, db):
-
+            if not job_exists(parent, db):
+                msg = ('Could not find job %r (parent of %s) - ok if the job was deleted'
+                       ' otherwise it is a bug' % (parent, job_id))
+                logger.warning(msg)
+                continue
             parent_job = get_job(parent, db)
             # print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
             if not job_id in parent_job.dynamic_children:
@@ -188,7 +190,9 @@ def make(job_id, context, echo=False):  # @UnusedVariable
     FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
 
     formatter = Formatter(FORMAT)
-    nhidden = 0
+
+    class Store(object):
+        nhidden = 0
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
@@ -209,8 +213,7 @@ def make(job_id, context, echo=False):  # @UnusedVariable
             print(res)
             # this will be captured by OutputCapture anyway
         except:
-            global nhidden
-            nhidden += 1
+            Store.nhidden += 1
 
     logging.StreamHandler.emit = my_emit
 
@@ -282,8 +285,8 @@ def make(job_id, context, echo=False):  # @UnusedVariable
         capture.deactivate()
         # even if we send an error, let's save the output of the process
         logging.StreamHandler.emit = old_emit
-        if nhidden > 0:
-            msg = 'compmake: There were %d messages hidden due to bugs in logging.' % nhidden
+        if Store.nhidden > 0:
+            msg = 'compmake: There were %d messages hidden due to bugs in logging.' % Store.nhidden
             print(msg)
         int_finally.stop()
     #        print('finally: %s' % int_finally)
@@ -319,7 +322,7 @@ def make(job_id, context, echo=False):  # @UnusedVariable
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        print('Expensive garbage collection detected: %s' % int_gc)
+        logger.warning('Expensive garbage collection detected at the end of %s: %s' % (job_id, int_gc))
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make

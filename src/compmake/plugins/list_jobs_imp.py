@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
-from time import time
 import os
+from time import time
 
 from compmake.constants import CompmakeConstants
-from compmake.structures import timing_summary, cache_has_large_overhead
+from compmake.jobs import parse_job_list
+from compmake.jobs.storage import (job_args_sizeof, job_cache_exists,
+                                   job_cache_sizeof,
+                                   job_userobject_exists, job_userobject_sizeof)
+from compmake.jobs.syntax.parsing import is_root_job
+from compmake.structures import timing_summary, cache_has_large_overhead, Cache
+from compmake.ui import VISUALIZATION, compmake_colored, ui_command
+from compmake.utils import (duration_compact)
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
 from contracts import contract
-
-from ..jobs import parse_job_list
-from ..jobs.storage import (job_args_sizeof, job_cache_exists,
-                            job_cache_sizeof,
-                            job_userobject_exists, job_userobject_sizeof)
-from ..jobs.syntax.parsing import is_root_job
-from ..structures import Cache
-from ..ui import VISUALIZATION, compmake_colored, ui_command
-from ..utils import (duration_compact)
 
 # red, green, yellow, blue, magenta, cyan, white.
 state2color = {
     # (state, uptodate)
     (Cache.NOT_STARTED, False): {},
-#     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
+    #     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
     (Cache.FAILED, False): {'color': 'red'},
     (Cache.BLOCKED, True): {'color': 'yellow'},
     (Cache.BLOCKED, False): {'color': 'yellow'},  # XXX
@@ -41,7 +39,7 @@ else:
 
 
 @ui_command(section=VISUALIZATION, alias='list')
-def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssignment
+def ls(args, context, cq, complete_names=False, reason=False, all_details=False):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified
         specified).
@@ -60,7 +58,7 @@ def ls(args, context, cq, complete_names=False, reason=False):  # @ReservedAssig
     job_list = list(job_list)
     CompmakeConstants.aliases['last'] = job_list
     list_jobs(context, job_list, cq=cq, complete_names=complete_names,
-              reason=reason)
+              reason=reason, all_details=all_details)
     return 0
 
 
@@ -92,8 +90,8 @@ def minimal_names(objects):
     objects_i = [o[::-1] for o in objects]
     # find postfix
     postfix = os.path.commonprefix(objects_i)[::-1]
-#     print(objects)
-#     print('prefix: %r post: %r' % (prefix, postfix))
+    #     print(objects)
+    #     print('prefix: %r post: %r' % (prefix, postfix))
     n1 = len(prefix)
     n2 = len(postfix)
     # remove it
@@ -107,7 +105,7 @@ def minimal_names(objects):
     return prefix, minimal, postfix
 
 
-def list_jobs(context, job_list, cq, complete_names=False,
+def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
               reason=False):  # @UnusedVariable
 
     job_list = list(job_list)
@@ -129,9 +127,9 @@ def list_jobs(context, job_list, cq, complete_names=False,
             return ajob_id[:15] + ' ... ' + ajob_id[-r:]
 
     # abbreviates the names
-#     if not complete_names:
-#         prefix, abbreviated, postfix = minimal_names(job_list)
-#         job_list = abbreviated
+    #     if not complete_names:
+    #         prefix, abbreviated, postfix = minimal_names(job_list)
+    #         job_list = abbreviated
 
     jlen = max(len(format_job_id(x)) for x in job_list)
 
@@ -201,7 +199,7 @@ def list_jobs(context, job_list, cq, complete_names=False,
             cpu = cache.cputime_used
             cpu_total.append(cpu)
 
-            if cpu > 5 or cache_has_large_overhead(cache):  # TODO: add param
+            if cpu > 5 or cache_has_large_overhead(cache) or all_details:  # TODO: add param
                 # s_cpu = duration_compact(cpu)
                 s_cpu = timing_summary(cache)
             else:
@@ -233,8 +231,8 @@ def list_jobs(context, job_list, cq, complete_names=False,
             print(ind + line)
     else:
         linewidth = get_screen_columns()
-        #print('*'*linewidth)
-        #sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
+        # print('*'*linewidth)
+        # sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
         sep = '   ' + compmake_colored('|', **format_separator) + '   '
 
         for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
@@ -278,4 +276,3 @@ def get_sizes(job_id, db):
 
     res['total'] = res['cache'] + res['args'] + res['result']
     return res
-
