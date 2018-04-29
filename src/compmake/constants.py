@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 __all__ = [
     'CompmakeConstants',
     'DefaultsToConfig',
 ]
 
 
-class CompmakeConstants():
+class CompmakeConstants(object):
     """ Arbitrary constants used in the code. """
 
     # DO NOT change these -- they are part of Compmake's interface
@@ -29,10 +30,10 @@ class CompmakeConstants():
     compmake_status_embedded = 'embedded'
 
     # debug_origin_of_prints = True
-    debug_check_invariants = False # TODO: make config
+    debug_check_invariants = False  # TODO: make config
 
     disable_interproc_queue = False
-    
+
     extra_checks_job_states = False
 
     # Try to recover from anomalous situations
@@ -41,11 +42,8 @@ class CompmakeConstants():
     aliases = {}
 
 
-class DefaultsToConfig():
+class DefaultsToConfig(object):
     """ Used to mean the param's default is from a config switch. """
 
     def __init__(self, switch):
         self.switch = switch
-        
-
-

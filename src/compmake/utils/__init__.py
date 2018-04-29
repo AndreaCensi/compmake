@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake import logger
 
 from .safe_write import *

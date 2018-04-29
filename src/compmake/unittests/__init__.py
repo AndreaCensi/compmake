@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 _multiprocess_can_split_ = True # Run parallel mcdp_lang_tests
 from .compmake_test import *
 

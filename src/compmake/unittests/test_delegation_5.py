@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.context import Context
 from compmake.jobs import get_job
 from compmake.storage.filesystem import StorageFilesystem

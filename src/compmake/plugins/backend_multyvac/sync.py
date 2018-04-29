@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.state import get_compmake_config
 from contracts import contract
 import os

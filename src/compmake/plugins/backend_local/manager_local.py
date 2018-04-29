@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake import CompmakeBug
 from compmake.jobs import (AsyncResultInterface, Manager, make,
                            parmake_job2_new_process)

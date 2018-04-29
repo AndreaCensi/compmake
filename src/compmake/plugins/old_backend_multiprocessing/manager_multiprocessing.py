@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Queue import Empty
 from multiprocessing import Pool
 from multiprocessing.queues import Queue

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Jan 14 copied from conf_tools
 import traceback
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from nose.tools import istest
 
 from .. import set_compmake_status, CompmakeConstants

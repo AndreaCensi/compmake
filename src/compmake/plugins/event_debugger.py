@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This plugin dumps all events received. """
 import sys
 

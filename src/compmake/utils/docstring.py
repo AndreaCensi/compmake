@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 
 # Code copied from PEP-0257

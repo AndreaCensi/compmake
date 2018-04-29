@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import ABCMeta
 from shutil import rmtree
 from tempfile import mkdtemp

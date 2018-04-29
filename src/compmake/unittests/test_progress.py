@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..jobs import init_progress_tracking
 from compmake import progress
 from contracts import ContractNotRespected

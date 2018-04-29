@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
@@ -59,8 +60,6 @@
 
 
 '''
-
-import os
 
 from compmake.utils.duration_hum import duration_compact
 from compmake.utils.pickle_frustration import pickle_main_context_save
@@ -185,10 +184,13 @@ class IntervalTimer(object):
     def walltime_interval(self):
         if not self.stopped:
             raise ValueError('not stopped')
-        return (self.t0, self.t1)
+        return self.t0, self.t1
 
     def __str__(self):
-        return 'Timer(t0: %s; t1: %s; delta %s) ' % (self.t0, self.t1, self.t1 - self.t0)
+        # return 'Timer(t0: %s; t1: %s; delta %s) ' % (self.t0, self.t1, self.t1 - self.t0)
+
+        return 'Timer(wall %dms cpu %dms) ' % ((self.t1 - self.t0) * 1000,
+                                               (self.c1 - self.c0) * 1000)
 
 
 class Cache(object):
@@ -252,7 +254,6 @@ class Cache(object):
 
 
 def cache_has_large_overhead(cache):
-
     overhead = (cache.int_load_results.get_walltime_used() +
                 cache.int_save_results.get_walltime_used() +
                 cache.int_gc.get_walltime_used())
@@ -262,10 +263,10 @@ def cache_has_large_overhead(cache):
 def timing_summary(cache):
     dc = duration_compact
     s = '%7s (L %s C %s GC %s S %s)' % (dc(cache.int_make.get_walltime_used()),
-                                   dc(cache.int_load_results.get_walltime_used()),
-                                   dc(cache.int_compute.get_walltime_used()),
-                                   dc(cache.int_gc.get_walltime_used()),
-                                   dc(cache.int_save_results.get_walltime_used()),)
+                                        dc(cache.int_load_results.get_walltime_used()),
+                                        dc(cache.int_compute.get_walltime_used()),
+                                        dc(cache.int_gc.get_walltime_used()),
+                                        dc(cache.int_save_results.get_walltime_used()),)
     return s
 
 
@@ -288,4 +289,3 @@ class ProgressStage(object):
             return (self.iterations[0] >= self.iterations[1] - 1)
         else:
             return self.iterations[0] >= self.iterations[1]
-

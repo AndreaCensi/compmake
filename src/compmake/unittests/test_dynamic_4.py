@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from nose.tools import istest
 from compmake.unittests.compmake_test import CompmakeTest
 from compmake.unittests.mockup_dynamic_4 import mockup_dyn4

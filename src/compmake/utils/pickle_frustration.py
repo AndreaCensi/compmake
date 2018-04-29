@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from contracts import contract
 import os, sys
 from contextlib import contextmanager

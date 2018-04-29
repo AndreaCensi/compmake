@@ -1,35 +1,35 @@
-import os
 from setuptools import setup, find_packages
 
 
 def get_version(filename):
     import ast
-    version = None
+    version_ = None
     with file(filename) as f:
         for line in f:
             if line.startswith('__version__'):
-                version = ast.parse(line).body[0].value.s
+                version_ = ast.parse(line).body[0].value.s
                 break
         else:
             raise ValueError('No version found in %r.' % filename)
-    if version is None:
+    if version_ is None:
         raise ValueError(filename)
-    return version
+    return version_
+
 
 version = get_version(filename='src/compmake/__init__.py')
 
 setup(
-    name='compmake',
-    author="Andrea Censi",
-    url='http://compmake.org',
-    version=version,
+        name='compmake',
+        author="Andrea Censi",
+        url='http://compmake.org',
+        version=version,
 
-    description="Compmake is a non-obtrusive module that provides "
-        "'make'-like facilities to your Python applications,"
-        "including caching of results, robustness to jobs failure, "
-        "and multiprocessing/multihost parallel processing.",
+        description="Compmake is a non-obtrusive module that provides "
+                    "'make'-like facilities to your Python applications,"
+                    "including caching of results, robustness to jobs failure, "
+                    "and multiprocessing/multihost parallel processing.",
 
-    long_description="""
+        long_description="""
         Compmake is a non-obtrusive module that provides 
         'make'-like facilities to your Python applications,
         including caching of results, robustness to jobs failure,
@@ -39,40 +39,39 @@ setup(
         and get the manual PDF at: http://purl.org/censi/compmake-manual
     """,
 
-    keywords="parallel processing, make, cmake, manager, recovery",
-    license="LGPL",
+        keywords="parallel processing, make, cmake, manager, recovery",
+        license="LGPL",
 
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering',
-        'Topic :: System :: Clustering',
-        'Topic :: System :: Distributed Computing',
-        'Topic :: System :: Hardware :: Symmetric Multi-processing',
-        'License :: OSI Approved :: GNU Library or '
-        'Lesser General Public License (LGPL)',
-    ],
+        classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
+            'Topic :: Scientific/Engineering',
+            'Topic :: System :: Clustering',
+            'Topic :: System :: Distributed Computing',
+            'Topic :: System :: Hardware :: Symmetric Multi-processing',
+            'License :: OSI Approved :: GNU Library or '
+            'Lesser General Public License (LGPL)',
+        ],
 
-    package_dir={'':'src'},
-    packages=find_packages('src'),
-    entry_points={
-     'console_scripts': [
-       'compmake = compmake.scripts.master:main',
-       #'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
-      ]
-    },
-    install_requires=[
-        'PyContracts',
-        'termcolor',
-        'setproctitle',
-        'PyYaml',
-        'psutil',
-        'decorator', 
-        'SystemCmd',
-        #'pyreadline',
-    ],
+        package_dir={'': 'src'},
+        packages=find_packages('src'),
+        entry_points={
+            'console_scripts': [
+                'compmake = compmake.scripts.master:main',
+                # 'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
+            ]
+        },
+        install_requires=[
+            'PyContracts',
+            'termcolor',
+            'setproctitle',
+            'PyYaml',
+            'psutil',
+            'decorator',
+            'SystemCmd',
+            # 'pyreadline',
+        ],
 
-    tests_require=['nose'],
+        tests_require=['nose'],
 )
-

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from contextlib import contextmanager
 import gzip
 import os
@@ -116,4 +117,3 @@ def write_data_to_file(data, filename, quiet=False):
         
     if not quiet:
         logger.debug('Written to: %s' % friendly_path(filename))
-    

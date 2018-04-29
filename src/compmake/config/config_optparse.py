@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from optparse import OptionGroup, OptionValueError
 
 from .. import CompmakeGlobalState

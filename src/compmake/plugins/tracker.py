@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..events import register_handler
 
 __all__ = [

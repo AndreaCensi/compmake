@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..structures import Cache
 from ..jobs import get_job_cache
 from nose.tools import istest
@@ -41,7 +42,6 @@ class TestBlocked(CompmakeTest):
         self.assertMakeFailed(run, nfailed=1, nblocked=1)
 
         check_job_states(self.db, A=Cache.DONE, B=Cache.FAILED, C=Cache.BLOCKED)
-        
         
         
         

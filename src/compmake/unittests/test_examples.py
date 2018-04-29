@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .expected_fail import expected_failure
 from contextlib import contextmanager
 from contracts import indent
@@ -147,4 +148,3 @@ if True:
 #     @expected_failure
     def test_example_simple4():
         run_example('example_simple', cmd_make4)
-        

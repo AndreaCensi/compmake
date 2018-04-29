@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager

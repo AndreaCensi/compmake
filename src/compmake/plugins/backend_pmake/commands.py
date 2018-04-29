@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .pmake_manager import PmakeManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish

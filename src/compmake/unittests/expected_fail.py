@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import functools
 import nose
 

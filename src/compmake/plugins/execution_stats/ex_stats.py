@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake import Promise
 from compmake.jobs import get_job_cache
 from compmake.jobs.uptodate import CacheQueryDB

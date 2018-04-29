@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.context import Context
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed
 from compmake.jobs import result_dict_check

@@ -1,4 +1,5 @@
-# ssh -R 12000:localhost:6379 nessa.cds.caltech.edu 
+# -*- coding: utf-8 -*-
+# ssh -R 12000:localhost:6379 nessa.cds.caltech.edu
 # "compmake --db=redis --host localhost:12000 --slave make 
 # v_rangefinder_nonunif-random_pose_simulation "
 from collections import namedtuple

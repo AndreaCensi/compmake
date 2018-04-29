@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Queue import Full
 
 from compmake.constants import CompmakeConstants
@@ -101,4 +102,3 @@ def parmake_job2(args):
     finally:
         publish(context, 'worker-status', job_id=job_id, status='cleanup')
         setproctitle('compmake-worker-finished %s' % job_id)
-        

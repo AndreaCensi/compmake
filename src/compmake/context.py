@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 
 from contracts import contract
-
 
 __all__ = [
     'Context',
@@ -26,7 +26,7 @@ class Context(object):
         if db is None:
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
 
-            #logger.info('Context(): Using default storage dir %r.' % prog)
+            # logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = 'out-%s' % prog
             db = StorageFilesystem(dirname)
 
@@ -38,10 +38,10 @@ class Context(object):
         self._jobs_defined_in_this_session = set()
         self.currently_executing = currently_executing
         self._job_prefix = None
-        
+
         # RC files read
         self.rc_files_read = []
-        
+
         # counters for prefixes (generate_job_id)
         self.generate_job_id_counters = {}
 
@@ -131,7 +131,7 @@ def comp_store_(x, context, job_id=None):
     id_object = id(x)
 
     book = context.comp_store.objectid2job
-    if not id_object in book:
+    if id_object not in book:
         job_params = {}
         if job_id is not None:
             job_params['job_id'] = job_id

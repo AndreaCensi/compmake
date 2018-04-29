@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from compmake.utils import safe_pickle_load
 
 # module = sys.modules['__main__']

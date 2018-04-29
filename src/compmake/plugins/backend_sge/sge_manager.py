@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from .sge_misc import check_sge_environment
