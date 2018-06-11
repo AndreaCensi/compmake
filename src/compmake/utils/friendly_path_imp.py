@@ -39,7 +39,7 @@ def friendly_path(path, use_environment=True):
             if v:
                 if v and v[-1] == '/':
                     v = v[:-1]
-                if v[0] == '/':
+                if v and v[0] == '/':
                     rules.append(('${%s}' % k, v))
 
     # apply longest first
