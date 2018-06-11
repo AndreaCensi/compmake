@@ -227,13 +227,18 @@ def comp_(context, command_, *args, **kwargs):
     # Get job id from arguments
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
-        argspec = inspect.getargspec(command)
-
-        if CompmakeConstants.job_id_key in argspec.args:
-            msg = ("You cannot define the job id in this way because %r "
-                   "is already a parameter of this function." %
-                   CompmakeConstants.job_id_key)
-            raise UserError(msg)
+        try:
+            argspec = inspect.getargspec(command)
+        except TypeError:
+            # Assume Cython function
+            # XXX: write test
+            pass
+        else:
+            if CompmakeConstants.job_id_key in argspec.args:
+                msg = ("You cannot define the job id in this way because %r "
+                       "is already a parameter of this function." %
+                       CompmakeConstants.job_id_key)
+                raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
         check_isinstance(job_id, str)
@@ -250,22 +255,15 @@ def comp_(context, command_, *args, **kwargs):
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
-                pass
-                print(
-                    'The job %r was defined but not found in DB. I will let '
-                    'it '
-                    'slide.' % job_id)
+                msg = 'The job %r was defined but not found in DB. I will let it slide.' % job_id
+                print(msg)
             else:
-                print(
-                    'The job %r was already defined in this session.' % job_id)
+                msg = 'The job %r was already defined in this session.' % job_id
                 old_job = get_job(job_id, db=db)
-                print('  old_job.defined_by: %s ' % old_job.defined_by)
-                print(
-                    ' context.currently_executing: %s ' %
-                    context.currently_executing)
-                print(
-                    ' others defined in session: %s' %
-                    context.get_jobs_defined_in_this_session())
+                msg += '\n  old_job.defined_by: %s ' % old_job.defined_by
+                msg += '\n context.currently_executing: %s ' % context.currently_executing
+                msg += ' others defined in session: %s' % context.get_jobs_defined_in_this_session()
+                print(msg)
 #                 warnings.warn('I know something is more complicated here')
                 #             if old_job.defined_by is not None and
                 # old_job.defined_by == context.currently_executing:
