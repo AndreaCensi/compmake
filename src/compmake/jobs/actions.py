@@ -250,7 +250,7 @@ def make(job_id, context, echo=False):  # @UnusedVariable
         int_gc.stop()
 
     except KeyboardInterrupt as e:
-        bt = my_format_exc(e)
+        bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
         mark_as_failed(job_id, 'KeyboardInterrupt: ' + str(e), backtrace=bt, db=db)
 

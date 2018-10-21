@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
+import pickle
 from io import BytesIO as StringIO
 # noinspection PyProtectedMember
 from pickle import (
     EMPTY_TUPLE, MARK, POP, POP_MARK, Pickler, SETITEM, SETITEMS, TUPLE,
     _tuplesize2code)
-import pickle
 
-from .. import logger
-from .format_exceptions import my_format_exc
 from contracts import describe_type
 from past.builtins import xrange
+
+from .. import logger
 
 __all__ = [
     'find_pickling_error',
 ]
+import traceback
 
 
 def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
@@ -21,8 +22,10 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     try:
         pickle.dumps(obj)
     except Exception:
-        pass
+        msg_old = '\n --- Old exception----\n%s' % traceback.format_exc()
+
     else:
+        msg_old = ''
         msg = ('Strange! I could not reproduce the pickling error '
                'for the object of class %s' % describe_type(obj))
         logger.info(msg)
@@ -33,8 +36,8 @@ def find_pickling_error(obj, protocol=pickle.HIGHEST_PROTOCOL):
     except Exception as e1:
         msg = pickler.get_stack_description()
 
-        msg += '\n --- Current exception----\n%s' % my_format_exc(e1)
-        msg += '\n --- Old exception----\n%s' % my_format_exc(e1)
+        msg += '\n --- Current exception----\n%s' % traceback.format_exc()
+        msg += msg_old
         return msg
     else:
         msg = 'I could not find the exact pickling error.'

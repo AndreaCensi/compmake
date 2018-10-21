@@ -28,21 +28,22 @@ def import_name(name):
             module_name = ".".join(tokens[:-1])
 
             if False:  # previous method
-                try:
-                    module = __import__(module_name, fromlist=['dummy'])
-                except ImportError as e:
-                    msg = ('Cannot load %r (tried also with %r):\n' %
-                           (name, module_name))
-                    msg += '\n' + indent(
-                        '%s\n%s' % (e, traceback.format_exc(e)), '> ')
-                    raise ValueError(msg)
-
-                if not field in module.__dict__:
-                    msg = 'No field  %r\n' % field
-                    msg += ' found in %r.' % module
-                    raise ValueError(msg)
-
-                return module.__dict__[field]
+                pass
+                # try:
+                #     module = __import__(module_name, fromlist=['dummy'])
+                # except ImportError as e:
+                #     msg = ('Cannot load %r (tried also with %r):\n' %
+                #            (name, module_name))
+                #     msg += '\n' + indent(
+                #         '%s\n%s' % (e, traceback.format_exc(e)), '> ')
+                #     raise ValueError(msg)
+                #
+                # if not field in module.__dict__:
+                #     msg = 'No field  %r\n' % field
+                #     msg += ' found in %r.' % module
+                #     raise ValueError(msg)
+                #
+                # return module.__dict__[field]
             else:
                 # other method, don't assume that in "M.x", "M" is a module.
                 # It could be a class as well, and "x" be a staticmethod.
@@ -71,5 +72,5 @@ def import_name(name):
 
         else:
             msg = 'Cannot import name %r.' % name
-            msg += indent(traceback.format_exc(e), '> ')
+            msg += indent(traceback.format_exc(), '> ')
             raise ValueError(msg)

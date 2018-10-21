@@ -388,7 +388,7 @@ class Manager(ManagerLog):
             # No, don't mark as failed
             # (even though knowing where it was interrupted was good)
             # XXX
-            print(traceback.format_exc(e))
+            print(traceback.format_exc())
             raise JobInterrupted('Keyboard interrupt')
 
     def job_is_deleted(self, job_id):
