@@ -24,7 +24,10 @@ class LineSplitter(object):
 
     def append_chars(self, s):
         # TODO: make this faster
-        s = str(s)
+        if six.PY3:
+            s = s.decode()
+        else:
+            s = str(s)
         for char in s:
             if char == '\n':
                 self.current_lines.append(self.current)
@@ -85,10 +88,11 @@ class OutputCapture(object):
 
         from ..events import publish
 
-        def publish_stdout(lines):  # @UnusedVariable
+        def publish_stdout(lines):
+
             publish(context, 'job-stdout', job_id=prefix, lines=lines)
 
-        def publish_stderr(lines):  # @UnusedVariable
+        def publish_stderr(lines):
             publish(context, 'job-stderr', job_id=prefix, lines=lines)
 
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
