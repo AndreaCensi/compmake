@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 def get_version(filename):
     import ast
     version_ = None
-    with file(filename) as f:
+    with open(filename) as f:
         for line in f:
             if line.startswith('__version__'):
                 version_ = ast.parse(line).body[0].value.s

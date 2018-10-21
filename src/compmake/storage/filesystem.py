@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from glob import glob
-from os.path import basename
 import os
 import stat
 import traceback
+from glob import glob
+from os.path import basename
 
 from compmake import logger
 from compmake.exceptions import CompmakeBug, SerializationError
@@ -196,4 +196,3 @@ def create_scripts(basepath):
     f = os.path.join(basepath, 'run')
     write_data_to_file(s, f, quiet=True)
     chmod_plus_x(f)
-

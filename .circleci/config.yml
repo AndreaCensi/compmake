@@ -1,35 +1,35 @@
 version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-3.6
+      - test-3.5
+      - test-2.7
 jobs:
-    build:
-     docker:
-        - image: andreacensi/duckietown-xenial-kinetic:18
-     steps:
-        - checkout
+  test-3.6: &test-template
+    docker:
+      - image: circleci/python:3.6-jessie
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Install deps
+          command: |
+            pip install --user --upgrade -r requirements.txt
+            python setup.py develop --prefix ~/.local --no-deps
 
-        - run:
-            name: Install
-            command: |
-                python setup.py develop
+      - run:
+          name: Run tests
+          command: |
+            pip install nose
+            nosetests compmake
 
-        - run:
-            command:  |
-                nosetests compmake
-            environment:
-                MPLBACKEND: agg
-#
-# - run:
-#     when: always
-#     command: |
-#         mkdir -p out/comptests/junit
-#         comptests-to-junit  out/comptests/compmake >  out/comptests/junit/junit.xml
-# - test-results-store:
-#         path: out/comptests/junit
-#
-# - run:
-#     when: always
-#     command: |
-#         ./misc/generate-other-reports.sh
-#
-# - store_artifacts:
-#       path: out
-#       destination: out
+  test-3.5:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.5-jessie
+  test-2.7:
+    <<: *test-template
+    docker:
+      - image: circleci/python:2.7-jessie
