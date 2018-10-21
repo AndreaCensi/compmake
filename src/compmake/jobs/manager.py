@@ -50,7 +50,7 @@ class AsyncResultInterface(object):
             - raises JobInterrupted
             - raises TimeoutError (not ready)
         """
-
+import sys
 
 class ManagerLog(object):
     __metaclass__ = ContractsMeta
@@ -61,11 +61,17 @@ class ManagerLog(object):
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
         log = os.path.join(logdir, 'manager.log')
+        log = 'manager-%s.log' % sys.version
+        print('logging to %s' % log)
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
 
     def log(self, s, **kwargs):
-        for k, v in kwargs.items():
+
+        for k in sorted(kwargs):
+            v = kwargs[k]
+            if isinstance(v, set):
+                v = sorted(v)
             s += '\n - %15s: %s' % (k, v)
         self.f.write(s)
         # print(s)
@@ -192,7 +198,7 @@ class Manager(ManagerLog):
                  ready_todo=ready_todo,
                  not_ready=not_ready)
 
-        self.log('targets_todo_plus_deps: %s' % targets_todo_plus_deps)
+        self.log('targets_todo_plus_deps: %s' % sorted(targets_todo_plus_deps))
 
         # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
         # print('           targets_done: %s ' % targets_done)
@@ -404,7 +410,7 @@ class Manager(ManagerLog):
             self.deleted.add(job_id)
 
     def check_job_finished_handle_result(self, job_id, result):
-        # print('result of %r: %s' % (job_id, result))
+        print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
                  new_jobs=result['new_jobs'],
@@ -413,7 +419,7 @@ class Manager(ManagerLog):
 
         new_jobs = result['new_jobs']
         deleted_jobs = result['deleted_jobs']
-        # print('deleted jobs: %r' % deleted_jobs)
+        # self.log('deleted jobs: %r' % list(deleted_jobs))
         for _ in deleted_jobs:
             self.job_is_deleted(_)
         # print('Job %r generated %r' % (job_id, new_jobs))
@@ -518,11 +524,12 @@ class Manager(ManagerLog):
     def job_failed(self, job_id, deleted_jobs):
         """ The specified job has failed. Update the structures,
             mark any parent as failed as well. """
-        self.log('job_failed', job_id=job_id)
+        self.log('job_failed', job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
         assert job_id in self.processing
 
-        map(self.job_is_deleted, deleted_jobs)
+        for _ in deleted_jobs:
+            self.job_is_deleted(_)
 
         self.failed.add(job_id)
         self.processing.remove(job_id)
@@ -672,7 +679,7 @@ class Manager(ManagerLog):
         try:
             i = 0
             while self.todo or self.ready_todo or self.processing:
-                # print(indent(self._get_situation_string(), '%s: ' % i))
+                self.log(indent(self._get_situation_string(), '%s: ' % i))
                 i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
@@ -699,6 +706,7 @@ class Manager(ManagerLog):
 
                 self.loop_until_something_finishes()
                 self.check_invariants()
+            self.log(indent(self._get_situation_string(), 'ending: '))
 
             # end while
             assert not self.todo
