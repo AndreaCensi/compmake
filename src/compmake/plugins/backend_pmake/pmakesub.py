@@ -74,9 +74,11 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         while True:
             log('Listening for job')
             job = job_queue.get(block=True)
-            log('got job: %s' % str(job))
             if job == PmakeSub.EXIT_TOKEN:
+                log('Received EXIT_TOKEN.')
                 break
+
+            log('got job: %s' % str(job))
             function, arguments = job
             try:
                 result = function(arguments)
@@ -111,6 +113,8 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         log(str(mye))
         put_result(mye.get_result_dict())
         log('(put)')
+
+
 
     if signal_queue is not None:
         signal_queue.close()

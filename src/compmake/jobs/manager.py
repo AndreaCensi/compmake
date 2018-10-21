@@ -50,7 +50,7 @@ class AsyncResultInterface(object):
             - raises JobInterrupted
             - raises TimeoutError (not ready)
         """
-import sys
+
 
 class ManagerLog(object):
     __metaclass__ = ContractsMeta
@@ -61,8 +61,8 @@ class ManagerLog(object):
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
         log = os.path.join(logdir, 'manager.log')
-        log = 'manager-%s.log' % sys.version
-        print('logging to %s' % log)
+        # log = 'manager-%s.log' % sys.version
+        # print('logging to %s' % log)
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
 
