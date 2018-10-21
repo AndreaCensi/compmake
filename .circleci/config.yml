@@ -5,6 +5,7 @@ workflows:
   test:
     jobs:
       - test-3.6
+      - test-3.7
       - test-2.7
 jobs:
   test-3.6: &test-template
@@ -25,10 +26,10 @@ jobs:
             pip install --user nose
             PATH=~/.local/bin:$PATH ~/.local/bin/nosetests compmake
 
-#  test-3.5:
-#    <<: *test-template
-#    docker:
-#      - image: circleci/python:3.5-jessie
+  test-3.7:
+    <<: *test-template
+    docker:
+      - image: python:3.7
   test-2.7:
     <<: *test-template
     docker:

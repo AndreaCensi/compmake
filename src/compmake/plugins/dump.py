@@ -27,7 +27,7 @@ def dump(non_empty_job_list, context, directory='.'):
         if is_job_userobject_available(job_id, db=db):
             user_object = get_job_userobject(job_id, db=db)
             filename = os.path.join(directory, job_id + '.pickle')
-            with open(filename, 'w') as f:
+            with open(filename, 'wb') as f:
                 pickle.dump(user_object, f)
             info('Wrote %s' % filename)
         else:
