@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
-from optparse import OptionParser
 import os
 import sys
+import traceback
+from optparse import OptionParser
 
+import contracts
+from compmake.utils.friendly_path_imp import friendly_path
+from contracts import contract
+
+from .scripts_utils import wrap_script_entry_point
 from .. import CompmakeConstants, set_compmake_status, version
 from ..config import config_populate_optparser
 from ..context import Context
+from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
-from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..ui import interpret_commands_wrap, info
-from ..utils import my_format_exc, setproctitle
-from .scripts_utils import wrap_script_entry_point
-from contracts import contract
-import contracts
-from compmake.utils.friendly_path_imp import friendly_path
+from ..utils import setproctitle
 
 
 # TODO: revise all of this
@@ -23,11 +25,11 @@ def read_rc_files(context):
     assert context is not None
     possible = [
         '~/.compmake/compmake.rc',
-        '~/.config/compmake.rc' 
+        '~/.config/compmake.rc'
         '~/.compmake.rc',
         '~/compmake.rc',
         '.compmake.rc',
-        'compmake.rc', 
+        'compmake.rc',
     ]
     done = False
     for x in possible:
@@ -44,7 +46,7 @@ def read_rc_files(context):
 @contract(context=Context, filename=str)
 def read_commands_from_file(filename, context):
     from compmake.jobs.uptodate import CacheQueryDB
-    
+
     filename = os.path.realpath(filename)
     if filename in context.rc_files_read:
         return
@@ -175,10 +177,10 @@ def compmake_main(args):
         except CommandFailed:
             retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
         except CompmakeBug as e:
-            sys.stderr.write('unexpected exception: %s' % my_format_exc(e))
+            sys.stderr.write('unexpected exception: %s' % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except BaseException as e:
-            sys.stderr.write('unexpected exception: %s' % my_format_exc(e))
+            sys.stderr.write('unexpected exception: %s' % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except:
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
@@ -242,8 +244,7 @@ def load_existing_db(dirname):
     db = StorageFilesystem(dirname, compress=compress)
     context = Context(db=db)
     jobs = list(all_jobs(db=db))
-    #logger.info('Found %d existing jobs.' % len(jobs))
+    # logger.info('Found %d existing jobs.' % len(jobs))
     context.reset_jobs_defined_in_this_session(jobs)
 
     return context
-

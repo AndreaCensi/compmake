@@ -53,7 +53,7 @@ def import_name(name):
                     msg = ('Cannot load %r (tried also with %r):\n' %
                            (name, module_name))
                     msg += '\n' + indent(
-                        '%s\n%s' % (e, traceback.format_exc(e)), '> ')
+                        '%s\n%s' % (e, traceback.format_exc()), '> ')
                     raise ValueError(msg)
 
                 if not field in module.__dict__:

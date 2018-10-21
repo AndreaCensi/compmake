@@ -68,7 +68,7 @@ class StorageFilesystem(object):
                    (key, filename))
             logger.error(msg)
             logger.exception(e)
-            msg += "\n" + traceback.format_exc(e)
+            msg += "\n" + traceback.format_exc()
             raise CompmakeBug(msg)
 
     def check_existence(self):

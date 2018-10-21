@@ -99,9 +99,9 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
             # except KeyboardInterrupt: pass
     except BaseException as e:
         reason = 'aborted because of uncaptured:\n' + indent(
-                traceback.format_exc(e), '| ')
+                traceback.format_exc(), '| ')
         mye = HostFailed(host="???", job_id="???",
-                         reason=reason, bt=traceback.format_exc(e))
+                         reason=reason, bt=traceback.format_exc())
         log(str(mye))
         put_result(mye.get_result_dict())
     except:
