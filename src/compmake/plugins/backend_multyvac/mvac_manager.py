@@ -2,7 +2,7 @@
 import os
 import signal
 import warnings
-from multiprocessing.queues import Queue
+from multiprocessing import Queue
 
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed

@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-from future.moves.queue import Empty
-
-from multiprocessing import Pool
-from multiprocessing.queues import Queue
 import multiprocessing
 import os
 import random
@@ -10,19 +6,20 @@ import signal
 import sys
 import tempfile
 import time
+from multiprocessing import Pool, Queue
 
 import setproctitle
-
-from .shared import Shared
 from compmake import CompmakeGlobalState
 from compmake.events.registrar import broadcast_event, publish
+from compmake.exceptions import HostFailed
 from compmake.jobs.manager import AsyncResultInterface, Manager
 from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.state import get_compmake_config
-from compmake.exceptions import HostFailed
 from contracts import contract
+from future.moves.queue import Empty
 
+from .shared import Shared
 
 __all__ = [
     'MultiprocessingManager',
@@ -30,7 +27,9 @@ __all__ = [
 
 # for some reason it might block on OSX 10.8
 ncpus = multiprocessing.cpu_count()
-# 
+
+
+#
 # if False:
 # # Debug multiprocsssing
 #     import logging
@@ -76,7 +75,7 @@ class MultiprocessingManager(Manager):
         if time_from_last < min_interval:
             resource_available['soft'] = (False,
                                           'interval: %.2f < %.1f' % (
-                                          time_from_last, min_interval))
+                                              time_from_last, min_interval))
         else:
             resource_available['soft'] = (True, '')
 
@@ -85,7 +84,7 @@ class MultiprocessingManager(Manager):
         if not process_limit_ok:
             resource_available['nproc'] = (False,
                                            'max %d nproc' % (
-                                           self.max_num_processing))
+                                               self.max_num_processing))
             # this is enough to continue
             return resource_available
         else:
@@ -145,7 +144,7 @@ class MultiprocessingManager(Manager):
                 if random.random() > probability:
                     # Unlucky, let's try next time
                     reason = (
-                    'after %d, p=%.2f' % (autobal_after, probability))
+                            'after %d, p=%.2f' % (autobal_after, probability))
                     resource_available['autobal'] = (False, reason)
                 else:
                     resource_available['autobal'] = (True, '')
@@ -183,7 +182,7 @@ class MultiprocessingManager(Manager):
         while True:
             try:
                 event = Shared.event_queue.get(
-                    block=False)  # @UndefinedVariable
+                        block=False)  # @UndefinedVariable
                 event.kwargs['remote'] = True
                 broadcast_event(self.context, event)
             except Empty:
@@ -243,7 +242,7 @@ class AsyncResultWrap(AsyncResultInterface):
             if False:
                 if self.count % 100 == 0:
                     s = self.read_status()  # @UnusedVariable
-                    #print('%70s: %10s  %s         ' % (self.job_id, self.count,
+                    # print('%70s: %10s  %s         ' % (self.job_id, self.count,
                     #  s))
 
         # timeout
@@ -276,8 +275,3 @@ def worker_initialization():
 
     # You can use this to see when a worker start
     # print('Process: ignoring sigint')
-
-
-            
-
-

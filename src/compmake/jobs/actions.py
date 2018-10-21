@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
+import traceback
 from logging import Formatter
 from time import time
-
+import six
 from compmake import get_compmake_config, logger
 from compmake.events import publish
 from compmake.exceptions import JobFailed, JobInterrupted
@@ -260,16 +261,18 @@ def make(job_id, context, echo=False):  # @UnusedVariable
 
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
-    except (BaseException, StandardError, ArithmeticError,
+    except (BaseException, ArithmeticError,
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
-        bt = my_format_exc(e)
-        s = type(e).__name__ + ': ' + e.__str__().strip()
-        try:
-            s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
-        except UnicodeDecodeError as ue:
-            print(ue)  # XXX
-            s = 'Could not represent string.'
-
+        bt = traceback.format_exc()
+        if six.PY2:
+            s = type(e).__name__ + ': ' + e.__str__().strip()
+            try:
+                s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
+            except UnicodeDecodeError as ue:
+                print(ue)  # XXX
+                s = 'Could not represent string.'
+        else:
+            s = '%s: %s' % (type(e).__name__, e)
         mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()
 

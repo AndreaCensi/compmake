@@ -3,7 +3,6 @@ import re
 
 from .terminal_size import get_screen_columns
 
-
 __all__ = [
     'remove_escapes',
     'get_length_on_screen',
@@ -13,11 +12,13 @@ __all__ = [
 
 
 def remove_escapes(s):
+    check_not_bytes(s)
     escape = re.compile('\x1b\[..?m')
     return escape.sub("", s)
 
 
 def get_length_on_screen(s):
+    check_not_bytes(s)
     """ Returns the length of s without the escapes """
     return len(remove_escapes(s))
 
@@ -32,7 +33,7 @@ def pad_to_screen(s, pad=" ", last=None):
         The string length is computed after removing shell
         escape sequences.
     """
-
+    check_not_bytes(s)
     total_screen_length = get_screen_columns()
 
     if debug_padding:
@@ -45,6 +46,16 @@ def pad_to_screen(s, pad=" ", last=None):
     return x
 
 
+import six
+
+
+def check_not_bytes(x):
+    if six.PY3:
+        if isinstance(x, bytes):
+            msg = 'You passed a bytes argument: %s' % x
+            raise Exception(msg)
+
+
 def pad_to_screen_length(s, desired_screen_length,
                          pad=" ", last=None,
                          align_right=False):
@@ -54,6 +65,8 @@ def pad_to_screen_length(s, desired_screen_length,
 
         align_right: aligns right instead of left (default)
     """
+    check_not_bytes(s)
+
     assert isinstance(desired_screen_length, int)
     # todo: assert pad = 1
     current_size = get_length_on_screen(s)

@@ -86,7 +86,7 @@ def interpret_commands_wrap(commands, context, cq):
                 'at http://github.com/AndreaCensi/compmake/issues')
         msg = msg0 + "\n" + indent(tb, 'bug| ')
         publish(context, 'compmake-bug', user_msg=msg, dev_msg="")  # XXX
-        raise_wrapped(CompmakeBug, e, msg0)
+        raise_wrapped(CompmakeBug, e, msg)
 
 
 def interactive_console(context):

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+import traceback
+
 from compmake import CompmakeGlobalState, logger
 from compmake.context import Context
 from contracts import contract, indent
 
-from ..exceptions import CompmakeException
-from ..utils import my_format_exc, wildcard_to_regexp
 from .registered_events import compmake_registered_events
 from .structures import Event
-
+from ..exceptions import CompmakeException
+from ..utils import wildcard_to_regexp
 
 __all__ = [
     'broadcast_event',
@@ -48,7 +49,7 @@ def register_handler(event_name, handler):
     possible_args = set(['event', 'context', 'self'])
     # to be valid 
     if not (args.issubset(possible_args)):
-#     if not 'context' in args and 'event' in args:
+        #     if not 'context' in args and 'event' in args:
         msg = (('Function is not valid event handler:\n function = %s\n args '
                 '= %s') % (handler, spec))
         raise ValueError(msg)
@@ -112,7 +113,7 @@ def broadcast_event(context, event):
                         'handler: %s' % handler,
                         ' kwargs: %s' % list(event.kwargs.keys()),
                         '     bt: ',
-                        indent(my_format_exc(e), '| '),
+                        indent(traceback.format_exc(), '| '),
                     ]
                     msg = "\n".join(msg)
                     CompmakeGlobalState.original_stderr.write(msg)

@@ -72,6 +72,7 @@ setup(
             'SystemCmd',
             'future',
             'networkx>=1,<2',
+            'six',
             # 'pyreadline',
         ],
 

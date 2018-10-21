@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 import sys
-
+import six
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
 
@@ -49,10 +49,13 @@ class StreamCapture(object):
         self.after_lines = after_lines
 
     def write(self, s):
-        if isinstance(s, unicode):
-            s = s.encode('utf-8')
+        if six.PY2:
+            if isinstance(s, unicode):
+                s = s.encode('utf-8')
+            else:
+                assert isinstance(s, str), type(s)
         else:
-            assert isinstance(s, str), type(s)
+            s = s.encode('utf-8')
         self.buffer.write(s)
         self.line_splitter.append_chars(s)
         lines = self.line_splitter.lines()

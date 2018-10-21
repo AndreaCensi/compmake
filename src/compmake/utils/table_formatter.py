@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from compmake.utils.strings_with_escapes import pad_to_screen_length,\
+from .strings_with_escapes import pad_to_screen_length, \
     get_length_on_screen
 
 
-class TableFormatter():
+class TableFormatter(object):
     def __init__(self, sep='|'):
         self.rows = []
         self.cur_row = None
@@ -50,7 +50,7 @@ class TableFormatter():
         for r in self.rows:
             r = self._get_row_formatted(r, wcol)
             yield r
-            
+
     def get_lines_multi(self, linewidth, sep="   "):
         """ Gets lines, perhaps multiples on a line """
 
@@ -58,30 +58,30 @@ class TableFormatter():
         lines = self.get_lines()
         # Find maximum length of line
         maxlen = max(map(self.strlen, lines))
-#         print('-' * maxlen)
+        #         print('-' * maxlen)
         ncols = 1
         while True:
-            l = ncols * maxlen + (ncols-1) * self.strlen(sep) 
+            l = ncols * maxlen + (ncols - 1) * self.strlen(sep)
             fits = l < linewidth
-#             print(ncols, '->', l)
+            #             print(ncols, '->', l)
             if not fits:
                 break
-            ncols += 1 
+            ncols += 1
         ncols -= 1
         ncols = max(1, ncols)
-        
-        for mates in groups_match(self.get_lines(), ncols):   
+
+        for mates in groups_match(self.get_lines(), ncols):
             s = sep.join(mates)
-#             print('mates = %r' % mates)
+            #             print('mates = %r' % mates)
             # FIXME: this raises an error --- (137, 135)
             # assert self.strlen(s) <= linewidth, (self.strlen(s), linewidth)
             if self.strlen(s) > linewidth:
                 # raise ValueError()
                 pass
-            yield s 
-            
+            yield s
+
     def _get_row_formatted(self, row, wcol):
-        ss = [] 
+        ss = []
         for j, cell in enumerate(row):
             if wcol[j] > 0:
                 entry = self.padleft(cell, wcol[j])
@@ -93,7 +93,7 @@ def groups_match(it, groupsize):
     content = list(it)
     gs = list(groups(content, groupsize))
     ngroups = len(gs)
-    
+
     nrows = ngroups
     ncols = groupsize
     table = []
@@ -102,18 +102,18 @@ def groups_match(it, groupsize):
         for _ in range(ncols):
             row.append(None)
         table.append(row)
-        
+
     for i, x in enumerate(content):
         row = i % nrows
-        col = (i - row)/nrows
-        assert 0<=col<ncols
-        assert 0<=row<nrows
+        col = int((i - row) / nrows)
+        assert 0 <= col < ncols
+        assert 0 <= row < nrows
         table[row][col] = x
-    
+
     for row in table:
         row = filter(lambda x: x is not None, row)
         yield row
-        
+
 
 def groups(it, groupsize):
     cur = []
@@ -124,5 +124,3 @@ def groups(it, groupsize):
             cur = []
     if cur:
         yield cur
-    
-    

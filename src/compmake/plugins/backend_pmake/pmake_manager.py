@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from multiprocessing.queues import Queue
+from multiprocessing import Queue
 import os
 import signal
-import sys
 
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
