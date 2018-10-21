@@ -153,7 +153,10 @@ class PmakeManager(Manager):
         if self.cleaned:
             return
         self.cleaned = True
-        # print('process_finished()')
+        print('process_finished()')
+
+        self.event_queue.close()
+        del PmakeManager.queues[self.event_queue_name]
 
         for name in self.sub_processing:
             self.subs[name].proc.terminate()
@@ -162,11 +165,8 @@ class PmakeManager(Manager):
             self.subs[name].terminate()
 
         # XXX: in practice this never works well
-        if False:
-            # print('joining')
-            timeout = 1
-            for name in self.sub_available:
-                self.subs[name].proc.join(timeout)
+        # if False:
+
 
         # XXX: ... so we just kill them mercilessly
         if True:
@@ -176,12 +176,13 @@ class PmakeManager(Manager):
                 os.kill(pid, signal.SIGKILL)
 
                 #print('process_finished() finished')
-        
-        self.event_queue.close()
-        del PmakeManager.queues[self.event_queue_name]
-        
 
-    # Normal outcomes    
+        timeout = 100
+        for name in self.sub_available:
+            print('joining %s' % name)
+            self.subs[name].proc.join(timeout)
+
+    # Normal outcomes
     def job_failed(self, job_id, deleted_jobs):
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
