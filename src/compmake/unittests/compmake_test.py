@@ -26,6 +26,7 @@ class CompmakeTest(unittest.TestCase):
         # don't use '\r'
         set_compmake_config('interactive', False)
         set_compmake_config('console_status', False)
+        set_compmake_config('echo', True)
         from compmake.constants import CompmakeConstants
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
