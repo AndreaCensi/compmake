@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Queue import Full
+from future.moves.queue import Full
 
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
