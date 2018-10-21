@@ -71,6 +71,7 @@ setup(
             'decorator',
             'SystemCmd',
             'future',
+            'networkx>=1,<2',
             # 'pyreadline',
         ],
 
