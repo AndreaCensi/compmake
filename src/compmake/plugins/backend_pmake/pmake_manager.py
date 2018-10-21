@@ -177,10 +177,11 @@ class PmakeManager(Manager):
 
                 #print('process_finished() finished')
 
-        timeout = 100
-        for name in self.sub_available:
-            print('joining %s' % name)
-            self.subs[name].proc.join(timeout)
+        if False:
+            timeout = 100
+            for name in self.sub_available:
+                print('joining %s' % name)
+                self.subs[name].proc.join(timeout)
 
     # Normal outcomes
     def job_failed(self, job_id, deleted_jobs):
