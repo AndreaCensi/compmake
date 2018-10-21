@@ -23,7 +23,7 @@ jobs:
           name: Run tests
           command: |
             pip install --user nose
-            ~/.local/bin/nosetests compmake
+            PATH=~/.local/bin:$PATH ~/.local/bin/nosetests compmake
 
   test-3.5:
     <<: *test-template
