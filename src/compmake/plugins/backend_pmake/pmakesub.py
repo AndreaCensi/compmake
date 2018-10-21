@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
-from multiprocessing import TimeoutError
 import multiprocessing
 import signal
-import sys
 import traceback
+from multiprocessing import TimeoutError
 
-from compmake.exceptions import CompmakeBug, HostFailed
+from compmake.exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from compmake.jobs.manager import AsyncResultInterface
 from compmake.jobs.result_dict import result_dict_raise_if_error
-from compmake.exceptions import JobFailed, JobInterrupted
 from contracts import check_isinstance, indent
-
-
-if sys.version_info[0] >= 3:
-    # noinspection PyUnresolvedReferences
-    from queue import Empty  # @UnresolvedImport @UnusedImport
-else:
-    # noinspection PyUnresolvedReferences
-    from Queue import Empty  # @Reimport
+from future.moves.queue import Empty
 
 __all__ = [
     'PmakeSub',
@@ -29,7 +20,7 @@ class PmakeSub(object):
 
     def __init__(self, name, signal_queue, signal_token, write_log=None):
         self.name = name
-        
+
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
         self.proc = multiprocessing.Process(target=pmake_worker,
@@ -54,7 +45,7 @@ class PmakeSub(object):
         return self.last
 
 
-def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, 
+def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                  write_log=None):
     if write_log:
         f = open(write_log, 'w')
@@ -78,7 +69,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
             log('putting result in signal_queue..')
             signal_queue.put(signal_token, block=True)
         log('(done)')
-        
+
     try:
         while True:
             log('Listening for job')
@@ -95,20 +86,20 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                 put_result(e.get_result_dict())
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')
-                put_result(dict(abort=str(e))) # XXX
+                put_result(dict(abort=str(e)))  # XXX
             except CompmakeBug as e:  # XXX :to finish
                 log('CompmakeBug')
                 put_result(e.get_result_dict())
             else:
                 log('result: %s' % str(result))
                 put_result(result)
-                
+
             log('...done.')
 
             # except KeyboardInterrupt: pass
     except BaseException as e:
         reason = 'aborted because of uncaptured:\n' + indent(
-            traceback.format_exc(e), '| ')
+                traceback.format_exc(e), '| ')
         mye = HostFailed(host="???", job_id="???",
                          reason=reason, bt=traceback.format_exc(e))
         log(str(mye))
@@ -120,7 +111,6 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         log(str(mye))
         put_result(mye.get_result_dict())
         log('(put)')
-
 
     if signal_queue is not None:
         signal_queue.close()

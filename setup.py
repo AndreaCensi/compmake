@@ -70,6 +70,7 @@ setup(
             'psutil',
             'decorator',
             'SystemCmd',
+            'future',
             # 'pyreadline',
         ],
 

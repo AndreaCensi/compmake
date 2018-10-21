@@ -13,13 +13,7 @@ from compmake.ui import warning
 from compmake.utils import make_sure_dir_exists
 from contracts import contract
 
-
-if sys.version_info[0] >= 3:
-    # noinspection PyUnresolvedReferences
-    from queue import Empty  # @UnresolvedImport
-else:
-    # noinspection PyUnresolvedReferences
-    from Queue import Empty
+from future.moves.queue import Empty
 
 __all__ = [
     'PmakeManager',

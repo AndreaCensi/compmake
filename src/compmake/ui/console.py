@@ -12,7 +12,7 @@ from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
 from compmake import logger, get_compmake_config
 from contracts import contract, indent, raise_wrapped
-
+from future import builtins
 
 __all__ = [
     'interactive_console',
@@ -191,7 +191,7 @@ def compmake_console_lines(context):
 
         # TODO: find alternative, not reliable if colored
         # line = raw_input(colored('@: ', 'cyan'))
-        line = raw_input('@: ')
+        line = builtins.input('@: ')
         line = line.strip()
         if not line:
             continue
@@ -217,7 +217,7 @@ def ask_question(question, allowed=None):
             'no': False
         }
     while True:
-        line = raw_input(question)
+        line = builtins.input(question)
         line = line.strip()
 
         # we don't want these to go into the history

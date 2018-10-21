@@ -1,26 +1,27 @@
 # -*- coding: utf-8 -*-
+import os
+import signal
+import warnings
+from multiprocessing.queues import Queue
+
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager
 from compmake.jobs.storage import get_job
 from compmake.plugins.backend_multyvac.mvac_job_imp import mvac_job
+from compmake.plugins.backend_multyvac.mvac_job_rdb_imp import mvac_job_rdb
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.plugins.backend_pmake.pmakesub import PmakeSub
 from compmake.utils import make_sure_dir_exists
 from contracts import contract
-from multiprocessing.queues import Queue
-import os
-import signal
-import sys
-from compmake.plugins.backend_multyvac.mvac_job_rdb_imp import mvac_job_rdb
-import warnings
-
-if sys.version_info[0] >= 3:
-    # noinspection PyUnresolvedReferences
-    from queue import Empty  # @UnresolvedImport
-else:
-    # noinspection PyUnresolvedReferences
-    from Queue import Empty
+#
+# if sys.version_info[0] >= 3:
+#     # noinspection PyUnresolvedReferences
+#     from queue import Empty  # @UnresolvedImport
+# else:
+#     # noinspection PyUnresolvedReferences
+#     from Queue import Empty
+from future.moves.queue import Empty
 
 __all__ = [
     'MVacManager',

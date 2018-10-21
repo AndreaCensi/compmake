@@ -9,7 +9,7 @@ import pickle
 from .. import logger
 from .format_exceptions import my_format_exc
 from contracts import describe_type
-
+from past.builtins import xrange
 
 __all__ = [
     'find_pickling_error',

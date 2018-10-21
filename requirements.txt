@@ -5,3 +5,4 @@ setproctitle
 PyYaml
 psutil
 decorator
+future
