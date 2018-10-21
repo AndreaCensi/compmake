@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
+
 from compmake.context import Context
 from contracts import contract
-import sys
 
 
 def f(*args):  # @UnusedVariable
     print('to-std-out')
     sys.stderr.write('to-std-err')
     return
+
 
 def fails(*args):  # @UnusedVariable
     raise Exception('this function fails')
@@ -38,7 +40,6 @@ def mockup2(context):
     context.batch_command('clean f5')
 
 
-
 @contract(context=Context)
 def mockup2_nofail(context):
     comp = context.comp
@@ -58,6 +59,7 @@ def mockup2_nofail(context):
 
 def mockup_recursive_5(context):
     recursive(context, 5)
+
 
 def recursive(context, v):
     if v == 0:

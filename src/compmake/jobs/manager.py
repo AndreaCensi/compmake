@@ -410,7 +410,6 @@ class Manager(ManagerLog):
             self.deleted.add(job_id)
 
     def check_job_finished_handle_result(self, job_id, result):
-        print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
                  new_jobs=result['new_jobs'],

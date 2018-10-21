@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from multiprocessing import active_children
+
 from nose.tools import istest
 from compmake.unittests.compmake_test import CompmakeTest
 
@@ -38,14 +40,16 @@ class TestDynamic9(CompmakeTest):
     def test_dynamic9_redefinition2(self):
         mockup(self.cc)
         self.assert_cmd_success('parmake recurse=1')
-        
+        assert not active_children()
         self.assertEqual(len(self.get_jobs("g()")), 32)
         self.assertEqual(len(self.get_jobs("f()")), 63)
         
         self.assert_cmd_success('clean')
         self.assertJobsEqual('all', ['f'])
         
-        self.assert_cmd_success('parmake recurse=1')        
+        self.assert_cmd_success('parmake recurse=1')
+        assert not active_children()
+
         self.assertEqual(len(self.get_jobs("g()")), 32)
         self.assertEqual(len(self.get_jobs("f()")), 63)
         

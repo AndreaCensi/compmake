@@ -36,6 +36,11 @@ class CompmakeTest(unittest.TestCase):
             print('not deleting %s' % self.root0)
         else:
             rmtree(self.root0)
+        from multiprocessing import active_children
+        c = active_children()
+        print('active children: %s' % c)
+        if c:
+            raise Exception('Still active children: %s' % c)
 
     # optional init
     # noinspection PyPep8Naming
