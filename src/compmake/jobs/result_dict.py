@@ -9,8 +9,9 @@ __all__ = [
 
 def result_dict_check(res):
     check_isinstance(res, dict)
+    msg = 'Invalid result dict: %r' % res
+    # print('result_dict: %s' % res)
     if 'new_jobs' in res:
-        msg = 'Invalid result dict: %r' % res
         assert 'new_jobs' in res, msg
         assert 'deleted_jobs' in res, msg
         assert 'user_object_deps' in res, msg

@@ -3,12 +3,13 @@
     These are all wrappers around the raw methods in storage
 """
 
+from compmake.exceptions import CompmakeBug, CompmakeException, CompmakeDBError
+from compmake.utils.pickle_frustration import pickle_main_context_load
+from contracts import contract
+from contracts.utils import raise_desc
+
 from ..structures import Cache, Job
 from ..utils import wildcard_to_regexp
-from compmake.exceptions import CompmakeBug, CompmakeException, CompmakeDBError
-from contracts import contract
-from compmake.utils.pickle_frustration import pickle_main_context_load
-from contracts.utils import raise_desc
 
 
 def job2key(job_id):
@@ -71,7 +72,6 @@ def delete_job(job_id, db):
 def job2cachekey(job_id):
     prefix = 'cm-cache-'
     return '%s%s' % (prefix, job_id)
-
 
 
 def get_job_cache(job_id, db):
@@ -185,15 +185,15 @@ def job2jobargskey(job_id):
 
 def get_job_args(job_id, db):
     key = job2jobargskey(job_id)
-    
+
     if False:
         return db[key]
     else:
         job = get_job(job_id, db)
         pickle_main_context = job.pickle_main_context
-        with pickle_main_context_load(pickle_main_context):     
+        with pickle_main_context_load(pickle_main_context):
             return db[key]
-    
+
 
 def job_args_exists(job_id, db):
     key = job2jobargskey(job_id)
@@ -216,7 +216,7 @@ def delete_job_args(job_id, db):
 
 
 def delete_all_job_data(job_id, db):
-    #print('deleting_all_job_data(%r)' % job_id)
+    # print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
         delete_job(**args)
@@ -226,6 +226,7 @@ def delete_all_job_data(job_id, db):
         delete_job_userobject(**args)
     if job_cache_exists(**args):
         delete_job_cache(**args)
+
 
 # These are delicate and should be implemented differently
 def db_job_add_dynamic_children(job_id, children, returned_by, db):

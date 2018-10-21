@@ -1,29 +1,29 @@
 # -*- coding: utf-8 -*-
-from abc import ABCMeta, abstractmethod
-from multiprocessing import TimeoutError
 import itertools
 import os
 import shutil
 import time
 import traceback
 import warnings
+from abc import ABCMeta, abstractmethod
+from multiprocessing import TimeoutError
 
 from compmake.constants import CompmakeConstants
 from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from compmake.state import get_compmake_config
 from contracts import ContractsMeta, contract, indent
 
-from ..events import publish
-from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from ..jobs import (assert_job_exists, get_job_cache, job_cache_exists,
-    job_exists, job_userobject_exists)
-from ..jobs.actions_newprocess import result_dict_check
-from ..structures import Cache
-from ..utils import make_sure_dir_exists
 from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
 from .uptodate import CacheQueryDB
+from ..events import publish
+from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
+from ..jobs import (assert_job_exists, get_job_cache, job_cache_exists,
+                    job_exists, job_userobject_exists)
+from ..jobs.actions_newprocess import result_dict_check
+from ..structures import Cache
+from ..utils import make_sure_dir_exists
 
 __all__ = [
     'Manager',
@@ -61,11 +61,17 @@ class ManagerLog(object):
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
         log = os.path.join(logdir, 'manager.log')
+        # log = 'manager-%s.log' % sys.version
+        # print('logging to %s' % log)
         make_sure_dir_exists(log)
         self.f = open(log, 'w')
 
     def log(self, s, **kwargs):
-        for k, v in kwargs.items():
+
+        for k in sorted(kwargs):
+            v = kwargs[k]
+            if isinstance(v, set):
+                v = sorted(v)
             s += '\n - %15s: %s' % (k, v)
         self.f.write(s)
         # print(s)
@@ -183,7 +189,7 @@ class Manager(ManagerLog):
         # cq = self.cq
         targets_todo_plus_deps, targets_done, ready_todo = \
             cq.list_todo_targets(
-                targets)
+                    targets)
         not_ready = targets_todo_plus_deps - ready_todo
 
         self.log('computed todo',
@@ -192,7 +198,7 @@ class Manager(ManagerLog):
                  ready_todo=ready_todo,
                  not_ready=not_ready)
 
-        self.log('targets_todo_plus_deps: %s' % targets_todo_plus_deps)
+        self.log('targets_todo_plus_deps: %s' % sorted(targets_todo_plus_deps))
 
         # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
         # print('           targets_done: %s ' % targets_done)
@@ -270,7 +276,7 @@ class Manager(ManagerLog):
             self.start_job(job_id)
             n += 1
 
-#         print('cur %d Instanced %d, %s' % (len(self.processing2result), n, reasons))
+        #         print('cur %d Instanced %d, %s' % (len(self.processing2result), n, reasons))
 
         self.check_invariants()
         return reasons
@@ -299,7 +305,7 @@ class Manager(ManagerLog):
     def start_job(self, job_id):
         self.log('start_job', job_id=job_id)
         self.check_invariants()
-        if not job_id in self.ready_todo:
+        if job_id not in self.ready_todo:
             self._raise_bug('start_job', job_id)
 
         publish(self.context, 'manager-job-starting', job_id=job_id)
@@ -314,7 +320,7 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def check_job_finished(self, job_id, assume_ready=False):
-        '''
+        """
             Checks that the job finished succesfully or unsuccesfully.
 
             Returns True if that's the case.
@@ -325,14 +331,14 @@ class Manager(ManagerLog):
             Capture KeyboardInterrupt and raises JobInterrupted.
 
             Handles update of various sets.
-        '''
+        """
         self.log('check_job_finished', job_id=job_id)
         self.check_invariants()
 
         def bug():
             self._raise_bug('check_job_finished', job_id)
 
-        if not job_id in self.processing:
+        if job_id not in self.processing:
             bug()
 
         async_result = self.processing2result[job_id]
@@ -347,6 +353,7 @@ class Manager(ManagerLog):
                 timeout = 0
 
             result = async_result.get(timeout=timeout)
+            # print('here result: %s' % result)
             result_dict_check(result)
 
             check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
@@ -403,7 +410,6 @@ class Manager(ManagerLog):
             self.deleted.add(job_id)
 
     def check_job_finished_handle_result(self, job_id, result):
-        # print('result of %r: %s' % (job_id, result))
         self.check_invariants()
         self.log('check_job_finished_handle_result', job_id=job_id,
                  new_jobs=result['new_jobs'],
@@ -412,8 +418,9 @@ class Manager(ManagerLog):
 
         new_jobs = result['new_jobs']
         deleted_jobs = result['deleted_jobs']
-        #print('deleted jobs: %r' % deleted_jobs)
-        map(self.job_is_deleted, deleted_jobs)
+        # self.log('deleted jobs: %r' % list(deleted_jobs))
+        for _ in deleted_jobs:
+            self.job_is_deleted(_)
         # print('Job %r generated %r' % (job_id, new_jobs))
 
         # Update the child->parent relation
@@ -421,7 +428,7 @@ class Manager(ManagerLog):
 
         # Job succeeded? we can check in the DB
         check_job_cache_state(job_id=job_id, db=self.db,
-                                  states=[Cache.DONE])
+                              states=[Cache.DONE])
 
         # print('job %r succeeded' % job_id)
         self.check_invariants()
@@ -502,8 +509,8 @@ class Manager(ManagerLog):
         self.log('host_failed', job_id=job_id)
         self.check_invariants()
 
-        #from compmake.ui.visualization import error
-        #error('Host failed, rescheduling job %r.' % job_id)
+        # from compmake.ui.visualization import error
+        # error('Host failed, rescheduling job %r.' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
@@ -516,11 +523,12 @@ class Manager(ManagerLog):
     def job_failed(self, job_id, deleted_jobs):
         """ The specified job has failed. Update the structures,
             mark any parent as failed as well. """
-        self.log('job_failed', job_id=job_id)
+        self.log('job_failed', job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
         assert job_id in self.processing
 
-        map(self.job_is_deleted, deleted_jobs)
+        for _ in deleted_jobs:
+            self.job_is_deleted(_)
 
         self.failed.add(job_id)
         self.processing.remove(job_id)
@@ -531,7 +539,7 @@ class Manager(ManagerLog):
         publish(self.context, 'manager-job-failed', job_id=job_id)
 
         # TODO: more efficient query
-        #parent_jobs = set(parents(job_id, db=self.db))
+        # parent_jobs = set(parents(job_id, db=self.db))
         from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
         parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)
 
@@ -668,7 +676,10 @@ class Manager(ManagerLog):
 
         publish(self.context, 'manager-phase', phase='loop')
         try:
+            i = 0
             while self.todo or self.ready_todo or self.processing:
+                self.log(indent(self._get_situation_string(), '%s: ' % i))
+                i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
                 # otherwise, we are completely blocked
@@ -694,6 +705,7 @@ class Manager(ManagerLog):
 
                 self.loop_until_something_finishes()
                 self.check_invariants()
+            self.log(indent(self._get_situation_string(), 'ending: '))
 
             # end while
             assert not self.todo
@@ -748,13 +760,13 @@ class Manager(ManagerLog):
                      deleted=self.deleted,
                      processing=self.processing)
         s = ""
-        for t, jobs in lists.items():
+        for t in sorted(lists):
             jobs = lists[t]
             s += '- %12s: %d\n' % (t, len(jobs))
 
         # if False:
         s += '\n In more details:'
-        for t, jobs in lists.items():
+        for t in sorted(lists):
             jobs = lists[t]
             if not jobs:
                 s += '\n- %12s: -' % (t)
@@ -829,12 +841,12 @@ class Manager(ManagerLog):
             for job_id in self.failed:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug(
-                        'job %r in failed does not exist' % job_id)
+                            'job %r in failed does not exist' % job_id)
 
             for job_id in self.blocked:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug(
-                        'job %r in blocked does not exist' % job_id)
+                            'job %r in blocked does not exist' % job_id)
 
 
 def check_job_cache_state(job_id, states, db):
@@ -858,6 +870,7 @@ def check_job_cache_state(job_id, states, db):
             if not job_userobject_exists(job_id, db):
                 msg = 'Job %r marked as DONE but no userobject exists' % job_id
                 raise CompmakeBug(msg)
+
 
 #
 # if False:

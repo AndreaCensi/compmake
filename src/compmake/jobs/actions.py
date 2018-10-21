@@ -179,11 +179,16 @@ def make(job_id, context, echo=False):  # @UnusedVariable
 
     init_progress_tracking(progress_callback)
 
-    capture = OutputCapture(context=context, prefix=job_id,
-                            # This is instantaneous echo and should be False
-                            # They will generate events anyway.
-                            echo_stdout=False,
-                            echo_stderr=False)
+    disable_capture = False
+    if disable_capture:
+        capture = None
+    else:
+        echo = False
+        capture = OutputCapture(context=context, prefix=job_id,
+                                # This is instantaneous echo and should be False
+                                # They will generate events anyway.
+                                echo_stdout=echo,
+                                echo_stderr=echo)
 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
@@ -257,8 +262,13 @@ def make(job_id, context, echo=False):  # @UnusedVariable
         mark_as_failed(job_id, 'KeyboardInterrupt: ' + str(e), backtrace=bt, db=db)
 
         cache = get_job_cache(job_id, db=db)
-        cache.captured_stderr = capture.get_logged_stderr()
-        cache.captured_stdout = capture.get_logged_stdout()
+        if capture is not None:
+            cache.captured_stderr = capture.get_logged_stderr()
+            cache.captured_stdout = capture.get_logged_stdout()
+        else:
+            msg = '(Capture turned off.)'
+            cache.captured_stderr = msg
+            cache.captured_stdout = msg
         set_job_cache(job_id, cache, db=db)
 
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
@@ -279,15 +289,22 @@ def make(job_id, context, echo=False):  # @UnusedVariable
         deleted_jobs = get_deleted_jobs()
 
         cache = get_job_cache(job_id, db=db)
-        cache.captured_stderr = capture.get_logged_stderr()
-        cache.captured_stdout = capture.get_logged_stdout()
+        if capture is not None:
+            cache.captured_stderr = capture.get_logged_stderr()
+            cache.captured_stdout = capture.get_logged_stdout()
+        else:
+            msg = '(Capture turned off.)'
+            cache.captured_stderr = msg
+            cache.captured_stdout = msg
+
         set_job_cache(job_id, cache, db=db)
 
         raise JobFailed(job_id=job_id, reason=s, bt=bt,
                         deleted_jobs=deleted_jobs)
     finally:
         int_finally = IntervalTimer()
-        capture.deactivate()
+        if capture is not None:
+            capture.deactivate()
         # even if we send an error, let's save the output of the process
         logging.StreamHandler.emit = old_emit
         if Store.nhidden > 0:

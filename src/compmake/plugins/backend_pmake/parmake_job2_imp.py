@@ -38,7 +38,7 @@ def parmake_job2(args):
 
     setproctitle('compmake:%s' % job_id)
 
-    class G():
+    class G(object):
         nlostmessages = 0
 
     try:

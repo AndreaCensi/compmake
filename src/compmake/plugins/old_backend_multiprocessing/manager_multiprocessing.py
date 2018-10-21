@@ -192,10 +192,12 @@ class MultiprocessingManager(Manager):
         # Make sure that all the stuff is read from the queue
         # otherwise some workers will hang
         # http://docs.python.org/library/multiprocessing.html
+        print('process_finished')
         self.event_check()
         self.pool.close()
         self.pool.join()
         self.event_check()
+        Shared.event_queue.close()
 
     def cleanup(self):
         if 'pool' in self.__dict__:

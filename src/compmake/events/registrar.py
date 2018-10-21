@@ -63,7 +63,7 @@ def register_handler(event_name, handler):
                 register_handler(event, handler)
 
     else:
-        if not event_name in handlers:
+        if event_name not in handlers:
             handlers[event_name] = []
         handlers[event_name].append(handler)
 
@@ -72,13 +72,13 @@ def register_handler(event_name, handler):
 def publish(context, event_name, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """
-    if not event_name in compmake_registered_events:
+    if event_name not in compmake_registered_events:
         msg = 'Event %r not registered' % event_name
         logger.error(msg)
         raise CompmakeException(msg)
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
-        if not key in spec.attrs:
+        if key not in spec.attrs:
             msg = ('Passed attribute %r for event type %r but only found '
                    'attributes %s.' % (key, event_name, spec.attrs))
             logger.error(msg)

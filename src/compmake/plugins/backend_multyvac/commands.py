@@ -33,7 +33,8 @@ def cloudmake(job_list, context, cq,
 
     """
     # TODO: check it exists
-    import multyvac  # @UnusedImport
+    # noinspection PyUnresolvedReferences
+    import multyvac
 
     disable_logging_if_config(context)
     

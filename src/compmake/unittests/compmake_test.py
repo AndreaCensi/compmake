@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
+import unittest
 from abc import ABCMeta
 from shutil import rmtree
 from tempfile import mkdtemp
-import os
-import unittest
 
 from compmake import set_compmake_config
 from compmake.context import Context
+from compmake.exceptions import CommandFailed, MakeFailed
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
-from compmake.exceptions import CommandFailed, MakeFailed
 from compmake.structures import Job
 from contracts import contract
 
@@ -26,7 +26,7 @@ class CompmakeTest(unittest.TestCase):
         # don't use '\r'
         set_compmake_config('interactive', False)
         set_compmake_config('console_status', False)
-        set_compmake_config('echo', True)
+
         from compmake.constants import CompmakeConstants
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
@@ -36,6 +36,11 @@ class CompmakeTest(unittest.TestCase):
             print('not deleting %s' % self.root0)
         else:
             rmtree(self.root0)
+        from multiprocessing import active_children
+        c = active_children()
+        print('active children: %s' % c)
+        if c:
+            raise Exception('Still active children: %s' % c)
 
     # optional init
     # noinspection PyPep8Naming
@@ -57,11 +62,9 @@ class CompmakeTest(unittest.TestCase):
 
     def assert_cmd_success(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
+        print('@ %s' % cmds)
         try:
-            print('@ %s' % cmds)
-            
             self.cc.batch_command(cmds)
-
         except MakeFailed as e:
             print('Detected MakeFailed')
             print('Failed jobs: %s' % e.failed)
@@ -76,6 +79,7 @@ class CompmakeTest(unittest.TestCase):
 
     def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
+        print('@ %s     [supposed to fail]' % cmds)
         try:
             self.cc.batch_command(cmds)
         except CommandFailed:
@@ -126,16 +130,16 @@ class CompmakeTest(unittest.TestCase):
                 raise Exception(msg)
         except Exception as e:
             raise Exception('unexpected: %s' % e)
-     
+
     def assert_job_uptodate(self, job_id, status):
         res = self.up_to_date(job_id)
         self.assertEqual(res, status, 'Want %r uptodate? %s' % (job_id, status))
-    
+
     @contract(returns=bool)
     def up_to_date(self, job_id):
         from compmake.jobs.uptodate import CacheQueryDB
         cq = CacheQueryDB(db=self.db)
         up, reason, timestamp = cq.up_to_date(job_id)
-        print('up_to_date(%r): %s, %r, %s' % 
+        print('up_to_date(%r): %s, %r, %s' %
               (job_id, up, reason, timestamp))
         return up

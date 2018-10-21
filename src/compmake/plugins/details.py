@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 import sys
-
+import six
 from ..jobs import (children, direct_children, direct_parents, get_job,
                     get_job_args, get_job_cache, job_args_sizeof,
                     job_cache_exists,
@@ -118,6 +118,8 @@ def list_job_detail(job_id, context, cq, max_lines):
 
     def display_with_prefix(buffer, prefix,  # @ReservedAssignment
                             transform=lambda x: x, out=sys.stdout):
+        if six.PY3:
+            buffer = buffer.decode()
         lines = buffer.split('\n')
         if max_lines is not None:
             if len(lines) > max_lines:
