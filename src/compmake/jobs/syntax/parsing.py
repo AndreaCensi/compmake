@@ -23,18 +23,18 @@
 
 
 """
-from collections import namedtuple
 import types
+from collections import namedtuple
 
-from .. import get_job
-from ...structures import Cache
-from ...exceptions import CompmakeSyntaxError, UserError
-from ...utils import expand_wildcard
 from compmake.constants import CompmakeConstants
 from compmake.context import Context
 from compmake.jobs.uptodate import CacheQueryDB
 from contracts import check_isinstance, contract
 
+from .. import get_job
+from ...exceptions import CompmakeSyntaxError, UserError
+from ...structures import Cache
+from ...utils import expand_wildcard
 
 __all__ = [
     'parse_job_list',
@@ -144,7 +144,7 @@ def expand_job_list_tokens(tokens, context, cq):
             yield job
 
 
-class Operators():
+class Operators(object):
     Op = namedtuple('Op', 'name')
 
     NOT = Op('not')
@@ -283,7 +283,13 @@ def list_bottom_jobs(context, cq):  # @UnusedVariable
             yield job_id
 
 
-add_alias('all', lambda context, cq: cq.all_jobs())  # @UnusedVariable
+def obtain_all(context, cq):
+    res = list(cq.all_jobs())
+    print('obtain all: %s' % res)
+    return res
+
+
+add_alias('all', obtain_all)
 add_alias('failed', lambda context, cq: list_jobs_with_state(Cache.FAILED,
                                                              context=context,
                                                              cq=cq))
@@ -303,13 +309,13 @@ add_alias('level4', list_level4_jobs)
 add_alias('dynamic', list_dynamic_jobs)
 add_alias('bottom', list_bottom_jobs)
 add_alias('done',
-          lambda context, cq: 
+          lambda context, cq:
           list_jobs_with_state(Cache.DONE, context=context, cq=cq))
 # add_alias('in_progress',
 #           lambda context, cq: 
 #           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
 add_alias('not_started',
-          lambda context, cq: 
+          lambda context, cq:
           list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
 
 
@@ -338,7 +344,7 @@ def parse_job_list(tokens, context, cq=None):
     # First we look for operators 
     ops = Operators.parse(tokens)
 
-    # print " %s => %s" % (tokens, ops)
+    # print(" %s => %s" % (tokens, ops))
     result = eval_ops(ops=ops, context=context, cq=cq)
 
     # FIXME, remove
@@ -394,9 +400,9 @@ def eval_ops(ops, context, cq):
         left, right = list_split(ops, ops.index(Operators.NOT))
         if left or not right:  # forbid left, require right
             msg = (
-                ''' NOT requires only a right argument. Interpreting "%s" NOT
-                "%s". ''' %
-                (' '.join(left), ' '.join(right)))
+                    ''' NOT requires only a right argument. Interpreting "%s" NOT
+                    "%s". ''' %
+                    (' '.join(left), ' '.join(right)))
             raise CompmakeSyntaxError(msg)
 
         right_res = set(eval_ops(ops=right, context=context, cq=cq))

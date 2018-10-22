@@ -146,8 +146,10 @@ class CacheQueryDB(object):
     @memoized_reset
     def all_jobs(self):
         from .storage import all_jobs
+
         # NOTE: very important, do not memoize iterator
-        return list(all_jobs(db=self.db))
+        res = list(all_jobs(db=self.db))
+        return res
 
     @memoized_reset
     def job_exists(self, job_id):

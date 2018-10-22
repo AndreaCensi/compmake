@@ -28,10 +28,10 @@ class Context(object):
 
             # logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = 'out-%s' % prog
-            db = StorageFilesystem(dirname)
+            db = StorageFilesystem(dirname, compress=True)
 
         if isinstance(db, str):
-            db = StorageFilesystem(db)
+            db = StorageFilesystem(db, compress=True)
 
         assert db is not None
         self.compmake_db = db

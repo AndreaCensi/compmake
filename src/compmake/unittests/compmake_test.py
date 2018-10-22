@@ -32,7 +32,7 @@ class CompmakeTest(unittest.TestCase):
         self.mySetUp()
 
     def tearDown(self):
-        if False:
+        if True:
             print('not deleting %s' % self.root0)
         else:
             rmtree(self.root0)
@@ -105,11 +105,11 @@ class CompmakeTest(unittest.TestCase):
     @contract(expr=str)
     def assertJobsEqual(self, expr, jobs, ignore_dyn_reports=True):
 
-        js = 'not-valid-yet'
+        # js = 'not-valid-yet'
+        js = self.get_jobs(expr)
+        if ignore_dyn_reports:
+            js = [x for x in js if not 'dynreports' in x]
         try:
-            js = self.get_jobs(expr)
-            if ignore_dyn_reports:
-                js = [x for x in js if not 'dynreports' in x]
             self.assertEqualSet(js, jobs)
         except:
             print('expr %r -> %s' % (expr, js))

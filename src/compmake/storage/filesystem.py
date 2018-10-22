@@ -32,14 +32,21 @@ class StorageFilesystem(object):
         self.checked_existence = False
         if compress:
             self.file_extension = '.pickle.gz'
+            others = list(self.keys0('.pickle'))
         else:
             self.file_extension = '.pickle'
+            others = list(self.keys0('.pickle.gz'))
+        if others:
+            msg = 'Extension is %s but found %s files with other extension.' % (self.file_extension, len(others))
+            raise Exception(msg)
+
+
 
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
 
     def __repr__(self):
-        return "FilesystemDB(%r)" % self.basepath
+        return "FilesystemDB(%r;%s)" % (self.basepath, self.file_extension)
 
     @track_time
     def sizeof(self, key):
@@ -121,11 +128,13 @@ class StorageFilesystem(object):
         return ex
 
     @track_time
-    def keys0(self):
-        filename = self.filename_for_key('*')
+    def keys0(self, extension=None):
+        if extension is None:
+            extension = self.file_extension
+        filename = self.filename_for_key('*', extension)
         for x in glob(filename):
             # b = splitext(basename(x))[0]
-            b = basename(x.replace(self.file_extension, ''))
+            b = basename(x.replace(extension, ''))
             key = self.basename2key(b)
             yield key
 
@@ -156,9 +165,11 @@ class StorageFilesystem(object):
             key = key.replace(replacement, char)
         return key
 
-    def filename_for_key(self, key):
+    def filename_for_key(self, key, extension=None):
         """ Returns the pickle storage filename corresponding to the job id """
-        f = self.key2basename(key) + self.file_extension
+        if extension is None:
+            extension = self.file_extension
+        f = self.key2basename(key) + extension
         return os.path.join(self.basepath, f)
 
 

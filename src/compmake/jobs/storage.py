@@ -22,7 +22,7 @@ def key2job(key):
     return key.replace(prefix, '', 1)
 
 
-def all_jobs(db, force_db=False):  # @UnusedVariable
+def all_jobs(db, force_db=False):
     """ Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.

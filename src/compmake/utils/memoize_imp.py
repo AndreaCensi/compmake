@@ -34,7 +34,9 @@ class memoized_reset(object):
 
     def __call__(self, *args):
         try:
-            return self.cache[args]
+            res = self.cache[args]
+            # print('using cache for %s' % self.func)
+            return res
         except KeyError:
             value = self.func(*args)
             self.cache[args] = value
