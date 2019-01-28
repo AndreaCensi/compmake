@@ -211,11 +211,6 @@ def make(job_id, context, echo=False):  # @UnusedVariable
                 s = unicode(log_record.msg)
             except:
                 s = 'Could not print log_record %s' % id(log_record)
-
-            #            msg2 = colorize_loglevel(log_record.levelno, s)
-            #            name = log_record.name
-            #            s0 = ('%s:%s' % (name, msg2))
-
             log_record.msg = colorize_loglevel(log_record.levelno, s)
             res = formatter.format(log_record)
             print(res)

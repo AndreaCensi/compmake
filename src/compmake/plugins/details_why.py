@@ -25,7 +25,7 @@ def format_table(lines, sep = " | "):
     ncols = len(lines[0])
     cols = [ list(_[i] for _ in lines) for i in range(ncols)]
     maxchars = lambda col: max( len(_) for _ in col)
-    maxc = map(maxchars, cols)
+    maxc = list(map(maxchars, cols))
     
     s = ""
     for line in lines:

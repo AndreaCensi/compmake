@@ -111,7 +111,7 @@ def groups_match(it, groupsize):
         table[row][col] = x
 
     for row in table:
-        row = filter(lambda x: x is not None, row)
+        row = list(filter(lambda x: x is not None, row))
         yield row
 
 

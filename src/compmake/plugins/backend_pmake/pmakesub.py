@@ -51,7 +51,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         f = open(write_log, 'w')
 
         def log(s):
-            print('%s: %s' % (name, s))
+            #print('%s: %s' % (name, s))
             f.write('%s: ' % name)
             f.write(s)
             f.write('\n')
