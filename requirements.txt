@@ -1,4 +1,4 @@
-PyContracts==1.8.5
+PyContracts==1.8.8
 SystemCmd==2.2.2
 termcolor
 setproctitle
