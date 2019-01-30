@@ -114,7 +114,7 @@ def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
 def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
-    if isinstance(exception, unicode):
+    if isinstance(exception, six.string_types):
         pass
     else:
         exception = exception.__str__()
