@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..events import publish
 from ..exceptions import CommandFailed, UserError
@@ -241,7 +243,7 @@ def comp_(context, command_, *args, **kwargs):
                 raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
-        check_isinstance(job_id, str)
+        check_isinstance(job_id, six.string_types)
         if ' ' in job_id:
             msg = 'Invalid job id: %r' % job_id
             raise UserError(msg)
@@ -447,7 +449,7 @@ def interpret_commands(commands_str, context, cq, separator=';'):
 
         Returns None
     """
-    if not isinstance(commands_str, str):
+    if not isinstance(commands_str, six.string_types):
         msg = 'I expected a string, got %s.' % describe_type(commands_str)
         raise ValueError(msg)
 
@@ -490,7 +492,7 @@ def interpret_commands(commands_str, context, cq, separator=';'):
 @contract(returns='None', commands_line='str')
 def interpret_single_command(commands_line, context, cq):
     """ Returns None or raises CommandFailed """
-    if not isinstance(commands_line, str):
+    if not isinstance(commands_line, six.string_types):
         raise ValueError('Expected a string')
 
     ui_commands = get_commands()

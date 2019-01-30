@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from contracts import check_isinstance
 
 __all__ = [
@@ -9,7 +10,8 @@ __all__ = [
 
 def result_dict_check(res):
     check_isinstance(res, dict)
-    msg = 'Invalid result dict: %r' % res
+    # print(res.__repr__().__repr__()) # XXX
+    msg = 'Invalid result dict' #% res
     # print('result_dict: %s' % res)
     if 'new_jobs' in res:
         assert 'new_jobs' in res, msg

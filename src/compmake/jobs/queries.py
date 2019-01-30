@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Contains queries of the job DB. """
 import warnings
-
+import six
 from ..jobs import all_jobs, get_job
 from contracts import contract
 from contextlib import contextmanager
@@ -35,7 +35,7 @@ def jobs_defined(job_id, db):
         Gets the jobs defined by the given job.
         The job must be DONE.
     """
-    check_isinstance(job_id, str)
+    check_isinstance(job_id, six.string_types)
     with trace_bugs('jobs_defined(%r)' % job_id):
         cache = get_job_cache(job_id, db=db)
         if cache.state != Cache.DONE:
@@ -76,7 +76,7 @@ def definition_closure(jobs, db):
 def direct_parents(job_id, db):
     """ Returns the direct parents of the specified job.
         (Jobs that depend directly on this one) """
-    check_isinstance(job_id, str)
+    check_isinstance(job_id,six.string_types)
     with trace_bugs('direct_parents(%r)' % job_id):
         computation = get_job(job_id, db=db)
         return set(computation.parents)
@@ -84,7 +84,7 @@ def direct_parents(job_id, db):
 
 def direct_children(job_id, db):
     """ Returns the direct children (dependencies) of the specified job """
-    check_isinstance(job_id, str)
+    check_isinstance(job_id, six.string_types)
     with trace_bugs('direct_children(%r)' % job_id):
         computation = get_job(job_id, db=db)
         return set(computation.children)
@@ -92,7 +92,7 @@ def direct_children(job_id, db):
 
 def children(job_id, db):
     """ Returns children, children of children, etc. """
-    check_isinstance(job_id, str)
+    check_isinstance(job_id, six.string_types)
     with trace_bugs('children(%r)' % job_id):
         t = set()
         for c in direct_children(job_id, db=db):
@@ -129,7 +129,7 @@ def tree(jobs, db):
 def parents(job_id, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """
-    check_isinstance(job_id, str)
+    check_isinstance(job_id, six.string_types)
 
     with trace_bugs('parents(%r)' % job_id):
         t = set()

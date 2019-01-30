@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import logging
 import traceback
 from logging import Formatter
@@ -113,7 +114,12 @@ def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
 def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
-    cache.exception = str(exception)
+    if isinstance(exception, unicode):
+        pass
+    else:
+        exception = exception.__str__()
+
+    cache.exception = exception
     cache.backtrace = backtrace
     cache.timestamp = time()
     set_job_cache(job_id, cache, db=db)
@@ -272,12 +278,14 @@ def make(job_id, context, echo=False):  # @UnusedVariable
             BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
         bt = traceback.format_exc()
         if six.PY2:
-            s = type(e).__name__ + ': ' + e.__str__().strip()
-            try:
-                s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
-            except UnicodeDecodeError as ue:
-                print(ue)  # XXX
-                s = 'Could not represent string.'
+            s = '%s: %s' % (type(e).__name__, e)
+            #
+            # s = type(e).__name__ + ': ' + e.__str__().strip()
+            # try:
+            #     s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
+            # except (UnicodeDecodeError, UnicodeEncodeError) as ue:
+            #     print(ue)  # XXX
+            #     s = 'Could not represent string.'
         else:
             s = '%s: %s' % (type(e).__name__, e)
         mark_as_failed(job_id, s, backtrace=bt, db=db)

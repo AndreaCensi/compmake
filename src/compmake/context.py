@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import six
 
 from contracts import contract
 
@@ -30,7 +31,7 @@ class Context(object):
             dirname = 'out-%s' % prog
             db = StorageFilesystem(dirname, compress=True)
 
-        if isinstance(db, str):
+        if isinstance(db, six.string_types):
             db = StorageFilesystem(db, compress=True)
 
         assert db is not None
