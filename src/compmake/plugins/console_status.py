@@ -74,8 +74,8 @@ def get_spins():
     #     i = random.randint(0,100)
     i = int(math.ceil(i))
     res = options[i % len(options)]
-    if six.PY3:
-        res = [_.decode('utf-8') for _ in res]
+    # if six.PY3:
+    #     res = [_.decode('utf-8') for _ in res]
     return res
 import six
 
