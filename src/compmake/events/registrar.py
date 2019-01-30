@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import traceback
 
 from compmake import CompmakeGlobalState, logger
@@ -68,7 +69,7 @@ def register_handler(event_name, handler):
         handlers[event_name].append(handler)
 
 
-@contract(context=Context, event_name=str)
+@contract(context=Context, event_name='string')
 def publish(context, event_name, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """

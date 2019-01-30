@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake.events import register_handler
 from compmake.ui import error, info
 from contracts import indent
@@ -59,7 +60,8 @@ def job_failed(context, event):  # @UnusedVariable
     msg += '\n' + indent(reason.strip(), '| ')
     
     if get_compmake_config('echo'):
-        msg += '\n' + indent(bt.strip(), '> ')
+        s = bt.strip()
+        msg += '\n' + indent(s, '> ')
     else:
         msg += '\nUse "config echo 1" to have errors displayed.' 
     msg += '\nWrite "details %s" to inspect the error.' % job_id

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import itertools
 import math
 import sys
@@ -38,7 +39,8 @@ def system_status():
 
 
 def get_spins():
-    toutf = lambda x: [_.encode('utf8') for _ in x]
+    # toutf = lambda x: [_.encode('utf8') for _ in x]
+    toutf = lambda x: [_ for _ in x]
     from_sequence = lambda x: toutf(_ for _ in x)
 
     #     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
@@ -52,7 +54,9 @@ def get_spins():
         for i in range(n):
             s.append(' ' * (n - i) + fish_left)
         m = max(len(_) for _ in s)
-        return [_.ljust(m).encode('utf8') for _ in s]
+        # return [_.ljust(m).encode('utf8') for _ in s]
+
+        return [_.ljust(m) for _ in s]
 
     options = []
     options.append(get_spin_fish(12))
@@ -70,8 +74,8 @@ def get_spins():
     #     i = random.randint(0,100)
     i = int(math.ceil(i))
     res = options[i % len(options)]
-    if six.PY3:
-        res = [_.decode('utf-8') for _ in res]
+    # if six.PY3:
+    #     res = [_.decode('utf-8') for _ in res]
     return res
 import six
 

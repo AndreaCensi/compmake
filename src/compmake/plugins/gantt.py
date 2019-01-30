@@ -78,10 +78,10 @@ def gantt(job_list, context, filename='gantt.html'):
     for job_id in by_ideal_completion:
         T0 = G.node[job_id]['T0']
         T1 = G.node[job_id]['T1']
-        length = G.node[job_id]['length']
-        #CP = G.node[job_id]['CP'][:40]
+        # length = G.node[job_id]['length']
+
         dependencies = list(G.predecessors(job_id))
-        cache = G.node[job_id]['cache']
+        # cache = G.node[job_id]['cache']
         periods = OrderedDict()
         periods['ideal'] = (T0, T1)
         critical = G.node[job_id]['critical']

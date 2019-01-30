@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from future.moves.queue import Full
-
+import six
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
 from compmake.events.registrar import register_handler, remove_all_handlers
@@ -28,8 +28,8 @@ def parmake_job2(args):
    
     """
     job_id, context, event_queue_name, show_output = args  # @UnusedVariable
-    check_isinstance(job_id, str)
-    check_isinstance(event_queue_name, str)
+    check_isinstance(job_id, six.string_types)
+    check_isinstance(event_queue_name, six.string_types)
     from .pmake_manager import PmakeManager
 
     event_queue = PmakeManager.queues[event_queue_name]

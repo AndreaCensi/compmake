@@ -1,5 +1,5 @@
--e git+https://github.com/AndreaCensi/contracts.git@master#egg=PyContracts
--e git+https://github.com/AndreaCensi/system_cmd.git@master#egg=SystemCmd
+PyContracts==1.8.8
+SystemCmd==2.2.2
 termcolor
 setproctitle
 PyYaml

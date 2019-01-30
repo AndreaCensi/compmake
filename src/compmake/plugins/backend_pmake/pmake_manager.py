@@ -19,6 +19,16 @@ __all__ = [
 ]
 
 
+import psutil
+import os
+
+def killtree():
+    # print('killing process tree')
+    parent = psutil.Process(os.getpid())
+    for child in parent.children(recursive=True):
+        # print("child: %s"%child)
+        child.kill()
+
 class PmakeManager(Manager):
     """
         Specialization of Manager for local multiprocessing, using
@@ -153,7 +163,7 @@ class PmakeManager(Manager):
         if self.cleaned:
             return
         self.cleaned = True
-        print('process_finished()')
+        # print('process_finished()')
 
         self.event_queue.close()
         del PmakeManager.queues[self.event_queue_name]
@@ -174,14 +184,18 @@ class PmakeManager(Manager):
             for name in self.sub_processing:
                 pid = self.subs[name].proc.pid
                 os.kill(pid, signal.SIGKILL)
-
+                # print('killed pid %s for %s' % (name, pid))
                 #print('process_finished() finished')
+
 
         if False:
             timeout = 100
             for name in self.sub_available:
                 print('joining %s' % name)
                 self.subs[name].proc.join(timeout)
+
+        killtree()
+        # print('process_finished(): cleaned up')
 
     # Normal outcomes
     def job_failed(self, job_id, deleted_jobs):

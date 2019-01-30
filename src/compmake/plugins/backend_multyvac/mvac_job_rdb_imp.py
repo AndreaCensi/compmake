@@ -73,7 +73,7 @@ def mvac_job_rdb(args):
     job_id, context, event_queue_name, show_output, volumes, \
     rdb_vol_name, rdb_db, cwd = args  
 
-    check_isinstance(job_id, str)
+    check_isinstance(job_id, six.string_types)
     
     # Disable multyvac logging
     disable_logging_if_config(context)

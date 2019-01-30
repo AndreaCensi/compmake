@@ -23,13 +23,15 @@ class PmakeSub(object):
 
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
+        print('starting process %s ' % name)
         self.proc = multiprocessing.Process(target=pmake_worker,
                                             args=(self.name,
                                                   self.job_queue,
                                                   self.result_queue,
                                                   signal_queue,
                                                   signal_token,
-                                                  write_log))
+                                                  write_log),
+                                            name=name)
         self.proc.start()
 
     def terminate(self):
@@ -51,7 +53,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         f = open(write_log, 'w')
 
         def log(s):
-            print('%s: %s' % (name, s))
+            #print('%s: %s' % (name, s))
             f.write('%s: ' % name)
             f.write(s)
             f.write('\n')
