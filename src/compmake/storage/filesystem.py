@@ -195,15 +195,15 @@ def create_scripts(basepath):
     for fn, cmd in filename2cmd.items():
         s = "#!/bin/bash\ncompmake %s -c \"%s $*\"\n" % (basepath, cmd)
         f = os.path.join(basepath, fn)
-        write_data_to_file(s, f, quiet=True)
+        write_data_to_file(s.encode('utf-8'), f, quiet=True)
         chmod_plus_x(f)
 
     s = "#!/bin/bash\ncompmake %s \n" % (basepath)
     f = os.path.join(basepath, 'console')
-    write_data_to_file(s, f, quiet=True)
+    write_data_to_file(s.encode('utf-8'), f, quiet=True)
     chmod_plus_x(f)
 
     s = "#!/bin/bash\ncompmake %s -c \"$*\" \n" % (basepath)
     f = os.path.join(basepath, 'run')
-    write_data_to_file(s, f, quiet=True)
+    write_data_to_file(s.encode('utf-8'), f, quiet=True)
     chmod_plus_x(f)

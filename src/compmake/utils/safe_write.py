@@ -94,8 +94,8 @@ def write_data_to_file(data, filename, quiet=False):
         If the data did not change, the file is not touched.
     
     """
-    if not isinstance(data, str):
-        msg = 'Expected "data" to be a string, not %s.' % type(data).__name__
+    if not isinstance(data, bytes):
+        msg = 'Expected "data" to be bytes, not %s.' % type(data).__name__
         raise ValueError(msg)
     if len(filename) > 256:
         msg = 'Invalid argument filename: too long. Did you confuse it with data?'
