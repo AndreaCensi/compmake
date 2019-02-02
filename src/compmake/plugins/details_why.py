@@ -49,7 +49,7 @@ def details_why_one(job_id, context, cq):  # @UnusedVariable
         
         status = Cache.state2desc[cache.state]
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:                
-            why = str(cache.exception)
+            why = cache.exception
             why = why.strip()
             lines = why.split('\n')
             one = lines[0]
