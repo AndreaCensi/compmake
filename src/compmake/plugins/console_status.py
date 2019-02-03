@@ -277,6 +277,8 @@ def handle_event(context, event):  # @UnusedVariable
     line = choice.left + ' ' * nspaces + choice.right
 
     if get_compmake_config('console_status'):
+        if six.PY2 and isinstance(line, unicode):
+            line = line.encode('utf-8')
         stream.write(line)
 
         interactive = get_compmake_config('interactive')

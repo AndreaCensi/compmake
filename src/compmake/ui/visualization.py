@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
 
@@ -60,7 +62,11 @@ def write_message(s, formatting):
     else:
         for l in lines:
             l = formatting(l)
-            write_on.write(pad_to_screen(l))
+            s = pad_to_screen(l)
+            if six.PY2:
+                if isinstance(s, unicode):
+                    s=s.encode('utf-8')
+            write_on.write(s)
             write_on.write('\n')
 
     write_on.flush()

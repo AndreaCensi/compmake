@@ -23,7 +23,7 @@ class PmakeSub(object):
 
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
-        print('starting process %s ' % name)
+        # print('starting process %s ' % name)
         self.proc = multiprocessing.Process(target=pmake_worker,
                                             args=(self.name,
                                                   self.job_queue,
