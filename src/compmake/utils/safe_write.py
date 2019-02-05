@@ -112,7 +112,7 @@ def write_data_to_file(data, filename, quiet=False):
                     logger.debug('already up to date %s' % friendly_path(filename))
             return
          
-    with open(filename, 'w') as f:
+    with open(filename, 'wb') as f:
         f.write(data)
         
     if not quiet:
