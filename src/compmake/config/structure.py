@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from .. import (CompmakeGlobalState, ConfigSection, ConfigSwitch,
                 get_compmake_config, set_compmake_config)
 from ..exceptions import UserError

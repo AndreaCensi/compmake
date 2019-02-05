@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """ Contains queries of the job DB. """
 import warnings
 import six
@@ -29,7 +30,7 @@ def trace_bugs(msg):
     except CompmakeBug as e:
         raise_wrapped(CompmakeBug, e, msg)
 
-@contract(returns='set(str)')
+@contract(returns='set(unicode)')
 def jobs_defined(job_id, db):
     """
         Gets the jobs defined by the given job.
@@ -45,7 +46,7 @@ def jobs_defined(job_id, db):
         return set(cache.jobs_defined)
 
 
-@contract(jobs='Iterable', returns='set(str)')
+@contract(jobs='Iterable', returns='set(unicode)')
 def definition_closure(jobs, db):
     """ The result does not contain jobs (unless one job defines another) """
     #print('definition_closure(%s)' % jobs)
@@ -125,7 +126,7 @@ def tree(jobs, db):
     return t
 
 
-@contract(job_id='str')
+@contract(job_id='unicode')
 def parents(job_id, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import os
 import unittest
 from abc import ABCMeta
@@ -55,7 +56,7 @@ class CompmakeTest(unittest.TestCase):
     def comp(self, *args, **kwargs):
         return self.cc.comp(*args, **kwargs)
 
-    @contract(job_id=str, returns=Job)
+    @contract(job_id='unicode', returns=Job)
     def get_job(self, job_id):
         db = self.cc.get_compmake_db()
         return get_job(job_id=job_id, db=db)
@@ -92,7 +93,7 @@ class CompmakeTest(unittest.TestCase):
             msg = 'Command %r did not fail.' % cmds
             raise Exception(msg)
 
-    @contract(cmd_string=str)
+    @contract(cmd_string='unicode')
     def assert_cmd_success_script(self, cmd_string):
         """ This runs the "compmake_main" script which recreates the DB and
         context from disk. """
@@ -106,7 +107,7 @@ class CompmakeTest(unittest.TestCase):
     def assertEqualSet(self, a, b):
         self.assertEqual(set(a), set(b))
 
-    @contract(expr=str)
+    @contract(expr='unicode')
     def assertJobsEqual(self, expr, jobs, ignore_dyn_reports=True):
 
         # js = 'not-valid-yet'

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from .compmake_test import CompmakeTest
 from compmake import Context
 from compmake.jobs import direct_children, get_job, jobs_defined

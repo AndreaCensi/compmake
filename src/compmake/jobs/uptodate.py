@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from contextlib import contextmanager
+
+import six
 
 from compmake.exceptions import CompmakeDBError
 from contracts import check_isinstance, contract
@@ -17,7 +20,7 @@ __all__ = [
 ]
 
 
-@contract(returns='tuple(bool, str)')
+@contract(returns='tuple(bool, unicode)')
 def up_to_date(job_id, db):
     """
 
@@ -47,7 +50,7 @@ def up_to_date(job_id, db):
     return res, reason
 
 
-@contract(returns='set(str)')
+@contract(returns='set(unicode)')
 def direct_uptodate_deps(job_id, db):
     """ Returns all direct 'dependencies' of this job:
         the jobs that are children (arguemnts)
@@ -65,7 +68,7 @@ def direct_uptodate_deps(job_id, db):
     return dependencies
 
 
-@contract(returns='set(str)')
+@contract(returns='set(unicode)')
 def direct_uptodate_deps_inverse(job_id, db):
     """ Returns all jobs that have this as
         a direct 'dependency'
@@ -83,7 +86,7 @@ def direct_uptodate_deps_inverse(job_id, db):
     return dep_inv
 
 
-@contract(returns='set(str)', job_id='str')
+@contract(returns='set(unicode)', job_id='unicode')
 def direct_uptodate_deps_inverse_closure(job_id, db):
     """
         Closure of direct_uptodate_deps_inverse:
@@ -158,12 +161,12 @@ class CacheQueryDB(object):
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
-    @contract(returns='tuple(bool, str, float)')
+    @contract(returns='tuple(bool, unicode, float)')
     def up_to_date(self, job_id):
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
-    @contract(returns='tuple(bool, str, float)')
+    @contract(returns='tuple(bool, unicode, float)')
     def _up_to_date_actual(self, job_id):
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
             cache = self.get_job_cache(job_id)  # OK
@@ -300,12 +303,12 @@ class CacheQueryDB(object):
 
             return todo, done, todo_and_ready
 
-    @contract(returns=set, jobs='str|set(str)')
+    @contract(returns=set, jobs='unicode|set(unicode)')
     def tree_children_and_uodeps(self, jobs):
         """ Closure of the relation children and dependencies of userobject.
         """
         stack = []
-        if isinstance(jobs, str):
+        if isinstance(jobs, six.string_types):
             jobs = [jobs]
 
         stack.extend(jobs)

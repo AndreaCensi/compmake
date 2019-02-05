@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from .pmake_manager import PmakeManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish

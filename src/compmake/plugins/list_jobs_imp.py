@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """ The actual interface of some commands in commands.py """
 import os
 from time import time
@@ -62,7 +63,7 @@ def ls(args, context, cq, complete_names=False, reason=False, all_details=False)
     return 0
 
 
-@contract(objects='seq[N](str)', returns='tuple(str, list[N](str), str)')
+@contract(objects='seq[N](unicode)', returns='tuple(unicode, list[N](unicode), unicode)')
 def minimal_names(objects):
     """
         Converts a list of object IDs to a minimal non-ambiguous list of names.

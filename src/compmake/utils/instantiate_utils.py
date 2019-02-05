@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 # Jan 14 copied from conf_tools
 import traceback
 
@@ -11,7 +12,7 @@ __all__ = [
 ]
 
 
-@contract(name='str')
+@contract(name='unicode')
 def import_name(name):
     """
         Loads the python object with the given name.

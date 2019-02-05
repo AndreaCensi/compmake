@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import os
 import sys
 import six
@@ -11,8 +12,8 @@ __all__ = [
 
 
 class Context(object):
-    @contract(db='None|str|isinstance(StorageFilesystem)',
-              currently_executing='None|list(str)')
+    @contract(db='None|unicode|isinstance(StorageFilesystem)',
+              currently_executing='None|list(unicode)')
     def __init__(self, db=None, currently_executing=None):
         """
             db: if a string, it is used as path for the DB
@@ -48,11 +49,11 @@ class Context(object):
 
     # This is used to make sure that the user doesn't define the same job
     # twice.
-    @contract(job_id=str)
+    @contract(job_id='unicode')
     def was_job_defined_in_this_session(self, job_id):
         return job_id in self._jobs_defined_in_this_session
 
-    @contract(job_id=str)
+    @contract(job_id='unicode')
     def add_job_defined_in_this_session(self, job_id):
         self._jobs_defined_in_this_session.add(job_id)
 
@@ -110,6 +111,9 @@ class Context(object):
 
     @contract(returns='None')
     def batch_command(self, s):
+        if six.PY2:
+            if isinstance(s, bytes):
+                s = s.decode('utf-8')
         from .ui import batch_command
         from .jobs import CacheQueryDB
 

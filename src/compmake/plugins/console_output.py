@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from six import StringIO
 import sys
 
 import six
@@ -15,7 +18,7 @@ from ..utils import (get_length_on_screen, get_screen_columns, pad_to_screen,
 stream = sys.stdout
 
 
-class Storage():
+class Storage(object):
     max_len = 0
     last_job_id = None
 
@@ -23,6 +26,9 @@ class Storage():
 def plot_with_prefix(job_id, lines, is_stderr):
 
     for line in lines:
+        if six.PY2:
+            if isinstance(line, bytes):
+                line = line.decode('utf-8')
 
         formats = '%%%ds' % Storage.max_len
 
@@ -42,41 +48,48 @@ def plot_with_prefix(job_id, lines, is_stderr):
             sep = compmake_colored('|', 'cyan')
 
         # Now let's take lines that do not fit the length
-        if True:  # second
-            # This has problems with escape characters
-            # (in addition to get_screen_columns() not functioning sometime.)
 
-            split_lines = False
-            if split_lines:
-                max_space = (get_screen_columns() - 1
-                             - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
+        # This has problems with escape characters
+        # (in addition to get_screen_columns() not functioning sometime.)
 
-                sublines = clip_to_length(line, max_space)
+        split_lines = False
+        if split_lines:
+            max_space = (get_screen_columns() - 1
+                         - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
 
-                for a, subline in enumerate(sublines):
-                    if a == 0:
-                        screen_line = '%s%s%s' % (prefix, sep, subline)
-                    else:
-                        screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
+            sublines = clip_to_length(line, max_space)
 
-                    screen_line = pad_to_screen(screen_line)
-                    write_line_endl(screen_line)
+            for a, subline in enumerate(sublines):
+                if a == 0:
+                    screen_line = '%s%s%s' % (prefix, sep, subline)
+                else:
+                    screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
 
+                screen_line = pad_to_screen(screen_line)
+                write_line_endl(screen_line)
+
+        else:
+            pad = True
+            if pad:
+                write_screen_line(line)
             else:
                 write_line_endl(line)
 
-        else:
-            screen_line = '%s%s%s' % (prefix, sep, line)
+def write_line_endl_w(x, ss):
+    check_isinstance(x, six.text_type)
 
-            screen_line = pad_to_screen(screen_line)
-            stream.write(screen_line)
-            stream.write('\n')
+    xl = x + '\n'
+    if isinstance(ss, StringIO):
+        ss.write(xl)
+        ss.flush()
+    else:
+        if hasattr(ss, 'buffer'):
+            ss.buffer.write(xl.encode('utf-8'))
+        else:
+            ss.write(xl)
 
 def write_line_endl(x):
-    check_isinstance(x, six.text_type)
-    stream.buffer.write(x.encode('utf8'))
-    stream.buffer.write(b'\n')
-    stream.flush()
+    write_line_endl_w(x, stream)
 
 def write_screen_line(s):
     """ Writes and pads """

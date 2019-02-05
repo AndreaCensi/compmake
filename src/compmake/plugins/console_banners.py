@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """ Implements the initial and final banner """
 from .. import version
 from ..events import register_handler

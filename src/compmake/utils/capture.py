@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from io import BytesIO
+from __future__ import unicode_literals
 import sys
 import six
+from six import StringIO
+
+from contracts import check_isinstance
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
 
@@ -24,10 +27,11 @@ class LineSplitter(object):
 
     def append_chars(self, s):
         # TODO: make this faster
-        if six.PY3:
-            s = s.decode()
-        else:
-            s = str(s)
+        # if six.PY3:
+        #     s = s.decode()
+        # else:
+        #     s = str(s)
+        check_isinstance(s, six.text_type)
         for char in s:
             if char == '\n':
                 self.current_lines.append(self.current)
@@ -45,7 +49,7 @@ class LineSplitter(object):
 class StreamCapture(object):
     def __init__(self, transform=None, dest=None, after_lines=None):
         """ dest has write() and flush() """
-        self.buffer = BytesIO()
+        self.buffer = StringIO()
         self.dest = dest
         self.transform = transform
         self.line_splitter = LineSplitter()
@@ -53,12 +57,10 @@ class StreamCapture(object):
 
     def write(self, s):
         if six.PY2:
-            if isinstance(s, unicode):
-                s = s.encode('utf-8')
-            else:
-                assert isinstance(s, str), type(s)
-        else:
-            s = s.encode('utf-8')
+            if isinstance(s, bytes):
+                s = s.decode('utf-8', errors='replace')
+
+        check_isinstance(s, six.text_type)
         self.buffer.write(s)
         self.line_splitter.append_chars(s)
         lines = self.line_splitter.lines()
@@ -89,7 +91,6 @@ class OutputCapture(object):
         from ..events import publish
 
         def publish_stdout(lines):
-
             publish(context, 'job-stdout', job_id=prefix, lines=lines)
 
         def publish_stderr(lines):

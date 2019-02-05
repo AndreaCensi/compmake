@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake import CompmakeBug
 from compmake.jobs import (AsyncResultInterface, Manager, make,
                            parmake_job2_new_process)

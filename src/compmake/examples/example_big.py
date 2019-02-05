@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import unicode_literals
 # -*- coding: utf-8 -*-
 from example_big_support import first,second,third, fail_randomly, failure_prob
 

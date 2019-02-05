@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from future.moves.queue import Full
 import six
 from compmake.constants import CompmakeConstants
@@ -16,7 +17,7 @@ __all__ = [
 ]
 
 
-@contract(args='tuple(str, *,  str, bool)')
+@contract(args='tuple(unicode, *, unicode, bool)')
 def parmake_job2(args):
     """
     args = tuple job_id, context, queue_name, show_events

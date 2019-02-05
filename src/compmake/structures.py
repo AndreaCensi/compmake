@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 '''
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
@@ -69,7 +70,7 @@ __all__ = [
     'Promise',
     'Job',
     'Cache',
-    'execute_with_context'
+    # 'execute_with_context'
 ]
 
 
@@ -84,7 +85,7 @@ class Promise(object):
 
 class Job(object):
 
-    @contract(defined_by='list[>=1](str)', children=set)
+    @contract(defined_by='list[>=1](unicode)', children=set)
     def __init__(self, job_id, children, command_desc,
                  needs_context=False,
                  defined_by=None):
@@ -272,7 +273,7 @@ def timing_summary(cache):
 
 class ProgressStage(object):
 
-    @contract(name=str, iterations='tuple((float|int),(float|int))')
+    @contract(name='unicode', iterations='tuple((float|int),(float|int))')
     def __init__(self, name, iterations, iteration_desc):
         self.name = name
         self.iterations = iterations

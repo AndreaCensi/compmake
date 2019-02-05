@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from copy import deepcopy
 
 from compmake.exceptions import CompmakeBug
@@ -79,7 +80,7 @@ def substitute_dependencies(a, db):
 #             return deepcopy(a)
 
 
-@contract(returns='set(str)')
+@contract(returns='set(unicode)')
 def collect_dependencies(ob):
     """ Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure """

@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import six
+
 from compmake import Promise
 from compmake.jobs import get_job_cache
 from compmake.jobs.uptodate import CacheQueryDB
@@ -10,17 +14,17 @@ __all__ = [
 ]
 
 
-@contract(promise='str|isinstance(Promise)', returns=Promise)
+@contract(promise='unicode|isinstance(Promise)', returns=Promise)
 def compmake_execution_stats(context, promise, use_job_id=None):
     """ 
         Returns a promise for a the execution stats of a job
         and its dependencies.
     """
-    check_isinstance(promise, (Promise, str))
+    check_isinstance(promise, (Promise,) + six.string_types)
     
     if isinstance(promise, Promise):
         job_id = promise.job_id
-    elif isinstance(promise, str):
+    elif isinstance(promise, six.string_types):
         job_id = promise    
         promise = Promise(job_id)
     else:

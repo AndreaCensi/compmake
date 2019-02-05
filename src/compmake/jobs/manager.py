@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import itertools
 import os
 import shutil
@@ -145,7 +146,7 @@ class Manager(ManagerLog):
         """ free up any resource, called wheter succesfull or not."""
         pass
 
-    @contract(returns='str')
+    @contract(returns='unicode')
     def next_job(self):
         """
             Returns one job from the ready_todo list

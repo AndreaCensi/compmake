@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake.jobs.priority import compute_priorities
 from compmake.ui.helpers import COMMANDS_ADVANCED, ui_command
 

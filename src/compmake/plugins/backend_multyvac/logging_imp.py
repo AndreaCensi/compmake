@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake.state import get_compmake_config
 
 __all__ = ['disable_logging_if_config']

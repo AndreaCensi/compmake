@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """ The actual interface of some commands in commands.py """
 from ..jobs import (children, direct_children, direct_parents, parents,
                     parse_job_list)
@@ -45,7 +46,7 @@ def check_consistency(args, context, cq,
 
     return 0
 
-@contract(returns='tuple(bool, list(str))')
+@contract(returns='tuple(bool, list(unicode))')
 def check_job(job_id, context):
     db = context.get_compmake_db()
     

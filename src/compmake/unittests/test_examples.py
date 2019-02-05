@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .expected_fail import expected_failure
+from __future__ import unicode_literals
 from contextlib import contextmanager
 from contracts import indent
 from system_cmd import CmdException, system_cmd_result

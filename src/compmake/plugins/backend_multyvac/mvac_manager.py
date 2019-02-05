@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import os
 import signal
 import warnings
@@ -14,13 +15,7 @@ from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.plugins.backend_pmake.pmakesub import PmakeSub
 from compmake.utils import make_sure_dir_exists
 from contracts import contract
-#
-# if sys.version_info[0] >= 3:
-#     # noinspection PyUnresolvedReferences
-#     from queue import Empty  # @UnresolvedImport
-# else:
-#     # noinspection PyUnresolvedReferences
-#     from Queue import Empty
+
 from future.moves.queue import Empty
 
 __all__ = [

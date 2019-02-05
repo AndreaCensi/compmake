@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from multiprocessing import Queue
-import os
 import signal
+
+import six
 
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
@@ -10,7 +12,7 @@ from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
 from compmake.ui import warning
 from compmake.utils import make_sure_dir_exists
-from contracts import contract
+from contracts import contract, check_isinstance
 
 from future.moves.queue import Empty
 
@@ -56,7 +58,8 @@ class PmakeManager(Manager):
 
     def process_init(self):
         self.event_queue = Queue(1000)
-        self.event_queue_name = str(id(self))
+        self.event_queue_name = '%s' % id(self)
+
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
         # info('Starting %d processes' % self.num_processes)
@@ -124,6 +127,7 @@ class PmakeManager(Manager):
             return False
         return True
 
+    @contract(job_id='unicode')
     def instance_job(self, job_id):
         publish(self.context, 'worker-status', job_id=job_id,
                 status='apply_async')
@@ -136,6 +140,7 @@ class PmakeManager(Manager):
 
         self.job2subname[job_id] = name
 
+        check_isinstance(job_id, six.text_type)
         if self.new_process:
             f = parmake_job2_new_process
             args = (job_id, self.context)

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from .. import set_compmake_status, CompmakeConstants
 from .compmake_test import CompmakeTest
 from nose.tools import istest

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from ..structures import Cache
 from ..jobs import get_job_cache
 from nose.tools import istest

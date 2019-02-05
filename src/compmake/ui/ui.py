@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import six
 
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
@@ -54,6 +55,7 @@ def generate_job_id(base, context):
     db = context.get_compmake_db()
     cq = CacheQueryDB(db)
     for x in get_options():
+        check_isinstance(x, six.text_type)
         defined = context.was_job_defined_in_this_session(x)
         if defined:
             continue 
@@ -141,7 +143,7 @@ def clean_other_jobs(context):
     delete_jobs_recurse_definition(todelete, db)
 
 
-@contract(returns='set(str)')
+@contract(returns='set(unicode)')
 def delete_jobs_recurse_definition(jobs, db):
     """ Deletes all jobs given and the jobs that they defined.
         Returns the set of jobs deleted. """
@@ -160,7 +162,7 @@ def delete_jobs_recurse_definition(jobs, db):
     return all_jobs
 
  
-class WarningStorage():
+class WarningStorage(object):
     warned = set()
 
 
@@ -221,8 +223,13 @@ def comp_(context, command_, *args, **kwargs):
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
     elif hasattr(command, '__name__'):
         command_desc = command.__name__
+
     else:
         command_desc = type(command).__name__
+
+    if six.PY2:
+        if isinstance(command_desc, bytes):
+            command_desc = command_desc.decode('utf-8')
 
     args = list(args)  # args is a non iterable tuple
 
@@ -440,7 +447,7 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-@contract(commands_str='str', context=Context,
+@contract(commands_str='unicode', context=Context,
           cq=CacheQueryDB,
           returns="None")
 def interpret_commands(commands_str, context, cq, separator=';'):
@@ -489,7 +496,7 @@ def interpret_commands(commands_str, context, cq, separator=';'):
                 raise CommandFailed('ret code %s' % retcode)
 
 
-@contract(returns='None', commands_line='str')
+@contract(returns='None', commands_line='unicode')
 def interpret_single_command(commands_line, context, cq):
     """ Returns None or raises CommandFailed """
     if not isinstance(commands_line, six.string_types):

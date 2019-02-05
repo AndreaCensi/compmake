@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake.events.registrar import register_handler
 from compmake.plugins.graph import graph
 from compmake.ui.helpers import COMMANDS_ADVANCED, ui_command

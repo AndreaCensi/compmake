@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from compmake.state import get_compmake_config
 from contracts import contract
 import os
@@ -12,7 +13,7 @@ up_arrow = u"\u25B2"
 down_arrow = u"\u25BC"
 
 
-@contract(returns='list(string)')
+@contract(returns='list(unicode)')
 def sync_data_up(context, skipsync=False):
     """ Synchronizes the data to the cloud. 
     

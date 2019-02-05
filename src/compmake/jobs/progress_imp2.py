@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import time
+
+import six
 
 from contracts import contract, describe_type
 
@@ -23,7 +26,7 @@ def init_progress_tracking(my_callback):
     progress_stack_updated()
 
 
-@contract(taskname='str', iterations='tuple(int|float,int|float)')
+@contract(taskname='unicode', iterations='tuple(int|float,int|float)')
 def progress(taskname, iterations, iteration_desc=None):
     """
         Function used by the user to describe the state of the computation.
@@ -46,7 +49,7 @@ def progress(taskname, iterations, iteration_desc=None):
                          'processing file %s' % file[i])
     """
 
-    if not isinstance(taskname, str):
+    if not isinstance(taskname, six.string_types):
         raise ValueError('The first argument to progress() is the task name ' +
                          'and must be a string; you passed a %s.' %
                          describe_type(taskname))

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import multiprocessing
 import signal
 import traceback
@@ -89,10 +90,11 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
             log('got job: %s' % str(job))
             function, arguments = job
             try:
+                # print('arguments: %s' % str(arguments))
                 result = function(arguments)
             except JobFailed as e:
                 log('Job failed, putting notice.')
-                log('result: %s' % str(e))  # debug
+                log('result: %s' % (e))  # debug
                 put_result(e.get_result_dict())
             except JobInterrupted as e:
                 log('Job interrupted, putting notice.')

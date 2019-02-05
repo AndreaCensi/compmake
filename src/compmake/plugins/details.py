@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
+from __future__ import unicode_literals
 import sys
 import six
+
+from compmake.plugins.console_output import write_line_endl
 from ..jobs import (children, direct_children, direct_parents, get_job,
                     get_job_args, get_job_cache, job_args_sizeof,
                     job_cache_exists,
@@ -117,7 +120,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     print(bold('          Total: ') + '%s' % total)
 
     def display_with_prefix(buffer, prefix,  # @ReservedAssignment
-                            transform=lambda x: x, out=sys.stdout):
+                            transform=lambda x: x):
         if six.PY3:
             buffer = buffer.decode()
         lines = buffer.split('\n')
@@ -128,7 +131,11 @@ def list_job_detail(job_id, context, cq, max_lines):
                 lines = [warn] + lines[-max_lines:]
 
         for line in lines:
-            out.write('%s%s\n' % (prefix, transform(line)))
+            s = '%s%s' % (prefix, transform(line))
+            write_line_endl(s)
+            # if six.PY2:
+            # s = s.encode('utf-8')
+            # sys.stdout.buffer.write(s)
 
     if cache2 is not None:
         stdout = cache2.captured_stdout

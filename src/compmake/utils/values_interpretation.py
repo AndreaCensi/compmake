@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import six
+
 __all__ = [
     'interpret_strings_like',
 ]
@@ -8,7 +12,7 @@ def interpret_strings_like(args, reference_value):
     if not isinstance(args, list):
         args = [args]
 
-    if isinstance(reference_value, str):
+    if isinstance(reference_value, six.string_types):
         value = " ".join(args)
     elif isinstance(reference_value, bool):
         if len(args) > 1:

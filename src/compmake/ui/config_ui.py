@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import sys
 
 from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED

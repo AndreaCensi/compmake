@@ -69,7 +69,7 @@ def register_handler(event_name, handler):
         handlers[event_name].append(handler)
 
 
-@contract(context=Context, event_name='string')
+@contract(context=Context, event_name='unicode')
 def publish(context, event_name, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """

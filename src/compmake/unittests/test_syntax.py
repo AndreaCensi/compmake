@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import sys
 
+import six
 from nose.tools import istest
 
 from . import CompmakeTest
@@ -67,7 +69,7 @@ class Test1(CompmakeTest):
                 return set(X)
             elif isinstance(X, type(lambda: 0)):
                 return self.selection(X)
-            elif isinstance(X, str):
+            elif isinstance(X, six.string_types):
                 return set(parse_job_list(X, context=self.cc))
             else:
                 assert False, 'Wrong type %s' % type(X)

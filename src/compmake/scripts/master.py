@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import os
 import sys
 import traceback
@@ -6,7 +7,7 @@ from optparse import OptionParser
 
 import contracts
 from compmake.utils.friendly_path_imp import friendly_path
-from contracts import contract
+from contracts import contract, check_isinstance
 
 from .scripts_utils import wrap_script_entry_point
 from .. import CompmakeConstants, set_compmake_status, version
@@ -17,7 +18,7 @@ from ..jobs import all_jobs
 from ..storage import StorageFilesystem
 from ..ui import interpret_commands_wrap, info
 from ..utils import setproctitle
-
+import six
 
 # TODO: revise all of this
 @contract(context=Context)
@@ -43,7 +44,7 @@ def read_rc_files(context):
         pass
 
 
-@contract(context=Context, filename=str)
+@contract(context=Context, filename='unicode')
 def read_commands_from_file(filename, context):
     from compmake.jobs.uptodate import CacheQueryDB
 
@@ -136,6 +137,11 @@ def compmake_main(args):
               'information.'
         msg += '\n args: %s' % args
         raise UserError(msg)
+
+    if six.PY2:
+        for _ in args:
+            check_isinstance(_, bytes)
+        args = [_.decode('utf-8') for _ in args]
 
     # if the argument looks like a dirname
     one_arg = args[0]

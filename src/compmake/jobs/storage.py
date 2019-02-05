@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 """
     These are all wrappers around the raw methods in storage
 """
@@ -121,7 +122,7 @@ def set_job_cache(job_id, cache, db):
     db[key] = cache
 
 
-@contract(job_id=str)
+@contract(job_id='unicode')
 def delete_job_cache(job_id, db):
     key = job2cachekey(job_id)
     del db[key]

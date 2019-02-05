@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from .logging_imp import disable_logging_if_config
 from compmake.exceptions import CompmakeException, JobFailed
 from compmake.jobs.dependencies import collect_dependencies

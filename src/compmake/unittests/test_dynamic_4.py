@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from nose.tools import istest
 from compmake.unittests.compmake_test import CompmakeTest
 from compmake.unittests.mockup_dynamic_4 import mockup_dyn4

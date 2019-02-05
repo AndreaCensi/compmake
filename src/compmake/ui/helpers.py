@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from collections import namedtuple
 import sys
 import types
+
+import six
 
 from contracts import contract
 
@@ -78,7 +81,7 @@ def wrap(func, name, alias, section, dbchange):
     return func
 
 
-@contract(alias="None|str|list(str)")
+@contract(alias="None|unicode|list(unicode)")
 def ui_command(name=None, alias=None, section=None, dbchange=False):
     if alias is None:
         alias = []
@@ -94,7 +97,7 @@ def register_command(name, func, docs, alias=None, section=None,
                      dbchange=False):
     if alias is None:
         alias = []
-    if isinstance(alias, str):
+    if isinstance(alias, six.string_types):
         alias = [alias]
     if not section:
         section = UIState.last_section_name

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import pickle
 from io import BytesIO as StringIO
 # noinspection PyProtectedMember

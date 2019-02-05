@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from .mvac_manager import MVacManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish
