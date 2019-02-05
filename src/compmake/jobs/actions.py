@@ -270,6 +270,7 @@ def make(job_id, context, echo=False):  # @UnusedVariable
             msg = '(Capture turned off.)'
             cache.captured_stderr = msg
             cache.captured_stdout = msg
+
         set_job_cache(job_id, cache, db=db)
 
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)

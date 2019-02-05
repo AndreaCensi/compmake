@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+import six
+
 """
     These are all wrappers around the raw methods in storage
 """
 
 from compmake.exceptions import CompmakeBug, CompmakeException, CompmakeDBError
 from compmake.utils.pickle_frustration import pickle_main_context_load
-from contracts import contract
+from contracts import contract, check_isinstance
 from contracts.utils import raise_desc
 
 from ..structures import Cache, Job
@@ -118,6 +121,9 @@ def job_cache_sizeof(job_id, db):
 
 def set_job_cache(job_id, cache, db):
     assert (isinstance(cache, Cache))
+    check_isinstance(cache.captured_stderr, (type(None),six.text_type))
+    check_isinstance(cache.captured_stdout, (type(None),six.text_type))
+    check_isinstance(cache.exception, (type(None), six.text_type))
     key = job2cachekey(job_id)
     db[key] = cache
 

@@ -78,6 +78,12 @@ class StreamCapture(object):
         if self.after_lines is not None:
             self.after_lines(lines)
 
+    def get_value_text_type(self):
+        b = self.buffer.getvalue()
+        if six.PY2:
+            b = b.decode('utf-8')
+        return b
+
     def flush(self):
         pass
 
@@ -120,7 +126,7 @@ class OutputCapture(object):
         sys.stderr = self.old_stderr
 
     def get_logged_stdout(self):
-        return self.stdout_replacement.buffer.getvalue()
+        return self.stdout_replacement.get_value_text_type() # buffer.getvalue()
 
     def get_logged_stderr(self):
-        return self.stderr_replacement.buffer.getvalue()
+        return self.stderr_replacement.get_value_text_type() # buffer.getvalue()
