@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 
+import six
+
+from contracts import check_isinstance
 from .. import get_compmake_config
 from ..events import register_handler
 from ..ui import compmake_colored
@@ -57,11 +60,11 @@ def plot_with_prefix(job_id, lines, is_stderr):
                         screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
 
                     screen_line = pad_to_screen(screen_line)
-                    stream.write(screen_line)
-                    stream.write('\n')
+                    write_line_endl(screen_line)
+
             else:
-                stream.write(line)
-                stream.write('\n')
+                write_line_endl(line)
+
         else:
             screen_line = '%s%s%s' % (prefix, sep, line)
 
@@ -69,14 +72,19 @@ def plot_with_prefix(job_id, lines, is_stderr):
             stream.write(screen_line)
             stream.write('\n')
 
+def write_line_endl(x):
+    check_isinstance(x, six.text_type)
+    stream.buffer.write(x.encode('utf8'))
+    stream.buffer.write(b'\n')
+    stream.flush()
 
 def write_screen_line(s):
     """ Writes and pads """
     # TODO: check that it is not too long
+    check_isinstance(s, six.text_type)
     s = pad_to_screen(s)
-    stream.write(s)
-    stream.write('\n')
-    stream.flush()
+    write_line_endl(s)
+
 
 
 def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
