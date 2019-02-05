@@ -119,7 +119,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     total = jobargs_size + cache_size + userobject_size
     print(bold('          Total: ') + '%s' % total)
 
-    def display_with_prefix(buffer, prefix,  # @ReservedAssignment
+    def display_with_prefix(buffer, prefix='',  # @ReservedAssignment
                             transform=lambda x: x):
         check_isinstance(buffer, six.text_type)
         lines = buffer.split('\n')
@@ -139,14 +139,16 @@ def list_job_detail(job_id, context, cq, max_lines):
     if cache2 is not None:
         stdout = cache2.captured_stdout
         if stdout and stdout.strip():
-            print("-----> captured stdout <-----")
-            display_with_prefix(stdout, prefix='|', transform=lambda x: x)
+            display_with_prefix("-----> captured stdout <-----")
+            display_with_prefix(stdout, prefix='|')
 
         stderr = cache2.captured_stderr
         if stderr and stderr.strip():
-            print("-----> captured stderr <-----")
-            display_with_prefix(stderr, prefix='|', transform=lambda x: x)
+            display_with_prefix("-----> captured stderr <-----")
+            display_with_prefix(stderr, prefix='|')
 
         if cache2.state == Cache.FAILED:
-            print(red(cache2.exception))
-            print(red(cache2.backtrace))
+            display_with_prefix(cache2.exception, prefix='exc |')
+            display_with_prefix(cache2.backtrace, prefix='btr |')
+
+            
