@@ -124,6 +124,7 @@ def set_job_cache(job_id, cache, db):
     check_isinstance(cache.captured_stderr, (type(None),six.text_type))
     check_isinstance(cache.captured_stdout, (type(None),six.text_type))
     check_isinstance(cache.exception, (type(None), six.text_type))
+    check_isinstance(cache.backtrace, (type(None), six.text_type))
     key = job2cachekey(job_id)
     db[key] = cache
 

@@ -11,6 +11,7 @@ from compmake.events import publish
 from compmake.exceptions import JobFailed, JobInterrupted
 from compmake.structures import IntervalTimer, Cache
 from compmake.utils import OutputCapture, setproctitle
+from contracts import check_isinstance
 
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
@@ -119,6 +120,12 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     else:
         exception = exception.__str__()
 
+    if backtrace is not None:
+        if six.PY2:
+            if isinstance(backtrace, bytes):
+                backtrace = backtrace.decode('utf-8', errors='ignore')
+
+    check_isinstance(backtrace, (type(None), six.text_type))
     cache.exception = exception
     cache.backtrace = backtrace
     cache.timestamp = time()
