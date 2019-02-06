@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 import six
 
+
+from contracts import check_isinstance
 from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
 
@@ -43,6 +45,7 @@ def debug(s):  # XXX: never used?
 
 
 def write_message(s, formatting):
+    check_isinstance(s, six.text_type)
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState
@@ -50,25 +53,30 @@ def write_message(s, formatting):
     #stderr = CompmakeGlobalState.original_stderr
     stdout = CompmakeGlobalState.original_stdout
 
-    stdout.flush()
+    # stdout.flush()
 
-    write_on = stdout
-    clean_console_line(write_on)
+    # write_on = stdout
+    # clean_console_line(write_on)
     lines = s.rstrip().split('\n')
 
-    if len(lines) == 1:
-        l = formatting(lines[0])
-        # not sure why this wasnt pad_to_screen()ed before
-        write_on.write(pad_to_screen(l) + '\n')
-    else:
-        for l in lines:
-            l = formatting(l)
-            s = pad_to_screen(l)
-            if six.PY2:
-                if isinstance(s, unicode):
-                    s=s.encode('utf-8')
-            write_on.write(s)
-            write_on.write('\n')
+    # if len(lines) == 1:
+    #     l = formatting(lines[0])
+    #     # not sure why this wasnt pad_to_screen()ed before
+    #     write_on.write(pad_to_screen(l) + '\n')
+    #
+    #     write_line_endl_w(write_on, s)
+    # else:
+    from compmake.plugins.console_output import write_line_endl_w
 
-    write_on.flush()
+    for l in lines:
+        l = formatting(l)
+        s = pad_to_screen(l)
+        # if six.PY2:
+        #     if isinstance(s, unicode):
+        #         s=s.encode('utf-8')
+        write_line_endl_w(s, stdout)
+        # write_on.write(s)
+        # write_on.write('\n')
+
+    # write_on.flush()
 

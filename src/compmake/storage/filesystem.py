@@ -180,17 +180,20 @@ def chmod_plus_x(filename):
 
 
 def create_scripts(basepath):
-    filename2cmd = \
-        {'ls_failed': 'ls failed',
+    filename2cmd = {
+         'ls_failed': 'ls failed',
          'why_failed': 'why failed',
          'make_failed': 'make failed',
          'remake': 'remake',
+         'why': 'why',
          'make': 'make',
          'parmake': 'parmake',
          'rparmake': 'rparmake',
          'rmake': 'rmake',
+         'clean': 'clean',
          'ls': 'ls',
          'stats': 'stats',
+         'gantt': 'gantt',
          'details': 'details',
          }
     for fn, cmd in filename2cmd.items():

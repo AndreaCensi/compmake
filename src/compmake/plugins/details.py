@@ -151,4 +151,4 @@ def list_job_detail(job_id, context, cq, max_lines):
             display_with_prefix(cache2.exception, prefix='exc |')
             display_with_prefix(cache2.backtrace, prefix='btr |')
 
-            
+

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from collections import  OrderedDict, namedtuple
 
-from compmake.jobs import CacheQueryDB
+from compmake.jobs import CacheQueryDB, Cache
 from compmake.jobs.storage import all_jobs
 from compmake.ui import COMMANDS_ADVANCED, ui_command
 from networkx.algorithms.dag import topological_sort
@@ -28,6 +28,8 @@ def gantt(job_list, context, filename='gantt.html'):
 
     for job_id in job_list:
         cache = cq.get_job_cache(job_id)
+        if cache.state != Cache.DONE:
+            continue
         length = cache.int_make.get_cputime_used()
         attr_dict = dict(cache=cache, length=length)
         G.add_node(job_id, **attr_dict)
@@ -42,6 +44,9 @@ def gantt(job_list, context, filename='gantt.html'):
 
     order = topological_sort(G)
     for job_id in order:
+        cache = cq.get_job_cache(job_id)
+        if cache.state != Cache.DONE:
+            continue
         length = G.node[job_id]['length']
         pre = list(G.predecessors(job_id))
 #        print('%s pred %s' % (job_id, pre))
