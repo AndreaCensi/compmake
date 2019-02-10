@@ -209,12 +209,12 @@ def clip_to_length(line, max_len):
     return sublines
 
 
-def handle_event_stdout(event, context):  # @UnusedVariable
+def handle_event_stdout(event, context):
     if get_compmake_config('echo_stdout'):
         handle_event(event, False)
 
 
-def handle_event_stderr(event, context):  # @UnusedVariable
+def handle_event_stderr(event, context):
     if get_compmake_config('echo_stderr'):
         handle_event(event, True)
 

@@ -46,8 +46,8 @@ def get_spins():
     #     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
 
     def get_spin_fish(n):
-        fish_right = u">))'>"
-        fish_left = u"<'((<"
+        fish_right = ">))'>"
+        fish_left = "<'((<"
         s = []
         for i in range(n):
             s.append(' ' * i + fish_right)
@@ -60,12 +60,12 @@ def get_spins():
 
     options = []
     options.append(get_spin_fish(12))
-    options.append(from_sequence(u"⣾⣽⣻⢿⡿⣟⣯⣷"))
-    options.append(from_sequence(u"◐◓◑◒"))
-    options.append(from_sequence(u"◰◳◲◱"))
-    options.append(from_sequence(u"◴◷◶◵"))
+    options.append(from_sequence("⣾⣽⣻⢿⡿⣟⣯⣷"))
+    options.append(from_sequence("◐◓◑◒"))
+    options.append(from_sequence("◰◳◲◱"))
+    options.append(from_sequence("◴◷◶◵"))
     #     options.append(from_sequence(u"🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛"))
-    options.append(from_sequence(u"▙▛▜▟"))
+    options.append(from_sequence("▙▛▜▟"))
     #     options.append(['-', '/', '|', '\\'])
 
     today = datetime.today()
@@ -198,7 +198,7 @@ def get_string(level):
                         x += ['%.1f%%' % perc]
 
                 if level >= 4 and frame.iteration_desc is not None:
-                    x += ["(%s)" % str(frame.iteration_desc)]
+                    x += ["(%s)" % frame.iteration_desc]
 
                 if i < len(stack) - 1:
                     x += ['>>']
@@ -277,8 +277,9 @@ def handle_event(context, event):  # @UnusedVariable
     line = choice.left + ' ' * nspaces + choice.right
 
     if get_compmake_config('console_status'):
-        if six.PY2 and isinstance(line, unicode):
-            line = line.encode('utf-8')
+        if six.PY2:
+            if isinstance(line, unicode):
+                line = line.encode('utf-8')
         stream.write(line)
 
         interactive = get_compmake_config('interactive')
