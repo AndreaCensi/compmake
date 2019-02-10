@@ -41,7 +41,7 @@ def system_status():
 def get_spins():
     # toutf = lambda x: [_.encode('utf8') for _ in x]
     toutf = lambda x: [_ for _ in x]
-    from_sequence = lambda x: toutf(_ for _ in x)
+    # from_sequence = lambda x: toutf(_ for _ in x)
 
     #     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
 
@@ -60,24 +60,22 @@ def get_spins():
 
     options = []
     options.append(get_spin_fish(12))
-    options.append(from_sequence("⣾⣽⣻⢿⡿⣟⣯⣷"))
-    options.append(from_sequence("◐◓◑◒"))
-    options.append(from_sequence("◰◳◲◱"))
-    options.append(from_sequence("◴◷◶◵"))
+    options.append(list("⣾⣽⣻⢿⡿⣟⣯⣷"))
+    options.append(list("◐◓◑◒"))
+    options.append(list("◰◳◲◱"))
+    options.append(list("◴◷◶◵"))
     #     options.append(from_sequence(u"🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛"))
-    options.append(from_sequence("▙▛▜▟"))
+    options.append(list("▙▛▜▟"))
     #     options.append(['-', '/', '|', '\\'])
 
     today = datetime.today()
     # change every 3 days
     i = today.day / 3
-    #     i = random.randint(0,100)
     i = int(math.ceil(i))
     res = options[i % len(options)]
-    # if six.PY3:
-    #     res = [_.decode('utf-8') for _ in res]
+
     return res
-import six
+
 
 spins = get_spins()
 
@@ -87,7 +85,6 @@ def spinner():
     t = time.time()
     i = t / spin_interval
     i = int(i) % len(spins)
-    #     return spins[tracker.nloops % len(spins)]
     return spins[i]
 
 
@@ -129,15 +126,10 @@ def job_counts():
 
 
 def wait_reasons():
-    # s += "(" + ",".join(["%s:%s" % (k, v)
-    #                         for (k, v) in  tracker.wait_reasons.items()])
-    # + ')'
     if tracker.wait_reasons:
-        #         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
     else:
         s = ""
-    # s = 'status: %s proc: %s' % (tracker.status.keys(), tracker.processing)
     return s
 
 
@@ -277,9 +269,9 @@ def handle_event(context, event):  # @UnusedVariable
     line = choice.left + ' ' * nspaces + choice.right
 
     if get_compmake_config('console_status'):
-        if six.PY2:
-            if isinstance(line, unicode):
-                line = line.encode('utf-8')
+        # if six.PY2:
+        #     if isinstance(line, unicode):
+        #         line = line.encode('utf-8')
         stream.write(line)
 
         interactive = get_compmake_config('interactive')

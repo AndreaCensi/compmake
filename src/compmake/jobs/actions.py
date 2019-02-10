@@ -192,7 +192,9 @@ def make(job_id, context, echo=False):
 
     init_progress_tracking(progress_callback)
 
-    disable_capture = True
+    disable_capture = False
+    if disable_capture:
+        logger.warning('Capture is disabled')
     if disable_capture:
         capture = None
     else:
