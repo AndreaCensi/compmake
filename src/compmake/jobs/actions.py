@@ -132,7 +132,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     set_job_cache(job_id, cache, db=db)
 
 
-def make(job_id, context, echo=False):  # @UnusedVariable
+def make(job_id, context, echo=False):
     """
         Makes a single job.
 
@@ -192,7 +192,7 @@ def make(job_id, context, echo=False):  # @UnusedVariable
 
     init_progress_tracking(progress_callback)
 
-    disable_capture = False
+    disable_capture = True
     if disable_capture:
         capture = None
     else:

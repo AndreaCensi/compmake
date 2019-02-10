@@ -12,11 +12,11 @@ from ..structures import Job, Promise, same_computation
 from ..utils import interpret_strings_like, try_pickling
 from .helpers import UIState, get_commands
 from .visualization import warning
-from compmake.constants import DefaultsToConfig
-from compmake.context import Context
-from compmake.exceptions import CompmakeBug
-from compmake.jobs.actions import clean_cache_relations
-from compmake.jobs.storage import db_job_add_parent_relation
+from ..constants import DefaultsToConfig
+from ..context import Context
+from ..exceptions import CompmakeBug
+from ..jobs.actions import clean_cache_relations
+from ..jobs.storage import db_job_add_parent_relation
 from contracts import (
     check_isinstance, contract, describe_type, describe_value, raise_wrapped)
 import inspect
@@ -237,7 +237,7 @@ def comp_(context, command_, *args, **kwargs):
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
         try:
-            argspec = inspect.getargspec(command)
+            argspec = inspect.getfullargspec(command)
         except TypeError:
             # Assume Cython function
             # XXX: write test

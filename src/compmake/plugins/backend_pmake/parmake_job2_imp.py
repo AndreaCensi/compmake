@@ -45,7 +45,7 @@ def parmake_job2(args):
     try:
         # We register a handler for the events to be passed back 
         # to the main process
-        def handler( event):
+        def handler(event):
             try:
                 if not CompmakeConstants.disable_interproc_queue:
                     event_queue.put(event, block=False)

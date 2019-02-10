@@ -42,7 +42,7 @@ def gantt(job_list, context, filename='gantt.html'):
         for c in defined:
             G.add_edge(job_id, c)
 
-    order = topological_sort(G)
+    order = list(topological_sort(G))
     for job_id in order:
         cache = cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:

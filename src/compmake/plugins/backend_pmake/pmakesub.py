@@ -88,6 +88,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                 break
 
             log('got job: %s' % str(job))
+
             function, arguments = job
             try:
                 # print('arguments: %s' % str(arguments))

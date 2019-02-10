@@ -52,28 +52,29 @@ def plot_with_prefix(job_id, lines, is_stderr):
         # This has problems with escape characters
         # (in addition to get_screen_columns() not functioning sometime.)
 
-        split_lines = False
-        if split_lines:
-            max_space = (get_screen_columns() - 1
-                         - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
-
-            sublines = clip_to_length(line, max_space)
-
-            for a, subline in enumerate(sublines):
-                if a == 0:
-                    screen_line = '%s%s%s' % (prefix, sep, subline)
-                else:
-                    screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
-
-                screen_line = pad_to_screen(screen_line)
-                write_line_endl(screen_line)
-
-        else:
-            pad = True
-            if pad:
-                write_screen_line(line)
-            else:
-                write_line_endl(line)
+        # split_lines = False
+        # if split_lines:
+        #     max_space = (get_screen_columns() - 1
+        #                  - get_length_on_screen('%s%s%s' % (prefix, sep, '')))
+        #
+        #     sublines = clip_to_length(line, max_space)
+        #
+        #     for a, subline in enumerate(sublines):
+        #         if a == 0:
+        #             screen_line = '%s%s%s' % (prefix, sep, subline)
+        #         else:
+        #             screen_line = '%s%s%s' % (prefix_empty, ' ', subline)
+        #
+        #         screen_line = pad_to_screen(screen_line)
+        #         write_line_endl(screen_line)
+        #
+        # else:
+        #     pad = True
+        #     if pad:
+        #         write_screen_line(line)
+        #     else:
+        #         write_line_endl(line)
+        write_screen_line(line)
 
 def write_line_endl_w(x, ss):
     check_isinstance(x, six.text_type)
@@ -81,12 +82,12 @@ def write_line_endl_w(x, ss):
     xl = x + '\n'
     if isinstance(ss, StringIO):
         ss.write(xl)
-        ss.flush()
     else:
         if hasattr(ss, 'buffer'):
             ss.buffer.write(xl.encode('utf-8'))
         else:
             ss.write(xl)
+    ss.flush()
 
 def write_line_endl(x):
     write_line_endl_w(x, stream)

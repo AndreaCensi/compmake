@@ -9,7 +9,7 @@ from contracts import contract, indent
 from .registered_events import compmake_registered_events
 from .structures import Event
 from ..exceptions import CompmakeException
-from ..utils import wildcard_to_regexp
+from ..utils import wildcard_to_regexp, make_sure_dir_exists
 
 __all__ = [
     'broadcast_event',
@@ -45,7 +45,7 @@ def register_handler(event_name, handler):
         The event name might contain asterisks. "*" matches all.
     """
     import inspect
-    spec = inspect.getargspec(handler)
+    spec = inspect.getfullargspec(handler)
     args = set(spec.args)
     possible_args = set(['event', 'context', 'self'])
     # to be valid 
@@ -96,7 +96,7 @@ def broadcast_event(context, event):
     handlers = all_handlers.get(event.name, [])
     if handlers:
         for handler in handlers:
-            spec = inspect.getargspec(handler)
+            spec = inspect.getfullargspec(handler)
             try:
                 kwargs = {}
                 if 'event' in spec.args:
@@ -105,9 +105,8 @@ def broadcast_event(context, event):
                     kwargs['context'] = context
                 handler(**kwargs)
                 # TODO: do not catch interrupted, etc.
-            except Exception as e:
+            except BaseException:
                 try:
-                    # e = traceback.format_exc(e)
                     msg = [
                         'compmake BUG: Error in event handler.',
                         '  event: %s' % event.name,
@@ -123,3 +122,23 @@ def broadcast_event(context, event):
     else:
         for handler in CompmakeGlobalState.EventHandlers.fallback:
             handler(context=context, event=event)
+
+import os
+def get_events_log_file(db):
+    storage = os.path.abspath(db.basepath)
+    logdir = os.path.join(storage, 'events')
+    lf = os.path.join(logdir, 'events.log')
+    make_sure_dir_exists(lf)
+    if not os.path.exists(lf):
+        with open(lf, 'w') as f:
+            f.write('first.\n')
+    return lf
+
+def handle_event_logs(context: Context, event):
+    db = context.compmake_db
+    lf = get_events_log_file(db)
+    with open(lf, 'a') as f:
+        f.write(str(event) + '\n')
+
+
+register_handler('*', handle_event_logs)
