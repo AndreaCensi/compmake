@@ -12,7 +12,7 @@ from compmake.jobs.storage import (job_args_sizeof, job_cache_exists,
 from compmake.jobs.syntax.parsing import is_root_job
 from compmake.structures import timing_summary, cache_has_large_overhead, Cache
 from compmake.ui import VISUALIZATION, compmake_colored, ui_command
-from compmake.utils import (duration_compact)
+from zuper_commons.ui import (duration_compact)
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
 from contracts import contract

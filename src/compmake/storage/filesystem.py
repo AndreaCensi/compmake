@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import os
 import stat
 import traceback
 from glob import glob
 from os.path import basename
 
+
+from zuper_commons.fs import find_pickling_error, write_ustring_to_utf8_file
+
 from compmake import logger
 from compmake.exceptions import CompmakeBug, SerializationError
-from compmake.utils import (find_pickling_error, safe_pickle_dump,
+from compmake.utils import (safe_pickle_dump,
                             safe_pickle_load)
-from compmake.utils.safe_write import write_data_to_file
 
 if True:
     track_time = lambda x: x
@@ -40,8 +43,6 @@ class StorageFilesystem(object):
         if others:
             msg = 'Extension is %s but found %s files with other extension.' % (self.file_extension, len(others))
             raise Exception(msg)
-
-
 
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
@@ -181,33 +182,33 @@ def chmod_plus_x(filename):
 
 def create_scripts(basepath):
     filename2cmd = {
-         'ls_failed': 'ls failed',
-         'why_failed': 'why failed',
-         'make_failed': 'make failed',
-         'remake': 'remake',
-         'why': 'why',
-         'make': 'make',
-         'parmake': 'parmake',
-         'rparmake': 'rparmake',
-         'rmake': 'rmake',
-         'clean': 'clean',
-         'ls': 'ls',
-         'stats': 'stats',
-         'gantt': 'gantt',
-         'details': 'details',
-         }
+        'ls_failed': 'ls failed',
+        'why_failed': 'why failed',
+        'make_failed': 'make failed',
+        'remake': 'remake',
+        'why': 'why',
+        'make': 'make',
+        'parmake': 'parmake',
+        'rparmake': 'rparmake',
+        'rmake': 'rmake',
+        'clean': 'clean',
+        'ls': 'ls',
+        'stats': 'stats',
+        'gantt': 'gantt',
+        'details': 'details',
+    }
     for fn, cmd in filename2cmd.items():
         s = "#!/bin/bash\ncompmake %s -c \"%s $*\"\n" % (basepath, cmd)
         f = os.path.join(basepath, fn)
-        write_data_to_file(s.encode('utf-8'), f, quiet=True)
+        write_ustring_to_utf8_file(s, f, quiet=True)
         chmod_plus_x(f)
 
     s = "#!/bin/bash\ncompmake %s \n" % (basepath)
     f = os.path.join(basepath, 'console')
-    write_data_to_file(s.encode('utf-8'), f, quiet=True)
+    write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = "#!/bin/bash\ncompmake %s -c \"$*\" \n" % (basepath)
     f = os.path.join(basepath, 'run')
-    write_data_to_file(s.encode('utf-8'), f, quiet=True)
+    write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

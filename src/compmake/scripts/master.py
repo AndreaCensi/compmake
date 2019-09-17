@@ -6,7 +6,8 @@ import traceback
 from optparse import OptionParser
 
 import contracts
-from compmake.utils.friendly_path_imp import friendly_path
+from zuper_commons.fs import friendly_path
+
 from contracts import contract, check_isinstance
 
 from .scripts_utils import wrap_script_entry_point

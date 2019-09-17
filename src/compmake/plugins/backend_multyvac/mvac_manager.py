@@ -13,7 +13,7 @@ from compmake.plugins.backend_multyvac.mvac_job_imp import mvac_job
 from compmake.plugins.backend_multyvac.mvac_job_rdb_imp import mvac_job_rdb
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.plugins.backend_pmake.pmakesub import PmakeSub
-from compmake.utils import make_sure_dir_exists
+from zuper_commons.fs import make_sure_dir_exists
 from contracts import contract
 
 from future.moves.queue import Empty

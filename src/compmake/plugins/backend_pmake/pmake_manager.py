@@ -4,6 +4,7 @@ from multiprocessing import Queue
 import signal
 
 import six
+from psutil import NoSuchProcess
 
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
@@ -11,7 +12,7 @@ from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
 from compmake.ui import warning
-from compmake.utils import make_sure_dir_exists
+from zuper_commons.fs import make_sure_dir_exists
 from contracts import contract, check_isinstance
 
 from future.moves.queue import Empty
@@ -29,7 +30,10 @@ def killtree():
     parent = psutil.Process(os.getpid())
     for child in parent.children(recursive=True):
         # print("child: %s"%child)
-        child.kill()
+        try:
+            child.kill()
+        except NoSuchProcess:
+            pass
 
 class PmakeManager(Manager):
     """

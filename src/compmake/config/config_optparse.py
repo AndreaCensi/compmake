@@ -36,7 +36,9 @@ def config_populate_optparser(parser):
 
         parser.add_option_group(group)
 
-def option_callback(option, opt, value, par, switch):  # @UnusedVariable
+
+# noinspection PyUnusedLocal
+def option_callback(option, opt, value, par, switch):
     try:
         set_config_from_strings(switch.name, value)
     except:

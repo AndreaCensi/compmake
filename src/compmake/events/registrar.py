@@ -9,7 +9,8 @@ from contracts import contract, indent
 from .registered_events import compmake_registered_events
 from .structures import Event
 from ..exceptions import CompmakeException
-from ..utils import wildcard_to_regexp, make_sure_dir_exists
+from ..utils import wildcard_to_regexp
+from zuper_commons.fs import make_sure_dir_exists
 
 __all__ = [
     'broadcast_event',
@@ -105,6 +106,8 @@ def broadcast_event(context, event):
                     kwargs['context'] = context
                 handler(**kwargs)
                 # TODO: do not catch interrupted, etc.
+            except KeyboardInterrupt:
+                raise
             except BaseException:
                 try:
                     msg = [

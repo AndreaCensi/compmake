@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import sys
 
-from .debug_pickler import find_pickling_error
-from .safe_write import safe_read, safe_write
+import pickle
+
 from compmake import logger
-from contracts import describe_type
-
-
-if sys.version_info[0] >= 3:
-    import pickle  # @UnusedImport
-else:
-    import cPickle as pickle  # @Reimport
 
 __all__ = [
     'safe_pickle_dump',
     'safe_pickle_load',
 ]
+from zuper_commons.fs import safe_write, find_pickling_error, safe_read
+from zuper_commons.types import describe_type
 
 
 def safe_pickle_dump(value, filename, protocol=pickle.HIGHEST_PROTOCOL,

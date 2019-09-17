@@ -156,7 +156,7 @@ def make(job_id, context, echo=False):
         setproctitle('cm-%s' % job_id)
 
     # TODO: should we make sure we are up to date???
-    #     up, reason = up_to_date(job_id, db=db)  # @UnusedVariable
+    #     up, reason = up_to_date(job_id, db=db)
     #     if up:
     #         msg = 'Job %r appears already done.' % job_id
     #         msg += 'This can only happen if another compmake process uses the ' \

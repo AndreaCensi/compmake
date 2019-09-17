@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 '''
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
@@ -62,7 +62,7 @@ from __future__ import unicode_literals
 
 '''
 
-from compmake.utils.duration_hum import duration_compact
+from zuper_commons.ui import duration_compact
 from compmake.utils.pickle_frustration import pickle_main_context_save
 from contracts import contract, describe_value
 
@@ -287,6 +287,6 @@ class ProgressStage(object):
     def was_finished(self):
         # allow off-by-one conventions
         if isinstance(self.iterations[1], int):
-            return (self.iterations[0] >= self.iterations[1] - 1)
+            return self.iterations[0] >= self.iterations[1] - 1
         else:
             return self.iterations[0] >= self.iterations[1]

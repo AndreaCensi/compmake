@@ -24,7 +24,7 @@ from ..jobs import (assert_job_exists, get_job_cache, job_cache_exists,
                     job_exists, job_userobject_exists)
 from ..jobs.actions_newprocess import result_dict_check
 from ..structures import Cache
-from ..utils import make_sure_dir_exists
+from zuper_commons.fs import make_sure_dir_exists
 
 __all__ = [
     'Manager',
@@ -83,8 +83,8 @@ class ManagerLog(object):
 
 class Manager(ManagerLog):
 
-    @contract(recurse='bool')
-    def __init__(self, context, cq, recurse=False):  # @UnusedVariable
+    # noinspection PyUnusedLocal
+    def __init__(self, context, cq, recurse: bool =False):
         self.context = context
         # self.cq = cq
         self.db = context.get_compmake_db()

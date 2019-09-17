@@ -4,7 +4,7 @@ from compmake.state import get_compmake_config
 from contracts import contract
 import os
 from compmake.ui.visualization import info
-from compmake.utils import friendly_path
+from zuper_commons.fs import friendly_path
 import shutil
 
 __all__ = ['sync_data_up', 'sync_data_down']

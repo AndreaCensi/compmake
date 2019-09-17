@@ -80,8 +80,7 @@ class StreamCapture(object):
 
     def get_value_text_type(self):
         b = self.buffer.getvalue()
-        if six.PY2:
-            b = b.decode('utf-8')
+
         return b
 
     def flush(self):
