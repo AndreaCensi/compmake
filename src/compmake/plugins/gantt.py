@@ -5,7 +5,6 @@ from collections import  OrderedDict, namedtuple
 from compmake.jobs import CacheQueryDB, Cache
 from compmake.jobs.storage import all_jobs
 from compmake.ui import COMMANDS_ADVANCED, ui_command
-from networkx.algorithms.dag import topological_sort
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -13,6 +12,7 @@ def gantt(job_list, context, filename='gantt.html'):
     """
 
     """
+    from networkx.algorithms.dag import topological_sort
 
     db = context.get_compmake_db()
     if not job_list:
