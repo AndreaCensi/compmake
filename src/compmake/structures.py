@@ -162,14 +162,14 @@ class IntervalTimer(object):
 
     def __init__(self):
         import time
-        self.c0 = time.clock()
+        self.c0 = time.process_time()
         self.t0 = time.time()
         self.stopped = False
 
     def stop(self):
         self.stopped = True
         import time
-        self.c1 = time.clock()
+        self.c1 = time.process_time()
         self.t1 = time.time()
 
     def get_walltime_used(self):

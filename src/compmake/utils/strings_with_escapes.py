@@ -11,10 +11,10 @@ __all__ = [
     'pad_to_screen_length',
 ]
 
+escape = re.compile('\x1b\[..?m')
 
 def remove_escapes(s):
     check_not_bytes(s)
-    escape = re.compile('\x1b\[..?m')
     return escape.sub("", s)
 
 

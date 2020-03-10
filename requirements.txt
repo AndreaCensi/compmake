@@ -6,5 +6,5 @@ PyYaml
 psutil
 decorator
 future
-networkx==2.2
+networkx<3
 six
