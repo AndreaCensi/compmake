@@ -73,6 +73,7 @@ setup(
             'future',
             'networkx<3',
             'six',
+            'zuper-commons-z6',
             # 'pyreadline',
         ],
 
