@@ -1,5 +1,5 @@
 PyContracts==1.8.12
-SystemCmd==2.2.4
+SystemCmd==3.0.1
 termcolor
 setproctitle
 PyYaml
