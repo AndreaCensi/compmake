@@ -71,7 +71,7 @@ setup(
             'decorator',
             'SystemCmd',
             'future',
-            'networkx<3',
+            'networkx>=2,<3',
             'six',
             'zuper-commons-z6',
             # 'pyreadline',
