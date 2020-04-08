@@ -19,7 +19,7 @@ __all__ = [
 class PmakeSub(object):
     EXIT_TOKEN = 'please-exit'
 
-    def __init__(self, name, signal_queue, signal_token, write_log=None):
+    def __init__(self, name: str, signal_queue, signal_token, write_log=None):
         self.name = name
 
         self.job_queue = multiprocessing.Queue()
@@ -50,6 +50,8 @@ class PmakeSub(object):
 
 def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                  write_log=None):
+    import coverage
+    coverage.process_startup()
     if write_log:
         f = open(write_log, 'w')
 
