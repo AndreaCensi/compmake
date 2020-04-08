@@ -255,3 +255,4 @@ def load_existing_db(dirname):
     context.reset_jobs_defined_in_this_session(jobs)
 
     return context
+

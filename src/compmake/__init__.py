@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __version__ = '4.0.4'
-version = __version__ 
+version = __version__
 
 import logging
 logging.basicConfig()
@@ -25,3 +25,4 @@ set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
 if CompmakeConstants.debug_check_invariants:
     logger.warn('debug_check_invariants = True: this might slow down quite a bit')
+
