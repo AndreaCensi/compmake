@@ -47,58 +47,58 @@ def gantt(job_list, context, filename='gantt.html'):
         cache = cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:
             continue
-        length = G.node[job_id]['length']
+        length = G.nodes[job_id]['length']
         pre = list(G.predecessors(job_id))
 #        print('%s pred %s' % (job_id, pre))
         if not pre:
             T0 = 0
-            G.node[job_id]['CP'] = None
+            G.nodes[job_id]['CP'] = None
         else:
             # find predecessor with highest T1
             import numpy as np
-            T1s = list(G.node[_]['T1'] for _ in pre)
+            T1s = list(G.nodes[_]['T1'] for _ in pre)
             i = np.argmax(T1s)
             T0 = T1s[i]
-            G.node[job_id]['CP'] = pre[i]
+            G.nodes[job_id]['CP'] = pre[i]
         T1 = T0 + length
-        G.node[job_id]['T0'] = T0
-        G.node[job_id]['T1'] = T1
+        G.nodes[job_id]['T0'] = T0
+        G.nodes[job_id]['T1'] = T1
 
-        G.node[job_id]['critical'] = False
+        G.nodes[job_id]['critical'] = False
 
     sg_ideal = SimpleGantt()
 
-    by_ideal_completion = sorted(order, key=lambda _: G.node[_]['T1'])
+    by_ideal_completion = sorted(order, key=lambda _: G.nodes[_]['T1'])
     last = by_ideal_completion[-1]
     path = []
     while last is not None:
         path.append(last)
-        G.node[last]['critical'] = True
-        last = G.node[last]['CP']
+        G.nodes[last]['critical'] = True
+        last = G.nodes[last]['CP']
 
     print('Critical path:')
     for job_id in reversed(path):
-        length = G.node[job_id]['length']
+        length = G.nodes[job_id]['length']
         print('-  %.1f s   %s' % (length, job_id))
 
     for job_id in by_ideal_completion:
-        T0 = G.node[job_id]['T0']
-        T1 = G.node[job_id]['T1']
-        # length = G.node[job_id]['length']
+        T0 = G.nodes[job_id]['T0']
+        T1 = G.nodes[job_id]['T1']
+        # length = G.nodes[job_id]['length']
 
         dependencies = list(G.predecessors(job_id))
-        # cache = G.node[job_id]['cache']
+        # cache = G.nodes[job_id]['cache']
         periods = OrderedDict()
         periods['ideal'] = (T0, T1)
-        critical = G.node[job_id]['critical']
+        critical = G.nodes[job_id]['critical']
         sg_ideal.add_job(job_id, dependencies, periods=periods, critical=critical)
 
     sg_actual = SimpleGantt()
 
-    order_actual = sorted(order, key=lambda _: G.node[_]['cache'].int_make.t0)
+    order_actual = sorted(order, key=lambda _: G.nodes[_]['cache'].int_make.t0)
     for job_id in order_actual:
-        cache = G.node[job_id]['cache']
-        critical = G.node[job_id]['critical']
+        cache = G.nodes[job_id]['cache']
+        critical = G.nodes[job_id]['critical']
         dependencies = list(G.predecessors(job_id))
         periods = OrderedDict()
         periods['make'] = cache.int_make.walltime_interval()
@@ -106,8 +106,8 @@ def gantt(job_list, context, filename='gantt.html'):
 
     sg_actual_detailed = SimpleGantt()
     for job_id in order_actual:
-        cache = G.node[job_id]['cache']
-        critical = G.node[job_id]['critical']
+        cache = G.nodes[job_id]['cache']
+        critical = G.nodes[job_id]['critical']
         periods = OrderedDict()
         periods['load'] = cache.int_load_results.walltime_interval()
         periods['compute'] = cache.int_compute.walltime_interval()
