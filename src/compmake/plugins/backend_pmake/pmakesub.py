@@ -1,22 +1,27 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
+import os
 import multiprocessing
 import signal
 import traceback
 from multiprocessing import TimeoutError
 
+import coverage
+from future.moves.queue import Empty
+
+from compmake import logger
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from compmake.jobs.manager import AsyncResultInterface
 from compmake.jobs.result_dict import result_dict_raise_if_error
-from contracts import check_isinstance, indent
-from future.moves.queue import Empty
+from zuper_commons.text import indent
+from zuper_commons.types import check_isinstance
 
 __all__ = [
     'PmakeSub',
 ]
 
 
-class PmakeSub(object):
+class PmakeSub:
     EXIT_TOKEN = 'please-exit'
 
     def __init__(self, name: str, signal_queue, signal_token, write_log=None):
@@ -50,13 +55,25 @@ class PmakeSub(object):
 
 def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
                  write_log=None):
-    import coverage
-    coverage.process_startup()
+    logger.info(f'pmake_worker forked at process {os.getpid()}')
+    from coverage import process_startup
+    if hasattr(process_startup, 'coverage'):
+        logger.info('Detected coverage wanted.')
+        delattr(process_startup, 'coverage')
+        cov = process_startup()
+        if cov is None:
+            logger.warning('Coverage did not start.')
+        else:
+            logger.info('Coverage started successfully.')
+    else:
+        logger.info('Not detected coverage need.')
+        cov = None
+
     if write_log:
         f = open(write_log, 'w')
 
         def log(s):
-            #print('%s: %s' % (name, s))
+            # print('%s: %s' % (name, s))
             f.write('%s: ' % name)
             f.write(s)
             f.write('\n')
@@ -114,7 +131,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
             # except KeyboardInterrupt: pass
     except BaseException as e:
         reason = 'aborted because of uncaptured:\n' + indent(
-                traceback.format_exc(), '| ')
+            traceback.format_exc(), '| ')
         mye = HostFailed(host="???", job_id="???",
                          reason=reason, bt=traceback.format_exc())
         log(str(mye))
@@ -127,10 +144,14 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
         put_result(mye.get_result_dict())
         log('(put)')
 
-
     if signal_queue is not None:
         signal_queue.close()
     result_queue.close()
+    log('saving coverage')
+    if cov:
+        cov._atexit()
+    log('saved coverage')
+
     log('clean exit.')
 
 

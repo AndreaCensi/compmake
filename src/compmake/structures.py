@@ -61,10 +61,12 @@
 
 
 '''
+from dataclasses import dataclass
+from typing import List, NewType, Set
 
-from zuper_commons.ui import duration_compact
 from compmake.utils.pickle_frustration import pickle_main_context_save
 from contracts import contract, describe_value
+from zuper_commons.ui import duration_compact
 
 __all__ = [
     'Promise',
@@ -73,22 +75,34 @@ __all__ = [
     # 'execute_with_context'
 ]
 
-
-class Promise(object):
-
-    def __init__(self, job_id):
-        self.job_id = job_id
-
-    def __repr__(self):
-        return 'Promise(%r)' % self.job_id
+CMJobID = NewType('CMJobID', str)
 
 
-class Job(object):
+@dataclass
+class Promise:
+    job_id: CMJobID
+    #
+    # def __init__(self, job_id):
+    #     self.job_id = job_id
+    #
+    # def __repr__(self):
+    #     return 'Promise(%r)' % self.job_id
 
-    @contract(defined_by='list[>=1](unicode)', children=set)
-    def __init__(self, job_id, children, command_desc,
-                 needs_context=False,
-                 defined_by=None):
+
+class Job:
+    job_id: CMJobID
+    children: Set
+    parents: Set
+    needs_conntext: bool
+    defined_by: List[str]
+    dynamic_children: dict
+    pickle_main_context: object
+    command_desc: object
+
+    # @contract(defined_by='list[>=1](unicode)', children=set)
+    def __init__(self, job_id: CMJobID, children: Set, command_desc,
+                 needs_context: bool = False,
+                 defined_by: List[str] = None):
         """
 
             needs_context: new facility for dynamic jobs
@@ -213,7 +227,8 @@ class Cache(object):
         NOT_STARTED: 'todo',
         BLOCKED: 'blocked',
         FAILED: 'failed',
-        DONE: 'done'}
+        DONE: 'done'
+    }
 
     def __init__(self, state):
         assert (state in Cache.allowed_states)

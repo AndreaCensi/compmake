@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import os
 import sys
+from typing import List, Optional, Set, TYPE_CHECKING, Union
+
 import six
 
 from contracts import contract
@@ -10,14 +11,18 @@ __all__ = [
     'Context',
 ]
 
+if TYPE_CHECKING:
+    from .storage import StorageFilesystem
 
-class Context(object):
-    @contract(db='None|unicode|isinstance(StorageFilesystem)',
-              currently_executing='None|list(unicode)')
-    def __init__(self, db=None, currently_executing=None):
+
+class Context:
+    # @contract(db='None|unicode|isinstance(StorageFilesystem)',
+    #           currently_executing='None|list(unicode)')
+    def __init__(self, db: "Optional[Union[str, StorageFilesystem]]" = None,
+                 currently_executing: Optional[List[str]] = None):
         """
             db: if a string, it is used as path for the DB
-            
+
             currently_executing: str, job currently executing
                 defaults to ['root']
         """
@@ -49,15 +54,13 @@ class Context(object):
 
     # This is used to make sure that the user doesn't define the same job
     # twice.
-    @contract(job_id='unicode')
-    def was_job_defined_in_this_session(self, job_id):
+    def was_job_defined_in_this_session(self, job_id: str) -> bool:
         return job_id in self._jobs_defined_in_this_session
 
-    @contract(job_id='unicode')
-    def add_job_defined_in_this_session(self, job_id):
+    def add_job_defined_in_this_session(self, job_id: str) -> None:
         self._jobs_defined_in_this_session.add(job_id)
 
-    def get_jobs_defined_in_this_session(self):
+    def get_jobs_defined_in_this_session(self) -> Set[str]:
         return set(self._jobs_defined_in_this_session)
 
     def reset_jobs_defined_in_this_session(self, jobs):
@@ -94,13 +97,13 @@ class Context(object):
         return comp_store_(x=x, context=self, job_id=job_id)
 
     def interpret_commands_wrap(self, commands):
-        """ 
+        """
             Returns:
-             
+
             0            everything ok
             int not 0    error
             string       an error, explained
-             
+
             False?       we want to exit (not found in source though)
         """
         from .ui import interpret_commands_wrap
@@ -127,10 +130,10 @@ class Context(object):
 
 
 def comp_store_(x, context, job_id=None):
-    """ 
-    
+    """
+
     Stores the object as a job, keeping track of whether
-        we have it.  
+        we have it.
     """
 
     id_object = id(x)

@@ -6,7 +6,7 @@ __all__ = [
 ]
 
 
-class CompmakeConstants(object):
+class CompmakeConstants:
     """ Arbitrary constants used in the code. """
 
     # DO NOT change these -- they are part of Compmake's interface
@@ -25,7 +25,7 @@ class CompmakeConstants(object):
     # Statuses ------------------------------------------------
     compmake_status_interactive = 'interactive'
     # If run as a ssh-spawned slave session.
-    # - Jobs cannot be created 
+    # - Jobs cannot be created
     compmake_status_slave = 'slave'
     # If run embedded in the user program, when executed by python
     compmake_status_embedded = 'embedded'
@@ -43,7 +43,7 @@ class CompmakeConstants(object):
     aliases = {}
 
 
-class DefaultsToConfig(object):
+class DefaultsToConfig:
     """ Used to mean the param's default is from a config switch. """
 
     def __init__(self, switch):
