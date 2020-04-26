@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-import re
-
+from zuper_commons.text import get_length_on_screen, remove_escapes
 from .terminal_size import get_screen_columns
 
 __all__ = [
@@ -11,55 +9,37 @@ __all__ = [
     'pad_to_screen_length',
 ]
 
-escape = re.compile('\x1b\[..?m')
-
-def remove_escapes(s):
-    check_not_bytes(s)
-    return escape.sub("", s)
-
-
-def get_length_on_screen(s):
-    check_not_bytes(s)
-    """ Returns the length of s without the escapes """
-    return len(remove_escapes(s))
-
-
 debug_padding = False
 
 
-def pad_to_screen(s, pad=" ", last=None):
+def pad_to_screen(s: str, pad=" ", last=None) -> str:
     """
         Pads a string to the terminal size.
 
-        The string length is computed after removing shell
-        escape sequences.
+        The string length is computed after removing shell escape sequences.
     """
     check_not_bytes(s)
     total_screen_length = get_screen_columns()
 
     if debug_padding:
         x = pad_to_screen_length(s, total_screen_length,
-                                 pad="-", last='|')
+                                 pad="-", last='|', align_right=False)
     else:
         x = pad_to_screen_length(s, total_screen_length,
-                                 pad=pad, last=last)
+                                 pad=pad, last=last, align_right=False)
 
     return x
 
 
-import six
+def check_not_bytes(x: str):
+    if isinstance(x, bytes):
+        msg = 'You passed a bytes argument: %s' % x
+        raise Exception(msg)
 
 
-def check_not_bytes(x):
-    if six.PY3:
-        if isinstance(x, bytes):
-            msg = 'You passed a bytes argument: %s' % x
-            raise Exception(msg)
-
-
-def pad_to_screen_length(s, desired_screen_length,
+def pad_to_screen_length(s: str, desired_screen_length: int,
                          pad=" ", last=None,
-                         align_right=False):
+                         align_right=False) -> str:
     """
         Pads a string so that it will appear of the given size
         on the terminal.
@@ -86,6 +66,6 @@ def pad_to_screen_length(s, desired_screen_length,
     if debug_padding:
         if current_size > desired_screen_length:
             T = '(cut)'
-            s = s[:desired_screen_length - len(T)] + T
+            s = s[:desired_screen_length] + T
 
     return s

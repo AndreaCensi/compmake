@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from typing import List
+
 from six import StringIO
 import sys
 
@@ -89,13 +91,13 @@ def write_line_endl_w(x, ss):
             ss.write(xl)
     ss.flush()
 
-def write_line_endl(x):
+def write_line_endl(x: str):
     write_line_endl_w(x, stream)
 
-def write_screen_line(s):
+def write_screen_line(s: str):
     """ Writes and pads """
     # TODO: check that it is not too long
-    check_isinstance(s, six.text_type)
+    check_isinstance(s,  str)
     s = pad_to_screen(s)
     write_line_endl(s)
 
@@ -117,18 +119,18 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         # else:
         prefix = ""
         postfix = ""
-        
+
         # reproducing 3.5.6: safe
         # write_screen_line(line)
-        
+
         if True:  # need to check unicode anyway
             # 3.5.10 -- most recent
-            
+
             sublines = break_lines(prefix, line, postfix, max_size)
 
             for s in sublines:
                 write_screen_line(s)
-            
+
         elif False:
             sublines = break_lines_and_pad(prefix, line, postfix, max_size)
             for s in sublines:
@@ -137,13 +139,13 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
             # 3.5.6
             write_screen_line(line)
 
-def break_lines(prefix, line, postfix, max_size):
+def break_lines(prefix: str, line: str, postfix: int, max_size: int):
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)
     postfix_len = get_length_on_screen(postfix)
 
     max_space = (max_size - postfix_len - prefix_len)
-    
+
     if max_space < 10:
         msg = 'Weird max space: %s' % max_space
         msg += ' max_size: %s prefix: %s postfix: %s' % (max_size, prefix_len, postfix_len)
@@ -196,18 +198,26 @@ def handle_event(event, is_stderr):
 
 
 # XXX: this might have problems with colored versions
-def clip_to_length(line, max_len):
+def clip_to_length(line: str, max_len: int) -> List[str]:
     if max_len <= 0:
         msg = 'Max length should be positive.'
         raise ValueError(msg)
     sublines = []
     while len(line):
-        clip = min(len(line), max_len)
-        subline = line[:clip]
-        sublines.append(subline)
-        line = line[clip:]
+        if len(line) < max_len:
+            sublines.append(line)
+            break
+        initial, rest = clip_up_to(line, max_len)
+        # clip = min(len(line), max_len)
+        # subline = line[:clip]
+        sublines.append(initial)
+        line = rest
     return sublines
 
+def clip_up_to(line: str, max_len: int):
+    if get_length_on_screen(line) < max_len:
+        return line, ''
+    return line[:max_len], line[max_len:]
 
 def handle_event_stdout(event, context):
     if get_compmake_config('echo_stdout'):
