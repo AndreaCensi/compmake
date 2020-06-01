@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
 from typing import List
 
-from six import StringIO
-import sys
-
 import six
+from six import StringIO
 
-from contracts import check_isinstance
 from .. import get_compmake_config
 from ..events import register_handler
 from ..ui import compmake_colored
 from ..utils import (get_length_on_screen, get_screen_columns, pad_to_screen,
                      pad_to_screen_length)
-
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -26,7 +23,6 @@ class Storage(object):
 
 
 def plot_with_prefix(job_id, lines, is_stderr):
-
     for line in lines:
         if six.PY2:
             if isinstance(line, bytes):
@@ -78,10 +74,17 @@ def plot_with_prefix(job_id, lines, is_stderr):
         #         write_line_endl(line)
         write_screen_line(line)
 
-def write_line_endl_w(x, ss):
-    check_isinstance(x, six.text_type)
 
+def write_line_endl_w(x: str, ss):
     xl = x + '\n'
+    write_on_buffer(xl, ss)
+#
+# def write_line_w(x: str, ss):
+#     xl = x
+#     write_on_buffer(xl, ss)
+
+
+def write_on_buffer(xl, ss):
     if isinstance(ss, StringIO):
         ss.write(xl)
     else:
@@ -91,16 +94,18 @@ def write_line_endl_w(x, ss):
             ss.write(xl)
     ss.flush()
 
+def write_line(x: str):
+    write_on_buffer(x, stream)
+
 def write_line_endl(x: str):
     write_line_endl_w(x, stream)
+
 
 def write_screen_line(s: str):
     """ Writes and pads """
     # TODO: check that it is not too long
-    check_isinstance(s,  str)
     s = pad_to_screen(s)
     write_line_endl(s)
-
 
 
 def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
@@ -123,23 +128,28 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         # reproducing 3.5.6: safe
         # write_screen_line(line)
 
-        if True:  # need to check unicode anyway
+        # if True:  # need to check unicode anyway
             # 3.5.10 -- most recent
 
-            sublines = break_lines(prefix, line, postfix, max_size)
+        sublines = break_lines(prefix, line, postfix, max_size)
 
+        if sublines:
             for s in sublines:
-                write_screen_line(s)
+                s = pad_to_screen(s)
+                write_line(s)
+            # write_line(sublines[-1]+'\n')
+            write_line('\n')
+        #
+        # elif False:
+        #     sublines = break_lines_and_pad(prefix, line, postfix, max_size)
+        #     for s in sublines:
+        #         write_screen_line(s)
+        # else:
+        #     # 3.5.6
+        #     write_screen_line(line)
 
-        elif False:
-            sublines = break_lines_and_pad(prefix, line, postfix, max_size)
-            for s in sublines:
-                write_screen_line(s)
-        else:
-            # 3.5.6
-            write_screen_line(line)
 
-def break_lines(prefix: str, line: str, postfix: int, max_size: int):
+def break_lines(prefix: str, line: str, postfix: str, max_size: int):
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)
     postfix_len = get_length_on_screen(postfix)
@@ -157,8 +167,8 @@ def break_lines(prefix: str, line: str, postfix: int, max_size: int):
     lines = []
     for _, subline in enumerate(sublines):
         # pad = '+' if debug_padding else ' '
-#         pad = ' '
-#         subline = pad_to_screen_length(subline, max_space, pad=pad)
+        #         pad = ' '
+        #         subline = pad_to_screen_length(subline, max_space, pad=pad)
         line = '%s%s%s' % (prefix, subline, postfix)
         lines.append(line)
     return lines
@@ -197,7 +207,6 @@ def handle_event(event, is_stderr):
         plot_normally(job_id, lines, is_stderr)
 
 
-# XXX: this might have problems with colored versions
 def clip_to_length(line: str, max_len: int) -> List[str]:
     if max_len <= 0:
         msg = 'Max length should be positive.'
@@ -214,10 +223,15 @@ def clip_to_length(line: str, max_len: int) -> List[str]:
         line = rest
     return sublines
 
+
 def clip_up_to(line: str, max_len: int):
-    if get_length_on_screen(line) < max_len:
+    if get_length_on_screen(line) <= max_len:
         return line, ''
+    for i in reversed(range(len(line))):
+        if get_length_on_screen(line[:i]) <= max_len:
+            return line[:i], line[i:]
     return line[:max_len], line[max_len:]
+
 
 def handle_event_stdout(event, context):
     if get_compmake_config('echo_stdout'):

@@ -18,7 +18,6 @@ def pad_to_screen(s: str, pad=" ", last=None) -> str:
 
         The string length is computed after removing shell escape sequences.
     """
-    check_not_bytes(s)
     total_screen_length = get_screen_columns()
 
     if debug_padding:
@@ -40,6 +39,7 @@ def check_not_bytes(x: str):
 def pad_to_screen_length(s: str, desired_screen_length: int,
                          pad=" ", last=None,
                          align_right=False) -> str:
+    assert len(pad) == 1, pad
     """
         Pads a string so that it will appear of the given size
         on the terminal.
