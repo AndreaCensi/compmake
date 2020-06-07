@@ -8,7 +8,7 @@ import six
 from contracts import contract
 
 __all__ = [
-    'Context',
+    "Context",
 ]
 
 if TYPE_CHECKING:
@@ -18,8 +18,11 @@ if TYPE_CHECKING:
 class Context:
     # @contract(db='None|unicode|isinstance(StorageFilesystem)',
     #           currently_executing='None|list(unicode)')
-    def __init__(self, db: "Optional[Union[str, StorageFilesystem]]" = None,
-                 currently_executing: Optional[List[str]] = None):
+    def __init__(
+        self,
+        db: "Optional[Union[str, StorageFilesystem]]" = None,
+        currently_executing: Optional[List[str]] = None,
+    ):
         """
             db: if a string, it is used as path for the DB
 
@@ -27,14 +30,14 @@ class Context:
                 defaults to ['root']
         """
         if currently_executing is None:
-            currently_executing = ['root']
+            currently_executing = ["root"]
         from compmake import StorageFilesystem
 
         if db is None:
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
 
             # logger.info('Context(): Using default storage dir %r.' % prog)
-            dirname = 'out-%s' % prog
+            dirname = "out-%s" % prog
             db = StorageFilesystem(dirname, compress=True)
 
         if isinstance(db, six.string_types):
@@ -75,9 +78,10 @@ class Context:
 
     def comp_prefix(self, prefix):
         if prefix is not None:
-            if ' ' in prefix:
-                msg = 'Invalid job prefix %r.' % prefix
+            if " " in prefix:
+                msg = "Invalid job prefix %r." % prefix
                 from .exceptions import UserError
+
                 raise UserError(msg)
 
         self._job_prefix = prefix
@@ -138,7 +142,7 @@ def comp_store_(x, context, job_id=None):
     if id_object not in book:
         job_params = {}
         if job_id is not None:
-            job_params['job_id'] = job_id
+            job_params["job_id"] = job_id
 
         job = context.comp(load_static_storage, x, **job_params)
         book[id_object] = job

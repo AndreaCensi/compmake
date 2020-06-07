@@ -19,7 +19,7 @@ from contracts import contract
 from future.moves.queue import Empty
 
 __all__ = [
-    'MVacManager',
+    "MVacManager",
 ]
 
 
@@ -27,17 +27,21 @@ class MVacManager(Manager):
     """
         Multyvac backend.
     """
- 
 
-    @contract(num_processes='int')
-    def __init__(self, context, cq, num_processes, 
-                 recurse=False, 
-                 show_output=False,
-                 new_process=False,
-                 volumes=[],
-                 rdb=False,
-                 rdb_vol=None,
-                 rdb_db=None):
+    @contract(num_processes="int")
+    def __init__(
+        self,
+        context,
+        cq,
+        num_processes,
+        recurse=False,
+        show_output=False,
+        new_process=False,
+        volumes=[],
+        rdb=False,
+        rdb_vol=None,
+        rdb_db=None,
+    ):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
@@ -48,11 +52,12 @@ class MVacManager(Manager):
         self.rdb = rdb
         self.rdb_db = rdb_db
         self.rdb_vol = rdb_vol
-        
+
     def process_init(self):
         self.event_queue = Queue()
         self.event_queue_name = str(id(self))
         from compmake.plugins.backend_pmake.pmake_manager import PmakeManager
+
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
         # info('Starting %d processes' % self.num_processes)
@@ -67,16 +72,15 @@ class MVacManager(Manager):
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = os.path.join(storage, 'logs')
+        logs = os.path.join(storage, "logs")
         for i in range(self.num_processes):
-            name = 'w%02d' % i
-            write_log = os.path.join(logs, '%s.log' % name)
+            name = "w%02d" % i
+            write_log = os.path.join(logs, "%s.log" % name)
             make_sure_dir_exists(write_log)
             signal_token = name
-            self.subs[name] = PmakeSub(name, 
-                                       signal_queue=self.signal_queue,
-                                       signal_token=signal_token,
-                                       write_log=write_log)
+            self.subs[name] = PmakeSub(
+                name, signal_queue=self.signal_queue, signal_token=signal_token, write_log=write_log
+            )
         self.job2subname = {}
         self.subname2job = {}
         # all are available at the beginning
@@ -90,12 +94,12 @@ class MVacManager(Manager):
             token = self.signal_queue.get(block=False)
         except Empty:
             return False
-        #print('received %r' % token)
+        # print('received %r' % token)
         job_id = self.subname2job[token]
         self.subs[token].last
         self.check_job_finished(job_id, assume_ready=True)
-        return True 
-    
+        return True
+
     # XXX: boiler plate
     def get_resources_status(self):
         resource_available = {}
@@ -103,14 +107,14 @@ class MVacManager(Manager):
         assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            msg = 'already %d nproc' % len(self.sub_processing)
+            msg = "already %d nproc" % len(self.sub_processing)
             if self.sub_aborted:
-                msg += ' (%d workers aborted)' % len(self.sub_aborted)
-            resource_available['nproc'] = (False, msg)
+                msg += " (%d workers aborted)" % len(self.sub_aborted)
+            resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available
         else:
-            resource_available['nproc'] = (True, '')
+            resource_available["nproc"] = (True, "")
 
         return resource_available
 
@@ -118,7 +122,7 @@ class MVacManager(Manager):
     def can_accept_job(self, reasons_why_not):
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed
-            msg = 'All workers have aborted.'
+            msg = "All workers have aborted."
             raise MakeHostFailed(msg)
 
         resources = self.get_resources_status()
@@ -132,8 +136,7 @@ class MVacManager(Manager):
         return True
 
     def instance_job(self, job_id):
-        publish(self.context, 'worker-status', job_id=job_id,
-                status='apply_async')
+        publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
         self.sub_available.remove(name)
@@ -148,31 +151,42 @@ class MVacManager(Manager):
 
         if self.rdb:
             f = mvac_job_rdb
-            args = (job_id, self.context,
-                    self.event_queue_name, self.show_output,
-                    self.volumes, self.rdb_vol.name, self.rdb_db, os.getcwd())            
+            args = (
+                job_id,
+                self.context,
+                self.event_queue_name,
+                self.show_output,
+                self.volumes,
+                self.rdb_vol.name,
+                self.rdb_db,
+                os.getcwd(),
+            )
         else:
             if job.needs_context:
                 # if self.new_process:
                 #     f = parmake_job2_new_process
                 #     args = (job_id, self.context)
-                # 
+                #
                 # else:
                 f = parmake_job2
-                args = (job_id, self.context,
-                        self.event_queue_name, self.show_output)
+                args = (job_id, self.context, self.event_queue_name, self.show_output)
             else:
                 f = mvac_job
-                args = (job_id, self.context,
-                        self.event_queue_name, self.show_output,
-                        self.volumes, os.getcwd())
-    
+                args = (
+                    job_id,
+                    self.context,
+                    self.event_queue_name,
+                    self.show_output,
+                    self.volumes,
+                    os.getcwd(),
+                )
+
         if True:
             async_result = sub.apply_async(f, args)
         else:
-            warnings.warn('Debugging synchronously')
+            warnings.warn("Debugging synchronously")
             async_result = f(args)
-            
+
         return async_result
 
     def event_check(self):
@@ -181,7 +195,7 @@ class MVacManager(Manager):
         while True:
             try:
                 event = self.event_queue.get(block=False)  # @UndefinedVariable
-                event.kwargs['remote'] = True
+                event.kwargs["remote"] = True
                 broadcast_event(self.context, event)
             except Empty:
                 break
@@ -190,9 +204,9 @@ class MVacManager(Manager):
         if self.cleaned:
             return
         self.cleaned = True
-        
-        #print('Clean up...') 
-        
+
+        # print('Clean up...')
+
         for name in self.sub_processing:
             self.subs[name].proc.terminate()
 
@@ -205,7 +219,7 @@ class MVacManager(Manager):
             timeout = 1
             for name in self.sub_available:
                 self.subs[name].proc.join(timeout)
-            
+
         # XXX: ... so we just kill them mercilessly
         else:
             #  print('killing')
@@ -216,10 +230,10 @@ class MVacManager(Manager):
         self.event_queue.close()
         self.signal_queue.close()
         from compmake.plugins.backend_pmake.pmake_manager import PmakeManager
-        del PmakeManager.queues[self.event_queue_name]
-        
 
-    # Normal outcomes    
+        del PmakeManager.queues[self.event_queue_name]
+
+    # Normal outcomes
     def job_failed(self, job_id, deleted_jobs):
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)

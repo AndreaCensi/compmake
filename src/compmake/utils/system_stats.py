@@ -3,7 +3,7 @@
 import time
 
 __all__ = [
-    'AvgSystemStats',
+    "AvgSystemStats",
 ]
 
 try:
@@ -11,8 +11,7 @@ try:
 except ImportError:
     from compmake import logger
 
-    logger.warning('Package "psutil" not found; load balancing '
-                   'and system stats (CPU, MEM) not available.')
+    logger.warning('Package "psutil" not found; load balancing ' "and system stats (CPU, MEM) not available.")
 
 
 class AvgSystemStats(object):
@@ -34,8 +33,7 @@ class AvgSystemStats(object):
         else:
             self._available = True
 
-            self.cpu = Collect('cpu', lambda: psutil.cpu_percent(interval=0),
-                               interval, history_len)
+            self.cpu = Collect("cpu", lambda: psutil.cpu_percent(interval=0), interval, history_len)
 
             try:
                 # new in 0.8
@@ -44,7 +42,7 @@ class AvgSystemStats(object):
             except:
                 get_mem = lambda: psutil.phymem_usage().percent
 
-            self.mem = Collect('mem', get_mem, interval, history_len)
+            self.mem = Collect("mem", get_mem, interval, history_len)
             try:
                 # new in 0.8
                 psutil.swap_memory().percent
@@ -52,7 +50,7 @@ class AvgSystemStats(object):
             except:
                 get_mem = lambda: psutil.virtmem_usage().percent
 
-            self.swap_mem = Collect('swap', get_mem, interval, history_len)
+            self.swap_mem = Collect("swap", get_mem, interval, history_len)
 
     def avg_cpu_percent(self):
         self._check_available()
@@ -80,7 +78,7 @@ class AvgSystemStats(object):
 
     def _check_available(self):
         if not self._available:
-            msg = 'Sorry, psutil not available.'
+            msg = "Sorry, psutil not available."
             raise ValueError(msg)
 
 

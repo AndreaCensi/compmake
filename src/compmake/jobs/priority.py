@@ -2,9 +2,7 @@
 
 from compmake.structures import Cache
 
-__all__ = [
-    'compute_priorities'
-]
+__all__ = ["compute_priorities"]
 
 
 def compute_priorities(all_targets, cq, priorities=None):
@@ -16,8 +14,7 @@ def compute_priorities(all_targets, cq, priorities=None):
         priorities = {}
     all_targets = set(all_targets)
     for job_id in all_targets:
-        p = compute_priority(job_id=job_id, priorities=priorities,
-                             targets=all_targets, cq=cq)
+        p = compute_priority(job_id=job_id, priorities=priorities, targets=all_targets, cq=cq)
         priorities[job_id] = p
     return priorities
 
@@ -31,7 +28,7 @@ def compute_priority(job_id, priorities, targets, cq):
     parents = set(cq.direct_parents(job_id))
     parents_which_are_targets = [x for x in parents if x in targets]
 
-    # Dynamic jobs get bonus 
+    # Dynamic jobs get bonus
     job = cq.get_job(job_id)
     if job.needs_context:
         base_priority = 10
@@ -58,6 +55,3 @@ def compute_priority(job_id, priorities, targets, cq):
     priorities[job_id] = priority
 
     return priority
-
-
-

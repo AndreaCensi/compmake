@@ -17,12 +17,12 @@ from zuper_commons.text import indent
 from zuper_commons.types import check_isinstance
 
 __all__ = [
-    'PmakeSub',
+    "PmakeSub",
 ]
 
 
 class PmakeSub:
-    EXIT_TOKEN = 'please-exit'
+    EXIT_TOKEN = "please-exit"
 
     def __init__(self, name: str, signal_queue, signal_token, write_log=None):
         self.name = name
@@ -30,14 +30,11 @@ class PmakeSub:
         self.job_queue = multiprocessing.Queue()
         self.result_queue = multiprocessing.Queue()
         # print('starting process %s ' % name)
-        self.proc = multiprocessing.Process(target=pmake_worker,
-                                            args=(self.name,
-                                                  self.job_queue,
-                                                  self.result_queue,
-                                                  signal_queue,
-                                                  signal_token,
-                                                  write_log),
-                                            name=name)
+        self.proc = multiprocessing.Process(
+            target=pmake_worker,
+            args=(self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log),
+            name=name,
+        )
         self.proc.start()
 
     def terminate(self):
@@ -53,106 +50,106 @@ class PmakeSub:
         return self.last
 
 
-def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token,
-                 write_log=None):
-    logger.info(f'pmake_worker forked at process {os.getpid()}')
+def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, write_log=None):
+    logger.info(f"pmake_worker forked at process {os.getpid()}")
     from coverage import process_startup
-    if hasattr(process_startup, 'coverage'):
-        logger.info('Detected coverage wanted.')
-        delattr(process_startup, 'coverage')
+
+    if hasattr(process_startup, "coverage"):
+        logger.info("Detected coverage wanted.")
+        delattr(process_startup, "coverage")
         cov = process_startup()
         if cov is None:
-            logger.warning('Coverage did not start.')
+            logger.warning("Coverage did not start.")
         else:
-            logger.info('Coverage started successfully.')
+            logger.info("Coverage started successfully.")
     else:
-        logger.info('Not detected coverage need.')
+        logger.info("Not detected coverage need.")
         cov = None
 
     if write_log:
-        f = open(write_log, 'w')
+        f = open(write_log, "w")
 
         def log(s):
             # print('%s: %s' % (name, s))
-            f.write('%s: ' % name)
+            f.write("%s: " % name)
             f.write(s)
-            f.write('\n')
+            f.write("\n")
             f.flush()
+
     else:
+
         def log(s):
-            print('%s: %s' % (name, s))
+            print("%s: %s" % (name, s))
             pass
 
-    log('started pmake_worker()')
+    log("started pmake_worker()")
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     def put_result(x):
-        log('putting result in result_queue..')
+        log("putting result in result_queue..")
         result_queue.put(x, block=True)
         if signal_queue is not None:
-            log('putting result in signal_queue..')
+            log("putting result in signal_queue..")
             signal_queue.put(signal_token, block=True)
-        log('(done)')
+        log("(done)")
 
     try:
         while True:
-            log('Listening for job')
+            log("Listening for job")
             try:
                 job = job_queue.get(block=True, timeout=5)
             except Empty:
-                log('Could not receive anything.')
+                log("Could not receive anything.")
                 continue
             if job == PmakeSub.EXIT_TOKEN:
-                log('Received EXIT_TOKEN.')
+                log("Received EXIT_TOKEN.")
                 break
 
-            log('got job: %s' % str(job))
+            log("got job: %s" % str(job))
 
             function, arguments = job
             try:
                 # print('arguments: %s' % str(arguments))
                 result = function(arguments)
             except JobFailed as e:
-                log('Job failed, putting notice.')
-                log('result: %s' % (e))  # debug
+                log("Job failed, putting notice.")
+                log("result: %s" % (e))  # debug
                 put_result(e.get_result_dict())
             except JobInterrupted as e:
-                log('Job interrupted, putting notice.')
+                log("Job interrupted, putting notice.")
                 put_result(dict(abort=str(e)))  # XXX
             except CompmakeBug as e:  # XXX :to finish
-                log('CompmakeBug')
+                log("CompmakeBug")
                 put_result(e.get_result_dict())
             else:
-                log('result: %s' % str(result))
+                log("result: %s" % str(result))
                 put_result(result)
 
-            log('...done.')
+            log("...done.")
 
             # except KeyboardInterrupt: pass
     except BaseException as e:
-        reason = 'aborted because of uncaptured:\n' + indent(
-            traceback.format_exc(), '| ')
-        mye = HostFailed(host="???", job_id="???",
-                         reason=reason, bt=traceback.format_exc())
+        reason = "aborted because of uncaptured:\n" + indent(traceback.format_exc(), "| ")
+        mye = HostFailed(host="???", job_id="???", reason=reason, bt=traceback.format_exc())
         log(str(mye))
         put_result(mye.get_result_dict())
     except:
-        mye = HostFailed(host="???", job_id="???",
-                         reason='Uknown exception (not BaseException)',
-                         bt="not available")
+        mye = HostFailed(
+            host="???", job_id="???", reason="Uknown exception (not BaseException)", bt="not available"
+        )
         log(str(mye))
         put_result(mye.get_result_dict())
-        log('(put)')
+        log("(put)")
 
     if signal_queue is not None:
         signal_queue.close()
     result_queue.close()
-    log('saving coverage')
+    log("saving coverage")
     if cov:
         cov._atexit()
-    log('saved coverage')
+    log("saved coverage")
 
-    log('clean exit.')
+    log("clean exit.")
 
 
 class PmakeResult(AsyncResultInterface):
@@ -177,8 +174,7 @@ class PmakeResult(AsyncResultInterface):
     def get(self, timeout=0):  # @UnusedVariable
         if self.result is None:
             try:
-                self.result = self.result_queue.get(block=True,
-                                                    timeout=timeout)
+                self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
                 raise TimeoutError(e)
 

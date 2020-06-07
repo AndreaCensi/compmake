@@ -26,12 +26,11 @@ import six
 def read_rc_files(context):
     assert context is not None
     possible = [
-        '~/.compmake/compmake.rc',
-        '~/.config/compmake.rc'
-        '~/.compmake.rc',
-        '~/compmake.rc',
-        '.compmake.rc',
-        'compmake.rc',
+        "~/.compmake/compmake.rc",
+        "~/.config/compmake.rc" "~/.compmake.rc",
+        "~/compmake.rc",
+        ".compmake.rc",
+        "compmake.rc",
     ]
     done = False
     for x in possible:
@@ -45,7 +44,7 @@ def read_rc_files(context):
         pass
 
 
-@contract(context=Context, filename='unicode')
+@contract(context=Context, filename="unicode")
 def read_commands_from_file(filename, context):
     from compmake.jobs.uptodate import CacheQueryDB
 
@@ -57,13 +56,13 @@ def read_commands_from_file(filename, context):
 
     cq = CacheQueryDB(context.get_compmake_db())
     assert context is not None
-    info('Reading configuration from %r.' % friendly_path(filename))
-    with open(filename, 'r') as f:
+    info("Reading configuration from %r." % friendly_path(filename))
+    with open(filename, "r") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            if line[0] == '#':
+            if line[0] == "#":
                 continue
             interpret_commands_wrap(line, context=context, cq=cq)
 
@@ -81,40 +80,40 @@ For example:
 
 
 def main():
-    wrap_script_entry_point(compmake_main,
-                            exceptions_no_traceback=(UserError,))
+    wrap_script_entry_point(compmake_main, exceptions_no_traceback=(UserError,))
 
 
 # noinspection PyUnresolvedReferences
 def compmake_main(args):
-    if not '' in sys.path:
-        sys.path.append('')
+    if not "" in sys.path:
+        sys.path.append("")
 
-    setproctitle('compmake')
+    setproctitle("compmake")
 
     parser = OptionParser(version=version, usage=usage)
 
-    parser.add_option("--profile", default=False, action='store_true',
-                      help="Use Python profiler")
+    parser.add_option("--profile", default=False, action="store_true", help="Use Python profiler")
 
-    parser.add_option("--contracts", default=False, action='store_true',
-                      help="Activate PyContracts")
+    parser.add_option("--contracts", default=False, action="store_true", help="Activate PyContracts")
 
-    parser.add_option("-c", "--command",
-                      default=None,
-                      help="Run the given command")
+    parser.add_option("-c", "--command", default=None, help="Run the given command")
 
-    parser.add_option('-n', '--namespace',
-                      default='default')
+    parser.add_option("-n", "--namespace", default="default")
 
-    parser.add_option('--retcodefile',
-                      help='If given, the return value is written in this '
-                           'file. Useful to check when compmake finished in '
-                           'a grid environment. ',
-                      default=None)
+    parser.add_option(
+        "--retcodefile",
+        help="If given, the return value is written in this "
+        "file. Useful to check when compmake finished in "
+        "a grid environment. ",
+        default=None,
+    )
 
-    parser.add_option('--nosysexit', default=False, action='store_true',
-                      help='Does not sys.exit(ret); useful for debugging.')
+    parser.add_option(
+        "--nosysexit",
+        default=False,
+        action="store_true",
+        help="Does not sys.exit(ret); useful for debugging.",
+    )
 
     config_populate_optparser(parser)
 
@@ -129,37 +128,35 @@ def compmake_main(args):
 
     # XXX make sure this is the default
     if not args:
-        msg = ('I expect at least one argument (db path).'
-               ' Use "compmake -h" for usage information.')
+        msg = "I expect at least one argument (db path)." ' Use "compmake -h" for usage information.'
         raise UserError(msg)
 
     if len(args) >= 2:
-        msg = 'I only expect one argument. Use "compmake -h" for usage ' \
-              'information.'
-        msg += '\n args: %s' % args
+        msg = 'I only expect one argument. Use "compmake -h" for usage ' "information."
+        msg += "\n args: %s" % args
         raise UserError(msg)
 
     if six.PY2:
         for _ in args:
             check_isinstance(_, bytes)
-        args = [_.decode('utf-8') for _ in args]
+        args = [_.decode("utf-8") for _ in args]
 
     # if the argument looks like a dirname
     one_arg = args[0]
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
         # If there is a compmake/ folder inside, take it as the root
-        child = os.path.join(one_arg, 'compmake')
+        child = os.path.join(one_arg, "compmake")
         if os.path.exists(child):
             one_arg = child
 
         context = load_existing_db(one_arg)
         # If the context was custom we load it
-        if 'context' in context.compmake_db:
-            context = context.compmake_db['context']
+        if "context" in context.compmake_db:
+            context = context.compmake_db["context"]
 
             # TODO: check number of jobs is nonzero
     else:
-        msg = 'Directory not found: %s' % one_arg
+        msg = "Directory not found: %s" % one_arg
         raise UserError(msg)
 
     args = args[1:]
@@ -184,10 +181,10 @@ def compmake_main(args):
         except CommandFailed:
             retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
         except CompmakeBug as e:
-            sys.stderr.write('unexpected exception: %s' % traceback.format_exc())
+            sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except BaseException as e:
-            sys.stderr.write('unexpected exception: %s' % traceback.format_exc())
+            sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except:
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
@@ -208,14 +205,13 @@ def compmake_main(args):
         # XXX: change variables
         import cProfile
 
-        cProfile.runctx('go(context)', globals(), locals(),
-                        'out/compmake.profile')
+        cProfile.runctx("go(context)", globals(), locals(), "out/compmake.profile")
         import pstats
 
-        p = pstats.Stats('out/compmake.profile')
+        p = pstats.Stats("out/compmake.profile")
         n = 50
-        p.sort_stats('cumulative').print_stats(n)
-        p.sort_stats('time').print_stats(n)
+        p.sort_stats("cumulative").print_stats(n)
+        p.sort_stats("time").print_stats(n)
 
 
 def write_atomic(filename, contents):
@@ -226,8 +222,8 @@ def write_atomic(filename, contents):
                 os.makedirs(dirname)
             except:
                 pass
-    tmpfile = filename + '.tmp'
-    f = open(tmpfile, 'w')
+    tmpfile = filename + ".tmp"
+    f = open(tmpfile, "w")
     f.write(contents)
     f.flush()
     os.fsync(f.fileno())
@@ -238,11 +234,11 @@ def write_atomic(filename, contents):
 @contract(returns=Context)
 def load_existing_db(dirname):
     assert os.path.isdir(dirname)
-    info('Loading existing jobs DB %r.' % dirname)
+    info("Loading existing jobs DB %r." % dirname)
     # check if it is compressed
     files = os.listdir(dirname)
     for one in files:
-        if '.gz' in one:
+        if ".gz" in one:
             compress = True
             break
     else:
@@ -255,4 +251,3 @@ def load_existing_db(dirname):
     context.reset_jobs_defined_in_this_session(jobs)
 
     return context
-

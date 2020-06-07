@@ -1,8 +1,7 @@
-
 import os
 
 __all__ = [
-    'which',
+    "which",
 ]
 
 
@@ -32,6 +31,6 @@ def which(program):
                 if is_exe(candidate):
                     return candidate
 
-    msg = 'Could not find program %r.' % program
-    msg += '\n paths = %s' % PATH
+    msg = "Could not find program %r." % program
+    msg += "\n paths = %s" % PATH
     raise ValueError(msg)

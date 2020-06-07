@@ -7,5 +7,5 @@ from future.moves.queue import Empty, Full
 
 class Shared(object):
     """ Shared storage with workers. """
-    event_queue = None
 
+    event_queue = None

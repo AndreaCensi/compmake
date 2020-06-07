@@ -7,7 +7,7 @@ import time
 
 
 __all__ = [
-    'TimeTrack',
+    "TimeTrack",
 ]
 
 
@@ -26,14 +26,14 @@ class TimeTrack(object):
         if self.td < min_td:
             return
 
-        msg = 'wall %6.2fms clock %6.2fms' % (self.td * 1000, self.cd * 1000)
+        msg = "wall %6.2fms clock %6.2fms" % (self.td * 1000, self.cd * 1000)
         if self.what:
             what = str(self.what)
             MAX = 120
             if len(what) > MAX:
-                what = what[:(MAX - 3)] + '...'
+                what = what[: (MAX - 3)] + "..."
             # msg = '%s - %s' % (msg, what)
-            msg = '%s - %s' % (msg, what)
+            msg = "%s - %s" % (msg, what)
         # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()
@@ -49,20 +49,15 @@ class TimeTrack(object):
         yield
         t.show(min_td=min_td)
 
-
     @staticmethod
     def decorator(f):
         def wrapper(self, *args, **kwargs):
-            sargs = ", ".join(['{0}'.format(x) for x in args])
+            sargs = ", ".join(["{0}".format(x) for x in args])
             if args and kwargs:
-                sargs += ', '
-            sargs += ", ".join(['%s=%r' % (k, v) for (k, v) in kwargs.items()])
+                sargs += ", "
+            sargs += ", ".join(["%s=%r" % (k, v) for (k, v) in kwargs.items()])
             what = "%15s(%s)" % (f.__name__, sargs)
             with TimeTrack.measure(what, min_td=0.1):
                 return f(self, *args, **kwargs)
 
         return wrapper
-
-
-
-

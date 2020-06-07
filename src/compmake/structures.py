@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
     (The state of the computation is represented by a Cache object.)
@@ -60,7 +60,7 @@
     Therefore, a MORE_REQUESTED state is considered as uptodate.
 
 
-'''
+"""
 from dataclasses import dataclass
 from typing import List, NewType, Set
 
@@ -69,13 +69,13 @@ from contracts import contract, describe_value
 from zuper_commons.ui import duration_compact
 
 __all__ = [
-    'Promise',
-    'Job',
-    'Cache',
+    "Promise",
+    "Job",
+    "Cache",
     # 'execute_with_context'
 ]
 
-CMJobID = NewType('CMJobID', str)
+CMJobID = NewType("CMJobID", str)
 
 
 @dataclass
@@ -100,9 +100,14 @@ class Job:
     command_desc: object
 
     # @contract(defined_by='list[>=1](unicode)', children=set)
-    def __init__(self, job_id: CMJobID, children: Set, command_desc,
-                 needs_context: bool = False,
-                 defined_by: List[str] = None):
+    def __init__(
+        self,
+        job_id: CMJobID,
+        children: Set,
+        command_desc,
+        needs_context: bool = False,
+        defined_by: List[str] = None,
+    ):
         """
 
             needs_context: new facility for dynamic jobs
@@ -118,7 +123,7 @@ class Job:
         self.needs_context = needs_context
         self.defined_by = defined_by
         assert len(defined_by) >= 1, defined_by
-        assert defined_by[0] == 'root', defined_by
+        assert defined_by[0] == "root", defined_by
         # str -> set(str), where the key is one
         # of the direct children
         self.dynamic_children = {}
@@ -140,30 +145,29 @@ def same_computation(jobargs1, jobargs2):
         reason = ""
 
         if not equal_command:
-            reason += '* function changed \n'
-            reason += '  - old: %s \n' % cmd1
-            reason += '  - new: %s \n' % cmd2
+            reason += "* function changed \n"
+            reason += "  - old: %s \n" % cmd1
+            reason += "  - new: %s \n" % cmd2
 
             # TODO: can we check the actual code?
 
-        warn = ' (or you did not implement proper __eq__)'
+        warn = " (or you did not implement proper __eq__)"
         if len(args1) != len(args2):
-            reason += '* different number of arguments (%d -> %d)\n' % \
-                      (len(args1), len(args2))
+            reason += "* different number of arguments (%d -> %d)\n" % (len(args1), len(args2))
         else:
             for i, ob in enumerate(args1):
                 if ob != args2[i]:
-                    reason += '* arg #%d changed %s \n' % (i, warn)
-                    reason += '  - old: %s\n' % describe_value(ob)
-                    reason += '  - old: %s\n' % describe_value(args2[i])
+                    reason += "* arg #%d changed %s \n" % (i, warn)
+                    reason += "  - old: %s\n" % describe_value(ob)
+                    reason += "  - old: %s\n" % describe_value(args2[i])
 
         for key, value in kwargs1.items():
             if key not in kwargs2:
                 reason += '* kwarg "%s" not found\n' % key
             elif value != kwargs2[key]:
                 reason += '* argument "%s" changed %s \n' % (key, warn)
-                reason += '  - old: %s \n' % describe_value(value)
-                reason += '  - new: %s \n' % describe_value(kwargs2[key])
+                reason += "  - old: %s \n" % describe_value(value)
+                reason += "  - new: %s \n" % describe_value(kwargs2[key])
 
         # TODO: different lengths
 
@@ -173,9 +177,9 @@ def same_computation(jobargs1, jobargs2):
 
 
 class IntervalTimer(object):
-
     def __init__(self):
         import time
+
         self.c0 = time.process_time()
         self.t0 = time.time()
         self.stopped = False
@@ -183,29 +187,29 @@ class IntervalTimer(object):
     def stop(self):
         self.stopped = True
         import time
+
         self.c1 = time.process_time()
         self.t1 = time.time()
 
     def get_walltime_used(self):
         if not self.stopped:
-            raise ValueError('not stopped')
+            raise ValueError("not stopped")
         return self.t1 - self.t0
 
     def get_cputime_used(self):
         if not self.stopped:
-            raise ValueError('not stopped')
+            raise ValueError("not stopped")
         return self.c1 - self.c0
 
     def walltime_interval(self):
         if not self.stopped:
-            raise ValueError('not stopped')
+            raise ValueError("not stopped")
         return self.t0, self.t1
 
     def __str__(self):
         # return 'Timer(t0: %s; t1: %s; delta %s) ' % (self.t0, self.t1, self.t1 - self.t0)
 
-        return 'Timer(wall %dms cpu %dms) ' % ((self.t1 - self.t0) * 1000,
-                                               (self.c1 - self.c0) * 1000)
+        return "Timer(wall %dms cpu %dms) " % ((self.t1 - self.t0) * 1000, (self.c1 - self.c0) * 1000)
 
 
 class Cache(object):
@@ -218,20 +222,12 @@ class Cache(object):
 
     TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states = [NOT_STARTED,
-                      FAILED,
-                      DONE,
-                      BLOCKED]
+    allowed_states = [NOT_STARTED, FAILED, DONE, BLOCKED]
 
-    state2desc = {
-        NOT_STARTED: 'todo',
-        BLOCKED: 'blocked',
-        FAILED: 'failed',
-        DONE: 'done'
-    }
+    state2desc = {NOT_STARTED: "todo", BLOCKED: "blocked", FAILED: "failed", DONE: "done"}
 
     def __init__(self, state):
-        assert (state in Cache.allowed_states)
+        assert state in Cache.allowed_states
         self.state = state
         # time start
         self.timestamp_started = None
@@ -263,32 +259,37 @@ class Cache(object):
         self.int_gc = None
 
     def __repr__(self):
-        return ('Cache(%s;%s;cpu:%s;wall:%s)' %
-                (Cache.state2desc[self.state],
-                 self.timestamp, self.cputime_used,
-                 self.walltime_used))
+        return "Cache(%s;%s;cpu:%s;wall:%s)" % (
+            Cache.state2desc[self.state],
+            self.timestamp,
+            self.cputime_used,
+            self.walltime_used,
+        )
 
 
 def cache_has_large_overhead(cache):
-    overhead = (cache.int_load_results.get_walltime_used() +
-                cache.int_save_results.get_walltime_used() +
-                cache.int_gc.get_walltime_used())
+    overhead = (
+        cache.int_load_results.get_walltime_used()
+        + cache.int_save_results.get_walltime_used()
+        + cache.int_gc.get_walltime_used()
+    )
     return overhead - cache.int_make.get_walltime_used() > 1.0
 
 
 def timing_summary(cache):
     dc = duration_compact
-    s = '%7s (L %s C %s GC %s S %s)' % (dc(cache.int_make.get_walltime_used()),
-                                        dc(cache.int_load_results.get_walltime_used()),
-                                        dc(cache.int_compute.get_walltime_used()),
-                                        dc(cache.int_gc.get_walltime_used()),
-                                        dc(cache.int_save_results.get_walltime_used()),)
+    s = "%7s (L %s C %s GC %s S %s)" % (
+        dc(cache.int_make.get_walltime_used()),
+        dc(cache.int_load_results.get_walltime_used()),
+        dc(cache.int_compute.get_walltime_used()),
+        dc(cache.int_gc.get_walltime_used()),
+        dc(cache.int_save_results.get_walltime_used()),
+    )
     return s
 
 
 class ProgressStage(object):
-
-    @contract(name='unicode', iterations='tuple((float|int),(float|int))')
+    @contract(name="unicode", iterations="tuple((float|int),(float|int))")
     def __init__(self, name, iterations, iteration_desc):
         self.name = name
         self.iterations = iterations

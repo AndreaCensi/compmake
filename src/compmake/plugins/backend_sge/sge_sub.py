@@ -11,11 +11,11 @@ from system_cmd import CmdException, system_cmd_result
 
 
 __all__ = [
-    'SGESub',
+    "SGESub",
 ]
 
 
-class SGESub():
+class SGESub:
     def __init__(self, name, db, spool):
         self.name = name
         self.job_id = None
@@ -38,7 +38,7 @@ class SGEJob(AsyncResultInterface):
     def get_compmake_bin():
         """ Returns the path to the compmake executable. """
         if SGEJob.compmake_bin is None:
-            compmake_bin = which('compmake')
+            compmake_bin = which("compmake")
             SGEJob.compmake_bin = compmake_bin
         return SGEJob.compmake_bin
 
@@ -49,17 +49,20 @@ class SGEJob(AsyncResultInterface):
 
     def delete_job(self):
         # cmd = ['qdel', self.sge_id]
-        cmd = ['qdel', self.sge_job_name]
+        cmd = ["qdel", self.sge_job_name]
         cwd = os.path.abspath(os.getcwd())
         # TODO: check errors
         try:
-            _ = system_cmd_result(cwd, cmd,
-                                  display_stdout=False,
-                                  display_stderr=False,
-                                  raise_on_error=True,
-                                  capture_keyboard_interrupt=False)
+            _ = system_cmd_result(
+                cwd,
+                cmd,
+                display_stdout=False,
+                display_stderr=False,
+                raise_on_error=True,
+                capture_keyboard_interrupt=False,
+            )
         except CmdException as e:
-            error('Error while deleting job:\n%s' % e)
+            error("Error while deleting job:\n%s" % e)
 
     def execute(self, spool):
         db = self.db
@@ -70,11 +73,10 @@ class SGEJob(AsyncResultInterface):
         # create a new spool directory for each execution
         # otherwise we get confused!
 
-        self.stderr = os.path.join(spool, '%s.stderr' % self.job_id)
-        self.stdout = os.path.join(spool, '%s.stdout' % self.job_id)
-        self.retcode = os.path.join(spool, '%s.retcode' % self.job_id)
-        self.out_results = os.path.join(spool,
-                                        '%s.results.pickle' % self.job_id)
+        self.stderr = os.path.join(spool, "%s.stderr" % self.job_id)
+        self.stdout = os.path.join(spool, "%s.stdout" % self.job_id)
+        self.retcode = os.path.join(spool, "%s.retcode" % self.job_id)
+        self.out_results = os.path.join(spool, "%s.results.pickle" % self.job_id)
 
         if os.path.exists(self.stderr):
             os.remove(self.stderr)
@@ -90,51 +92,56 @@ class SGEJob(AsyncResultInterface):
 
         options = []
         cwd = os.path.abspath(os.getcwd())
-        variables = dict(SGE_O_WORKDIR=cwd,
-                         PYTHONPATH=os.getenv('PYTHONPATH', '') + ':' + cwd)
+        variables = dict(SGE_O_WORKDIR=cwd, PYTHONPATH=os.getenv("PYTHONPATH", "") + ":" + cwd)
 
         # nice-looking name
-        self.sge_job_name = 'cm%s-%s' % (os.getpid(), self.job_id)
+        self.sge_job_name = "cm%s-%s" % (os.getpid(), self.job_id)
         # Note that we get the official "id" later and we store it in
         # self.sge_id
-        options.extend(
-            ['-v', ",".join('%s=%s' % x for x in variables.items())])
+        options.extend(["-v", ",".join("%s=%s" % x for x in variables.items())])
         # XXX: spaces
-        options.extend(['-e', self.stderr])
-        options.extend(['-o', self.stdout])
-        options.extend(['-N', self.sge_job_name])
-        options.extend(['-wd', cwd])
+        options.extend(["-e", self.stderr])
+        options.extend(["-o", self.stdout])
+        options.extend(["-N", self.sge_job_name])
+        options.extend(["-wd", cwd])
 
-        options.extend(['-V'])  # pass all environment
+        options.extend(["-V"])  # pass all environment
 
-        options.extend(['-terse'])
+        options.extend(["-terse"])
 
         compmake_bin = SGEJob.get_compmake_bin()
 
         compmake_options = [
-            compmake_bin, storage,
-            '--retcodefile', self.retcode,
-            '--status_line_enabled', '0',
-            '--colorize', '0',
-            '-c',
+            compmake_bin,
+            storage,
+            "--retcodefile",
+            self.retcode,
+            "--status_line_enabled",
+            "0",
+            "--colorize",
+            "0",
+            "-c",
             '"make_single out_result=%s %s"' % (self.out_results, self.job_id),
         ]
 
         if not all_disabled():
-            compmake_options += ['--contracts']
+            compmake_options += ["--contracts"]
 
         # XXX: spaces in variable out_result
 
-        write_stdin = ' '.join(compmake_options)
+        write_stdin = " ".join(compmake_options)
 
-        cmd = ['qsub'] + options
+        cmd = ["qsub"] + options
 
-        res = system_cmd_result(cwd, cmd,
-                                display_stdout=False,
-                                display_stderr=True,
-                                raise_on_error=True,
-                                write_stdin=write_stdin,
-                                capture_keyboard_interrupt=False)
+        res = system_cmd_result(
+            cwd,
+            cmd,
+            display_stdout=False,
+            display_stderr=True,
+            raise_on_error=True,
+            write_stdin=write_stdin,
+            capture_keyboard_interrupt=False,
+        )
 
         self.sge_id = res.stdout.strip()
 
@@ -145,19 +152,16 @@ class SGEJob(AsyncResultInterface):
 
     def ready(self):
         if self.told_you_ready:
-            raise CompmakeBug('should not call ready() twice')
+            raise CompmakeBug("should not call ready() twice")
 
         if self.npolls % 20 == 1:
             try:
                 qacct = get_qacct(self.sge_id)
                 # print('job: %s sgejob: %s res: %s' % (self.job_id,
                 # self.sge_id, qacct))
-                if 'failed' in qacct and qacct['failed'] != '0':
-                    reason = 'Job schedule failed: %s\n%s' % (
-                    qacct['failed'], qacct)
-                    raise HostFailed(host="xxx",
-                                     job_id=self.job_id, reason=reason,
-                                     bt="")  # XXX
+                if "failed" in qacct and qacct["failed"] != "0":
+                    reason = "Job schedule failed: %s\n%s" % (qacct["failed"], qacct)
+                    raise HostFailed(host="xxx", job_id=self.job_id, reason=reason, bt="")  # XXX
 
             except JobNotRunYet:
                 qacct = None
@@ -172,9 +176,8 @@ class SGEJob(AsyncResultInterface):
             return True
         else:
             if qacct is not None:
-                msg = 'The file %r does not exist but it looks like the job ' \
-                      'is done' % self.retcode
-                msg += '\n %s ' % qacct
+                msg = "The file %r does not exist but it looks like the job " "is done" % self.retcode
+                msg += "\n %s " % qacct
                 # All right, this is simply NFS that is not updated yet
                 # raise CompmakeBug(msg)
 
@@ -184,18 +187,17 @@ class SGEJob(AsyncResultInterface):
         if not self.told_you_ready:
             raise CompmakeBug("I didnt tell you it was ready.")
         if self.already_read:
-            msg = 'Compmake BUG: should not call twice.'
+            msg = "Compmake BUG: should not call twice."
             raise CompmakeBug(msg)
         self.already_read = True
 
         assert os.path.exists(self.retcode)
-        ret_str = open(self.retcode, 'r').read()
+        ret_str = open(self.retcode, "r").read()
         try:
             ret = int(ret_str)
         except ValueError:
-            msg = 'Could not interpret file %r: %r.' % (self.retcode, ret_str)
-            raise HostFailed(host='localhost',
-                             job_id=self.job_id, reason=msg, bt='')
+            msg = "Could not interpret file %r: %r." % (self.retcode, ret_str)
+            raise HostFailed(host="localhost", job_id=self.job_id, reason=msg, bt="")
             #
         #
         #         raise HostFailed(host="xxx",
@@ -204,11 +206,11 @@ class SGEJob(AsyncResultInterface):
         #
 
         try:
-            stderr = open(self.stderr, 'r').read()
-            stdout = open(self.stdout, 'r').read()
+            stderr = open(self.stderr, "r").read()
+            stdout = open(self.stdout, "r").read()
 
-            stderr = 'Contents of %s:\n' % self.stderr + stderr
-            stdout = 'Contents of %s:\n' % self.stdout + stdout
+            stderr = "Contents of %s:\n" % self.stderr + stderr
+            stdout = "Contents of %s:\n" % self.stdout + stdout
 
             # if ret == CompmakeConstants.RET_CODE_JOB_FAILED:
             #                 msg = 'SGE Job failed (ret: %s)\n' % ret
@@ -222,9 +224,9 @@ class SGEJob(AsyncResultInterface):
             #                 raise JobFailed(msg)
 
             if not os.path.exists(self.out_results):
-                msg = 'job succeeded but no %r found' % self.out_results
-                msg += '\n' + indent(stderr, 'stderr')
-                msg += '\n' + indent(stdout, 'stdout')
+                msg = "job succeeded but no %r found" % self.out_results
+                msg += "\n" + indent(stderr, "stderr")
+                msg += "\n" + indent(stdout, "stdout")
                 raise CompmakeBug(msg)
 
             res = safe_pickle_load(self.out_results)
@@ -235,4 +237,3 @@ class SGEJob(AsyncResultInterface):
             for filename in fs:
                 if os.path.exists(filename):
                     os.unlink(filename)
-                    

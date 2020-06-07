@@ -7,13 +7,13 @@ from contracts import contract
 
 
 def f(*args):  # @UnusedVariable
-    print('to-std-out')
-    sys.stderr.write('to-std-err')
+    print("to-std-out")
+    sys.stderr.write("to-std-err")
     return
 
 
 def fails(*args):  # @UnusedVariable
-    raise Exception('this function fails')
+    raise Exception("this function fails")
 
 
 @contract(context=Context)
@@ -26,36 +26,36 @@ def mockup1(context):
 def mockup2(context):
     comp = context.comp
 
-    comp(f, job_id='f1')
-    comp(f, job_id='f2')
-    res = comp(fails, job_id='fail1')
-    comp(f, res, job_id='blocked')
+    comp(f, job_id="f1")
+    comp(f, job_id="f2")
+    res = comp(fails, job_id="fail1")
+    comp(f, res, job_id="blocked")
 
-    r5 = comp(f, job_id='f5')
-    comp(f, r5, job_id='needs_redoing')
+    r5 = comp(f, job_id="f5")
+    comp(f, r5, job_id="needs_redoing")
 
-    comp(f, job_id='verylong' + 'a' * 40)
+    comp(f, job_id="verylong" + "a" * 40)
 
-    context.batch_command('make')
-    context.batch_command('clean f2')
-    context.batch_command('clean f5')
+    context.batch_command("make")
+    context.batch_command("clean f2")
+    context.batch_command("clean f5")
 
 
 @contract(context=Context)
 def mockup2_nofail(context):
     comp = context.comp
 
-    comp(f, job_id='f1')
-    comp(f, job_id='f2')
+    comp(f, job_id="f1")
+    comp(f, job_id="f2")
 
-    r5 = comp(f, job_id='f5')
-    comp(f, r5, job_id='needs_redoing')
+    r5 = comp(f, job_id="f5")
+    comp(f, r5, job_id="needs_redoing")
 
-    comp(f, job_id='verylong' + 'a' * 40)
+    comp(f, job_id="verylong" + "a" * 40)
 
-    context.batch_command('make')
-    context.batch_command('clean f2')
-    context.batch_command('clean f5')
+    context.batch_command("make")
+    context.batch_command("clean f2")
+    context.batch_command("clean f5")
 
 
 def mockup_recursive_5(context):
@@ -64,7 +64,7 @@ def mockup_recursive_5(context):
 
 def recursive(context, v):
     if v == 0:
-        print('finally!')
+        print("finally!")
         return
 
-    context.comp_dynamic(recursive, v - 1, job_id='r%d' % v)
+    context.comp_dynamic(recursive, v - 1, job_id="r%d" % v)

@@ -24,17 +24,17 @@ def print_event(context, event):  # @UnusedVariable
 
     s = str(event.kwargs)
     #    print ('%r has len %d' % (s, len(s)))
-    MAX_LEN = 1000  # TODO: 
+    MAX_LEN = 1000  # TODO:
     # TODO: clip_to_length(s, ' [...]')
     if len(s) > MAX_LEN:
-        suff = ' [...]'
-        s = s[:MAX_LEN - len(suff)] + suff
+        suff = " [...]"
+        s = s[: MAX_LEN - len(suff)] + suff
     #        s = s[:MAX_LEN]
 
-    msg = '%s: %s' % (event.name, s)
-    msg = compmake_colored(pad_to_screen(msg), 'yellow')
+    msg = "%s: %s" % (event.name, s)
+    msg = compmake_colored(pad_to_screen(msg), "yellow")
     stream.write(msg)
-    stream.write('\n')
+    stream.write("\n")
     stream.flush()
 
 

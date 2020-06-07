@@ -9,19 +9,19 @@ def job_success(*args, **kwargs):
 
 
 def job_failure(*args, **kwargs):  # @UnusedVariable
-    assert False, 'asserting false'
-  
-  
+    assert False, "asserting false"
+
+
 @istest
 class TestAssertion(CompmakeTest):
-
     def mySetUp(self):
         pass
 
     def testAssertion1(self):
         for i in range(10):
-            self.comp(job_failure, job_id='fail%d' % i)
-        
+            self.comp(job_failure, job_id="fail%d" % i)
+
         def run():
-            self.cc.batch_command('parmake n=2')
+            self.cc.batch_command("parmake n=2")
+
         self.assertMakeFailed(run, nfailed=10, nblocked=0)

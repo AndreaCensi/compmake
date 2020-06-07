@@ -3,7 +3,7 @@
 import copy
 
 __all__ = [
-    'frozendict2',
+    "frozendict2",
 ]
 #
 # if False:
@@ -26,7 +26,7 @@ class frozendict2(dict):
     # OK, but we need to modify it during pickling
     # def _blocked_attribute(obj):
     #    raise AttributeError, "A frozendict cannot be modified."
-    #_blocked_attribute = property(_blocked_attribute)
+    # _blocked_attribute = property(_blocked_attribute)
 
     #    __delitem__ = __setitem__ = clear = _blocked_attribute
     #    pop = popitem = setdefault = update = _blocked_attribute
@@ -68,5 +68,3 @@ class frozendict2(dict):
 
     def __repr__(self):
         return "frozendict(%s)" % dict.__repr__(self)
-
-

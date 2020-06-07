@@ -13,11 +13,11 @@ from ..utils import wildcard_to_regexp
 from zuper_commons.fs import make_sure_dir_exists
 
 __all__ = [
-    'broadcast_event',
-    'remove_all_handlers',
-    'register_fallback_handler',
-    'register_handler',
-    'publish',
+    "broadcast_event",
+    "remove_all_handlers",
+    "register_fallback_handler",
+    "register_handler",
+    "publish",
 ]
 
 
@@ -46,18 +46,18 @@ def register_handler(event_name, handler):
         The event name might contain asterisks. "*" matches all.
     """
     import inspect
+
     spec = inspect.getfullargspec(handler)
     args = set(spec.args)
-    possible_args = set(['event', 'context', 'self'])
-    # to be valid 
+    possible_args = set(["event", "context", "self"])
+    # to be valid
     if not (args.issubset(possible_args)):
         #     if not 'context' in args and 'event' in args:
-        msg = (('Function is not valid event handler:\n function = %s\n args '
-                '= %s') % (handler, spec))
+        msg = ("Function is not valid event handler:\n function = %s\n args " "= %s") % (handler, spec)
         raise ValueError(msg)
     handlers = CompmakeGlobalState.EventHandlers.handlers
 
-    if event_name.find('*') > -1:
+    if event_name.find("*") > -1:
         regexp = wildcard_to_regexp(event_name)
 
         for event in compmake_registered_events.keys():
@@ -70,19 +70,22 @@ def register_handler(event_name, handler):
         handlers[event_name].append(handler)
 
 
-@contract(context=Context, event_name='unicode')
+@contract(context=Context, event_name="unicode")
 def publish(context, event_name, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """
     if event_name not in compmake_registered_events:
-        msg = 'Event %r not registered' % event_name
+        msg = "Event %r not registered" % event_name
         logger.error(msg)
         raise CompmakeException(msg)
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
         if key not in spec.attrs:
-            msg = ('Passed attribute %r for event type %r but only found '
-                   'attributes %s.' % (key, event_name, spec.attrs))
+            msg = "Passed attribute %r for event type %r but only found " "attributes %s." % (
+                key,
+                event_name,
+                spec.attrs,
+            )
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
@@ -92,6 +95,7 @@ def publish(context, event_name, **kwargs):
 @contract(context=Context, event=Event)
 def broadcast_event(context, event):
     import inspect
+
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
     handlers = all_handlers.get(event.name, [])
@@ -100,10 +104,10 @@ def broadcast_event(context, event):
             spec = inspect.getfullargspec(handler)
             try:
                 kwargs = {}
-                if 'event' in spec.args:
-                    kwargs['event'] = event
-                if 'context' in spec.args:
-                    kwargs['context'] = context
+                if "event" in spec.args:
+                    kwargs["event"] = event
+                if "context" in spec.args:
+                    kwargs["context"] = context
                 handler(**kwargs)
                 # TODO: do not catch interrupted, etc.
             except KeyboardInterrupt:
@@ -111,12 +115,12 @@ def broadcast_event(context, event):
             except BaseException:
                 try:
                     msg = [
-                        'compmake BUG: Error in event handler.',
-                        '  event: %s' % event.name,
-                        'handler: %s' % handler,
-                        ' kwargs: %s' % list(event.kwargs.keys()),
-                        '     bt: ',
-                        indent(traceback.format_exc(), '| '),
+                        "compmake BUG: Error in event handler.",
+                        "  event: %s" % event.name,
+                        "handler: %s" % handler,
+                        " kwargs: %s" % list(event.kwargs.keys()),
+                        "     bt: ",
+                        indent(traceback.format_exc(), "| "),
                     ]
                     msg = "\n".join(msg)
                     CompmakeGlobalState.original_stderr.write(msg)
@@ -126,22 +130,26 @@ def broadcast_event(context, event):
         for handler in CompmakeGlobalState.EventHandlers.fallback:
             handler(context=context, event=event)
 
+
 import os
+
+
 def get_events_log_file(db):
     storage = os.path.abspath(db.basepath)
-    logdir = os.path.join(storage, 'events')
-    lf = os.path.join(logdir, 'events.log')
+    logdir = os.path.join(storage, "events")
+    lf = os.path.join(logdir, "events.log")
     make_sure_dir_exists(lf)
     if not os.path.exists(lf):
-        with open(lf, 'w') as f:
-            f.write('first.\n')
+        with open(lf, "w") as f:
+            f.write("first.\n")
     return lf
+
 
 def handle_event_logs(context: Context, event):
     db = context.compmake_db
     lf = get_events_log_file(db)
-    with open(lf, 'a') as f:
-        f.write(str(event) + '\n')
+    with open(lf, "a") as f:
+        f.write(str(event) + "\n")
 
 
-register_handler('*', handle_event_logs)
+register_handler("*", handle_event_logs)

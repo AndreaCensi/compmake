@@ -4,22 +4,22 @@ import functools
 
 
 __all__ = [
-    'memoized_reset',
+    "memoized_reset",
 ]
 
 
 # def memoize_simple(obj):
 # # TODO: make sure it's not iterator
 #     cache = obj.cache = {}
-# 
+#
 #     def memoizer(f, *args, **kwargs):
 #         key = (args, frozendict2(kwargs))
 #         if key not in cache:
 #             cache[key] = f(*args, **kwargs)
 #             # print('memoize: %s %d storage' % (obj, len(cache)))
-# 
+#
 #         return cache[key]
-#     
+#
 #     return decorator(memoizer, obj)
 
 

@@ -15,14 +15,16 @@ class TestDynamic1rec(CompmakeTest):
         TestDynamic1.howmany = 3
         mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs
-        self.assertJobsEqual('all', ['generate', 'values'])
+        self.assertJobsEqual("all", ["generate", "values"])
 
         # now we make them
-        self.assert_cmd_success('make recurse=1')
+        self.assert_cmd_success("make recurse=1")
 
         # this will have created new jobs
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0',
-                                     'actual1', 'actual2', 'generate-finish'])
+        self.assertJobsEqual(
+            "all", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
+        )
         # ... still to do
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0',
-                                      'actual1', 'actual2', 'generate-finish'])
+        self.assertJobsEqual(
+            "done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
+        )

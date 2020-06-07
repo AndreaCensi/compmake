@@ -37,7 +37,7 @@ class Test1(CompmakeTest):
 
     def testID(self):
         """ Check that the job id is correctly parsed """
-        job_id = 'terminus'
+        job_id = "terminus"
         c = self.comp(f1, job_id=job_id)
         self.assertEqual(c.job_id, job_id)
         make(job_id, context=self.cc)
@@ -46,8 +46,8 @@ class Test1(CompmakeTest):
     def testID2(self):
         """ Make sure we set up a warning if the job_id key
             is already used """
-        self.assertTrue(self.comp(f1, job_id='ciao'))
-        self.assertRaises(UserError, self.comp, f1, job_id='ciao')
+        self.assertTrue(self.comp(f1, job_id="ciao"))
+        self.assertRaises(UserError, self.comp, f1, job_id="ciao")
 
     def testDep(self):
         """ Testing advanced dependencies discovery """
@@ -67,7 +67,7 @@ class Test1(CompmakeTest):
     def testDep3(self):
         """ Testing advanced dependencies discovery in dicts"""
         cf1 = self.comp(f1)
-        cf2 = self.comp(f2, [1, {'ciao': cf1}])
+        cf2 = self.comp(f2, [1, {"ciao": cf1}])
         self.assertTrue(cf1.job_id in direct_children(cf2.job_id, db=self.db))
         self.assertTrue(cf2.job_id in direct_parents(cf1.job_id, db=self.db))
 
@@ -75,7 +75,4 @@ class Test1(CompmakeTest):
         """ We should issue a warning if job_id is used
             as a parameter in the function """
         self.comp(uses_id)
-        self.assertRaises(UserError, self.comp, uses_id, job_id='myjobid')
-
-
-
+        self.assertRaises(UserError, self.comp, uses_id, job_id="myjobid")

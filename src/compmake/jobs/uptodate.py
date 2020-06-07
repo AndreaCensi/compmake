@@ -16,11 +16,11 @@ from .queries import jobs_defined
 from .storage import get_job_userobject
 
 __all__ = [
-    'CacheQueryDB',
+    "CacheQueryDB",
 ]
 
 
-@contract(returns='tuple(bool, unicode)')
+@contract(returns="tuple(bool, unicode)")
 def up_to_date(job_id, db):
     """
 
@@ -50,25 +50,27 @@ def up_to_date(job_id, db):
     return res, reason
 
 
-@contract(returns='set(unicode)')
+@contract(returns="set(unicode)")
 def direct_uptodate_deps(job_id, db):
     """ Returns all direct 'dependencies' of this job:
         the jobs that are children (arguemnts)
         plus the job that defined it (if not root).
     """
     from compmake.jobs.queries import direct_children
+
     dependencies = direct_children(job_id, db)
 
     # plus jobs that defined it
     from compmake.jobs.storage import get_job
+
     defined_by = get_job(job_id, db).defined_by
     last = defined_by[-1]
-    if last != 'root':
+    if last != "root":
         dependencies.add(last)
     return dependencies
 
 
-@contract(returns='set(unicode)')
+@contract(returns="set(unicode)")
 def direct_uptodate_deps_inverse(job_id, db):
     """ Returns all jobs that have this as
         a direct 'dependency'
@@ -78,31 +80,36 @@ def direct_uptodate_deps_inverse(job_id, db):
         Assumes that the job is DONE.
     """
     from compmake.jobs.queries import direct_parents
+
     dep_inv = direct_parents(job_id, db)
     from compmake.jobs.storage import get_job_cache
+
     # Not sure if need to be here --- added when doing graph-animation for jobs in progress
     if get_job_cache(job_id, db).state == Cache.DONE:
         dep_inv.update(jobs_defined(job_id, db))
     return dep_inv
 
 
-@contract(returns='set(unicode)', job_id='unicode')
+@contract(returns="set(unicode)", job_id="unicode")
 def direct_uptodate_deps_inverse_closure(job_id, db):
     """
         Closure of direct_uptodate_deps_inverse:
         all jobs that depend on this.
     """
     from compmake.jobs.queries import parents
+
     # all parents
     dep_inv = parents(job_id, db)
     # plus their definition closure
     from compmake.jobs.queries import definition_closure
+
     closure = definition_closure(dep_inv, db)
     # this is not true in general
     # assert not closure & dep_inv
     dep_inv.update(closure)
     # plus the ones that were defined by it
     from compmake.jobs.storage import get_job_cache
+
     if get_job_cache(job_id, db).state == Cache.DONE:
         dep_inv.update(jobs_defined(job_id, db))
     return dep_inv
@@ -161,52 +168,51 @@ class CacheQueryDB(object):
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
-    @contract(returns='tuple(bool, unicode, float)')
+    @contract(returns="tuple(bool, unicode, float)")
     def up_to_date(self, job_id):
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
-    @contract(returns='tuple(bool, unicode, float)')
+    @contract(returns="tuple(bool, unicode, float)")
     def _up_to_date_actual(self, job_id):
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
             cache = self.get_job_cache(job_id)  # OK
 
             if cache.state == Cache.NOT_STARTED:
-                return False, 'Not started', cache.timestamp
+                return False, "Not started", cache.timestamp
 
             if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
-                return False, 'Marked invalid', cache.timestamp
+                return False, "Marked invalid", cache.timestamp
 
             dependencies = self.direct_children(job_id)
 
             for child in dependencies:
                 child_up, _, child_timestamp = self.up_to_date(child)
                 if not child_up:
-                    return False, 'At least: Dep %r not up to date.' % child, cache.timestamp
+                    return False, "At least: Dep %r not up to date." % child, cache.timestamp
                 else:
                     if child_timestamp > cache.timestamp:
-                        return (
-                            False, 'At least: Dep %r have been updated.' % child, cache.timestamp)
+                        return (False, "At least: Dep %r have been updated." % child, cache.timestamp)
 
             # plus jobs that defined it
             defined_by = list(self.get_job(job_id).defined_by)
-            defined_by.remove('root')
+            defined_by.remove("root")
             dependencies.update(defined_by)
 
             for defby in defined_by:
                 defby_up, _, _ = self.up_to_date(defby)
                 if not defby_up:
-                    return False, 'Definer %r not up to date.' % defby, cache.timestamp
+                    return False, "Definer %r not up to date." % defby, cache.timestamp
                 # don't check timestamp for definers
 
             # FIXME BUG if I start (in progress), children get updated,
             # I still finish the computation instead of starting again
             if cache.state == Cache.FAILED:
-                return False, 'Failed', cache.timestamp
+                return False, "Failed", cache.timestamp
 
-            assert (cache.state == Cache.DONE)
+            assert cache.state == Cache.DONE
 
-            return True, '', cache.timestamp
+            return True, "", cache.timestamp
 
     @memoized_reset
     def direct_children(self, job_id):
@@ -248,7 +254,7 @@ class CacheQueryDB(object):
 
         return list(result)
 
-    @contract(returns='tuple(*,*,*)')
+    @contract(returns="tuple(*,*,*)")
     def list_todo_targets(self, jobs):
         """
             Returns a tuple (todo, jobs_done, ready):
@@ -289,21 +295,21 @@ class CacheQueryDB(object):
                     todo.add(job_id)
                     for child in self.direct_children(job_id):
                         if not self.job_exists(child):
-                            msg = 'Job %r references a not existing job %r. ' % (
-                                job_id, child)
-                            msg += ('This might happen when you change a dynamic job '
-                                    'so that it changes the jobs it created. '
-                                    'Try "delete not root" to fix the DB.')
+                            msg = "Job %r references a not existing job %r. " % (job_id, child)
+                            msg += (
+                                "This might happen when you change a dynamic job "
+                                "so that it changes the jobs it created. "
+                                'Try "delete not root" to fix the DB.'
+                            )
                             raise CompmakeBug(msg)
                         if not child in seen:
                             stack.append(child)
 
-            todo_and_ready = set([job_id for job_id in todo
-                                  if self.dependencies_up_to_date(job_id)])
+            todo_and_ready = set([job_id for job_id in todo if self.dependencies_up_to_date(job_id)])
 
             return todo, done, todo_and_ready
 
-    @contract(returns=set, jobs='unicode|set(unicode)')
+    @contract(returns=set, jobs="unicode|set(unicode)")
     def tree_children_and_uodeps(self, jobs):
         """ Closure of the relation children and dependencies of userobject.
         """
@@ -341,8 +347,4 @@ def db_error_wrap(what, **args):
     try:
         yield
     except CompmakeDBError as e:
-            raise_wrapped(CompmakeDBError, e,
-                          what,
-                          compact=True,
-                          **args)
-
+        raise_wrapped(CompmakeDBError, e, what, compact=True, **args)

@@ -10,7 +10,7 @@ from .dependencies import collect_dependencies, substitute_dependencies
 from .storage import get_job_args, job_userobject_exists
 
 __all__ = [
-    'job_compute',
+    "job_compute",
 ]
 
 
@@ -22,7 +22,7 @@ def get_cmd_args_kwargs(job_id, db):
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
         if not job_userobject_exists(dep, db):
-            msg = 'Dependency %r was not done.' % dep
+            msg = "Dependency %r was not done." % dep
             raise CompmakeBug(msg)
     args2 = substitute_dependencies(args, db=db)
     kwargs2 = substitute_dependencies(kwargs, db=db)
@@ -52,19 +52,19 @@ def job_compute(job, context):
         args = tuple(list([context]) + list(args))
 
         int_compute = IntervalTimer()
-        res = execute_with_context(db=db, context=context,
-                                   job_id=job_id,
-                                   command=command, args=args, kwargs=kwargs)
+        res = execute_with_context(
+            db=db, context=context, job_id=job_id, command=command, args=args, kwargs=kwargs
+        )
         int_compute.stop()
 
         assert isinstance(res, dict)
         assert len(res) == 2, list(res.keys())
-        assert 'user_object' in res
-        assert 'new_jobs' in res
+        assert "user_object" in res
+        assert "new_jobs" in res
 
-        res['int_load_results'] = int_load_results
-        res['int_compute'] = int_compute
-        res['int_gc'] = IntervalTimer()
+        res["int_load_results"] = int_load_results
+        res["int_compute"] = int_compute
+        res["int_gc"] = IntervalTimer()
         return res
     else:
         int_compute = IntervalTimer()
@@ -73,9 +73,9 @@ def job_compute(job, context):
 
         res = dict(user_object=user_object, new_jobs=[])
 
-        res['int_load_results'] = int_load_results
-        res['int_compute'] = int_compute
-        res['int_gc'] = IntervalTimer()
+        res["int_load_results"] = int_load_results
+        res["int_compute"] = int_compute
+        res["int_gc"] = IntervalTimer()
 
         return res
 
@@ -95,7 +95,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
     if args:
         if isinstance(args[0], Context) and args[0] != context:
-            msg = ('%s(%s, %s)' % (command, args, kwargs))
+            msg = "%s(%s, %s)" % (command, args, kwargs)
             raise ValueError(msg)
 
     # context is one of the arguments
@@ -106,6 +106,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
     generated = set(context.get_jobs_defined_in_this_session())
     context.reset_jobs_defined_in_this_session(already)
     return dict(user_object=res, new_jobs=generated)
+
 
 #    if generated:
 #        if len(generated) < 4:
@@ -119,10 +120,10 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 
 #     extra = []
 
-    # FIXME this is a RACE CONDITION -- needs to be done in the main thread
-    # from compmake.ui.visualization import info
+# FIXME this is a RACE CONDITION -- needs to be done in the main thread
+# from compmake.ui.visualization import info
 
-    # info('now cleaning up; generated = %s' % generated)
+# info('now cleaning up; generated = %s' % generated)
 #
 #     if False:
 #         for g in all_jobs(db=db):
@@ -143,4 +144,3 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 #             # clean_other_jobs_distributed
 #             #     clean_other_jobs_distributed(db=db, job_id=job_id,
 #             # new_jobs=generated)
-

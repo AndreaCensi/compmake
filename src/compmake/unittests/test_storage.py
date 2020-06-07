@@ -13,12 +13,12 @@ class Simple(CompmakeTest):
         pass
 
     def testExists1(self):
-        key = 'not-existent'
-        assert (not key in self.db)
+        key = "not-existent"
+        assert not key in self.db
 
     def testExists2(self):
-        k = 'ciao'
-        v = {'complex': 123}
+        k = "ciao"
+        v = {"complex": 123}
         db = self.db
         if k in db:
             del db[k]
@@ -40,11 +40,10 @@ class Simple(CompmakeTest):
                 if r.match(k):
                     yield k
 
-        self.assertEqual([], list(search('*')))
-        db['key1'] = 1
-        db['key2'] = 1
-        self.assertEqual([], list(search('ciao*')))
-        self.assertEqual(['key1'], list(search('key1')))
-        self.assertEqual(['key1'], list(search('*1')))
-        self.assertEqual([], list(search('d*1')))
-
+        self.assertEqual([], list(search("*")))
+        db["key1"] = 1
+        db["key2"] = 1
+        self.assertEqual([], list(search("ciao*")))
+        self.assertEqual(["key1"], list(search("key1")))
+        self.assertEqual(["key1"], list(search("*1")))
+        self.assertEqual([], list(search("d*1")))

@@ -12,14 +12,20 @@ import dill
 
 from compmake import logger
 from compmake.exceptions import CompmakeBug, SerializationError
-from compmake.utils import (safe_pickle_dump,
-                            safe_pickle_load)
-from zuper_commons.fs import DirPath, FilePath, find_pickling_error, safe_read, safe_write, write_ustring_to_utf8_file
+from compmake.utils import safe_pickle_dump, safe_pickle_load
+from zuper_commons.fs import (
+    DirPath,
+    FilePath,
+    find_pickling_error,
+    safe_read,
+    safe_write,
+    write_ustring_to_utf8_file,
+)
 from zuper_commons.types import ZException
 
 __all__ = [
-    'StorageFilesystem',
-    'StorageKey',
+    "StorageFilesystem",
+    "StorageKey",
 ]
 if True:
     track_time = lambda x: x
@@ -30,29 +36,32 @@ else:
 
 trace_queries = False
 
-StorageKey = NewType('StorageKey', str)
+StorageKey = NewType("StorageKey", str)
 
 
 class StorageFilesystem:
     basepath: DirPath
     checked_existence: bool
     method: str
-    ''' `pickle` or `dill` '''
+    """ `pickle` or `dill` """
     file_extension: str
 
     def __init__(self, basepath: DirPath, compress: bool = False):
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
-        self.method = method = 'pickle'
+        self.method = method = "pickle"
 
         if compress:
-            self.file_extension = f'.{method}.gz'
-            others = list(self.keys0(f'.{method}'))
+            self.file_extension = f".{method}.gz"
+            others = list(self.keys0(f".{method}"))
         else:
-            self.file_extension = f'.{method}'
-            others = list(self.keys0(f'.{method}.gz'))
+            self.file_extension = f".{method}"
+            others = list(self.keys0(f".{method}.gz"))
         if others:
-            msg = 'Extension is %s but found %s files with other extension.' % (self.file_extension, len(others))
+            msg = "Extension is %s but found %s files with other extension." % (
+                self.file_extension,
+                len(others),
+            )
             raise ZException(msg)
 
         # create a bunch of files that contain shortcuts
@@ -70,28 +79,27 @@ class StorageFilesystem:
     @track_time
     def __getitem__(self, key: StorageKey) -> object:
         if trace_queries:
-            logger.debug('R %s' % str(key))
+            logger.debug("R %s" % str(key))
 
         self.check_existence()
 
         filename = self.filename_for_key(key)
 
         if not os.path.exists(filename):
-            msg = 'Could not find key %r.' % key
-            msg += '\n file: %s' % filename
+            msg = "Could not find key %r." % key
+            msg += "\n file: %s" % filename
             raise CompmakeBug(msg)
 
-        if self.method == 'pickle':
+        if self.method == "pickle":
             try:
                 return safe_pickle_load(filename)
             except Exception as e:
-                msg = ("Could not unpickle data for key %r. \n file: %s" %
-                       (key, filename))
+                msg = "Could not unpickle data for key %r. \n file: %s" % (key, filename)
                 logger.error(msg)
                 logger.exception(e)
                 msg += "\n" + traceback.format_exc()
                 raise CompmakeBug(msg)
-        elif self.method == 'dill':
+        elif self.method == "dill":
             with safe_read(filename) as f:
                 return dill.load(f)
         else:
@@ -107,29 +115,32 @@ class StorageFilesystem:
     @track_time
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
         if trace_queries:
-            logger.debug('W %s' % str(key))
+            logger.debug("W %s" % str(key))
 
         self.check_existence()
 
         filename = self.filename_for_key(key)
 
-        if self.method == 'pickle':
+        if self.method == "pickle":
             try:
                 safe_pickle_dump(value, filename)
                 assert os.path.exists(filename)
             except KeyboardInterrupt:
                 raise
             except BaseException as e:
-                msg = ('Cannot set key %s: cannot pickle object '
-                       'of class %s: %s' % (key, value.__class__.__name__, e))
+                msg = "Cannot set key %s: cannot pickle object " "of class %s: %s" % (
+                    key,
+                    value.__class__.__name__,
+                    e,
+                )
                 logger.error(msg)
                 logger.exception(e)
                 emsg = find_pickling_error(value)
                 logger.error(emsg)
-                raise SerializationError(msg + '\n' + emsg)
-        elif self.method == 'dill':
-            dill.settings['recurse'] = True
-            dill.settings['byref'] = True
+                raise SerializationError(msg + "\n" + emsg)
+        elif self.method == "dill":
+            dill.settings["recurse"] = True
+            dill.settings["byref"] = True
             with safe_write(filename) as f:
                 return dill.dump(value, f)
         else:
@@ -139,14 +150,14 @@ class StorageFilesystem:
     def __delitem__(self, key: StorageKey) -> None:
         filename = self.filename_for_key(key)
         if not os.path.exists(filename):
-            msg = 'I expected path %s to exist before deleting' % filename
+            msg = "I expected path %s to exist before deleting" % filename
             raise ValueError(msg)
         os.remove(filename)
 
     @track_time
     def __contains__(self, key: StorageKey) -> bool:
         if trace_queries:
-            logger.debug('? %s' % str(key))
+            logger.debug("? %s" % str(key))
 
         filename = self.filename_for_key(key)
         ex = os.path.exists(filename)
@@ -158,10 +169,10 @@ class StorageFilesystem:
     def keys0(self, extension: str = None) -> Iterator[StorageKey]:
         if extension is None:
             extension = self.file_extension
-        filename = self.filename_for_key('*', extension)
+        filename = self.filename_for_key("*", extension)
         for x in glob(filename):
             # b = splitext(basename(x))[0]
-            b = basename(x.replace(extension, ''))
+            b = basename(x.replace(extension, ""))
             key = self.basename2key(b)
             yield key
 
@@ -174,11 +185,7 @@ class StorageFilesystem:
     def reopen_after_fork(self) -> None:
         pass
 
-    dangerous_chars = {
-        '/': 'CMSLASH',
-        '..': 'CMDOT',
-        '~': 'CMHOME'
-    }
+    dangerous_chars = {"/": "CMSLASH", "..": "CMDOT", "~": "CMHOME"}
 
     def key2basename(self, key):
         """ turns a key into a reasonable filename"""
@@ -207,33 +214,33 @@ def chmod_plus_x(filename: FilePath) -> None:
 
 def create_scripts(basepath: DirPath) -> None:
     filename2cmd = {
-        'ls_failed': 'ls failed',
-        'why_failed': 'why failed',
-        'make_failed': 'make failed',
-        'remake': 'remake',
-        'why': 'why',
-        'make': 'make',
-        'parmake': 'parmake',
-        'rparmake': 'rparmake',
-        'rmake': 'rmake',
-        'clean': 'clean',
-        'ls': 'ls',
-        'stats': 'stats',
-        'gantt': 'gantt',
-        'details': 'details',
+        "ls_failed": "ls failed",
+        "why_failed": "why failed",
+        "make_failed": "make failed",
+        "remake": "remake",
+        "why": "why",
+        "make": "make",
+        "parmake": "parmake",
+        "rparmake": "rparmake",
+        "rmake": "rmake",
+        "clean": "clean",
+        "ls": "ls",
+        "stats": "stats",
+        "gantt": "gantt",
+        "details": "details",
     }
     for fn, cmd in filename2cmd.items():
-        s = "#!/bin/bash\ncompmake %s -c \"%s $*\"\n" % (basepath, cmd)
+        s = '#!/bin/bash\ncompmake %s -c "%s $*"\n' % (basepath, cmd)
         f = os.path.join(basepath, fn)
         write_ustring_to_utf8_file(s, f, quiet=True)
         chmod_plus_x(f)
 
     s = "#!/bin/bash\ncompmake %s \n" % (basepath)
-    f = os.path.join(basepath, 'console')
+    f = os.path.join(basepath, "console")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
-    s = "#!/bin/bash\ncompmake %s -c \"$*\" \n" % (basepath)
-    f = os.path.join(basepath, 'run')
+    s = '#!/bin/bash\ncompmake %s -c "$*" \n' % (basepath)
+    f = os.path.join(basepath, "run")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

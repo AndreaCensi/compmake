@@ -10,11 +10,11 @@ class InterpretTest(TestCase):
         """ Testing boolean interpretation"""
         m = interpret_strings_like
         abool = True
-        self.assertEqual(True, m('True', abool))
-        self.assertEqual(False, m('False', abool))
-        self.assertEqual(True, m('True', abool))
-        self.assertEqual(False, m('False', abool))
-        self.assertEqual(True, m('1', abool))
-        self.assertEqual(False, m('0', abool))
-        self.assertRaises(ValueError, m, '', abool)
-        self.assertRaises(ValueError, m, 'a', abool)
+        self.assertEqual(True, m("True", abool))
+        self.assertEqual(False, m("False", abool))
+        self.assertEqual(True, m("True", abool))
+        self.assertEqual(False, m("False", abool))
+        self.assertEqual(True, m("1", abool))
+        self.assertEqual(False, m("0", abool))
+        self.assertRaises(ValueError, m, "", abool)
+        self.assertRaises(ValueError, m, "a", abool)

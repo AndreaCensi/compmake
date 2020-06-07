@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '6.0.4'
+__version__ = "6.0.4"
 version = __version__
 
 import logging
@@ -26,4 +26,4 @@ from .plugins.execution_stats import *
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
 if CompmakeConstants.debug_check_invariants:
-    logger.warn('debug_check_invariants = True: this might slow down quite a bit')
+    logger.warn("debug_check_invariants = True: this might slow down quite a bit")

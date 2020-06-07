@@ -41,10 +41,10 @@ from ...structures import Cache
 from ...utils import expand_wildcard
 
 __all__ = [
-    'parse_job_list',
+    "parse_job_list",
 ]
 
-CompmakeConstants.aliases['last'] = '*'
+CompmakeConstants.aliases["last"] = "*"
 
 
 def add_alias(alias, value):
@@ -54,8 +54,7 @@ def add_alias(alias, value):
 
 
 def assert_list_of_strings(l):
-    assert all([isinstance(x, six.string_types) for x in l]), \
-        'Expected list of strings: %s.' % str(l)
+    assert all([isinstance(x, six.string_types) for x in l]), "Expected list of strings: %s." % str(l)
 
 
 def is_alias(alias):
@@ -97,7 +96,7 @@ def eval_alias(alias, context, cq):
 @contract(context=Context, cq=CacheQueryDB)
 def list_matching_functions(token, context, cq):
     db = context.get_compmake_db()
-    assert token.endswith('()')
+    assert token.endswith("()")
     if len(token) < 3:
         raise UserError('Malformed token "%s".' % token)
 
@@ -112,8 +111,7 @@ def list_matching_functions(token, context, cq):
             num_matches += 1
 
     if num_matches == 0:
-        raise UserError('Could not find matches for function "%s()".' %
-                        function_id)
+        raise UserError('Could not find matches for function "%s()".' % function_id)
 
 
 def expand_job_list_token(token, context, cq):
@@ -122,11 +120,11 @@ def expand_job_list_token(token, context, cq):
 
     assert isinstance(token, six.string_types)
 
-    if token.find('*') > -1:
+    if token.find("*") > -1:
         return expand_wildcard(token, cq.all_jobs())
     elif is_alias(token):
         return eval_alias(token, context, cq)
-    elif token.endswith('()'):
+    elif token.endswith("()"):
         return list_matching_functions(token, context, cq)
     else:
         # interpret as a job id
@@ -149,19 +147,19 @@ def expand_job_list_tokens(tokens, context, cq):
 
 
 class Operators(object):
-    Op = namedtuple('Op', 'name')
+    Op = namedtuple("Op", "name")
 
-    NOT = Op('not')
-    DIFFERENCE = Op('difference')
-    INTERSECTION = Op('intersection')
+    NOT = Op("not")
+    DIFFERENCE = Op("difference")
+    INTERSECTION = Op("intersection")
 
     translation = {
-        'not': NOT,
-        'except': DIFFERENCE,
-        'but': DIFFERENCE,
-        'in': INTERSECTION,
-        'and': INTERSECTION,
-        'intersect': INTERSECTION
+        "not": NOT,
+        "except": DIFFERENCE,
+        "but": DIFFERENCE,
+        "in": INTERSECTION,
+        "and": INTERSECTION,
+        "intersect": INTERSECTION,
     }
 
     @staticmethod
@@ -257,7 +255,7 @@ def list_level4_jobs(context, cq):
 
 
 def is_root_job(job):
-    return job.defined_by == ['root']
+    return job.defined_by == ["root"]
 
 
 def is_dynamic_job(job):
@@ -289,38 +287,30 @@ def list_bottom_jobs(context, cq):  # @UnusedVariable
 
 def obtain_all(context, cq):
     res = list(cq.all_jobs())
-    print('obtain all: %s' % res)
+    print("obtain all: %s" % res)
     return res
 
 
-add_alias('all', obtain_all)
-add_alias('failed', lambda context, cq: list_jobs_with_state(Cache.FAILED,
-                                                             context=context,
-                                                             cq=cq))
-add_alias('blocked', lambda context, cq: list_jobs_with_state(Cache.BLOCKED,
-                                                              context=context,
-                                                              cq=cq))
-add_alias('ready', list_ready_jobs)
-add_alias('todo', list_todo_jobs)
-add_alias('top', list_top_jobs)
-add_alias('uptodate', list_uptodate_jobs)
-add_alias('root', list_root_jobs)
-add_alias('generated', list_generated_jobs)
-add_alias('level1', list_level1_jobs)
-add_alias('level2', list_level2_jobs)
-add_alias('level3', list_level3_jobs)
-add_alias('level4', list_level4_jobs)
-add_alias('dynamic', list_dynamic_jobs)
-add_alias('bottom', list_bottom_jobs)
-add_alias('done',
-          lambda context, cq:
-          list_jobs_with_state(Cache.DONE, context=context, cq=cq))
+add_alias("all", obtain_all)
+add_alias("failed", lambda context, cq: list_jobs_with_state(Cache.FAILED, context=context, cq=cq))
+add_alias("blocked", lambda context, cq: list_jobs_with_state(Cache.BLOCKED, context=context, cq=cq))
+add_alias("ready", list_ready_jobs)
+add_alias("todo", list_todo_jobs)
+add_alias("top", list_top_jobs)
+add_alias("uptodate", list_uptodate_jobs)
+add_alias("root", list_root_jobs)
+add_alias("generated", list_generated_jobs)
+add_alias("level1", list_level1_jobs)
+add_alias("level2", list_level2_jobs)
+add_alias("level3", list_level3_jobs)
+add_alias("level4", list_level4_jobs)
+add_alias("dynamic", list_dynamic_jobs)
+add_alias("bottom", list_bottom_jobs)
+add_alias("done", lambda context, cq: list_jobs_with_state(Cache.DONE, context=context, cq=cq))
 # add_alias('in_progress',
-#           lambda context, cq: 
+#           lambda context, cq:
 #           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
-add_alias('not_started',
-          lambda context, cq:
-          list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
+add_alias("not_started", lambda context, cq: list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
 
 
 def parse_job_list(tokens, context, cq=None):
@@ -345,7 +335,7 @@ def parse_job_list(tokens, context, cq=None):
     if not tokens:
         return []
 
-    # First we look for operators 
+    # First we look for operators
     ops = Operators.parse(tokens)
 
     # print(" %s => %s" % (tokens, ops))
@@ -366,19 +356,21 @@ def eval_ops(ops, context, cq):
 
     def list_split(l, index):
         """ Splits a list in two """
-        return l[0:index], l[index + 1:]
+        return l[0:index], l[index + 1 :]
 
     # The sequence of the following operations
     # defines the associativity rules
 
-    # in > except > not 
+    # in > except > not
 
     if Operators.INTERSECTION in ops:
         left, right = list_split(ops, ops.index(Operators.INTERSECTION))
         if not left or not right:
-            msg = ''' INTERSECTION requires only a right argument.
-            Interpreting "%s" INTERSECTION "%s". ''' % (
-                ' '.join(left), ' '.join(right))
+            msg = """ INTERSECTION requires only a right argument.
+            Interpreting "%s" INTERSECTION "%s". """ % (
+                " ".join(left),
+                " ".join(right),
+            )
             raise CompmakeSyntaxError(msg)
         left = eval_ops(ops=left, context=context, cq=cq)
         right = set(eval_ops(ops=right, context=context, cq=cq))
@@ -389,9 +381,11 @@ def eval_ops(ops, context, cq):
     elif Operators.DIFFERENCE in ops:
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
         if not left or not right:
-            msg = ''' EXCEPT requires a left and right argument.
-            Interpreting "%s" EXCEPT "%s". ''' % (
-                ' '.join(left), ' '.join(right))
+            msg = """ EXCEPT requires a left and right argument.
+            Interpreting "%s" EXCEPT "%s". """ % (
+                " ".join(left),
+                " ".join(right),
+            )
             raise CompmakeSyntaxError(msg)
 
         left = eval_ops(ops=left, context=context, cq=cq)
@@ -403,10 +397,11 @@ def eval_ops(ops, context, cq):
     elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
         if left or not right:  # forbid left, require right
-            msg = (
-                    ''' NOT requires only a right argument. Interpreting "%s" NOT
-                    "%s". ''' %
-                    (' '.join(left), ' '.join(right)))
+            msg = """ NOT requires only a right argument. Interpreting "%s" NOT
+                    "%s". """ % (
+                " ".join(left),
+                " ".join(right),
+            )
             raise CompmakeSyntaxError(msg)
 
         right_res = set(eval_ops(ops=right, context=context, cq=cq))
@@ -431,7 +426,7 @@ def eval_ops(ops, context, cq):
 
     else:
         # no operators: simple list
-        # cannot do this anymore, now it's a generator. 
+        # cannot do this anymore, now it's a generator.
         # assert_list_of_strings(ops)
         for x in expand_job_list_tokens(ops, context=context, cq=cq):
             yield x

@@ -8,11 +8,11 @@ from contracts.utils import indent
 
 
 __all__ = [
-    'import_name',
+    "import_name",
 ]
 
 
-@contract(name='unicode')
+@contract(name="unicode")
 def import_name(name):
     """
         Loads the python object with the given name.
@@ -20,11 +20,11 @@ def import_name(name):
         Note that "name" might be "module.module.name" as well.
     """
     try:
-        return __import__(name, fromlist=['dummy'])
+        return __import__(name, fromlist=["dummy"])
     except ImportError as e:
         # split in (module, name) if we can
-        if '.' in name:
-            tokens = name.split('.')
+        if "." in name:
+            tokens = name.split(".")
             field = tokens[-1]
             module_name = ".".join(tokens[:-1])
 
@@ -51,15 +51,13 @@ def import_name(name):
                 try:
                     module = import_name(module_name)
                 except ImportError as e:
-                    msg = ('Cannot load %r (tried also with %r):\n' %
-                           (name, module_name))
-                    msg += '\n' + indent(
-                        '%s\n%s' % (e, traceback.format_exc()), '> ')
+                    msg = "Cannot load %r (tried also with %r):\n" % (name, module_name)
+                    msg += "\n" + indent("%s\n%s" % (e, traceback.format_exc()), "> ")
                     raise ValueError(msg)
 
                 if not field in module.__dict__:
-                    msg = 'No field %r\n' % field
-                    msg += ' found in %r.' % module
+                    msg = "No field %r\n" % field
+                    msg += " found in %r." % module
                     raise ValueError(msg)
 
                 f = module.__dict__[field]
@@ -72,6 +70,6 @@ def import_name(name):
                     return f
 
         else:
-            msg = 'Cannot import name %r.' % name
-            msg += indent(traceback.format_exc(), '> ')
+            msg = "Cannot import name %r." % name
+            msg += indent(traceback.format_exc(), "> ")
             raise ValueError(msg)

@@ -3,18 +3,17 @@
 import sys
 
 __all__ = [
-    'MemoryCache',
+    "MemoryCache",
 ]
 
 
 # noinspection PyArgumentList
 class MemoryCache(object):
-
     def __init__(self, db, cache_values=True):
         self.data = {}
         self.db = db
         self.cache_values = cache_values
-        self.keys_to_cache = ':job:'
+        self.keys_to_cache = ":job:"
 
     def __getitem__(self, key):
         if key in self.data:
@@ -52,5 +51,3 @@ class MemoryCache(object):
 
     def keys(self):
         return self.db.keys()
-
-

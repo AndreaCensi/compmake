@@ -13,11 +13,11 @@ from compmake.jobs.result_dict import result_dict_check
 
 
 __all__ = [
-    'parmake_job2',
+    "parmake_job2",
 ]
 
 
-@contract(args='tuple(unicode, *, unicode, bool)')
+@contract(args="tuple(unicode, *, unicode, bool)")
 def parmake_job2(args):
     """
     args = tuple job_id, context, queue_name, show_events
@@ -37,13 +37,13 @@ def parmake_job2(args):
 
     db = context.get_compmake_db()
 
-    setproctitle('compmake:%s' % job_id)
+    setproctitle("compmake:%s" % job_id)
 
     class G(object):
         nlostmessages = 0
 
     try:
-        # We register a handler for the events to be passed back 
+        # We register a handler for the events to be passed back
         # to the main process
         def handler(event):
             try:
@@ -62,13 +62,12 @@ def parmake_job2(args):
             register_handler("*", handler)
 
         def proctitle(event):
-            stat = '[%s/%s %s] (compmake)' % (event.progress,
-                                              event.goal, event.job_id)
+            stat = "[%s/%s %s] (compmake)" % (event.progress, event.goal, event.job_id)
             setproctitle(stat)
 
         register_handler("job-progress", proctitle)
 
-        publish(context, 'worker-status', job_id=job_id, status='started')
+        publish(context, "worker-status", job_id=job_id, status="started")
 
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
@@ -77,21 +76,20 @@ def parmake_job2(args):
         except:
             pass
 
-        publish(context, 'worker-status', job_id=job_id, status='connected')
+        publish(context, "worker-status", job_id=job_id, status="connected")
 
         res = make(job_id, context=context)
 
-        publish(context, 'worker-status', job_id=job_id, status='ended')
+        publish(context, "worker-status", job_id=job_id, status="ended")
 
-        res['user_object'] = None
+        res["user_object"] = None
         result_dict_check(res)
         return res
-        
+
     except KeyboardInterrupt:
-        assert False, 'KeyboardInterrupt should be captured by make() (' \
-                      'inside Job.compute())'
+        assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"
     except JobInterrupted:
-        publish(context, 'worker-status', job_id=job_id, status='interrupted')
+        publish(context, "worker-status", job_id=job_id, status="interrupted")
         raise
     except JobFailed:
         raise
@@ -101,5 +99,5 @@ def parmake_job2(args):
     except:
         raise
     finally:
-        publish(context, 'worker-status', job_id=job_id, status='cleanup')
-        setproctitle('compmake-worker-finished %s' % job_id)
+        publish(context, "worker-status", job_id=job_id, status="cleanup")
+        setproctitle("compmake-worker-finished %s" % job_id)

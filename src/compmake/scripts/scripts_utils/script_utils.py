@@ -6,8 +6,7 @@ import traceback
 from compmake.ui.visualization import error
 
 
-def wrap_script_entry_point(function,
-                            exceptions_no_traceback):
+def wrap_script_entry_point(function, exceptions_no_traceback):
     """
         Wraps the main() of a script.
         For Exception: we exit with value 2.

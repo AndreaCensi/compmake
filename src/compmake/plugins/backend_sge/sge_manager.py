@@ -9,14 +9,14 @@ from contracts import contract
 
 
 __all__ = [
-    'SGEManager',
+    "SGEManager",
 ]
 
 
 class SGEManager(Manager):
     """ Runs compmake jobs using a SGE implementation """
 
-    @contract(num_processes=int, recurse='bool')
+    @contract(num_processes=int, recurse="bool")
     def __init__(self, context, cq, recurse, num_processes):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
 
@@ -25,17 +25,16 @@ class SGEManager(Manager):
         check_sge_environment()
 
         storage = os.path.abspath(self.db.basepath)
-        timestamp = isodate_with_secs().replace(':', '-')
-        spool = os.path.join(storage, 'sge', timestamp)
+        timestamp = isodate_with_secs().replace(":", "-")
+        spool = os.path.join(storage, "sge", timestamp)
         if not os.path.exists(spool):
             os.makedirs(spool)
-
 
         self.sub_available = set()
         self.sub_processing = set()  # available + processing = subs.keys
         self.subs = {}  # name -> sub
         for i in range(self.num_processes):
-            name = 'w%02d' % i
+            name = "w%02d" % i
             self.subs[name] = SGESub(name, db=self.db, spool=spool)
         self.job2subname = {}
         # all are available
@@ -48,13 +47,11 @@ class SGEManager(Manager):
         # only one job at a time
         process_limit_ok = len(self.sub_processing) < self.num_processes
         if not process_limit_ok:
-            resource_available['nproc'] = (False,
-                                           'max %d nproc' % (
-                                           self.num_processes))
+            resource_available["nproc"] = (False, "max %d nproc" % (self.num_processes))
             # this is enough to continue
             return resource_available
         else:
-            resource_available['nproc'] = (True, '')
+            resource_available["nproc"] = (True, "")
 
         return resource_available
 
@@ -106,6 +103,6 @@ class SGEManager(Manager):
         Manager.cleanup(self)
         n = len(self.processing2result)
         if n > 100:
-            print('Cleaning up %d SGE jobs. Please be patient.' % n)
+            print("Cleaning up %d SGE jobs. Please be patient." % n)
         for _, job in self.processing2result.items():
             job.delete_job()

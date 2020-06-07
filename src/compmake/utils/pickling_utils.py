@@ -3,12 +3,12 @@
 import sys
 
 if sys.version_info[0] >= 3:
-    import pickle  as compmake_pickle  # @UnusedImport
+    import pickle as compmake_pickle  # @UnusedImport
 else:
     import cPickle as compmake_pickle  # @Reimport
 
 __all__ = [
-    'try_pickling',
+    "try_pickling",
 ]
 
 

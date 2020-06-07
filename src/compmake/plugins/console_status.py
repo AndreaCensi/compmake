@@ -24,18 +24,18 @@ tracker = Tracker()
 def system_status():
     stats = CompmakeGlobalState.system_stats
     if not stats.available():  # psutil not installed
-        # TODO: use os.load 
+        # TODO: use os.load
         return ""
 
     cpu = stats.avg_cpu_percent()
     cur_mem = stats.cur_phymem_usage_percent()
     swap = stats.cur_virtmem_usage_percent()
 
-    s_mem = 'mem %2.0f%%' % cur_mem
+    s_mem = "mem %2.0f%%" % cur_mem
     if swap > 20:
-        s_mem += ' swap %2.0f%%' % swap
+        s_mem += " swap %2.0f%%" % swap
 
-    return 'cpu %2.0f%% %s' % (cpu, s_mem)
+    return "cpu %2.0f%% %s" % (cpu, s_mem)
 
 
 def get_spins():
@@ -50,9 +50,9 @@ def get_spins():
         fish_left = "<'((<"
         s = []
         for i in range(n):
-            s.append(' ' * i + fish_right)
+            s.append(" " * i + fish_right)
         for i in range(n):
-            s.append(' ' * (n - i) + fish_left)
+            s.append(" " * (n - i) + fish_left)
         m = max(len(_) for _ in s)
         # return [_.ljust(m).encode('utf8') for _ in s]
 
@@ -81,7 +81,7 @@ spins = get_spins()
 
 
 def spinner():
-    spin_interval = get_compmake_config('console_status_delta') * 0.8
+    spin_interval = get_compmake_config("console_status_delta") * 0.8
     t = time.time()
     i = t / spin_interval
     i = int(i) % len(spins)
@@ -89,45 +89,39 @@ def spinner():
 
 
 def job_counts():
-    done_style = dict(color='green')
-    failed_style = dict(color='red')
+    done_style = dict(color="green")
+    failed_style = dict(color="red")
     blocked_style = dict()
-    ready_style = dict(color='yellow')
-    proc_style = dict(color='yellow')
+    ready_style = dict(color="yellow")
+    proc_style = dict(color="yellow")
     s = ""
     if tracker.done:
-        s += compmake_colored("%d done" % len(tracker.done),
-                              **done_style)
+        s += compmake_colored("%d done" % len(tracker.done), **done_style)
 
     if tracker.processing:
-        s += compmake_colored(" %d proc" % len(tracker.processing),
-                              **proc_style)
+        s += compmake_colored(" %d proc" % len(tracker.processing), **proc_style)
         # Too long
         # if len(tracker.processing) <= 2:
         #    s += ' ' + " ".join(sorted(tracker.processing))
 
     if tracker.failed:
-        s += compmake_colored(" %d failed" % len(tracker.failed),
-                              **failed_style)
+        s += compmake_colored(" %d failed" % len(tracker.failed), **failed_style)
 
     if tracker.blocked:
-        s += compmake_colored(" %d blocked" % len(tracker.blocked),
-                              **blocked_style)
+        s += compmake_colored(" %d blocked" % len(tracker.blocked), **blocked_style)
 
     if tracker.ready:
-        s += compmake_colored(" %d ready" % len(tracker.ready),
-                              **ready_style)
+        s += compmake_colored(" %d ready" % len(tracker.ready), **ready_style)
 
     if tracker.todo:
-        s += compmake_colored(" %d waiting" % len(tracker.todo),
-                              **ready_style)
+        s += compmake_colored(" %d waiting" % len(tracker.todo), **ready_style)
 
     return s
 
 
 def wait_reasons():
     if tracker.wait_reasons:
-        s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ')'
+        s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ")"
     else:
         s = ""
     return s
@@ -160,7 +154,7 @@ def get_string(level):
     if level == -2:
         return "..."
     if level == -1:
-        return '  %d proc.' % len(tracker.status)
+        return "  %d proc." % len(tracker.status)
     X = []
 
     for job_id, status in tracker.status.items():
@@ -180,30 +174,27 @@ def get_string(level):
                 if level >= 2:
                     # XXX: this is never used somehow, see tracker
                     # that's where the code is executed to display iterations
-                    if (isinstance(frame.iterations[0], int)
-                            and isinstance(frame.iterations[1], int)):
-                        x += ["%s of %s" % (frame.iterations[0] + 1,
-                                            frame.iterations[1])]
+                    if isinstance(frame.iterations[0], int) and isinstance(frame.iterations[1], int):
+                        x += ["%s of %s" % (frame.iterations[0] + 1, frame.iterations[1])]
                     else:
-                        perc = frame.iterations[0] * 100.0 / frame.iterations[
-                            1]
-                        x += ['%.1f%%' % perc]
+                        perc = frame.iterations[0] * 100.0 / frame.iterations[1]
+                        x += ["%.1f%%" % perc]
 
                 if level >= 4 and frame.iteration_desc is not None:
                     x += ["(%s)" % frame.iteration_desc]
 
                 if i < len(stack) - 1:
-                    x += ['>>']
+                    x += [">>"]
         X += [" ".join(x)]
     return " ".join(X)
 
 
-class Tmp():
+class Tmp:
     last_manager_loop = time.time()
 
 
 def its_time():
-    delta = float(get_compmake_config('console_status_delta'))
+    delta = float(get_compmake_config("console_status_delta"))
     t = time.time()
     dt = t - Tmp.last_manager_loop
     if dt > delta:
@@ -218,11 +209,11 @@ def handle_event_period(context, event):
         handle_event(context, event)
 
 
-ShowOption = namedtuple('Option', 'length left right weight')
+ShowOption = namedtuple("Option", "length left right weight")
 
 
 def handle_event(context, event):  # @UnusedVariable
-    if not get_compmake_config('status_line_enabled'):
+    if not get_compmake_config("status_line_enabled"):
         return
 
     status = system_status()
@@ -230,8 +221,8 @@ def handle_event(context, event):  # @UnusedVariable
     options_right = []
 
     if status:
-        options_right.append('%s %s ' % (status, job_counts()))
-        options_right.append('%s %s %s' % (wait_reasons(), status, job_counts()))
+        options_right.append("%s %s " % (status, job_counts()))
+        options_right.append("%s %s %s" % (wait_reasons(), status, job_counts()))
 
     options_right.append(job_counts())
 
@@ -240,7 +231,7 @@ def handle_event(context, event):  # @UnusedVariable
     options_left.append(sp)
 
     for level in [4, 3, 2, 1, 0, -1, -2, -3]:
-        options_left.append(' compmake %s %s' % (sp, get_string(level)))
+        options_left.append(" compmake %s %s" % (sp, get_string(level)))
     #         options_left.append(sp + '  ' + get_string(level))
 
     cols, _ = getTerminalSize()
@@ -260,38 +251,36 @@ def handle_event(context, event):  # @UnusedVariable
             choice = _
 
     if choice is None:
-        # cannot find anything? 
+        # cannot find anything?
         choice = options[0]
 
-    nspaces = (cols
-               - get_length_on_screen(choice.right)
-               - get_length_on_screen(choice.left))
-    line = choice.left + ' ' * nspaces + choice.right
+    nspaces = cols - get_length_on_screen(choice.right) - get_length_on_screen(choice.left)
+    line = choice.left + " " * nspaces + choice.right
 
-    if get_compmake_config('console_status'):
+    if get_compmake_config("console_status"):
         # if six.PY2:
         #     if isinstance(line, unicode):
         #         line = line.encode('utf-8')
         stream.write(line)
 
-        interactive = get_compmake_config('interactive')
+        interactive = get_compmake_config("interactive")
         if interactive:
-            stream.write('\r')
+            stream.write("\r")
         else:
-            stream.write('\n')
+            stream.write("\n")
 
 
 def manager_host_failed(context, event):  # @UnusedVariable
-    s = 'Host failed for job %s: %s' % (event.job_id, event.reason)
-    s += indent(event.bt.strip(), '| ')
+    s = "Host failed for job %s: %s" % (event.job_id, event.reason)
+    s += indent(event.bt.strip(), "| ")
     error(s)
 
 
-if get_compmake_config('status_line_enabled'):
-    register_handler('manager-loop', handle_event_period)
-    register_handler('manager-progress', handle_event_period)
-    register_handler('job-progress', handle_event)
-    register_handler('job-progress-plus', handle_event)
-    register_handler('job-stdout', handle_event)
-    register_handler('job-stderr', handle_event)
-    register_handler('manager-host-failed', manager_host_failed)
+if get_compmake_config("status_line_enabled"):
+    register_handler("manager-loop", handle_event_period)
+    register_handler("manager-progress", handle_event_period)
+    register_handler("job-progress", handle_event)
+    register_handler("job-progress-plus", handle_event)
+    register_handler("job-stdout", handle_event)
+    register_handler("job-stderr", handle_event)
+    register_handler("manager-host-failed", manager_host_failed)

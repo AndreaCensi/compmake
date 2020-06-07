@@ -17,8 +17,16 @@ from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
-from .storage import delete_job_cache, get_job, get_job_cache, set_job_cache, set_job_userobject, job_cache_exists, \
-    set_job, job_exists
+from .storage import (
+    delete_job_cache,
+    get_job,
+    get_job_cache,
+    set_job_cache,
+    set_job_userobject,
+    job_cache_exists,
+    set_job,
+    job_exists,
+)
 
 
 def clean_targets(job_list, db):
@@ -28,11 +36,13 @@ def clean_targets(job_list, db):
     # now we need to delete the definition closure
 
     from compmake.jobs.queries import definition_closure
+
     closure = definition_closure(job_list, db)
 
     basic = job_list - closure
 
     from compmake.jobs.queries import parents
+
     other_clean = set()
     for job_id in job_list:
         other_clean.update(parents(job_id, db))
@@ -48,6 +58,7 @@ def clean_targets(job_list, db):
     # delete all in closure
     for job_id in closure:
         from compmake.jobs.storage import delete_all_job_data
+
         delete_all_job_data(job_id, db)
 
     # just remove cache in basic
@@ -69,7 +80,7 @@ def clean_targets(job_list, db):
 def clean_cache_relations(job_id, db):
     # print('cleaning cache relations for %r ' % job_id)
     if not job_exists(job_id, db):
-        print('Cleaning cache for job %r which does not exist anymore; ignoring' % job_id)
+        print("Cleaning cache for job %r which does not exist anymore; ignoring" % job_id)
         return
 
     # for all jobs that were done
@@ -77,8 +88,10 @@ def clean_cache_relations(job_id, db):
     if cache.state == Cache.DONE:
         for parent in direct_parents(job_id, db):
             if not job_exists(parent, db):
-                msg = ('Could not find job %r (parent of %s) - ok if the job was deleted'
-                       ' otherwise it is a bug' % (parent, job_id))
+                msg = (
+                    "Could not find job %r (parent of %s) - ok if the job was deleted"
+                    " otherwise it is a bug" % (parent, job_id)
+                )
                 logger.warning(msg)
                 continue
             parent_job = get_job(parent, db)
@@ -123,7 +136,7 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     if backtrace is not None:
         if six.PY2:
             if isinstance(backtrace, bytes):
-                backtrace = backtrace.decode('utf-8', errors='ignore')
+                backtrace = backtrace.decode("utf-8", errors="ignore")
 
     check_isinstance(backtrace, (type(None), six.text_type))
     cache.exception = exception
@@ -150,10 +163,10 @@ def make(job_id, context, echo=False):
 
     int_make = IntervalTimer()
 
-    host = 'hostname'  # XXX
+    host = "hostname"  # XXX
 
-    if get_compmake_config('set_proc_title'):
-        setproctitle('cm-%s' % job_id)
+    if get_compmake_config("set_proc_title"):
+        setproctitle("cm-%s" % job_id)
 
     # TODO: should we make sure we are up to date???
     #     up, reason = up_to_date(job_id, db=db)
@@ -187,23 +200,25 @@ def make(job_id, context, echo=False):
     # TODO: delete previous user object
 
     def progress_callback(stack):
-        publish(context, 'job-progress-plus', job_id=job_id, host=host,
-                stack=stack)
+        publish(context, "job-progress-plus", job_id=job_id, host=host, stack=stack)
 
     init_progress_tracking(progress_callback)
 
     disable_capture = False
     if disable_capture:
-        logger.warning('Capture is disabled')
+        logger.warning("Capture is disabled")
     if disable_capture:
         capture = None
     else:
         echo = False
-        capture = OutputCapture(context=context, prefix=job_id,
-                                # This is instantaneous echo and should be False
-                                # They will generate events anyway.
-                                echo_stdout=echo,
-                                echo_stderr=echo)
+        capture = OutputCapture(
+            context=context,
+            prefix=job_id,
+            # This is instantaneous echo and should be False
+            # They will generate events anyway.
+            echo_stdout=echo,
+            echo_stderr=echo,
+        )
 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
@@ -225,7 +240,7 @@ def make(job_id, context, echo=False):
             except UnicodeEncodeError:
                 s = unicode(log_record.msg)
             except:
-                s = 'Could not print log_record %s' % id(log_record)
+                s = "Could not print log_record %s" % id(log_record)
             log_record.msg = colorize_loglevel(log_record.levelno, s)
             res = formatter.format(log_record)
             print(res)
@@ -259,24 +274,24 @@ def make(job_id, context, echo=False):
         result = job_compute(job=job, context=context)
 
         assert isinstance(result, dict) and len(result) == 5
-        user_object = result['user_object']
-        new_jobs = result['new_jobs']
-        int_load_results = result['int_load_results']
-        int_compute = result['int_compute']
-        int_gc = result['int_gc']
+        user_object = result["user_object"]
+        new_jobs = result["new_jobs"]
+        int_load_results = result["int_load_results"]
+        int_compute = result["int_compute"]
+        int_gc = result["int_gc"]
         int_gc.stop()
 
     except KeyboardInterrupt as e:
         bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
-        mark_as_failed(job_id, 'KeyboardInterrupt: ' + str(e), backtrace=bt, db=db)
+        mark_as_failed(job_id, "KeyboardInterrupt: " + str(e), backtrace=bt, db=db)
 
         cache = get_job_cache(job_id, db=db)
         if capture is not None:
             cache.captured_stderr = capture.get_logged_stderr()
             cache.captured_stdout = capture.get_logged_stdout()
         else:
-            msg = '(Capture turned off.)'
+            msg = "(Capture turned off.)"
             cache.captured_stderr = msg
             cache.captured_stdout = msg
 
@@ -284,11 +299,18 @@ def make(job_id, context, echo=False):
 
         raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
-    except (BaseException, ArithmeticError,
-            BufferError, LookupError, Exception, SystemExit, MemoryError) as e:
+    except (
+        BaseException,
+        ArithmeticError,
+        BufferError,
+        LookupError,
+        Exception,
+        SystemExit,
+        MemoryError,
+    ) as e:
         bt = traceback.format_exc()
         if six.PY2:
-            s = '%s: %s' % (type(e).__name__, e)
+            s = "%s: %s" % (type(e).__name__, e)
             #
             # s = type(e).__name__ + ': ' + e.__str__().strip()
             # try:
@@ -297,7 +319,7 @@ def make(job_id, context, echo=False):
             #     print(ue)  # XXX
             #     s = 'Could not represent string.'
         else:
-            s = '%s: %s' % (type(e).__name__, e)
+            s = "%s: %s" % (type(e).__name__, e)
         mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()
 
@@ -306,14 +328,13 @@ def make(job_id, context, echo=False):
             cache.captured_stderr = capture.get_logged_stderr()
             cache.captured_stdout = capture.get_logged_stdout()
         else:
-            msg = '(Capture turned off.)'
+            msg = "(Capture turned off.)"
             cache.captured_stderr = msg
             cache.captured_stdout = msg
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobFailed(job_id=job_id, reason=s, bt=bt,
-                        deleted_jobs=deleted_jobs)
+        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=deleted_jobs)
     finally:
         int_finally = IntervalTimer()
         if capture is not None:
@@ -321,7 +342,7 @@ def make(job_id, context, echo=False):
         # even if we send an error, let's save the output of the process
         logging.StreamHandler.emit = old_emit
         if Store.nhidden > 0:
-            msg = 'compmake: There were %d messages hidden due to bugs in logging.' % Store.nhidden
+            msg = "compmake: There were %d messages hidden due to bugs in logging." % Store.nhidden
             print(msg)
         int_finally.stop()
     #        print('finally: %s' % int_finally)
@@ -337,6 +358,7 @@ def make(job_id, context, echo=False):
             if x not in new_jobs:
                 todelete.add(x)
         from compmake.ui.ui import delete_jobs_recurse_definition
+
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
     else:
         deleted_jobs = set()
@@ -357,7 +379,7 @@ def make(job_id, context, echo=False):
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        logger.warning('Expensive garbage collection detected at the end of %s: %s' % (job_id, int_gc))
+        logger.warning("Expensive garbage collection detected at the end of %s: %s" % (job_id, int_gc))
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make
@@ -374,7 +396,9 @@ def make(job_id, context, echo=False):
     cache.jobs_defined = new_jobs
     set_job_cache(job_id, cache, db=db)
 
-    return dict(user_object=user_object,
-                user_object_deps=collect_dependencies(user_object),
-                new_jobs=new_jobs,
-                deleted_jobs=deleted_jobs)
+    return dict(
+        user_object=user_object,
+        user_object_deps=collect_dependencies(user_object),
+        new_jobs=new_jobs,
+        deleted_jobs=deleted_jobs,
+    )

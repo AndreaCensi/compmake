@@ -28,15 +28,15 @@ from zuper_commons.text import *
 
 # def find_print_statements():
 #     import sys
-#     
+#
 #     class TracePrints(object):
-#         def __init__(self):    
-#             
+#         def __init__(self):
+#
 #             self.stdout = sys.stdout
-#         
+#
 #         def write(self, s):
 #             self.stdout.write("Writing %r\n" % s)
 #             import traceback
 #             traceback.print_stack(file=self.stdout)
-# 
+#
 #     sys.stdout = TracePrints()

@@ -6,13 +6,17 @@ from time import time
 
 from compmake.constants import CompmakeConstants
 from compmake.jobs import parse_job_list
-from compmake.jobs.storage import (job_args_sizeof, job_cache_exists,
-                                   job_cache_sizeof,
-                                   job_userobject_exists, job_userobject_sizeof)
+from compmake.jobs.storage import (
+    job_args_sizeof,
+    job_cache_exists,
+    job_cache_sizeof,
+    job_userobject_exists,
+    job_userobject_sizeof,
+)
 from compmake.jobs.syntax.parsing import is_root_job
 from compmake.structures import timing_summary, cache_has_large_overhead, Cache
 from compmake.ui import VISUALIZATION, compmake_colored, ui_command
-from zuper_commons.ui import (duration_compact)
+from zuper_commons.ui import duration_compact
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
 from contracts import contract
@@ -22,24 +26,24 @@ state2color = {
     # (state, uptodate)
     (Cache.NOT_STARTED, False): {},
     #     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
-    (Cache.FAILED, False): {'color': 'red'},
-    (Cache.BLOCKED, True): {'color': 'yellow'},
-    (Cache.BLOCKED, False): {'color': 'yellow'},  # XXX
-    (Cache.DONE, True): {'color': 'green'},
-    (Cache.DONE, False): {'color': 'magenta'},
+    (Cache.FAILED, False): {"color": "red"},
+    (Cache.BLOCKED, True): {"color": "yellow"},
+    (Cache.BLOCKED, False): {"color": "yellow"},  # XXX
+    (Cache.DONE, True): {"color": "green"},
+    (Cache.DONE, False): {"color": "magenta"},
 }
 
 if False:
-    format_utility_job = dict(color='white', attrs=['concealed'])
-    format_separator = dict(color='white', attrs=['concealed'])
-    format_when = dict(color='white', attrs=['concealed'])
+    format_utility_job = dict(color="white", attrs=["concealed"])
+    format_separator = dict(color="white", attrs=["concealed"])
+    format_when = dict(color="white", attrs=["concealed"])
 else:
     format_utility_job = dict()
     format_separator = dict()
     format_when = dict()
 
 
-@ui_command(section=VISUALIZATION, alias='list')
+@ui_command(section=VISUALIZATION, alias="list")
 def ls(args, context, cq, complete_names=False, reason=False, all_details=False):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified
@@ -57,13 +61,12 @@ def ls(args, context, cq, complete_names=False, reason=False, all_details=False)
         job_list = parse_job_list(tokens=args, context=context, cq=cq)
 
     job_list = list(job_list)
-    CompmakeConstants.aliases['last'] = job_list
-    list_jobs(context, job_list, cq=cq, complete_names=complete_names,
-              reason=reason, all_details=all_details)
+    CompmakeConstants.aliases["last"] = job_list
+    list_jobs(context, job_list, cq=cq, complete_names=complete_names, reason=reason, all_details=all_details)
     return 0
 
 
-@contract(objects='seq[N](unicode)', returns='tuple(unicode, list[N](unicode), unicode)')
+@contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
 def minimal_names(objects):
     """
         Converts a list of object IDs to a minimal non-ambiguous list of names.
@@ -83,7 +86,7 @@ def minimal_names(objects):
         Returns prefix, minimal, postfix
     """
     if len(objects) == 1:
-        return '', objects, ''
+        return "", objects, ""
 
     # find the common prefix
     prefix = os.path.commonprefix(objects)
@@ -96,7 +99,7 @@ def minimal_names(objects):
     n1 = len(prefix)
     n2 = len(postfix)
     # remove it
-    minimal = [o[n1:len(o) - n2] for o in objects]
+    minimal = [o[n1 : len(o) - n2] for o in objects]
 
     # recreate them to check everything is ok
     objects2 = [prefix + m + postfix for m in minimal]
@@ -106,13 +109,14 @@ def minimal_names(objects):
     return prefix, minimal, postfix
 
 
-def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
-              reason=False):  # @UnusedVariable
+def list_jobs(
+    context, job_list, cq, complete_names=False, all_details=False, reason=False
+):  # @UnusedVariable
 
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
-        print('No jobs found.')
+        print("No jobs found.")
         return
 
     # maximum job length
@@ -124,8 +128,8 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
             return ajob_id
         else:
             b = 15
-            r = max_len - b - len(' ... ')
-            return ajob_id[:15] + ' ... ' + ajob_id[-r:]
+            r = max_len - b - len(" ... ")
+            return ajob_id[:15] + " ... " + ajob_id[-r:]
 
     # abbreviates the names
     #     if not complete_names:
@@ -153,26 +157,25 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
         if not is_root:
             msg = (job_id, job, job.defined_by)
             assert len(job.defined_by) >= 1, msg
-            assert job.defined_by[0] == 'root', msg
+            assert job.defined_by[0] == "root", msg
 
             level = len(job.defined_by) - 1
             assert level >= 1
-            tf.cell('%d' % level)
+            tf.cell("%d" % level)
         else:
-            tf.cell('')
+            tf.cell("")
 
         if job.needs_context:
-            tf.cell('d')
+            tf.cell("d")
         else:
-            tf.cell('')
+            tf.cell("")
 
         job_name_formatted = format_job_id(job_id).ljust(jlen)
 
         # de-emphasize utility jobs
-        is_utility = 'context' in job_id or 'dynrep' in job_id
+        is_utility = "context" in job_id or "dynrep" in job_id
         if is_utility:
-            job_name_formatted = compmake_colored(job_name_formatted,
-                                                  **format_utility_job)
+            job_name_formatted = compmake_colored(job_name_formatted, **format_utility_job)
 
         tf.cell(format_job_id(job_id))
 
@@ -183,7 +186,7 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
 
         tag_s = compmake_colored(tag, **state2color[k])
         if not up and cache.state in [Cache.DONE, Cache.FAILED]:
-            tag_s += '*'
+            tag_s += "*"
         tf.cell(tag_s)
 
         if reason:
@@ -192,7 +195,7 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
 
         db = context.get_compmake_db()
         sizes = get_sizes(job_id, db=db)
-        size_s = format_size(sizes['total'])
+        size_s = format_size(sizes["total"])
         tf.cell(size_s)
 
         if cache.state in [Cache.DONE]:
@@ -204,12 +207,12 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
                 # s_cpu = duration_compact(cpu)
                 s_cpu = timing_summary(cache)
             else:
-                s_cpu = ''
+                s_cpu = ""
 
             tf.cell(s_cpu)
 
         else:
-            tf.cell('')  # cpu
+            tf.cell("")  # cpu
 
         if cache.state in [Cache.DONE, Cache.FAILED]:
             when = duration_compact(time() - cache.timestamp)
@@ -219,11 +222,11 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
 
             tf.cell(when_s)
         else:
-            tf.cell('')  # when
+            tf.cell("")  # when
 
     tf.done()
 
-    ind = '  '
+    ind = "  "
 
     do_one_column = len(job_list) <= 5
 
@@ -234,7 +237,7 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
         linewidth = get_screen_columns()
         # print('*'*linewidth)
         # sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
-        sep = '   ' + compmake_colored('|', **format_separator) + '   '
+        sep = "   " + compmake_colored("|", **format_separator) + "   "
 
         for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
             print(ind + line)
@@ -242,38 +245,37 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False,
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
         wall_time = duration_compact(sum(wall_total))
-        scpu = (' total %d jobs   CPU time: %s   wall: %s' % (
-            len(job_list), cpu_time, wall_time))
+        scpu = " total %d jobs   CPU time: %s   wall: %s" % (len(job_list), cpu_time, wall_time)
         print(scpu)
 
 
 def format_size(nbytes):
     if nbytes == 0:
-        return ''
+        return ""
     if nbytes < 1000 * 1000:  # TODO: add param
-        return ''
+        return ""
     mb = float(nbytes) / (1000 * 1000)
-    return '%d MB' % mb
+    return "%d MB" % mb
 
 
-@contract(returns='dict')
+@contract(returns="dict")
 def get_sizes(job_id, db):
     """ Returns byte sizes for jobs pieces.
 
         Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
-    res['args'] = job_args_sizeof(job_id, db)
+    res["args"] = job_args_sizeof(job_id, db)
 
     if job_cache_exists(job_id, db):
-        res['cache'] = job_cache_sizeof(job_id, db)
+        res["cache"] = job_cache_sizeof(job_id, db)
     else:
-        res['cache'] = 0
+        res["cache"] = 0
 
     if job_userobject_exists(job_id, db):
-        res['result'] = job_userobject_sizeof(job_id, db)
+        res["result"] = job_userobject_sizeof(job_id, db)
     else:
-        res['result'] = 0
+        res["result"] = 0
 
-    res['total'] = res['cache'] + res['args'] + res['result']
+    res["total"] = res["cache"] + res["args"] + res["result"]
     return res

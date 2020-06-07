@@ -15,7 +15,7 @@ else:
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def dump(non_empty_job_list, context, directory='.'):
+def dump(non_empty_job_list, context, directory="."):
     """ Dumps the result of jobs as pickle files.
 
         Arguments:
@@ -27,12 +27,12 @@ def dump(non_empty_job_list, context, directory='.'):
 
         if is_job_userobject_available(job_id, db=db):
             user_object = get_job_userobject(job_id, db=db)
-            filename = os.path.join(directory, job_id + '.pickle')
-            with open(filename, 'wb') as f:
+            filename = os.path.join(directory, job_id + ".pickle")
+            with open(filename, "wb") as f:
                 pickle.dump(user_object, f)
-            info('Wrote %s' % filename)
+            info("Wrote %s" % filename)
         else:
-            user_error('Job %s is not ready yet.' % job_id)
+            user_error("Job %s is not ready yet." % job_id)
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -47,4 +47,4 @@ def dump_stdout(non_empty_job_list, context, resolve=False):
                 user_object = get_job_userobject(job_id, db=db)
             print(user_object)
         else:
-            user_error('Job %s is not ready yet.' % job_id)
+            user_error("Job %s is not ready yet." % job_id)

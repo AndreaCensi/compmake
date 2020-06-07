@@ -10,8 +10,8 @@ from .visualization import info
 
 
 __all__ = [
-    'config',
-    'config_html',
+    "config",
+    "config_html",
 ]
 
 
@@ -35,18 +35,17 @@ Without arguments, shows all configuration switches.
         if not name in CompmakeGlobalState.config_switches:
             raise UserError("I don't know the switch '%s'." % name)
         value = get_compmake_config(name)
-        info('config %s %s' % (name, value))
+        info("config %s %s" % (name, value))
         return
 
     set_config_from_strings(name, args)
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def config_html(output_file=''):
+def config_html(output_file=""):
     """ Dumps the config description in html on the specified file. """
     if output_file:
-        f = open(output_file, 'w')
+        f = open(output_file, "w")
     else:
         f = sys.stdout
     create_config_html(f)
-

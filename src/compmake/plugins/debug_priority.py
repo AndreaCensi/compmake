@@ -13,4 +13,4 @@ def debug_priority(non_empty_job_list, context, cq):  # @UnusedVariable
     sorted_jobs = sorted(jobs, key=lambda x: priorities[x])
     for job_id in sorted_jobs:
         p = priorities[job_id]
-        print('%5s %s' % (p, job_id))
+        print("%5s %s" % (p, job_id))

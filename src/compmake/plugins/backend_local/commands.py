@@ -3,22 +3,24 @@
 from .manager_local import ManagerLocal
 from compmake.constants import DefaultsToConfig
 from compmake.jobs import mark_to_remake, top_targets
-from compmake.ui import (ACTIONS, ask_if_sure_remake,
-    raise_error_if_manager_failed, ui_command)
+from compmake.ui import ACTIONS, ask_if_sure_remake, raise_error_if_manager_failed, ui_command
 
 
 __all__ = [
-    'make',
-    'rmake',
+    "make",
+    "rmake",
 ]
 
 
-
 @ui_command(section=ACTIONS, dbchange=True)
-def make(job_list, context, cq,
-         echo=DefaultsToConfig('echo'),
-         new_process=DefaultsToConfig('new_process'),
-         recurse=DefaultsToConfig('recurse')):
+def make(
+    job_list,
+    context,
+    cq,
+    echo=DefaultsToConfig("echo"),
+    new_process=DefaultsToConfig("new_process"),
+    recurse=DefaultsToConfig("recurse"),
+):
     """
         Makes selected targets; or all targets if none specified.
 
@@ -35,11 +37,11 @@ def make(job_list, context, cq,
     if not job_list:
         job_list = list(top_targets(db=db))
 
-    manager = ManagerLocal(context=context, cq=cq,
-                           recurse=recurse, new_process=new_process, echo=echo)
+    manager = ManagerLocal(context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo)
     manager.add_targets(job_list)
     manager.process()
     return raise_error_if_manager_failed(manager)
+
 
 @ui_command(section=ACTIONS, dbchange=True)
 def invalidate(non_empty_job_list, context):
@@ -50,10 +52,14 @@ def invalidate(non_empty_job_list, context):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def remake(non_empty_job_list, context, cq,
-           echo=DefaultsToConfig('echo'),
-           new_process=DefaultsToConfig('new_process'),
-           recurse=DefaultsToConfig('recurse')):
+def remake(
+    non_empty_job_list,
+    context,
+    cq,
+    echo=DefaultsToConfig("echo"),
+    new_process=DefaultsToConfig("new_process"),
+    recurse=DefaultsToConfig("recurse"),
+):
     """
         Remake the selected targets (equivalent to clean and make).
 
@@ -73,9 +79,7 @@ def remake(non_empty_job_list, context, cq,
     for job in non_empty_job_list:
         mark_to_remake(job, db=db)
 
-    manager = ManagerLocal(context=context, cq=cq,
-                           recurse=recurse, new_process=new_process,
-                           echo=echo)
+    manager = ManagerLocal(context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo)
 
     manager.add_targets(non_empty_job_list)
     manager.process()
@@ -83,9 +87,6 @@ def remake(non_empty_job_list, context, cq,
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def rmake(job_list, context, cq,
-         echo=DefaultsToConfig('echo'),
-         new_process=DefaultsToConfig('new_process')):
+def rmake(job_list, context, cq, echo=DefaultsToConfig("echo"), new_process=DefaultsToConfig("new_process")):
     """ make with recurse = 1 """
-    return make(job_list=job_list, context=context, cq=cq,
-                echo=echo, new_process=new_process, recurse=True)
+    return make(job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True)

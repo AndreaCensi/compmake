@@ -1,29 +1,28 @@
 # -*- coding: utf-8 -*-
-from  .memoize_imp import memoized_reset
+from .memoize_imp import memoized_reset
 import sys
 
 __all__ = [
-    'get_screen_columns',
-    'getTerminalSize',
+    "get_screen_columns",
+    "getTerminalSize",
 ]
 
 import os
 
 
-
 @memoized_reset
 def get_screen_columns():
     ts = getTerminalSize()
-    max_x, _  = ts
+    max_x, _ = ts
 
     fallback = 90
     if max_x <= 10 or max_x > 1024:
-#         msg = 'Very weird max screen size: %d' % max_x
-#         msg += '\n I will use %s.' % fallback
-#         sys.stderr.write(msg+'\n')
+        #         msg = 'Very weird max screen size: %d' % max_x
+        #         msg += '\n I will use %s.' % fallback
+        #         sys.stderr.write(msg+'\n')
 
         return fallback
-#         raise ValueError(msg)
+    #         raise ValueError(msg)
 
     return max_x
 
@@ -46,10 +45,10 @@ def getTerminalSize():
     lines = int(cr[0])
 
     env = os.environ
-    if 'COLUMNS' in env:
-        columns = int(env['COLUMNS'])
-    if 'LINES' in env:
-        lines = int(env['LINES'])
+    if "COLUMNS" in env:
+        columns = int(env["COLUMNS"])
+    if "LINES" in env:
+        lines = int(env["LINES"])
 
     return columns, lines
 
@@ -60,7 +59,7 @@ def ioctl_GWINSZ(fd):
         import termios
         import struct
 
-        s = fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234')
-        return struct.unpack('hh', s)
+        s = fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234")
+        return struct.unpack("hh", s)
     except:
         return None

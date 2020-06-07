@@ -9,10 +9,10 @@ from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
 
 
-RESET = '\033[0m'  # XXX
+RESET = "\033[0m"  # XXX
 
 __all__ = [
-    'OutputCapture',
+    "OutputCapture",
 ]
 
 
@@ -22,7 +22,7 @@ class LineSplitter(object):
         get the completed lines using lines(). """
 
     def __init__(self):
-        self.current = ''
+        self.current = ""
         self.current_lines = []
 
     def append_chars(self, s):
@@ -33,9 +33,9 @@ class LineSplitter(object):
         #     s = str(s)
         check_isinstance(s, six.text_type)
         for char in s:
-            if char == '\n':
+            if char == "\n":
                 self.current_lines.append(self.current)
-                self.current = ''
+                self.current = ""
             else:
                 self.current += char
 
@@ -58,7 +58,7 @@ class StreamCapture(object):
     def write(self, s):
         if six.PY2:
             if isinstance(s, bytes):
-                s = s.decode('utf-8', errors='replace')
+                s = s.decode("utf-8", errors="replace")
 
         check_isinstance(s, six.text_type)
         self.buffer.write(s)
@@ -96,28 +96,25 @@ class OutputCapture(object):
         from ..events import publish
 
         def publish_stdout(lines):
-            publish(context, 'job-stdout', job_id=prefix, lines=lines)
+            publish(context, "job-stdout", job_id=prefix, lines=lines)
 
         def publish_stderr(lines):
-            publish(context, 'job-stderr', job_id=prefix, lines=lines)
+            publish(context, "job-stderr", job_id=prefix, lines=lines)
 
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
 
         # FIXME: perhaps we should use compmake_colored
-        t1 = lambda s: '%s|%s' % (termcolor_colored(prefix, attrs=['dark']), s)
+        t1 = lambda s: "%s|%s" % (termcolor_colored(prefix, attrs=["dark"]), s)
         t2 = lambda s: RESET + pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]
-        self.stdout_replacement = StreamCapture(transform=t2, dest=dest,
-                                                after_lines=publish_stdout)
+        self.stdout_replacement = StreamCapture(transform=t2, dest=dest, after_lines=publish_stdout)
         sys.stdout = self.stdout_replacement
 
         # t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
-        t3 = lambda s: '%s|%s' % (
-            termcolor_colored(prefix, 'red', attrs=['dark']), s)
+        t3 = lambda s: "%s|%s" % (termcolor_colored(prefix, "red", attrs=["dark"]), s)
         t4 = lambda s: RESET + pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]
-        self.stderr_replacement = StreamCapture(transform=t4, dest=dest,
-                                                after_lines=publish_stderr)
+        self.stderr_replacement = StreamCapture(transform=t4, dest=dest, after_lines=publish_stderr)
         sys.stderr = self.stderr_replacement
 
     def deactivate(self):
@@ -125,7 +122,7 @@ class OutputCapture(object):
         sys.stderr = self.old_stderr
 
     def get_logged_stdout(self):
-        return self.stdout_replacement.get_value_text_type() # buffer.getvalue()
+        return self.stdout_replacement.get_value_text_type()  # buffer.getvalue()
 
     def get_logged_stderr(self):
-        return self.stderr_replacement.get_value_text_type() # buffer.getvalue()
+        return self.stderr_replacement.get_value_text_type()  # buffer.getvalue()

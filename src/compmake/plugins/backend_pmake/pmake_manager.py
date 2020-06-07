@@ -20,12 +20,13 @@ from contracts import contract, check_isinstance
 from future.moves.queue import Empty
 
 __all__ = [
-    'PmakeManager',
+    "PmakeManager",
 ]
 
 
 import psutil
 import os
+
 
 def killtree():
     # print('killing process tree')
@@ -37,6 +38,7 @@ def killtree():
         except NoSuchProcess:
             pass
 
+
 class PmakeManager(Manager):
     """
         Specialization of Manager for local multiprocessing, using
@@ -46,10 +48,9 @@ class PmakeManager(Manager):
 
     queues = {}
 
-
-    def __init__(self, context, cq, num_processes: int, recurse: bool=False,
-                 new_process=False,
-                 show_output=False):
+    def __init__(
+        self, context, cq, num_processes: int, recurse: bool = False, new_process=False, show_output=False
+    ):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
@@ -57,14 +58,13 @@ class PmakeManager(Manager):
         self.show_output = show_output
 
         if new_process and show_output:
-            msg = ('Compmake does not yet support echoing stdout/stderr '
-                   'when jobs are run in a new process.')
+            msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
             warning(msg)
         self.cleaned = False
 
     def process_init(self):
         self.event_queue = Queue(1000)
-        self.event_queue_name = '%s' % id(self)
+        self.event_queue_name = "%s" % id(self)
 
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
@@ -78,20 +78,19 @@ class PmakeManager(Manager):
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = os.path.join(storage, 'logs')
+        logs = os.path.join(storage, "logs")
 
-        #self.signal_queue = Queue()
+        # self.signal_queue = Queue()
 
         for i in range(self.num_processes):
-            name = 'parmake_sub_%02d' % i
-            write_log = os.path.join(logs, '%s.log' % name)
+            name = "parmake_sub_%02d" % i
+            write_log = os.path.join(logs, "%s.log" % name)
             make_sure_dir_exists(write_log)
             signal_token = name
 
-            self.subs[name] = PmakeSub(name=name,
-                                       signal_queue=None,
-                                       signal_token=signal_token,
-                                       write_log=write_log)
+            self.subs[name] = PmakeSub(
+                name=name, signal_queue=None, signal_token=signal_token, write_log=write_log
+            )
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)
@@ -105,14 +104,14 @@ class PmakeManager(Manager):
         assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            msg = 'already %d processing' % len(self.sub_processing)
+            msg = "already %d processing" % len(self.sub_processing)
             if self.sub_aborted:
-                msg += ' (%d workers aborted)' % len(self.sub_aborted)
-            resource_available['nproc'] = (False, msg)
+                msg += " (%d workers aborted)" % len(self.sub_aborted)
+            resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available
         else:
-            resource_available['nproc'] = (True, '')
+            resource_available["nproc"] = (True, "")
 
         return resource_available
 
@@ -120,7 +119,7 @@ class PmakeManager(Manager):
     def can_accept_job(self, reasons_why_not):
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed
-            msg = 'All workers have aborted.'
+            msg = "All workers have aborted."
             raise MakeHostFailed(msg)
 
         resources = self.get_resources_status()
@@ -133,10 +132,9 @@ class PmakeManager(Manager):
             return False
         return True
 
-    @contract(job_id='unicode')
+    @contract(job_id="unicode")
     def instance_job(self, job_id):
-        publish(self.context, 'worker-status', job_id=job_id,
-                status='apply_async')
+        publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
         self.sub_available.remove(name)
@@ -153,8 +151,7 @@ class PmakeManager(Manager):
 
         else:
             f = parmake_job2
-            args = (job_id, self.context,
-                    self.event_queue_name, self.show_output)
+            args = (job_id, self.context, self.event_queue_name, self.show_output)
 
         async_result = sub.apply_async(f, args)
         return async_result
@@ -165,7 +162,7 @@ class PmakeManager(Manager):
         while True:
             try:
                 event = self.event_queue.get(block=False)  # @UndefinedVariable
-                event.kwargs['remote'] = True
+                event.kwargs["remote"] = True
                 broadcast_event(self.context, event)
             except Empty:
                 break
@@ -189,13 +186,11 @@ class PmakeManager(Manager):
         # if False:
         cps = os.environ.get("COVERAGE_PROCESS_START")
         if cps:
-            self.log('Now waiting 5 seconds for coverage')
+            self.log("Now waiting 5 seconds for coverage")
             time.sleep(10)
-            self.log('Waited 5 seconds, now killing')
+            self.log("Waited 5 seconds, now killing")
         else:
-            self.log('Coverage not detected')
-
-
+            self.log("Coverage not detected")
 
         # XXX: ... so we just kill them mercilessly
         if True:
@@ -204,13 +199,12 @@ class PmakeManager(Manager):
                 pid = self.subs[name].proc.pid
                 os.kill(pid, signal.SIGKILL)
                 # print('killed pid %s for %s' % (name, pid))
-                #print('process_finished() finished')
-
+                # print('process_finished() finished')
 
         if False:
             timeout = 100
             for name in self.sub_available:
-                print('joining %s' % name)
+                print("joining %s" % name)
                 self.subs[name].proc.join(timeout)
 
         killtree()

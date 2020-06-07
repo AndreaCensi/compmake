@@ -19,24 +19,24 @@ def reload(module):  # @ReservedAssignment
 
     """
 
-    if module.startswith('compmake'):
+    if module.startswith("compmake"):
         try:
             dave = pwd.getpwuid(os.getuid())[0]
         except:
-            dave = 'Dave'
+            dave = "Dave"
         user_error("I'm sorry, %s. I'm afraid I can't do that." % dave)
         return
 
     try:
         # otherwise import("A.B") returns A instead of A.B
-        m = __import__(module, fromlist=['dummy'])
+        m = __import__(module, fromlist=["dummy"])
     except Exception as e:
         raise UserError('Cannot find module "%s": %s.' % (module, e))
 
     try:
         imp.reload(m)
     except Exception as e:
-        msg = ('Obtained this exception while reloading the module: %s' % e)
+        msg = "Obtained this exception while reloading the module: %s" % e
         raise UserError(msg)
 
     info('Reloaded module "%s".' % module)

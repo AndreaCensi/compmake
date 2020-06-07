@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .strings_with_escapes import pad_to_screen_length, \
-    get_length_on_screen
+from .strings_with_escapes import pad_to_screen_length, get_length_on_screen
 
 
 class TableFormatter(object):
-    def __init__(self, sep='|'):
+    def __init__(self, sep="|"):
         self.rows = []
         self.cur_row = None
         self.sep = sep
@@ -22,18 +21,18 @@ class TableFormatter(object):
     def _push_row(self):
         if self.rows:
             if not len(self.rows[0]) == len(self.cur_row):
-                msg = 'Invalid row: %s' % str(self.cur_row)
+                msg = "Invalid row: %s" % str(self.cur_row)
                 raise ValueError(msg)
         self.rows.append(self.cur_row)
 
     def cell(self, s):
         if self.cur_row is None:
-            raise ValueError('Call row() before cell().')
+            raise ValueError("Call row() before cell().")
         self.cur_row.append(str(s))
 
     def done(self):
         if self.cur_row is None:
-            raise ValueError('Call row() before done().')
+            raise ValueError("Call row() before done().")
         self._push_row()
 
     def _get_cols(self):

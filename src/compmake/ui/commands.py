@@ -19,15 +19,15 @@ from compmake.jobs.actions import clean_targets
 ui_section(GENERAL)
 
 __all__ = [
-    'make_single',
-    'quit',
-    'raise_error_if_manager_failed',
-    'ask_if_sure_remake',
+    "make_single",
+    "quit",
+    "raise_error_if_manager_failed",
+    "ask_if_sure_remake",
 ]
 
 
 # noinspection PyUnusedLocal
-@ui_command(alias=['exit'])
+@ui_command(alias=["exit"])
 def quit(context):  # @ReservedAssignment
     """ Exits Compmake's console. """
     raise ShellExitRequested()
@@ -40,9 +40,8 @@ def raise_error_if_manager_failed(manager):
     :param manager: The Manager
     """
     if manager.failed:
-        raise MakeFailed(failed=manager.failed,
-                         blocked=manager.blocked)
-    
+        raise MakeFailed(failed=manager.failed, blocked=manager.blocked)
+
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 def delete(job_list, context):
@@ -82,12 +81,10 @@ def clean(job_list, context):
         question = "Should I clean %d jobs? [y/n] " % len(job_list)
         answer = ask_question(question)
         if not answer:
-            info('Not cleaned.')
+            info("Not cleaned.")
             return
 
     clean_targets(job_list, db=db)
-
-        
 
 
 # TODO: add hidden
@@ -112,20 +109,18 @@ def make_single(job_list, context, out_result):
         safe_pickle_dump(e.get_result_dict(), out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:
-        error('warning: %s' % e)
+        error("warning: %s" % e)
         raise
 
 
 def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = ("Should I clean and remake %d jobs? [y/n] " %
-                    len(non_empty_job_list))
+        question = "Should I clean and remake %d jobs? [y/n] " % len(non_empty_job_list)
         answer = ask_question(question)
         if not answer:
-            info('Not cleaned.')
+            info("Not cleaned.")
             return False
         else:
             return True
     return True
-

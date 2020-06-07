@@ -4,8 +4,8 @@ import time
 
 
 __all__ = [
-    'EventSpec',
-    'Event',
+    "EventSpec",
+    "Event",
 ]
 
 
@@ -30,4 +30,4 @@ class Event(object):
         self.timestamp = time.time()
 
     def __str__(self):
-        return 'Event(%s, %s)' % (self.name, self.kwargs)
+        return "Event(%s, %s)" % (self.name, self.kwargs)

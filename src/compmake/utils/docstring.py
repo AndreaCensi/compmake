@@ -4,12 +4,12 @@ import sys
 
 # Code copied from PEP-0257
 
-__all__ = ['docstring_trim', 'docstring_components']
+__all__ = ["docstring_trim", "docstring_components"]
 
 
 def docstring_trim(docstring):
     if not docstring:
-        return ''
+        return ""
     # Convert tabs to spaces (following the normal Python rules)
     # and split into a list of lines:
     lines = docstring.expandtabs().splitlines()
@@ -30,7 +30,7 @@ def docstring_trim(docstring):
     while trimmed and not trimmed[0]:
         trimmed.pop(0)
     # Return a single string:
-    return '\n'.join(trimmed)
+    return "\n".join(trimmed)
 
 
 def docstring_components(docstring):
@@ -46,23 +46,22 @@ def docstring_components(docstring):
     # first, remove whitespace
     docstring = docstring_trim(docstring)
     # split in newlines
-    lines = docstring.split('\n')
+    lines = docstring.split("\n")
     # trim each one
     lines = list(map(lambda x: x.strip(), lines))
     # remove initial empty ones
-    while lines and lines[0] == '':
+    while lines and lines[0] == "":
         lines.pop(0)
     first = []
-    while lines and lines[0] != '':
+    while lines and lines[0] != "":
         first.append(lines.pop(0))
 
     # remove separation
-    while lines and lines[0] == '':
+    while lines and lines[0] == "":
         lines.pop(0)
     rest = lines
 
-    res = {'first': ' '.join(first),
-           'rest': '\n'.join(rest)}
+    res = {"first": " ".join(first), "rest": "\n".join(rest)}
     # remove newlines here
     return res
 
@@ -71,6 +70,5 @@ def docstring_components_test():
     res = docstring_components(docstring_components.__doc__)
     print(res)
 
-    assert res['first'] == 'Removes leading whitespace and returns a dict ' \
-                           'with fields "first" and "rest".'
-    assert res['rest'] == 'This is the rest.'
+    assert res["first"] == "Removes leading whitespace and returns a dict " 'with fields "first" and "rest".'
+    assert res["rest"] == "This is the rest."

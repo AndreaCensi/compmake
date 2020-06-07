@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 wait = 0.01
 
 
@@ -19,8 +17,8 @@ def main():
     c = Context()
     c.comp(func1)
 
-    c.batch_command('clean; make')
+    c.batch_command("clean; make")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
