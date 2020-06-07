@@ -3,9 +3,13 @@ package=compmake
 include pypackage.mk
 
 bump-upload:
+	$(MAKE) bump
+	$(MAKE) upload
+bump:
 	bumpversion patch
 	git push --tags
 	git push --all
+upload:
 	rm -f dist/*
 	rm -rf src/*.egg-info
 	python setup.py sdist
