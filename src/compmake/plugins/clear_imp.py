@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake.ui.helpers import GENERAL, ui_command
 
 

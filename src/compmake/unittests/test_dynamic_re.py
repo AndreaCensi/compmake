@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from nose.tools import istest
 
 from .compmake_test import CompmakeTest
@@ -21,8 +21,8 @@ class TestDynamic1rec(CompmakeTest):
         self.assert_cmd_success('make recurse=1')
 
         # this will have created new jobs
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0',
                                      'actual1', 'actual2', 'generate-finish'])
         # ... still to do
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0',
                                       'actual1', 'actual2', 'generate-finish'])

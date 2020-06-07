@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 """ These are the commands available from the CLI.
 
 There are 3 special variables:

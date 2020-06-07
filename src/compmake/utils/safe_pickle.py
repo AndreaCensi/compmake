@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import pickle
 
@@ -29,7 +29,7 @@ def safe_pickle_dump(value, filename, protocol=pickle.HIGHEST_PROTOCOL,
 
 
 def safe_pickle_load(filename):
-    # TODO: add debug check 
+    # TODO: add debug check
     with safe_read(filename) as f:
         return pickle.load(f)
         # TODO: add pickling debug

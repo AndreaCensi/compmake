@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import six
 
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from ..jobs import init_progress_tracking
 from compmake import progress
 from contracts import ContractNotRespected

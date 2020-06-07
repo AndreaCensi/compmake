@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import os
 import unittest
 from abc import ABCMeta
@@ -93,8 +93,8 @@ class CompmakeTest(unittest.TestCase):
             msg = 'Command %r did not fail.' % cmds
             raise Exception(msg)
 
-    @contract(cmd_string='unicode')
-    def assert_cmd_success_script(self, cmd_string):
+
+    def assert_cmd_success_script(self, cmd_string: str):
         """ This runs the "compmake_main" script which recreates the DB and
         context from disk. """
         ret = compmake_main([self.root, '--nosysexit', '-c', cmd_string])

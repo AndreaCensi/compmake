@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import six
 
@@ -97,7 +97,7 @@ def get_job_cache(job_id, db):
         # known = all_jobs()
         # if not job_id in known:
         # raise CompmakeException("invalid job %s, I know %s"
-        # % (job_id, known)) 
+        # % (job_id, known))
         if not job_exists(job_id, db):
             raise_desc(CompmakeDBError,
                        'Requesting cache for job that does not exist.',

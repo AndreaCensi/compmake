@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from .strings_with_escapes import pad_to_screen_length, \
     get_length_on_screen
 

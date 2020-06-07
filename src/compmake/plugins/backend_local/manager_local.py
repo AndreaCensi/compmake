@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake import CompmakeBug
 from compmake.jobs import (AsyncResultInterface, Manager, make,
                            parmake_job2_new_process)
@@ -85,7 +85,7 @@ class FakeAsync(AsyncResultInterface):
             return parmake_job2_new_process(args)
         else:
             if use_pympler:
-                tr.print_diff()     
+                tr.print_diff()
 
             return make(self.job_id, context=self.context, echo=self.echo)
-        
+

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from nose.tools import istest
 
 from .compmake_test import CompmakeTest
@@ -9,8 +9,8 @@ def f():
 
 def g(context):
     context.comp(f, job_id='ciao') # this will become ciao-0
-    
-    
+
+
 @istest
 class TestDynamic3(CompmakeTest):
     def test_dynamic3(self):

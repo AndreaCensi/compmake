@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake.context import Context
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.unittests.compmake_test import CompmakeTest

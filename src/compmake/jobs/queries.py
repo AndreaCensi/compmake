@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 """ Contains queries of the job DB. """
 import warnings
 import six

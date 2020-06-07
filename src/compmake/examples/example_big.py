@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
+
 # -*- coding: utf-8 -*-
 from example_big_support import first,second,third, fail_randomly, failure_prob
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
         c.comp(first, ijobs, job_id='%d' % i)
 
-    # Run command passed on command line or otherwise run console.    
+    # Run command passed on command line or otherwise run console.
     import sys
     cmds = sys.argv[1:]
     if cmds:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
-from __future__ import unicode_literals
+
 import six
 
 from compmake.plugins.console_output import write_line_endl
@@ -39,8 +39,8 @@ def list_job_detail(job_id, context, cq, max_lines):
     dparents = direct_parents(job_id, db=db)
     all_parents = parents(job_id, db=db)
     other_parents = set(all_parents) - set(dparents)
-    
-    
+
+
     # TODO: use quicker up to date
     up, reason, _ = cq.up_to_date(job_id)
 
@@ -64,14 +64,14 @@ def list_job_detail(job_id, context, cq, max_lines):
     print(
         bold('Dependencies: (direct)') + ' (%d) ' % len(
             dchildren) + format_list(dchildren))
-    
+
     all_children = children(job_id, db=db)
     other_children = set(all_children) - set(dchildren)
     print(bold('Dependencies: (other)') + ' (%d) ' % len(
         other_children) + format_list(other_children))
-    
+
     print(bold('Dependencies: (dynamic)') + '%s' % job.dynamic_children)
-    
+
     print(bold('Depending on this (direct):') + format_list(dparents))
     print(bold('Depending on this (other):') + format_list(
         other_parents))

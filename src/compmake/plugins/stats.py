@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 """ The actual interface of some commands in commands.py """
 from collections import defaultdict
 

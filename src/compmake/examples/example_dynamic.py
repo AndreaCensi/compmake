@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
+
 # -*- coding: utf-8 -*-
 
 def func1(param1):
@@ -21,9 +21,9 @@ def summary(results):
 if __name__ == '__main__':
     from compmake import Context
     c = Context()
-    
+
     values = c.comp(cases)
-    # comp_dynamic gives the function an extra argument 
+    # comp_dynamic gives the function an extra argument
     # "context" to further define jobs
     c.comp_dynamic(generate_tests, values)
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 # Jan 14 copied from conf_tools
 import traceback
 

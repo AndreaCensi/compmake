@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
+
 # -*- coding: utf-8 -*-
 import sys
 
@@ -38,12 +38,14 @@ def main():
             res2 = c.comp(func2, res1, param2)
             c.comp(draw, res2)
 
-    # Run command passed on command line or otherwise run console.    
+    c.batch_command('config echo 1')
+    # Run command passed on command line or otherwise run console.
     cmds = sys.argv[1:]
     if cmds:
         c.batch_command(' '.join(cmds))
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
+
         c.compmake_console()
 
 

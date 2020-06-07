@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from unittest import TestCase
 
 from . import interpret_strings_like

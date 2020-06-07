@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake.context import Context
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed
 from compmake.jobs import result_dict_check

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from nose.tools import istest
 
 from .compmake_test import CompmakeTest
@@ -22,7 +22,7 @@ def hh(context):
 
 @istest
 class TestExecutionStats(CompmakeTest):
-    
+
     def test_execution_stats(self):
         # schedule some commands
         res = self.cc.comp_dynamic(gg)
@@ -55,7 +55,7 @@ class TestExecutionStats(CompmakeTest):
         print(res)
 
         self.assertEqual(res['jobs'], set(['hh-gg-ff', 'hh-gg', 'hh']))
-        
+
 
 def check_result(res):
     check_isinstance(res, dict)

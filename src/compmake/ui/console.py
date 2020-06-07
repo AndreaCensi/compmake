@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import sys
 import traceback
 import os
@@ -51,8 +51,8 @@ def get_readline():
 
 @contract(cq=CacheQueryDB, returns='None')
 def interpret_commands_wrap(commands, context, cq):
-    """ 
-        Returns None or raises CommandFailed, ShellExitRequested, 
+    """
+        Returns None or raises CommandFailed, ShellExitRequested,
             CompmakeBug, KeyboardInterrupt.
     """
     assert context is not None
@@ -74,7 +74,7 @@ def interpret_commands_wrap(commands, context, cq):
                 command=commands, reason='KeyboardInterrupt')
         # If debugging
         # tb = traceback.format_exc()
-        # print tb  # XXX 
+        # print tb  # XXX
         raise CommandFailed(str(e))
         # raise CommandFailed('Execution of %r interrupted.' % commands)
     except ShellExitRequested:
@@ -128,7 +128,7 @@ def get_completions(context):
     if CompmakeGlobalState.cached_completions is None:
         available = get_commands().keys()
         available.extend(list(all_jobs(db=db)))  # give it a list
-        # TODO: add function type "myfunc()" 
+        # TODO: add function type "myfunc()"
         CompmakeGlobalState.cached_completions = available
 
     return CompmakeGlobalState.cached_completions

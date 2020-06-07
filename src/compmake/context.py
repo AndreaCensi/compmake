@@ -112,11 +112,7 @@ class Context:
         cq = CacheQueryDB(self.get_compmake_db())
         return interpret_commands_wrap(commands, context=self, cq=cq)
 
-    @contract(returns='None')
-    def batch_command(self, s):
-        if six.PY2:
-            if isinstance(s, bytes):
-                s = s.decode('utf-8')
+    def batch_command(self, s) -> None:
         from .ui import batch_command
         from .jobs import CacheQueryDB
 

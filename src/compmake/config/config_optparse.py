@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from optparse import OptionGroup, OptionValueError
 
 from .. import CompmakeGlobalState
@@ -27,10 +27,10 @@ def config_populate_optparser(parser):
             command = '--%s' % switch.name
 
             group.add_option(command,
-                             nargs=1, 
-                             help=switch.desc, 
+                             nargs=1,
+                             help=switch.desc,
                              type='string',
-                             action="callback", 
+                             action="callback",
                              callback=option_callback,
                              callback_kwargs={'switch': switch})
 

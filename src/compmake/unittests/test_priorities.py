@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from nose.tools import istest
 
 from .. import set_compmake_status, CompmakeConstants

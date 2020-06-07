@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake.ui.helpers import ui_command, VISUALIZATION
 from compmake.jobs.storage import job_cache_exists, get_job_cache
 from compmake.structures import Cache

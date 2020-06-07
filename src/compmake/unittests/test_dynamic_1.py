@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from .compmake_test import CompmakeTest
 from nose.tools import istest
 
@@ -9,7 +9,7 @@ def cases():
     """ Note this uses TestDynamic1.howmany """
     howmany = TestDynamic1.howmany
     assert isinstance(howmany, int)
-    print('returned %d cases' % howmany)
+    print(f'returned {howmany} cases')
     return range(howmany)
 
 def actual_tst(value):
@@ -38,7 +38,7 @@ class TestDynamic1(CompmakeTest):
         mockup_dynamic1(self.cc)
         # At this point we have generated only two jobs
         self.assertJobsEqual('all', ['generate', 'values'])
-        
+
         # now we make them
         TestDynamic1.howmany = 3
         self.assert_cmd_success('ls')
@@ -46,24 +46,24 @@ class TestDynamic1(CompmakeTest):
         self.assert_cmd_success('ls')
 
         # this will have created new jobs
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0',
                                      'actual1', 'actual2', 'generate-finish'])
         # ... still to do
-        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2', 
+        self.assertJobsEqual('todo', ['actual0', 'actual1', 'actual2',
                                       'generate-finish'])
 
         # we can make them
         self.assert_cmd_success('make')
         self.assert_cmd_success('ls')
-        self.assertJobsEqual('done', ['generate', 'values', 
-                                      'actual0', 'actual1', 'actual2', 
+        self.assertJobsEqual('done', ['generate', 'values',
+                                      'actual0', 'actual1', 'actual2',
                                       'generate-finish'])
 
         # Now let's suppose we re-run values and it generates different number of mcdp_lang_tests
 
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
-                
+
         self.assert_cmd_success('clean values; make generate')
         self.assert_cmd_success('ls reason=1')
 
@@ -82,10 +82,10 @@ class TestDynamic1(CompmakeTest):
         self.assert_cmd_success('ls')
         self.assert_cmd_success('make generate')
         self.assert_cmd_success('ls')
-        
+
         # Now we should have on job less because actual2 and 3 was not re-defined
-        self.assertJobsEqual('all', ['generate', 'values', 'actual0', 
+        self.assertJobsEqual('all', ['generate', 'values', 'actual0',
                                      'actual1', 'generate-finish'])
         # they should be all done, by the way
-        self.assertJobsEqual('done', ['generate', 'values', 'actual0', 
+        self.assertJobsEqual('done', ['generate', 'values', 'actual0',
                                       'actual1', 'generate-finish'])

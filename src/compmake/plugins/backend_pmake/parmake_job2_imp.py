@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from future.moves.queue import Full
 import six
 from compmake.constants import CompmakeConstants

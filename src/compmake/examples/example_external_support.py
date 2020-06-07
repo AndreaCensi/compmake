@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 def func1(param1):
     result = param1 * 2
     return result

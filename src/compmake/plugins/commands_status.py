@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from compmake.events import register_handler
 from compmake.ui import error, info
 from contracts import indent
