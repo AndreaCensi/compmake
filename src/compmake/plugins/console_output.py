@@ -23,9 +23,6 @@ class Storage(object):
 
 def plot_with_prefix(job_id, lines, is_stderr):
     for line in lines:
-        if six.PY2:
-            if isinstance(line, bytes):
-                line = line.decode("utf-8")
 
         formats = "%%%ds" % Storage.max_len
 

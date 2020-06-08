@@ -12,7 +12,7 @@ from compmake.utils.pickle_frustration import pickle_main_context_load
 from contracts import contract, check_isinstance
 from contracts.utils import raise_desc
 
-from ..structures import Cache, Job
+from ..structures import Cache, CMJobID, Job
 from ..utils import wildcard_to_regexp
 
 
@@ -118,16 +118,15 @@ def job_cache_sizeof(job_id, db):
 
 def set_job_cache(job_id, cache, db):
     assert isinstance(cache, Cache)
-    check_isinstance(cache.captured_stderr, (type(None), six.text_type))
-    check_isinstance(cache.captured_stdout, (type(None), six.text_type))
-    check_isinstance(cache.exception, (type(None), six.text_type))
-    check_isinstance(cache.backtrace, (type(None), six.text_type))
+    check_isinstance(cache.captured_stderr, (type(None), str))
+    check_isinstance(cache.captured_stdout, (type(None), str))
+    check_isinstance(cache.exception, (type(None), str))
+    check_isinstance(cache.backtrace, (type(None), str))
     key = job2cachekey(job_id)
     db[key] = cache
 
 
-@contract(job_id="unicode")
-def delete_job_cache(job_id, db):
+def delete_job_cache(job_id: CMJobID, db):
     key = job2cachekey(job_id)
     del db[key]
 

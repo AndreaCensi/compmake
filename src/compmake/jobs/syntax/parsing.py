@@ -54,7 +54,7 @@ def add_alias(alias, value):
 
 
 def assert_list_of_strings(l):
-    assert all([isinstance(x, six.string_types) for x in l]), "Expected list of strings: %s." % str(l)
+    assert all([isinstance(x, str) for x in l]), "Expected list of strings: %s." % str(l)
 
 
 def is_alias(alias):
@@ -79,7 +79,7 @@ def eval_alias(alias, context, cq):
     assert is_alias(alias)
     value = CompmakeConstants.aliases[alias]
 
-    if isinstance(value, six.string_types):
+    if isinstance(value, str):
         return list([value])
     elif isinstance(value, list):
         assert_list_of_strings(value)
@@ -118,7 +118,7 @@ def expand_job_list_token(token, context, cq):
     """ Parses a token (string). Returns a generator of jobs.
         Raises UserError, CompmakeSyntaxError """
 
-    assert isinstance(token, six.string_types)
+    assert isinstance(token, str)
 
     if token.find("*") > -1:
         return expand_wildcard(token, cq.all_jobs())
@@ -139,7 +139,7 @@ def expand_job_list_tokens(tokens, context, cq):
     """ Expands a list of tokens using expand_job_list_token().
         yields job_id """
     for token in tokens:
-        if not isinstance(token, six.string_types):
+        if not isinstance(token, str):
             # print tokens XXX
             pass
         for job in expand_job_list_token(token, context, cq):
@@ -329,7 +329,7 @@ def parse_job_list(tokens, context, cq=None):
     if cq is None:
         cq = CacheQueryDB(context.get_compmake_db())
 
-    if isinstance(tokens, six.string_types):
+    if isinstance(tokens, str):
         tokens = tokens.strip().split()
 
     if not tokens:

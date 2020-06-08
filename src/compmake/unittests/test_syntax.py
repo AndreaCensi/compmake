@@ -67,7 +67,7 @@ class Test1(CompmakeTest):
                 return set(X)
             elif isinstance(X, type(lambda: 0)):
                 return self.selection(X)
-            elif isinstance(X, six.string_types):
+            elif isinstance(X, str):
                 return set(parse_job_list(X, context=self.cc))
             else:
                 assert False, "Wrong type %s" % type(X)

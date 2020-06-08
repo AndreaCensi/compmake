@@ -20,11 +20,11 @@ def compmake_execution_stats(context, promise, use_job_id=None):
         Returns a promise for a the execution stats of a job
         and its dependencies.
     """
-    check_isinstance(promise, (Promise,) + six.string_types)
+    check_isinstance(promise, (Promise,) + str)
 
     if isinstance(promise, Promise):
         job_id = promise.job_id
-    elif isinstance(promise, six.string_types):
+    elif isinstance(promise, str):
         job_id = promise
         promise = Promise(job_id)
     else:

@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
+from typing import Any, Tuple
 
-from future.moves.queue import Full
 import six
+from future.moves.queue import Full
+
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
 from compmake.events.registrar import register_handler, remove_all_handlers
-from compmake.jobs.actions import make
 from compmake.exceptions import JobFailed, JobInterrupted
-from compmake.utils import setproctitle
-from contracts import check_isinstance, contract
+from compmake.jobs.actions import make
 from compmake.jobs.result_dict import result_dict_check
-
+from compmake.structures import CMJobID
+from compmake.utils import setproctitle
+from zuper_commons.types import check_isinstance
 
 __all__ = [
     "parmake_job2",
 ]
 
 
-@contract(args="tuple(unicode, *, unicode, bool)")
-def parmake_job2(args):
+def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
     """
     args = tuple job_id, context, queue_name, show_events
-        
+
     Returns a dictionary with fields "user_object", "new_jobs", 'delete_jobs'.
-    "user_object" is set to None because we do not want to 
+    "user_object" is set to None because we do not want to
     load in our thread if not necessary. Sometimes it is necessary
-    because it might contain a Promise. 
-   
+    because it might contain a Promise.
+
     """
     job_id, context, event_queue_name, show_output = args  # @UnusedVariable
-    check_isinstance(job_id, six.string_types)
-    check_isinstance(event_queue_name, six.string_types)
+    check_isinstance(job_id, str)
+    check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
 
     event_queue = PmakeManager.queues[event_queue_name]
@@ -39,7 +40,7 @@ def parmake_job2(args):
 
     setproctitle("compmake:%s" % job_id)
 
-    class G(object):
+    class G:
         nlostmessages = 0
 
     try:

@@ -49,7 +49,7 @@ def progress(taskname, iterations, iteration_desc=None):
                          'processing file %s' % file[i])
     """
 
-    if not isinstance(taskname, six.string_types):
+    if not isinstance(taskname, str):
         raise ValueError(
             "The first argument to progress() is the task name "
             + "and must be a string; you passed a %s." % describe_type(taskname)

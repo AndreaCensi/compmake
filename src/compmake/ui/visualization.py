@@ -38,7 +38,7 @@ def debug(s):  # XXX: never used?
 
 
 def write_message(s, formatting):
-    check_isinstance(s, six.text_type)
+    check_isinstance(s, str)
     from ..utils import pad_to_screen
 
     from .. import CompmakeGlobalState

@@ -128,17 +128,13 @@ def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
 def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
-    if isinstance(exception, six.string_types):
+    if isinstance(exception, str):
         pass
     else:
         exception = exception.__str__()
 
-    if backtrace is not None:
-        if six.PY2:
-            if isinstance(backtrace, bytes):
-                backtrace = backtrace.decode("utf-8", errors="ignore")
 
-    check_isinstance(backtrace, (type(None), six.text_type))
+    check_isinstance(backtrace, (type(None), str))
     cache.exception = exception
     cache.backtrace = backtrace
     cache.timestamp = time()
@@ -309,17 +305,7 @@ def make(job_id, context, echo=False):
         MemoryError,
     ) as e:
         bt = traceback.format_exc()
-        if six.PY2:
-            s = "%s: %s" % (type(e).__name__, e)
-            #
-            # s = type(e).__name__ + ': ' + e.__str__().strip()
-            # try:
-            #     s = s.decode('utf-8', 'replace').encode('utf-8', 'replace')
-            # except (UnicodeDecodeError, UnicodeEncodeError) as ue:
-            #     print(ue)  # XXX
-            #     s = 'Could not represent string.'
-        else:
-            s = "%s: %s" % (type(e).__name__, e)
+        s = "%s: %s" % (type(e).__name__, e)
         mark_as_failed(job_id, s, backtrace=bt, db=db)
         deleted_jobs = get_deleted_jobs()
 

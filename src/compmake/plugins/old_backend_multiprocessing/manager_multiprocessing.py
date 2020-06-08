@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 from multiprocessing import Pool, Queue
+from typing import Dict
 
 import setproctitle
 from compmake import CompmakeGlobalState
@@ -46,13 +47,18 @@ ncpus = multiprocessing.cpu_count()
 class MultiprocessingManager(Manager):
     """ Specialization of Manager for local multiprocessing """
 
-    @contract(num_processes=int, recurse="bool")
-    def __init__(self, context, cq, num_processes, recurse):
+    pool: Pool
+    max_num_processing: int
+    num_processes: int
+    last_accepted: float
+    " Time accepted "
+
+    def __init__(self, context, cq, num_processes: int, recurse: bool):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
-        self.last_accepted = 0
+        self.last_accepted = 0.0
 
-    def process_init(self):
+    def process_init(self) -> None:
         Shared.event_queue = Queue(self.num_processes * 1000)
         # info('Starting %d processes' % self.num_processes)
         kwargs = {}
@@ -143,8 +149,7 @@ class MultiprocessingManager(Manager):
 
         return resource_available
 
-    @contract(reasons_why_not=dict)
-    def can_accept_job(self, reasons_why_not):
+    def can_accept_job(self, reasons_why_not: Dict) -> bool:
         resources = self.get_resources_status()
         some_missing = False
         for k, v in resources.items():
@@ -253,8 +258,9 @@ class AsyncResultWrap(AsyncResultInterface):
         return res
 
 
-def worker_initialization():
-    setproctitle("compmake: worker just created")
+def worker_initialization() -> None:
+    title = "compmake: worker just created"
+    setproctitle.setproctitle(title)
 
     # http://stackoverflow.com/questions/1408356
     # XXX: temporary looking at interruptions

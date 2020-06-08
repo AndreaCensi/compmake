@@ -124,7 +124,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     print(bold("          Total: ") + "%s" % total)
 
     def display_with_prefix(buffer, prefix="", transform=lambda x: x):  # @ReservedAssignment
-        check_isinstance(buffer, six.text_type)
+        check_isinstance(buffer, str)
         lines = buffer.split("\n")
         if max_lines is not None:
             if len(lines) > max_lines:

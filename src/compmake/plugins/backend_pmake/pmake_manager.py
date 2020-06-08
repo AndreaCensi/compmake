@@ -1,34 +1,33 @@
 # -*- coding: utf-8 -*-
 
 
+import os
+import signal
 import time
 from multiprocessing import Queue
-import signal
+from typing import Dict, NewType, Set, Tuple
 
+import psutil
 import six
+from future.moves.queue import Empty
 from psutil import NoSuchProcess
 
-from .parmake_job2_imp import parmake_job2
-from .pmakesub import PmakeSub
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
 from compmake.ui import warning
 from zuper_commons.fs import make_sure_dir_exists
-from contracts import contract, check_isinstance
-
-from future.moves.queue import Empty
+from zuper_commons.types import check_isinstance
+from .parmake_job2_imp import parmake_job2
+from .pmakesub import PmakeSub
+from ...structures import CMJobID
 
 __all__ = [
     "PmakeManager",
 ]
 
 
-import psutil
-import os
-
-
-def killtree():
+def killtree() -> None:
     # print('killing process tree')
     parent = psutil.Process(os.getpid())
     for child in parent.children(recursive=True):
@@ -37,6 +36,9 @@ def killtree():
             child.kill()
         except NoSuchProcess:
             pass
+
+
+SubName = NewType('SubName', str)
 
 
 class PmakeManager(Manager):
@@ -48,8 +50,18 @@ class PmakeManager(Manager):
 
     queues = {}
 
+    event_queue: Queue
+    event_queue_name: str
+    subs: Dict[SubName, PmakeSub]
+    sub_available: Set[SubName]
+    sub_processing: Set[SubName]
+    sub_aborted: Set[SubName]
+    job2subname: Dict[CMJobID, SubName]
+    max_num_processing: int
+
     def __init__(
-        self, context, cq, num_processes: int, recurse: bool = False, new_process=False, show_output=False
+        self, context, cq, num_processes: int, recurse: bool = False, new_process: bool = False,
+        show_output: bool = False
     ):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
@@ -62,7 +74,7 @@ class PmakeManager(Manager):
             warning(msg)
         self.cleaned = False
 
-    def process_init(self):
+    def process_init(self) -> None:
         self.event_queue = Queue(1000)
         self.event_queue_name = "%s" % id(self)
 
@@ -83,14 +95,14 @@ class PmakeManager(Manager):
         # self.signal_queue = Queue()
 
         for i in range(self.num_processes):
-            name = "parmake_sub_%02d" % i
+            name = SubName("parmake_sub_%02d" % i)
             write_log = os.path.join(logs, "%s.log" % name)
             make_sure_dir_exists(write_log)
             signal_token = name
-
-            self.subs[name] = PmakeSub(
+            p = PmakeSub(
                 name=name, signal_queue=None, signal_token=signal_token, write_log=write_log
             )
+            self.subs[name] = p
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)
@@ -98,7 +110,7 @@ class PmakeManager(Manager):
         self.max_num_processing = self.num_processes
 
     # XXX: boiler plate
-    def get_resources_status(self):
+    def get_resources_status(self) -> Dict[str, Tuple[bool, str]]:
         resource_available = {}
 
         assert len(self.sub_processing) == len(self.processing)
@@ -115,8 +127,7 @@ class PmakeManager(Manager):
 
         return resource_available
 
-    @contract(reasons_why_not=dict)
-    def can_accept_job(self, reasons_why_not):
+    def can_accept_job(self, reasons_why_not: Dict) -> bool:
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed
             msg = "All workers have aborted."
@@ -132,8 +143,7 @@ class PmakeManager(Manager):
             return False
         return True
 
-    @contract(job_id="unicode")
-    def instance_job(self, job_id):
+    def instance_job(self, job_id: CMJobID):
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
@@ -144,7 +154,7 @@ class PmakeManager(Manager):
 
         self.job2subname[job_id] = name
 
-        check_isinstance(job_id, six.text_type)
+        check_isinstance(job_id, str)
         if self.new_process:
             f = parmake_job2_new_process
             args = (job_id, self.context)
@@ -156,7 +166,7 @@ class PmakeManager(Manager):
         async_result = sub.apply_async(f, args)
         return async_result
 
-    def event_check(self):
+    def event_check(self) -> None:
         if not self.show_output:
             return
         while True:
@@ -167,7 +177,7 @@ class PmakeManager(Manager):
             except Empty:
                 break
 
-    def process_finished(self):
+    def process_finished(self) -> None:
         if self.cleaned:
             return
         self.cleaned = True
@@ -211,15 +221,15 @@ class PmakeManager(Manager):
         # print('process_finished(): cleaned up')
 
     # Normal outcomes
-    def job_failed(self, job_id, deleted_jobs):
+    def job_failed(self, job_id: CMJobID, deleted_jobs):
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
 
-    def job_succeeded(self, job_id):
+    def job_succeeded(self, job_id: CMJobID):
         Manager.job_succeeded(self, job_id)
         self._clear(job_id)
 
-    def _clear(self, job_id):
+    def _clear(self, job_id: CMJobID):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
@@ -228,7 +238,7 @@ class PmakeManager(Manager):
         self.sub_processing.remove(name)
         self.sub_available.add(name)
 
-    def host_failed(self, job_id):
+    def host_failed(self, job_id: CMJobID):
         Manager.host_failed(self, job_id)
 
         assert job_id in self.job2subname
@@ -241,5 +251,5 @@ class PmakeManager(Manager):
         # put in sub_aborted
         self.sub_aborted.add(name)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         self.process_finished()

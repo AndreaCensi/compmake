@@ -314,7 +314,7 @@ class CacheQueryDB(object):
         """ Closure of the relation children and dependencies of userobject.
         """
         stack = []
-        if isinstance(jobs, six.string_types):
+        if isinstance(jobs, str):
             jobs = [jobs]
 
         stack.extend(jobs)

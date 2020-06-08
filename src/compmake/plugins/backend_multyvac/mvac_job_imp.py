@@ -46,8 +46,8 @@ def mvac_job(args):
 
     """
     job_id, context, event_queue_name, show_output, volumes, cwd = args  # @UnusedVariable
-    check_isinstance(job_id, six.string_types)
-    check_isinstance(event_queue_name, six.string_types)
+    check_isinstance(job_id, str)
+    check_isinstance(event_queue_name, str)
 
     # Disable multyvac logging
     disable_logging_if_config(context)

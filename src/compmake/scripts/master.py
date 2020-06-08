@@ -7,9 +7,6 @@ from optparse import OptionParser
 
 import contracts
 from zuper_commons.fs import friendly_path
-
-from contracts import contract, check_isinstance
-
 from .scripts_utils import wrap_script_entry_point
 from .. import CompmakeConstants, set_compmake_status, version
 from ..config import config_populate_optparser
@@ -17,13 +14,12 @@ from ..context import Context
 from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
-from ..ui import interpret_commands_wrap, info
+from ..ui import info, interpret_commands_wrap
 from ..utils import setproctitle
-import six
+
 
 # TODO: revise all of this
-@contract(context=Context)
-def read_rc_files(context):
+def read_rc_files(context: Context):
     assert context is not None
     possible = [
         "~/.compmake/compmake.rc",
@@ -44,8 +40,7 @@ def read_rc_files(context):
         pass
 
 
-@contract(context=Context, filename="unicode")
-def read_commands_from_file(filename, context):
+def read_commands_from_file(filename: str, context: Context):
     from compmake.jobs.uptodate import CacheQueryDB
 
     filename = os.path.realpath(filename)
@@ -103,8 +98,8 @@ def compmake_main(args):
     parser.add_option(
         "--retcodefile",
         help="If given, the return value is written in this "
-        "file. Useful to check when compmake finished in "
-        "a grid environment. ",
+             "file. Useful to check when compmake finished in "
+             "a grid environment. ",
         default=None,
     )
 
@@ -135,11 +130,6 @@ def compmake_main(args):
         msg = 'I only expect one argument. Use "compmake -h" for usage ' "information."
         msg += "\n args: %s" % args
         raise UserError(msg)
-
-    if six.PY2:
-        for _ in args:
-            check_isinstance(_, bytes)
-        args = [_.decode("utf-8") for _ in args]
 
     # if the argument looks like a dirname
     one_arg = args[0]
@@ -231,8 +221,7 @@ def write_atomic(filename, contents):
     os.rename(tmpfile, filename)
 
 
-@contract(returns=Context)
-def load_existing_db(dirname):
+def load_existing_db(dirname) -> Context:
     assert os.path.isdir(dirname)
     info("Loading existing jobs DB %r." % dirname)
     # check if it is compressed

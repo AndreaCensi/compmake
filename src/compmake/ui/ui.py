@@ -63,7 +63,7 @@ def generate_job_id(base, context):
     db = context.get_compmake_db()
     cq = CacheQueryDB(db)
     for x in get_options():
-        check_isinstance(x, six.text_type)
+        check_isinstance(x, str)
         defined = context.was_job_defined_in_this_session(x)
         if defined:
             continue
@@ -236,9 +236,6 @@ def comp_(context, command_, *args, **kwargs):
     else:
         command_desc = type(command).__name__
 
-    if six.PY2:
-        if isinstance(command_desc, bytes):
-            command_desc = command_desc.decode("utf-8")
 
     args = list(args)  # args is a non iterable tuple
 
@@ -260,7 +257,7 @@ def comp_(context, command_, *args, **kwargs):
                 raise UserError(msg)
 
         job_id = kwargs[CompmakeConstants.job_id_key]
-        check_isinstance(job_id, six.string_types)
+        check_isinstance(job_id, str)
         if " " in job_id:
             msg = "Invalid job id: %r" % job_id
             raise UserError(msg)
@@ -467,7 +464,7 @@ def interpret_commands(commands_str, context, cq, separator=";"):
 
         Returns None
     """
-    if not isinstance(commands_str, six.string_types):
+    if not isinstance(commands_str, str):
         msg = "I expected a string, got %s." % describe_type(commands_str)
         raise ValueError(msg)
 
@@ -508,7 +505,7 @@ def interpret_commands(commands_str, context, cq, separator=";"):
 @contract(returns="None", commands_line="unicode")
 def interpret_single_command(commands_line, context, cq):
     """ Returns None or raises CommandFailed """
-    if not isinstance(commands_line, six.string_types):
+    if not isinstance(commands_line, str):
         raise ValueError("Expected a string")
 
     ui_commands = get_commands()

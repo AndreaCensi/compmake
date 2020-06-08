@@ -13,7 +13,7 @@ __all__ = [
 
 
 @contract(name="unicode")
-def import_name(name):
+def import_name(name: str):
     """
         Loads the python object with the given name.
 

@@ -12,7 +12,7 @@ def interpret_strings_like(args, reference_value):
     if not isinstance(args, list):
         args = [args]
 
-    if isinstance(reference_value, six.string_types):
+    if isinstance(reference_value, str):
         value = " ".join(args)
     elif isinstance(reference_value, bool):
         if len(args) > 1:

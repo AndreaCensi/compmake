@@ -31,7 +31,7 @@ class LineSplitter(object):
         #     s = s.decode()
         # else:
         #     s = str(s)
-        check_isinstance(s, six.text_type)
+        check_isinstance(s, str)
         for char in s:
             if char == "\n":
                 self.current_lines.append(self.current)
@@ -56,11 +56,8 @@ class StreamCapture(object):
         self.after_lines = after_lines
 
     def write(self, s):
-        if six.PY2:
-            if isinstance(s, bytes):
-                s = s.decode("utf-8", errors="replace")
 
-        check_isinstance(s, six.text_type)
+        check_isinstance(s, str)
         self.buffer.write(s)
         self.line_splitter.append_chars(s)
         lines = self.line_splitter.lines()

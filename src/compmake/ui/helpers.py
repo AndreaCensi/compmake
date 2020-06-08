@@ -94,7 +94,7 @@ def ui_command(name=None, alias=None, section=None, dbchange=False):
 def register_command(name, func, docs, alias=None, section=None, dbchange=False):
     if alias is None:
         alias = []
-    if isinstance(alias, six.string_types):
+    if isinstance(alias, str):
         alias = [alias]
     if not section:
         section = UIState.last_section_name

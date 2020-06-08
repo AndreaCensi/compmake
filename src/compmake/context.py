@@ -40,7 +40,7 @@ class Context:
             dirname = "out-%s" % prog
             db = StorageFilesystem(dirname, compress=True)
 
-        if isinstance(db, six.string_types):
+        if isinstance(db, str):
             db = StorageFilesystem(db, compress=True)
 
         assert db is not None
