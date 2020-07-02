@@ -8,7 +8,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from compmake import CompmakeGlobalState
-from contracts import indent
+from zuper_commons.text import indent
 
 from .tracker import Tracker
 from ..events import register_handler

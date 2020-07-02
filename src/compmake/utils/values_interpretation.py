@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import six
-
 __all__ = [
     "interpret_strings_like",
 ]

@@ -4,7 +4,6 @@
 import sys
 from typing import List
 
-import six
 from six import StringIO
 
 from .. import get_compmake_config

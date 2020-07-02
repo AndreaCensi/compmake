@@ -3,10 +3,6 @@ import os
 import sys
 from typing import List, Optional, Set, TYPE_CHECKING, Union
 
-import six
-
-from contracts import contract
-
 __all__ = [
     "Context",
 ]

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from contracts import check_isinstance
+from zuper_commons.types import check_isinstance
 
 __all__ = [
     "result_dict_check",

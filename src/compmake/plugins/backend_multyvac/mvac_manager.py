@@ -5,6 +5,8 @@ import signal
 import warnings
 from multiprocessing import Queue
 
+from future.moves.queue import Empty
+
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager
@@ -14,9 +16,6 @@ from compmake.plugins.backend_multyvac.mvac_job_rdb_imp import mvac_job_rdb
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.plugins.backend_pmake.pmakesub import PmakeSub
 from zuper_commons.fs import make_sure_dir_exists
-from contracts import contract
-
-from future.moves.queue import Empty
 
 __all__ = [
     "MVacManager",
@@ -28,7 +27,7 @@ class MVacManager(Manager):
         Multyvac backend.
     """
 
-    @contract(num_processes="int")
+    # @contract(num_processes="int")
     def __init__(
         self,
         context,
@@ -118,7 +117,7 @@ class MVacManager(Manager):
 
         return resource_available
 
-    @contract(reasons_why_not=dict)
+    # @contract(reasons_why_not=dict)
     def can_accept_job(self, reasons_why_not):
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed

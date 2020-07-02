@@ -4,13 +4,12 @@ import traceback
 
 from compmake import CompmakeGlobalState, logger
 from compmake.context import Context
-from contracts import contract, indent
-
+from zuper_commons.text import indent
+from zuper_commons.fs import make_sure_dir_exists
 from .registered_events import compmake_registered_events
 from .structures import Event
 from ..exceptions import CompmakeException
 from ..utils import wildcard_to_regexp
-from zuper_commons.fs import make_sure_dir_exists
 
 __all__ = [
     "broadcast_event",
@@ -70,8 +69,8 @@ def register_handler(event_name, handler):
         handlers[event_name].append(handler)
 
 
-@contract(context=Context, event_name="unicode")
-def publish(context, event_name, **kwargs):
+# @contract(context=Context, event_name="unicode")
+def publish(context: Context, event_name: str, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """
     if event_name not in compmake_registered_events:
@@ -92,8 +91,8 @@ def publish(context, event_name, **kwargs):
     broadcast_event(context, event)
 
 
-@contract(context=Context, event=Event)
-def broadcast_event(context, event):
+# @contract(context=Context, event=Event)
+def broadcast_event(context: Context, event: Event):
     import inspect
 
     all_handlers = CompmakeGlobalState.EventHandlers.handlers

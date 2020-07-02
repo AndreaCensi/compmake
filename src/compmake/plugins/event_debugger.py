@@ -3,10 +3,9 @@
 """ This plugin dumps all events received. """
 import sys
 
-from ..events import register_fallback_handler, register_handler
+from ..events import register_fallback_handler
 from ..ui import compmake_colored
 from ..utils import pad_to_screen
-
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr

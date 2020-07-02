@@ -2,15 +2,14 @@
 
 """ Contains queries of the job DB. """
 import warnings
-import six
-from ..jobs import all_jobs, get_job
-from contracts import contract
 from contextlib import contextmanager
-from contracts.utils import raise_wrapped, check_isinstance
+from typing import Collection, Iterator, Set
+
 from compmake.exceptions import CompmakeBug
 from compmake.jobs.storage import get_job_cache
 from compmake.structures import Cache
-
+from zuper_commons.types import check_isinstance, raise_wrapped
+from ..jobs import all_jobs, get_job
 
 __all__ = [
     "parents",
@@ -32,8 +31,8 @@ def trace_bugs(msg):
         raise_wrapped(CompmakeBug, e, msg)
 
 
-@contract(returns="set(unicode)")
-def jobs_defined(job_id, db):
+# @contract(returns="set(unicode)")
+def jobs_defined(job_id, db) -> Set[str]:
     """
         Gets the jobs defined by the given job.
         The job must be DONE.
@@ -47,8 +46,8 @@ def jobs_defined(job_id, db):
         return set(cache.jobs_defined)
 
 
-@contract(jobs="Iterable", returns="set(unicode)")
-def definition_closure(jobs, db):
+# @contract(jobs="Iterable", returns="set(unicode)")
+def definition_closure(jobs: Iterator, db) -> Set[str]:
     """ The result does not contain jobs (unless one job defines another) """
     # print('definition_closure(%s)' % jobs)
     check_isinstance(jobs, (list, set))
@@ -114,8 +113,8 @@ def top_targets(db):
 # return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
-@contract(jobs="list|set")
-def tree(jobs, db):
+# @contract(jobs="list|set")
+def tree(jobs: Collection, db):
     """
         Returns the tree of all dependencies of the jobs.
         Note this is very inefficient because recursive.
@@ -128,8 +127,8 @@ def tree(jobs, db):
     return t
 
 
-@contract(job_id="unicode")
-def parents(job_id, db):
+# @contract(job_id="unicode")
+def parents(job_id: str, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """
     check_isinstance(job_id, str)

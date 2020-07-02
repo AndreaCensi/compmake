@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
 
-import six
-
 """
     These are all wrappers around the raw methods in storage
 """
 
-from compmake.exceptions import CompmakeBug, CompmakeException, CompmakeDBError
+from compmake.exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from compmake.utils.pickle_frustration import pickle_main_context_load
-from contracts import contract, check_isinstance
-from contracts.utils import raise_desc
-
+from zuper_commons.types import check_isinstance
+from zuper_commons.types import raise_desc
 from ..structures import Cache, CMJobID, Job
 from ..utils import wildcard_to_regexp
 

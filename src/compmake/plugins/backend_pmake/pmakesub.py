@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
 import multiprocessing
+import os
 import signal
 import traceback
 from multiprocessing import TimeoutError
 
-import coverage
 from future.moves.queue import Empty
 
 from compmake import logger

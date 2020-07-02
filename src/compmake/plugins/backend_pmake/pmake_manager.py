@@ -8,7 +8,6 @@ from multiprocessing import Queue
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
-import six
 from future.moves.queue import Empty
 from psutil import NoSuchProcess
 
@@ -38,7 +37,7 @@ def killtree() -> None:
             pass
 
 
-SubName = NewType('SubName', str)
+SubName = NewType("SubName", str)
 
 
 class PmakeManager(Manager):
@@ -60,8 +59,13 @@ class PmakeManager(Manager):
     max_num_processing: int
 
     def __init__(
-        self, context, cq, num_processes: int, recurse: bool = False, new_process: bool = False,
-        show_output: bool = False
+        self,
+        context,
+        cq,
+        num_processes: int,
+        recurse: bool = False,
+        new_process: bool = False,
+        show_output: bool = False,
     ):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
@@ -99,9 +103,7 @@ class PmakeManager(Manager):
             write_log = os.path.join(logs, "%s.log" % name)
             make_sure_dir_exists(write_log)
             signal_token = name
-            p = PmakeSub(
-                name=name, signal_queue=None, signal_token=signal_token, write_log=write_log
-            )
+            p = PmakeSub(name=name, signal_queue=None, signal_token=signal_token, write_log=write_log)
             self.subs[name] = p
         self.job2subname = {}
         # all are available

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from compmake.exceptions import UserError
 from compmake.utils import which
-from contracts.utils import raise_wrapped
+from zuper_commons.types import raise_wrapped
 
 __all__ = [
     "check_sge_environment",

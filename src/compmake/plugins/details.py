@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 
-import six
-
 from compmake.plugins.console_output import write_line_endl
-from contracts import check_isinstance
+from zuper_commons.types import check_isinstance
 from ..jobs import (
     children,
     direct_children,
@@ -20,7 +18,7 @@ from ..jobs import (
     parents,
 )
 from ..structures import Cache
-from ..ui import VISUALIZATION, compmake_colored, ui_command
+from ..ui import compmake_colored, ui_command, VISUALIZATION
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")

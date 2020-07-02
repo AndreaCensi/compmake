@@ -11,6 +11,8 @@ from multiprocessing import Pool, Queue
 from typing import Dict
 
 import setproctitle
+from future.moves.queue import Empty
+
 from compmake import CompmakeGlobalState
 from compmake.events.registrar import broadcast_event, publish
 from compmake.exceptions import HostFailed
@@ -18,9 +20,6 @@ from compmake.jobs.manager import AsyncResultInterface, Manager
 from compmake.jobs.result_dict import result_dict_raise_if_error
 from compmake.plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake.state import get_compmake_config
-from contracts import contract
-from future.moves.queue import Empty
-
 from .shared import Shared
 
 __all__ = [

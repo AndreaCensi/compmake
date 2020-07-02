@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
+import inspect
+from typing import Dict, Set
 
-import six
-
+from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
+from .helpers import get_commands, UIState
+from .visualization import warning
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
+from ..constants import DefaultsToConfig
+from ..context import Context
 from ..events import publish
-from ..exceptions import CommandFailed, UserError
+from ..exceptions import CommandFailed, CompmakeBug, UserError
 from ..jobs import (
-    CacheQueryDB,
     all_jobs,
+    CacheQueryDB,
     collect_dependencies,
     get_job,
     job_exists,
@@ -15,18 +20,10 @@ from ..jobs import (
     set_job,
     set_job_args,
 )
-from ..jobs.storage import get_job_args
+from ..jobs.actions import clean_cache_relations
+from ..jobs.storage import db_job_add_parent_relation, get_job_args
 from ..structures import Job, Promise, same_computation
 from ..utils import interpret_strings_like, try_pickling
-from .helpers import UIState, get_commands
-from .visualization import warning
-from ..constants import DefaultsToConfig
-from ..context import Context
-from ..exceptions import CompmakeBug
-from ..jobs.actions import clean_cache_relations
-from ..jobs.storage import db_job_add_parent_relation
-from contracts import check_isinstance, contract, describe_type, describe_value, raise_wrapped
-import inspect
 
 
 def generate_job_id(base, context):
@@ -148,8 +145,8 @@ def clean_other_jobs(context):
     delete_jobs_recurse_definition(todelete, db)
 
 
-@contract(returns="set(unicode)")
-def delete_jobs_recurse_definition(jobs, db):
+# @contract(returns="set(unicode)")
+def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
     """ Deletes all jobs given and the jobs that they defined.
         Returns the set of jobs deleted. """
     from compmake.jobs.queries import definition_closure
@@ -235,7 +232,6 @@ def comp_(context, command_, *args, **kwargs):
 
     else:
         command_desc = type(command).__name__
-
 
     args = list(args)  # args is a non iterable tuple
 
@@ -457,8 +453,8 @@ def comp_(context, command_, *args, **kwargs):
     return Promise(job_id)
 
 
-@contract(commands_str="unicode", context=Context, cq=CacheQueryDB, returns="None")
-def interpret_commands(commands_str, context, cq, separator=";"):
+# @contract(commands_str="unicode", context=Context, cq=CacheQueryDB, returns="None")
+def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, separator=";") -> None:
     """
         Interprets what could possibly be a list of commands (separated by ";")
 
@@ -502,8 +498,8 @@ def interpret_commands(commands_str, context, cq, separator=";"):
                 raise CommandFailed("ret code %s" % retcode)
 
 
-@contract(returns="None", commands_line="unicode")
-def interpret_single_command(commands_line, context, cq):
+# @contract(returns="None", commands_line="unicode")
+def interpret_single_command(commands_line: str, context, cq) -> None:
     """ Returns None or raises CommandFailed """
     if not isinstance(commands_line, str):
         raise ValueError("Expected a string")
@@ -619,8 +615,8 @@ def interpret_single_command(commands_line, context, cq):
             cq.invalidate()
 
 
-@contract(returns=dict)
-def get_defaults(argspec):
+# @contract(returns=dict)
+def get_defaults(argspec) -> Dict:
     defaults = {}
     if argspec.defaults:
         num_args_with_default = len(argspec.defaults)

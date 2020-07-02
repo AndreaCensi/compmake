@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import traceback
-
 #
 # __all__ = ['my_format_exc']
 #

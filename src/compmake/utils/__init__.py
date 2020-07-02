@@ -21,11 +21,6 @@ from .values_interpretation import *
 from .which_imp import *
 from .wildcards import *
 
-from zuper_commons.fs import *
-from zuper_commons.ui import *
-from zuper_commons.text import *
-
-
 # def find_print_statements():
 #     import sys
 #

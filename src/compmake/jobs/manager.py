@@ -12,8 +12,10 @@ from multiprocessing import TimeoutError
 from compmake.constants import CompmakeConstants
 from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
 from compmake.state import get_compmake_config
-from contracts import ContractsMeta, contract, indent
 
+# from contracts import ContractsMeta, indent
+from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.text import indent
 from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
@@ -23,7 +25,6 @@ from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from ..jobs import assert_job_exists, get_job_cache, job_cache_exists, job_exists, job_userobject_exists
 from ..jobs.actions_newprocess import result_dict_check
 from ..structures import Cache
-from zuper_commons.fs import make_sure_dir_exists
 
 __all__ = [
     "Manager",
@@ -53,7 +54,7 @@ class AsyncResultInterface(object):
 
 
 class ManagerLog(object):
-    __metaclass__ = ContractsMeta
+    # __metaclass__ = ContractsMeta
 
     def __init__(self, db):
         storage = os.path.abspath(db.basepath)
@@ -145,8 +146,7 @@ class Manager(ManagerLog):
         """ free up any resource, called wheter succesfull or not."""
         pass
 
-    @contract(returns="unicode")
-    def next_job(self):
+    def next_job(self) -> str:
         """
             Returns one job from the ready_todo list
             Uses self.priorities to decide which job to use.

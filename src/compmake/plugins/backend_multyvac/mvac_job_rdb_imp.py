@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from compmake.context import Context
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed
-from compmake.jobs import result_dict_check
-from compmake.jobs import get_job_args, job2cachekey, job2jobargskey, job2key, job2userobjectkey
-from .logging_imp import disable_logging_if_config
+from compmake.jobs import (
+    get_job_args,
+    job2cachekey,
+    job2jobargskey,
+    job2key,
+    job2userobjectkey,
+    result_dict_check,
+)
 from compmake.state import get_compmake_config
 from compmake.storage.filesystem import StorageFilesystem
-from contracts import check_isinstance, contract
-import os
+from zuper_commons.types import check_isinstance
+from .logging_imp import disable_logging_if_config
 
 __all__ = [
     "mvac_job_rdb",
@@ -72,7 +79,7 @@ def mvac_job_rdb_worker(job_id, rdb_basepath, cwd, misc):
     return res
 
 
-@contract(args="tuple(str, *,  str, bool, list, *, *, str)")
+# @contract(args="tuple(str, *,  str, bool, list, *, *, str)")
 def mvac_job_rdb(args):
     import multyvac
 

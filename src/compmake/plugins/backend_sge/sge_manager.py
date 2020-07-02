@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 
-from .sge_misc import check_sge_environment
-from .sge_sub import SGESub
 from compmake.jobs.manager import Manager
 from compmake.utils import isodate_with_secs
-from contracts import contract
-
+from .sge_misc import check_sge_environment
+from .sge_sub import SGESub
 
 __all__ = [
     "SGEManager",
@@ -16,7 +14,7 @@ __all__ = [
 class SGEManager(Manager):
     """ Runs compmake jobs using a SGE implementation """
 
-    @contract(num_processes=int, recurse="bool")
+    # @contract(num_processes=int, recurse="bool")
     def __init__(self, context, cq, recurse, num_processes):
         Manager.__init__(self, context=context, cq=cq, recurse=recurse)
 
@@ -55,7 +53,7 @@ class SGEManager(Manager):
 
         return resource_available
 
-    @contract(reasons_why_not=dict)
+    # @contract(reasons_why_not=dict)
     def can_accept_job(self, reasons_why_not):
         resources = self.get_resources_status()
         some_missing = False

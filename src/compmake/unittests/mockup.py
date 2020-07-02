@@ -3,7 +3,6 @@
 import sys
 
 from compmake.context import Context
-from contracts import contract
 
 
 def f(*args):  # @UnusedVariable
@@ -16,14 +15,12 @@ def fails(*args):  # @UnusedVariable
     raise Exception("this function fails")
 
 
-@contract(context=Context)
-def mockup1(context):
+def mockup1(context: Context):
     comp = context.comp
     return comp(f, comp(f), comp(f, comp(f)))
 
 
-@contract(context=Context)
-def mockup2(context):
+def mockup2(context: Context):
     comp = context.comp
 
     comp(f, job_id="f1")
@@ -41,8 +38,7 @@ def mockup2(context):
     context.batch_command("clean f5")
 
 
-@contract(context=Context)
-def mockup2_nofail(context):
+def mockup2_nofail(context: Context):
     comp = context.comp
 
     comp(f, job_id="f1")

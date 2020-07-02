@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import six
 
-
-from contracts import check_isinstance
-from ..utils import get_screen_columns
 from compmake.utils import compmake_colored
-
+from zuper_commons.types import check_isinstance
+from ..utils import get_screen_columns
 
 __all__ = ["compmake_colored", "warning", "error", "user_error", "info", "debug"]
 

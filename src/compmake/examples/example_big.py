@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # -*- coding: utf-8 -*-
-from example_big_support import first, second, third, fail_randomly, failure_prob
+from example_big_support import failure_prob, first, second, third
 
 if __name__ == "__main__":
     from compmake import Context

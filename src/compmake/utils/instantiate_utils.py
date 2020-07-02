@@ -3,8 +3,9 @@
 # Jan 14 copied from conf_tools
 import traceback
 
-from contracts import contract
-from contracts.utils import indent
+#
+# from contracts import contract
+# from contracts.utils import indent
 
 
 __all__ = [
@@ -12,7 +13,10 @@ __all__ = [
 ]
 
 
-@contract(name="unicode")
+# @contract(name="unicode")
+from zuper_commons.text import indent
+
+
 def import_name(name: str):
     """
         Loads the python object with the given name.

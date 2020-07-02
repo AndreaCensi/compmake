@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import six
+
 from six import StringIO
 
-from contracts import check_isinstance
+# from contracts import check_isinstance
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
-
 
 RESET = "\033[0m"  # XXX
 
@@ -16,7 +15,7 @@ __all__ = [
 ]
 
 
-class LineSplitter(object):
+class LineSplitter:
     """ A simple utility to split an incoming sequence of chars
         in lines. Push characters using append_chars() and
         get the completed lines using lines(). """
@@ -25,13 +24,8 @@ class LineSplitter(object):
         self.current = ""
         self.current_lines = []
 
-    def append_chars(self, s):
-        # TODO: make this faster
-        # if six.PY3:
-        #     s = s.decode()
-        # else:
-        #     s = str(s)
-        check_isinstance(s, str)
+    def append_chars(self, s: str):
+        assert isinstance(s, str), s
         for char in s:
             if char == "\n":
                 self.current_lines.append(self.current)
@@ -55,9 +49,9 @@ class StreamCapture(object):
         self.line_splitter = LineSplitter()
         self.after_lines = after_lines
 
-    def write(self, s):
+    def write(self, s: str):
 
-        check_isinstance(s, str)
+        assert isinstance(s, str), s
         self.buffer.write(s)
         self.line_splitter.append_chars(s)
         lines = self.line_splitter.lines()

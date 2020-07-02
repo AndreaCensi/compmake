@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
 
 
-import six
+from typing import Union
 
 from compmake import Promise
 from compmake.jobs import get_job_cache
 from compmake.jobs.uptodate import CacheQueryDB
 from compmake.structures import Cache
-from contracts import check_isinstance, contract
 
 __all__ = [
     "compmake_execution_stats",
 ]
 
 
-@contract(promise="unicode|isinstance(Promise)", returns=Promise)
-def compmake_execution_stats(context, promise, use_job_id=None):
+# @contract(promise="unicode|isinstance(Promise)", returns=Promise)
+from zuper_commons.types import check_isinstance
+
+
+def compmake_execution_stats(context, promise: Union[str, Promise], use_job_id=None):
     """
         Returns a promise for a the execution stats of a job
         and its dependencies.
     """
-    check_isinstance(promise, (Promise,) + str)
+    check_isinstance(promise, (Promise, str))
 
     if isinstance(promise, Promise):
         job_id = promise.job_id
@@ -75,8 +77,7 @@ def my_get_job_cache(context, the_job):
 
 # @contract(caches='list[>=1]')
 def finalize_result(res):
-    @contract(cache=Cache)
-    def stats_from_cache(cache):
+    def stats_from_cache(cache: Cache):
         check_isinstance(cache, Cache)
         return dict(walltime=cache.walltime_used, cputime=cache.cputime_used)
 

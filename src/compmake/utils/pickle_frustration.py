@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from contracts import contract
+# from contracts import contract
 import os, sys
 from contextlib import contextmanager
 
 
-@contract(returns=dict)
-def pickle_main_context_save():
+# @contract(returns=dict)
+from typing import Dict
+
+
+def pickle_main_context_save() -> Dict:
     """ Remember who was the __main__ module """
     module = sys.modules["__main__"]
     filename = module.__file__

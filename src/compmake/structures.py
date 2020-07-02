@@ -62,10 +62,10 @@
 
 """
 from dataclasses import dataclass
-from typing import List, NewType, Set
+from typing import List, NewType, Set, Tuple, Union
 
 from compmake.utils.pickle_frustration import pickle_main_context_save
-from contracts import contract, describe_value
+from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 
 __all__ = [
@@ -289,8 +289,8 @@ def timing_summary(cache):
 
 
 class ProgressStage(object):
-    @contract(name="unicode", iterations="tuple((float|int),(float|int))")
-    def __init__(self, name, iterations, iteration_desc):
+    # @contract(name="unicode", iterations="tuple((float|int),(float|int))")
+    def __init__(self, name: str, iterations: Tuple[Union[float, int], Union[float, int]], iteration_desc):
         self.name = name
         self.iterations = iterations
         self.iteration_desc = iteration_desc

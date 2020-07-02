@@ -2,11 +2,12 @@
 
 import os
 
+from zuper_commons.text import indent
 from .result_dict import result_dict_check
 from compmake.constants import CompmakeConstants
 from compmake.exceptions import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
-from contracts import all_disabled, indent
+
 from system_cmd import system_cmd_result
 
 
@@ -34,8 +35,9 @@ def parmake_job2_new_process(args):
     out_result = os.path.abspath(out_result)
     cmd = [compmake_bin, storage]
 
-    if not all_disabled():
-        cmd += ["--contracts"]
+    # from contracts import all_disabled, indent
+    # if not all_disabled():
+    #     cmd += ["--contracts"]
 
     cmd += [
         "--status_line_enabled",

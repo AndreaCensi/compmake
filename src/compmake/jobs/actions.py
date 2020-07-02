@@ -5,14 +5,12 @@ import traceback
 from logging import Formatter
 from time import time
 
-import six
 from compmake import get_compmake_config, logger
 from compmake.events import publish
 from compmake.exceptions import JobFailed, JobInterrupted
-from compmake.structures import IntervalTimer, Cache
+from compmake.structures import Cache, IntervalTimer
 from compmake.utils import OutputCapture, setproctitle
-from contracts import check_isinstance
-
+from zuper_commons.types import check_isinstance
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
@@ -21,11 +19,11 @@ from .storage import (
     delete_job_cache,
     get_job,
     get_job_cache,
+    job_cache_exists,
+    job_exists,
+    set_job,
     set_job_cache,
     set_job_userobject,
-    job_cache_exists,
-    set_job,
-    job_exists,
 )
 
 
@@ -132,7 +130,6 @@ def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
         pass
     else:
         exception = exception.__str__()
-
 
     check_isinstance(backtrace, (type(None), str))
     cache.exception = exception

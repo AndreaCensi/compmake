@@ -1,4 +1,4 @@
-PyContracts==1.8.12
+PyContracts==2.0.1
 SystemCmd==3.0.1
 termcolor==1.1.0
 setproctitle==1.1.10

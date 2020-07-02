@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from collections import namedtuple
 import sys
 import types
+from collections import namedtuple
+from typing import List, Optional, Union
 
-import six
-
-from contracts import contract
-
-from ..exceptions import UserError
 from .visualization import compmake_colored
+from ..exceptions import UserError
 from ..utils import docstring_components, docstring_trim
 
 # Storage for the commands
@@ -80,8 +77,8 @@ def wrap(func, name, alias, section, dbchange):
     return func
 
 
-@contract(alias="None|unicode|list(unicode)")
-def ui_command(name=None, alias=None, section=None, dbchange=False):
+# @contract(alias="None|unicode|list(unicode)")
+def ui_command(name=None, alias: Optional[Union[str, List[str]]] = None, section=None, dbchange=False):
     if alias is None:
         alias = []
     if isinstance(name, types.FunctionType):

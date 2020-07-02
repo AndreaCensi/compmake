@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import time
+from typing import Tuple, Union
 
-import six
-
-from contracts import contract, describe_type
-
+from zuper_commons.types import describe_type
 from ..structures import ProgressStage
 
 
@@ -26,8 +24,8 @@ def init_progress_tracking(my_callback):
     progress_stack_updated()
 
 
-@contract(taskname="unicode", iterations="tuple(int|float,int|float)")
-def progress(taskname, iterations, iteration_desc=None):
+# @contract(taskname="unicode", iterations="tuple(int|float,int|float)")
+def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, float]], iteration_desc=None):
     """
         Function used by the user to describe the state of the computation.
 

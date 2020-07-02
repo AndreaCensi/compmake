@@ -2,13 +2,12 @@
 
 import sys
 
-import six
 from nose.tools import istest
 
 from . import CompmakeTest
+from ..exceptions import CompmakeSyntaxError, UserError
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache
-from ..exceptions import UserError, CompmakeSyntaxError
 from ..ui import parse_job_list
 
 

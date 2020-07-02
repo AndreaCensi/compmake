@@ -6,7 +6,7 @@ from compmake.jobs import AsyncResultInterface, result_dict_raise_if_error
 from compmake.exceptions import CompmakeBug, HostFailed
 from compmake.ui import error
 from compmake.utils import safe_pickle_load, which
-from contracts import all_disabled, indent
+from zuper_commons.text import indent
 from system_cmd import CmdException, system_cmd_result
 
 
@@ -124,8 +124,8 @@ class SGEJob(AsyncResultInterface):
             '"make_single out_result=%s %s"' % (self.out_results, self.job_id),
         ]
 
-        if not all_disabled():
-            compmake_options += ["--contracts"]
+        # if not all_disabled():
+        #     compmake_options += ["--contracts"]
 
         # XXX: spaces in variable out_result
 

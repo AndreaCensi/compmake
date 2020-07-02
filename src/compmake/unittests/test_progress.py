@@ -2,7 +2,8 @@
 
 from ..jobs import init_progress_tracking
 from compmake import progress
-from contracts import ContractNotRespected
+
+# from contracts import ContractNotRespected
 from nose.tools import istest, nottest
 import unittest
 
@@ -21,7 +22,7 @@ class TestProgress(unittest.TestCase):
 
     def test_bad(self):
         """ Many ways to call it in the wrong way. """
-        self.assertRaises((ValueError, ContractNotRespected), progress, "task", 1)
+        self.assertRaises((ValueError,), progress, "task", 1)
 
     @nottest  # FIXME, known failure
     def test_hierarchy_flat(self):

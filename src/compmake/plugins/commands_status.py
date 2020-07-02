@@ -2,7 +2,7 @@
 
 from compmake.events import register_handler
 from compmake.ui import error, info
-from contracts import indent
+from zuper_commons.text import indent
 from compmake.state import get_compmake_config
 
 

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """ The actual interface of some commands in commands.py """
+from typing import List, Tuple
+
+from compmake.exceptions import CompmakeBug
+from compmake.jobs.storage import all_jobs, get_job, job_exists
+from compmake.ui.visualization import error
 from ..jobs import children, direct_children, direct_parents, parents, parse_job_list
 from ..ui import COMMANDS_ADVANCED, ui_command
-from compmake.exceptions import CompmakeBug
-from compmake.ui.visualization import error
-from contracts import contract
-from compmake.jobs.storage import get_job, job_exists, all_jobs
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
@@ -45,8 +46,7 @@ def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssi
     return 0
 
 
-@contract(returns="tuple(bool, list(unicode))")
-def check_job(job_id, context):
+def check_job(job_id, context) -> Tuple[bool, List[str]]:
     db = context.get_compmake_db()
 
     job = get_job(job_id, db)

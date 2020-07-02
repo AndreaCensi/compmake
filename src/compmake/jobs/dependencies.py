@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from copy import deepcopy
+from typing import Set
 
 from compmake.exceptions import CompmakeBug
 from compmake.jobs import get_job_userobject, job_userobject_exists
-from contracts import contract, raise_wrapped
-
+from zuper_commons.types import raise_wrapped
 
 __all__ = [
     "substitute_dependencies",
@@ -80,8 +80,8 @@ def substitute_dependencies(a, db):
 #             return deepcopy(a)
 
 
-@contract(returns="set(unicode)")
-def collect_dependencies(ob):
+# @contract(returns="set(unicode)")
+def collect_dependencies(ob) -> Set[str]:
     """ Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure """
     from compmake import Promise

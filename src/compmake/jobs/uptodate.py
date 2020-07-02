@@ -1,27 +1,24 @@
 # -*- coding: utf-8 -*-
 
 from contextlib import contextmanager
-
-import six
+from typing import Set, Tuple, Union
 
 from compmake.exceptions import CompmakeDBError
-from contracts import check_isinstance, contract
-from contracts.utils import raise_wrapped, raise_desc
-
-from ..exceptions import CompmakeBug
-from ..structures import Cache, Job
-from ..utils import memoized_reset
+from zuper_commons.types import check_isinstance, raise_desc, raise_wrapped
 from .dependencies import collect_dependencies
 from .queries import jobs_defined
 from .storage import get_job_userobject
+from ..exceptions import CompmakeBug
+from ..structures import Cache, Job
+from ..utils import memoized_reset
 
 __all__ = [
     "CacheQueryDB",
 ]
 
 
-@contract(returns="tuple(bool, unicode)")
-def up_to_date(job_id, db):
+# @contract(returns="tuple(bool, unicode)")
+def up_to_date(job_id, db) -> Tuple[bool, str]:
     """
 
     Check that the job is up to date.
@@ -50,8 +47,7 @@ def up_to_date(job_id, db):
     return res, reason
 
 
-@contract(returns="set(unicode)")
-def direct_uptodate_deps(job_id, db):
+def direct_uptodate_deps(job_id, db) -> Set[str]:
     """ Returns all direct 'dependencies' of this job:
         the jobs that are children (arguemnts)
         plus the job that defined it (if not root).
@@ -70,8 +66,7 @@ def direct_uptodate_deps(job_id, db):
     return dependencies
 
 
-@contract(returns="set(unicode)")
-def direct_uptodate_deps_inverse(job_id, db):
+def direct_uptodate_deps_inverse(job_id, db) -> Set[str]:
     """ Returns all jobs that have this as
         a direct 'dependency'
         the jobs that are direct parents
@@ -90,8 +85,8 @@ def direct_uptodate_deps_inverse(job_id, db):
     return dep_inv
 
 
-@contract(returns="set(unicode)", job_id="unicode")
-def direct_uptodate_deps_inverse_closure(job_id, db):
+# @contract(returns="set(unicode)", job_id="unicode")
+def direct_uptodate_deps_inverse_closure(job_id: str, db) -> Set[str]:
     """
         Closure of direct_uptodate_deps_inverse:
         all jobs that depend on this.
@@ -136,8 +131,7 @@ class CacheQueryDB(object):
         self.jobs_defined.reset()
 
     @memoized_reset
-    @contract(returns=Cache)
-    def get_job_cache(self, job_id):
+    def get_job_cache(self, job_id) -> Cache:
         from .storage import get_job_cache
 
         return get_job_cache(job_id, db=self.db)
@@ -147,8 +141,7 @@ class CacheQueryDB(object):
         return jobs_defined(job_id, db=self.db)
 
     @memoized_reset
-    @contract(returns=Job)
-    def get_job(self, job_id):
+    def get_job(self, job_id) -> Job:
         from .storage import get_job
 
         return get_job(job_id, db=self.db)
@@ -168,13 +161,11 @@ class CacheQueryDB(object):
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
-    @contract(returns="tuple(bool, unicode, float)")
-    def up_to_date(self, job_id):
+    def up_to_date(self, job_id) -> Tuple[bool, str, float]:
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
-    @contract(returns="tuple(bool, unicode, float)")
-    def _up_to_date_actual(self, job_id):
+    def _up_to_date_actual(self, job_id) -> Tuple[bool, str, float]:
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
             cache = self.get_job_cache(job_id)  # OK
 
@@ -254,8 +245,8 @@ class CacheQueryDB(object):
 
         return list(result)
 
-    @contract(returns="tuple(*,*,*)")
-    def list_todo_targets(self, jobs):
+    # @contract(returns="tuple(*,*,*)")
+    def list_todo_targets(self, jobs) -> Tuple[Set[str], Set[str], Set[str]]:
         """
             Returns a tuple (todo, jobs_done, ready):
              todo:  set of job ids to do (children that are not up to date)
@@ -309,8 +300,8 @@ class CacheQueryDB(object):
 
             return todo, done, todo_and_ready
 
-    @contract(returns=set, jobs="unicode|set(unicode)")
-    def tree_children_and_uodeps(self, jobs):
+    # @contract(returns=set, jobs="unicode|set(unicode)")
+    def tree_children_and_uodeps(self, jobs: Union[str, Set[str]]):
         """ Closure of the relation children and dependencies of userobject.
         """
         stack = []

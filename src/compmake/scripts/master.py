@@ -5,7 +5,7 @@ import sys
 import traceback
 from optparse import OptionParser
 
-import contracts
+# import contracts
 from zuper_commons.fs import friendly_path
 from .scripts_utils import wrap_script_entry_point
 from .. import CompmakeConstants, set_compmake_status, version
@@ -98,8 +98,8 @@ def compmake_main(args):
     parser.add_option(
         "--retcodefile",
         help="If given, the return value is written in this "
-             "file. Useful to check when compmake finished in "
-             "a grid environment. ",
+        "file. Useful to check when compmake finished in "
+        "a grid environment. ",
         default=None,
     )
 
@@ -114,9 +114,9 @@ def compmake_main(args):
 
     (options, args) = parser.parse_args(args)
 
-    if not options.contracts:
-        # info('Disabling PyContracts; use --contracts to activate.')
-        contracts.disable_all()
+    # if not options.contracts:
+    #     # info('Disabling PyContracts; use --contracts to activate.')
+    #     contracts.disable_all()
 
     # We load plugins after we parsed the configuration
     from compmake import plugins  # @UnusedImport

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .memoize_imp import memoized_reset
-import sys
 
 __all__ = [
     "get_screen_columns",

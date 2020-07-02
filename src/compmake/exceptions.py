@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from contracts import indent, raise_wrapped
+# from contracts import indent, raise_wrapped
+from zuper_commons.text import indent
+from zuper_commons.types import raise_wrapped
 
 
 class ShellExitRequested(Exception):

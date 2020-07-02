@@ -6,14 +6,13 @@ from abc import ABCMeta
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from compmake import set_compmake_config, logger
+from compmake import logger, set_compmake_config
 from compmake.context import Context
 from compmake.exceptions import CommandFailed, MakeFailed
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
 from compmake.structures import Job
-from contracts import contract
 
 
 class CompmakeTest(unittest.TestCase):
@@ -58,8 +57,8 @@ class CompmakeTest(unittest.TestCase):
     def comp(self, *args, **kwargs):
         return self.cc.comp(*args, **kwargs)
 
-    @contract(job_id="unicode", returns=Job)
-    def get_job(self, job_id):
+    # @contract(job_id="unicode", returns=Job)
+    def get_job(self, job_id: str) -> Job:
         db = self.cc.get_compmake_db()
         return get_job(job_id=job_id, db=db)
 
@@ -108,8 +107,8 @@ class CompmakeTest(unittest.TestCase):
     def assertEqualSet(self, a, b):
         self.assertEqual(set(a), set(b))
 
-    @contract(expr="unicode")
-    def assertJobsEqual(self, expr, jobs, ignore_dyn_reports=True):
+    # @contract(expr="unicode")
+    def assertJobsEqual(self, expr: str, jobs, ignore_dyn_reports=True):
 
         # js = 'not-valid-yet'
         js = self.get_jobs(expr)
@@ -139,8 +138,8 @@ class CompmakeTest(unittest.TestCase):
         res = self.up_to_date(job_id)
         self.assertEqual(res, status, "Want %r uptodate? %s" % (job_id, status))
 
-    @contract(returns=bool)
-    def up_to_date(self, job_id):
+    # @contract(returns=bool)
+    def up_to_date(self, job_id) -> bool:
         from compmake.jobs.uptodate import CacheQueryDB
 
         cq = CacheQueryDB(db=self.db)

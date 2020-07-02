@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .logging_imp import disable_logging_if_config
+import time
+
 from compmake.exceptions import CompmakeException, JobFailed
 from compmake.jobs.dependencies import collect_dependencies
 from compmake.jobs.job_execution import get_cmd_args_kwargs
@@ -8,9 +9,8 @@ from compmake.jobs.result_dict import result_dict_check
 from compmake.jobs.storage import get_job, get_job_cache, set_job_cache, set_job_userobject
 from compmake.state import get_compmake_config
 from compmake.structures import Cache
-from contracts import check_isinstance, contract
-import time
-
+from zuper_commons.types import check_isinstance
+from .logging_imp import disable_logging_if_config
 
 __all__ = [
     "mvac_job",
@@ -34,7 +34,7 @@ def mvac_instance(db, job_id, volumes, cwd):
     return multyvac_job
 
 
-@contract(args="tuple(str, *,  str, bool, list, str)")
+# @contract(args="tuple(str, *,  str, bool, list, str)")
 def mvac_job(args):
     """
     args = tuple job_id, context,  queue_name, show_events

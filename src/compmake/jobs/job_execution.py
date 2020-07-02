@@ -2,12 +2,11 @@
 
 
 from compmake.structures import IntervalTimer
-from contracts import check_isinstance, contract
-
-from ..exceptions import CompmakeBug
-from ..structures import Job
+from zuper_commons.types import check_isinstance
 from .dependencies import collect_dependencies, substitute_dependencies
 from .storage import get_job_args, job_userobject_exists
+from ..exceptions import CompmakeBug
+from ..structures import Job
 
 __all__ = [
     "job_compute",
@@ -34,8 +33,7 @@ class JobCompute(object):
     current_job_id = None
 
 
-@contract(job=Job)
-def job_compute(job, context):
+def job_compute(job: Job, context):
     """ Returns a dictionary with fields "user_object" and "new_jobs" """
     check_isinstance(job, Job)
     job_id = job.job_id

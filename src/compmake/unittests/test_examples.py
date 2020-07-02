@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from contextlib import contextmanager
-from contracts import indent
+from zuper_commons.text import indent
 from system_cmd import CmdException, system_cmd_result
 import os
 import tempfile

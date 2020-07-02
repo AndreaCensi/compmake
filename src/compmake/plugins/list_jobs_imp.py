@@ -14,12 +14,12 @@ from compmake.jobs.storage import (
     job_userobject_sizeof,
 )
 from compmake.jobs.syntax.parsing import is_root_job
-from compmake.structures import timing_summary, cache_has_large_overhead, Cache
-from compmake.ui import VISUALIZATION, compmake_colored, ui_command
-from zuper_commons.ui import duration_compact
+from compmake.structures import Cache, cache_has_large_overhead, timing_summary
+from compmake.ui import compmake_colored, ui_command, VISUALIZATION
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
-from contracts import contract
+from zuper_commons.ui import duration_compact
+from typing import Sequence, Tuple, List, Dict
 
 # red, green, yellow, blue, magenta, cyan, white.
 state2color = {
@@ -66,8 +66,8 @@ def ls(args, context, cq, complete_names=False, reason=False, all_details=False)
     return 0
 
 
-@contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
-def minimal_names(objects):
+# @contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
+def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     """
         Converts a list of object IDs to a minimal non-ambiguous list of names.
 
@@ -258,8 +258,7 @@ def format_size(nbytes):
     return "%d MB" % mb
 
 
-@contract(returns="dict")
-def get_sizes(job_id, db):
+def get_sizes(job_id, db) -> Dict:
     """ Returns byte sizes for jobs pieces.
 
         Returns dict with keys 'args','cache','result','total'.

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Tuple
 
-import six
 from future.moves.queue import Full
 
 from compmake.constants import CompmakeConstants

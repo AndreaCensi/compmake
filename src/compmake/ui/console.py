@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import traceback
-import os
 
-from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
-from ..events import publish
-from ..jobs import CacheQueryDB, all_jobs
-from ..exceptions import CommandFailed, CompmakeBug, ShellExitRequested, UserError, JobInterrupted, MakeFailed
+from future import builtins
+
+from compmake import get_compmake_config, logger
+from zuper_commons.types import raise_wrapped
+from zuper_commons.text import indent
 from .ui import clean_other_jobs, get_commands, interpret_commands
 from .visualization import clean_console_line, error
-from compmake import logger, get_compmake_config
-from contracts import contract, indent, raise_wrapped
-from future import builtins
+from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
+from ..events import publish
+from ..exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
+from ..jobs import all_jobs, CacheQueryDB
 
 __all__ = [
     "interactive_console",
@@ -50,8 +52,8 @@ def get_readline():
                 return None
 
 
-@contract(cq=CacheQueryDB, returns="None")
-def interpret_commands_wrap(commands, context, cq):
+# @contract(cq=CacheQueryDB, returns="None")
+def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
     """
         Returns None or raises CommandFailed, ShellExitRequested,
             CompmakeBug, KeyboardInterrupt.
@@ -234,7 +236,6 @@ def ask_question(question, allowed=None):
 # to import other things.
 
 
-@contract(returns="None")
 def batch_command(s, context, cq):
     """
         Executes one command (could be a sequence)

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from compmake.state import get_compmake_config
-from contracts import contract
 import os
+import shutil
+
+from compmake.state import get_compmake_config
 from compmake.ui.visualization import info
 from zuper_commons.fs import friendly_path
-import shutil
 
 __all__ = ["sync_data_up", "sync_data_down"]
 
@@ -13,10 +13,10 @@ up_arrow = "\u25B2"
 down_arrow = "\u25BC"
 
 
-@contract(returns="list(unicode)")
+# @contract(returns="list(unicode)")
 def sync_data_up(context, skipsync=False):
-    """ Synchronizes the data to the cloud. 
-    
+    """ Synchronizes the data to the cloud.
+
         Returns the list of volume names.
     """
     syncdirs = get_compmake_config("multyvac_sync_up")
@@ -96,8 +96,8 @@ def get_sync_dirs_down():
 
 
 def sync_data_down(context):
-    """ Synchronizes the data from the cloud. 
-    
+    """ Synchronizes the data from the cloud.
+
         Returns the list of volume names.
     """
     for syncdir in get_sync_dirs_down():

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from compmake import CompmakeBug
-from compmake.jobs import AsyncResultInterface, Manager, make, parmake_job2_new_process
-from compmake.ui import warning
-from contracts import contract
+from compmake.jobs import AsyncResultInterface, make, Manager, parmake_job2_new_process
 from compmake.jobs.result_dict import result_dict_check
+from compmake.ui import warning
 
 use_pympler = False
 
@@ -27,8 +26,8 @@ __all__ = [
 class ManagerLocal(Manager):
     """ Specialization of manager for local execution """
 
-    @contract(new_process="bool", echo="bool")
-    def __init__(self, new_process, echo, *args, **kwargs):
+    # @contract(new_process="bool", echo="bool")
+    def __init__(self, new_process: bool, echo: bool, *args, **kwargs):
         Manager.__init__(self, *args, **kwargs)
         self.new_process = new_process
         self.echo = echo

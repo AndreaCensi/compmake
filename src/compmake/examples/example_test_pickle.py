@@ -7,7 +7,6 @@ def f1():
 
 
 import sys
-import pickle
 
 from compmake.utils import safe_pickle_dump
 
