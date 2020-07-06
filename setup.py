@@ -63,13 +63,13 @@ setup(
             ]
         },
         install_requires=[
-            'PyContracts',
+            'PyContracts3',
             'termcolor',
             'setproctitle',
             'PyYaml',
             'psutil',
             'decorator',
-            'SystemCmd',
+            'SystemCmd-z6',
             'future',
             'networkx>=2,<3',
             'six',

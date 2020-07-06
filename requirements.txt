@@ -1,5 +1,7 @@
-PyContracts==2.0.1
-SystemCmd==3.0.1
+PyContracts3
+zuper-commons-z6==6.0.19
+SystemCmd-z6
+
 termcolor==1.1.0
 setproctitle==1.1.10
 PyYaml==5.3
@@ -8,4 +10,4 @@ decorator==4.4.2
 future==0.18.2
 networkx>=2.4,<3
 six==1.14.0
-zuper-commons-z6==6.0.19
+
