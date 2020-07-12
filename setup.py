@@ -18,8 +18,10 @@ def get_version(filename):
 
 version = get_version(filename='src/compmake/__init__.py')
 
+line = 'z6'
+
 setup(
-        name='compmake',
+        name=f'compmake-{line}',
         author="Andrea Censi",
         url='http://compmake.org',
         version=version,
