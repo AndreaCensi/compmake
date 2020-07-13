@@ -1,5 +1,5 @@
 PyContracts3
-zuper-commons-z6==6.0.19
+zuper-commons-z6 
 SystemCmd-z6
 
 termcolor==1.1.0
