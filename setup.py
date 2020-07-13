@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def get_version(filename):
@@ -20,18 +20,32 @@ version = get_version(filename='src/compmake/__init__.py')
 
 line = 'z6'
 
+install_requires = [
+    'PyContracts3',
+    'termcolor',
+    'setproctitle',
+    'PyYaml',
+    'psutil',
+    'decorator',
+    'SystemCmd-z6',
+    'future',
+    'networkx>=2,<3',
+    'six',
+    'zuper-commons-z6',
+]
+
 setup(
-        name=f'compmake-{line}',
-        author="Andrea Censi",
-        url='http://compmake.org',
-        version=version,
+    name=f'compmake-{line}',
+    author="Andrea Censi",
+    url='http://compmake.org',
+    version=version,
 
-        description="Compmake is a non-obtrusive module that provides "
-                    "'make'-like facilities to your Python applications,"
-                    "including caching of results, robustness to jobs failure, "
-                    "and multiprocessing/multihost parallel processing.",
+    description="Compmake is a non-obtrusive module that provides "
+                "'make'-like facilities to your Python applications,"
+                "including caching of results, robustness to jobs failure, "
+                "and multiprocessing/multihost parallel processing.",
 
-        long_description="""
+    long_description="""
         Compmake is a non-obtrusive module that provides 
         'make'-like facilities to your Python applications,
         including caching of results, robustness to jobs failure,
@@ -41,43 +55,30 @@ setup(
         and get the manual PDF at: http://purl.org/censi/compmake-manual
     """,
 
-        keywords="parallel processing, make, cmake, manager, recovery",
-        license="LGPL",
+    keywords="parallel processing, make, cmake, manager, recovery",
+    license="LGPL",
 
-        classifiers=[
-            'Development Status :: 5 - Production/Stable',
-            'Intended Audience :: Developers',
-            'Intended Audience :: Science/Research',
-            'Topic :: Scientific/Engineering',
-            'Topic :: System :: Clustering',
-            'Topic :: System :: Distributed Computing',
-            'Topic :: System :: Hardware :: Symmetric Multi-processing',
-            'License :: OSI Approved :: GNU Library or '
-            'Lesser General Public License (LGPL)',
-        ],
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering',
+        'Topic :: System :: Clustering',
+        'Topic :: System :: Distributed Computing',
+        'Topic :: System :: Hardware :: Symmetric Multi-processing',
+        'License :: OSI Approved :: GNU Library or '
+        'Lesser General Public License (LGPL)',
+    ],
 
-        package_dir={'': 'src'},
-        packages=find_packages('src'),
-        entry_points={
-            'console_scripts': [
-                'compmake = compmake.scripts.master:main',
-                # 'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
-            ]
-        },
-        install_requires=[
-            'PyContracts3',
-            'termcolor',
-            'setproctitle',
-            'PyYaml',
-            'psutil',
-            'decorator',
-            'SystemCmd-z6',
-            'future',
-            'networkx>=2,<3',
-            'six',
-            'zuper-commons-z6',
-            # 'pyreadline',
-        ],
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    entry_points={
+        'console_scripts': [
+            'compmake = compmake.scripts.master:main',
+            # 'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
+        ]
+    },
+    install_requires=install_requires,
 
-        tests_require=['nose'],
+    tests_require=['nose'],
 )
