@@ -26,6 +26,7 @@ install_requires = [
     'setproctitle',
     'PyYaml',
     'psutil',
+    'dill',
     'decorator',
     'SystemCmd-z6',
     'future',
