@@ -1,5 +1,5 @@
 PyContracts3
-zuper-commons-z6 
+zuper-commons-z6
 SystemCmd-z6
 
 termcolor==1.1.0
@@ -11,5 +11,5 @@ future==0.18.2
 networkx>=2.4,<3
 six==1.14.0
 dill
-
+coverage
 

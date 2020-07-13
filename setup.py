@@ -27,6 +27,7 @@ install_requires = [
     'PyYaml',
     'psutil',
     'dill',
+    'coverage',
     'decorator',
     'SystemCmd-z6',
     'future',
