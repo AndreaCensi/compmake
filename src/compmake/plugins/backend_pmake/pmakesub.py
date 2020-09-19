@@ -50,7 +50,7 @@ class PmakeSub:
 
 
 def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, write_log=None):
-    logger.info(f"pmake_worker forked at process {os.getpid()}")
+    # logger.info(f"pmake_worker forked at process {os.getpid()}")
     from coverage import process_startup
 
     if hasattr(process_startup, "coverage"):
@@ -62,7 +62,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
         else:
             logger.info("Coverage started successfully.")
     else:
-        logger.info("Not detected coverage need.")
+        # logger.info("Not detected coverage need.")
         cov = None
 
     if write_log:
