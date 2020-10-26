@@ -54,7 +54,7 @@ add_config_switch(
 
 add_config_switch(
     "echo",
-    False,
+    True,
     desc="Show the output of a job in the console. See " "echo_stdout and echo_stderr.",
     section=CONFIG_APPEARANCE,
 )
