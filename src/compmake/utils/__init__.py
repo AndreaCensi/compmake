@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .capture import *
 from .colored import *
 from .coloredterm import *

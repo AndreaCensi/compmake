@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import traceback
@@ -91,7 +89,7 @@ def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
         )
         msg = msg0 + "\n" + indent(tb, "bug| ")
         publish(context, "compmake-bug", user_msg=msg, dev_msg="")  # XXX
-        raise_wrapped(CompmakeBug, e, msg)
+        raise CompmakeBug(msg) from e
 
 
 def interactive_console(context):

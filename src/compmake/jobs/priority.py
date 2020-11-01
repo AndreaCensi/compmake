@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake.structures import Cache
 
 __all__ = ["compute_priorities"]

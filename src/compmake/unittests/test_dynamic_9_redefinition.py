@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from multiprocessing import active_children
 from nose.tools import istest
 from compmake.unittests.compmake_test import CompmakeTest

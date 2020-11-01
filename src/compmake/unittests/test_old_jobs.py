@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake import Context, StorageFilesystem
 from compmake.jobs.storage import all_jobs
 from compmake.state import set_compmake_config

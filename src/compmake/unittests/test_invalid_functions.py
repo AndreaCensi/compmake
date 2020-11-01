@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from nose.tools import istest
 
 from compmake.unittests.compmake_test import CompmakeTest

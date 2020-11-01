@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # from ..structures import CompmakeException, KeyNotFound, SerializationError
 # from StringIO import StringIO
 # import cPickle as pickle

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ Implements the initial and final banner """
 from .. import version
 from ..events import register_handler

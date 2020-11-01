@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import random
 import signal
@@ -75,7 +72,7 @@ class PmakeManager(Manager):
         self.show_output = show_output
 
         if new_process and show_output:
-            msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
+            msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
             warning(msg)
         self.cleaned = False
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ The actual interface of some commands in commands.py """
 
 from compmake.plugins.console_output import write_line_endl

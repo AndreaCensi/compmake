@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# -*- coding: utf-8 -*-
+
 from example_big_support import failure_prob, first, second, third
 
 if __name__ == "__main__":

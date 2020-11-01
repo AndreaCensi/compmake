@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import stat
 import traceback
@@ -28,7 +25,11 @@ __all__ = [
     "StorageKey",
 ]
 if True:
-    track_time = lambda x: x
+
+    def track_time(x):
+        return x
+
+
 else:
     from ..utils import TimeTrack
 
@@ -68,7 +69,7 @@ class StorageFilesystem:
         create_scripts(self.basepath)
 
     def __repr__(self) -> str:
-        return "FilesystemDB(%r;%s)" % (self.basepath, self.file_extension)
+        return f"FilesystemDB({self.basepath!r};{self.file_extension})"
 
     @track_time
     def sizeof(self, key: StorageKey) -> int:
@@ -86,15 +87,15 @@ class StorageFilesystem:
         filename = self.filename_for_key(key)
 
         if not os.path.exists(filename):
-            msg = "Could not find key %r." % key
-            msg += "\n file: %s" % filename
+            msg = f"Could not find key {key!r}."
+            msg += f"\n file: {filename}"
             raise CompmakeBug(msg)
 
         if self.method == "pickle":
             try:
                 return safe_pickle_load(filename)
             except Exception as e:
-                msg = "Could not unpickle data for key %r. \n file: %s" % (key, filename)
+                msg = f"Could not unpickle data for key {key!r}. \n file: {filename}"
                 logger.error(msg)
                 logger.exception(e)
                 msg += "\n" + traceback.format_exc()
@@ -115,7 +116,7 @@ class StorageFilesystem:
     @track_time
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
         if trace_queries:
-            logger.debug("W %s" % str(key))
+            logger.debug(f"W {str(key)}")
 
         self.check_existence()
 
@@ -128,13 +129,9 @@ class StorageFilesystem:
             except KeyboardInterrupt:
                 raise
             except BaseException as e:
-                msg = "Cannot set key %s: cannot pickle object " "of class %s: %s" % (
-                    key,
-                    value.__class__.__name__,
-                    e,
-                )
-                logger.error(msg)
-                logger.exception(e)
+                msg = f"Cannot set key {key}: cannot pickle object of class {value.__class__.__name__}"
+                logger.error(msg, e=traceback.format_exc())
+                # logger.exception(e)
                 emsg = find_pickling_error(value)
                 logger.error(emsg)
                 raise SerializationError(msg + "\n" + emsg)
@@ -157,7 +154,7 @@ class StorageFilesystem:
     @track_time
     def __contains__(self, key: StorageKey) -> bool:
         if trace_queries:
-            logger.debug("? %s" % str(key))
+            logger.debug(f"? {str(key)}")
 
         filename = self.filename_for_key(key)
         ex = os.path.exists(filename)
@@ -240,7 +237,7 @@ def create_scripts(basepath: DirPath) -> None:
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
-    s = '#!/bin/bash\ncompmake %s -c "$*" \n' % (basepath)
+    s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
     f = os.path.join(basepath, "run")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from compmake.exceptions import UserError
 from compmake.utils import which
 from zuper_commons.types import raise_wrapped

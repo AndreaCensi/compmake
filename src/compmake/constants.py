@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 __all__ = [
     "CompmakeConstants",
     "DefaultsToConfig",
@@ -46,5 +44,5 @@ class CompmakeConstants:
 class DefaultsToConfig:
     """ Used to mean the param's default is from a config switch. """
 
-    def __init__(self, switch):
+    def __init__(self, switch: str):
         self.switch = switch

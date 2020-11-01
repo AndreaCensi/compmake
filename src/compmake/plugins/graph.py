@@ -1,26 +1,25 @@
-# -*- coding: utf-8 -*-
-
-from collections import defaultdict
 import os
+from collections import defaultdict
+from typing import Collection
 
 from compmake.exceptions import UserError
-from compmake.jobs import CacheQueryDB, top_targets
+from compmake.jobs import CacheQueryDB, CMJobID, top_targets
 from compmake.jobs.queries import definition_closure
 from compmake.structures import Cache
-from compmake.ui import COMMANDS_ADVANCED, info, ui_command
+from compmake.ui import COMMANDS_ADVANCED, Context, info, ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED)
 def graph(
-    job_list,
-    context,
-    filename="compmake-graph",
-    filter="dot",
-    format="png",  # @ReservedAssignment
-    label="id",
-    color=True,
-    cluster=False,
-    processing=set(),
+    job_list: Collection[CMJobID],
+    context: Context,
+    filename: str = "compmake-graph",
+    filter: str = "dot",
+    format: str = "png",  # @ReservedAssignment
+    label: str = "id",
+    color: bool = True,
+    cluster: bool = False,
+    processing: Collection[CMJobID] = None,
 ):
     """
 
@@ -42,17 +41,18 @@ def graph(
                        (hierarchy top-bottom).
             format=[png,...]  The output file format.
     """
+    processing = processing or []
     possible = ["none", "id", "function"]
     if not label in possible:
-        msg = "Invalid label method %r not in %r." % (label, possible)
+        msg = f"Invalid label method {label!r} not in {possible!r}."
         raise ValueError(msg)
 
     db = context.get_compmake_db()
     if not job_list:
         job_list = list(top_targets(db))
 
-    print("jobs: %s" % job_list)
-    print("processing: %s" % processing)
+    print(f"jobs: {job_list}")
+    print(f"processing: {processing}")
     print("Importing gvgen")
 
     try:
@@ -60,7 +60,7 @@ def graph(
         pass
     except:
         gvgen_url = "https://github.com/stricaud/gvgen"
-        msg = ('To use the "graph" command you have to install the "gvgen" ' "package from %s") % gvgen_url
+        msg = 'To use the "graph" command you have to install the "gvgen" ' "package from %s" % gvgen_url
         raise UserError(msg)
 
     print("Getting all jobs in tree")
@@ -81,25 +81,26 @@ def graph(
         ggraph = create_graph2_clusters(cq, job_list, label=label, color=color, processing=processing)
     else:
         ggraph = create_graph1(cq, job_list, label=label, color=color, processing=processing)
-    print("Writing graph on %r." % filename)
+    print(f"Writing graph on {filename!r}.")
     # TODO: add check?
+
     with open(filename, "w") as f:
         ggraph.dot(f)
 
     print("Running rendering")
     output = filename + "." + format
-    cmd_line = "%s %s -T%s -o%s" % (filter, filename, format, output)
-    print("  %s" % cmd_line)
+    cmd_line = f"{filter} {filename} -T{format} -o{output}"
+    print(f"  {cmd_line}")
     try:
         os.system(cmd_line)
     except:
-        msg = "Could not run dot (cmdline='%s') Make sure graphviz is " "installed" % cmd_line
+        msg = "Could not run dot (cmdline={cmd_line!r}). Make sure graphviz is installed."
         raise UserError(msg)  # XXX maybe not UserError
 
-    info("Written output on files %s, %s." % (filename, output))
+    info(f"Written output on files {filename}, {output}.")
 
 
-def get_color_for(x, cq, processing):
+def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):
     cache = cq.get_job_cache(x)
 
     state2color = {
@@ -117,10 +118,10 @@ def get_color_for(x, cq, processing):
     return state2color[state]
 
 
-def get_node_label(cq, job_id, label):
+def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     possible = ["none", "id", "function"]
     if not label in possible:
-        msg = "Invalid label method %r not in %r." % (label, possible)
+        msg = f"Invalid label method {label!r} not in {possible!r}."
         raise ValueError(msg)
     if label == "none":
         return ""
@@ -128,20 +129,21 @@ def get_node_label(cq, job_id, label):
         return job_id
     if label == "function":
         job = cq.get_job(job_id)
-        return job.command_desc + "()"
+        return f"{job.command_desc}()"
     assert False
     #
     #
     #
 
 
-def create_graph1(cq, job_list, label, color, processing):
-
+def create_graph1(
+    cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
+):
     from mcdp_report.my_gvgen import GvGen
 
     print("Creating graph")
     job_list = list(job_list)
-    print("create_graph1(%s)" % job_list)
+    print(f"create_graph1({job_list})")
     ggraph = GvGen()
 
     job2node = {}
@@ -164,13 +166,15 @@ def create_graph1(cq, job_list, label, color, processing):
         # children_id = [x.job_id for x in c.depends]
         for child in cq.direct_children(job_id):
             # arrows follows flux of data
-            print("%s->%s" % (job2node[child], job2node[job_id]))
+            print(f"{job2node[child]}->{job2node[job_id]}")
             ggraph.newLink(job2node[child], job2node[job_id])
 
     return ggraph
 
 
-def create_graph2_clusters(cq, job_list, label, color, processing):
+def create_graph2_clusters(
+    cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
+):
     from mcdp_report.my_gvgen import GvGen
 
     print("Creating graph")

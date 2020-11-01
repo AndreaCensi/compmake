@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from contextlib import contextmanager
 from typing import Set, Tuple, Union
 
@@ -9,16 +7,19 @@ from .dependencies import collect_dependencies
 from .queries import jobs_defined
 from .storage import get_job_userobject
 from ..exceptions import CompmakeBug
-from ..structures import Cache, Job
+from ..structures import Cache, CMJobID, Job
 from ..utils import memoized_reset
 
 __all__ = [
     "CacheQueryDB",
+    "direct_uptodate_deps_inverse_closure",
+    "up_to_date",
+    "direct_uptodate_deps_inverse",
 ]
 
 
 # @contract(returns="tuple(bool, unicode)")
-def up_to_date(job_id, db) -> Tuple[bool, str]:
+def up_to_date(job_id: CMJobID, db) -> Tuple[bool, str]:
     """
 
     Check that the job is up to date.
@@ -47,7 +48,7 @@ def up_to_date(job_id, db) -> Tuple[bool, str]:
     return res, reason
 
 
-def direct_uptodate_deps(job_id, db) -> Set[str]:
+def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
     """ Returns all direct 'dependencies' of this job:
         the jobs that are children (arguemnts)
         plus the job that defined it (if not root).
@@ -66,7 +67,7 @@ def direct_uptodate_deps(job_id, db) -> Set[str]:
     return dependencies
 
 
-def direct_uptodate_deps_inverse(job_id, db) -> Set[str]:
+def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
     """ Returns all jobs that have this as
         a direct 'dependency'
         the jobs that are direct parents
@@ -85,8 +86,7 @@ def direct_uptodate_deps_inverse(job_id, db) -> Set[str]:
     return dep_inv
 
 
-# @contract(returns="set(unicode)", job_id="unicode")
-def direct_uptodate_deps_inverse_closure(job_id: str, db) -> Set[str]:
+def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db) -> Set[CMJobID]:
     """
         Closure of direct_uptodate_deps_inverse:
         all jobs that depend on this.
@@ -110,7 +110,7 @@ def direct_uptodate_deps_inverse_closure(job_id: str, db) -> Set[str]:
     return dep_inv
 
 
-class CacheQueryDB(object):
+class CacheQueryDB:
     """
         This works as a view on a DB which is assumed not to change
         between calls.
@@ -180,10 +180,10 @@ class CacheQueryDB(object):
             for child in dependencies:
                 child_up, _, child_timestamp = self.up_to_date(child)
                 if not child_up:
-                    return False, "At least: Dep %r not up to date." % child, cache.timestamp
+                    return False, f"At least: Dep {child!r} not up to date.", cache.timestamp
                 else:
                     if child_timestamp > cache.timestamp:
-                        return (False, "At least: Dep %r have been updated." % child, cache.timestamp)
+                        return False, f"At least: Dep {child!r} have been updated.", cache.timestamp
 
             # plus jobs that defined it
             defined_by = list(self.get_job(job_id).defined_by)
@@ -193,7 +193,7 @@ class CacheQueryDB(object):
             for defby in defined_by:
                 defby_up, _, _ = self.up_to_date(defby)
                 if not defby_up:
-                    return False, "Definer %r not up to date." % defby, cache.timestamp
+                    return False, f"Definer {defby!r} not up to date.", cache.timestamp
                 # don't check timestamp for definers
 
             # FIXME BUG if I start (in progress), children get updated,
@@ -245,8 +245,7 @@ class CacheQueryDB(object):
 
         return list(result)
 
-    # @contract(returns="tuple(*,*,*)")
-    def list_todo_targets(self, jobs) -> Tuple[Set[str], Set[str], Set[str]]:
+    def list_todo_targets(self, jobs) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
         """
             Returns a tuple (todo, jobs_done, ready):
              todo:  set of job ids to do (children that are not up to date)
@@ -286,7 +285,7 @@ class CacheQueryDB(object):
                     todo.add(job_id)
                     for child in self.direct_children(job_id):
                         if not self.job_exists(child):
-                            msg = "Job %r references a not existing job %r. " % (job_id, child)
+                            msg = f"Job {job_id!r} references a not existing job {child!r}. "
                             msg += (
                                 "This might happen when you change a dynamic job "
                                 "so that it changes the jobs it created. "

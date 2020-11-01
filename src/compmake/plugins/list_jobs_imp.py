@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ The actual interface of some commands in commands.py """
 import os
 from time import time

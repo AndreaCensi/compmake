@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from compmake.utils import compmake_colored
 from zuper_commons.types import check_isinstance
 from ..utils import get_screen_columns

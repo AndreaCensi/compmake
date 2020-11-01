@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake.events import register_handler
 from compmake.ui import error, info
 from zuper_commons.text import indent

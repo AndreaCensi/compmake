@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .memoize_imp import memoized_reset
 
 __all__ = [

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from compmake.structures import IntervalTimer
 from zuper_commons.types import check_isinstance
 from .dependencies import collect_dependencies, substitute_dependencies

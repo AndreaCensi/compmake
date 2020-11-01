@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .compmake_test import CompmakeTest
 from compmake import Context
 from compmake.jobs import direct_children, get_job, jobs_defined

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 import inspect
-from typing import Dict, Set
+from typing import Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from .helpers import get_commands, UIState
@@ -479,6 +478,7 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
         try:
             publish(context, "command-starting", command=cmd)
             retcode = interpret_single_command(cmd, context=context, cq=cq)
+
         except KeyboardInterrupt:
             publish(context, "command-interrupted", command=cmd, reason="KeyboardInterrupt")
             raise
@@ -499,7 +499,7 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
 
 
 # @contract(returns="None", commands_line="unicode")
-def interpret_single_command(commands_line: str, context, cq) -> None:
+def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
     """ Returns None or raises CommandFailed """
     if not isinstance(commands_line, str):
         raise ValueError("Expected a string")
@@ -528,19 +528,20 @@ def interpret_single_command(commands_line: str, context, cq) -> None:
     # look for  key=value pairs
     other = []
     kwargs = {}
-    argspec = inspect.getargspec(function)
 
-    defaults = get_defaults(argspec)
-    args_without_default = get_args_without_defaults(argspec)
+    signature = inspect.signature(function)
+
+    defaults = get_defaults(signature)
+    args_without_default = get_args_without_defaults(signature)
 
     for a in args:
         if a.find("=") > 0:
             k, v = a.split("=")
 
-            if not k in argspec.args:
+            if not k in signature.parameters:
                 msg = (
-                    "You passed the argument %r for command %r, "
-                    "but the only available arguments are %s." % (k, cmd.name, argspec.args)
+                    f"You passed the argument {k!r} for command {cmd.name!r}, "
+                    f"but the only available arguments are {signature.parameters}."
                 )
                 raise UserError(msg)
 
@@ -563,7 +564,7 @@ def interpret_single_command(commands_line: str, context, cq) -> None:
 
     args = other
 
-    function_args = argspec.args
+    function_args = signature.parameters
     # set default values
     for argname, argdefault in defaults.items():
         if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
@@ -615,29 +616,18 @@ def interpret_single_command(commands_line: str, context, cq) -> None:
             cq.invalidate()
 
 
-# @contract(returns=dict)
-def get_defaults(argspec) -> Dict:
+def get_defaults(signature: inspect.Signature) -> Dict[str, object]:
     defaults = {}
-    if argspec.defaults:
-        num_args_with_default = len(argspec.defaults)
-    else:
-        num_args_with_default = 0
+    for k, v in signature.parameters.items():
+        if v.default != inspect.Parameter.empty:
+            defaults[k] = v.default
 
-    num_args = len(argspec.args)
-    num_args_without_default = num_args - num_args_with_default
-    for k in range(num_args_without_default, num_args):
-        argname = argspec.args[k]
-        argdefault = argspec.defaults[k - num_args_without_default]
-        defaults[argname] = argdefault
     return defaults
 
 
-def get_args_without_defaults(argspec):
-    if argspec.defaults:
-        num_args_with_default = len(argspec.defaults)
-    else:
-        num_args_with_default = 0
-    num_args = len(argspec.args)
-    num_args_without_default = num_args - num_args_with_default
-    args_without_default = argspec.args[0:num_args_without_default]
+def get_args_without_defaults(signature: inspect.Signature) -> List[str]:
+    args_without_default = []
+    for k, v in signature.parameters.items():
+        if v.default == inspect.Parameter.empty:
+            args_without_default.append(k)
     return args_without_default

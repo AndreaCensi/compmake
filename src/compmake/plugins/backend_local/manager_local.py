@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake import CompmakeBug
 from compmake.jobs import AsyncResultInterface, make, Manager, parmake_job2_new_process
 from compmake.jobs.result_dict import result_dict_check

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import itertools
 import os
 import shutil
@@ -8,6 +6,7 @@ import traceback
 import warnings
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
+from typing import Any, Collection, Dict, Set
 
 from compmake.constants import CompmakeConstants
 from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
@@ -20,11 +19,12 @@ from .actions import mark_as_blocked
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
 from .uptodate import CacheQueryDB
+from .. import Context, StorageFilesystem
 from ..events import publish
 from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from ..jobs import assert_job_exists, get_job_cache, job_cache_exists, job_exists, job_userobject_exists
 from ..jobs.actions_newprocess import result_dict_check
-from ..structures import Cache
+from ..structures import Cache, CMJobID
 
 __all__ = [
     "Manager",
@@ -67,13 +67,13 @@ class ManagerLog(object):
         make_sure_dir_exists(log)
         self.f = open(log, "w")
 
-    def log(self, s, **kwargs):
+    def log(self, s: str, **kwargs: Any):
 
         for k in sorted(kwargs):
             v = kwargs[k]
             if isinstance(v, set):
                 v = sorted(v)
-            s += "\n - %15s: %s" % (k, v)
+            s += f"\n - {k:>15}: {v}"
         self.f.write(s)
         # print(s)
         self.f.write("\n")
@@ -82,9 +82,20 @@ class ManagerLog(object):
 
 
 class Manager(ManagerLog):
+    cq: CacheQueryDB
+    context: Context
+    db: StorageFilesystem
+    targets: Set[CMJobID]
+    """ top level"""
+    all_targets: Set[CMJobID]
+    deleted: Set[CMJobID]
+    todo: Set[CMJobID]
+    ready_todo: Set[CMJobID]
+    processing: Set[CMJobID]
+    processing2result: Dict[CMJobID, Any]
 
     # noinspection PyUnusedLocal
-    def __init__(self, context, cq, recurse: bool = False):
+    def __init__(self, context, cq: CacheQueryDB, recurse: bool = False):
         self.context = context
         # self.cq = cq
         self.db = context.get_compmake_db()
@@ -146,7 +157,7 @@ class Manager(ManagerLog):
         """ free up any resource, called wheter succesfull or not."""
         pass
 
-    def next_job(self) -> str:
+    def next_job(self) -> CMJobID:
         """
             Returns one job from the ready_todo list
             Uses self.priorities to decide which job to use.
@@ -159,14 +170,14 @@ class Manager(ManagerLog):
         # print('choosing %s job %r' % (self.priorities[best], best))
         return best
 
-    def add_targets(self, targets):
+    def add_targets(self, targets: Collection[CMJobID]):
         self.log("add_targets()", targets=targets)
         self.check_invariants()
         for t in targets:
             assert_job_exists(t, self.db)
 
             if t in self.processing:
-                msg = "Adding a job already in processing: %r" % t
+                msg = f"Adding a job already in processing: {t!r}"
                 raise CompmakeBug(msg)
 
             if t in self.targets:
@@ -197,7 +208,7 @@ class Manager(ManagerLog):
             not_ready=not_ready,
         )
 
-        self.log("targets_todo_plus_deps: %s" % sorted(targets_todo_plus_deps))
+        self.log(f"targets_todo_plus_deps: {sorted(targets_todo_plus_deps)}")
 
         # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
         # print('           targets_done: %s ' % targets_done)
@@ -302,7 +313,7 @@ class Manager(ManagerLog):
 
         raise CompmakeBug(msg)
 
-    def start_job(self, job_id):
+    def start_job(self, job_id: CMJobID):
         self.log("start_job", job_id=job_id)
         self.check_invariants()
         if job_id not in self.ready_todo:
@@ -319,7 +330,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def check_job_finished(self, job_id, assume_ready=False):
+    def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False):
         """
             Checks that the job finished succesfully or unsuccesfully.
 
@@ -396,9 +407,9 @@ class Manager(ManagerLog):
             print(traceback.format_exc())
             raise JobInterrupted("Keyboard interrupt")
 
-    def job_is_deleted(self, job_id):
+    def job_is_deleted(self, job_id: CMJobID):
         if job_exists(job_id, self.db):
-            msg = "Job %r declared deleted still exists" % job_id
+            msg = f"Job {job_id!r} declared deleted still exists"
             raise CompmakeBug(msg)
         if job_id in self.all_targets:
             if job_id in self.todo:
@@ -571,7 +582,7 @@ class Manager(ManagerLog):
         for opportunity in parents_todo:
             # print('parent %r in todo' % (opportunity))
             if opportunity in self.processing:
-                msg = "Parent %r of %r already processing" % (opportunity, job_id)
+                msg = f"Parent {opportunity!r} of {job_id!r} already processing"
                 if CompmakeConstants.try_recover:
                     print(msg)
                     continue
@@ -674,7 +685,7 @@ class Manager(ManagerLog):
         try:
             i = 0
             while self.todo or self.ready_todo or self.processing:
-                self.log(indent(self._get_situation_string(), "%s: " % i))
+                self.log(indent(self._get_situation_string(), f"{i}: "))
                 i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
@@ -817,10 +828,10 @@ class Manager(ManagerLog):
             if S != lists[result]:
                 msg = "These two sets should be the same:\n"
                 msg += " %s = %s\n" % (" + ".join(list(sets)), result)
-                msg += " first = %s\n" % S
-                msg += " second = %s\n" % lists[result]
-                msg += " first-second = %s\n" % (S - lists[result])
-                msg += " second-first = %s\n" % (lists[result] - S)
+                msg += f" first = {S}\n"
+                msg += f" second = {lists[result]}\n"
+                msg += f" first-second = {S - lists[result]}\n"
+                msg += f" second-first = {lists[result] - S}\n"
 
                 st = self._get_situation_string()
                 if len(st) < 500:
@@ -860,7 +871,7 @@ def check_job_cache_state(job_id, states, db):
         return
 
     if not job_cache_exists(job_id, db):
-        msg = "The job %r was reported as done/failed but no record of " "it was found." % job_id
+        msg = f"The job {job_id!r} was reported as done/failed but no record of it was found."
         raise CompmakeBug(msg)
     else:
         cache = get_job_cache(job_id, db)
@@ -874,7 +885,7 @@ def check_job_cache_state(job_id, states, db):
 
         if cache.state == Cache.DONE:
             if not job_userobject_exists(job_id, db):
-                msg = "Job %r marked as DONE but no userobject exists" % job_id
+                msg = f"Job {job_id!r} marked as DONE but no userobject exists"
                 raise CompmakeBug(msg)
 
 

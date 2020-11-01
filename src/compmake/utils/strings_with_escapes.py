@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from zuper_commons.text import get_length_on_screen, remove_escapes
 
 from .terminal_size import get_screen_columns

@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
+from typing import Collection
 
-from .pmake_manager import PmakeManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish
-from compmake.jobs import top_targets
+from compmake.jobs import CacheQueryDB, CMJobID, top_targets
 from compmake.jobs.actions import mark_to_remake
 from compmake.ui import ACTIONS, ask_if_sure_remake, raise_error_if_manager_failed, ui_command
-
+from .pmake_manager import PmakeManager
 
 __all__ = [
     "parmake",
@@ -20,10 +19,10 @@ def parmake(
     job_list,
     context,
     cq,
-    n=DefaultsToConfig("max_parallel_jobs"),
-    recurse=DefaultsToConfig("recurse"),
-    new_process=DefaultsToConfig("new_process"),
-    echo=DefaultsToConfig("echo"),
+    n: int = DefaultsToConfig("max_parallel_jobs"),
+    recurse: bool = DefaultsToConfig("recurse"),
+    new_process: bool = DefaultsToConfig("new_process"),
+    echo: bool = DefaultsToConfig("echo"),
 ):
     """
         Parallel equivalent of make.
@@ -71,10 +70,10 @@ def parremake(
     non_empty_job_list,
     context,
     cq,
-    n=DefaultsToConfig("max_parallel_jobs"),
-    recurse=DefaultsToConfig("recurse"),
-    new_process=DefaultsToConfig("new_process"),
-    echo=DefaultsToConfig("echo"),
+    n: int = DefaultsToConfig("max_parallel_jobs"),
+    recurse: bool = DefaultsToConfig("recurse"),
+    new_process: bool = DefaultsToConfig("new_process"),
+    echo: bool = DefaultsToConfig("echo"),
 ):
     """
         Parallel equivalent of "remake".
@@ -99,12 +98,12 @@ def parremake(
 
 @ui_command(section=ACTIONS, dbchange=True)
 def rparmake(
-    job_list,
+    job_list: Collection[CMJobID],
     context,
-    cq,
-    n=DefaultsToConfig("max_parallel_jobs"),
-    new_process=DefaultsToConfig("new_process"),
-    echo=DefaultsToConfig("echo"),
+    cq: CacheQueryDB,
+    n: int = DefaultsToConfig("max_parallel_jobs"),
+    new_process: bool = DefaultsToConfig("new_process"),
+    echo: bool = DefaultsToConfig("echo"),
 ):
     """ Shortcut to parmake with default recurse = True. """
     return parmake(

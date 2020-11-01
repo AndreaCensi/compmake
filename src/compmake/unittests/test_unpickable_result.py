@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from typing import Callable
 from .. import set_compmake_status, CompmakeConstants
 from .compmake_test import CompmakeTest

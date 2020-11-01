@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """ Contains queries of the job DB. """
 import warnings
 from contextlib import contextmanager
-from typing import Collection, Iterator, Set
+from typing import Collection, Set
 
 from compmake.exceptions import CompmakeBug
 from compmake.jobs.storage import get_job_cache
-from compmake.structures import Cache
+from compmake.structures import Cache, CMJobID
 from zuper_commons.types import check_isinstance, raise_wrapped
 from ..jobs import all_jobs, get_job
 
@@ -32,7 +30,7 @@ def trace_bugs(msg):
 
 
 # @contract(returns="set(unicode)")
-def jobs_defined(job_id, db) -> Set[str]:
+def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
     """
         Gets the jobs defined by the given job.
         The job must be DONE.
@@ -47,7 +45,7 @@ def jobs_defined(job_id, db) -> Set[str]:
 
 
 # @contract(jobs="Iterable", returns="set(unicode)")
-def definition_closure(jobs: Iterator, db) -> Set[str]:
+def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
     """ The result does not contain jobs (unless one job defines another) """
     # print('definition_closure(%s)' % jobs)
     check_isinstance(jobs, (list, set))
@@ -75,27 +73,27 @@ def definition_closure(jobs: Iterator, db) -> Set[str]:
     return result
 
 
-def direct_parents(job_id, db):
+def direct_parents(job_id: CMJobID, db) -> Set[CMJobID]:
     """ Returns the direct parents of the specified job.
         (Jobs that depend directly on this one) """
     check_isinstance(job_id, str)
-    with trace_bugs("direct_parents(%r)" % job_id):
+    with trace_bugs(f"direct_parents({job_id!r})"):
         computation = get_job(job_id, db=db)
         return set(computation.parents)
 
 
-def direct_children(job_id, db):
+def direct_children(job_id: CMJobID, db) -> Set[CMJobID]:
     """ Returns the direct children (dependencies) of the specified job """
     check_isinstance(job_id, str)
-    with trace_bugs("direct_children(%r)" % job_id):
+    with trace_bugs(f"direct_children({job_id!r})"):
         computation = get_job(job_id, db=db)
         return set(computation.children)
 
 
-def children(job_id, db):
+def children(job_id: CMJobID, db) -> Set[CMJobID]:
     """ Returns children, children of children, etc. """
     check_isinstance(job_id, str)
-    with trace_bugs("children(%r)" % job_id):
+    with trace_bugs(f"children({job_id!r})"):
         t = set()
         for c in direct_children(job_id, db=db):
             t.add(c)
@@ -114,7 +112,7 @@ def top_targets(db):
 
 
 # @contract(jobs="list|set")
-def tree(jobs: Collection, db):
+def tree(jobs: Collection[CMJobID], db):
     """
         Returns the tree of all dependencies of the jobs.
         Note this is very inefficient because recursive.
@@ -127,13 +125,12 @@ def tree(jobs: Collection, db):
     return t
 
 
-# @contract(job_id="unicode")
-def parents(job_id: str, db):
+def parents(job_id: CMJobID, db):
     """ Returns the set of all the parents, grandparents, etc.
         (does not include job_id) """
     check_isinstance(job_id, str)
 
-    with trace_bugs("parents(%r)" % job_id):
+    with trace_bugs(f"parents({job_id!r})"):
         t = set()
         parents_jobs = direct_parents(job_id, db=db)
         for p in parents_jobs:

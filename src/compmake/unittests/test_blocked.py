@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..structures import Cache
 from ..jobs import get_job_cache
 from nose.tools import istest

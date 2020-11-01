@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import multiprocessing
 from typing import Any, Tuple
 

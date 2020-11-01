@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from system_cmd import system_cmd_result
 import os
 

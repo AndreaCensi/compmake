@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
+from typing import List
 
-# from contracts import indent, raise_wrapped
 from zuper_commons.text import indent
-from zuper_commons.types import raise_wrapped
+from zuper_commons.types import raise_wrapped, ZException
 
 
-class ShellExitRequested(Exception):
+class ShellExitRequested(ZException):
     pass
 
 
-class CompmakeException(Exception):
+class CompmakeException(ZException):
     pass
 
 
@@ -32,16 +31,18 @@ class CompmakeBug(CompmakeException):
         return e
 
 
-class CommandFailed(Exception):
+class CommandFailed(ZException):
     pass
 
 
 class MakeFailed(CommandFailed):
-    def __init__(self, failed, blocked=[]):
+    def __init__(self, failed: List[str], blocked: List[str] = None):
+        failed = failed or []
+        blocked = blocked or []
         self.failed = set(failed)
         self.blocked = set(blocked)
-        msg = "Make failed (%d failed, %d blocked)" % (len(self.failed), len(self.blocked))
-        CommandFailed.__init__(self, msg)
+        msg = f"Make failed ({len(self.failed)} failed, {len(self.blocked)} blocked)"
+        CommandFailed.__init__(self, msg, failed=failed, blocked=blocked)
 
 
 class MakeHostFailed(CommandFailed):
@@ -70,15 +71,18 @@ class CompmakeSyntaxError(UserError):
 class JobFailed(CompmakeException):
     """ This signals that some job has failed """
 
-    def __init__(self, job_id, reason, bt, deleted_jobs=[]):
+    def __init__(self, job_id: str, reason: str, bt: str, deleted_jobs: List[str] = None):
+        deleted_jobs = deleted_jobs or []
         self.job_id = job_id
         self.reason = reason
         self.bt = bt
         self.deleted_jobs = set(deleted_jobs)
 
+        CompmakeException.__init__(self, job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
+
     def get_result_dict(self):
         res = dict(
-            fail="Job %r failed." % self.job_id,
+            fail=f"Job {self.job_id!r} failed.",
             job_id=self.job_id,
             reason=self.reason,
             deleted_jobs=self.deleted_jobs,
@@ -101,12 +105,16 @@ class JobFailed(CompmakeException):
 class JobInterrupted(CompmakeException):
     """ User requested to interrupt job"""
 
-    def __init__(self, job_id, deleted_jobs=[]):
+    def __init__(self, job_id, deleted_jobs: List[str] = None):
+        deleted_jobs = deleted_jobs or []
         self.job_id = job_id
         self.deleted_jobs = set(deleted_jobs)
 
+        self.msg = f"Job {self.job_id!r} received KeyboardInterrupt."
+        CompmakeException.__init__(self, self.msg, job_id=job_id, deleted_jobs=deleted_jobs)
+
     def __str__(self):
-        return "Job %r received KeyboardInterrupt." % self.job_id
+        return self.msg
 
     @staticmethod
     def from_dict(res):
@@ -119,7 +127,7 @@ class JobInterrupted(CompmakeException):
 
     def get_result_dict(self):
         res = dict(
-            interrupt="Job %r interrupted." % self.job_id,
+            interrupt=f"Job {self.job_id!r} interrupted.",
             job_id=self.job_id,
             deleted_jobs=sorted(self.deleted_jobs),
         )
@@ -135,14 +143,20 @@ class HostFailed(CompmakeException):
         self.job_id = job_id
         self.reason = reason
         self.bt = bt
+        self.msg = "Host %r failed for %r: %s\n%s" % (
+            self.host,
+            self.job_id,
+            self.reason,
+            indent(self.bt, "|"),
+        )
+        CompmakeException.__init__(self, self.msg, host=host, reason=reason, bt=bt)
 
     def __str__(self):
-        s = "Host %r failed for %r: %s\n%s" % (self.host, self.job_id, self.reason, indent(self.bt, "|"))
-        return s
+        return self.msg
 
     def get_result_dict(self):
         res = dict(
-            abort="Host failed for %r." % self.job_id,
+            abort=f"Host failed for {self.job_id!r}.",
             host=self.host,
             job_id=self.job_id,
             reason=self.reason,
@@ -156,7 +170,7 @@ class HostFailed(CompmakeException):
 
         result_dict_check(res)
         try:
-            res["abort"]
+            _ = res["abort"]
             e = HostFailed(host=res["host"], job_id=res["job_id"], bt=res["bt"], reason=res["reason"])
         except KeyError as e:
             raise_wrapped(CompmakeBug, e, "Incomplete dict", res=res, keys=list(res.keys()))

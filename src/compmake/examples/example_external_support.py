@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 def func1(param1):
     result = param1 * 2
     return result

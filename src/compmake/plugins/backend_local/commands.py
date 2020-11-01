@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .manager_local import ManagerLocal
 from compmake.constants import DefaultsToConfig
 from compmake.jobs import mark_to_remake, top_targets

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from contextlib import contextmanager
 from zuper_commons.text import indent
 from system_cmd import CmdException, system_cmd_result

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 from compmake.jobs.queries import definition_closure, jobs_defined
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse

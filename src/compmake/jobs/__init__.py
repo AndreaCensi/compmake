@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .storage import *
 from .progress_imp2 import *
 from .queries import *

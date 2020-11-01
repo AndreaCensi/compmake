@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .visualization import compmake_colored
 
 __all__ = [

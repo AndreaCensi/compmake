@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from compmake.ui.helpers import ACTIONS, ui_command
 from compmake.jobs.queries import top_targets
 from compmake.plugins.backend_sge.sge_manager import SGEManager

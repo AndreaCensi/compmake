@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 
 from .helpers import COMMANDS_ADVANCED, ui_command, UIState

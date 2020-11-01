@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
-
-
 """
     These are all wrappers around the raw methods in storage
 """
+from typing import Iterator
 
 from compmake.exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from compmake.utils.pickle_frustration import pickle_main_context_load
-from zuper_commons.types import check_isinstance
-from zuper_commons.types import raise_desc
+from zuper_commons.types import check_isinstance, raise_desc
 from ..structures import Cache, CMJobID, Job
 from ..utils import wildcard_to_regexp
 
 
 def job2key(job_id):
     prefix = "cm-job-"
-    return "%s%s" % (prefix, job_id)
+    return f"{prefix}{job_id}"
 
 
 def key2job(key):
@@ -23,7 +20,7 @@ def key2job(key):
     return key.replace(prefix, "", 1)
 
 
-def all_jobs(db, force_db=False):
+def all_jobs(db, force_db=False) -> Iterator[CMJobID]:
     """ Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
@@ -36,33 +33,33 @@ def all_jobs(db, force_db=False):
             yield key2job(key)
 
 
-def get_job(job_id, db):
+def get_job(job_id: CMJobID, db):
     key = job2key(job_id)
     computation = db[key]
     assert isinstance(computation, Job)
     return computation
 
 
-def job_exists(job_id, db):
+def job_exists(job_id: CMJobID, db):
     key = job2key(job_id)
     return key in db
 
 
-def assert_job_exists(job_id, db):
+def assert_job_exists(job_id: CMJobID, db):
     """
         :raise CompmakeBug: if the job does not exist
     """
     get_job(job_id, db)
 
 
-def set_job(job_id, job, db):
+def set_job(job_id: CMJobID, job: Job, db):
     # TODO: check if they changed
     key = job2key(job_id)
     assert isinstance(job, Job)
     db[key] = job
 
 
-def delete_job(job_id, db):
+def delete_job(job_id: CMJobID, db):
     key = job2key(job_id)
     del db[key]
 
@@ -70,9 +67,9 @@ def delete_job(job_id, db):
 #
 # Cache objects
 #
-def job2cachekey(job_id):
+def job2cachekey(job_id: CMJobID) -> str:
     prefix = "cm-cache-"
-    return "%s%s" % (prefix, job_id)
+    return f"{prefix}{job_id}"
 
 
 def get_job_cache(job_id, db):
@@ -84,7 +81,7 @@ def get_job_cache(job_id, db):
         except Exception as e:
             del db[cache_key]
             # also remove user object?
-            msg = 'Could not read Cache object for job "%s": %s; deleted.' % (job_id, e)
+            msg = f'Could not read Cache object for job "{job_id}": {e}; deleted.'
             raise CompmakeException(msg)
         return cache
     else:
@@ -103,17 +100,17 @@ def get_job_cache(job_id, db):
         return cache
 
 
-def job_cache_exists(job_id, db):
+def job_cache_exists(job_id: CMJobID, db) -> bool:
     key = job2cachekey(job_id)
     return key in db
 
 
-def job_cache_sizeof(job_id, db):
+def job_cache_sizeof(job_id: CMJobID, db) -> int:
     key = job2cachekey(job_id)
     return db.sizeof(key)
 
 
-def set_job_cache(job_id, cache, db):
+def set_job_cache(job_id: CMJobID, cache: Cache, db):
     assert isinstance(cache, Cache)
     check_isinstance(cache.captured_stderr, (type(None), str))
     check_isinstance(cache.captured_stdout, (type(None), str))
@@ -131,14 +128,14 @@ def delete_job_cache(job_id: CMJobID, db):
 #
 # User objects
 #
-def job2userobjectkey(job_id):
+def job2userobjectkey(job_id: CMJobID):
     prefix = "cm-res-"
-    return "%s%s" % (prefix, job_id)
+    return f"{prefix}{job_id}"
 
     # print('All deps: %r' % all_deps)
 
 
-def get_job_userobject(job_id, db):
+def get_job_userobject(job_id: CMJobID, db) -> object:
     # available = is_job_userobject_available(job_id, db)
     # if not available:
     # available_job = job_exists(job_id, db)
@@ -156,12 +153,12 @@ def get_job_userobject(job_id, db):
     return res
 
 
-def job_userobject_sizeof(job_id, db):
+def job_userobject_sizeof(job_id: CMJobID, db) -> int:
     key = job2userobjectkey(job_id)
     return db.sizeof(key)
 
 
-def is_job_userobject_available(job_id, db):
+def is_job_userobject_available(job_id: CMJobID, db) -> bool:
     key = job2userobjectkey(job_id)
     return key in db
 
@@ -169,22 +166,22 @@ def is_job_userobject_available(job_id, db):
 job_userobject_exists = is_job_userobject_available
 
 
-def set_job_userobject(job_id, obj, db):
+def set_job_userobject(job_id: CMJobID, obj, db):
     key = job2userobjectkey(job_id)
     db[key] = obj
 
 
-def delete_job_userobject(job_id, db):
+def delete_job_userobject(job_id: CMJobID, db):
     key = job2userobjectkey(job_id)
     del db[key]
 
 
-def job2jobargskey(job_id):
+def job2jobargskey(job_id: CMJobID):
     prefix = "cm-args-"
-    return "%s%s" % (prefix, job_id)
+    return f"{prefix}{job_id}"
 
 
-def get_job_args(job_id, db):
+def get_job_args(job_id: CMJobID, db):
     key = job2jobargskey(job_id)
 
     if False:
@@ -196,27 +193,27 @@ def get_job_args(job_id, db):
             return db[key]
 
 
-def job_args_exists(job_id, db):
+def job_args_exists(job_id: CMJobID, db) -> bool:
     key = job2jobargskey(job_id)
     return key in db
 
 
-def job_args_sizeof(job_id, db):
+def job_args_sizeof(job_id: CMJobID, db) -> int:
     key = job2jobargskey(job_id)
     return db.sizeof(key)
 
 
-def set_job_args(job_id, obj, db):
+def set_job_args(job_id: CMJobID, obj, db):
     key = job2jobargskey(job_id)
     db[key] = obj
 
 
-def delete_job_args(job_id, db):
+def delete_job_args(job_id: CMJobID, db):
     key = job2jobargskey(job_id)
     del db[key]
 
 
-def delete_all_job_data(job_id, db):
+def delete_all_job_data(job_id: CMJobID, db):
     # print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
@@ -230,10 +227,10 @@ def delete_all_job_data(job_id, db):
 
 
 # These are delicate and should be implemented differently
-def db_job_add_dynamic_children(job_id, children, returned_by, db):
+def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db):
     job = get_job(job_id, db)
     if not returned_by in job.children:
-        msg = "%r does not know it has child  %r" % (job_id, returned_by)
+        msg = f"{job_id!r} does not know it has child  {returned_by!r}"
         raise CompmakeBug(msg)
 
     job.children.update(children)
@@ -253,10 +250,10 @@ def db_job_add_parent(db, job_id, parent):
     assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
-def db_job_add_parent_relation(child, parent, db):
+def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db):
     child_comp = get_job(child, db=db)
     orig = set(child_comp.parents)
-    want = orig | set([parent])
+    want = orig | {parent}
     # alright, need to take care of race condition
     while True:
         # Try to write
@@ -265,10 +262,10 @@ def db_job_add_parent_relation(child, parent, db):
         # now read back
         child_comp = get_job(child, db=db)
         if child_comp.parents != want:
-            print("race condition for parents of %s" % child)
-            print("orig: %s" % orig)
-            print("want: %s" % want)
-            print("now: %s" % child_comp.parents)
+            print(f"race condition for parents of {child}")
+            print(f"orig: {orig}")
+            print(f"want: {want}")
+            print(f"now: {child_comp.parents}")
             # add the children of the other racers as well
             want = want | child_comp.parents
         else:

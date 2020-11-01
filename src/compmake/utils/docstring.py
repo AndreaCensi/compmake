@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Code copied from PEP-0257
 
 __all__ = ["docstring_trim", "docstring_components"]

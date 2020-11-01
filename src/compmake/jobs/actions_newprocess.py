@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 
 from zuper_commons.text import indent

@@ -8,18 +8,21 @@ from networkx import DiGraph
 from networkx.drawing.nx_pydot import write_dot
 
 from zuper_commons.fs import read_ustring_from_utf8_file
-from . import logger
+from . import logger, Promise
 
 
 def make_bridge_main(args=None):
     parser = argparse.ArgumentParser(prog="zuper-make",)
-    parser.add_argument("--out", default="out-find_deps")
+    parser.add_argument("-o", "--out", default="out-zuper-make")
     parser.add_argument("-c", "--command", default=None)
 
     parsed, extra = parser.parse_known_args(args=args)
     fn = extra[0]
 
     C = os.path.dirname(fn)
+    if not C:
+        C = os.getcwd()
+
     fnrel = os.path.basename(fn)
     data = read_ustring_from_utf8_file(fn)
     mp = parse_makefile(data)
@@ -32,24 +35,30 @@ def make_bridge_main(args=None):
 
     from compmake import Context
 
-    db = fn + ".compmake"
+    # db = fn + ".compmake"
+    db = parsed.out
     c = Context(db=db)
 
     jobs = {}
 
-    def get_job_promise(name: str):
+    def get_job_promise(name: str) -> Promise:
+        # logger.info(jobs=jobs)
         if name not in jobs:
             depends_on = [get_job_promise(_) for _ in mp.G.successors(name)]
+            ignore_others = [_.job_id for _ in depends_on]
             jobs[name] = c.comp(
                 run_one_command,
                 C=C,
                 fnrel=fnrel,
                 target=name,
-                ignore_others=[],
+                ignore_others=ignore_others,
                 depends_on=depends_on,
                 job_id=name,
             )
-        return jobs[name]
+
+        res = jobs[name]
+        # check_isinstance(res, str)
+        return res
 
     for target in mp.G:
         get_job_promise(target)
@@ -62,11 +71,12 @@ def make_bridge_main(args=None):
 
 
 def run_one_command(C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str]):
-    logger.info(cwd=C, fnrel=fnrel, target=target)
+    logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
 
     command = ["make", "-f", fnrel, target]
     for i in ignore_others:
         command.extend(["-o", i])
+    logger.info(command=command)
     subprocess.check_call(command, cwd=C)
     pass
 

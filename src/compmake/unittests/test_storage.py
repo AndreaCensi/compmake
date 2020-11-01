@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from nose.tools import istest
 
 from compmake.utils import wildcard_to_regexp

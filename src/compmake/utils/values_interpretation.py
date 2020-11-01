@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 __all__ = [
     "interpret_strings_like",
 ]

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     A Job represents the computation as passed by the user.
     It contains only the "action" but not the state.
@@ -73,7 +71,6 @@ __all__ = [
     "Job",
     "Cache",
     "CMJobID",
-    # 'execute_with_context'
 ]
 
 CMJobID = NewType("CMJobID", str)
@@ -82,12 +79,6 @@ CMJobID = NewType("CMJobID", str)
 @dataclass
 class Promise:
     job_id: CMJobID
-    #
-    # def __init__(self, job_id):
-    #     self.job_id = job_id
-    #
-    # def __repr__(self):
-    #     return 'Promise(%r)' % self.job_id
 
 
 class Job:
@@ -95,19 +86,18 @@ class Job:
     children: Set
     parents: Set
     needs_conntext: bool
-    defined_by: List[str]
+    defined_by: List[CMJobID]
     dynamic_children: dict
     pickle_main_context: object
     command_desc: object
 
-    # @contract(defined_by='list[>=1](unicode)', children=set)
     def __init__(
         self,
         job_id: CMJobID,
-        children: Set,
-        command_desc,
+        children: Set[CMJobID],
+        command_desc: str,
         needs_context: bool = False,
-        defined_by: List[str] = None,
+        defined_by: List[CMJobID] = None,
     ):
         """
 
@@ -147,28 +137,28 @@ def same_computation(jobargs1, jobargs2):
 
         if not equal_command:
             reason += "* function changed \n"
-            reason += "  - old: %s \n" % cmd1
-            reason += "  - new: %s \n" % cmd2
+            reason += f"  - old: {cmd1} \n"
+            reason += f"  - new: {cmd2} \n"
 
             # TODO: can we check the actual code?
 
         warn = " (or you did not implement proper __eq__)"
         if len(args1) != len(args2):
-            reason += "* different number of arguments (%d -> %d)\n" % (len(args1), len(args2))
+            reason += f"* different number of arguments ({len(args1)} -> {len(args2)})\n"
         else:
             for i, ob in enumerate(args1):
                 if ob != args2[i]:
-                    reason += "* arg #%d changed %s \n" % (i, warn)
-                    reason += "  - old: %s\n" % describe_value(ob)
-                    reason += "  - old: %s\n" % describe_value(args2[i])
+                    reason += f"* arg #{i} changed {warn} \n"
+                    reason += f"  - old: {describe_value(ob)}\n"
+                    reason += f"  - old: {describe_value(args2[i])}\n"
 
         for key, value in kwargs1.items():
             if key not in kwargs2:
-                reason += '* kwarg "%s" not found\n' % key
+                reason += f'* kwarg "{key}" not found\n'
             elif value != kwargs2[key]:
-                reason += '* argument "%s" changed %s \n' % (key, warn)
-                reason += "  - old: %s \n" % describe_value(value)
-                reason += "  - new: %s \n" % describe_value(kwargs2[key])
+                reason += f'* argument "{key}" changed {warn} \n'
+                reason += f"  - old: {describe_value(value)} \n"
+                reason += f"  - new: {describe_value(kwargs2[key])} \n"
 
         # TODO: different lengths
 

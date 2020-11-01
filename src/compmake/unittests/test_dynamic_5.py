@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake.context import Context
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.unittests.compmake_test import CompmakeTest

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import CompmakeTest
 from ..jobs import direct_children, direct_parents, make
 from ..exceptions import UserError

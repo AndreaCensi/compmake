@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from zuper_commons.types import check_isinstance
 
 __all__ = [
