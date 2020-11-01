@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import multiprocessing
 from typing import Any, Tuple
 
 from future.moves.queue import Full
@@ -12,6 +13,10 @@ from compmake.jobs.result_dict import result_dict_check
 from compmake.structures import CMJobID
 from compmake.utils import setproctitle
 from zuper_commons.types import check_isinstance
+from . import logger
+
+multiprocessing.set_start_method('fork')
+
 
 __all__ = [
     "parmake_job2",
@@ -33,11 +38,12 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
 
+    logger.info(f'queues: {PmakeManager.queues}')
     event_queue = PmakeManager.queues[event_queue_name]
 
     db = context.get_compmake_db()
 
-    setproctitle("compmake:%s" % job_id)
+    setproctitle(f"compmake:{job_id}")
 
     class G:
         nlostmessages = 0
@@ -62,7 +68,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
             register_handler("*", handler)
 
         def proctitle(event):
-            stat = "[%s/%s %s] (compmake)" % (event.progress, event.goal, event.job_id)
+            stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
             setproctitle(stat)
 
         register_handler("job-progress", proctitle)

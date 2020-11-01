@@ -2,6 +2,7 @@
 
 
 import os
+import random
 import signal
 import time
 from multiprocessing import Queue
@@ -14,7 +15,7 @@ from psutil import NoSuchProcess
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
-from compmake.ui import warning
+from compmake.ui import info, warning
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from .parmake_job2_imp import parmake_job2
@@ -80,11 +81,12 @@ class PmakeManager(Manager):
 
     def process_init(self) -> None:
         self.event_queue = Queue(1000)
-        self.event_queue_name = "%s" % id(self)
+        r = random.randint(0, 10000)
+        self.event_queue_name = f"q-{id(self)}-{r}"
 
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
-        # info('Starting %d processes' % self.num_processes)
+        info(f'Starting {self.num_processes} processes queues = {PmakeManager.queues}')
 
         self.subs = {}  # name -> sub
         # available + processing + aborted = subs.keys
@@ -99,8 +101,8 @@ class PmakeManager(Manager):
         # self.signal_queue = Queue()
 
         for i in range(self.num_processes):
-            name = SubName("parmake_sub_%02d" % i)
-            write_log = os.path.join(logs, "%s.log" % name)
+            name = SubName(f"parmake_sub_{i:02d}")
+            write_log = os.path.join(logs, f"{name}.log")
             make_sure_dir_exists(write_log)
             signal_token = name
             p = PmakeSub(name=name, signal_queue=None, signal_token=signal_token, write_log=write_log)
@@ -118,9 +120,9 @@ class PmakeManager(Manager):
         assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            msg = "already %d processing" % len(self.sub_processing)
+            msg = f"already {len(self.sub_processing)} processing"
             if self.sub_aborted:
-                msg += " (%d workers aborted)" % len(self.sub_aborted)
+                msg += f" ({len(self.sub_aborted)} workers aborted)"
             resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available

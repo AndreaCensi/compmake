@@ -54,13 +54,15 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
     from coverage import process_startup
 
     if hasattr(process_startup, "coverage"):
-        logger.info("Detected coverage wanted.")
+        # logger.info("Detected coverage wanted.")
         delattr(process_startup, "coverage")
         cov = process_startup()
         if cov is None:
-            logger.warning("Coverage did not start.")
+            pass
+            # logger.warning("Coverage did not start.")
         else:
-            logger.info("Coverage started successfully.")
+            pass
+            # logger.info("Coverage started successfully.")
     else:
         # logger.info("Not detected coverage need.")
         cov = None
@@ -69,16 +71,13 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
         f = open(write_log, "w")
 
         def log(s):
-            # print('%s: %s' % (name, s))
-            f.write("%s: " % name)
-            f.write(s)
-            f.write("\n")
+            f.write(f"{name}: {s}\n")
             f.flush()
 
     else:
 
         def log(s):
-            print("%s: %s" % (name, s))
+            print(f"{name}: {s}")
             pass
 
     log("started pmake_worker()")
@@ -104,7 +103,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
                 log("Received EXIT_TOKEN.")
                 break
 
-            log("got job: %s" % str(job))
+            log(f"got job: {job}")
 
             function, arguments = job
             try:
@@ -112,7 +111,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
                 result = function(arguments)
             except JobFailed as e:
                 log("Job failed, putting notice.")
-                log("result: %s" % (e))  # debug
+                log(f"result: {e}")  # debug
                 put_result(e.get_result_dict())
             except JobInterrupted as e:
                 log("Job interrupted, putting notice.")
@@ -121,7 +120,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
                 log("CompmakeBug")
                 put_result(e.get_result_dict())
             else:
-                log("result: %s" % str(result))
+                log(f"result: {result}")
                 put_result(result)
 
             log("...done.")

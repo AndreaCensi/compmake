@@ -72,6 +72,7 @@ __all__ = [
     "Promise",
     "Job",
     "Cache",
+    "CMJobID",
     # 'execute_with_context'
 ]
 
@@ -176,7 +177,7 @@ def same_computation(jobargs1, jobargs2):
         return True, None
 
 
-class IntervalTimer(object):
+class IntervalTimer:
     def __init__(self):
         import time
 
@@ -212,7 +213,7 @@ class IntervalTimer(object):
         return "Timer(wall %dms cpu %dms) " % ((self.t1 - self.t0) * 1000, (self.c1 - self.c0) * 1000)
 
 
-class Cache(object):
+class Cache:
     # TODO: add blocked
 
     NOT_STARTED = 0
@@ -288,7 +289,7 @@ def timing_summary(cache):
     return s
 
 
-class ProgressStage(object):
+class ProgressStage:
     # @contract(name="unicode", iterations="tuple((float|int),(float|int))")
     def __init__(self, name: str, iterations: Tuple[Union[float, int], Union[float, int]], iteration_desc):
         self.name = name
@@ -298,7 +299,7 @@ class ProgressStage(object):
         self.last_broadcast = None
 
     def __str__(self):
-        return "[%s %s %s]" % (self.name, self.iterations, self.iteration_desc)
+        return f"[{self.name} {self.iterations} {self.iteration_desc}]"
 
     def was_finished(self):
         # allow off-by-one conventions
