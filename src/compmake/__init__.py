@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 __version__ = "6.0.9"
+
+from zuper_commons.logs import ZLogger
+
 version = __version__
 
-import logging
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = ZLogger(__name__)
 
 from .constants import *
 from .state import *

@@ -10,10 +10,10 @@ if __name__ == "__main__":
 
     branch = 10
     print(
-        "We will now define a hierarchy of %d x %d x %d = %d jobs."
-        % (branch, branch, branch, branch * branch * branch)
+        f"We will now define a hierarchy of {branch:d} x {branch:d} x {branch:d} = "
+        f"{branch * branch * branch:d} jobs."
     )
-    print("Each can fail randomly with probability %f." % failure_prob)
+    print(f"Each can fail randomly with probability {failure_prob:f}.")
 
     # args = sys.argv[1:]
     #     if args:
@@ -24,10 +24,10 @@ if __name__ == "__main__":
         for j in range(branch):
             kjobs = []
             for k in range(branch):
-                kjobs.append(c.comp(third, job_id="%d-%d-%d" % (i, j, k)))
-            ijobs.append(c.comp(second, kjobs, job_id="%d-%d" % (i, j)))
+                kjobs.append(c.comp(third, job_id=f"{i:d}-{j:d}-{k:d}"))
+            ijobs.append(c.comp(second, kjobs, job_id=f"{i:d}-{j:d}"))
 
-        c.comp(first, ijobs, job_id="%d" % i)
+        c.comp(first, ijobs, job_id=f"{i:d}")
 
     # Run command passed on command line or otherwise run console.
     import sys
