@@ -4,4 +4,3 @@ include *.txt
 include *.mk
 include *.yml
 include *.py
-

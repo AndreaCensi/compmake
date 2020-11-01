@@ -12,12 +12,10 @@ Extended list of features
 
 * Two storage backends:
    * Filesystem based.
-   * Network-base using Redis. Necessary for using the 
+   * Network-base using Redis. Necessary for using the
      multiprocessing module.
 
 * (TODO) Tracking of the computation status (estimated time to go).
 * (TODO) Curses-based interface
 
 .. _limitations:
-
-

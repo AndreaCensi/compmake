@@ -17,9 +17,9 @@ Preparing your programs for  compmake
 -----------------------------------------
 
 The basic idea is that now your source code will just *describe* your computation, without actually
-executing it. 
+executing it.
 
-In practice, to use |compmake|, you have to modify 
+In practice, to use |compmake|, you have to modify
 each function call of interest by wrapping it with the ``comp()`` function.
 It's easy: each fragment of the form::
 
@@ -62,7 +62,7 @@ Using the console
 
 Running the program above will give you a prompt::
 
-  $ python using_compmake1.py 
+  $ python using_compmake1.py
   Welcome to the compmake console. (write 'help' for a list of commands)
   27 jobs loaded.
   @:
@@ -70,7 +70,7 @@ Running the program above will give you a prompt::
 This is Compmake's console prompt.
 
 **Listing jobs**: The command ``ls`` gives a list of the jobs: ::
-  
+
   @: ls
         draw        todo
         draw-2      todo
@@ -123,16 +123,16 @@ You can give the number of parallel processes: ::
 Naming jobs
 -----------
 
-Each invocation of the ``comp()`` function produces one *job*. 
+Each invocation of the ``comp()`` function produces one *job*.
 Each job is described by a unique ID. By default, the ID is generated
-by the name of the function, with a progressive number postponed. 
+by the name of the function, with a progressive number postponed.
 You can use the command ``list`` to obtain a list of the jobs.
 For this example, the output would be:
 
 .. literalinclude:: my_static/example1/using_compmake1_list_before.txt
 
 As you can see, the jobs are named ``func1-<n>``, ``func2-<n>``,
-``draw-<n>``. 
+``draw-<n>``.
 
 It is very useful to have distinctive names for the jobs. Compmake provides
 two mechanisms to that effect. The first is the function ``comp_prefix()``
@@ -168,7 +168,7 @@ only to part of the jobs. In the example, you can write::
 
     @: remake   *-p2=11-*
 
-to re-do only the subset of computations with a certain value 
+to re-do only the subset of computations with a certain value
 of the parameters. Or, you can remake the last stage of the computation::
 
     @: remake   *-drawing

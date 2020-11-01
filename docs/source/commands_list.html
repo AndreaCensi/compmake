@@ -1,32 +1,32 @@
 <table class='compmake-config'>
-<tr><th colspan='3'>General commands</th></tr/ 
-<tr> <td class='command-name'><tt>help</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Prints help about the other commands. (try 'help help')</td> </tr> 
-<tr> <td class='command-name'><tt>exit</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Exits the shell.</td> </tr> 
-<tr> <td class='command-name'><tt>config</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Get/set configuration parameters.</td> </tr> 
-<tr> <td class='command-name'><tt>credits</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Shows the credits for compmake.</td> </tr> 
-<tr> <td class='command-name'><tt>reload</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Reloads a module.</td> </tr> 
-<tr><th colspan='3'>Commands</th></tr/ 
-<tr> <td class='command-name'><tt>clean</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cleans the result of the selected computation (or everything is nothing specified). </td> </tr> 
-<tr> <td class='command-name'><tt>make</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Makes selected targets; or all targets if none specified. </td> </tr> 
-<tr> <td class='command-name'><tt>remake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Remake the selected targets (equivalent to clean and make). </td> </tr> 
-<tr> <td class='command-name'><tt>more</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Makes more of the selected targets. </td> </tr> 
-<tr><th colspan='3'>Parallel commands</th></tr/ 
-<tr> <td class='command-name'><tt>parmake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "make".</td> </tr> 
-<tr> <td class='command-name'><tt>parremake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "remake". </td> </tr> 
-<tr> <td class='command-name'><tt>parmore</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "more". </td> </tr> 
-<tr><th colspan='3'>Cluster commands</th></tr/ 
-<tr><td colspan='3'> These assume that you have a cluster configuration file as explained in the documentation. </td></tr> 
-<tr> <td class='command-name'><tt>clustmake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cluster equivalent of "make".</td> </tr> 
-<tr> <td class='command-name'><tt>clustmore</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cluster equivalent of "more".</td> </tr> 
-<tr><th colspan='3'>Visualization and diagnostics</th></tr/ 
-<tr> <td class='command-name'><tt>graph</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Creates a graph of the given targets and dependencies </td> </tr> 
-<tr> <td class='command-name'><tt>list</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Lists the status of the selected targets (or all targets if not specified).</td> </tr> 
-<tr><th colspan='3'>Import / export</th></tr/ 
-<tr><td colspan='3'> Ways to get data out of compmake. </td></tr> 
-<tr> <td class='command-name'><tt>dump</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Dumps the content of jobs as pickle files.</td> </tr> 
-<tr><th colspan='3'>Advanced commands</th></tr/ 
-<tr><td colspan='3'> Advanced commands not for general use </td></tr> 
-<tr> <td class='command-name'><tt>make_single</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Makes a single job -- not for users, but for slave mode. </td> </tr> 
-<tr> <td class='command-name'><tt>commands_html</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Dumps the commands description in html on the specified file </td> </tr> 
-<tr> <td class='command-name'><tt>config_html</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Dumps the config description in html on the specified file. </td> </tr> 
+<tr><th colspan='3'>General commands</th></tr/
+<tr> <td class='command-name'><tt>help</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Prints help about the other commands. (try 'help help')</td> </tr>
+<tr> <td class='command-name'><tt>exit</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Exits the shell.</td> </tr>
+<tr> <td class='command-name'><tt>config</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Get/set configuration parameters.</td> </tr>
+<tr> <td class='command-name'><tt>credits</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Shows the credits for compmake.</td> </tr>
+<tr> <td class='command-name'><tt>reload</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Reloads a module.</td> </tr>
+<tr><th colspan='3'>Commands</th></tr/
+<tr> <td class='command-name'><tt>clean</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cleans the result of the selected computation (or everything is nothing specified). </td> </tr>
+<tr> <td class='command-name'><tt>make</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Makes selected targets; or all targets if none specified. </td> </tr>
+<tr> <td class='command-name'><tt>remake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Remake the selected targets (equivalent to clean and make). </td> </tr>
+<tr> <td class='command-name'><tt>more</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Makes more of the selected targets. </td> </tr>
+<tr><th colspan='3'>Parallel commands</th></tr/
+<tr> <td class='command-name'><tt>parmake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "make".</td> </tr>
+<tr> <td class='command-name'><tt>parremake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "remake". </td> </tr>
+<tr> <td class='command-name'><tt>parmore</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Parallel equivalent of "more". </td> </tr>
+<tr><th colspan='3'>Cluster commands</th></tr/
+<tr><td colspan='3'> These assume that you have a cluster configuration file as explained in the documentation. </td></tr>
+<tr> <td class='command-name'><tt>clustmake</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cluster equivalent of "make".</td> </tr>
+<tr> <td class='command-name'><tt>clustmore</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Cluster equivalent of "more".</td> </tr>
+<tr><th colspan='3'>Visualization and diagnostics</th></tr/
+<tr> <td class='command-name'><tt>graph</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Creates a graph of the given targets and dependencies </td> </tr>
+<tr> <td class='command-name'><tt>list</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Lists the status of the selected targets (or all targets if not specified).</td> </tr>
+<tr><th colspan='3'>Import / export</th></tr/
+<tr><td colspan='3'> Ways to get data out of compmake. </td></tr>
+<tr> <td class='command-name'><tt>dump</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'>Dumps the content of jobs as pickle files.</td> </tr>
+<tr><th colspan='3'>Advanced commands</th></tr/
+<tr><td colspan='3'> Advanced commands not for general use </td></tr>
+<tr> <td class='command-name'><tt>make_single</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Makes a single job -- not for users, but for slave mode. </td> </tr>
+<tr> <td class='command-name'><tt>commands_html</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Dumps the commands description in html on the specified file </td> </tr>
+<tr> <td class='command-name'><tt>config_html</tt></td> <td class='command-params'><tt><tt></td> <td class='command-desc'> Dumps the config description in html on the specified file. </td> </tr>
 </table>

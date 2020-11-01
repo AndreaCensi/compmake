@@ -66,11 +66,11 @@ usage = """
 The "compmake" script takes a DB directory as argument:
 
     $ compmake  <compmake_storage>  [-c COMMAND]
-    
-For example: 
+
+For example:
 
     $ compmake out-compmake -c "clean; parmake n=2"
-   
+
 """
 
 

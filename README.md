@@ -4,13 +4,13 @@
 Compmake
 ===============================================
 
-**Compmake** is an unobstrusive Python library that provides 
+**Compmake** is an unobstrusive Python library that provides
 Make--like facilities to a Python application, including:
 
-- Minimal effort job management and **parallelization** 
-(multiple CPU on a single host, cluster computing using SGE, 
+- Minimal effort job management and **parallelization**
+(multiple CPU on a single host, cluster computing using SGE,
 and experimental support for cloud computing using Multyvac).
-- **Caching** of temporary results: you can interrupt your program 
+- **Caching** of temporary results: you can interrupt your program
 and restart it without losing what was already computed.
 - **Failure tolerance**: if a job fails, other jobs that do
 not depend on it continue to be executed.
@@ -39,7 +39,7 @@ Please report any problem using Github's issue tracker at
 Acknowledgements
 ----------------
 
-Your tax dollars at work! Compmake's development was supported 
+Your tax dollars at work! Compmake's development was supported
 by the [National Science Foundation](http://www.nsf.gov/)
 in the *National Robotics Initiative* program under grant #1405259.
 
@@ -75,12 +75,10 @@ Some animations of the job graph
 Changelog
 ---------
 
-* v3.5 - Added ``why`` command --- compact error visualization. Removed 
+* v3.5 - Added ``why`` command --- compact error visualization. Removed
   color effects which might not be suitable for all console types.
 * v3.4.1 - Bug fix; experimental multyvac_sync
-* v3.4.0 - Changed the way that dynamic job IDs are generated 
+* v3.4.0 - Changed the way that dynamic job IDs are generated
            to avoid a race condition in a corner case.
 * v3.3.7 - Bug fix.
 * v3.3.6 - Experimental Multyvac backend.
-
-

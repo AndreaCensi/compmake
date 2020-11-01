@@ -86,7 +86,7 @@ class PmakeManager(Manager):
 
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
-        info(f'Starting {self.num_processes} processes queues = {PmakeManager.queues}')
+        info(f"Starting {self.num_processes} processes queues = {PmakeManager.queues}")
 
         self.subs = {}  # name -> sub
         # available + processing + aborted = subs.keys

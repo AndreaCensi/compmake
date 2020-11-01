@@ -13,9 +13,9 @@ class JobNotRunYet(Exception):
 
 
 def get_qacct(sge_id):
-    """ 
+    """
         Only provides results if the job already rann.
-    
+
         Raises JobNotRunYet if the job didn't run.
     """
     cmd = ["qacct", "-j", sge_id]

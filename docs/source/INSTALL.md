@@ -5,7 +5,7 @@ Installation notes for Linux / Ubuntu 14.04
 Necessary Dependency: readline
 ------------------------------
 
-The ``readline`` dependency is the only nonobvious one. 
+The ``readline`` dependency is the only nonobvious one.
 
 You need to install dependencies:
 
@@ -37,9 +37,9 @@ If you don't do this, SGE will not be correctly configured.
 
 These are the packages needed in Ubuntu 14.04:
 
-    sudo apt-get install gridengine-master gridengine-client gridengine-common gridengine-qmon gridengine-exec 
+    sudo apt-get install gridengine-master gridengine-client gridengine-common gridengine-qmon gridengine-exec
 
-Make sure you give correct information when configuration dialogs pop up. 
+Make sure you give correct information when configuration dialogs pop up.
 
 Need to install xfonts for QMon GUI to work. Just install all xfonts:
 
@@ -53,8 +53,8 @@ Add yourself as user:
 Add a submit host:
 
     sudo qconf -as thinkpad14.local
-    
-Add a queue using this: 
+
+Add a queue using this:
 
     sudo qconf -aq queue1
 
@@ -67,7 +67,7 @@ Here's a simple script ``hello.sh`` to try:
     echo "Hello world" > /tmp/hello.txt
 
 Try with:
-    
+
     qsub hello.sh
 
 
@@ -76,7 +76,7 @@ Useful SGE commands
 
 Look at the queue:
 
-    watch qstat  
+    watch qstat
 
 Delete all jobs:
 

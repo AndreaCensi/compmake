@@ -12,4 +12,3 @@ networkx>=2.4,<3
 six==1.14.0
 dill
 coverage
-

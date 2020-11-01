@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 $ compmake example -c list
 =======
-@: ls 
+@: ls
       draw     done      (1s ago)
       draw-2   done      (1s ago)
       draw-3   done      (1s ago)

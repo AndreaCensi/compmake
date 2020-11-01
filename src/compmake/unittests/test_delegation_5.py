@@ -33,7 +33,7 @@ def define_jobs(root):
 
 @istest
 class TestDelegation5(unittest.TestCase):
-    """ 
+    """
         Here's the problem: when the master are overwritten then
         the additional dependencies are lost.
     """

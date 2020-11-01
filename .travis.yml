@@ -12,10 +12,10 @@ python:
 # cache:
 #   directories:
 #     - $HOME/.cache/pip
-install: 
+install:
 - python setup.py develop
 # command to run tests
-script: 
+script:
 - nosetests
 # addons:
 #   apt:

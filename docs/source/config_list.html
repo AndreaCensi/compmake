@@ -1,29 +1,27 @@
 [?1034h<table class='compmake-config'>
-<tr><th colspan='3'>General configuration</th></tr/ 
-<tr> <td class='config-name'><tt>check_params</tt></td> <td class='config-value'><tt>False<tt></td> <td class='config-desc'>If true, erases the cache if job parameters appear to change.</td> </tr> 
-<tr><th colspan='3'>Storage setting backend</th></tr/ 
-<tr> <td class='config-name'><tt>db</tt></td> <td class='config-value'><tt>filesystem<tt></td> <td class='config-desc'>Specifies db backend. XXX: so far, only 'filesystem' officially supported.</td> </tr> 
-<tr> <td class='config-name'><tt>path</tt></td> <td class='config-value'><tt>compmake_storage<tt></td> <td class='config-desc'>[filesystem] Path to directory for filesystem storage.</td> </tr> 
-<tr><th colspan='3'>Appearance</th></tr/ 
-<tr> <td class='config-name'><tt>echo_stdout</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stdout is shown.</td> </tr> 
-<tr> <td class='config-name'><tt>echo_stderr</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stderr is shown.</td> </tr> 
-<tr> <td class='config-name'><tt>colorize</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>Use colors in terminals if possible.</td> </tr> 
-<tr> <td class='config-name'><tt>verbose_definition</tt></td> <td class='config-value'><tt>False<tt></td> <td class='config-desc'>If true, log on stderr about job (re)definition.</td> </tr> 
-<tr><th colspan='3'>Multiprocessing</th></tr/ 
-<tr> <td class='config-name'><tt>max_mem_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum physical memory load (%)</td> </tr> 
-<tr> <td class='config-name'><tt>max_cpu_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum CPU load (%). No jobs will be instantiated if over threshold.</td> </tr> 
-<tr> <td class='config-name'><tt>autobal_after</tt></td> <td class='config-value'><tt>8<tt></td> <td class='config-desc'>Autobalances after the given number of processes (%)</td> </tr> 
-<tr> <td class='config-name'><tt>min_proc_interval</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Minimum time interval between instantiating jobs.</td> </tr> 
-<tr><th colspan='3'>Cluster execution</th></tr/ 
-<tr> <td class='config-name'><tt>cluster_conf</tt></td> <td class='config-value'><tt>cluster.yaml<tt></td> <td class='config-desc'>Location of cluster configuration file.</td> </tr> 
-<tr> <td class='config-name'><tt>hostname</tt></td> <td class='config-value'><tt>localhost<tt></td> <td class='config-desc'>Nickname for current host (set by compmake master).</td> </tr> 
-<tr> <td class='config-name'><tt>cluster_nice</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Nice level for spawned remote processes.</td> </tr> 
-<tr> <td class='config-name'><tt>cluster_show_cmd</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, it shows the connection string to the slaves.</td> </tr> 
+<tr><th colspan='3'>General configuration</th></tr/
+<tr> <td class='config-name'><tt>check_params</tt></td> <td class='config-value'><tt>False<tt></td> <td class='config-desc'>If true, erases the cache if job parameters appear to change.</td> </tr>
+<tr><th colspan='3'>Storage setting backend</th></tr/
+<tr> <td class='config-name'><tt>db</tt></td> <td class='config-value'><tt>filesystem<tt></td> <td class='config-desc'>Specifies db backend. XXX: so far, only 'filesystem' officially supported.</td> </tr>
+<tr> <td class='config-name'><tt>path</tt></td> <td class='config-value'><tt>compmake_storage<tt></td> <td class='config-desc'>[filesystem] Path to directory for filesystem storage.</td> </tr>
+<tr><th colspan='3'>Appearance</th></tr/
+<tr> <td class='config-name'><tt>echo_stdout</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stdout is shown.</td> </tr>
+<tr> <td class='config-name'><tt>echo_stderr</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, the job output to stderr is shown.</td> </tr>
+<tr> <td class='config-name'><tt>colorize</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>Use colors in terminals if possible.</td> </tr>
+<tr> <td class='config-name'><tt>verbose_definition</tt></td> <td class='config-value'><tt>False<tt></td> <td class='config-desc'>If true, log on stderr about job (re)definition.</td> </tr>
+<tr><th colspan='3'>Multiprocessing</th></tr/
+<tr> <td class='config-name'><tt>max_mem_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum physical memory load (%)</td> </tr>
+<tr> <td class='config-name'><tt>max_cpu_load</tt></td> <td class='config-value'><tt>100.0<tt></td> <td class='config-desc'>Maximum CPU load (%). No jobs will be instantiated if over threshold.</td> </tr>
+<tr> <td class='config-name'><tt>autobal_after</tt></td> <td class='config-value'><tt>8<tt></td> <td class='config-desc'>Autobalances after the given number of processes (%)</td> </tr>
+<tr> <td class='config-name'><tt>min_proc_interval</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Minimum time interval between instantiating jobs.</td> </tr>
+<tr><th colspan='3'>Cluster execution</th></tr/
+<tr> <td class='config-name'><tt>cluster_conf</tt></td> <td class='config-value'><tt>cluster.yaml<tt></td> <td class='config-desc'>Location of cluster configuration file.</td> </tr>
+<tr> <td class='config-name'><tt>hostname</tt></td> <td class='config-value'><tt>localhost<tt></td> <td class='config-desc'>Nickname for current host (set by compmake master).</td> </tr>
+<tr> <td class='config-name'><tt>cluster_nice</tt></td> <td class='config-value'><tt>0<tt></td> <td class='config-desc'>Nice level for spawned remote processes.</td> </tr>
+<tr> <td class='config-name'><tt>cluster_show_cmd</tt></td> <td class='config-value'><tt>True<tt></td> <td class='config-desc'>If true, it shows the connection string to the slaves.</td> </tr>
 </table>
 
     <style type="text/css">
     .config-value: { padding: 1em }
-    
+
     </style>
-    
-    

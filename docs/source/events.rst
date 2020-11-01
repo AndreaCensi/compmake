@@ -15,15 +15,15 @@ Events: ::
 
  console init
 
- 
+
  job iteration
  job status changed      host  job_id timestamp  old_status  new_status
 
  host failed
 
- started 
+ started
  'command failed'
  'command interrupted'
- 'command succeeded'    
+ 'command succeeded'
 
  config changed

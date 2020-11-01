@@ -15,7 +15,7 @@ from compmake.utils import setproctitle
 from zuper_commons.types import check_isinstance
 from . import logger
 
-multiprocessing.set_start_method('fork')
+multiprocessing.set_start_method("fork")
 
 
 __all__ = [
@@ -38,7 +38,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
 
-    logger.info(f'queues: {PmakeManager.queues}')
+    logger.info(f"queues: {PmakeManager.queues}")
     event_queue = PmakeManager.queues[event_queue_name]
 
     db = context.get_compmake_db()

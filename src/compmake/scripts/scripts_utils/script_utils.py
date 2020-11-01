@@ -10,10 +10,10 @@ def wrap_script_entry_point(function, exceptions_no_traceback):
     """
         Wraps the main() of a script.
         For Exception: we exit with value 2.
-        
-        :param exceptions_no_traceback: tuple of exceptions for which we 
+
+        :param exceptions_no_traceback: tuple of exceptions for which we
          just print the error, and return 1.
-        
+
     """
     try:
         ret = function(sys.argv[1:])

@@ -1,5 +1,5 @@
 .. |compmake| raw:: html
-      
+
       <span class="compmake-brand">Compmake</span>
 
 

@@ -61,7 +61,7 @@ def clean(job_list, context):
     """
         Cleans the result of the selected computation (or everything if
         nothing specified).
-        
+
         If cleaning a dynamic job, it *deletes* all jobs it created.
 
     """

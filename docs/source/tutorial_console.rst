@@ -12,14 +12,14 @@ The compmake console
 console. The console allows to inspect the status of the jobs, start/stop jobs,
 set configuration, and other related tasks.
 
-To use the batch mode, invoke |compmake| as ``$ compmake [MODULE] [COMMAND]``. 
+To use the batch mode, invoke |compmake| as ``$ compmake [MODULE] [COMMAND]``.
 If you do not specify a command, then you will enter the console mode.
 For example, assuming that your module is called ``example.py``, you will
 see:
 
 .. literalinclude:: my_static/example1/prompt.txt
 
-The |compmake| console is designed to be friendly. You can use auto-completion 
+The |compmake| console is designed to be friendly. You can use auto-completion
 with ``<tab>``.
 In the previous section, we discussed the commands ``make``, ``clean`` and ``list``.
 Here we discuss several of the other most useful commands.
@@ -37,7 +37,7 @@ If you write::
 
     @> help <command>
 
-you will see a description of the specified command. 
+you will see a description of the specified command.
 This is necessary because many commands can accept optional arguments.
 
 This is the same information that you can find on the page :ref:`commands`.
@@ -48,13 +48,13 @@ The ``config`` command
 
 To see all configuration switches, use::
 
-    @> config 
+    @> config
 
 To set a configuration switch, use::
 
     @> config <name> <value>
 
-For example, the following command suppresses echoing of the 
+For example, the following command suppresses echoing of the
 jobs' stdout to the console::
 
     @> config echo_stdout False
@@ -83,7 +83,7 @@ There are several shortcuts available to specify lists of jobs.
   	@> ls f1()        # all jobs that use the function f1()
 
 
-* **Use of logical operator**. Compmake implements a simple syntax for 
+* **Use of logical operator**. Compmake implements a simple syntax for
   defining sets of jobs. Some examples The following commands::
 
  	@> ls not failed in func1()   # list all func1() instances that did not fail
@@ -96,15 +96,8 @@ There are several shortcuts available to specify lists of jobs.
 
      [A] except [B]   ==  jobs in A that are not in B
      [A] in [B]       ==  jobs both in A and B
-     not [A]          ==  all jobs except those in A 
+     not [A]          ==  all jobs except those in A
                           (equivalent to "all except [A]")
-     
+
 
 * Go on to the next chapter :ref:`tutorial_embedding`.
-
-
-
-
-
-
-

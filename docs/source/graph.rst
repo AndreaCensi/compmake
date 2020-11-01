@@ -12,7 +12,7 @@ before running ``make`` you will see the following:
 
 .. image:: my_static/example1/graph_before.png
    :width: 100%
-   
+
 The color grey means that the job has not started. After running ``make``, the output will be:
 
 .. image:: my_static/example1/graph_after.png
@@ -20,7 +20,7 @@ The color grey means that the job has not started. After running ``make``, the o
 
 Here, green means that the job is done.
 
-After we run 
+After we run
 
 .. image:: my_static/example1/graph3.png
    :width: 100%
@@ -28,4 +28,3 @@ After we run
 Here, green means that the job is done.
 
 The computation graph... (to write)
-

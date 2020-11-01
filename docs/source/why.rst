@@ -18,20 +18,20 @@ Suppose that you are working on this simple program:
 This is a very simple program. Suppose, however, that the functions ``func1()``, ``func2()`` are very computational expensive. If that's the case, you encounter several problems that slow down your progress.
 
 * Suppose you want to improve the function ``draw()``. You find yourself running and running
-  the computation again, even though ``func1`` and ``func2`` did not change. 
+  the computation again, even though ``func1`` and ``func2`` did not change.
   It's obvious that some caching mechanism is needed. Yes, you can easily dump the intermediate
   results to file using the `pickle module`_. Or you can use `memoization`_: you google
   for the right Python decorator, maybe you add a persistent cache.
-  But now the 5 lines program has become a (buggy) 30 lines program. 
-  
+  But now the 5 lines program has become a (buggy) 30 lines program.
+
   **You wonder whether there's an easy way to do caching.**
 
   .. _`pickle module`: http://docs.python.org/library/pickle.html
   .. _`memoization`: http://en.wikipedia.org/wiki/Memoization
 
-* Suppose you want to try out another value for parameter ``param1``. Because you don't want to do the 
-  other computations again, you comment out one line, writing ``param1 = [42]``. Later on, 
-  you wonder whether you did try all combinations of ``param1`` and ``param2``. 
+* Suppose you want to try out another value for parameter ``param1``. Because you don't want to do the
+  other computations again, you comment out one line, writing ``param1 = [42]``. Later on,
+  you wonder whether you did try all combinations of ``param1`` and ``param2``.
 
   **You wonder whether there is an easy way to run selectively part of the computation**.
 
@@ -45,7 +45,7 @@ This is a very simple program. Suppose, however, that the functions ``func1()``,
   You just need to add a few lines of code. But wait, there is a nested loop. You probably
   have to write different functions... and, where exactly can you parallelize?
 
-  **You wonder why Python cannot discover the parallelizable structure in your code.** 
+  **You wonder why Python cannot discover the parallelizable structure in your code.**
 
   .. _`multiprocessing module`: http://docs.python.org/library/multiprocessing.html
 
@@ -62,4 +62,3 @@ The price you have to pay is a slight modification of the source code, as explai
 
 
 * Interested in using |compmake|? Read the first part of the tutorial: :ref:`tutorial_basic`.
-

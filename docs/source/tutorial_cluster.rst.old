@@ -5,9 +5,9 @@
 Compmake on a cluster
 =====================
 
-.. attention: 
+.. attention:
 
-   Before starting, check that your setup respects all the assumptions 
+   Before starting, check that your setup respects all the assumptions
    in section :ref:`cluster_assumptions`.
 
 
@@ -20,9 +20,9 @@ Redis_ (and install redis-py_).
 
 
 Configuration
-------------------------------------------- 
+-------------------------------------------
 
-You have to provide |compmake| with a configuration file describing 
+You have to provide |compmake| with a configuration file describing
 the machines in your cluster. We use the YAML_ format.
 Here is an example configuration file::
 
@@ -30,7 +30,7 @@ Here is an example configuration file::
 		nickname_machine1:
 			host: 10.0.0.1
 			processors: 3
-			
+
 		nickname_machine2:
 			host: 10.0.0.2
 			processors: 8
@@ -38,9 +38,9 @@ Here is an example configuration file::
 You can omit the ``host`` attribute, |compmake| will guess that the nickname is the hostname: ::
 
 	hosts:
-		10.0.0.1: 
+		10.0.0.1:
 			processors: 3
-		
+
 		10.0.0.1:
 			processors: 8
 
@@ -64,7 +64,7 @@ The details of how compmake uses clustering
 -------------------------------------------
 
 
-This is an explanation (for developers) of how 
+This is an explanation (for developers) of how
 |compmake| spawns processes on a cluster.
 
 Clustering works by spawning |compmake| processes on other hosts.
@@ -72,10 +72,10 @@ Clustering works by spawning |compmake| processes on other hosts.
 
 What happens is that |compmake| is spawned using a command line similar to this::
 
-    ssh nessa.cds.caltech.edu -R 13005:redisdb:6379 
-        nice -n 10 compmake --hostname=nessa.cds.caltech.edu  
-                            --db=redis --redis_host=localhost:13005  
-                            --save_progress=False 
+    ssh nessa.cds.caltech.edu -R 13005:redisdb:6379
+        nice -n 10 compmake --hostname=nessa.cds.caltech.edu
+                            --db=redis --redis_host=localhost:13005
+                            --save_progress=False
                             --slave  <namespace>
                     make_single  <job name>
 
@@ -84,7 +84,7 @@ This long command line contains several pieces. Let's deconstruct it:
 * ``ssh nessa.cds.caltech.edu -R 13005:redisdb:6379 ...``
 
   This opens a ssh connection to the given host. Moreover, it opens a tunnel for accessing the redis server.
-  In this case, port 13005 on the remote host is redirected to the host redisdb (port 6379). 
+  In this case, port 13005 on the remote host is redirected to the host redisdb (port 6379).
   You got to have the power to use these redirects
 
 * ``... nice -n 10 ...``
@@ -99,8 +99,8 @@ This long command line contains several pieces. Let's deconstruct it:
 * ``... --db=redis --redis_host=localhost:13005 ...``
 
   This selects redis as the DB backend and uses port 13005 to connect to it.
-  
-* ``... --save_progress=False ...`` 
+
+* ``... --save_progress=False ...``
 
   The incremental saving progrees is disabled on remote hosts for network performance purposes.
 
@@ -115,9 +115,6 @@ This long command line contains several pieces. Let's deconstruct it:
 
 * ``... make_single  <job name>``
 
-  Finally, the actual compmake command. ``make_single`` is like ``make`` but without the 
+  Finally, the actual compmake command. ``make_single`` is like ``make`` but without the
   scheduler. The slave will not look at the job's dependences, and it will throw an error
   if the depenencies are not up to date.
-
-
-

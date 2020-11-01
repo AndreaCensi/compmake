@@ -1,8 +1,8 @@
 <<<<<<< HEAD
-$ compmake example 
+$ compmake example
 =======
-$ compmake out-example 
-Compmake 3.3  (27 jobs loaded)   ``Keep calm and carry on,,                                                                                              
+$ compmake out-example
+Compmake 3.3  (27 jobs loaded)   ``Keep calm and carry on,,
                                                                                                                                                          @:                                                                                                                                                          @: (end of input detected)
 Thanks for using compmake. Problems? Suggestions? Praise? Go to http://compmake.org
 >>>>>>> origin/env_fault

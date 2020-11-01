@@ -25,7 +25,7 @@ instructions to build and publish the documentation.
 4. Run the ``create_website.sh`` script. This runs the sphinx build process.::
 
    $ ./create_website.sh
-   
+
 5. Upload the website using the ``upload.sh`` script::
 
    $ cd website

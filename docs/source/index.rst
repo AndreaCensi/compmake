@@ -22,19 +22,19 @@ Compmake
 
   .. raw:: html
 
-    <div style='float:right; margin-right: 3em'> 
-    
+    <div style='float:right; margin-right: 3em'>
+
     <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
         <p style='text-align: center'>The Compmake Manual</p>
         <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
     </a>
     </div>
 
-  Compmake is a Python library that provides 
+  Compmake is a Python library that provides
   "Make"--like facilities to a Python application, including:
 
   - Minimal effort **job management** and **parallelization** (multiple CPU on a single host, cluster computing using SGE, and experimental support for cloud computing using Multyvac).
-  - **Caching** of temporary results: you can interrupt your program 
+  - **Caching** of temporary results: you can interrupt your program
     and restart it without losing what was already computed.
   - **Failure tolerance**: if a job fails, other jobs that do
     not depend on it continue to be executed.
@@ -48,13 +48,13 @@ Screencasts
 
   .. raw:: html
 
-    <iframe src="http://player.vimeo.com/video/111290574" width="300" height="200" 
+    <iframe src="http://player.vimeo.com/video/111290574" width="300" height="200"
             frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-    <iframe src="http://player.vimeo.com/video/110090252" width="300" height="200" 
+    <iframe src="http://player.vimeo.com/video/110090252" width="300" height="200"
             frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-    <iframe src="http://player.vimeo.com/video/110944533" width="300" height="200" 
+    <iframe src="http://player.vimeo.com/video/110944533" width="300" height="200"
                 frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-    <iframe src="http://player.vimeo.com/video/111047404" width="300" height="200" 
+    <iframe src="http://player.vimeo.com/video/111047404" width="300" height="200"
                 frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 
@@ -69,11 +69,11 @@ You can also `fork the project on GitHub`_.
 
 .. _`fork the project on GitHub`: http://github.com/AndreaCensi/compmake
 
-.. 
+..
   .. raw:: html
      :file: download.html
 
-.. 
+..
     This will allow you to run |compmake| on a single host.
     However, there are also separate dependencies to install for some
     advanced features such as multiprocessing. See :ref:`install` for more information.
@@ -86,12 +86,12 @@ To use |compmake|, you have to minimally modify your Python program,
 such that it can understand the processing layout and
 the opportunities for parallelization.
 
-.. image:: _static/initial.png 
+.. image:: _static/initial.png
    :class: bigpicture
 
 An invocation of the kind: ::
-  
-    function(param)    
+
+    function(param)
 
 becomes: ::
 
@@ -99,8 +99,8 @@ becomes: ::
 
 The result of ``comp()`` is a promise that can be reused in
 defining other jobs. For example, a program like :::
-  
-    res = function(param)    
+
+    res = function(param)
     function2(res)
 
 becomes: ::
@@ -118,12 +118,12 @@ You would run the modified program using::
     $ python example.py
 
 This gives you a prompt: ::
-  
+
   Compmake 3.3  (27 jobs loaded)
   @:
 
 Run "make" at the prompt: ::
-  
+
   @: make
 
 This will run the jobs serially.
@@ -134,8 +134,8 @@ This will run the jobs serially.
   @: parmake n=6  # runs at most 6 in parallel
 
 .. There are all sorts of configuration options for being nice to other
-.. users of the machine; for example, Compmake can be instructed  
-.. not to start other jobs if the CPU or memory usage is already above a certain 
+.. users of the machine; for example, Compmake can be instructed
+.. not to start other jobs if the CPU or memory usage is already above a certain
 .. percentage
 ..     $ compmake --max_cpu_load=50 --max_mem_load=50 example -c "clean; parmake"
 
@@ -150,9 +150,9 @@ rerun only the last step. You can achieve that by::
 |compmake| will reuse part of the computations (``func1`` and ``func2``)
 but it will redo the last step.
 
-**Failure tolerance**: 
+**Failure tolerance**:
 If some of the jobs fail (e.g., they throw an exception),
-compmake will go forward with the rest. 
+compmake will go forward with the rest.
 
 To try this behavior, download the file `example_fail.py`_. If you run::
 
@@ -174,7 +174,7 @@ Some visualizations of the jobs graph during execution
   .. raw:: html
 
     <style type='text/css'>
-      div#animations { 
+      div#animations {
       }
       div#animations p { font-style: italic; }
       div#animations img { border: solid 1px black;}
@@ -186,15 +186,15 @@ Some visualizations of the jobs graph during execution
       dt, dd { padding: 0; margin: 0}
       dt { float: left; width: 8em; clear:left;}
       dd { margin-left: 8em; }
-      div#code { max-width: 25em; margin: 2em; 
-        
+      div#code { max-width: 25em; margin: 2em;
+
         padding: 1em; border: dashed 1px gray;}
       div#code p { font-style: italic}
     </style>
 
     <div id='animations'>
     <p>Robustness to job failure</p>
-       
+
     <img src="http://censi.mit.edu/pub/research/201410-compmake-animations/anim-fail-make-function.gif"/>
 
     <div id='code'>
@@ -227,10 +227,10 @@ Some visualizations of the jobs graph during execution
 Manual
 ------
 
-For more information, please read 
+For more information, please read
 
 .. raw:: html
-  
+
   <a style="display: block; float: left; border: 0" href="http://purl.org/censi/compmake-manual">
       <p style='text-align: center'>The Compmake Manual</p>
       <img style="float: left; border: 0; width: 15em" src="https://github.com/AndreaCensi/compmake/raw/master/docs/source/my_static/2015-compmake-v3.png"/>
@@ -271,19 +271,19 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 .. 	* :ref:`limitations`
 
 .. 	**Getting started**
-	
+
 .. 	* :ref:`tutorial_basic`
 .. 	* :ref:`tutorial_console`
 .. 	* :ref:`tutorial_parmake`
 .. 	* :ref:`tutorial_embedding`
-	
+
 .. .. container:: col2
 
 .. 	.. **Advanced usage**
-.. 	.. 
+.. 	..
 .. 	.. 	* :ref:`tutorial_suspend`
 .. 	.. 	* :ref:`tutorial_more`
-	
+
 .. 	**Reference**
 
 .. 	* :ref:`commands`
@@ -299,10 +299,10 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 
 ..    <div style="clear:left"/>
 
-.. .. 
+.. ..
 ..    * :ref:`tutorial_cluster`
-    
- 
+
+
 .. .. toctree::
 ..    :hidden:
 ..    :glob:
@@ -316,4 +316,3 @@ Please use the `issue tracker on github`_ for bugs and feature requests.
 
 
 .. * :ref:`search`
-

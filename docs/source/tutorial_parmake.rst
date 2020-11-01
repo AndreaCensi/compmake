@@ -17,8 +17,8 @@ Optionally, you can specify the number of processes to spawn: ::
 
     @: parmake n=11  [jobs]
 
-If you don't specify a number, |compmake| will use the number of detected processors. 
-If your jobs are IO-bound_ rather than CPU-bound_, you should specify a larger number. 
+If you don't specify a number, |compmake| will use the number of detected processors.
+If your jobs are IO-bound_ rather than CPU-bound_, you should specify a larger number.
 
 What's happening under the hood is that |compmake| spawns ``n`` workers thread using
 the :py:mod:`multiprocessing` module. So be aware that each job will run in a different
@@ -27,7 +27,7 @@ process.
 
 .. _IO-bound: http://en.wikipedia.org/wiki/I/O_bound
 
-.. _CPU-bound: http://en.wikipedia.org/wiki/CPU_bound 
+.. _CPU-bound: http://en.wikipedia.org/wiki/CPU_bound
 
 
 

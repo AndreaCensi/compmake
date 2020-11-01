@@ -69,7 +69,3 @@ Creating a new host scheduler
 Then run::
 
 	compmake --host_scheduler random_scheduler
-
-
-
-

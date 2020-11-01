@@ -16,7 +16,7 @@ Dependencies for parallel computation support
 ----------------------------------------------
 
 For using the parallel version of compmake, you
-should install the Redis server. 
+should install the Redis server.
 
 The python interface to Redis can be installed using::
 
@@ -29,7 +29,7 @@ Note: we require version
 Other non-strictly necessary dependencies
 ------------------------------------------
 
-The following Python packages are used if they are found, but they 
+The following Python packages are used if they are found, but they
 are not necessary.
 
 * ``termcolor`` allows ``compmake`` to use colors. Do install it, it
@@ -37,8 +37,8 @@ are not necessary.
 
   $ easy_install termcolor
 
-* ``setproctitle`` will change the name of the process to a string 
-  describing the current computation status. Useful to monitor 
+* ``setproctitle`` will change the name of the process to a string
+  describing the current computation status. Useful to monitor
   compmake using ``top``. (in Linux, press ``c`` to see the full command name.)::
 
   $ easy_install setproctitle
@@ -47,11 +47,10 @@ are not necessary.
 Software to generate dependency graphs
 --------------------------------------
 
-The command ``graph`` allows you to 
+The command ``graph`` allows you to
 
-You have to have installed the python package ``gvgen`` from 
+You have to have installed the python package ``gvgen`` from
 http://software.inl.fr/trac/wiki/GvGen
 
 Moreover, you have to have installed ``graphviz``
 http://www.graphviz.org/
-
