@@ -26,7 +26,7 @@ def trace_bugs(msg):
     try:
         yield
     except CompmakeBug as e:
-        raise_wrapped(CompmakeBug, e, msg)
+        raise CompmakeBug(msg) from e
 
 
 # @contract(returns="set(unicode)")

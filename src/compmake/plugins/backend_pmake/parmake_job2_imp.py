@@ -1,7 +1,4 @@
-import multiprocessing
 from typing import Any, Tuple
-
-from future.moves.queue import Full
 
 from compmake.constants import CompmakeConstants
 from compmake.events import publish
@@ -11,10 +8,17 @@ from compmake.jobs.actions import make
 from compmake.jobs.result_dict import result_dict_check
 from compmake.structures import CMJobID
 from compmake.utils import setproctitle
+from future.moves.queue import Full
 from zuper_commons.types import check_isinstance
-from . import logger
 
-multiprocessing.set_start_method("fork")
+#
+# method = multiprocessing.get_start_method(allow_none=True)
+# if method is not None:
+#     if method !='fork':
+#         msg = f'Need "fork", already set to {method}'
+#         logger.error(msg)
+#     else:
+#         multiprocessing.set_start_method("fork")
 
 
 __all__ = [
@@ -37,7 +41,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
 
-    logger.info(f"queues: {PmakeManager.queues}")
+    # logger.info(f"queues: {PmakeManager.queues}")
     event_queue = PmakeManager.queues[event_queue_name]
 
     db = context.get_compmake_db()

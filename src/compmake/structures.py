@@ -217,6 +217,12 @@ class Cache:
 
     state2desc = {NOT_STARTED: "todo", BLOCKED: "blocked", FAILED: "failed", DONE: "done"}
 
+    int_load_results: IntervalTimer
+    int_make: IntervalTimer
+    int_compute: IntervalTimer
+    int_save_results: IntervalTimer
+    int_gc: IntervalTimer
+
     def __init__(self, state):
         assert state in Cache.allowed_states
         self.state = state

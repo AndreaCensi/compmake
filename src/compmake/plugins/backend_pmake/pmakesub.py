@@ -3,6 +3,7 @@ import os
 import signal
 import traceback
 from multiprocessing import TimeoutError
+from multiprocessing.context import BaseContext, SpawnContext
 
 from future.moves.queue import Empty
 
@@ -21,13 +22,13 @@ __all__ = [
 class PmakeSub:
     EXIT_TOKEN = "please-exit"
 
-    def __init__(self, name: str, signal_queue, signal_token, write_log=None):
+    def __init__(self, name: str, signal_queue, signal_token, ctx: BaseContext, write_log=None):
         self.name = name
 
-        self.job_queue = multiprocessing.Queue()
-        self.result_queue = multiprocessing.Queue()
+        self.job_queue = ctx.Queue()
+        self.result_queue = ctx.Queue()
         # print('starting process %s ' % name)
-        self.proc = multiprocessing.Process(
+        self.proc = ctx.Process(
             target=pmake_worker,
             args=(self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log),
             name=name,

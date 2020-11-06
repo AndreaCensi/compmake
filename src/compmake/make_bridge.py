@@ -71,14 +71,21 @@ def make_bridge_main(args=None):
 
 
 def run_one_command(C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str]):
-    logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
+    # logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
 
     command = ["make", "-f", fnrel, target]
     for i in ignore_others:
         command.extend(["-o", i])
-    logger.info(command=command)
+    commands = " ".join(command)
+    s = f"""
+Running:
+
+    cd {C} && \\
+    {commands}
+
+"""
+    logger.info(s)
     subprocess.check_call(command, cwd=C)
-    pass
 
 
 @dataclass

@@ -1,20 +1,22 @@
+import multiprocessing
 import os
 import random
 import signal
 import time
 from multiprocessing import Queue
+from multiprocessing.context import BaseContext, SpawnContext
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
-from future.moves.queue import Empty
-from psutil import NoSuchProcess
-
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
 from compmake.ui import info, warning
+from future.moves.queue import Empty
+from psutil import NoSuchProcess
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
+
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
 from ...structures import CMJobID
@@ -76,14 +78,19 @@ class PmakeManager(Manager):
             warning(msg)
         self.cleaned = False
 
+    ctx: BaseContext
+
     def process_init(self) -> None:
-        self.event_queue = Queue(1000)
+
+        self.ctx = multiprocessing.get_context("fork")
+
+        self.event_queue = self.ctx.Queue(1000)
         r = random.randint(0, 10000)
         self.event_queue_name = f"q-{id(self)}-{r}"
 
         PmakeManager.queues[self.event_queue_name] = self.event_queue
 
-        info(f"Starting {self.num_processes} processes queues = {PmakeManager.queues}")
+        # info(f"Starting {self.num_processes} processes queues = {PmakeManager.queues}")
 
         self.subs = {}  # name -> sub
         # available + processing + aborted = subs.keys
@@ -102,7 +109,9 @@ class PmakeManager(Manager):
             write_log = os.path.join(logs, f"{name}.log")
             make_sure_dir_exists(write_log)
             signal_token = name
-            p = PmakeSub(name=name, signal_queue=None, signal_token=signal_token, write_log=write_log)
+            p = PmakeSub(
+                name=name, signal_queue=None, signal_token=signal_token, write_log=write_log, ctx=self.ctx
+            )
             self.subs[name] = p
         self.job2subname = {}
         # all are available

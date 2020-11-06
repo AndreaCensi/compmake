@@ -230,12 +230,12 @@ def clip_up_to(line: str, max_len: int):
 
 
 def handle_event_stdout(event, context):
-    if get_compmake_config("echo_stdout"):
+    if get_compmake_config("echo") and get_compmake_config("echo_stdout"):
         handle_event(event, False)
 
 
 def handle_event_stderr(event, context):
-    if get_compmake_config("echo_stderr"):
+    if get_compmake_config("echo") and get_compmake_config("echo_stderr"):
         handle_event(event, True)
 
 

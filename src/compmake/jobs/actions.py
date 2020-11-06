@@ -6,7 +6,7 @@ from time import time
 from compmake import get_compmake_config, logger
 from compmake.events import publish
 from compmake.exceptions import JobFailed, JobInterrupted
-from compmake.structures import Cache, IntervalTimer
+from compmake.structures import Cache, CMJobID, IntervalTimer
 from compmake.utils import OutputCapture, setproctitle
 from zuper_commons.types import check_isinstance
 from .dependencies import collect_dependencies
@@ -105,7 +105,7 @@ def clean_cache_relations(job_id, db):
                 # print('     changed in %s' % parent_job.children)
 
 
-def mark_to_remake(job_id, db):
+def mark_to_remake(job_id: CMJobID, db):
     """ Delets and invalidates the cache for this object """
     # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id, db)
@@ -114,9 +114,9 @@ def mark_to_remake(job_id, db):
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id, dependency=None, db=None):  # XXX
+def mark_as_blocked(job_id: CMJobID, dependency=None, db=None):  # XXX
     cache = Cache(Cache.BLOCKED)
-    cache.exception = "Failure of dependency %r" % dependency  # XXX
+    cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
     set_job_cache(job_id, cache, db=db)
 
@@ -157,7 +157,7 @@ def make(job_id, context, echo=False):
     host = "hostname"  # XXX
 
     if get_compmake_config("set_proc_title"):
-        setproctitle("cm-%s" % job_id)
+        setproctitle(f"cm-{job_id}")
 
     # TODO: should we make sure we are up to date???
     #     up, reason = up_to_date(job_id, db=db)
@@ -228,10 +228,9 @@ def make(job_id, context, echo=False):
         try:
             try:
                 s = str(log_record.msg)
-            except UnicodeEncodeError:
-                s = unicode(log_record.msg)
+
             except:
-                s = "Could not print log_record %s" % id(log_record)
+                s = f"Could not print log_record {id(log_record)}"
             log_record.msg = colorize_loglevel(log_record.levelno, s)
             res = formatter.format(log_record)
             print(res)

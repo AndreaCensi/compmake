@@ -1,8 +1,10 @@
-from .manager_local import ManagerLocal
+import time
+
 from compmake.constants import DefaultsToConfig
-from compmake.jobs import mark_to_remake, top_targets
+from compmake.jobs import Cache, IntervalTimer, mark_to_remake, set_job_cache, set_job_userobject, top_targets
 from compmake.ui import ACTIONS, ask_if_sure_remake, raise_error_if_manager_failed, ui_command
 
+from .manager_local import ManagerLocal
 
 __all__ = [
     "make",
@@ -15,9 +17,9 @@ def make(
     job_list,
     context,
     cq,
-    echo=DefaultsToConfig("echo"),
-    new_process=DefaultsToConfig("new_process"),
-    recurse=DefaultsToConfig("recurse"),
+    echo: bool = DefaultsToConfig("echo"),
+    new_process: bool = DefaultsToConfig("new_process"),
+    recurse: bool = DefaultsToConfig("recurse"),
 ):
     """
         Makes selected targets; or all targets if none specified.
@@ -39,6 +41,31 @@ def make(
     manager.add_targets(job_list)
     manager.process()
     return raise_error_if_manager_failed(manager)
+
+
+@ui_command(section=ACTIONS, dbchange=True)
+def pretend(
+    job_list, context, cq,
+):
+    """
+        Pretends that a target is done. The output is None.
+    """
+    db = context.get_compmake_db()
+    if not job_list:
+        job_list = list(top_targets(db=db))
+
+    for job_id in job_list:
+        i = IntervalTimer()
+        i.stop()
+        cache = Cache(Cache.DONE)
+        cache.cputime_used = 0
+        cache.walltime_used = 0
+        cache.timestamp = time.time()
+        cache.int_compute = (
+            cache.int_gc
+        ) = cache.int_load_results = cache.int_make = cache.int_save_results = i
+        set_job_cache(job_id, cache, db)
+        set_job_userobject(job_id, None, db)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
