@@ -5,7 +5,7 @@ from compmake import CompmakeConstants
 from .utils import AvgSystemStats
 
 
-class CompmakeGlobalState(object):
+class CompmakeGlobalState:
     original_stderr = sys.stderr
     original_stdout = sys.stdout
 
@@ -39,7 +39,7 @@ def get_compmake_config(key):
     return config[key]
 
 
-def set_compmake_config(key, value):
+def set_compmake_config(key: str, value):
     # TODO: check exists
     CompmakeGlobalState.compmake_config[key] = value
 
@@ -48,14 +48,14 @@ ConfigSwitch = namedtuple("ConfigSwitch", "name default_value desc section order
 ConfigSection = namedtuple("ConfigSection", "name desc order switches")
 
 
-def set_compmake_status(s):
+def set_compmake_status(s: str):
     CompmakeGlobalState.compmake_status = s
 
 
-def is_interactive_session():
+def is_interactive_session() -> bool:
     """ If this is true, we will ask questions to the user. """
     return get_compmake_status() == CompmakeConstants.compmake_status_interactive
 
 
-def get_compmake_status():
+def get_compmake_status() -> str:
     return CompmakeGlobalState.compmake_status

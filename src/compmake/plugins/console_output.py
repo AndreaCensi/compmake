@@ -36,6 +36,7 @@ def plot_with_prefix(job_id, lines, is_stderr):
             sep = compmake_colored("|", "red")
         else:
             sep = compmake_colored("|", "cyan")
+        write_screen_line(line)
 
         # Now let's take lines that do not fit the length
 
@@ -64,18 +65,11 @@ def plot_with_prefix(job_id, lines, is_stderr):
         #         write_screen_line(line)
         #     else:
         #         write_line_endl(line)
-        write_screen_line(line)
 
 
 def write_line_endl_w(x: str, ss):
     xl = x + "\n"
     write_on_buffer(xl, ss)
-
-
-#
-# def write_line_w(x: str, ss):
-#     xl = x
-#     write_on_buffer(xl, ss)
 
 
 def write_on_buffer(xl, ss):
@@ -109,7 +103,8 @@ def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
             # job_name = colored('%s' % job_id, color='cyan')
-            header = pad_to_screen("___ %s " % job_id, pad="_")
+            marker = "*" if is_stderr else ""
+            header = pad_to_screen(f"___ {job_id} {marker}", pad="_")
             header = compmake_colored(header, color="cyan")
             write_screen_line(header)
 
@@ -191,7 +186,7 @@ def break_lines_and_pad(prefix, line, postfix, max_size):
     return lines
 
 
-def handle_event(event, is_stderr):
+def handle_event(event, is_stderr: bool):
     job_id = event.kwargs["job_id"]
     lines = event.kwargs["lines"]
 
@@ -235,7 +230,9 @@ def handle_event_stdout(event, context):
 
 
 def handle_event_stderr(event, context):
-    if get_compmake_config("echo") and get_compmake_config("echo_stderr"):
+    echo = get_compmake_config("echo")
+    echo_stderr = get_compmake_config("echo_stderr")
+    if echo and echo_stderr:
         handle_event(event, True)
 
 

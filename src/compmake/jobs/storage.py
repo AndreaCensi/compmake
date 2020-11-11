@@ -6,26 +6,27 @@ from typing import Iterator
 from compmake.exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from compmake.utils.pickle_frustration import pickle_main_context_load
 from zuper_commons.types import check_isinstance, raise_desc
-from ..structures import Cache, CMJobID, Job
+
+from ..structures import Cache, CMJobID, DBKey, Job
 from ..utils import wildcard_to_regexp
 
-
-def job2key(job_id):
-    prefix = "cm-job-"
-    return f"{prefix}{job_id}"
+KEY_JOB_PREFIX = "cm-job-"
 
 
-def key2job(key):
-    prefix = "cm-job-"
-    return key.replace(prefix, "", 1)
+def job2key(job_id: CMJobID) -> DBKey:
+    return DBKey(f"{KEY_JOB_PREFIX}{job_id}")
 
 
-def all_jobs(db, force_db=False) -> Iterator[CMJobID]:
+def key2job(key: DBKey) -> CMJobID:
+    return CMJobID(key.replace(KEY_JOB_PREFIX, "", 1))
+
+
+def all_jobs(db, force_db: bool = False) -> Iterator[CMJobID]:
     """ Returns the list of all jobs.
         If force_db is True, read jobs from DB.
         Otherwise, use local cache.
      """
-    pattern = job2key("*")
+    pattern = job2key(CMJobID("*"))
     regexp = wildcard_to_regexp(pattern)
 
     for key in db.keys():
@@ -33,14 +34,14 @@ def all_jobs(db, force_db=False) -> Iterator[CMJobID]:
             yield key2job(key)
 
 
-def get_job(job_id: CMJobID, db):
+def get_job(job_id: CMJobID, db) -> Job:
     key = job2key(job_id)
     computation = db[key]
     assert isinstance(computation, Job)
     return computation
 
 
-def job_exists(job_id: CMJobID, db):
+def job_exists(job_id: CMJobID, db) -> bool:
     key = job2key(job_id)
     return key in db
 
@@ -52,14 +53,14 @@ def assert_job_exists(job_id: CMJobID, db):
     get_job(job_id, db)
 
 
-def set_job(job_id: CMJobID, job: Job, db):
+def set_job(job_id: CMJobID, job: Job, db) -> None:
     # TODO: check if they changed
     key = job2key(job_id)
     assert isinstance(job, Job)
     db[key] = job
 
 
-def delete_job(job_id: CMJobID, db):
+def delete_job(job_id: CMJobID, db) -> None:
     key = job2key(job_id)
     del db[key]
 
@@ -132,8 +133,6 @@ def job2userobjectkey(job_id: CMJobID):
     prefix = "cm-res-"
     return f"{prefix}{job_id}"
 
-    # print('All deps: %r' % all_deps)
-
 
 def get_job_userobject(job_id: CMJobID, db) -> object:
     # available = is_job_userobject_available(job_id, db)
@@ -184,13 +183,13 @@ def job2jobargskey(job_id: CMJobID):
 def get_job_args(job_id: CMJobID, db):
     key = job2jobargskey(job_id)
 
-    if False:
+    # if False:
+    #     return db[key]
+    # else:
+    job = get_job(job_id, db)
+    pickle_main_context = job.pickle_main_context
+    with pickle_main_context_load(pickle_main_context):
         return db[key]
-    else:
-        job = get_job(job_id, db)
-        pickle_main_context = job.pickle_main_context
-        with pickle_main_context_load(pickle_main_context):
-            return db[key]
 
 
 def job_args_exists(job_id: CMJobID, db) -> bool:

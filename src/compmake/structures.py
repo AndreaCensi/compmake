@@ -60,7 +60,7 @@
 
 """
 from dataclasses import dataclass
-from typing import List, NewType, Set, Tuple, Union
+from typing import Dict, List, NewType, Optional, Set, Tuple, Union
 
 from compmake.utils.pickle_frustration import pickle_main_context_save
 from zuper_commons.types import describe_value
@@ -71,9 +71,11 @@ __all__ = [
     "Job",
     "Cache",
     "CMJobID",
+    "DBKey",
 ]
 
 CMJobID = NewType("CMJobID", str)
+DBKey = NewType("DBKey", str)
 
 
 @dataclass
@@ -198,32 +200,56 @@ class IntervalTimer:
         return self.t0, self.t1
 
     def __str__(self):
-        # return 'Timer(t0: %s; t1: %s; delta %s) ' % (self.t0, self.t1, self.t1 - self.t0)
+        tms = int((self.t1 - self.t0) * 1000)
+        cms = int((self.c1 - self.c0) * 1000)
+        return f"Timer(wall {tms:d}ms cpu {cms:d}ms)"
 
-        return "Timer(wall %dms cpu %dms) " % ((self.t1 - self.t0) * 1000, (self.c1 - self.c0) * 1000)
+
+StateCode = NewType("StateCode", int)
 
 
 class Cache:
     # TODO: add blocked
 
-    NOT_STARTED = 0
-    FAILED = 3
-    BLOCKED = 5
-    DONE = 4
+    NOT_STARTED = StateCode(0)
+    PROCESSING = StateCode(1)
+    FAILED = StateCode(3)
+    BLOCKED = StateCode(5)
+    DONE = StateCode(4)
 
     TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states = [NOT_STARTED, FAILED, DONE, BLOCKED]
+    allowed_states: List[StateCode] = [NOT_STARTED, FAILED, DONE, BLOCKED, PROCESSING]
 
-    state2desc = {NOT_STARTED: "todo", BLOCKED: "blocked", FAILED: "failed", DONE: "done"}
+    state2desc: Dict[StateCode, str] = {
+        NOT_STARTED: "todo",
+        BLOCKED: "blocked",
+        FAILED: "failed",
+        DONE: "done",
+        PROCESSING: "processing",
+    }
 
-    int_load_results: IntervalTimer
-    int_make: IntervalTimer
-    int_compute: IntervalTimer
-    int_save_results: IntervalTimer
-    int_gc: IntervalTimer
+    state: StateCode
+    timestamp_started: Optional[float]
+    """ time start """
+    timestamp: float
+    """ time end """
 
-    def __init__(self, state):
+    int_load_results: Optional[IntervalTimer]
+    int_make: Optional[IntervalTimer]
+    int_compute: Optional[IntervalTimer]
+    int_save_results: Optional[IntervalTimer]
+    int_gc: Optional[IntervalTimer]
+    jobs_defined: Set[CMJobID]
+    hashes_dependencies: Dict[str, object]
+    exception: Optional[str]
+    backtrace: Optional[str]
+    captured_stdout: Optional[str]
+    captured_stderr: Optional[str]
+    walltime_used: Optional[float]
+    cputime_used: Optional[float]
+
+    def __init__(self, state: StateCode):
         assert state in Cache.allowed_states
         self.state = state
         # time start
@@ -264,7 +290,7 @@ class Cache:
         )
 
 
-def cache_has_large_overhead(cache):
+def cache_has_large_overhead(cache) -> bool:
     overhead = (
         cache.int_load_results.get_walltime_used()
         + cache.int_save_results.get_walltime_used()
@@ -273,7 +299,7 @@ def cache_has_large_overhead(cache):
     return overhead - cache.int_make.get_walltime_used() > 1.0
 
 
-def timing_summary(cache):
+def timing_summary(cache: Cache) -> str:
     dc = duration_compact
     s = "%7s (L %s C %s GC %s S %s)" % (
         dc(cache.int_make.get_walltime_used()),
@@ -286,7 +312,6 @@ def timing_summary(cache):
 
 
 class ProgressStage:
-    # @contract(name="unicode", iterations="tuple((float|int),(float|int))")
     def __init__(self, name: str, iterations: Tuple[Union[float, int], Union[float, int]], iteration_desc):
         self.name = name
         self.iterations = iterations

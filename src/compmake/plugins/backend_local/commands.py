@@ -61,9 +61,8 @@ def pretend(
         cache.cputime_used = 0
         cache.walltime_used = 0
         cache.timestamp = time.time()
-        cache.int_compute = (
-            cache.int_gc
-        ) = cache.int_load_results = cache.int_make = cache.int_save_results = i
+        cache.int_compute = cache.int_gc = i
+        cache.int_load_results = cache.int_make = cache.int_save_results = i
         set_job_cache(job_id, cache, db)
         set_job_userobject(job_id, None, db)
 

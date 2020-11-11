@@ -4,6 +4,7 @@ from compmake import CompmakeGlobalState, logger
 from compmake.context import Context
 from zuper_commons.text import indent
 from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.types import ZValueError
 from .registered_events import compmake_registered_events
 from .structures import Event
 from ..exceptions import CompmakeException
@@ -37,7 +38,7 @@ def register_fallback_handler(handler):
 
 
 # TODO: make decorator
-def register_handler(event_name, handler):
+def register_handler(event_name: str, handler):
     """
         Registers an handler with an event name.
         The event name might contain asterisks. "*" matches all.
@@ -46,12 +47,12 @@ def register_handler(event_name, handler):
 
     spec = inspect.getfullargspec(handler)
     args = set(spec.args)
-    possible_args = set(["event", "context", "self"])
+    possible_args = {"event", "context", "self"}
     # to be valid
     if not (args.issubset(possible_args)):
         #     if not 'context' in args and 'event' in args:
-        msg = ("Function is not valid event handler:\n function = %s\n args " "= %s") % (handler, spec)
-        raise ValueError(msg)
+        msg = "Function is not valid event handler"
+        raise ZValueError(msg, handler=handler, args=spec)
     handlers = CompmakeGlobalState.EventHandlers.handlers
 
     if event_name.find("*") > -1:
@@ -67,7 +68,6 @@ def register_handler(event_name, handler):
         handlers[event_name].append(handler)
 
 
-# @contract(context=Context, event_name="unicode")
 def publish(context: Context, event_name: str, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """

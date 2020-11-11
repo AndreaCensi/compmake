@@ -35,6 +35,8 @@ class CompmakeConstants:
 
     extra_checks_job_states = False
 
+    tolerate_db_inconsistencies = True
+
     # Try to recover from anomalous situations
     try_recover = False
 

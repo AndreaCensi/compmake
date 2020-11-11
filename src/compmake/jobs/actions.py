@@ -114,14 +114,14 @@ def mark_to_remake(job_id: CMJobID, db):
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id: CMJobID, dependency=None, db=None):  # XXX
+def mark_as_blocked(job_id: CMJobID, dependency=None, db=None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_failed(job_id, exception=None, backtrace=None, db=None):
+def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> None:
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
     if isinstance(exception, str):

@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Set, Tuple, Union
+from typing import Collection, Set, Tuple, Union
 
 from compmake.exceptions import CompmakeDBError
 from zuper_commons.types import check_isinstance, raise_desc, raise_wrapped
@@ -9,6 +9,7 @@ from .storage import get_job_userobject
 from ..exceptions import CompmakeBug
 from ..structures import Cache, CMJobID, Job
 from ..utils import memoized_reset
+from compmake import CompmakeConstants, logger
 
 __all__ = [
     "CacheQueryDB",
@@ -178,6 +179,11 @@ class CacheQueryDB:
             dependencies = self.direct_children(job_id)
 
             for child in dependencies:
+                if not self.job_exists(child):
+                    if CompmakeConstants.tolerate_db_inconsistencies:
+                        logger.warn(f"Skipping not exiting child {child} of {job_id}")
+                        # TODO: find out why
+                        continue
                 child_up, _, child_timestamp = self.up_to_date(child)
                 if not child_up:
                     return False, f"At least: Dep {child!r} not up to date.", cache.timestamp
@@ -226,7 +232,7 @@ class CacheQueryDB:
                 return False
         return True
 
-    def tree(self, jobs):
+    def tree(self, jobs: Collection[CMJobID]):
         """ More efficient version of tree()
             which is direct_children() recursively. """
         stack = []
@@ -291,7 +297,10 @@ class CacheQueryDB:
                                 "so that it changes the jobs it created. "
                                 'Try "delete not root" to fix the DB.'
                             )
-                            raise CompmakeBug(msg)
+                            if CompmakeConstants.tolerate_db_inconsistencies:
+                                logger.warn(msg)
+                            else:
+                                raise CompmakeBug(msg)
                         if not child in seen:
                             stack.append(child)
 

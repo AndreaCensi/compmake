@@ -1,6 +1,8 @@
 import argparse
 import os
 import subprocess
+import sys
+import traceback
 from dataclasses import dataclass
 from typing import List
 
@@ -8,17 +10,24 @@ from networkx import DiGraph
 from networkx.drawing.nx_pydot import write_dot
 
 from zuper_commons.fs import read_ustring_from_utf8_file
+from zuper_commons.types import ZException
 from . import logger, Promise
+
+from subprocess import Popen
 
 
 def make_bridge_main(args=None):
     parser = argparse.ArgumentParser(prog="zuper-make",)
     parser.add_argument("-o", "--out", default="out-zuper-make")
     parser.add_argument("-c", "--command", default=None)
+    parser.add_argument("--retries", default=1, type=int, help="Number of times to retry")
+    parser.add_argument(
+        "--draw-deps", default=False, action="store_true", help="Creates the depedency graph using dot."
+    )
 
     parsed, extra = parser.parse_known_args(args=args)
     fn = extra[0]
-
+    retries = parsed.retries
     C = os.path.dirname(fn)
     if not C:
         C = os.getcwd()
@@ -28,8 +37,7 @@ def make_bridge_main(args=None):
     mp = parse_makefile(data)
     # plt.figure(figsize=(8, 8))
     # pos = nx.nx_agraph.graphviz_layout(mp.G, prog='dot')
-    write_dot(mp.G, "deps.dot")
-    subprocess.check_call(["dot", "-Tpdf", "-odeps.pdf", "deps.dot"])
+
     # nx.draw(mp.G, pos=pos)
     # plt.savefig('deps.pdf')
 
@@ -53,6 +61,7 @@ def make_bridge_main(args=None):
                 target=name,
                 ignore_others=ignore_others,
                 depends_on=depends_on,
+                retries=retries,
                 job_id=name,
             )
 
@@ -63,6 +72,10 @@ def make_bridge_main(args=None):
     for target in mp.G:
         get_job_promise(target)
 
+    if parsed.draw_deps:
+        write_dot(mp.G, "deps.dot")
+        subprocess.check_call(["dot", "-Tpdf", "-odeps.pdf", "deps.dot"])
+
     if parsed.command:
 
         c.batch_command(parsed.command)
@@ -70,22 +83,48 @@ def make_bridge_main(args=None):
         c.compmake_console()
 
 
-def run_one_command(C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str]):
+def run_one_command(
+    C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str], retries: int
+):
+    _ = depends_on
     # logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
 
     command = ["make", "-f", fnrel, target]
     for i in ignore_others:
         command.extend(["-o", i])
-    commands = " ".join(command)
-    s = f"""
-Running:
+    for retry in range(retries):
+
+        commands = " ".join(command)
+        s = f"""
+Running:                [try {retry + 1} of {retries}]
 
     cd {C} && \\
     {commands}
 
-"""
-    logger.info(s)
-    subprocess.check_call(command, cwd=C)
+    """
+        logger.info(s)
+
+        all_output = []
+        p = Popen(command, cwd=C, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        for line in p.stdout:
+            sys.stdout.write(line)
+            all_output.append(line)
+            sys.stdout.flush()
+        p.wait(timeout=60)
+        retcode = p.returncode
+        # logger.info(f'retcode: {retcode}')
+        if retcode == 0:
+            break
+
+        all_output_s = "".join(all_output)
+        temp_error = "i/o" in all_output_s
+
+        if temp_error and (retry != retries - 1):
+            msg = f"Command failed with {retcode}. Will retry."
+            logger.warning(msg, e=traceback.format_exc())
+        else:
+            msg = f"Command failed with {retcode} {retries} times."
+            raise ZException(msg, all_output=all_output_s)
 
 
 @dataclass

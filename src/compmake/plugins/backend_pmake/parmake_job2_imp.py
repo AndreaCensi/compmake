@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Tuple
 
 from compmake.constants import CompmakeConstants
@@ -37,6 +38,10 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
 
     """
     job_id, context, event_queue_name, show_output = args  # @UnusedVariable
+
+    sys.stdout = open(f"{job_id}.stdout.log", "w")
+    sys.stderr = open(f"{job_id}.stderr.log", "w")
+
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
     from .pmake_manager import PmakeManager
