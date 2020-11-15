@@ -742,9 +742,10 @@ class Manager(ManagerLog):
             return True
 
         except JobInterrupted as e:
-            from ..ui import error
 
-            error("Received JobInterrupted: %s" % e)
+            from compmake.ui.visualization import ui_error
+
+            ui_error(self.context, "Received JobInterrupted: %s" % e)
             raise
         except KeyboardInterrupt:
             raise KeyboardInterrupt("Manager interrupted.")

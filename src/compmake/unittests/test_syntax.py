@@ -5,7 +5,7 @@ from nose.tools import istest
 from . import CompmakeTest
 from ..exceptions import CompmakeSyntaxError, UserError
 from ..jobs import get_job_cache, set_job_cache
-from ..structures import Cache
+from ..structures import Cache, CMJobID
 from ..ui import parse_job_list
 
 
@@ -38,7 +38,7 @@ class Test1(CompmakeTest):
             self.comp(dummy, job_id=job_id)
             cache = get_job_cache(job_id, db=self.db)
             cache.state = state
-            set_job_cache(job_id, cache, db=self.db)
+            set_job_cache(CMJobID(job_id), cache, db=self.db)
 
         self.all = set([job_id for job_id, state in self.jobs])
         selectf = lambda S: set([nid for nid, state_ in self.jobs if state_ == S])

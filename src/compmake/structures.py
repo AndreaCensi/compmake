@@ -91,7 +91,7 @@ class Job:
     defined_by: List[CMJobID]
     dynamic_children: dict
     pickle_main_context: object
-    command_desc: object
+    command_desc: str
 
     def __init__(
         self,

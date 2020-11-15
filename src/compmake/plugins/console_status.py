@@ -9,9 +9,10 @@ from compmake import CompmakeGlobalState
 from zuper_commons.text import indent
 
 from .tracker import Tracker
-from ..events import register_handler
+from ..events import publish, register_handler
 from ..state import get_compmake_config
-from ..ui import compmake_colored, error
+from ..ui import compmake_colored
+from ..ui.visualization import ui_error
 from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
 
 stream = sys.stderr
@@ -225,11 +226,10 @@ def handle_event(context, event):  # @UnusedVariable
     options_right.append(job_counts())
 
     sp = spinner()
-    options_left = []
-    options_left.append(sp)
+    options_left = [sp]
 
     for level in [4, 3, 2, 1, 0, -1, -2, -3]:
-        options_left.append(" compmake %s %s" % (sp, get_string(level)))
+        options_left.append(f" compmake {sp} {get_string(level)}")
     #         options_left.append(sp + '  ' + get_string(level))
 
     cols, _ = getTerminalSize()
@@ -255,23 +255,25 @@ def handle_event(context, event):  # @UnusedVariable
     nspaces = cols - get_length_on_screen(choice.right) - get_length_on_screen(choice.left)
     line = choice.left + " " * nspaces + choice.right
 
-    if get_compmake_config("console_status"):
-        # if six.PY2:
-        #     if isinstance(line, unicode):
-        #         line = line.encode('utf-8')
-        stream.write(line)
+    # if get_compmake_config("console_status"):
+    #     # if six.PY2:
+    #     #     if isinstance(line, unicode):
+    #     #         line = line.encode('utf-8')
+    #     stream.write(line)
+    #
+    #     interactive = get_compmake_config("interactive")
+    #     if interactive:
+    #         stream.write("\r")
+    #     else:
+    #         stream.write("\n")
 
-        interactive = get_compmake_config("interactive")
-        if interactive:
-            stream.write("\r")
-        else:
-            stream.write("\n")
+    publish(context, "ui-status-summary", string=line)
 
 
 def manager_host_failed(context, event):  # @UnusedVariable
     s = "Host failed for job %s: %s" % (event.job_id, event.reason)
     s += indent(event.bt.strip(), "| ")
-    error(s)
+    ui_error(context, s)
 
 
 if get_compmake_config("status_line_enabled"):

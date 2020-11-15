@@ -1,8 +1,6 @@
 import sys
 import traceback
 
-from compmake.ui.visualization import error
-
 
 def wrap_script_entry_point(function, exceptions_no_traceback):
     """
@@ -19,8 +17,8 @@ def wrap_script_entry_point(function, exceptions_no_traceback):
             ret = 0
         sys.exit(ret)
     except exceptions_no_traceback as e:
-        error(str(e))
+        print(str(e))
         sys.exit(1)
     except Exception as e:
-        error(traceback.format_exc())
+        print(traceback.format_exc())
         sys.exit(2)

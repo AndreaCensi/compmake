@@ -1,20 +1,20 @@
 from compmake.events import register_handler
-from compmake.ui import error, info
-from zuper_commons.text import indent
 from compmake.state import get_compmake_config
+from compmake.ui.visualization import ui_error, ui_info
+from zuper_commons.text import indent
 
 
 # TODO: command-succeeded: {'command': '
 # command-interrupted: {'reason': 'KeyboardInterrupt', 'command': 'ls todo'}
 def command_interrupted(context, event):  # @UnusedVariable
-    error("Command %r interrupted." % event.kwargs["command"])
+    ui_error(context, "Command %r interrupted." % event.kwargs["command"])
 
 
 register_handler("command-interrupted", command_interrupted)
 
 
 def command_failed(context, event):  # @UnusedVariable
-    error("Command %r failed: %s" % (event.kwargs["command"], event.kwargs["reason"]))
+    ui_error(context, ("Command %r failed: %s" % (event.kwargs["command"], event.kwargs["reason"])))
 
 
 register_handler("command-failed", command_failed)
@@ -28,7 +28,7 @@ def command_line_interrupted(context, event):  # @UnusedVariable
     command = event.kwargs["command"]
     if not ";" in command:
         return
-    error(my_prefix + "Command sequence %r interrupted." % command)
+    ui_error(context, my_prefix + f"Command sequence {command!r} interrupted.")
 
 
 register_handler("command-line-interrupted", command_line_interrupted)
@@ -39,7 +39,7 @@ def command_line_failed(context, event):  # @UnusedVariable
     command = event.kwargs["command"]
     if not ";" in command:
         return
-    error(my_prefix + "Command sequence %r failed." % command)
+    ui_error(context, my_prefix + f"Command sequence {command!r} failed.")
 
 
 register_handler("command-line-failed", command_line_failed)
@@ -62,22 +62,25 @@ def job_failed(context, event):  # @UnusedVariable
     else:
         msg += '\nUse "config echo 1" to have errors displayed.'
     msg += '\nWrite "details %s" to inspect the error.' % job_id
-    error(my_prefix + msg)
+    ui_error(context, my_prefix + msg)
 
 
 register_handler("job-failed", job_failed)
 
 
 def job_interrupted(context, event):  # @UnusedVariable
-    error(my_prefix + "Job %r interrupted:\n %s" % (event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")))
+    ui_error(
+        context,
+        my_prefix + "Job %r interrupted:\n %s" % (event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")),
+    )
 
 
 register_handler("job-interrupted", job_interrupted)
 
 
 def compmake_bug(context, event):  # @UnusedVariable
-    error(my_prefix + event.kwargs["user_msg"])
-    error(my_prefix + event.kwargs["dev_msg"])
+    ui_error(context, my_prefix + event.kwargs["user_msg"])
+    ui_error(context, my_prefix + event.kwargs["dev_msg"])
 
 
 register_handler("compmake-bug", compmake_bug)
@@ -109,29 +112,29 @@ if True:  # debugging
     register_handler("manager-job-starting", ignore)
 
 
-def manager_succeeded(event):
+def manager_succeeded(context, event):
     if event.kwargs["nothing_to_do"]:
-        info("Nothing to do.")
+        ui_info(context, "Nothing to do.")
     else:
         ntargets = len(event.kwargs["all_targets"])
         ndone = len(event.kwargs["done"])
         nfailed = len(event.kwargs["failed"])
         nblocked = len(event.kwargs["blocked"])
         if ntargets:
-            s = "Processed %d jobs (" % ntargets
+            s = f"Processed {ntargets} jobs ("
             ss = []
             if ndone:
-                ss.append("%d done" % ndone)
+                ss.append(f"{ndone} done")
             if nfailed:
-                ss.append("%d failed" % nfailed)
+                ss.append(f"{nfailed} failed")
             if nblocked:
-                ss.append("%d blocked" % nblocked)
+                ss.append(f"{nblocked} blocked")
             s += ", ".join(ss)
             s += ")."
             if nfailed:
-                error(s)
+                ui_error(context, s)
             else:
-                info(s)
+                ui_info(context, s)
 
 
 register_handler("manager-succeeded", manager_succeeded)  # TODO: maybe write sth

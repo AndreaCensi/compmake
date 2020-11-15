@@ -10,7 +10,7 @@ from compmake.exceptions import CommandFailed, MakeFailed
 from compmake.jobs import get_job, parse_job_list
 from compmake.scripts.master import compmake_main
 from compmake.storage import StorageFilesystem
-from compmake.structures import Job
+from compmake.structures import CMJobID, Job
 
 
 class CompmakeTest(unittest.TestCase):
@@ -56,7 +56,7 @@ class CompmakeTest(unittest.TestCase):
         return self.cc.comp(*args, **kwargs)
 
     # @contract(job_id="unicode", returns=Job)
-    def get_job(self, job_id: str) -> Job:
+    def get_job(self, job_id: CMJobID) -> Job:
         db = self.cc.get_compmake_db()
         return get_job(job_id=job_id, db=db)
 

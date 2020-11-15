@@ -227,12 +227,12 @@ def create_scripts(basepath: DirPath) -> None:
         "details": "details",
     }
     for fn, cmd in filename2cmd.items():
-        s = '#!/bin/bash\ncompmake %s -c "%s $*"\n' % (basepath, cmd)
+        s = f'#!/bin/bash\ncompmake {basepath} -c "{cmd} $*"\n'
         f = os.path.join(basepath, fn)
         write_ustring_to_utf8_file(s, f, quiet=True)
         chmod_plus_x(f)
 
-    s = "#!/bin/bash\ncompmake %s \n" % (basepath)
+    s = f"#!/bin/bash\ncompmake {basepath} \n"
     f = os.path.join(basepath, "console")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

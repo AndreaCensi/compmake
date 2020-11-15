@@ -57,6 +57,7 @@ def ioctl_GWINSZ(fd):
         import termios
         import struct
 
+        # noinspection PyTypeChecker
         s = fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234")
         return struct.unpack("hh", s)
     except:

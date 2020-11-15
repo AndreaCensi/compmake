@@ -3,7 +3,7 @@ import os
 from .qacct import JobNotRunYet, get_qacct
 from compmake.jobs import AsyncResultInterface, result_dict_raise_if_error
 from compmake.exceptions import CompmakeBug, HostFailed
-from compmake.ui import error
+
 from compmake.utils import safe_pickle_load, which
 from zuper_commons.text import indent
 from system_cmd import CmdException, system_cmd_result
@@ -61,7 +61,7 @@ class SGEJob(AsyncResultInterface):
                 capture_keyboard_interrupt=False,
             )
         except CmdException as e:
-            error("Error while deleting job:\n%s" % e)
+            print("Error while deleting job:\n%s" % e)
 
     def execute(self, spool):
         db = self.db

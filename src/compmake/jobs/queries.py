@@ -6,7 +6,7 @@ from typing import Collection, Set
 from compmake.exceptions import CompmakeBug
 from compmake.jobs.storage import get_job_cache
 from compmake.structures import Cache, CMJobID
-from zuper_commons.types import check_isinstance, raise_wrapped
+from zuper_commons.types import check_isinstance
 from ..jobs import all_jobs, get_job
 
 __all__ = [

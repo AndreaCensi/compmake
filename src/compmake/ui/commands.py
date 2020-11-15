@@ -5,14 +5,14 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
+from compmake.jobs.actions import clean_targets
+from .console import ask_question
+from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
+from .visualization import ui_error, ui_info
 from .. import CompmakeConstants, get_compmake_status
 from ..exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
 from ..jobs import all_jobs
 from ..utils import safe_pickle_dump
-from .console import ask_question
-from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
-from .visualization import error, info
-from compmake.jobs.actions import clean_targets
 
 ui_section(GENERAL)
 
@@ -24,9 +24,9 @@ __all__ = [
 ]
 
 
-# noinspection PyUnusedLocal
+# noinspection PyUnusedLocal,PyShadowingBuiltins
 @ui_command(alias=["exit"])
-def quit(context):  # @ReservedAssignment
+def quit(context):
     """ Exits Compmake's console. """
     raise ShellExitRequested()
 
@@ -76,10 +76,10 @@ def clean(job_list, context):
 
     # Use context
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = "Should I clean %d jobs? [y/n] " % len(job_list)
+        question = f"Should I clean {len(job_list)} jobs? [y/n] "
         answer = ask_question(question)
         if not answer:
-            info("Not cleaned.")
+            ui_info(context, "Not cleaned.")
             return
 
     clean_targets(job_list, db=db)
@@ -107,17 +107,17 @@ def make_single(job_list, context, out_result):
         safe_pickle_dump(e.get_result_dict(), out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:
-        error("warning: %s" % e)
+        ui_error(context, f"warning: {e}")
         raise
 
 
 def ask_if_sure_remake(non_empty_job_list):
     """ If interactive, ask the user yes or no. Otherwise returns True. """
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
-        question = "Should I clean and remake %d jobs? [y/n] " % len(non_empty_job_list)
+        question = f"Should I clean and remake {len(non_empty_job_list)} jobs? [y/n] "
         answer = ask_question(question)
         if not answer:
-            info("Not cleaned.")
+            # info("Not cleaned.")
             return False
         else:
             return True

@@ -37,13 +37,14 @@ def register_fallback_handler(handler):
     CompmakeGlobalState.EventHandlers.fallback.append(handler)
 
 
+import inspect
+
 # TODO: make decorator
 def register_handler(event_name: str, handler):
     """
         Registers an handler with an event name.
         The event name might contain asterisks. "*" matches all.
     """
-    import inspect
 
     spec = inspect.getfullargspec(handler)
     args = set(spec.args)
@@ -91,7 +92,6 @@ def publish(context: Context, event_name: str, **kwargs):
 
 # @contract(context=Context, event=Event)
 def broadcast_event(context: Context, event: Event):
-    import inspect
 
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 

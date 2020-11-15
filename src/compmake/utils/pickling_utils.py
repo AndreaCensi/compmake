@@ -1,9 +1,4 @@
-import sys
-
-if sys.version_info[0] >= 3:
-    import pickle as compmake_pickle  # @UnusedImport
-else:
-    import cPickle as compmake_pickle  # @Reimport
+import pickle as compmake_pickle
 
 __all__ = [
     "try_pickling",

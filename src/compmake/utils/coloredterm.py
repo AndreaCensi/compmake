@@ -14,17 +14,25 @@ __all__ = [
 #         bold, dark, underline, blink, reverse, concealed.
 #
 #
-try:
-    from termcolor import colored as t_colored  # @UnresolvedImport
 
-    def termcolor_colored(s, color=None, on_color=None, attrs=None):
-        return "\n".join(t_colored(x, color, on_color, attrs) for x in s.split("\n"))
+from termcolor import colored as t_colored  # @UnresolvedImport
+
+from zuper_commons.types import check_isinstance
 
 
-except:
-    # TODO: logger
-    sys.stderr.write('compmake can make use of the package "termcolor".' " Please install it.\n")
+def termcolor_colored(s: str, color=None, on_color=None, attrs=None):
+    check_isinstance(s, str)
+    return "\n".join(t_colored(x, color, on_color, attrs) for x in s.split("\n"))
 
-    def termcolor_colored(x, color=None, on_color=None, attrs=None):  # @UnusedVariable  # @UnusedVariable
-        """ emulation of the termcolor interface """
-        return x
+
+#
+# try:
+#
+#
+# except:
+#     # TODO: logger
+#     sys.stderr.write('compmake can make use of the package "termcolor".' " Please install it.\n")
+#
+#     def termcolor_colored(x, color=None, on_color=None, attrs=None):  # @UnusedVariable  # @UnusedVariable
+#         """ emulation of the termcolor interface """
+#         return x

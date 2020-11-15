@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import Any, Tuple
 
@@ -10,6 +11,7 @@ from compmake.jobs.result_dict import result_dict_check
 from compmake.structures import CMJobID
 from compmake.utils import setproctitle
 from future.moves.queue import Full
+from zuper_commons.fs import mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 
 #
@@ -27,7 +29,7 @@ __all__ = [
 ]
 
 
-def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
+def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
     """
     args = tuple job_id, context, queue_name, show_events
 
@@ -37,10 +39,14 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
     because it might contain a Promise.
 
     """
-    job_id, context, event_queue_name, show_output = args  # @UnusedVariable
+    job_id, context, event_queue_name, show_output, logdir = args  # @UnusedVariable
 
-    sys.stdout = open(f"{job_id}.stdout.log", "w")
-    sys.stderr = open(f"{job_id}.stderr.log", "w")
+    mkdirs_thread_safe(logdir)
+    stdout_fn = os.path.join(logdir, f"{job_id}.stdout.log", "w")
+    stderr_fn = os.path.join(logdir, f"{job_id}.stderr.log", "w")
+
+    sys.stdout = open(stdout_fn, "w")
+    sys.stderr = open(stderr_fn, "w")
 
     check_isinstance(job_id, str)
     check_isinstance(event_queue_name, str)
@@ -86,7 +92,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool]):
         # Note that this function is called after the fork.
         # All data is conserved, but resources need to be reopened
         try:
-            db.reopen_after_fork()  # @UndefinedVariable
+            db.reopen_after_fork()
         except:
             pass
 

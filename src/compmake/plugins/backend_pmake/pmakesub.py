@@ -1,13 +1,10 @@
-import multiprocessing
-import os
 import signal
 import traceback
 from multiprocessing import TimeoutError
-from multiprocessing.context import BaseContext, SpawnContext
+from multiprocessing.context import BaseContext
 
 from future.moves.queue import Empty
 
-from compmake import logger
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from compmake.jobs.manager import AsyncResultInterface
 from compmake.jobs.result_dict import result_dict_raise_if_error

@@ -35,10 +35,9 @@ def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, floa
        - ``iterations``: must be a tuple of two integers (k,N), meaning
           that the current iteration is the k-th out of N.
 
-       - ``iteration_desc``: an optional string describing the current i
-          teration
+       - ``iteration_desc``: an optional string describing the current iteration
 
-       Example: ::
+
 
             for i in range(n):
                 progress('Reading files', (i,n),

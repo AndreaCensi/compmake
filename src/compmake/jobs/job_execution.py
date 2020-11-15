@@ -1,4 +1,4 @@
-from compmake.structures import IntervalTimer
+from compmake.structures import CMJobID, IntervalTimer
 from zuper_commons.types import check_isinstance
 from .dependencies import collect_dependencies, substitute_dependencies
 from .storage import get_job_args, job_userobject_exists
@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 
-def get_cmd_args_kwargs(job_id, db):
+def get_cmd_args_kwargs(job_id: CMJobID, db):
     """ Substitutes dependencies and gets actual cmd, args, kwargs. """
     command, args, kwargs = get_job_args(job_id, db=db)
     kwargs = dict(**kwargs)
@@ -25,7 +25,7 @@ def get_cmd_args_kwargs(job_id, db):
     return command, args2, kwargs2
 
 
-class JobCompute(object):
+class JobCompute:
     # currently executing job id
     current_job_id = None
 

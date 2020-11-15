@@ -4,11 +4,15 @@ import subprocess
 import sys
 import traceback
 from dataclasses import dataclass
+from datetime import datetime
 from subprocess import Popen
 from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
 from networkx import descendants, DiGraph
+
+from compmake.ui import compmake_console_gui
 from zuper_commons.fs import read_ustring_from_utf8_file
+from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZValueError
 
 from . import logger, Promise
@@ -81,13 +85,14 @@ def go1(
 
 
 def chill(depends_on: List[str]):
-    pass
+    return get_md5("-".join(depends_on))
 
 
 def make_bridge_main(args=None):
     parser = argparse.ArgumentParser(prog="zuper-make",)
     parser.add_argument("-o", "--out", default="out-zuper-make")
     parser.add_argument("-c", "--command", default=None)
+    parser.add_argument("--gui", default=False, action="store_true")
     parser.add_argument("--retries", default=1, type=int, help="Number of times to retry")
     parser.add_argument(
         "--draw-deps", default=False, action="store_true", help="Creates the depedency graph using dot."
@@ -154,12 +159,15 @@ def make_bridge_main(args=None):
 
         c.batch_command(parsed.command)
     else:
-        c.compmake_console()
+        if parsed.gui:
+            compmake_console_gui(c)
+        else:
+            c.compmake_console()
 
 
 def run_one_command(
     C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str], retries: int
-):
+) -> str:
     _ = depends_on
     logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
 
@@ -199,6 +207,7 @@ Running:                [try {retry + 1} of {retries}]
         else:
             msg = f"Command failed with {retcode} ({retries} times)."
             raise ZException(msg, all_output=all_output_s)
+    return datetime.now().isoformat()
 
 
 @dataclass
@@ -306,7 +315,7 @@ def parse_makefile(cwdir: str, data: str) -> MakefileParsed:
                 line = line.strip()
                 line = replace_variables(line)
                 c = interpret_command(cwdir, line)
-                logger.info(line=line, c=c)
+                # logger.info(line=line, c=c)
                 commands.append(c)
             targets[target] = TargetInfo(dependencies=deps, commands=commands)
         else:

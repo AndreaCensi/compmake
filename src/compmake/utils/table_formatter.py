@@ -1,3 +1,5 @@
+from typing import List
+
 from .strings_with_escapes import pad_to_screen_length, get_length_on_screen
 
 
@@ -87,7 +89,7 @@ class TableFormatter(object):
         return self.sep.join(ss)
 
 
-def groups_match(it, groupsize):
+def groups_match(it, groupsize) -> List:
     content = list(it)
     gs = list(groups(content, groupsize))
     ngroups = len(gs)
@@ -109,7 +111,7 @@ def groups_match(it, groupsize):
         table[row][col] = x
 
     for row in table:
-        row = list(filter(lambda x: x is not None, row))
+        row = list(filter(lambda _: _ is not None, row))
         yield row
 
 

@@ -7,7 +7,7 @@ __all__ = [
 ]
 
 
-class EventSpec(object):
+class EventSpec:
     """ This is a specification of the events that can be generated """
 
     def __init__(self, name, attrs=None, desc=None):
@@ -18,7 +18,7 @@ class EventSpec(object):
         self.desc = desc
 
 
-class Event(object):
+class Event:
     """ This, instead, is an event itself """
 
     def __init__(self, name, **kwargs):
@@ -28,4 +28,4 @@ class Event(object):
         self.timestamp = time.time()
 
     def __str__(self):
-        return "Event(%s, %s)" % (self.name, self.kwargs)
+        return f"Event({self.name}, {self.kwargs})"

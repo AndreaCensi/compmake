@@ -4,30 +4,31 @@
 
 """
 
-from . import backend_local
-from . import backend_multyvac
-from . import backend_pmake
-from . import backend_sge
-from . import backend_ssh_cluster
-from . import clear_imp
-from . import commands_status
-from . import console_banners
-from . import console_output  # handle *before* console_status
-from . import console_status  # handle *after*  console_output
-from . import credits
-from . import debug_priority
-from . import details
-from . import details_why
-from . import dump
-from . import event_debugger
-from . import gantt
-from . import graph
-from . import graph_animation_imp
-from . import job_definition_status
-from . import list_jobs_imp
-from . import reload_module
-from . import sanity_check
-from . import stats
+from . import (
+    backend_local,
+    backend_pmake,
+    backend_sge,
+    backend_ssh_cluster,
+    clear_imp,
+    commands_status,
+    console_banners,
+    console_output,
+    console_status,
+    credits,
+    debug_priority,
+    details,
+    details_why,
+    dump,
+    event_debugger,
+    gantt,
+    graph,
+    graph_animation_imp,
+    job_definition_status,
+    list_jobs_imp,
+    reload_module,
+    sanity_check,
+    stats,  # handle *before* console_status; handle *after*  console_output
+)
 
 # Useful for debugging events
 # TODO: mail, html_status

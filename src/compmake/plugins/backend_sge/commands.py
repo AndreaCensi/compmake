@@ -1,8 +1,8 @@
-from compmake.ui.helpers import ACTIONS, ui_command
+from compmake.constants import DefaultsToConfig
 from compmake.jobs.queries import top_targets
 from compmake.plugins.backend_sge.sge_manager import SGEManager
 from compmake.ui.commands import raise_error_if_manager_failed
-from compmake.constants import DefaultsToConfig
+from compmake.ui.helpers import ACTIONS, ui_command
 
 __all__ = [
     "sgemake",
@@ -11,7 +11,11 @@ __all__ = [
 
 @ui_command(section=ACTIONS, dbchange=True)
 def sgemake(
-    job_list, context, cq, n=DefaultsToConfig("max_parallel_jobs"), recurse=DefaultsToConfig("recurse")
+    job_list,
+    context,
+    cq,
+    n: int = DefaultsToConfig("max_parallel_jobs"),
+    recurse: bool = DefaultsToConfig("recurse"),
 ):
     """ Cluster equivalent of "make" using the Sun Grid Engine. """
     job_list = [x for x in job_list]

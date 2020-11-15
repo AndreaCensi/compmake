@@ -6,7 +6,8 @@ from compmake.exceptions import UserError
 from compmake.jobs import CacheQueryDB, CMJobID, top_targets
 from compmake.jobs.queries import definition_closure
 from compmake.structures import Cache
-from compmake.ui import COMMANDS_ADVANCED, Context, info, ui_command
+from compmake.ui import COMMANDS_ADVANCED, Context, ui_command
+from compmake.ui.visualization import ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -97,7 +98,7 @@ def graph(
         msg = "Could not run dot (cmdline={cmd_line!r}). Make sure graphviz is installed."
         raise UserError(msg)  # XXX maybe not UserError
 
-    info(f"Written output on files {filename}, {output}.")
+    ui_info(context, f"Written output on files {filename}, {output}.")
 
 
 def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):

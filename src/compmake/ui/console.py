@@ -2,15 +2,18 @@ import os
 import sys
 import traceback
 
+from asciimatics.exceptions import StopApplication
+from asciimatics.scene import Scene
+from asciimatics.screen import Screen
+from asciimatics.widgets import Frame, Layout, TextBox
 from future import builtins
 
 from compmake import get_compmake_config, logger
-from zuper_commons.types import raise_wrapped
-from zuper_commons.text import indent
+from zuper_commons.text import indent, remove_escapes
 from .ui import clean_other_jobs, get_commands, interpret_commands
-from .visualization import clean_console_line, error
+from .visualization import clean_console_line, DefaultConsole, ui_error
 from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
-from ..events import publish
+from ..events import Event, publish, register_handler
 from ..exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
 from ..jobs import all_jobs, CacheQueryDB
 
@@ -18,7 +21,8 @@ __all__ = [
     "interactive_console",
     "interpret_commands_wrap",
     "batch_command",
-    "compmake_console",
+    "compmake_console_text",
+    "compmake_console_gui",
 ]
 
 
@@ -38,6 +42,7 @@ def get_readline():
             return readline
         except BaseException as e:
             try:
+                # noinspection PyUnresolvedReferences
                 import pyreadline as readline  # @UnresolvedImport
 
                 return readline
@@ -66,7 +71,7 @@ def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
         raise
     except UserError as e:
         publish(context, "command-line-failed", command=commands, reason=e)
-        raise CommandFailed(str(e))
+        raise CommandFailed(str(e)) from e
     except CommandFailed as e:
         publish(context, "command-line-failed", command=commands, reason=e)
         raise
@@ -75,7 +80,7 @@ def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
         # If debugging
         # tb = traceback.format_exc()
         # print tb  # XXX
-        raise CommandFailed(str(e))
+        raise CommandFailed(str(e)) from e
         # raise CommandFailed('Execution of %r interrupted.' % commands)
     except ShellExitRequested:
         raise
@@ -107,7 +112,7 @@ def interactive_console(context):
                 interpret_commands_wrap(line, context=context, cq=cq)
         except CommandFailed as e:
             if not isinstance(e, MakeFailed):
-                error(str(e))
+                ui_error(context, str(e))
             continue
         except CompmakeBug:
             raise
@@ -251,24 +256,106 @@ def batch_command(s, context, cq):
     return interpret_commands_wrap(s, context=context, cq=cq)
 
 
-def compmake_console(context):
-    """
-        Runs the compmake console. Ignore if we are embedded.
-    """
-    # if is_inside_compmake_script():
-    # msg = 'I detected that we were imported by "compmake".
-    # compmake_console() will not do anything.'
-
-    # error(msg)
-    #         return
-    #
-    #     if get_compmake_status() !=
-    # CompmakeConstants.compmake_status_embedded:
-    #         return
-
-    # we assume that we are done with defining jobs
+def compmake_console_text(context):
     clean_other_jobs(context=context)
     from compmake.scripts.master import read_rc_files
 
     read_rc_files(context=context)
     interactive_console(context=context)
+
+
+def compmake_console_gui(context):
+    return Screen.wrapper(compmake_console_gui_, arguments=[context])
+
+
+def compmake_console_gui_(screen: Screen, context):
+    clean_other_jobs(context=context)
+    from compmake.scripts.master import read_rc_files
+
+    read_rc_files(context=context)
+
+    DefaultConsole.active = False
+    scenes = [
+        Scene([MainList(screen, context)], -1, name="Main"),
+    ]
+
+    screen.play(scenes, stop_on_resize=False, start_scene=scenes[0], allow_int=True)
+
+
+class MainList(Frame):
+    offset: int
+
+    def __init__(self, screen: Screen, context):
+        self.all_lines = []
+        self.offset = 0
+        super(MainList, self).__init__(
+            screen,
+            screen.height,
+            screen.width,
+            on_load=self.on_load,
+            hover_focus=True,
+            can_scroll=False,
+            title="Compmake",
+        )
+
+        # Save off the model that accesses the contacts database.
+        self.context = context
+        layout = Layout([100])
+        self.add_layout(layout)
+        cmd = None
+        tb = TextBox(TextBox.FILL_FRAME, name="text", disabled=True, as_string=False,)
+        tb.value = ["This is the ", "initial"]
+
+        cq = CacheQueryDB(context.get_compmake_db())
+
+        def on_command_change(*args):
+            v = cmd.value
+            # print(repr(v))
+            # tb.value = [repr(v)]
+            if len(v) > 1:
+                self.save()
+                line = v[0]
+                cmd.value = [""]
+                screen.refresh()
+
+                try:
+                    interpret_commands_wrap(line, context=context, cq=cq)
+                except ShellExitRequested:
+                    raise StopApplication("bye")
+                except CommandFailed as e:
+                    ui_error(context, str(e))
+
+            # if v.endswith('\n'):
+            #     tb.value += v
+            # cmd.value = ''
+
+        cmd = TextBox(1, "command", on_change=on_command_change)
+        status = TextBox(1, "status", disabled=True)
+        layout.add_widget(tb, 0)
+        layout.add_widget(status, 0)
+        layout.add_widget(cmd, 0)
+
+        H = 25
+
+        def handle_ui_message(context, event: Event):
+            string = event.kwargs["string"]
+            string = remove_escapes(string)
+            self.all_lines = self.all_lines + string.split("\n")
+            self.offset = len(self.all_lines) - H
+            tb.value = self.all_lines[self.offset : self.offset + 25]
+            screen.refresh()
+
+        register_handler("ui-message", handle_ui_message)
+
+        def handle_ui_status_summary(context, event: Event):
+            string = event.kwargs["string"]
+            string = remove_escapes(string)
+            status.value = [string]
+            screen.refresh()
+
+        register_handler("ui-status-summary", handle_ui_status_summary)
+
+        self.fix()
+
+    def on_load(self, new_value=None):
+        pass

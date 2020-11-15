@@ -1,6 +1,7 @@
 """ The actual interface of some commands in commands.py """
 import os
 from time import time
+from typing import Dict, List, Sequence, Tuple
 
 from compmake.constants import CompmakeConstants
 from compmake.jobs import parse_job_list
@@ -14,10 +15,10 @@ from compmake.jobs.storage import (
 from compmake.jobs.syntax.parsing import is_root_job
 from compmake.structures import Cache, cache_has_large_overhead, timing_summary
 from compmake.ui import compmake_colored, ui_command, VISUALIZATION
+from compmake.ui.visualization import ui_message
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
 from zuper_commons.ui import duration_compact
-from typing import Sequence, Tuple, List, Dict
 
 # red, green, yellow, blue, magenta, cyan, white.
 state2color = {
@@ -84,7 +85,7 @@ def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
         Returns prefix, minimal, postfix
     """
     if len(objects) == 1:
-        return "", objects, ""
+        return "", list(objects), ""
 
     # find the common prefix
     prefix = os.path.commonprefix(objects)
@@ -107,14 +108,12 @@ def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     return prefix, minimal, postfix
 
 
-def list_jobs(
-    context, job_list, cq, complete_names=False, all_details=False, reason=False
-):  # @UnusedVariable
-
+def list_jobs(context, job_list, cq, complete_names=False, all_details=False, reason=False):
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
-        print("No jobs found.")
+        string = "No jobs found."
+        ui_message(context, string)
         return
 
     # maximum job length
@@ -214,7 +213,7 @@ def list_jobs(
 
         if cache.state in [Cache.DONE, Cache.FAILED]:
             when = duration_compact(time() - cache.timestamp)
-            when_s = "(%s ago)" % when
+            when_s = f"({when} ago)"
 
             when_s = compmake_colored(when_s, **format_when)
 
@@ -230,7 +229,8 @@ def list_jobs(
 
     if do_one_column:
         for line in tf.get_lines():
-            print(ind + line)
+            string = ind + line
+            ui_message(context, string)
     else:
         linewidth = get_screen_columns()
         # print('*'*linewidth)
@@ -238,22 +238,23 @@ def list_jobs(
         sep = "   " + compmake_colored("|", **format_separator) + "   "
 
         for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
-            print(ind + line)
-
+            string = ind + line
+            ui_message(context, string)
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
         wall_time = duration_compact(sum(wall_total))
-        scpu = " total %d jobs   CPU time: %s   wall: %s" % (len(job_list), cpu_time, wall_time)
-        print(scpu)
+        string = f" total {len(job_list)} jobs   CPU time: {cpu_time}   wall: {wall_time}"
+        # print(scpu)
+        ui_message(context, string)
 
 
-def format_size(nbytes):
+def format_size(nbytes: int) -> str:
     if nbytes == 0:
         return ""
-    if nbytes < 1000 * 1000:  # TODO: add param
+    if nbytes < 1024 * 1024:  # TODO: add param
         return ""
-    mb = float(nbytes) / (1000 * 1000)
-    return "%d MB" % mb
+    mb = float(nbytes) / (1024 * 1024)
+    return f"{mb:.2f} MB"
 
 
 def get_sizes(job_id, db) -> Dict:

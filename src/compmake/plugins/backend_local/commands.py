@@ -3,7 +3,6 @@ import time
 from compmake.constants import DefaultsToConfig
 from compmake.jobs import Cache, IntervalTimer, mark_to_remake, set_job_cache, set_job_userobject, top_targets
 from compmake.ui import ACTIONS, ask_if_sure_remake, raise_error_if_manager_failed, ui_command
-
 from .manager_local import ManagerLocal
 
 __all__ = [
@@ -80,9 +79,9 @@ def remake(
     non_empty_job_list,
     context,
     cq,
-    echo=DefaultsToConfig("echo"),
-    new_process=DefaultsToConfig("new_process"),
-    recurse=DefaultsToConfig("recurse"),
+    echo: bool = DefaultsToConfig("echo"),
+    new_process: bool = DefaultsToConfig("new_process"),
+    recurse: bool = DefaultsToConfig("recurse"),
 ):
     """
         Remake the selected targets (equivalent to clean and make).
@@ -111,6 +110,12 @@ def remake(
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def rmake(job_list, context, cq, echo=DefaultsToConfig("echo"), new_process=DefaultsToConfig("new_process")):
+def rmake(
+    job_list,
+    context,
+    cq,
+    echo: bool = DefaultsToConfig("echo"),
+    new_process: bool = DefaultsToConfig("new_process"),
+):
     """ make with recurse = 1 """
     return make(job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True)

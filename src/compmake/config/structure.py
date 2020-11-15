@@ -33,7 +33,7 @@ def set_config_from_strings(name, args):
     try:
         value = interpret_strings_like(args, switch.default_value)
     except ValueError as e:
-        raise UserError(e)
+        raise UserError(str(e)) from None
 
     set_compmake_config(name, value)
 
@@ -47,7 +47,7 @@ def add_config_section(name, desc=None, order=0):
     config_sections[name] = ConfigSection(name=name, desc=desc, order=order, switches=[])
 
 
-def show_config(f):
+def show_config() -> str:
     config_sections = CompmakeGlobalState.config_sections
     config_switches = CompmakeGlobalState.config_switches
 
@@ -56,11 +56,12 @@ def show_config(f):
     max_len_name = 1 + max([len(s.name) for s in config_switches.values()])
     max_len_val = 1 + max([len(str(get_compmake_config(s.name))) for s in config_switches.values()])
 
+    b = ""
     for section in ordered_sections:
-        f.write("  ---- %s ----  \n" % section.name)
+        b += "  ---- %s ----  \n" % section.name
         if section.desc:
             # XXX  multiline
-            f.write("  | %s \n" % section.desc)
+            b += "  | %s \n" % section.desc
         for name in section.switches:
             switch = config_switches[name]
             value = get_compmake_config(name)
@@ -79,4 +80,5 @@ def show_config(f):
 
             s1 = compmake_colored(name.rjust(max_len_name), attrs=["bold"])
             s2 = compmake_colored(value.rjust(max_len_val), attrs=attrs)
-            f.write("  | %s  %s  %s\n" % (s1, s2, desc))
+            b += "  | %s  %s  %s\n" % (s1, s2, desc)
+    return b

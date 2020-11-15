@@ -12,7 +12,8 @@ from ..context import Context
 from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from ..jobs import all_jobs
 from ..storage import StorageFilesystem
-from ..ui import info, interpret_commands_wrap
+from ..ui import compmake_console_gui, interpret_commands_wrap
+from ..ui.visualization import ui_info
 from ..utils import setproctitle
 
 
@@ -48,8 +49,8 @@ def read_commands_from_file(filename: str, context: Context):
         context.rc_files_read.append(filename)
 
     cq = CacheQueryDB(context.get_compmake_db())
-    assert context is not None
-    info("Reading configuration from %r." % friendly_path(filename))
+
+    ui_info(context, f"Reading configuration from {friendly_path(filename)}.")
     with open(filename, "r") as f:
         for line in f:
             line = line.strip()
@@ -88,6 +89,7 @@ def compmake_main(args):
     parser.add_option("--profile", default=False, action="store_true", help="Use Python profiler")
 
     parser.add_option("--contracts", default=False, action="store_true", help="Activate PyContracts")
+    parser.add_option("--gui", default=False, action="store_true", help="Use text gui")
 
     parser.add_option("-c", "--command", default=None, help="Run the given command")
 
@@ -163,7 +165,10 @@ def compmake_main(args):
             if options.command:
                 context2.batch_command(options.command)
             else:
-                context2.compmake_console()
+                if options.gui:
+                    compmake_console_gui(context2)
+                else:
+                    context2.compmake_console()
         except MakeFailed:
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:

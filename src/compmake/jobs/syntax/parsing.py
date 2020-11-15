@@ -87,7 +87,7 @@ def eval_alias(alias, context: Context, cq: CacheQueryDB):
         raise ValueError(msg)
 
 
-def list_matching_functions(token, context: Context, cq: CacheQueryDB):
+def list_matching_functions(token: str, context: Context, cq: CacheQueryDB):
     db = context.get_compmake_db()
     assert token.endswith("()")
     if len(token) < 3:

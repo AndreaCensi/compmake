@@ -5,9 +5,10 @@ from ..jobs import all_jobs
 from ..ui import compmake_colored
 from ..utils import pad_to_screen
 
-
 compmake_issues_url = "http://github.com/AndreaCensi/compmake/issues"
 name = "Compmake"
+
+
 # banners = [
 #     "Tame your Python computations!",
 #     "Keep calm and carry on",
@@ -37,12 +38,11 @@ def console_starting(context):
 
 
 def console_ending(event, context):  # @UnusedVariable
-    from compmake.ui import info
 
-    info(
-        "Thanks for using Compmake. "
-        "Please report problems to %s" % compmake_colored(compmake_issues_url, attrs=["bold"])
-    )
+    url = compmake_colored(compmake_issues_url, attrs=["bold"])
+    msg = f"Thanks for using Compmake. Please report problems to {url}"
+
+    print(msg)  # keep print
 
 
 register_handler("console-starting", console_starting)

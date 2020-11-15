@@ -1,9 +1,11 @@
-from compmake.context import Context
-from compmake.jobs import get_job
-from compmake.storage.filesystem import StorageFilesystem
-from nose.tools import istest
-from tempfile import mkdtemp
 import unittest
+from tempfile import mkdtemp
+
+from nose.tools import istest
+
+from compmake.context import Context
+from compmake.jobs import CMJobID, get_job
+from compmake.storage.filesystem import StorageFilesystem
 
 
 def g():
@@ -39,13 +41,13 @@ class TestDelegation5(unittest.TestCase):
     def test_delegation_5(self):
         root = mkdtemp()
         db, cc = define_jobs(root)
-        job0 = get_job("h", db)
-        self.assertEqual(job0.children, set(["e"]))
+        job0 = get_job(CMJobID("h"), db)
+        self.assertEqual(job0.children, {"e"})
 
         cc.batch_command("make;ls")
 
-        job = get_job("h", db)
-        self.assertEqual(job.children, set(["e", "e-f", "e-f-g"]))
+        job = get_job(CMJobID("h"), db)
+        self.assertEqual(job.children, {"e", "e-f", "e-f-g"})
         print("parents: %s" % job.parents)
         print("children: %s" % job.children)
 
@@ -54,5 +56,5 @@ class TestDelegation5(unittest.TestCase):
         # Now just define h again
         db, cc = define_jobs(root)
         cc.batch_command("check_consistency raise_if_error=1")
-        job2 = get_job("h", db)
-        self.assertEqual(job2.children, set(["e", "e-f", "e-f-g"]))
+        job2 = get_job(CMJobID("h"), db)
+        self.assertEqual(job2.children, {"e", "e-f", "e-f-g"})

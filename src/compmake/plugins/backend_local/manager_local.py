@@ -1,19 +1,19 @@
 from compmake import CompmakeBug
 from compmake.jobs import AsyncResultInterface, make, Manager, parmake_job2_new_process
 from compmake.jobs.result_dict import result_dict_check
-from compmake.ui import warning
 
-use_pympler = False
 
-if use_pympler:
-    from pympler import tracker  # @UnresolvedImport
-
-    tr = tracker.SummaryTracker()
-else:
-    tr = None
-
+# use_pympler = False
+#
+# if use_pympler:
+#     from pympler import tracker  # @UnresolvedImport
+#
+#     tr = tracker.SummaryTracker()
+# else:
+from compmake.ui.visualization import ui_warning
 
 tr = None
+
 
 __all__ = [
     "ManagerLocal",
@@ -32,7 +32,7 @@ class ManagerLocal(Manager):
 
         if new_process and echo:
             msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
-            warning(msg)
+            ui_warning(self.context, msg)
 
     def can_accept_job(self, reasons):
         # only one job at a time
@@ -77,7 +77,7 @@ class FakeAsync(AsyncResultInterface):
             args = (self.job_id, self.context)
             return parmake_job2_new_process(args)
         else:
-            if use_pympler:
-                tr.print_diff()
+            # if use_pympler:
+            #     tr.print_diff()
 
             return make(self.job_id, context=self.context, echo=self.echo)

@@ -287,7 +287,7 @@ def make(job_id, context, echo=False):
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
+        raise JobInterrupted(job_id=job_id, deleted_jobs=list(deleted_jobs))
 
     except (
         BaseException,
@@ -314,7 +314,7 @@ def make(job_id, context, echo=False):
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=deleted_jobs)
+        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
     finally:
         int_finally = IntervalTimer()
         if capture is not None:

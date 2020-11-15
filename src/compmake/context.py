@@ -119,9 +119,10 @@ class Context:
         return batch_command(s, context=self, cq=cq)
 
     def compmake_console(self):
-        from .ui import compmake_console
 
-        return compmake_console(context=self)
+        from .ui import compmake_console_text
+
+        compmake_console_text(self)
 
 
 def comp_store_(x, context, job_id=None):

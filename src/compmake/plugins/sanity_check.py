@@ -3,9 +3,10 @@ from typing import List, Tuple
 
 from compmake.exceptions import CompmakeBug
 from compmake.jobs.storage import all_jobs, get_job, job_exists
-from compmake.ui.visualization import error
+
 from ..jobs import children, direct_children, direct_parents, parents, parse_job_list
 from ..ui import COMMANDS_ADVANCED, ui_command
+from ..ui.visualization import ui_error
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
@@ -32,14 +33,14 @@ def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssi
             errors[job_id] = ["bug: %s" % e]
 
     if errors:
-        msg = "Inconsistency with %d jobs:" % len(errors)
+        msg = f"Inconsistency with {len(errors)} jobs:"
         for job_id, es in errors.items():
             msg += "\n- job %r:\n%s" % (job_id, "\n".join(es))
 
         if raise_if_error:
             raise CompmakeBug(msg)
         else:
-            error(msg)
+            ui_error(context, msg)
 
     return 0
 
@@ -75,42 +76,42 @@ def check_job(job_id, context) -> Tuple[bool, List[str]]:
     for dp in dparents:
 
         if not job_exists(dp, db=db):
-            s = "Direct parent %r of %r does not exist." % (dp, job_id)
+            s = f"Direct parent {dp!r} of {job_id!r} does not exist."
             e(s)
         else:
             if not job_id in direct_children(dp, db=db):
-                s = "%s thinks %s is its direct parent;" % (job_id, dp)
-                s += "but %s does not think %s is its direct child" % (dp, job_id)
+                s = f"{job_id} thinks {dp} is its direct parent;"
+                s += f"but {dp} does not think {job_id} is its direct child"
                 e(s)
 
     for ap in all_parents:
         if not job_exists(ap, db=db):
-            s = "Parent %r of %r does not exist." % (ap, job_id)
+            s = f"Parent {ap!r} of {job_id!r} does not exist."
             e(s)
         else:
             if not job_id in children(ap, db=db):
-                e("%s is parent but no child relation" % ap)
+                e(f"{ap} is parent but no child relation")
 
     for dc in dchildren:
         if not job_exists(dc, db=db):
-            s = "Direct child %r of %r does not exist." % (dc, job_id)
+            s = f"Direct child {dc!r} of {job_id!r} does not exist."
             e(s)
         else:
             if not job_id in direct_parents(dc, db=db):
-                e("%s is direct child but no direct_parent relation" % dc)
+                e(f"{dc} is direct child but no direct_parent relation")
 
     for ac in all_children:
         if not job_exists(ac, db=db):
-            s = "A child %r of %r does not exist." % (ac, job_id)
+            s = f"A child {ac!r} of {job_id!r} does not exist."
             e(s)
         else:
             if not job_id in parents(ac, db=db):
-                e("%s is direct child but no parent relation" % ac)
+                e(f"{ac} is direct child but no parent relation")
 
     if errors:
-        s = "Inconsistencies for %s:\n" % job_id
-        s += "\n".join("- %s" % msg for msg in errors)
-        error(s)
+        s = f"Inconsistencies for {job_id}:\n"
+        s += "\n".join(f"- {msg}" for msg in errors)
+        ui_error(context, s)
         return False, errors
     else:
         return True, []

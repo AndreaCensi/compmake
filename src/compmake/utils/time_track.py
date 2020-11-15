@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-class TimeTrack(object):
+class TimeTrack:
     def __init__(self, what=None):
         self.t0 = time.time()
         self.c0 = time.process_time()
@@ -35,10 +35,9 @@ class TimeTrack(object):
         # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()
+        from compmake import logger
 
-        from compmake.ui.visualization import warning
-
-        warning(msg)
+        logger.warning(msg)
 
     @staticmethod
     @contextmanager
@@ -53,8 +52,8 @@ class TimeTrack(object):
             sargs = ", ".join(["{0}".format(x) for x in args])
             if args and kwargs:
                 sargs += ", "
-            sargs += ", ".join(["%s=%r" % (k, v) for (k, v) in kwargs.items()])
-            what = "%15s(%s)" % (f.__name__, sargs)
+            sargs += ", ".join([f"{k}={v!r}" for (k, v) in kwargs.items()])
+            what = f"{f.__name__:>15}({sargs})"
             with TimeTrack.measure(what, min_td=0.1):
                 return f(self, *args, **kwargs)
 

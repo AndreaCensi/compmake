@@ -1,9 +1,9 @@
 import inspect
-from typing import Dict, List, Set
+from typing import cast, Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from .helpers import get_commands, UIState
-from .visualization import warning
+from .visualization import ui_warning
 from .. import CompmakeConstants, get_compmake_config, get_compmake_status
 from ..constants import DefaultsToConfig
 from ..context import Context
@@ -21,7 +21,7 @@ from ..jobs import (
 )
 from ..jobs.actions import clean_cache_relations
 from ..jobs.storage import db_job_add_parent_relation, get_job_args
-from ..structures import Job, Promise, same_computation
+from ..structures import CMJobID, Job, Promise, same_computation
 from ..utils import interpret_strings_like, try_pickling
 
 
@@ -101,8 +101,6 @@ def clean_other_jobs(context):
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
 
-    from compmake.ui import info
-
     todelete = set()
 
     for job_id in all_jobs(force_db=True, db=db):
@@ -115,11 +113,14 @@ def clean_other_jobs(context):
 
             who = job.defined_by[1:]
             if who:
-                defined = " (defined by %s)" % "->".join(who)
+                a = "->".join(who)
+                defined = f" (defined by {a})"
             else:
                 defined = ""
 
-            info("Job %r not defined in this session%s; cleaning." % (job_id, defined))
+            from compmake.ui.visualization import ui_info
+
+            ui_info(context, f"Job {job_id!r} not defined in this session {defined}; cleaning.")
             #
             #             if not clean_all:
             #                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
@@ -207,7 +208,7 @@ def comp_(context, command_, *args, **kwargs):
                     "http://stefaanlippens.net/pickleproblem "
                     "and the bug report http://bugs.python.org/issue5509."
                 )
-            warning(msg)
+            ui_warning(context, msg)
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
@@ -296,7 +297,7 @@ def comp_(context, command_, *args, **kwargs):
                 else:
 
                     for i in range(1000):  # XXX
-                        n = "%s-%d" % (job_id, i)
+                        n = cast(CMJobID, f"{job_id}-{i}")
                         if not job_exists(n, db=db):
                             job_id = n
                             break
@@ -477,6 +478,7 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
     for cmd in commands:
         try:
             publish(context, "command-starting", command=cmd)
+            # noinspection PyNoneFunctionAssignment
             retcode = interpret_single_command(cmd, context=context, cq=cq)
 
         except KeyboardInterrupt:
@@ -579,7 +581,7 @@ def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
 
     if "non_empty_job_list" in function_args:
         if not args:
-            msg = "The command %r requires a non empty list of jobs as " "argument." % command_name
+            msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
             raise UserError(msg)
 
         job_list = parse_job_list(args, context=context, cq=cq)

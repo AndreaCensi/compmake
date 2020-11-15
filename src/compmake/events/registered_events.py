@@ -12,6 +12,10 @@ def add(e):
 
 add(EventSpec("compmake-init"))
 add(EventSpec("compmake-closing"))
+
+add(EventSpec("ui-message", ["string"]))
+add(EventSpec("ui-status-summary", ["string"]))
+
 add(EventSpec("job-stdout", ["job_id", "host", "lines"]))
 add(EventSpec("job-stderr", ["job_id", "host", "lines"]))
 add(EventSpec("job-progress", ["job_id", "host", "done", "progress", "goal"]))

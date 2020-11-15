@@ -1,11 +1,10 @@
 import sys
 
-from .helpers import GENERAL, ui_command, COMMANDS_ADVANCED
+from .helpers import COMMANDS_ADVANCED, GENERAL, ui_command
+from .visualization import ui_info, ui_message
 from .. import CompmakeGlobalState, get_compmake_config
-from ..config import create_config_html, show_config, set_config_from_strings
+from ..config import create_config_html, set_config_from_strings, show_config
 from ..exceptions import UserError
-from .visualization import info
-
 
 __all__ = [
     "config",
@@ -14,7 +13,7 @@ __all__ = [
 
 
 @ui_command(section=GENERAL)
-def config(args):
+def config(args, context):
     """ Get/set configuration parameters.
 
 Usage:
@@ -25,15 +24,16 @@ Without arguments, shows all configuration switches.
  """
     if not args:
         # show
-        show_config(sys.stdout)
+        b = show_config()
+        ui_message(context, b)
         return
 
     name = args.pop(0)
     if not args:
         if not name in CompmakeGlobalState.config_switches:
-            raise UserError("I don't know the switch '%s'." % name)
+            raise UserError(f"I don't know the switch '{name}'.")
         value = get_compmake_config(name)
-        info("config %s %s" % (name, value))
+        ui_info(context, f"config {name} {value}")
         return
 
     set_config_from_strings(name, args)

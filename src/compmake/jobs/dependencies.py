@@ -3,7 +3,8 @@ from typing import Set
 
 from compmake.exceptions import CompmakeBug
 from compmake.jobs import get_job_userobject, job_userobject_exists
-from zuper_commons.types import raise_wrapped
+from compmake.structures import CMJobID
+from zuper_commons.types import raise_wrapped, ZException
 
 __all__ = [
     "substitute_dependencies",
@@ -12,14 +13,14 @@ __all__ = [
 ]
 
 
-def get_job_userobject_resolved(job_id, db):
+def get_job_userobject_resolved(job_id: CMJobID, db):
     """ This gets the job's result, and recursively substitute all
     dependencies. """
     ob = get_job_userobject(job_id, db)
     all_deps = collect_dependencies(ob)
     for dep in all_deps:
         if not job_userobject_exists(dep, db):
-            msg = "Cannot resolve %r: dependency %r was not done." % (job_id, dep)
+            msg = f"Cannot resolve {job_id!r}: dependency {dep!r} was not done."
             raise CompmakeBug(msg)
     return substitute_dependencies(ob, db)
 
@@ -35,15 +36,17 @@ def substitute_dependencies(a, db):
         ca = type(a)
         rest = [(k, substitute_dependencies(v, db=db)) for k, v in a.items()]
         try:
+            # noinspection PyArgumentList
             res = ca(rest)
             # print('%s->%s' % (a, str(res)))
             return res
         except (BaseException, TypeError) as e:
-            msg = ("Could not instance something looking like a dict.",)
-            raise_wrapped(Exception, e, msg, ca=ca)
+            msg = "Could not instance something looking like a dict."
+            raise ZException(msg, ca=ca) from e
 
     elif isinstance(a, list):
         # XXX: This fails for subclasses of list
+        # noinspection PyArgumentList
         return type(a)([substitute_dependencies(x, db=db) for x in a])
     elif isinstance(a, tuple):
         # First, check that there are dependencies
@@ -57,6 +60,7 @@ def substitute_dependencies(a, db):
         ta = type(a)
         contents = [substitute_dependencies(x, db=db) for x in a]
         try:
+            # noinspection PyArgumentList
             return ta(contents)
         except TypeError as e:
             msg = "Cannot reconstruct complex tuple."
@@ -66,26 +70,15 @@ def substitute_dependencies(a, db):
         return substitute_dependencies(s, db=db)
     else:
         return a
-        # return deepcopy(a)
-        # Aug 16: not sure why we needed deepcopy
 
 
-#         # print(' %s' % type(a).__name__)
-#         if type(a).__name__ == 'ReportManager':
-#             return a
-#         else:
-#             print('deepcopying %s' % type(a).__name__)
-#             return deepcopy(a)
-
-
-# @contract(returns="set(unicode)")
-def collect_dependencies(ob) -> Set[str]:
+def collect_dependencies(ob) -> Set[CMJobID]:
     """ Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure """
     from compmake import Promise
 
     if isinstance(ob, Promise):
-        return set([ob.job_id])
+        return {ob.job_id}
     else:
         if leave_it_alone(ob):
             return set()

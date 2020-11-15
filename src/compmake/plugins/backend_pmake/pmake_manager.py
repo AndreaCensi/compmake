@@ -4,19 +4,19 @@ import random
 import signal
 import time
 from multiprocessing import Queue
-from multiprocessing.context import BaseContext, SpawnContext
+from multiprocessing.context import BaseContext
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
+from future.moves.queue import Empty
+from psutil import NoSuchProcess
+
 from compmake.events import broadcast_event, publish
 from compmake.exceptions import MakeHostFailed
 from compmake.jobs import Manager, parmake_job2_new_process
-from compmake.ui import info, warning
-from future.moves.queue import Empty
-from psutil import NoSuchProcess
+
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
-
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
 from ...structures import CMJobID
@@ -24,6 +24,8 @@ from ...structures import CMJobID
 __all__ = [
     "PmakeManager",
 ]
+
+from ...ui.visualization import ui_warning
 
 
 def killtree() -> None:
@@ -75,7 +77,7 @@ class PmakeManager(Manager):
 
         if new_process and show_output:
             msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
-            warning(msg)
+            ui_warning(context, msg)
         self.cleaned = False
 
     ctx: BaseContext
@@ -171,7 +173,8 @@ class PmakeManager(Manager):
 
         else:
             f = parmake_job2
-            args = (job_id, self.context, self.event_queue_name, self.show_output)
+            logdir = os.path.join(self.context.get_compmake_db().basepath, "parmake_job2_logs")
+            args = (job_id, self.context, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(f, args)
         return async_result

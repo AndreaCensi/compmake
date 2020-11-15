@@ -193,7 +193,7 @@ class CacheQueryDB:
 
             # plus jobs that defined it
             defined_by = list(self.get_job(job_id).defined_by)
-            defined_by.remove("root")
+            defined_by.remove(CMJobID("root"))
             dependencies.update(defined_by)
 
             for defby in defined_by:

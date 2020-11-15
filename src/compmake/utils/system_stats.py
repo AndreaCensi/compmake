@@ -15,6 +15,7 @@ except ImportError:
 class AvgSystemStats(object):
     """ Collects average statistics about the system using psutil. """
 
+    # noinspection PyUnresolvedReferences
     def __init__(self, interval, history_len):
         """
 
@@ -35,7 +36,7 @@ class AvgSystemStats(object):
 
             try:
                 # new in 0.8
-                psutil.virtual_memory().percent
+                _ = psutil.virtual_memory().percent
                 get_mem = lambda: psutil.virtual_memory().percent
             except:
                 get_mem = lambda: psutil.phymem_usage().percent
@@ -43,7 +44,7 @@ class AvgSystemStats(object):
             self.mem = Collect("mem", get_mem, interval, history_len)
             try:
                 # new in 0.8
-                psutil.swap_memory().percent
+                _ = psutil.swap_memory().percent
                 get_mem = lambda: psutil.swap_memory().percent
             except:
                 get_mem = lambda: psutil.virtmem_usage().percent
