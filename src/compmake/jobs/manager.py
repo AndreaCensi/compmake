@@ -6,7 +6,7 @@ import traceback
 import warnings
 from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
-from typing import Any, Collection, Dict, Set
+from typing import Any, Collection, Dict, List, Set
 
 from compmake.constants import CompmakeConstants
 from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
@@ -24,7 +24,7 @@ from ..events import publish
 from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from ..jobs import assert_job_exists, get_job_cache, job_cache_exists, job_exists, job_userobject_exists
 from ..jobs.actions_newprocess import result_dict_check
-from ..structures import Cache, CMJobID
+from ..structures import Cache, CMJobID, StateCode
 
 __all__ = [
     "Manager",
@@ -146,11 +146,11 @@ class Manager(ManagerLog):
         """ Called after successful processing (before cleanup) """
 
     @abstractmethod
-    def can_accept_job(self, reasons):
+    def can_accept_job(self, reasons: Dict[str, str]) -> bool:
         """ Return true if a new job can be accepted right away"""
 
     @abstractmethod
-    def instance_job(self, job_id):
+    def instance_job(self, job_id: CMJobID):
         """ Instances a job. """
 
     def cleanup(self):
@@ -293,7 +293,7 @@ class Manager(ManagerLog):
         return reasons
 
     def _raise_bug(self, func, job_id):
-        msg = "%s: Assumptions violated with job %r." % (func, job_id)
+        msg = f"{func}: Assumptions violated with job {job_id!r}."
         # msg += '\n' + self._get_situation_string()
 
         sets = [
@@ -309,7 +309,7 @@ class Manager(ManagerLog):
 
         for name, cont in sets:
             contained = job_id in cont
-            msg += "\n in %15s? %s" % (name, contained)
+            msg += f"\n in {name:>15}? {contained}"
 
         raise CompmakeBug(msg)
 
@@ -469,11 +469,11 @@ class Manager(ManagerLog):
                     # print('was also in targets')
                     # Remove it from the "ready_todo_list"
                     if parent in self.processing2result:
-                        msg = "parent %s of %s is already processing?" % (job_id, parent)
+                        msg = f"parent {job_id} of {parent} is already processing?"
                         raise CompmakeBug(msg)
 
                     if parent in self.done:
-                        msg = " parent %s of %s is already done?" % (job_id, parent)
+                        msg = f" parent {job_id} of {parent} is already done?"
                         warnings.warn("not sure of this...")
                         # raise CompmakeBug(msg)#
 
@@ -526,7 +526,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def job_failed(self, job_id, deleted_jobs):
+    def job_failed(self, job_id: CMJobID, deleted_jobs):
         """ The specified job has failed. Update the structures,
             mark any parent as failed as well. """
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
@@ -552,14 +552,17 @@ class Manager(ManagerLog):
 
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
-            mark_as_blocked(p, job_id, db=self.db)
-            self.todo.remove(p)
-            self.blocked.add(p)
+            if p not in self.blocked:
+                publish(self.context, "manager-job-blocked", job_id=p)
+
+                mark_as_blocked(p, dependency=job_id, db=self.db)
+                self.todo.remove(p)
+                self.blocked.add(p)
 
         self.publish_progress()
         self.check_invariants()
 
-    def job_succeeded(self, job_id):
+    def job_succeeded(self, job_id: CMJobID):
         """ Mark the specified job as succeeded. Update the structures,
             mark any parents which are ready as ready_todo. """
         self.log("job_succeeded", job_id=job_id)
@@ -615,6 +618,7 @@ class Manager(ManagerLog):
                 # print('parent %r is now ready' % (opportunity))
                 self.log("parent is ready", opportunity=opportunity)
                 self.todo.remove(opportunity)
+                publish(self.context, "manager-job-ready", job_id=opportunity)
                 self.ready_todo.add(opportunity)
 
         self.check_invariants()
@@ -745,10 +749,10 @@ class Manager(ManagerLog):
 
             from compmake.ui.visualization import ui_error
 
-            ui_error(self.context, "Received JobInterrupted: %s" % e)
+            ui_error(self.context, f"Received JobInterrupted: {e}")
             raise
         except KeyboardInterrupt:
-            raise KeyboardInterrupt("Manager interrupted.")
+            raise KeyboardInterrupt("Manager interrupted.") from None
         finally:
             self.cleanup()
 
@@ -782,16 +786,16 @@ class Manager(ManagerLog):
         s = ""
         for t in sorted(lists):
             jobs = lists[t]
-            s += "- %12s: %d\n" % (t, len(jobs))
+            s += f"- {t:>12}: {len(jobs)}\n"
 
         # if False:
         s += "\n In more details:"
         for t in sorted(lists):
             jobs = lists[t]
             if not jobs:
-                s += "\n- %12s: -" % (t)
+                s += f"\n- {t:>12}: -"
             elif len(jobs) < 20:
-                s += "\n- %12s: %d %s" % (t, len(jobs), sorted(jobs))
+                s += f"\n- {t:>12}: {len(jobs)} {sorted(jobs)}"
 
         return s
 
@@ -812,8 +816,8 @@ class Manager(ManagerLog):
         def empty_intersection(a, b):
             inter = lists[a] & lists[b]
             if inter:
-                msg = "There should be empty intersection in %r and %r" % (a, b)
-                msg += " but found %s" % inter
+                msg = f"There should be empty intersection in {a!r} and {b!r}"
+                msg += f" but found {inter}"
 
                 st = self._get_situation_string()
                 if len(st) < 500:
@@ -824,7 +828,7 @@ class Manager(ManagerLog):
         def partition(sets, result):
             S = set()
             for s in sets:
-                S = S | lists[s]
+                S |= lists[s]
 
             if S != lists[result]:
                 msg = "These two sets should be the same:\n"
@@ -866,7 +870,7 @@ class Manager(ManagerLog):
                     raise CompmakeBug("job %r in blocked does not exist" % job_id)
 
 
-def check_job_cache_state(job_id, states, db):
+def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
     """ Raises CompmakeBug if the job is not marked as done. """
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
@@ -877,11 +881,9 @@ def check_job_cache_state(job_id, states, db):
     else:
         cache = get_job_cache(job_id, db)
         if not cache.state in states:
-            msg = "Wrong state for %r: %s instead of %r " % (
-                job_id,
-                Cache.state2desc[cache.state],
-                [Cache.state2desc[s] for s in states],
-            )
+            possible = [Cache.state2desc[s] for s in states]
+            found = Cache.state2desc[cache.state]
+            msg = f"Wrong state for {job_id!r}: {found} instead of {possible!r} "
             raise CompmakeBug(msg)
 
         if cache.state == Cache.DONE:
@@ -938,18 +940,18 @@ def check_job_cache_state(job_id, states, db):
 def check_job_cache_says_failed(job_id, db, e):
     """ Raises CompmakeBug if the job is not marked as failed. """
     if not job_cache_exists(job_id, db):
-        msg = "The job %r was reported as failed but no record of " "it was found." % job_id
-        msg += "\n" + "JobFailed exception:"
-        msg += "\n" + indent(str(e), "| ")
-        raise CompmakeBug(msg)
+        msg = f"The job {job_id!r} was reported as failed but no record of it was found."
+        # msg += "\n" + "JobFailed exception:"
+        # msg += "\n" + indent(str(e), "| ")
+        raise CompmakeBug(msg, e=str(e))
     else:
         cache = get_job_cache(job_id, db)
         if not cache.state == Cache.FAILED:
-            msg = "The job %r was reported as failed but it was " "not marked as such in the DB." % job_id
-            msg += "\n seen state: %s " % Cache.state2desc[cache.state]
-            msg += "\n" + "JobFailed exception:"
-            msg += "\n" + indent(str(e), "| ")
-            raise CompmakeBug(msg)
+            msg = f"The job {job_id!r} was reported as failed but it was not marked as such in the DB."
+            msg += f"\n seen state: {Cache.state2desc[cache.state]} "
+            # msg += "\n" + "JobFailed exception:"
+            # msg += "\n" + indent(str(e), "| ")
+            raise CompmakeBug(msg, e=str(e))
 
 
 #

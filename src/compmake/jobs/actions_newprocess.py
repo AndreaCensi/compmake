@@ -1,13 +1,11 @@
 import os
 
-from zuper_commons.text import indent
-from .result_dict import result_dict_check
 from compmake.constants import CompmakeConstants
 from compmake.exceptions import CompmakeBug, JobFailed
 from compmake.utils import safe_pickle_load, which
-
 from system_cmd import system_cmd_result
-
+from zuper_commons.text import indent
+from .result_dict import result_dict_check
 
 __all__ = [
     "result_dict_check",

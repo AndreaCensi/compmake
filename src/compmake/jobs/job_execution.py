@@ -18,7 +18,7 @@ def get_cmd_args_kwargs(job_id: CMJobID, db):
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
         if not job_userobject_exists(dep, db):
-            msg = "Dependency %r was not done." % dep
+            msg = f"Dependency {dep!r} was not done."
             raise CompmakeBug(msg)
     args2 = substitute_dependencies(args, db=db)
     kwargs2 = substitute_dependencies(kwargs, db=db)

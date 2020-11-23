@@ -1,4 +1,5 @@
 import inspect
+import traceback
 from typing import cast, Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
@@ -482,7 +483,13 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
             retcode = interpret_single_command(cmd, context=context, cq=cq)
 
         except KeyboardInterrupt:
-            publish(context, "command-interrupted", command=cmd, reason="KeyboardInterrupt")
+            publish(
+                context,
+                "command-interrupted",
+                command=cmd,
+                reason="KeyboardInterrupt",
+                traceback=traceback.format_exc(),
+            )
             raise
         except UserError as e:
             publish(context, "command-failed", command=cmd, reason=e)
@@ -493,11 +500,11 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
             continue
         else:
             if isinstance(retcode, int):
-                publish(context, "command-failed", command=cmd, reason="Return code %r" % retcode)
-                raise CommandFailed("ret code %s" % retcode)
+                publish(context, "command-failed", command=cmd, reason=f"Return code {retcode!r}")
+                raise CommandFailed(f"ret code {retcode}")
             else:
                 publish(context, "command-failed", command=cmd, reason=retcode)
-                raise CommandFailed("ret code %s" % retcode)
+                raise CommandFailed(f"ret code {retcode}")
 
 
 # @contract(returns="None", commands_line="unicode")

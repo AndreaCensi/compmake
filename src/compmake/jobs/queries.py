@@ -7,6 +7,7 @@ from compmake.exceptions import CompmakeBug
 from compmake.jobs.storage import get_job_cache
 from compmake.structures import Cache, CMJobID
 from zuper_commons.types import check_isinstance
+
 from ..jobs import all_jobs, get_job
 
 __all__ = [
@@ -44,6 +45,9 @@ def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
         return set(cache.jobs_defined)
 
 
+from . import logger
+
+
 # @contract(jobs="Iterable", returns="set(unicode)")
 def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
     """ The result does not contain jobs (unless one job defines another) """
@@ -59,7 +63,7 @@ def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
         # print('stack: %s' % stack)
         a = stack.pop()
         if not cq.job_exists(a):
-            print("Warning: job %r does not exist anymore; ignoring." % a)
+            logger.warning("Warning: job %r does not exist anymore; ignoring." % a)
             continue
 
         if cq.get_job_cache(a).state == Cache.DONE:

@@ -4,16 +4,16 @@ import sys
 import time
 from collections import namedtuple
 from datetime import datetime
+from typing import Dict
 
 from compmake import CompmakeGlobalState
 from zuper_commons.text import indent
-
 from .tracker import Tracker
 from ..events import publish, register_handler
 from ..state import get_compmake_config
 from ..ui import compmake_colored
 from ..ui.visualization import ui_error
-from ..utils import getTerminalSize, get_length_on_screen, pad_to_screen_length
+from ..utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
 
 stream = sys.stderr
 
@@ -30,16 +30,34 @@ def system_status():
     cur_mem = stats.cur_phymem_usage_percent()
     swap = stats.cur_virtmem_usage_percent()
 
-    s_mem = "mem %2.0f%%" % cur_mem
-    if swap > 20:
-        s_mem += " swap %2.0f%%" % swap
+    console_status_style = get_compmake_config("console_status_style")
+    if console_status_style == "normal":
 
-    return "cpu %2.0f%% %s" % (cpu, s_mem)
+        s_mem = f"mem {cur_mem:2.0f}%"
+        if swap > 20:
+            s_mem += f" swap {swap:2.0f}%"
+
+        return f"cpu {cpu:2.0f}% {s_mem}"
+
+    else:
+
+        return f"cpu {make_bar(cpu, 7)}"
+
+
+def make_bar(percent: float, n: int) -> str:
+    on = "▉"
+    off = "▁"
+
+    ns = int(math.ceil(n * percent / 100))
+    ons = on * ns
+    offs = off * (n - ns)
+    return f"[{ons}{offs}]"
 
 
 def get_spins():
     # toutf = lambda x: [_.encode('utf8') for _ in x]
     toutf = lambda x: [_ for _ in x]
+
     # from_sequence = lambda x: toutf(_ for _ in x)
 
     #     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
@@ -88,34 +106,50 @@ def spinner():
 
 
 def job_counts():
-    done_style = dict(color="green")
-    failed_style = dict(color="red")
-    blocked_style = dict()
-    ready_style = dict(color="yellow")
-    proc_style = dict(color="yellow")
-    s = ""
-    if tracker.done:
-        s += compmake_colored(f"{len(tracker.done)} done", **done_style)
+    ss = []
 
-    if tracker.processing:
-        s += compmake_colored(f" {len(tracker.processing)} proc", **proc_style)
-        # Too long
-        # if len(tracker.processing) <= 2:
-        #    s += ' ' + " ".join(sorted(tracker.processing))
+    console_status_style = get_compmake_config("console_status_style")
 
-    if tracker.failed:
-        s += compmake_colored(f" {len(tracker.failed):d} failed", **failed_style)
+    styles = {
+        "normal": {
+            "done": dict(color="green", text="NUM done"),
+            "failed": dict(color="red", text="NUM failed"),
+            "blocked": dict(text="NUM blocked"),
+            "ready": dict(color="yellow", text="NUM ready"),
+            "processing": dict(color="blue", text="NUM proc"),
+            "todo": dict(color="cyan", text="NUM todo"),
+        },
+        "compact": {
+            "done": dict(color="green", text="NUM ✔"),
+            "failed": dict(color="red", text="NUM ✗"),
+            "blocked": dict(text="NUM ⌘"),
+            "ready": dict(color="yellow", text="NUM ▴‍"),
+            "processing": dict(color="blue", text="NUM ⚙"),
+            "todo": dict(color="cyan", text="NUM ☯"),
+        },
+    }
+    style = styles[console_status_style]
 
-    if tracker.blocked:
-        s += compmake_colored(f" {len(tracker.blocked):d} blocked", **blocked_style)
+    values: Dict[str, int] = {
+        "done": len(tracker.done),
+        "processing": len(tracker.processing),
+        "failed": len(tracker.failed),
+        "blocked": len(tracker.blocked),
+        "ready": len(tracker.ready),
+        "todo": len(tracker.todo),
+    }
 
-    if tracker.ready:
-        s += compmake_colored(f" {len(tracker.ready):d} ready", **ready_style)
+    for k, v in values.items():
+        if k not in style:
+            continue
+        if v > 0:
+            sk = style[k]
+            text = style[k]["text"].replace("NUM", str(v))
+            if "color" in sk:
+                text = compmake_colored(text, color=sk["color"])
+            ss.append(text)
 
-    if tracker.todo:
-        s += compmake_colored(f" {len(tracker.todo):d} waiting", **ready_style)
-
-    return s
+    return " ".join(ss)
 
 
 def wait_reasons():
@@ -211,7 +245,7 @@ def handle_event_period(context, event):
 ShowOption = namedtuple("Option", "length left right weight")
 
 
-def handle_event(context, event):  # @UnusedVariable
+def handle_event(context, event):
     if not get_compmake_config("status_line_enabled"):
         return
 
@@ -270,7 +304,7 @@ def handle_event(context, event):  # @UnusedVariable
     publish(context, "ui-status-summary", string=line)
 
 
-def manager_host_failed(context, event):  # @UnusedVariable
+def manager_host_failed(context, event):
     s = "Host failed for job %s: %s" % (event.job_id, event.reason)
     s += indent(event.bt.strip(), "| ")
     ui_error(context, s)

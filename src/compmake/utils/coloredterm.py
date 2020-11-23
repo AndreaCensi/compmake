@@ -33,6 +33,6 @@ def termcolor_colored(s: str, color=None, on_color=None, attrs=None):
 #     # TODO: logger
 #     sys.stderr.write('compmake can make use of the package "termcolor".' " Please install it.\n")
 #
-#     def termcolor_colored(x, color=None, on_color=None, attrs=None):  # @UnusedVariable  # @UnusedVariable
+#     def termcolor_colored(x, color=None, on_color=None, attrs=None):
 #         """ emulation of the termcolor interface """
 #         return x

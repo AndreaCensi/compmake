@@ -15,7 +15,7 @@ class TimeTrack:
         self.c0 = time.process_time()
         self.what = what
 
-    def show(self, stream=sys.stdout, min_td=0.001):  # @UnusedVariable
+    def show(self, stream=sys.stdout, min_td=0.001):
         self.t1 = time.time()
         self.c1 = time.process_time()
         self.cd = self.c1 - self.c0

@@ -22,11 +22,11 @@ add(EventSpec("job-progress", ["job_id", "host", "done", "progress", "goal"]))
 add(EventSpec("job-progress-plus", ["job_id", "host", "stack"]))
 add(EventSpec("job-succeeded", ["job_id", "host"]))
 add(EventSpec("job-failed", ["job_id", "host", "reason", "bt"]))
-add(EventSpec("job-instanced", ["job_id", "host"]))
-add(EventSpec("job-starting", ["job_id", "host"]))
-add(EventSpec("job-finished", ["job_id", "host"]))
-add(EventSpec("job-interrupted", ["job_id", "host", "bt"]))
-add(EventSpec("job-now-ready", ["job_id"]))
+# add(EventSpec("job-instanced", ["job_id", "host"]))
+# add(EventSpec("job-starting", ["job_id", "host"]))
+# add(EventSpec("job-finished", ["job_id", "host"]))
+add(EventSpec("job-interrupted", ["job_id", "host", "bt"]))  # FIXME: nobody throws?
+# add(EventSpec("job-now-ready", ["job_id"]))
 add(EventSpec("manager-phase", ["phase"]))
 add(
     EventSpec(
@@ -40,6 +40,8 @@ add(
 # These are called when the manager updates its data structure
 add(EventSpec("manager-job-starting", ["job_id"]))
 add(EventSpec("manager-job-failed", ["job_id"]))
+add(EventSpec("manager-job-blocked", ["job_id"]))
+add(EventSpec("manager-job-ready", ["job_id"]))
 add(EventSpec("manager-job-succeeded", ["job_id"]))
 add(EventSpec("manager-host-failed", ["job_id", "host", "reason", "bt"]))
 add(EventSpec("manager-init", ["targets", "more"]))
@@ -97,7 +99,7 @@ add(EventSpec("command-line-interrupted", ["command", "reason"]))
 add(EventSpec("command-starting", ["command"]))
 add(EventSpec("command-failed", ["command", "retcode", "reason"]))
 add(EventSpec("command-succeeded", ["command"]))
-add(EventSpec("command-interrupted", ["command", "reason"]))
+add(EventSpec("command-interrupted", ["command", "reason", "traceback"]))
 
 add(EventSpec("parmake-status", ["status"]))
 

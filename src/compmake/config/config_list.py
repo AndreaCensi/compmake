@@ -29,14 +29,14 @@ add_config_switch(
 add_config_switch(
     "new_process",
     False,
-    desc="Default choice for parmake and make whether to start " "a new process for each job.",
+    desc="Default choice for parmake and make whether to start a new process for each job.",
     section=CONFIG_GENERAL,
 )
 
 add_config_switch(
     "check_params",
     False,
-    desc="If true, erases the cache if job parameters appear " "to change.",
+    desc="If true, erases the cache if job parameters appear to change.",
     # Very useful but you need to define __eq__() in all the
     # objects you use as parameters.",
     section=CONFIG_GENERAL,
@@ -71,12 +71,23 @@ add_config_switch(
     section=CONFIG_APPEARANCE,
 )
 
+
+add_config_switch(
+    "details_failed_job",
+    False,
+    desc="Shows the error details when something fails.",
+    section=CONFIG_APPEARANCE,
+)
+
 # XXX: same
 add_config_switch(
     "status_line_enabled", True, desc="Activate the plugin for status line", section=CONFIG_APPEARANCE
 )
 add_config_switch(
     "console_status", True, desc="Enables the console_status plugin.", section=CONFIG_APPEARANCE
+)
+add_config_switch(
+    "console_status_style", "normal", desc="status line style (normal, compact)", section=CONFIG_APPEARANCE
 )
 
 

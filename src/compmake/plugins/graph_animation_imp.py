@@ -27,12 +27,12 @@ def update_graph(context, event):
         job_id = event.kwargs["job_id"]
         Global.processing.remove(job_id)
 
-    print("global processing %s" % Global.processing)
+    print(f"global processing {Global.processing}")
     if "job_id" in event.kwargs:
-        what = "%s-%s" % (event.name, event.kwargs["job_id"])
+        what = f"{event.name}-{event.kwargs['job_id']}"
     else:
         what = event.name
-    filename = os.path.join(Global.dirname, ("step-%04d-%s" % (Global.step, what)))
+    filename = os.path.join(Global.dirname, f"step-{Global.step:04d}-{what}")
 
     make_sure_dir_exists(filename)
     #     print('step %d: jobs = %s' % (Global.step, Global.job_list))
@@ -53,6 +53,7 @@ def update_graph(context, event):
 
     size = Global.size
     dpi = Global.dpi
+    # noinspection PyUnresolvedReferences
     cmd0 = [
         "dot",
         "-Tpng",

@@ -5,13 +5,13 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
-from compmake.jobs.actions import clean_targets
 from .console import ask_question
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .visualization import ui_error, ui_info
 from .. import CompmakeConstants, get_compmake_status
 from ..exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
-from ..jobs import all_jobs
+from ..jobs import all_jobs, CacheQueryDB
+from ..jobs.actions import clean_targets
 from ..utils import safe_pickle_dump
 
 ui_section(GENERAL)
@@ -55,7 +55,7 @@ def delete(job_list, context):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def clean(job_list, context):
+def clean(job_list, context, cq: CacheQueryDB):
     """
         Cleans the result of the selected computation (or everything if
         nothing specified).
@@ -82,7 +82,8 @@ def clean(job_list, context):
             ui_info(context, "Not cleaned.")
             return
 
-    clean_targets(job_list, db=db)
+    # ui_info(context, f'Going to clean {job_list}')
+    clean_targets(job_list, db=db, cq=cq)
 
 
 # TODO: add hidden

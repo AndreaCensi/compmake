@@ -62,7 +62,7 @@ def list_job_detail(job_id, context, cq, max_lines):
     print(bold("Defined by:") + "%s" % job.defined_by)
 
     job_args = get_job_args(job_id, db=db)
-    command, args, kwargs = job_args  # @UnusedVariable
+    command, args, kwargs = job_args
     print(bold("command:") + "%s" % command)
 
     dchildren = direct_children(job_id, db=db)

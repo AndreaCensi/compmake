@@ -49,7 +49,7 @@ class memoized_reset(object):
         """Return the function's docstring."""
         return self.func.__doc__
 
-    def __get__(self, obj, objtype):  # @UnusedVariable
+    def __get__(self, obj, objtype):
         """Support instance methods."""
         fn = functools.partial(self.__call__, obj)
         fn.reset = self._reset

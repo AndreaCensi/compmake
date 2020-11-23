@@ -6,15 +6,20 @@ from zuper_commons.text import indent
 
 # TODO: command-succeeded: {'command': '
 # command-interrupted: {'reason': 'KeyboardInterrupt', 'command': 'ls todo'}
-def command_interrupted(context, event):  # @UnusedVariable
-    ui_error(context, "Command %r interrupted." % event.kwargs["command"])
+def command_interrupted(context, event):
+    c = event.kwargs["command"]
+    traceback = event.kwargs["traceback"]
+    ui_error(context, f"Command {c!r} interrupted.")
+    ui_error(context, traceback)
 
 
 register_handler("command-interrupted", command_interrupted)
 
 
-def command_failed(context, event):  # @UnusedVariable
-    ui_error(context, ("Command %r failed: %s" % (event.kwargs["command"], event.kwargs["reason"])))
+def command_failed(context, event):
+    c = event.kwargs["command"]
+    r = event.kwargs["reason"]
+    ui_error(context, f"Command {c!r} failed: {r}")
 
 
 register_handler("command-failed", command_failed)
@@ -23,7 +28,7 @@ register_handler("command-failed", command_failed)
 my_prefix = ""
 
 
-def command_line_interrupted(context, event):  # @UnusedVariable
+def command_line_interrupted(context, event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
     if not ";" in command:
@@ -34,7 +39,7 @@ def command_line_interrupted(context, event):  # @UnusedVariable
 register_handler("command-line-interrupted", command_line_interrupted)
 
 
-def command_line_failed(context, event):  # @UnusedVariable
+def command_line_failed(context, event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
     if not ";" in command:
@@ -45,30 +50,33 @@ def command_line_failed(context, event):  # @UnusedVariable
 register_handler("command-line-failed", command_line_failed)
 
 
-def job_failed(context, event):  # @UnusedVariable
+def job_failed(context, event):
+    yes = get_compmake_config("details_failed_job")
+    if not yes:
+        return
     job_id = event.kwargs["job_id"]
     reason = event.kwargs["reason"]
     bt = event.kwargs["bt"]
 
-    msg = "Job %r failed:" % job_id
+    msg = f"Job {job_id!r} failed:"
     # s = reason.strip
     # if get_compmake_config('echo'):
     #     s += '\n' + bt
     msg += "\n" + indent(reason.strip(), "| ")
 
-    if get_compmake_config("echo"):
-        s = bt.strip()
-        msg += "\n" + indent(s, "> ")
-    else:
-        msg += '\nUse "config echo 1" to have errors displayed.'
-    msg += '\nWrite "details %s" to inspect the error.' % job_id
+    # if get_compmake_config("echo"):
+    #     s = bt.strip()
+    #     msg += "\n" + indent(s, "> ")
+    # else:
+    #     msg += '\nUse "config echo 1" to have errors displayed.'
+    msg += f'\nWrite "details {job_id}" to inspect the error.'
     ui_error(context, my_prefix + msg)
 
 
 register_handler("job-failed", job_failed)
 
 
-def job_interrupted(context, event):  # @UnusedVariable
+def job_interrupted(context, event):
     ui_error(
         context,
         my_prefix + "Job %r interrupted:\n %s" % (event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")),
@@ -78,7 +86,7 @@ def job_interrupted(context, event):  # @UnusedVariable
 register_handler("job-interrupted", job_interrupted)
 
 
-def compmake_bug(context, event):  # @UnusedVariable
+def compmake_bug(context, event):
     ui_error(context, my_prefix + event.kwargs["user_msg"])
     ui_error(context, my_prefix + event.kwargs["dev_msg"])
 

@@ -165,7 +165,7 @@ class PmakeResult(AsyncResultInterface):
         else:
             return True
 
-    def get(self, timeout=0):  # @UnusedVariable
+    def get(self, timeout=0):
         if self.result is None:
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)

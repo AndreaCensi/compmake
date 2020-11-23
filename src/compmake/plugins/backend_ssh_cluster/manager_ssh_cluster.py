@@ -60,7 +60,7 @@
 #             error('The following hosts failed: %s.' %
 #                   ", ".join(list(self.failed_hosts)))
 #
-#     def can_accept_job(self, reasons_why_not):  # @UnusedVariable
+#     def can_accept_job(self, reasons_why_not):
 #         # only one job at a time
 #         return self.hosts_ready
 #
@@ -156,7 +156,7 @@
 #
 #         function, args, kwargs = actual
 #
-#         def handler(context, event):  # @UnusedVariable
+#         def handler(context, event):
 #             s.write(('event', event))
 #
 #         register_handler("*", handler)  # third (otherwise stdout dirty)

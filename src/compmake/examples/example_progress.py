@@ -15,20 +15,20 @@ def mylongfunction():
     n = len(directories)
 
     for i, d in enumerate(directories):
-        progress("Processing directories (first)", (i, n), "Directory %s" % d)
+        progress("Processing directories (first)", (i, n), f"Directory {d}")
 
         N = 3
         for k in range(N):
-            progress("Processing files (a)", (k, N), "file #%d" % k)
+            progress("Processing files (a)", (k, N), f"file #{k}")
 
             time.sleep(wait)
 
     for i, d in enumerate(directories):
-        progress("Processing directories (second)", (i, n), "Directory %s" % d)
+        progress("Processing directories (second)", (i, n), f"Directory {d}")
 
         N = 3
         for k in range(N):
-            progress("Processing files (b)", (k, N), "file #%d" % k)
+            progress("Processing files (b)", (k, N), f"file #{k}")
 
             time.sleep(wait)
 

@@ -182,7 +182,7 @@ class SGEJob(AsyncResultInterface):
 
             return False
 
-    def get(self, timeout=0):  # @UnusedVariable
+    def get(self, timeout=0):
         if not self.told_you_ready:
             raise CompmakeBug("I didnt tell you it was ready.")
         if self.already_read:

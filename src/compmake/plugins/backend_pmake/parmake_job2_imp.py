@@ -39,11 +39,11 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
     because it might contain a Promise.
 
     """
-    job_id, context, event_queue_name, show_output, logdir = args  # @UnusedVariable
+    job_id, context, event_queue_name, show_output, logdir = args
 
     mkdirs_thread_safe(logdir)
-    stdout_fn = os.path.join(logdir, f"{job_id}.stdout.log", "w")
-    stderr_fn = os.path.join(logdir, f"{job_id}.stderr.log", "w")
+    stdout_fn = os.path.join(logdir, f"{job_id}.stdout.log")
+    stderr_fn = os.path.join(logdir, f"{job_id}.stderr.log")
 
     sys.stdout = open(stdout_fn, "w")
     sys.stderr = open(stderr_fn, "w")

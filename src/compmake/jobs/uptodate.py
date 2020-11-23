@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Collection, Set, Tuple, Union
+from typing import Collection, List, Set, Tuple, Union
 
 from compmake.exceptions import CompmakeDBError
 from zuper_commons.types import check_isinstance, raise_desc, raise_wrapped
@@ -132,23 +132,23 @@ class CacheQueryDB:
         self.jobs_defined.reset()
 
     @memoized_reset
-    def get_job_cache(self, job_id) -> Cache:
+    def get_job_cache(self, job_id: CMJobID) -> Cache:
         from .storage import get_job_cache
 
         return get_job_cache(job_id, db=self.db)
 
     @memoized_reset
-    def jobs_defined(self, job_id):
+    def jobs_defined(self, job_id: CMJobID):
         return jobs_defined(job_id, db=self.db)
 
     @memoized_reset
-    def get_job(self, job_id) -> Job:
+    def get_job(self, job_id: CMJobID) -> Job:
         from .storage import get_job
 
         return get_job(job_id, db=self.db)
 
     @memoized_reset
-    def all_jobs(self):
+    def all_jobs(self) -> List[CMJobID]:
         from .storage import all_jobs
 
         # NOTE: very important, do not memoize iterator
@@ -156,17 +156,17 @@ class CacheQueryDB:
         return res
 
     @memoized_reset
-    def job_exists(self, job_id):
+    def job_exists(self, job_id: CMJobID) -> bool:
         from .storage import job_exists
 
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
-    def up_to_date(self, job_id) -> Tuple[bool, str, float]:
+    def up_to_date(self, job_id: CMJobID) -> Tuple[bool, str, float]:
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
-    def _up_to_date_actual(self, job_id) -> Tuple[bool, str, float]:
+    def _up_to_date_actual(self, job_id: CMJobID) -> Tuple[bool, str, float]:
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
             cache = self.get_job_cache(job_id)  # OK
 
@@ -212,19 +212,29 @@ class CacheQueryDB:
             return True, "", cache.timestamp
 
     @memoized_reset
-    def direct_children(self, job_id):
+    def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
         from compmake.jobs.queries import direct_children
 
         return direct_children(job_id, db=self.db)
 
     @memoized_reset
-    def direct_parents(self, job_id):
+    def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
         from compmake.jobs.queries import direct_parents
 
         return direct_parents(job_id, db=self.db)
 
     @memoized_reset
-    def dependencies_up_to_date(self, job_id):
+    def parents(self, job_id: CMJobID) -> Set[CMJobID]:
+
+        t = set()
+        parents_jobs = self.direct_parents(job_id)
+        for p in parents_jobs:
+            t.add(p)
+            t.update(self.parents(p))
+        return t
+
+    @memoized_reset
+    def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
         """ Returns true if all the dependencies are up to date """
         for child in self.direct_children(job_id):
             child_up, _, _ = self.up_to_date(child)
@@ -232,7 +242,7 @@ class CacheQueryDB:
                 return False
         return True
 
-    def tree(self, jobs: Collection[CMJobID]):
+    def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
         """ More efficient version of tree()
             which is direct_children() recursively. """
         stack = []
@@ -251,7 +261,7 @@ class CacheQueryDB:
 
         return list(result)
 
-    def list_todo_targets(self, jobs) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
+    def list_todo_targets(self, jobs: Collection[CMJobID]) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
         """
             Returns a tuple (todo, jobs_done, ready):
              todo:  set of job ids to do (children that are not up to date)

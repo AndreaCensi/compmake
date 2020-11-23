@@ -5,7 +5,7 @@ from six import StringIO
 
 from .. import get_compmake_config
 from ..events import register_handler
-from ..ui import compmake_colored
+from ..ui import compmake_colored, ui_error, ui_info, ui_message
 from ..utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
 
 # sys.stdout will be changed later
@@ -98,7 +98,7 @@ def write_screen_line(s: str):
     write_line_endl(s)
 
 
-def plot_normally(job_id, lines, is_stderr):  # @UnusedVariable
+def plot_normally(job_id, lines, is_stderr):
     for line in lines:
         if Storage.last_job_id != job_id:
             Storage.last_job_id = job_id
@@ -238,3 +238,35 @@ def handle_event_stderr(event, context):
 
 register_handler("job-stdout", handle_event_stdout)
 register_handler("job-stderr", handle_event_stderr)
+
+
+def handle_job_succeeded(event, context):
+    job_id = event.kwargs["job_id"]
+    ui_message(context, f"✅ success {job_id}")
+
+
+def handle_job_failed(event, context):
+    job_id = event.kwargs["job_id"]
+    ui_message(context, f"❌ failure {job_id}")
+
+
+def handle_job_starting(event, context):
+    job_id = event.kwargs["job_id"]
+    ui_message(context, f"🚀 starting {job_id}")
+
+
+def handle_job_blocked(event, context):
+    job_id = event.kwargs["job_id"]
+    ui_message(context, f"🚫 blocked {job_id}")
+
+
+def handle_job_ready(event, context):
+    job_id = event.kwargs["job_id"]
+    ui_message(context, f"🏃 ready {job_id}")
+
+
+register_handler("manager-job-succeeded", handle_job_succeeded)
+register_handler("manager-job-failed", handle_job_failed)
+register_handler("manager-job-starting", handle_job_starting)
+register_handler("manager-job-ready", handle_job_ready)
+register_handler("manager-job-blocked", handle_job_blocked)

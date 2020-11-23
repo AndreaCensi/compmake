@@ -37,7 +37,7 @@ def console_starting(context):
     printb(version_string + ("  (%d jobs loaded)" % njobs))
 
 
-def console_ending(event, context):  # @UnusedVariable
+def console_ending(event, context):
 
     url = compmake_colored(compmake_issues_url, attrs=["bold"])
     msg = f"Thanks for using Compmake. Please report problems to {url}"

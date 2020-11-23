@@ -7,7 +7,7 @@ from compmake.jobs.dependencies import get_job_userobject_resolved
 from ..structures import CMJobID
 
 
-def ff(*args):  # @UnusedVariable
+def ff(*args):
     return
 
 

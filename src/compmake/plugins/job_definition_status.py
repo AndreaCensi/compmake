@@ -19,7 +19,7 @@ def console_write(s):
     stream.write("\r")
 
 
-def job_redefined(context, event):  # @UnusedVariable
+def job_redefined(context, event):
     if not get_compmake_config("verbose_definition"):
         return
     stream.write(compmake_colored("Redefined %s\r" % event.job_id, "yellow", attrs=["bold"]))
@@ -27,7 +27,7 @@ def job_redefined(context, event):  # @UnusedVariable
     # stream.write('\n')
 
 
-def job_defined(context, event):  # @UnusedVariable
+def job_defined(context, event):
     if not get_compmake_config("verbose_definition"):
         return
     global counter

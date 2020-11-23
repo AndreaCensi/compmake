@@ -63,7 +63,7 @@ class FakeAsync(AsyncResultInterface):
         self.told_you_ready = True
         return True
 
-    def get(self, timeout=0):  # @UnusedVariable
+    def get(self, timeout=0):
         if not self.told_you_ready:
             msg = "Should call get() only after ready()."
             raise CompmakeBug(msg)

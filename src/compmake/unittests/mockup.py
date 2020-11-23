@@ -3,13 +3,13 @@ import sys
 from compmake.context import Context
 
 
-def f(*args):  # @UnusedVariable
+def f(*args):
     print("to-std-out")
     sys.stderr.write("to-std-err")
     return
 
 
-def fails(*args):  # @UnusedVariable
+def fails(*args):
     raise Exception("this function fails")
 
 

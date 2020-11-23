@@ -28,7 +28,7 @@ def ui_message(context, s: str):
 color_it_red = get_colorize_function("#ff0000")
 color_it_red("hello")
 color_it_green = get_colorize_function("#00ff00")
-print(color_it_green("hello"))
+# print(color_it_green("hello"))
 
 color_it_blue = get_colorize_function("#0000ff")
 color_it_pink = get_colorize_function("#ffaaaa")

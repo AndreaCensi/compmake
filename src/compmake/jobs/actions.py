@@ -3,17 +3,19 @@ import traceback
 from logging import Formatter
 from time import time
 
-from compmake import get_compmake_config, logger
+from compmake import get_compmake_config, List, logger
 from compmake.events import publish
 from compmake.exceptions import JobFailed, JobInterrupted
 from compmake.structures import Cache, CMJobID, IntervalTimer
 from compmake.utils import OutputCapture, setproctitle
 from zuper_commons.types import check_isinstance
+
 from .dependencies import collect_dependencies
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
-from .queries import direct_parents
+from .queries import definition_closure, direct_parents
 from .storage import (
+    delete_all_job_data,
     delete_job_cache,
     get_job,
     get_job_cache,
@@ -23,46 +25,50 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
+from .uptodate import CacheQueryDB
 
 
-def clean_targets(job_list, db):
+def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
     #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
 
     # now we need to delete the definition closure
-
-    from compmake.jobs.queries import definition_closure
-
+    # logger.info('getting closure')
     closure = definition_closure(job_list, db)
 
     basic = job_list - closure
 
-    from compmake.jobs.queries import parents
-
+    # logger.info(job_list=job_list, closure=closure, basic=basic)
     other_clean = set()
     for job_id in job_list:
-        other_clean.update(parents(job_id, db))
-    other_clean = other_clean - closure
+        other_clean.update(cq.parents(job_id))
+
+    other_clean -= closure
     #
     #     print('deleting: %r' % closure)
     #     print('only cleaning: %r' % basic)
     #     print('other cleaning: %r' % other_clean)
     #
-    for job_id in closure | basic | other_clean:
+
+    ccr = closure | basic | other_clean
+
+    logger.info(job_list=job_list, closure=closure, ccr=ccr)
+    for job_id in ccr:
+        # logger.info('clean_cache_relations', job_id=job_id)
         clean_cache_relations(job_id, db)
 
     # delete all in closure
     for job_id in closure:
-        from compmake.jobs.storage import delete_all_job_data
-
+        # logger.info('delete_all_job_data', job_id=job_id)
         delete_all_job_data(job_id, db)
 
     # just remove cache in basic
     for job_id in basic:
         # Cleans associated objects
         if job_cache_exists(job_id, db):
+            # logger.info('delete_job_cache', job_id=job_id)
             delete_job_cache(job_id, db)
-
+    # logger.info('done')
     # now we have to undo this one:
     # jobs_depending_on_this = direct_parents(job_id, self.db)
     # deps = result['user_object_deps']
@@ -73,10 +79,10 @@ def clean_targets(job_list, db):
     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
 
 
-def clean_cache_relations(job_id, db):
+def clean_cache_relations(job_id: CMJobID, db):
     # print('cleaning cache relations for %r ' % job_id)
     if not job_exists(job_id, db):
-        print("Cleaning cache for job %r which does not exist anymore; ignoring" % job_id)
+        logger.warning("Cleaning cache for job %r which does not exist anymore; ignoring" % job_id)
         return
 
     # for all jobs that were done
@@ -136,7 +142,7 @@ def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> 
     set_job_cache(job_id, cache, db=db)
 
 
-def make(job_id, context, echo=False):
+def make(job_id: CMJobID, context, echo=False):
     """
         Makes a single job.
 

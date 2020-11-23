@@ -41,7 +41,7 @@ def format_table(lines, sep=" | "):
     return s
 
 
-def details_why_one(job_id, context, cq):  # @UnusedVariable
+def details_why_one(job_id, context, cq):
     db = context.get_compmake_db()
 
     lines = []

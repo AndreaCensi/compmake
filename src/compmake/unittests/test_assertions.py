@@ -6,7 +6,7 @@ def job_success(*args, **kwargs):
     pass
 
 
-def job_failure(*args, **kwargs):  # @UnusedVariable
+def job_failure(*args, **kwargs):
     assert False, "asserting false"
 
 

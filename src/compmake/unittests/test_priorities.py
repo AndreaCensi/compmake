@@ -12,7 +12,7 @@ def bottom2():
     TestOrder.order.append("bottom2")
 
 
-def top(x):  # @UnusedVariable
+def top(x):
     TestOrder.order.append("top")
 
 

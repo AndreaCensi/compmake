@@ -1,3 +1,7 @@
+from typing import Set
+
+from compmake.structures import CMJobID
+
 from ..events import register_handler
 
 __all__ = [
@@ -8,6 +12,16 @@ __all__ = [
 class Tracker:
     """ This class keeps track of the status of the computation.
         It listens to progress events. """
+
+    processing: Set[CMJobID]
+    targets: Set[CMJobID]
+    all_targets: Set[CMJobID]
+    todo: Set[CMJobID]
+    failed: Set[CMJobID]
+    ready: Set[CMJobID]
+    blocked: Set[CMJobID]
+    done: Set[CMJobID]
+    wait_reasons: dict
 
     def __init__(self):
         register_handler("job-progress", self.event_job_progress)
@@ -30,32 +44,32 @@ class Tracker:
         self.nloops = 0
         self.wait_reasons = {}
 
-    def event_manager_wait(self, context, event):  # @UnusedVariable
+    def event_manager_wait(self, context, event):
         self.wait_reasons = event.reasons
 
-    def event_manager_loop(self, context, event):  # @UnusedVariable
+    def event_manager_loop(self, context, event):
         self.nloops += 1
 
-    def event_job_progress(self, context, event):  # @UnusedVariable
+    def event_job_progress(self, context, event):
         """ Receive news from the job """
         # attrs = ['job_id', 'host', 'done', 'progress', 'goal']
-        stat = "%s/%s" % (event.progress, event.goal)
+        stat = f"{event.progress}/{event.goal}"
         self.status[event.job_id] = stat
 
-    def event_job_progress_plus(self, context, event):  # @UnusedVariable
+    def event_job_progress_plus(self, context, event):
         self.status_plus[event.job_id] = event.stack
         if len(event.stack) > 0:
             i, n = event.stack[0].iterations
             if isinstance(n, int):
-                stat = "%s/%s" % (i + 1, n)
+                stat = f"{i + 1}/{n}"
             else:
                 perc = i * 100.0 / n
-                stat = "%.1f%%" % perc
+                stat = f"{perc:.1f}%"
         else:
             stat = "-"
         self.status[event.job_id] = stat
 
-    def event_manager_progress(self, context, event):  # @UnusedVariable
+    def event_manager_progress(self, context, event):
         """ Receive progress message (updates processing) """
         # attrs=['targets', 'done', 'todo', 'failed', 'ready', 'processing']
         self.processing = event.processing

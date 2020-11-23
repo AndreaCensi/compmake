@@ -8,10 +8,9 @@ from datetime import datetime
 from subprocess import Popen
 from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
-from networkx import descendants, DiGraph
-
 from compmake.ui import compmake_console_gui
-from zuper_commons.fs import read_ustring_from_utf8_file
+from networkx import descendants, DiGraph
+from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZValueError
 
@@ -22,30 +21,30 @@ TargetName = NewType("TargetName", str)
 
 @dataclass
 class MakeTarget:
-    cwdir: str
-    filename: str
-    target: str
+    cwdir: AbsDirPath
+    filename: AbsFilePath
+    target: TargetName
     other_commands: bool
-    dependencies: List[Tuple[str, TargetName]]
+    dependencies: List[Tuple[AbsFilePath, TargetName]]
 
 
 @dataclass
 class BuildSystem:
-    targets: Dict[Tuple[str, TargetName], MakeTarget]
+    targets: Dict[Tuple[AbsFilePath, TargetName], MakeTarget]
 
 
-def get_build_system(C: str, fn: str) -> BuildSystem:
-    targets: Dict[Tuple[str, TargetName], MakeTarget] = {}
+def get_build_system(C: AbsDirPath, fn: AbsFilePath) -> BuildSystem:
+    targets: Dict[Tuple[AbsFilePath, TargetName], MakeTarget] = {}
     go1(C, fn, targets, only=None, extra_dependencies=[])
     return BuildSystem(targets)
 
 
 def go1(
-    C: str,
-    fn: str,
-    targets: Dict[Tuple[str, TargetName], MakeTarget],
-    only: Optional[List[str]],
-    extra_dependencies: List[Tuple[str, TargetName]],
+    C: DirPath,
+    fn: AbsFilePath,
+    targets: Dict[Tuple[AbsFilePath, TargetName], MakeTarget],
+    only: Optional[List[TargetName]],
+    extra_dependencies: List[Tuple[AbsFilePath, TargetName]],
 ):
     data = read_ustring_from_utf8_file(fn)
     mp = parse_makefile(C, data)
@@ -54,6 +53,9 @@ def go1(
     if only:
         selected = set()
         for _ in only:
+            if not _ in G:
+                msg = "Cannot find node in G."
+                raise ZValueError(msg, C=C, fn=fn, node=_, available=list(G.nodes))
             selected.add(_)
             selected.update(descendants(G, _))
     else:
@@ -63,6 +65,7 @@ def go1(
     for k, v in mp.targets.items():
         if k not in selected:
             continue
+        mtargets: List[Tuple[AbsFilePath, TargetName]]
         mtargets = [(fn, _) for _ in v.dependencies]
         if len(v.commands) == 0:
             other_commands = False
@@ -77,15 +80,19 @@ def go1(
                 other_commands = True
         else:
             other_commands = True
-        if not mtargets:  # only the sink depend externally
-            mtargets.extend(extra_dependencies)
-        mt = MakeTarget(C, fn, k, dependencies=mtargets, other_commands=other_commands)
+
+        # OK this is not the best idea because
+        # then when we say "pretend" for the sink, we don't update
+        # anything else.
+        # if not mtargets:  # only the sink depend externally
+        mtargets.extend(extra_dependencies)
+        mt = MakeTarget(cwdir=C, filename=fn, target=k, dependencies=mtargets, other_commands=other_commands)
 
         targets[(fn, k)] = mt
 
 
 def chill(depends_on: List[str]):
-    return get_md5("-".join(depends_on))
+    return get_md5("-".join(map(repr, depends_on)))
 
 
 def make_bridge_main(args=None):
@@ -99,11 +106,12 @@ def make_bridge_main(args=None):
     )
 
     parsed, extra = parser.parse_known_args(args=args)
-    fn = os.path.abspath(extra[0])
+    fn = cast(AbsFilePath, os.path.abspath(extra[0]))
     retries = parsed.retries
-    C = os.path.dirname(fn)
+    C: DirPath
+    C = cast(DirPath, os.path.dirname(fn))
     if not C:
-        C = os.getcwd()
+        C = cast(DirPath, os.path.abspath(os.getcwd()))
 
     bs = get_build_system(C, fn)
     # logger.info(bs=bs)
@@ -115,7 +123,7 @@ def make_bridge_main(args=None):
 
     jobs = {}
 
-    def get_job_promise(dt: Tuple[str, TargetName]) -> Promise:
+    def get_job_promise(dt: Tuple[AbsFilePath, TargetName]) -> Promise:
         # logger.info(jobs=jobs)
         m = bs.targets[dt]
         if dt not in jobs:
@@ -129,7 +137,7 @@ def make_bridge_main(args=None):
 
             # if not m.other_commands:
             #     job_id += '-c'
-            ignore_others = [_.job_id for _ in depends_on]
+            ignore_others: List[TargetName] = [_[1] for _ in m.dependencies]
             if m.other_commands:
                 jobs[dt] = c.comp(
                     run_one_command,
@@ -166,7 +174,12 @@ def make_bridge_main(args=None):
 
 
 def run_one_command(
-    C: str, fnrel: str, target: str, ignore_others: List[str], depends_on: List[str], retries: int
+    C: str,
+    fnrel: str,
+    target: TargetName,
+    ignore_others: List[TargetName],
+    depends_on: List[str],
+    retries: int,
 ) -> str:
     _ = depends_on
     logger.info(cwd=C, fnrel=fnrel, target=target, ignore_others=ignore_others)
@@ -217,8 +230,8 @@ class RegularCommand:
 
 @dataclass
 class MakeC:
-    where: str
-    filename: str
+    where: AbsDirPath
+    filename: AbsFilePath
     targets: List[TargetName]
 
 
@@ -257,7 +270,7 @@ def get_digraph(m: MakefileParsed) -> DiGraph:
     return G
 
 
-def parse_makefile(cwdir: str, data: str) -> MakefileParsed:
+def parse_makefile(cwdir: AbsDirPath, data: str) -> MakefileParsed:
     var_values = {}
 
     data = data.replace("\\\n", " ")
@@ -301,7 +314,7 @@ def parse_makefile(cwdir: str, data: str) -> MakefileParsed:
             assignments[key] = value
             continue
         elif "include" in line:
-            line = line.replace("include", "").strip()
+            # line = line.replace("include", "").strip()
 
             continue
         elif ":" in line:
@@ -324,15 +337,16 @@ def parse_makefile(cwdir: str, data: str) -> MakefileParsed:
     return MakefileParsed(assignments, conditional_assignments, targets)
 
 
-def interpret_command(cwdir: str, line: str):
+def interpret_command(cwdir: AbsDirPath, line: str):
     prefix = "$(MAKE) -C"
     if line.startswith(prefix):
         rest = line.replace(prefix, "")
         others = rest.strip().split()
         c = os.path.join(cwdir, others[0])
-        filename = os.path.join(c, "Makefile")
+        # TODO: allow different files (-f option)
+        filename = cast(AbsFilePath, os.path.join(c, "Makefile"))
 
-        the_dir = os.path.join(cwdir, others[0])
+        the_dir = cast(AbsDirPath, os.path.join(cwdir, others[0]))
         return MakeC(the_dir, filename, cast(List[TargetName], others[1:]))
     else:
         return RegularCommand(line)

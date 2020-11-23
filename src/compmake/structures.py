@@ -62,9 +62,9 @@
 from dataclasses import dataclass
 from typing import Dict, List, NewType, Optional, Set, Tuple, Union
 
-from compmake.utils.pickle_frustration import pickle_main_context_save
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
+from .utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
     "Promise",
@@ -290,7 +290,7 @@ class Cache:
         )
 
 
-def cache_has_large_overhead(cache) -> bool:
+def cache_has_large_overhead(cache: Cache) -> bool:
     overhead = (
         cache.int_load_results.get_walltime_used()
         + cache.int_save_results.get_walltime_used()

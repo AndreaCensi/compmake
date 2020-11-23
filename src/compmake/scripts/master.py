@@ -5,6 +5,7 @@ from optparse import OptionParser
 
 # import contracts
 from zuper_commons.fs import friendly_path
+
 from .scripts_utils import wrap_script_entry_point
 from .. import CompmakeConstants, set_compmake_status, version
 from ..config import config_populate_optparser
@@ -22,7 +23,8 @@ def read_rc_files(context: Context):
     assert context is not None
     possible = [
         "~/.compmake/compmake.rc",
-        "~/.config/compmake.rc" "~/.compmake.rc",
+        "~/.config/compmake.rc",
+        "~/.compmake.rc",
         "~/compmake.rc",
         ".compmake.rc",
         "compmake.rc",
