@@ -74,7 +74,7 @@ add_config_switch(
 
 add_config_switch(
     "details_failed_job",
-    False,
+    True,
     desc="Shows the error details when something fails.",
     section=CONFIG_APPEARANCE,
 )

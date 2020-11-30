@@ -104,19 +104,20 @@ def graph(
 def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):
     cache = cq.get_job_cache(x)
 
-    state2color = {
-        Cache.NOT_STARTED: "grey",
-        #         Cache.IN_PROGRESS: 'yellow',
-        Cache.FAILED: "red",
-        Cache.DONE: "green",
-        Cache.BLOCKED: "brown",
-    }
-
-    if x in processing:
-        return "yellow"
+    # state2color = {
+    #     Cache.NOT_STARTED: "grey",
+    #     #         Cache.IN_PROGRESS: 'yellow',
+    #     Cache.FAILED: "red",
+    #     Cache.DONE: "green",
+    #     Cache.BLOCKED: "brown",
+    # }
 
     state = cache.state
-    return state2color[state]
+
+    if x in processing and state != Cache.PROCESSING:
+        state = Cache.PROCESSING
+
+    return Cache.state2color[state]
 
 
 def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
@@ -154,7 +155,7 @@ def create_graph1(
 
         if color:
             ggraph.styleAppend(job_id, "style", "filled")
-            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing))
+            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing)["color"])
             ggraph.styleApply(job_id, job2node[job_id])
         else:
             ggraph.styleAppend(job_id, "style", "filled")

@@ -319,7 +319,7 @@ class Manager(ManagerLog):
         if job_id not in self.ready_todo:
             self._raise_bug("start_job", job_id)
 
-        publish(self.context, "manager-job-starting", job_id=job_id)
+        publish(self.context, "manager-job-processing", job_id=job_id)
         self.ready_todo.remove(job_id)
         self.processing.add(job_id)
         self.processing2result[job_id] = self.instance_job(job_id)
@@ -553,7 +553,7 @@ class Manager(ManagerLog):
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
             if p not in self.blocked:
-                publish(self.context, "manager-job-blocked", job_id=p)
+                publish(self.context, "manager-job-blocked", job_id=p, blocking_job_id=job_id)
 
                 mark_as_blocked(p, dependency=job_id, db=self.db)
                 self.todo.remove(p)
@@ -567,7 +567,7 @@ class Manager(ManagerLog):
             mark any parents which are ready as ready_todo. """
         self.log("job_succeeded", job_id=job_id)
         self.check_invariants()
-        publish(self.context, "manager-job-succeeded", job_id=job_id)
+        publish(self.context, "manager-job-done", job_id=job_id)
         assert job_id in self.processing
 
         self.processing.remove(job_id)

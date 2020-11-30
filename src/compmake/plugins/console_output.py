@@ -1,11 +1,12 @@
 import sys
 from typing import List
 
+from compmake.structures import Cache
 from six import StringIO
 
 from .. import get_compmake_config
 from ..events import register_handler
-from ..ui import compmake_colored, ui_error, ui_info, ui_message
+from ..ui import compmake_colored, ui_message
 from ..utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
 
 # sys.stdout will be changed later
@@ -77,6 +78,7 @@ def write_on_buffer(xl, ss):
         ss.write(xl)
     else:
         if hasattr(ss, "buffer"):
+            # noinspection PyUnresolvedReferences
             ss.buffer.write(xl.encode("utf-8"))
         else:
             ss.write(xl)
@@ -240,33 +242,65 @@ register_handler("job-stdout", handle_event_stdout)
 register_handler("job-stderr", handle_event_stderr)
 
 
-def handle_job_succeeded(event, context):
+def color_done(s):
+    return compmake_colored(s, **Cache.styles[Cache.DONE])
+
+
+def color_processing(s):
+    return compmake_colored(s, **Cache.styles[Cache.PROCESSING])
+
+
+def color_failed(s):
+    return compmake_colored(s, **Cache.styles[Cache.FAILED])
+
+
+def color_blocked(s):
+    return compmake_colored(s, **Cache.styles[Cache.BLOCKED])
+
+
+def color_ready(s):
+    return compmake_colored(s, **Cache.styles["ready"])
+
+
+def handle_job_done(event, context):
     job_id = event.kwargs["job_id"]
-    ui_message(context, f"✅ success {job_id}")
+    desc = f"{Cache.state2desc[Cache.DONE]:>10}"
+    glyph = Cache.glyphs[Cache.DONE]
+    ui_message(context, color_done(f"{glyph} {desc} {job_id}"))
 
 
 def handle_job_failed(event, context):
     job_id = event.kwargs["job_id"]
-    ui_message(context, f"❌ failure {job_id}")
+    desc = f"{Cache.state2desc[Cache.FAILED]:>10}"
+    glyph = Cache.glyphs[Cache.FAILED]
+    ui_message(context, color_failed(f"{glyph} {desc} {job_id}"))
 
 
-def handle_job_starting(event, context):
+def handle_job_processing(event, context):
     job_id = event.kwargs["job_id"]
-    ui_message(context, f"🚀 starting {job_id}")
+    desc = f"{Cache.state2desc[Cache.PROCESSING]:>10}"
+    glyph = Cache.glyphs[Cache.PROCESSING]
+    ui_message(context, color_processing(f"{glyph} {desc} {job_id}"))
 
 
+#  9 ✔ 1 ⚙ 2 ▴‍
 def handle_job_blocked(event, context):
     job_id = event.kwargs["job_id"]
-    ui_message(context, f"🚫 blocked {job_id}")
+    blocking_job_id = event.kwargs["blocking_job_id"]
+    desc = f"{Cache.state2desc[Cache.BLOCKED]:>10}"
+    glyph = Cache.glyphs[Cache.BLOCKED]
+    ui_message(context, color_blocked(f"{glyph} {desc} {job_id}") + f" because of {blocking_job_id}")
 
 
 def handle_job_ready(event, context):
     job_id = event.kwargs["job_id"]
-    ui_message(context, f"🏃 ready {job_id}")
+    glyph = Cache.glyphs["ready"]
+    desc = f'{"ready":>10}'
+    ui_message(context, color_ready(f"{glyph} {desc} {job_id}"))
 
 
-register_handler("manager-job-succeeded", handle_job_succeeded)
+register_handler("manager-job-done", handle_job_done)
 register_handler("manager-job-failed", handle_job_failed)
-register_handler("manager-job-starting", handle_job_starting)
+register_handler("manager-job-processing", handle_job_processing)
 register_handler("manager-job-ready", handle_job_ready)
 register_handler("manager-job-blocked", handle_job_blocked)

@@ -20,10 +20,10 @@ class Global:
 def update_graph(context, event):
     print("event: %s" % event)
 
-    if event.name in ["manager-job-starting"]:
+    if event.name in ["manager-job-processing"]:
         job_id = event.kwargs["job_id"]
         Global.processing.add(job_id)
-    if event.name in ["manager-job-failed", "manager-job-succeeded"]:
+    if event.name in ["manager-job-failed", "manager-job-done"]:
         job_id = event.kwargs["job_id"]
         Global.processing.remove(job_id)
 
@@ -101,9 +101,9 @@ def graph_animation(
     Global.size = (width, height)
     Global.processing = set()
     events = [
-        "manager-job-starting",
+        "manager-job-processing",
         "manager-job-failed",
-        "manager-job-succeeded",
+        "manager-job-done",
         "manager-succeeded",
         "manager-phase",
     ]

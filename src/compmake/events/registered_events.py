@@ -38,11 +38,11 @@ add(
     )
 )
 # These are called when the manager updates its data structure
-add(EventSpec("manager-job-starting", ["job_id"]))
+add(EventSpec("manager-job-processing", ["job_id"]))
 add(EventSpec("manager-job-failed", ["job_id"]))
-add(EventSpec("manager-job-blocked", ["job_id"]))
+add(EventSpec("manager-job-blocked", ["job_id", "blocking_job_id"]))
 add(EventSpec("manager-job-ready", ["job_id"]))
-add(EventSpec("manager-job-succeeded", ["job_id"]))
+add(EventSpec("manager-job-done", ["job_id"]))
 add(EventSpec("manager-host-failed", ["job_id", "host", "reason", "bt"]))
 add(EventSpec("manager-init", ["targets", "more"]))
 add(

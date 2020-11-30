@@ -28,7 +28,7 @@ def print_event(context, event):
         s = s[: MAX_LEN - len(suff)] + suff
     #        s = s[:MAX_LEN]
 
-    msg = "%s: %s" % (event.name, s)
+    msg = f"{event.name}: {s}"
     msg = compmake_colored(pad_to_screen(msg), "yellow")
     stream.write(msg)
     stream.write("\n")

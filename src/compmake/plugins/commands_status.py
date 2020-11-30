@@ -115,9 +115,9 @@ register_handler("job-interrupted", ignore)
 
 if True:  # debugging
     register_handler("worker-status", ignore)
-    register_handler("manager-job-succeeded", ignore)
+    register_handler("manager-job-done", ignore)
     register_handler("manager-job-failed", ignore)
-    register_handler("manager-job-starting", ignore)
+    register_handler("manager-job-processing", ignore)
 
 
 def manager_succeeded(context, event):

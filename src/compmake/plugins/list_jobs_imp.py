@@ -21,25 +21,16 @@ from compmake.utils.terminal_size import get_screen_columns
 from zuper_commons.ui import duration_compact
 
 # red, green, yellow, blue, magenta, cyan, white.
-state2color = {
-    # (state, uptodate)
-    (Cache.NOT_STARTED, False): {},
-    #     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
-    (Cache.FAILED, False): {"color": "red"},
-    (Cache.BLOCKED, True): {"color": "yellow"},
-    (Cache.BLOCKED, False): {"color": "yellow"},  # XXX
-    (Cache.DONE, True): {"color": "green"},
-    (Cache.DONE, False): {"color": "magenta"},
-}
 
-if False:
-    format_utility_job = dict(color="white", attrs=["concealed"])
-    format_separator = dict(color="white", attrs=["concealed"])
-    format_when = dict(color="white", attrs=["concealed"])
-else:
-    format_utility_job = dict()
-    format_separator = dict()
-    format_when = dict()
+
+# if False:
+#     format_utility_job = dict(color="white", attrs=["concealed"])
+#     format_separator = dict(color="white", attrs=["concealed"])
+#     format_when = dict(color="white", attrs=["concealed"])
+# else:
+format_utility_job = dict()
+format_separator = dict()
+format_when = dict()
 
 
 @ui_command(section=VISUALIZATION, alias="list")
@@ -179,9 +170,9 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False, re
         tag = Cache.state2desc[cache.state]
 
         k = (cache.state, up)
-        assert k in state2color, "I found strange state %s" % str(k)
+        assert k in Cache.stateupdate2color, "I found strange state %s" % str(k)
 
-        tag_s = compmake_colored(tag, **state2color[k])
+        tag_s = compmake_colored(tag, **Cache.stateupdate2color[k])
         if not up and cache.state in [Cache.DONE, Cache.FAILED]:
             tag_s += "*"
         tf.cell(tag_s)

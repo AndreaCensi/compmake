@@ -52,7 +52,7 @@ def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
 
     ccr = closure | basic | other_clean
 
-    logger.info(job_list=job_list, closure=closure, ccr=ccr)
+    # logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
         # logger.info('clean_cache_relations', job_id=job_id)
         clean_cache_relations(job_id, db)

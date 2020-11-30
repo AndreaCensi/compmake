@@ -64,6 +64,7 @@ from typing import Dict, List, NewType, Optional, Set, Tuple, Union
 
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
+
 from .utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
@@ -202,7 +203,7 @@ class IntervalTimer:
     def __str__(self):
         tms = int((self.t1 - self.t0) * 1000)
         cms = int((self.c1 - self.c0) * 1000)
-        return f"Timer(wall {tms:d}ms cpu {cms:d}ms)"
+        return f"Timer(wall {tms} ms cpu {cms} ms)"
 
 
 StateCode = NewType("StateCode", int)
@@ -227,6 +228,44 @@ class Cache:
         FAILED: "failed",
         DONE: "done",
         PROCESSING: "processing",
+    }
+
+    stateupdate2color = {
+        # (state, uptodate)
+        (NOT_STARTED, False): {},
+        #     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
+        (FAILED, False): {"color": "red"},
+        (BLOCKED, True): {"color": "brown"},
+        (BLOCKED, False): {"color": "brown"},  # XXX
+        (DONE, True): {"color": "green"},
+        (DONE, False): {"color": "magenta"},
+    }
+
+    state2color = {
+        NOT_STARTED: {"color": "yellow"},  # {'attrs': ['dark']},
+        #     Cache.IN_PROGRESS: {'color': 'yellow'},
+        BLOCKED: {"color": "brown"},
+        FAILED: {"color": "red"},
+        DONE: {"color": "green"},
+    }
+
+    styles = {
+        NOT_STARTED: dict(color="yellow"),
+        DONE: dict(color="green"),
+        PROCESSING: dict(color="blue"),
+        FAILED: dict(color="red"),
+        BLOCKED: dict(color="brown"),
+        "ready": dict(color="yellow"),
+    }
+
+    glyphs = {
+        NOT_STARTED: "?",
+        DONE: "✔",
+        PROCESSING: "⚙",
+        FAILED: "✗",
+        BLOCKED: "⯃",
+        "ready": "⛦",
+        "todo": "⌖",
     }
 
     state: StateCode

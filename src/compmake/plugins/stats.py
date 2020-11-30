@@ -10,14 +10,6 @@ from ..structures import Cache
 from ..ui import VISUALIZATION, compmake_colored, ui_command
 from ..utils import pad_to_screen
 
-state2color = {
-    Cache.NOT_STARTED: {"color": "yellow"},  # {'attrs': ['dark']},
-    #     Cache.IN_PROGRESS: {'color': 'yellow'},
-    Cache.BLOCKED: {"color": "yellow"},
-    Cache.FAILED: {"color": "red"},
-    Cache.DONE: {"color": "green"},
-}
-
 
 @ui_command(section=VISUALIZATION)
 def stats(args, context, cq):
@@ -99,7 +91,7 @@ def display_stats(job_list, context):
             num = function_stats[state]
             s = f"{num:5d} {desc}"
             if num > 0:
-                s = compmake_colored(s, **state2color[state])
+                s = compmake_colored(s, **Cache.state2color[state])
             alls.append(s)
             totals[state] += num
         s = ",".join(alls)
@@ -110,7 +102,7 @@ def display_stats(job_list, context):
     for state, desc in states:
         s = f"{totals[state]:5d} {desc}"
         if totals[state] > 0:
-            s = compmake_colored(s, **state2color[state])
+            s = compmake_colored(s, **Cache.state2color[state])
         final.append(s)
     final = ",".join(final)
     print(f"    {'total'.rjust(flen)}: {final}.")
