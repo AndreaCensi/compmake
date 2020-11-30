@@ -228,7 +228,7 @@ def write_atomic(filename, contents):
 
 def load_existing_db(dirname) -> Context:
     assert os.path.isdir(dirname)
-    info("Loading existing jobs DB %r." % dirname)
+    ui_info(f"Loading existing jobs DB {dirname!r}.")
     # check if it is compressed
     files = os.listdir(dirname)
     for one in files:
