@@ -1,10 +1,10 @@
-from compmake import Context, StorageFilesystem
+import unittest
+from tempfile import mkdtemp
+
+from compmake import Context, logger, StorageFilesystem
 from compmake.jobs.storage import all_jobs
 from compmake.state import set_compmake_config
-from compmake.ui.visualization import info
 from nose.tools import istest
-from tempfile import mkdtemp
-import unittest
 
 
 def g():
@@ -71,7 +71,7 @@ class TestCleaning2(Utils):
         self.assertEqual(jobs2, ["f", "f-g"])
 
     def run_first(self, root):
-        info("run_first()")
+        logger.info("run_first()")
         db = StorageFilesystem(root, compress=True)
         cc = Context(db=db)
         #
@@ -79,7 +79,7 @@ class TestCleaning2(Utils):
         cc.batch_command("make recurse=1")
 
     def run_second(self, root):
-        info("run_second()")
+        logger.info("run_second()")
         db = StorageFilesystem(root, compress=True)
         cc = Context(db=db)
         #

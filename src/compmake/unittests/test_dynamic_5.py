@@ -1,8 +1,11 @@
+from typing import cast, List
+
 from compmake.context import Context
+from compmake.jobs.queries import definition_closure
 from compmake.storage.filesystem import StorageFilesystem
+from compmake.structures import CMJobID
 from compmake.unittests.compmake_test import CompmakeTest
 from nose.tools import istest
-from compmake.jobs.queries import definition_closure
 
 
 def g2():
@@ -38,7 +41,6 @@ def mockup5(context, both):
 @istest
 class TestDynamic5(CompmakeTest):
     def test_dynamic5(self):
-
         # first define with job and run
         mockup5(self.cc, both=True)
         self.assert_cmd_success("make recurse=1")
@@ -48,8 +50,8 @@ class TestDynamic5(CompmakeTest):
 
         self.assert_cmd_success("details hd-id")
         self.assert_cmd_success("details hd-id-i2")
-        self.assertEqualSet(definition_closure(["hd-id"], self.db), ["hd-id-i2"])
-        self.assertEqualSet(definition_closure(["hd"], self.db), ["hd-id", "hd-id-i2"])
+        self.assertEqualSet(definition_closure(cast(List[CMJobID], ["hd-id"]), self.db), ["hd-id-i2"])
+        self.assertEqualSet(definition_closure(cast(List[CMJobID], ["hd"]), self.db), ["hd-id", "hd-id-i2"])
         # now redo it
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = Context(db=self.db)

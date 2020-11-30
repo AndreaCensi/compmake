@@ -57,7 +57,7 @@ def gantt(job_list, context, filename="gantt.html"):
             import numpy as np
 
             T1s = list(G.nodes[_]["T1"] for _ in pre)
-            i = np.argmax(T1s)
+            i = int(np.argmax(T1s))
             T0 = T1s[i]
             G.nodes[job_id]["CP"] = pre[i]
         T1 = T0 + length
@@ -113,7 +113,7 @@ def gantt(job_list, context, filename="gantt.html"):
         periods["compute"] = cache.int_compute.walltime_interval()
         periods["gc"] = cache.int_gc.walltime_interval()
         periods["save"] = cache.int_save_results.walltime_interval()
-
+        dependencies = list(G.predecessors(job_id))  # XXX
         assert periods["load"][1] <= periods["compute"][0]
         assert periods["compute"][1] <= periods["save"][0]
         sg_actual_detailed.add_job(job_id, dependencies, periods=periods, critical=critical)

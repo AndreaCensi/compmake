@@ -7,7 +7,7 @@ from optparse import OptionParser
 from zuper_commons.fs import friendly_path
 
 from .scripts_utils import wrap_script_entry_point
-from .. import CompmakeConstants, set_compmake_status, version
+from .. import CompmakeConstants, set_compmake_status, version, logger
 from ..config import config_populate_optparser
 from ..context import Context
 from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
@@ -228,7 +228,7 @@ def write_atomic(filename, contents):
 
 def load_existing_db(dirname) -> Context:
     assert os.path.isdir(dirname)
-    ui_info(f"Loading existing jobs DB {dirname!r}.")
+    logger.info(f"Loading existing jobs DB {dirname!r}.")
     # check if it is compressed
     files = os.listdir(dirname)
     for one in files:

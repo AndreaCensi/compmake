@@ -20,6 +20,7 @@ __all__ = [
 #             return rval
 
 
+# noinspection PyTypeChecker
 class frozendict2(dict):
     # OK, but we need to modify it during pickling
     # def _blocked_attribute(obj):
