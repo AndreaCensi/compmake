@@ -2,11 +2,11 @@
 from typing import List, Tuple
 
 from compmake.exceptions import CompmakeBug
-from compmake.jobs.storage import all_jobs, get_job, job_exists
+from compmake.storage import all_jobs, get_job, job_exists
 
-from ..jobs import children, direct_children, direct_parents, parents, parse_job_list
-from ..ui import COMMANDS_ADVANCED, ui_command
-from ..ui.visualization import ui_error
+from compmake import children, direct_children, direct_parents, parents, parse_job_list
+from compmake import COMMANDS_ADVANCED, ui_command
+from compmake import ui_error
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")

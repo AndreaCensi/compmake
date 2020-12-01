@@ -2,7 +2,7 @@ import time
 from typing import Tuple, Union
 
 from zuper_commons.types import describe_type
-from ..structures import ProgressStage
+from compmake.structures import ProgressStage
 
 
 class Globals:

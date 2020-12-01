@@ -8,7 +8,7 @@ from datetime import datetime
 from subprocess import Popen
 from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
-from compmake.ui import compmake_console_gui
+from compmake.console import compmake_console_gui
 from networkx import descendants, DiGraph
 from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5

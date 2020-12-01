@@ -1,14 +1,18 @@
 """ The actual interface of some commands in commands.py """
 from collections import defaultdict
-
 from typing import Dict
 
-from compmake.constants import CompmakeConstants
-
-from ..jobs import get_job, get_job_cache, parse_job_list
-from ..structures import Cache
-from ..ui import VISUALIZATION, compmake_colored, ui_command
-from ..utils import pad_to_screen
+from compmake import (
+    Cache,
+    compmake_colored,
+    CompmakeConstants,
+    get_job,
+    get_job_cache,
+    parse_job_list,
+    ui_command,
+    VISUALIZATION,
+)
+from compmake.utils import pad_to_screen
 
 
 @ui_command(section=VISUALIZATION)

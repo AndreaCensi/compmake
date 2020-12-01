@@ -5,19 +5,27 @@ from zuper_commons.logs import ZLogger
 version = __version__
 
 logger = ZLogger(__name__)
+logger.debug(f"version {__version__}")
 
 from .constants import *
 from .state import *
-from .storage import StorageFilesystem
+from .storage import *
 
-
-from .structures import Promise
+from .structures import *
 from .exceptions import *
-from .context import Context
-from .jobs import progress
-from . import plugins
+
+from .progress_imp2 import *
+
+from .context import *
 from .plugins.execution_stats import *
-from .scripts.master import read_rc_files
+from .master import *
+from .registrar import *
+from .priority import *
+from .helpers import *
+from .structures import *
+from .visualization import *
+from .uptodate import *
+from .parsing import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)

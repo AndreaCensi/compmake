@@ -24,16 +24,17 @@
 """
 import types
 from collections import namedtuple
+from typing import cast
 
-from compmake.constants import CompmakeConstants
-from compmake.context import Context
-from compmake.jobs.uptodate import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
-from .. import get_job
-from ...exceptions import CompmakeSyntaxError, UserError
-from ...structures import Cache
-from ...utils import expand_wildcard
+from .constants import CompmakeConstants
+from .context import Context
+from .exceptions import CompmakeSyntaxError, UserError
+from .storage import get_job
+from .structures import Cache, CMJobID
+from .uptodate import CacheQueryDB
+from .utils import expand_wildcard
 
 __all__ = [
     "parse_job_list",
@@ -121,9 +122,9 @@ def expand_job_list_token(token, context: Context, cq: CacheQueryDB):
         return list_matching_functions(token, context, cq)
     else:
         # interpret as a job id
-        job_id = token
+        job_id = cast(CMJobID, token)
         if not cq.job_exists(job_id):
-            msg = 'Job or expression "%s" not found.' % job_id
+            msg = f'Job or expression "{job_id}" not found.'
             raise UserError(msg)
         return [job_id]
 

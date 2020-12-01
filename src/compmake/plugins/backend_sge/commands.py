@@ -1,8 +1,8 @@
+from compmake.commands import raise_error_if_manager_failed
 from compmake.constants import DefaultsToConfig
-from compmake.jobs.queries import top_targets
+from compmake.helpers import ACTIONS, ui_command
 from compmake.plugins.backend_sge.sge_manager import SGEManager
-from compmake.ui.commands import raise_error_if_manager_failed
-from compmake.ui.helpers import ACTIONS, ui_command
+from compmake.queries import top_targets
 
 __all__ = [
     "sgemake",

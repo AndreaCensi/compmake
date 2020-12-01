@@ -1,5 +1,5 @@
-from compmake.ui.helpers import ui_command, VISUALIZATION
-from compmake.jobs.storage import job_cache_exists, get_job_cache
+from compmake import get_job_cache, job_cache_exists
+from compmake.helpers import ui_command, VISUALIZATION
 from compmake.structures import Cache
 from compmake.utils.colored import compmake_colored
 

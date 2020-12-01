@@ -1,10 +1,11 @@
 import sys
 
+from compmake import CompmakeGlobalState, get_compmake_config, UserError
+from compmake.config_html import create_config_html
+from compmake.structure import set_config_from_strings, show_config
+
 from .helpers import COMMANDS_ADVANCED, GENERAL, ui_command
 from .visualization import ui_info, ui_message
-from .. import CompmakeGlobalState, get_compmake_config
-from ..config import create_config_html, set_config_from_strings, show_config
-from ..exceptions import UserError
 
 __all__ = [
     "config",

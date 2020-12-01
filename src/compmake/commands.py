@@ -5,14 +5,17 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
+from compmake import get_compmake_status
+
+from .actions import clean_targets, make
 from .console import ask_question
+from .constants import CompmakeConstants
+from .exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
+from .storage import all_jobs, delete_all_job_data
+from .uptodate import CacheQueryDB
+from .utils import safe_pickle_dump
 from .visualization import ui_error, ui_info
-from .. import CompmakeConstants, get_compmake_status
-from ..exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
-from ..jobs import all_jobs, CacheQueryDB
-from ..jobs.actions import clean_targets
-from ..utils import safe_pickle_dump
 
 ui_section(GENERAL)
 
@@ -45,7 +48,6 @@ def raise_error_if_manager_failed(manager):
 def delete(job_list, context):
     """ Remove completely the job from the DB. Useful for generated jobs (
     "delete not root"). """
-    from compmake.jobs.storage import delete_all_job_data
 
     job_list = [x for x in job_list]
 
@@ -95,11 +97,9 @@ def make_single(job_list, context, out_result):
 
     job_id = job_list[0]
 
-    from compmake.jobs import actions
-
     try:
         # info('making job %s' % job_id)
-        res = actions.make(job_id=job_id, context=context)
+        res = make(job_id=job_id, context=context)
         # info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0

@@ -1,10 +1,12 @@
 import os
 import pickle
 
+from compmake import ui_info
+from compmake.dependencies import get_job_userobject_resolved
+from compmake.helpers import COMMANDS_ADVANCED, ui_command
+from compmake.storage import get_job_userobject, is_job_userobject_available
+from compmake.visualization import ui_message
 from zuper_typing import debug_print
-from ..jobs import get_job_userobject, get_job_userobject_resolved, is_job_userobject_available
-from ..ui import COMMANDS_ADVANCED, ui_command
-from ..ui.visualization import ui_info, ui_message
 
 
 @ui_command(section=COMMANDS_ADVANCED)

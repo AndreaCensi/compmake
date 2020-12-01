@@ -9,11 +9,11 @@ from typing import Dict
 from compmake import CompmakeGlobalState
 from zuper_commons.text import indent
 from .tracker import Tracker
-from ..events import publish, register_handler
-from ..state import get_compmake_config
-from ..ui import compmake_colored
-from ..ui.visualization import ui_error
-from ..utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
+from compmake import publish, register_handler
+from compmake import get_compmake_config
+from compmake.utils import compmake_colored
+from compmake import ui_error
+from compmake.utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
 
 stream = sys.stderr
 

@@ -1,9 +1,10 @@
-from compmake.structures import CMJobID, IntervalTimer
 from zuper_commons.types import check_isinstance
+
+from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
-from .storage import get_job_args, job_userobject_exists
-from ..exceptions import CompmakeBug
-from ..structures import Job
+from .exceptions import CompmakeBug
+from .storage import get_job, get_job_args, job_userobject_exists
+from .structures import CMJobID, IntervalTimer, Job
 
 __all__ = [
     "job_compute",
@@ -77,10 +78,7 @@ def job_compute(job: Job, context):
 
 def execute_with_context(db, context, job_id, command, args, kwargs):
     """ Returns a dictionary with fields "user_object" and "new_jobs" """
-    from compmake.context import Context
-
     assert isinstance(context, Context)
-    from compmake.jobs.storage import get_job
 
     cur_job = get_job(job_id=job_id, db=db)
     context.currently_executing = cur_job.defined_by + [job_id]

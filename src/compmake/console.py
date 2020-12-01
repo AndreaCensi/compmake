@@ -7,15 +7,19 @@ from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.widgets import Frame, Layout, TextBox
 from future import builtins
-
-from compmake import get_compmake_config, logger
 from zuper_commons.text import indent, remove_escapes
+
+from . import logger
+from .constants import CompmakeConstants
+from .events_structures import Event
+from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
+from .master import read_rc_files
+from .registrar import publish, register_handler
+from .state import CompmakeGlobalState, get_compmake_config, set_compmake_status
+from .storage import all_jobs
 from .ui import clean_other_jobs, get_commands, interpret_commands
+from .uptodate import CacheQueryDB
 from .visualization import clean_console_line, DefaultConsole, ui_error
-from .. import CompmakeConstants, CompmakeGlobalState, set_compmake_status
-from ..events import Event, publish, register_handler
-from ..exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
-from ..jobs import all_jobs, CacheQueryDB
 
 __all__ = [
     "interactive_console",
@@ -250,7 +254,6 @@ def batch_command(s, context, cq):
 
     # we assume that we are done with defining jobs
     clean_other_jobs(context=context)
-    from compmake.scripts.master import read_rc_files
 
     read_rc_files(context=context)
     return interpret_commands_wrap(s, context=context, cq=cq)
@@ -258,7 +261,6 @@ def batch_command(s, context, cq):
 
 def compmake_console_text(context):
     clean_other_jobs(context=context)
-    from compmake.scripts.master import read_rc_files
 
     read_rc_files(context=context)
     interactive_console(context=context)
@@ -270,7 +272,6 @@ def compmake_console_gui(context):
 
 def compmake_console_gui_(screen: Screen, context):
     clean_other_jobs(context=context)
-    from compmake.scripts.master import read_rc_files
 
     read_rc_files(context=context)
 

@@ -3,14 +3,15 @@ import types
 from collections import namedtuple
 from typing import List, Optional, Union
 
+from .exceptions import UserError
+from .utils import docstring_components, docstring_trim
 from .visualization import compmake_colored
-from ..exceptions import UserError
-from ..utils import docstring_components, docstring_trim
 
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
 # Storage for the sections
 Section = namedtuple("Section", "name desc order commands experimental")
+
 
 # noinspection PyClassHasNoInit
 class UIState:

@@ -2,12 +2,13 @@ import os
 from collections import defaultdict
 from typing import Collection
 
+from compmake import Context
 from compmake.exceptions import UserError
-from compmake.jobs import CacheQueryDB, CMJobID, top_targets
-from compmake.jobs.queries import definition_closure
-from compmake.structures import Cache
-from compmake.ui import COMMANDS_ADVANCED, Context, ui_command
-from compmake.ui.visualization import ui_info
+from compmake.helpers import COMMANDS_ADVANCED, ui_command
+from compmake.queries import definition_closure, top_targets
+from compmake.structures import Cache, CMJobID
+from compmake.uptodate import CacheQueryDB
+from compmake.visualization import ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED)

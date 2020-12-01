@@ -2,10 +2,9 @@
 
 
 import sys
-
-from compmake import progress
 import time
 
+from compmake import progress
 
 wait = 0.01
 

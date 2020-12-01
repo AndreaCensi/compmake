@@ -1,8 +1,8 @@
-from collections import OrderedDict, namedtuple
+from collections import namedtuple, OrderedDict
 
-from compmake.jobs import CacheQueryDB, Cache
-from compmake.jobs.storage import all_jobs
-from compmake.ui import COMMANDS_ADVANCED, ui_command
+from compmake import all_jobs, Cache
+from compmake import COMMANDS_ADVANCED, ui_command
+from compmake import CacheQueryDB
 
 
 @ui_command(section=COMMANDS_ADVANCED)

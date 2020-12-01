@@ -3,19 +3,20 @@ import sys
 import traceback
 from optparse import OptionParser
 
-# import contracts
 from zuper_commons.fs import friendly_path
 
-from .scripts_utils import wrap_script_entry_point
-from .. import CompmakeConstants, set_compmake_status, version, logger
-from ..config import config_populate_optparser
-from ..context import Context
-from ..exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
-from ..jobs import all_jobs
-from ..storage import StorageFilesystem
-from ..ui import compmake_console_gui, interpret_commands_wrap
-from ..ui.visualization import ui_info
-from ..utils import setproctitle
+from . import logger
+from .console import compmake_console_gui, interpret_commands_wrap
+from .constants import CompmakeConstants
+from .context import Context
+from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
+from .filesystem import StorageFilesystem
+from .script_utils import wrap_script_entry_point
+from .state import set_compmake_status
+from .storage import all_jobs
+from .uptodate import CacheQueryDB
+from .utils import setproctitle
+from .visualization import ui_info
 
 
 # TODO: revise all of this
@@ -42,8 +43,6 @@ def read_rc_files(context: Context):
 
 
 def read_commands_from_file(filename: str, context: Context):
-    from compmake.jobs.uptodate import CacheQueryDB
-
     filename = os.path.realpath(filename)
     if filename in context.rc_files_read:
         return
@@ -144,6 +143,7 @@ def compmake_main(args):
         context = load_existing_db(one_arg)
         # If the context was custom we load it
         if "context" in context.compmake_db:
+            # noinspection PyTypeChecker
             context = context.compmake_db["context"]
 
             # TODO: check number of jobs is nonzero
@@ -163,6 +163,7 @@ def compmake_main(args):
 
         read_rc_files(context2)
 
+        # noinspection PyBroadException
         try:
             if options.command:
                 context2.batch_command(options.command)
@@ -175,10 +176,10 @@ def compmake_main(args):
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
             retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
-        except CompmakeBug as e:
+        except CompmakeBug:
             sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
-        except BaseException as e:
+        except BaseException:
             sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except:

@@ -1,9 +1,7 @@
 """ Implements the initial and final banner """
-from .. import version
-from ..events import register_handler
-from ..jobs import all_jobs
-from ..ui import compmake_colored
-from ..utils import pad_to_screen
+from compmake import all_jobs, version
+from compmake.registrar import register_handler
+from compmake.utils import compmake_colored, pad_to_screen
 
 compmake_issues_url = "http://github.com/AndreaCensi/compmake/issues"
 name = "Compmake"
@@ -38,7 +36,6 @@ def console_starting(context):
 
 
 def console_ending(event, context):
-
     url = compmake_colored(compmake_issues_url, attrs=["bold"])
     msg = f"Thanks for using Compmake. Please report problems to {url}"
 

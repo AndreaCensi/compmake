@@ -1,8 +1,6 @@
 from typing import cast, Optional, Union
 
-from compmake import Promise
-from compmake.jobs import get_job_cache
-from compmake.jobs.uptodate import CacheQueryDB
+from compmake import get_job_cache, Promise
 from compmake.structures import Cache, CMJobID
 
 __all__ = [
@@ -11,6 +9,7 @@ __all__ = [
 
 
 # @contract(promise="unicode|isinstance(Promise)", returns=Promise)
+from compmake.uptodate import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
 

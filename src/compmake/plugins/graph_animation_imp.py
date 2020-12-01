@@ -1,9 +1,11 @@
-from compmake.events.registrar import register_handler
-from compmake.plugins.graph import graph
-from compmake.ui.helpers import COMMANDS_ADVANCED, ui_command
-from zuper_commons.fs import make_sure_dir_exists
-from system_cmd.meat import system_cmd_result
 import os
+
+from compmake.helpers import COMMANDS_ADVANCED, ui_command
+from compmake.plugins.graph import graph
+from compmake.registrar import register_handler
+from zuper_commons.fs import make_sure_dir_exists
+
+from system_cmd.meat import system_cmd_result
 
 
 class Global:

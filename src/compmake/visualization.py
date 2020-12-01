@@ -1,12 +1,12 @@
 import sys
 from typing import Callable
 
-from compmake.events import publish, register_handler
-from compmake.utils import compmake_colored
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import get_colorize_function
-from .. import get_compmake_config
-from ..utils import get_screen_columns
+
+from .registrar import publish, register_handler
+from .state import CompmakeGlobalState, get_compmake_config
+from .utils import compmake_colored, get_screen_columns, pad_to_screen
 
 __all__ = ["compmake_colored", "ui_debug", "ui_error", "ui_info", "ui_message", "ui_warning"]
 
@@ -88,11 +88,9 @@ register_handler("ui-status-summary", handle_ui_status_summary)
 
 
 def make_colored(s: str, f: Callable[[str], str]) -> str:
-
     lines = s.rstrip().split("\n")
     lines2 = []
     for l in lines:
-
         lines2.append(f(l))
     res = "\n".join(lines2)
     return res
@@ -118,9 +116,6 @@ def make_colored(s: str, f: Callable[[str], str]) -> str:
 
 def write_message(s: str, formatting: Callable[[str], str]):
     check_isinstance(s, str)
-    from ..utils import pad_to_screen
-
-    from .. import CompmakeGlobalState
 
     stdout = CompmakeGlobalState.original_stdout
 

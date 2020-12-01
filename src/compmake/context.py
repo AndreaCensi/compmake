@@ -6,8 +6,14 @@ __all__ = [
     "Context",
 ]
 
+from .uptodate import CacheQueryDB
+
+from .console import batch_command, compmake_console_text, interpret_commands_wrap
+
+from .ui import comp_
+
 if TYPE_CHECKING:
-    from .storage import StorageFilesystem
+    from .filesystem import StorageFilesystem
 
 
 class Context:
@@ -83,12 +89,10 @@ class Context:
 
     # setting up jobs
     def comp_dynamic(self, command_, *args, **kwargs):
-        from compmake.ui.ui import comp_
 
         return comp_(self, command_, *args, needs_context=True, **kwargs)
 
     def comp(self, command_, *args, **kwargs):
-        from compmake.ui.ui import comp_
 
         return comp_(self, command_, *args, **kwargs)
 
@@ -105,22 +109,16 @@ class Context:
 
             False?       we want to exit (not found in source though)
         """
-        from .ui import interpret_commands_wrap
-        from .jobs import CacheQueryDB
 
         cq = CacheQueryDB(self.get_compmake_db())
         return interpret_commands_wrap(commands, context=self, cq=cq)
 
     def batch_command(self, s) -> None:
-        from .ui import batch_command
-        from .jobs import CacheQueryDB
 
         cq = CacheQueryDB(self.get_compmake_db())
         return batch_command(s, context=self, cq=cq)
 
     def compmake_console(self):
-
-        from .ui import compmake_console_text
 
         compmake_console_text(self)
 

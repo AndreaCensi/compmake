@@ -1,7 +1,8 @@
-from compmake.events import register_handler
-from compmake.state import get_compmake_config
-from compmake.ui.visualization import ui_error, ui_info
 from zuper_commons.text import indent
+
+from compmake.registrar import register_handler
+from compmake.state import get_compmake_config
+from compmake.visualization import ui_error, ui_info
 
 
 # TODO: command-succeeded: {'command': '

@@ -3,12 +3,12 @@
 """
 from typing import Iterator
 
-from compmake.exceptions import CompmakeBug, CompmakeDBError, CompmakeException
-from compmake.utils.pickle_frustration import pickle_main_context_load
 from zuper_commons.types import check_isinstance, raise_desc
 
-from ..structures import Cache, CMJobID, DBKey, Job
-from ..utils import wildcard_to_regexp
+from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
+from .structures import Cache, CMJobID, DBKey, Job
+from .utils import wildcard_to_regexp
+from .utils.pickle_frustration import pickle_main_context_load
 
 KEY_JOB_PREFIX = "cm-job-"
 

@@ -1,5 +1,6 @@
 import sys
 
+from compmake.registrar import publish
 from six import StringIO
 
 # from contracts import check_isinstance
@@ -77,12 +78,10 @@ class StreamCapture(object):
 
 
 # TODO: this thing does not work with logging enabled
-class OutputCapture(object):
+class OutputCapture:
     def __init__(self, context, prefix, echo_stdout=True, echo_stderr=True):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-
-        from ..events import publish
 
         def publish_stdout(lines):
             publish(context, "job-stdout", job_id=prefix, lines=lines)

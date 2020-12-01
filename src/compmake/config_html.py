@@ -1,4 +1,5 @@
-from .. import CompmakeGlobalState
+from compmake import CompmakeGlobalState
+
 
 __all__ = [
     "create_config_html",

@@ -3,27 +3,30 @@ import traceback
 from typing import cast, Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
+
+from .actions import clean_cache_relations, clean_targets
+from .constants import CompmakeConstants, DefaultsToConfig
+from .context import Context
+from .exceptions import CommandFailed, CompmakeBug, UserError
 from .helpers import get_commands, UIState
-from .visualization import ui_warning
-from .. import CompmakeConstants, get_compmake_config, get_compmake_status
-from ..constants import DefaultsToConfig
-from ..context import Context
-from ..events import publish
-from ..exceptions import CommandFailed, CompmakeBug, UserError
-from ..jobs import (
+from .parsing import parse_job_list
+from .queries import definition_closure
+from .registrar import publish
+from .state import get_compmake_config, get_compmake_status
+from .storage import (
     all_jobs,
-    CacheQueryDB,
-    collect_dependencies,
+    db_job_add_parent_relation,
+    delete_all_job_data,
     get_job,
+    get_job_args,
     job_exists,
-    parse_job_list,
     set_job,
     set_job_args,
 )
-from ..jobs.actions import clean_cache_relations
-from ..jobs.storage import db_job_add_parent_relation, get_job_args
-from ..structures import CMJobID, Job, Promise, same_computation
-from ..utils import interpret_strings_like, try_pickling
+from .structures import CMJobID, Job, Promise, same_computation
+from .uptodate import CacheQueryDB
+from .utils import interpret_strings_like, try_pickling
+from .visualization import ui_info, ui_warning
 
 
 def generate_job_id(base, context):
@@ -119,8 +122,6 @@ def clean_other_jobs(context):
             else:
                 defined = ""
 
-            from compmake.ui.visualization import ui_info
-
             ui_info(context, f"Job {job_id!r} not defined in this session {defined}; cleaning.")
             #
             #             if not clean_all:
@@ -150,7 +151,6 @@ def clean_other_jobs(context):
 def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
     """ Deletes all jobs given and the jobs that they defined.
         Returns the set of jobs deleted. """
-    from compmake.jobs.queries import definition_closure
 
     closure = definition_closure(jobs, db)
 
@@ -159,8 +159,6 @@ def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
         clean_cache_relations(job_id, db)
 
     for job_id in all_jobs:
-        from compmake.jobs.storage import delete_all_job_data
-
         delete_all_job_data(job_id, db)
 
     return all_jobs
@@ -433,9 +431,8 @@ def comp_(context, command_, *args, **kwargs):
 
         if not same:
             # print('different job, cleaning cache:\n%s  ' % reason)
-            from compmake.jobs.actions import clean_targets
 
-            clean_targets([job_id], db)
+            clean_targets([job_id], db, cq=cq)
             #             if job_cache_exists(job_id, db):
             #                 delete_job_cache(job_id, db)
             publish(context, "job-redefined", job_id=job_id, reason=reason)

@@ -1,11 +1,12 @@
 """ The actual interface of some commands in commands.py """
+from compmake import Cache
+from compmake.helpers import ui_command, VISUALIZATION
+from compmake.queries import children, direct_children, direct_parents, parents
+from compmake.utils import compmake_colored
 
-from compmake.plugins.console_output import write_line_endl
+from .console_output import write_line_endl
 from zuper_commons.types import check_isinstance
-from ..jobs import (
-    children,
-    direct_children,
-    direct_parents,
+from compmake.storage import (
     get_job,
     get_job_args,
     get_job_cache,
@@ -14,10 +15,7 @@ from ..jobs import (
     job_cache_sizeof,
     job_userobject_exists,
     job_userobject_sizeof,
-    parents,
 )
-from ..structures import Cache
-from ..ui import compmake_colored, ui_command, VISUALIZATION
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")

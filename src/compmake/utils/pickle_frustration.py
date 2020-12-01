@@ -39,4 +39,5 @@ def pickle_main_context_load(c):
         yield
 
     finally:
+        # noinspection PyUnboundLocalVariable
         sys.modules["__main__"] = cur_main

@@ -1,10 +1,11 @@
 from copy import deepcopy
 from typing import Set
 
-from compmake.exceptions import CompmakeBug
-from compmake.jobs import get_job_userobject, job_userobject_exists
-from compmake.structures import CMJobID
 from zuper_commons.types import raise_wrapped, ZException
+
+from .exceptions import CompmakeBug
+from .storage import get_job_userobject, job_userobject_exists
+from .structures import CMJobID
 
 __all__ = [
     "substitute_dependencies",

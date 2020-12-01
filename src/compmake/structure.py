@@ -1,7 +1,6 @@
-from .. import CompmakeGlobalState, ConfigSection, ConfigSwitch, get_compmake_config, set_compmake_config
-from ..exceptions import UserError
-
-from ..utils import interpret_strings_like  # XXX initializtion order
+from .exceptions import UserError
+from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, get_compmake_config, set_compmake_config
+from .utils import interpret_strings_like
 
 
 def add_config_switch(name, default_value, allowed=None, desc=None, section=None, order=0):

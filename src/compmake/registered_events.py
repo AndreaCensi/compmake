@@ -1,5 +1,6 @@
 # Warning: this is an auto-generated file
-from .structures import EventSpec
+# really
+from .events_structures import EventSpec
 
 compmake_registered_events = {}
 
@@ -93,7 +94,6 @@ add(EventSpec("command-line-starting", ["command"]))
 add(EventSpec("command-line-failed", ["command", "retcode", "reason"]))
 add(EventSpec("command-line-succeeded", ["command"]))
 add(EventSpec("command-line-interrupted", ["command", "reason"]))
-
 
 # These are called when a single command is executed
 add(EventSpec("command-starting", ["command"]))

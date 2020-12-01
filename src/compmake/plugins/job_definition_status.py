@@ -1,10 +1,8 @@
 import sys
 
-from ..events import register_handler
-from ..state import get_compmake_config
-from ..ui import compmake_colored
-from ..utils import get_screen_columns
-
+from compmake import get_compmake_config
+from compmake.registrar import register_handler
+from compmake.utils import compmake_colored, get_screen_columns
 
 stream = sys.stderr
 

@@ -1,14 +1,16 @@
 import traceback
 
-from compmake import CompmakeGlobalState, logger
-from compmake.context import Context
-from zuper_commons.text import indent
 from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.text import indent
 from zuper_commons.types import ZValueError
+
+from . import logger
+from .context import Context
+from .events_structures import Event
+from .exceptions import CompmakeException
 from .registered_events import compmake_registered_events
-from .structures import Event
-from ..exceptions import CompmakeException
-from ..utils import wildcard_to_regexp
+from .state import CompmakeGlobalState
+from .utils import wildcard_to_regexp
 
 __all__ = [
     "broadcast_event",
@@ -38,6 +40,7 @@ def register_fallback_handler(handler):
 
 
 import inspect
+
 
 # TODO: make decorator
 def register_handler(event_name: str, handler):
@@ -92,13 +95,13 @@ def publish(context: Context, event_name: str, **kwargs):
 
 # @contract(context=Context, event=Event)
 def broadcast_event(context: Context, event: Event):
-
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
     handlers = all_handlers.get(event.name, [])
     if handlers:
         for handler in handlers:
             spec = inspect.getfullargspec(handler)
+            # noinspection PyBroadException
             try:
                 kwargs = {}
                 if "event" in spec.args:

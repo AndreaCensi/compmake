@@ -1,15 +1,16 @@
 from contextlib import contextmanager
 from typing import Collection, List, Set, Tuple, Union
 
-from compmake.exceptions import CompmakeDBError
 from zuper_commons.types import check_isinstance, raise_desc, raise_wrapped
+
+from . import logger
+from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
-from .queries import jobs_defined
-from .storage import get_job_userobject
-from ..exceptions import CompmakeBug
-from ..structures import Cache, CMJobID, Job
-from ..utils import memoized_reset
-from compmake import CompmakeConstants, logger
+from .exceptions import CompmakeBug, CompmakeDBError
+from .queries import definition_closure, direct_children, direct_parents, jobs_defined, parents
+from .storage import get_job, get_job_cache, get_job_userobject
+from .structures import Cache, CMJobID, Job
+from .utils import memoized_reset
 
 __all__ = [
     "CacheQueryDB",
@@ -54,12 +55,9 @@ def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
         the jobs that are children (arguemnts)
         plus the job that defined it (if not root).
     """
-    from compmake.jobs.queries import direct_children
-
     dependencies = direct_children(job_id, db)
 
     # plus jobs that defined it
-    from compmake.jobs.storage import get_job
 
     defined_by = get_job(job_id, db).defined_by
     last = defined_by[-1]
@@ -76,10 +74,8 @@ def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
 
         Assumes that the job is DONE.
     """
-    from compmake.jobs.queries import direct_parents
 
     dep_inv = direct_parents(job_id, db)
-    from compmake.jobs.storage import get_job_cache
 
     # Not sure if need to be here --- added when doing graph-animation for jobs in progress
     if get_job_cache(job_id, db).state == Cache.DONE:
@@ -92,19 +88,15 @@ def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db) -> Set[CMJobID]:
         Closure of direct_uptodate_deps_inverse:
         all jobs that depend on this.
     """
-    from compmake.jobs.queries import parents
-
     # all parents
     dep_inv = parents(job_id, db)
     # plus their definition closure
-    from compmake.jobs.queries import definition_closure
 
     closure = definition_closure(dep_inv, db)
     # this is not true in general
     # assert not closure & dep_inv
     dep_inv.update(closure)
     # plus the ones that were defined by it
-    from compmake.jobs.storage import get_job_cache
 
     if get_job_cache(job_id, db).state == Cache.DONE:
         dep_inv.update(jobs_defined(job_id, db))
@@ -213,13 +205,11 @@ class CacheQueryDB:
 
     @memoized_reset
     def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
-        from compmake.jobs.queries import direct_children
 
         return direct_children(job_id, db=self.db)
 
     @memoized_reset
     def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
-        from compmake.jobs.queries import direct_parents
 
         return direct_parents(job_id, db=self.db)
 

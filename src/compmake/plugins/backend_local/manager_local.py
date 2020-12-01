@@ -1,19 +1,12 @@
 from compmake import CompmakeBug
-from compmake.jobs import AsyncResultInterface, make, Manager, parmake_job2_new_process
-from compmake.jobs.result_dict import result_dict_check
+from compmake import make
+from compmake import parmake_job2_new_process
+from compmake import AsyncResultInterface, Manager
 
-
-# use_pympler = False
-#
-# if use_pympler:
-#     from pympler import tracker  # @UnresolvedImport
-#
-#     tr = tracker.SummaryTracker()
-# else:
-from compmake.ui.visualization import ui_warning
+from compmake import result_dict_check
+from compmake import ui_warning
 
 tr = None
-
 
 __all__ = [
     "ManagerLocal",

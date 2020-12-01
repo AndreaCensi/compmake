@@ -3,11 +3,10 @@ import traceback
 from multiprocessing import TimeoutError
 from multiprocessing.context import BaseContext
 
-from future.moves.queue import Empty
-
 from compmake.exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from compmake.jobs.manager import AsyncResultInterface
-from compmake.jobs.result_dict import result_dict_raise_if_error
+from compmake.manager import AsyncResultInterface
+from compmake.result_dict import result_dict_raise_if_error
+from future.moves.queue import Empty
 from zuper_commons.text import indent
 from zuper_commons.types import check_isinstance
 

@@ -1,10 +1,18 @@
 from typing import Collection
 
-from compmake.constants import DefaultsToConfig
-from compmake.events import publish
-from compmake.jobs import CacheQueryDB, CMJobID, top_targets
-from compmake.jobs.actions import mark_to_remake
-from compmake.ui import ACTIONS, ask_if_sure_remake, raise_error_if_manager_failed, ui_command
+from compmake import (
+    ACTIONS,
+    ask_if_sure_remake,
+    CacheQueryDB,
+    CMJobID,
+    DefaultsToConfig,
+    mark_to_remake,
+    publish,
+    raise_error_if_manager_failed,
+    top_targets,
+    ui_command,
+)
+
 from .pmake_manager import PmakeManager
 
 __all__ = [

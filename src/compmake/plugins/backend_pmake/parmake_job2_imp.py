@@ -2,13 +2,12 @@ import os
 import sys
 from typing import Any, Tuple
 
-from compmake.constants import CompmakeConstants
-from compmake.events import publish
-from compmake.events.registrar import register_handler, remove_all_handlers
-from compmake.exceptions import JobFailed, JobInterrupted
-from compmake.jobs.actions import make
-from compmake.jobs.result_dict import result_dict_check
-from compmake.structures import CMJobID
+from compmake import make
+from compmake import CompmakeConstants
+from compmake import JobFailed, JobInterrupted
+from compmake import publish, register_handler, remove_all_handlers
+from compmake import result_dict_check
+from compmake import CMJobID
 from compmake.utils import setproctitle
 from future.moves.queue import Full
 from zuper_commons.fs import mkdirs_thread_safe

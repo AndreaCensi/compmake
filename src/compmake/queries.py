@@ -3,12 +3,11 @@ import warnings
 from contextlib import contextmanager
 from typing import Collection, Set
 
-from compmake.exceptions import CompmakeBug
-from compmake.jobs.storage import get_job_cache
-from compmake.structures import Cache, CMJobID
 from zuper_commons.types import check_isinstance
-
-from ..jobs import all_jobs, get_job
+from .uptodate import CacheQueryDB
+from .exceptions import CompmakeBug
+from .storage import all_jobs, get_job, get_job_cache
+from .structures import Cache, CMJobID
 
 __all__ = [
     "parents",
@@ -54,7 +53,6 @@ def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
     # print('definition_closure(%s)' % jobs)
     check_isinstance(jobs, (list, set))
     jobs = set(jobs)
-    from compmake.jobs.uptodate import CacheQueryDB
 
     cq = CacheQueryDB(db)
     stack = set(jobs)

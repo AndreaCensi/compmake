@@ -2,11 +2,9 @@ import imp
 import os
 import pwd
 
-from ..exceptions import UserError
-from ..ui import COMMANDS_ADVANCED, ui_command
-
-# noinspection PyShadowingBuiltins
-from ..ui.visualization import ui_error, ui_info
+from compmake import UserError
+from compmake.helpers import COMMANDS_ADVANCED, ui_command
+from compmake.visualization import ui_info, ui_error
 
 
 @ui_command(section=COMMANDS_ADVANCED)

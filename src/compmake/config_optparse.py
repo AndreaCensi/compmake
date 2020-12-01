@@ -1,8 +1,8 @@
 from optparse import OptionGroup, OptionValueError
 
-from .. import CompmakeGlobalState
-from .structure import set_config_from_strings
+from compmake import CompmakeGlobalState
 
+from .structure import set_config_from_strings
 
 __all__ = [
     "config_populate_optparser",

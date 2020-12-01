@@ -2,7 +2,7 @@ from typing import Set
 
 from compmake.structures import CMJobID
 
-from ..events import register_handler
+from compmake.registrar import register_handler
 
 __all__ = [
     "Tracker",

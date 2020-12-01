@@ -24,16 +24,18 @@ __all__ = [
     "StorageFilesystem",
     "StorageKey",
 ]
-if True:
-
-    def track_time(x):
-        return x
+# if True:
 
 
-else:
-    from ..utils import TimeTrack
+def track_time(x):
+    return x
 
-    track_time = TimeTrack.decorator
+
+#
+# else:
+#     from ..utils import TimeTrack
+#
+#     track_time = TimeTrack.decorator
 
 trace_queries = False
 

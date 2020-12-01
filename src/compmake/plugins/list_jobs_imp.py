@@ -3,21 +3,21 @@ import os
 from time import time
 from typing import Dict, List, Sequence, Tuple
 
-from compmake.constants import CompmakeConstants
-from compmake.jobs import parse_job_list
-from compmake.jobs.storage import (
+from compmake import (
     job_args_sizeof,
     job_cache_exists,
     job_cache_sizeof,
     job_userobject_exists,
     job_userobject_sizeof,
 )
-from compmake.jobs.syntax.parsing import is_root_job
+from compmake.constants import CompmakeConstants
+from compmake.helpers import ui_command, VISUALIZATION
+from compmake.parsing import is_root_job, parse_job_list
 from compmake.structures import Cache, cache_has_large_overhead, timing_summary
-from compmake.ui import compmake_colored, ui_command, VISUALIZATION
-from compmake.ui.visualization import ui_message
+from compmake.utils import compmake_colored
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
+from compmake.visualization import ui_message
 from zuper_commons.ui import duration_compact
 
 # red, green, yellow, blue, magenta, cyan, white.

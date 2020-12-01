@@ -2,18 +2,19 @@ import logging
 import traceback
 from logging import Formatter
 from time import time
+from typing import List
 
-from compmake import get_compmake_config, List, logger
-from compmake.events import publish
-from compmake.exceptions import JobFailed, JobInterrupted
-from compmake.structures import Cache, CMJobID, IntervalTimer
-from compmake.utils import OutputCapture, setproctitle
 from zuper_commons.types import check_isinstance
 
+from . import logger
+from .coloredlog import colorize_loglevel
 from .dependencies import collect_dependencies
+from .exceptions import JobFailed, JobInterrupted
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
 from .queries import definition_closure, direct_parents
+from .registrar import publish
+from .state import get_compmake_config
 from .storage import (
     delete_all_job_data,
     delete_job_cache,
@@ -25,7 +26,10 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
+from .structures import Cache, CMJobID, IntervalTimer
+from .ui import delete_jobs_recurse_definition
 from .uptodate import CacheQueryDB
+from .utils import OutputCapture, setproctitle
 
 
 def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
@@ -220,8 +224,6 @@ def make(job_id: CMJobID, context, echo=False):
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
 
-    from compmake.ui.coloredlog import colorize_loglevel
-
     FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
 
     formatter = Formatter(FORMAT)
@@ -251,8 +253,6 @@ def make(job_id: CMJobID, context, echo=False):
     def get_deleted_jobs():
         generated = set(context.get_jobs_defined_in_this_session()) - already
         # print('failure: rolling back %s' % generated)
-
-        from compmake.ui.ui import delete_jobs_recurse_definition
 
         todelete_ = set()
         # delete the jobs that were previously defined
@@ -343,7 +343,6 @@ def make(job_id: CMJobID, context, echo=False):
         for x in prev_defined_jobs:
             if x not in new_jobs:
                 todelete.add(x)
-        from compmake.ui.ui import delete_jobs_recurse_definition
 
         deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
     else:

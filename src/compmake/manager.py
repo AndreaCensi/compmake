@@ -8,23 +8,31 @@ from abc import ABCMeta, abstractmethod
 from multiprocessing import TimeoutError
 from typing import Any, Collection, Dict, List, Set
 
-from compmake.constants import CompmakeConstants
-from compmake.jobs.storage import db_job_add_dynamic_children, db_job_add_parent
-from compmake.state import get_compmake_config
-
-# from contracts import ContractsMeta, indent
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import indent
+
 from .actions import mark_as_blocked
+from .constants import CompmakeConstants
+from .context import Context
+from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
+from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
-from .uptodate import CacheQueryDB
-from .. import Context, StorageFilesystem
-from ..events import publish
-from ..exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from ..jobs import assert_job_exists, get_job_cache, job_cache_exists, job_exists, job_userobject_exists
-from ..jobs.actions_newprocess import result_dict_check
-from ..structures import Cache, CMJobID, StateCode
+from .registrar import publish
+from .result_dict import result_dict_check
+from .state import get_compmake_config
+from .storage import (
+    assert_job_exists,
+    db_job_add_dynamic_children,
+    db_job_add_parent,
+    get_job_cache,
+    job_cache_exists,
+    job_exists,
+    job_userobject_exists,
+)
+from .structures import Cache, CMJobID, StateCode
+from .uptodate import CacheQueryDB, direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
+from .visualization import ui_error
 
 __all__ = [
     "Manager",
@@ -546,7 +554,6 @@ class Manager(ManagerLog):
 
         # TODO: more efficient query
         # parent_jobs = set(parents(job_id, db=self.db))
-        from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 
         parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)
 
@@ -575,7 +582,6 @@ class Manager(ManagerLog):
         self.done.add(job_id)
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
-        from compmake.jobs.uptodate import direct_uptodate_deps_inverse
 
         parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
         cq = CacheQueryDB(self.db)
@@ -746,8 +752,6 @@ class Manager(ManagerLog):
             return True
 
         except JobInterrupted as e:
-
-            from compmake.ui.visualization import ui_error
 
             ui_error(self.context, f"Received JobInterrupted: {e}")
             raise

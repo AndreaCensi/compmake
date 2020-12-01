@@ -8,24 +8,23 @@ from multiprocessing.context import BaseContext
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
+from compmake.actions_newprocess import parmake_job2_new_process
+from compmake.exceptions import MakeHostFailed
+from compmake.manager import Manager
+from compmake.registrar import broadcast_event, publish
+from compmake.structures import CMJobID
+from compmake.visualization import ui_warning
 from future.moves.queue import Empty
 from psutil import NoSuchProcess
-
-from compmake.events import broadcast_event, publish
-from compmake.exceptions import MakeHostFailed
-from compmake.jobs import Manager, parmake_job2_new_process
-
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
+
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
-from ...structures import CMJobID
 
 __all__ = [
     "PmakeManager",
 ]
-
-from ...ui.visualization import ui_warning
 
 
 def killtree() -> None:
