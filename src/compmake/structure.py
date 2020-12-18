@@ -3,7 +3,7 @@ from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, get_compmake_config, set_compmake_config
 from .utils import interpret_strings_like
 
-__all__ = ["add_config_switch", "add_config_section"]
+__all__ = ["add_config_switch", "add_config_section", "set_config_from_strings", "show_config"]
 
 
 def add_config_switch(name, default_value, allowed=None, desc=None, section=None, order=0):

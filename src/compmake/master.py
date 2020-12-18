@@ -7,6 +7,7 @@ from . import logger
 from .console import compmake_console_gui
 from .constants import CompmakeConstants
 from .context import Context
+from .context_imp import ContextImp
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from .filesystem import StorageFilesystem
 from .readrcfiles import read_rc_files
@@ -15,7 +16,7 @@ from .state import set_compmake_status
 from .storage import all_jobs
 from .utils import setproctitle
 
-__all__ = ["main"]
+__all__ = ["main", "compmake_main"]
 # TODO: revise all of this
 
 
@@ -110,7 +111,7 @@ def compmake_main(args):
 
     args = args[1:]
 
-    def go(context2):
+    def go(context2: Context):
         assert context2 is not None
 
         if options.command:
@@ -197,7 +198,7 @@ def load_existing_db(dirname) -> Context:
         compress = False
 
     db = StorageFilesystem(dirname, compress=compress)
-    context = Context(db=db)
+    context = ContextImp(db=db)
     jobs = list(all_jobs(db=db))
     # logger.info('Found %d existing jobs.' % len(jobs))
     context.reset_jobs_defined_in_this_session(jobs)

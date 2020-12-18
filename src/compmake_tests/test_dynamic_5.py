@@ -1,11 +1,11 @@
 from typing import cast, List
 
-from compmake.context import Context
-from compmake.jobs.queries import definition_closure
-from compmake.storage.filesystem import StorageFilesystem
-from compmake.structures import CMJobID
-from .compmake_test import CompmakeTest
 from nose.tools import istest
+
+from compmake import definition_closure, StorageFilesystem
+from compmake.context_imp import ContextImp
+from compmake.types import CMJobID
+from .compmake_test import CompmakeTest
 
 
 def g2():
@@ -54,7 +54,7 @@ class TestDynamic5(CompmakeTest):
         self.assertEqualSet(definition_closure(cast(List[CMJobID], ["hd"]), self.db), ["hd-id", "hd-id-i2"])
         # now redo it
         self.db = StorageFilesystem(self.root, compress=True)
-        self.cc = Context(db=self.db)
+        self.cc = ContextImp(db=self.db)
 
         mockup5(self.cc, both=False)
         self.assert_cmd_success("clean")

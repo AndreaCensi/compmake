@@ -24,7 +24,6 @@ __all__ = [
     "StorageFilesystem",
     "StorageKey",
 ]
-# if True:
 
 
 def track_time(x):

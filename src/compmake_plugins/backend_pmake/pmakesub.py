@@ -139,6 +139,7 @@ def pmake_worker(name, job_queue, result_queue, signal_queue, signal_token, writ
     result_queue.close()
     log("saving coverage")
     if cov:
+        # noinspection PyProtectedMember
         cov._atexit()
     log("saved coverage")
 

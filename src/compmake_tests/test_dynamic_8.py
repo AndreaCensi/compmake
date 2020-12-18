@@ -1,6 +1,9 @@
-from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
-from compmake.jobs.queries import definition_closure, jobs_defined
-from compmake.jobs.uptodate import direct_uptodate_deps_inverse
+from typing import cast
+
+from compmake import direct_uptodate_deps_inverse_closure
+from compmake import definition_closure, jobs_defined
+from compmake.types import CMJobID
+from compmake import direct_uptodate_deps_inverse
 
 from .compmake_test import CompmakeTest
 from nose.tools import istest
@@ -54,14 +57,14 @@ class TestDynamic8(CompmakeTest):
         self.assertJobsEqual("all", ["fd", "fd-always", "fd-other"])
         # clean and remake fd
         TestDynamic8.define_other = False
-
+        j = cast(CMJobID, "fd")
         self.assertJobsEqual("done", ["fd", "fd-always", "fd-other"])
-        self.assertEqualSet(jobs_defined("fd", self.db), ["fd-always", "fd-other"])
+        self.assertEqualSet(jobs_defined(j, self.db), ["fd-always", "fd-other"])
 
-        self.assertEqualSet(definition_closure(["fd"], self.db), ["fd-always", "fd-other"])
-        direct = direct_uptodate_deps_inverse("fd", self.db)
+        self.assertEqualSet(definition_closure([j], self.db), ["fd-always", "fd-other"])
+        direct = direct_uptodate_deps_inverse(j, self.db)
         self.assertEqualSet(direct, ["fd-always", "fd-other"])
-        direct_closure = direct_uptodate_deps_inverse_closure("fd", self.db)
+        direct_closure = direct_uptodate_deps_inverse_closure(j, self.db)
         self.assertEqualSet(direct_closure, ["fd-always", "fd-other"])
 
         self.assert_cmd_success("clean fd")

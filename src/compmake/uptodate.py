@@ -3,7 +3,8 @@ from typing import Set, Tuple
 from .cachequerydb import CacheQueryDB, definition_closure
 from .queries import direct_children, direct_parents, jobs_defined, parents
 from .storage import get_job, get_job_cache
-from .structures import Cache, CMJobID
+from .structures import Cache
+from .types import CMJobID
 
 __all__ = [
     "direct_uptodate_deps_inverse_closure",

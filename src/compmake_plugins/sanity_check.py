@@ -1,12 +1,18 @@
 """ The actual interface of some commands in commands.py """
 from typing import List, Tuple
 
+from compmake import (
+    children,
+    COMMANDS_ADVANCED,
+    direct_children,
+    direct_parents,
+    parents,
+    parse_job_list,
+    ui_command,
+    ui_error,
+)
 from compmake.exceptions import CompmakeBug
 from compmake.storage import all_jobs, get_job, job_exists
-
-from compmake import children, direct_children, direct_parents, parents, parse_job_list
-from compmake import COMMANDS_ADVANCED, ui_command
-from compmake import ui_error
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")

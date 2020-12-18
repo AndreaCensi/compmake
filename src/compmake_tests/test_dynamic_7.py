@@ -1,6 +1,6 @@
 from .compmake_test import CompmakeTest
 from nose.tools import istest
-from compmake.exceptions import CompmakeDBError
+from compmake import CompmakeDBError
 
 
 def g2():

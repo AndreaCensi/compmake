@@ -1,11 +1,9 @@
 import os
 
-from compmake.helpers import COMMANDS_ADVANCED, ui_command
-from compmake.plugins.graph import graph
-from compmake.registrar import register_handler
-from zuper_commons.fs import make_sure_dir_exists
-
+from compmake import COMMANDS_ADVANCED, register_handler, ui_command
 from system_cmd.meat import system_cmd_result
+from zuper_commons.fs import make_sure_dir_exists
+from .graph import graph
 
 
 class Global:

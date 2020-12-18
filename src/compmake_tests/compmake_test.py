@@ -3,12 +3,12 @@ import unittest
 from abc import ABCMeta
 from shutil import rmtree
 from tempfile import mkdtemp
-from compmake import CacheQueryDB
+
 from compmake import (
-    CMJobID,
+    CacheQueryDB,
     CommandFailed,
     compmake_main,
-    Context,
+    CompmakeConstants,
     get_job,
     Job,
     logger,
@@ -17,7 +17,8 @@ from compmake import (
     set_compmake_config,
     StorageFilesystem,
 )
-from compmake import CompmakeConstants
+from compmake.context_imp import ContextImp
+from compmake.types import CMJobID
 
 
 class CompmakeTest(unittest.TestCase):
@@ -27,7 +28,7 @@ class CompmakeTest(unittest.TestCase):
         self.root0 = mkdtemp()
         self.root = os.path.join(self.root0, "compmake")
         self.db = StorageFilesystem(self.root, compress=True)
-        self.cc = Context(db=self.db)
+        self.cc = ContextImp(db=self.db)
         # don't use '\r'
         set_compmake_config("interactive", False)
         set_compmake_config("console_status", False)

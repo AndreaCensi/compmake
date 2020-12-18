@@ -1,6 +1,7 @@
 from nose.tools import istest
 
-from .. import set_compmake_status, CompmakeConstants
+import compmake.interpret
+from compmake import set_compmake_status, CompmakeConstants
 from .compmake_test import CompmakeTest
 
 
@@ -32,8 +33,8 @@ class TestOrder(CompmakeTest):
         self.comp(top, self.comp(bottom))
         self.comp(top, self.comp(bottom))
 
-        self.cc.batch_command("clean")
-        self.cc.batch_command("make")
+        compmake.interpret.batch_command("clean")
+        compmake.interpret.batch_command("make")
 
         self.assertEqual(["bottom", "top", "bottom", "top"], TestOrder.order)
 
@@ -43,8 +44,8 @@ class TestOrder(CompmakeTest):
         self.comp(top, self.comp(bottom))
         self.comp(bottom2)
 
-        self.cc.batch_command("clean")
-        self.cc.batch_command("make")
+        compmake.interpret.batch_command("clean")
+        compmake.interpret.batch_command("make")
 
         self.assertEqual(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
 
@@ -54,7 +55,7 @@ class TestOrder(CompmakeTest):
         self.comp(bottom)
         self.comp(top, self.comp(bottom2))
 
-        self.cc.batch_command("clean")
-        self.cc.batch_command("make")
+        compmake.interpret.batch_command("clean")
+        compmake.interpret.batch_command("make")
 
         self.assertEqual(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)

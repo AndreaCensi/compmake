@@ -109,6 +109,8 @@ class JobFailed(CompmakeException):
 
     @staticmethod
     def from_dict(res):
+        from .result_dict import result_dict_check
+
         result_dict_check(res)
         assert "fail" in res
         e = JobFailed(
@@ -133,6 +135,8 @@ class JobInterrupted(CompmakeException):
 
     @staticmethod
     def from_dict(res):
+        from .result_dict import result_dict_check
+
         result_dict_check(res)
         assert "interrupted" in res
         e = JobInterrupted(job_id=res["job_id"], deleted_jobs=res["deleted_jobs"])
@@ -179,6 +183,7 @@ class HostFailed(CompmakeException):
 
     @staticmethod
     def from_dict(res):
+        from .result_dict import result_dict_check
 
         result_dict_check(res)
         try:

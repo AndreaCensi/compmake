@@ -64,22 +64,20 @@ from typing import Dict, List, NewType, Optional, Set, Tuple, Union
 
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
-
+from .types import CMJobID
 from .utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
     "Promise",
     "Job",
     "Cache",
-    "CMJobID",
-    "DBKey",
     "same_computation",
     "ProgressStage",
     "IntervalTimer",
+    "StateCode",
+    "cache_has_large_overhead",
+    "timing_summary",
 ]
-
-CMJobID = NewType("CMJobID", str)
-DBKey = NewType("DBKey", str)
 
 
 @dataclass

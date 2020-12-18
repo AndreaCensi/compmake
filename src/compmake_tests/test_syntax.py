@@ -3,10 +3,11 @@ import sys
 from nose.tools import istest
 
 from . import CompmakeTest
-from ..exceptions import CompmakeSyntaxError, UserError
-from ..jobs import get_job_cache, set_job_cache
-from ..structures import Cache, CMJobID
-from ..ui import parse_job_list
+from compmake import CompmakeSyntaxError, UserError
+from compmake import get_job_cache, set_job_cache
+from compmake import Cache
+from compmake.types import CMJobID
+from compmake import parse_job_list
 
 
 def dummy():

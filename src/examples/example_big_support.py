@@ -8,13 +8,13 @@ def fail_randomly():
         raise Exception("Unlucky job failed randomly")
 
 
-def first(children=[]):
+def first(children=()):
     fail_randomly()
 
 
-def second(children=[]):
+def second(children=()):
     fail_randomly()
 
 
-def third(children=[]):
+def third(children=()):
     fail_randomly()

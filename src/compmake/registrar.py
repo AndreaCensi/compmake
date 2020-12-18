@@ -1,11 +1,12 @@
 import traceback
+from typing import cast
 
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import indent
 from zuper_commons.types import ZValueError
-
 from . import logger
 from .context import Context
+
 from .events_structures import Event
 from .exceptions import CompmakeException
 from .registered_events import compmake_registered_events
@@ -146,6 +147,9 @@ def get_events_log_file(db):
 
 
 def handle_event_logs(context: Context, event):
+    from .context_imp import ContextImp
+
+    context = cast(ContextImp, context)
     db = context.compmake_db
     lf = get_events_log_file(db)
     with open(lf, "a") as f:

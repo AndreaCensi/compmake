@@ -1,30 +1,27 @@
 import os
 import sys
-import traceback
 
 from asciimatics.exceptions import StopApplication
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.widgets import Frame, Layout, TextBox
 from future import builtins
-from zuper_commons.text import indent, remove_escapes
+from zuper_commons.text import remove_escapes
 
 from . import logger
-from .constants import CompmakeConstants
 from .events_structures import Event
-from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
+from .exceptions import CommandFailed, CompmakeBug, MakeFailed, ShellExitRequested
+from .interpret import interpret_commands_wrap
 from .readrcfiles import read_rc_files
 from .registrar import publish, register_handler
-from .state import CompmakeGlobalState, get_compmake_config, set_compmake_status
+from .state import CompmakeGlobalState, get_compmake_config
 from .storage import all_jobs
-from .ui import clean_other_jobs, get_commands, interpret_commands
+from .ui import clean_other_jobs, get_commands
 from .cachequerydb import CacheQueryDB
 from .visualization import clean_console_line, DefaultConsole, ui_error
 
 __all__ = [
     "interactive_console",
-    "interpret_commands_wrap",
-    "batch_command",
     "compmake_console_text",
     "compmake_console_gui",
     "ask_question",
@@ -58,48 +55,6 @@ def get_readline():
                 msg += "\n- pyreadline error: %s" % e2
                 logger.warning(msg)
                 return None
-
-
-# @contract(cq=CacheQueryDB, returns="None")
-def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
-    """
-        Returns None or raises CommandFailed, ShellExitRequested,
-            CompmakeBug, KeyboardInterrupt.
-    """
-    assert context is not None
-    publish(context, "command-line-starting", command=commands)
-
-    try:
-        interpret_commands(commands, context=context, cq=cq)
-        publish(context, "command-line-succeeded", command=commands)
-    except CompmakeBug:
-        raise
-    except UserError as e:
-        publish(context, "command-line-failed", command=commands, reason=e)
-        raise CommandFailed(str(e)) from e
-    except CommandFailed as e:
-        publish(context, "command-line-failed", command=commands, reason=e)
-        raise
-    except (KeyboardInterrupt, JobInterrupted) as e:
-        publish(context, "command-line-interrupted", command=commands, reason="KeyboardInterrupt")
-        # If debugging
-        # tb = traceback.format_exc()
-        # print tb  # XXX
-        raise CommandFailed(str(e)) from e
-        # raise CommandFailed('Execution of %r interrupted.' % commands)
-    except ShellExitRequested:
-        raise
-    except Exception as e:
-        tb = traceback.format_exc()
-        msg0 = (
-            "Warning, I got this exception, while it should "
-            "have been filtered out already. "
-            "This is a compmake BUG that should be reported "
-            "at http://github.com/AndreaCensi/compmake/issues"
-        )
-        msg = msg0 + "\n" + indent(tb, "bug| ")
-        publish(context, "compmake-bug", user_msg=msg, dev_msg="")  # XXX
-        raise CompmakeBug(msg) from e
 
 
 def interactive_console(context):
@@ -242,22 +197,6 @@ def ask_question(question, allowed=None):
 
 # Note: we wrap these in shallow functions because we don't want
 # to import other things.
-
-
-def batch_command(s, context, cq):
-    """
-        Executes one command (could be a sequence)
-
-        Returns None or raises CommandsFailed, CompmakeBug.
-    """
-
-    set_compmake_status(CompmakeConstants.compmake_status_embedded)
-
-    # we assume that we are done with defining jobs
-    clean_other_jobs(context=context)
-
-    read_rc_files(context=context)
-    return interpret_commands_wrap(s, context=context, cq=cq)
 
 
 def compmake_console_text(context):

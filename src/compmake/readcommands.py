@@ -1,15 +1,21 @@
 import os
+from typing import cast
 
-from compmake.cachequerydb import CacheQueryDB
-from compmake.console import interpret_commands_wrap
-from compmake.context import Context
-from compmake.visualization import ui_info
 from zuper_commons.fs import friendly_path
+from .cachequerydb import CacheQueryDB
+
+from .context import Context
+
+from .visualization import ui_info
 
 __all__ = ["read_commands_from_file"]
 
 
 def read_commands_from_file(filename: str, context: Context):
+    from .interpret import interpret_commands_wrap
+    from .context_imp import ContextImp
+
+    context = cast(ContextImp, context)
     filename = os.path.realpath(filename)
     if filename in context.rc_files_read:
         return

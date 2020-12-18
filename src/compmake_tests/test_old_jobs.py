@@ -1,10 +1,10 @@
 import unittest
 from tempfile import mkdtemp
 
-from compmake import Context, logger, StorageFilesystem
-from compmake.jobs.storage import all_jobs
-from compmake.state import set_compmake_config
 from nose.tools import istest
+
+from compmake import all_jobs, logger, set_compmake_config, StorageFilesystem
+from compmake.context_imp import ContextImp
 
 
 def g():
@@ -36,7 +36,7 @@ class TestCleaning1(Utils):
 
     def run_first(self, root):
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp(g, job_id="g")
         cc.comp(h, job_id="h")
@@ -44,7 +44,7 @@ class TestCleaning1(Utils):
 
     def run_second(self, root):
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp(g, job_id="g")
         cc.batch_command("make")
@@ -73,7 +73,7 @@ class TestCleaning2(Utils):
     def run_first(self, root):
         logger.info("run_first()")
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp_dynamic(f1, job_id="f")
         cc.batch_command("make recurse=1")
@@ -81,7 +81,7 @@ class TestCleaning2(Utils):
     def run_second(self, root):
         logger.info("run_second()")
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp_dynamic(f2, job_id="f")
         cc.batch_command("clean;make recurse=1")
@@ -113,7 +113,7 @@ class TestCleaning3(Utils):
     def run_first(self, root):
         print("run_first()")
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp_dynamic(e1, job_id="e")
         cc.batch_command("make recurse=1; ls")
@@ -121,7 +121,7 @@ class TestCleaning3(Utils):
     def run_second(self, root):
         print("run_second()")
         db = StorageFilesystem(root, compress=True)
-        cc = Context(db=db)
+        cc = ContextImp(db=db)
         #
         cc.comp_dynamic(e2, job_id="e")
         cc.batch_command("details e;clean;ls;make recurse=1")

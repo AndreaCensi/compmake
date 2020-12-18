@@ -1,4 +1,4 @@
-from compmake.helpers import GENERAL, ui_command
+from compmake import GENERAL, ui_command
 
 
 @ui_command(section=GENERAL)

@@ -1,5 +1,4 @@
-from __future__ import print_function
-from .utils import safe_pickle_load
+from compmake.utils import safe_pickle_load
 
 # module = sys.modules['__main__']
 
@@ -10,7 +9,6 @@ import sys
 
 sys.modules["__main__"] = m
 filename = "f1.pickle"
-import compmake
 
-x = compmake.utils.safe_pickle_load(filename)
+x = safe_pickle_load(filename)
 print(x.__doc__)

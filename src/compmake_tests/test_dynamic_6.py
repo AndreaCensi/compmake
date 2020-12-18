@@ -1,12 +1,20 @@
-from .compmake_test import CompmakeTest
-from compmake import Context
-from compmake.jobs import direct_children, get_job, jobs_defined
-from compmake.storage.filesystem import StorageFilesystem
-from compmake.ui.ui import clean_other_jobs
+from typing import cast
+
 from nose.tools import istest
-from compmake.structures import Cache
-from compmake.jobs.manager import check_job_cache_state
-from compmake.exceptions import CompmakeBug
+
+from compmake import (
+    Cache,
+    check_job_cache_state,
+    clean_other_jobs,
+    CompmakeBug,
+    direct_children,
+    get_job,
+    jobs_defined,
+    StorageFilesystem,
+)
+from compmake.context_imp import ContextImp
+from compmake.types import CMJobID
+from .compmake_test import CompmakeTest
 
 
 def g2():
@@ -49,7 +57,6 @@ def mockup6(context, both):
 @istest
 class TestDynamic6(CompmakeTest):
     def test_dynamic6(self):
-
         # first define with job and run
         mockup6(self.cc, both=True)
         db = self.db
@@ -57,8 +64,9 @@ class TestDynamic6(CompmakeTest):
         self.assertRaises(CompmakeBug, jobs_defined, job_id="hd", db=db)
 
         self.assert_cmd_success("make recurse=1")
-        check_job_cache_state(job_id="hd", states=[Cache.DONE], db=db)
-        self.assertEqual(jobs_defined(job_id="hd", db=db), set(["hd-id"]))
+        j = cast(CMJobID, "hd")
+        check_job_cache_state(job_id=j, states=[Cache.DONE], db=db)
+        self.assertEqual(jobs_defined(job_id=j, db=db), {"hd-id"})
 
         # self.assert_cmd_success('graph compact=0 color=0 '
         #                         'cluster=1 filter=dot')
@@ -68,7 +76,7 @@ class TestDynamic6(CompmakeTest):
 
         # now redo it
         self.db = StorageFilesystem(self.root, compress=True)
-        self.cc = Context(db=self.db)
+        self.cc = ContextImp(db=self.db)
 
         print("running again with both=False")
         mockup6(self.cc, both=False)
@@ -76,11 +84,11 @@ class TestDynamic6(CompmakeTest):
 
         self.assertJobsEqual("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])
 
-        job = get_job("summary", self.db)
+        job = get_job(cast(CMJobID, "summary"), self.db)
         print("job.children: %s" % job.children)
         print("job.dynamic_children: %s" % job.dynamic_children)
-        self.assertEqual(job.dynamic_children, {"fd": set(["fd-gd"])})
-        self.assertEqualSet(direct_children("summary", self.db), ["fd", "fd-gd"])
+        self.assertEqual(job.dynamic_children, {"fd": {"fd-gd"}})
+        self.assertEqualSet(direct_children(cast(CMJobID, "summary"), self.db), ["fd", "fd-gd"])
         self.assert_cmd_success("ls")
 
         self.assert_cmd_success("make recurse=1")

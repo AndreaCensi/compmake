@@ -1,7 +1,6 @@
 import sys
 
-from compmake import compmake_colored, get_compmake_config
-from compmake.registrar import register_handler
+from compmake import compmake_colored, get_compmake_config, register_handler
 from compmake.utils import get_screen_columns
 
 stream = sys.stderr

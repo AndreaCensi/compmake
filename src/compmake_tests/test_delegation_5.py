@@ -3,9 +3,9 @@ from tempfile import mkdtemp
 
 from nose.tools import istest
 
-from compmake import Context
-from compmake import CMJobID, get_job
-from compmake import StorageFilesystem
+from compmake import get_job, StorageFilesystem
+from compmake.context_imp import ContextImp
+from compmake.types import CMJobID
 
 
 def g():
@@ -26,7 +26,7 @@ def h(i):
 
 def define_jobs(root):
     db = StorageFilesystem(root, compress=True)
-    cc = Context(db=db)
+    cc = ContextImp(db=db)
     cc.comp(h, cc.comp_dynamic(e))
     return db, cc
 

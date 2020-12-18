@@ -1,6 +1,6 @@
 from typing import Set
 
-from compmake.structures import CMJobID
+from compmake.types import CMJobID
 
 from compmake.registrar import register_handler
 

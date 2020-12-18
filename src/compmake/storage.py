@@ -5,7 +5,8 @@ from typing import Iterator
 
 from zuper_commons.types import check_isinstance, raise_desc
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
-from .structures import Cache, CMJobID, DBKey, Job
+from .structures import Cache, Job
+from .types import CMJobID, DBKey
 from .utils import wildcard_to_regexp
 from .utils.pickle_frustration import pickle_main_context_load
 
@@ -20,9 +21,14 @@ __all__ = [
     "set_job",
     "delete_job",
     "job2cachekey",
+    "job_userobject_sizeof",
     "get_job_cache",
     "job_cache_exists",
     "job2jobargskey",
+    "is_job_userobject_available",
+    "db_job_add_dynamic_children",
+    "db_job_add_parent",
+    "db_job_add_parent_relation",
     "job_exists",
     "job_cache_sizeof",
     "job_userobject_exists",
@@ -35,6 +41,7 @@ __all__ = [
     "delete_all_job_data",
     "job2userobjectkey",
     "get_job_userobject",
+    "job_args_sizeof",
 ]
 KEY_JOB_PREFIX = "cm-job-"
 

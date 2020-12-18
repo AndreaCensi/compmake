@@ -1,10 +1,12 @@
-from compmake import CompmakeBug
-from compmake import make
-from compmake import parmake_job2_new_process
-from compmake import AsyncResultInterface, Manager
-
-from compmake import result_dict_check
-from compmake import ui_warning
+from compmake import (
+    AsyncResultInterface,
+    CompmakeBug,
+    make,
+    Manager,
+    parmake_job2_new_process,
+    result_dict_check,
+    ui_warning,
+)
 
 tr = None
 

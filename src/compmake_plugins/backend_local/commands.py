@@ -1,13 +1,18 @@
 import time
 
-from compmake import set_job_cache, set_job_userobject
-from compmake import mark_to_remake
-from compmake import ask_if_sure_remake, raise_error_if_manager_failed
-from compmake import DefaultsToConfig
-from compmake import ACTIONS, ui_command
-from compmake import top_targets
-from compmake import Cache, IntervalTimer
-
+from compmake import (
+    ACTIONS,
+    ask_if_sure_remake,
+    Cache,
+    DefaultsToConfig,
+    IntervalTimer,
+    mark_to_remake,
+    raise_error_if_manager_failed,
+    set_job_cache,
+    set_job_userobject,
+    top_targets,
+    ui_command,
+)
 from .manager_local import ManagerLocal
 
 __all__ = [

@@ -10,8 +10,8 @@ from typing import Any, Collection, Dict, List, Set
 
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import indent
-
 from .actions import mark_as_blocked
+from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
@@ -30,14 +30,15 @@ from .storage import (
     job_exists,
     job_userobject_exists,
 )
-from .structures import Cache, CMJobID, StateCode
+from .structures import Cache, StateCode
+from .types import CMJobID
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
-from .cachequerydb import CacheQueryDB
 from .visualization import ui_error
 
 __all__ = [
     "Manager",
     "AsyncResultInterface",
+    "check_job_cache_state",
 ]
 
 

@@ -6,7 +6,8 @@ from typing import Collection, Set
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug
 from .storage import all_jobs, get_job, get_job_cache
-from .structures import Cache, CMJobID
+from .structures import Cache
+from .types import CMJobID
 
 __all__ = [
     "parents",

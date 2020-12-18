@@ -12,7 +12,7 @@ from compmake.actions_newprocess import parmake_job2_new_process
 from compmake.exceptions import MakeHostFailed
 from compmake.manager import Manager
 from compmake.registrar import broadcast_event, publish
-from compmake.structures import CMJobID
+from compmake.types import CMJobID
 from compmake.visualization import ui_warning
 from future.moves.queue import Empty
 from psutil import NoSuchProcess

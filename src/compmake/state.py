@@ -4,7 +4,15 @@ from collections import namedtuple
 from .constants import CompmakeConstants
 from .utils import AvgSystemStats
 
-__all__ = ["CompmakeGlobalState", "get_compmake_config", "set_compmake_status"]
+__all__ = [
+    "CompmakeGlobalState",
+    "get_compmake_config",
+    "set_compmake_status",
+    "set_compmake_config",
+    "ConfigSection",
+    "ConfigSwitch",
+    "get_compmake_status",
+]
 
 
 class CompmakeGlobalState:

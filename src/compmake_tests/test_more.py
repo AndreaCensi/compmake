@@ -1,7 +1,10 @@
-from . import CompmakeTest
-from ..jobs import direct_children, direct_parents, make
-from ..exceptions import UserError
+from typing import cast
+
 from nose.tools import istest
+
+from compmake import direct_children, direct_parents, make, UserError
+from compmake.types import CMJobID
+from . import CompmakeTest
 
 
 def f1(*arg, **kwargs):
@@ -35,7 +38,7 @@ class Test1(CompmakeTest):
 
     def testID(self):
         """ Check that the job id is correctly parsed """
-        job_id = "terminus"
+        job_id = cast(CMJobID, "terminus")
         c = self.comp(f1, job_id=job_id)
         self.assertEqual(c.job_id, job_id)
         make(job_id, context=self.cc)

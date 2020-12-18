@@ -2,8 +2,10 @@ from typing import List
 
 from .strings_with_escapes import pad_to_screen_length, get_length_on_screen
 
+__all__ = ["TableFormatter"]
 
-class TableFormatter(object):
+
+class TableFormatter:
     def __init__(self, sep="|"):
         self.rows = []
         self.cur_row = None

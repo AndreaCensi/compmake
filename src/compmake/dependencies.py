@@ -5,7 +5,8 @@ from zuper_commons.types import raise_wrapped, ZException
 
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
-from .structures import CMJobID, Promise
+from .structures import Promise
+from .types import CMJobID
 
 __all__ = [
     "substitute_dependencies",

@@ -3,8 +3,8 @@ import traceback
 from typing import cast, Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
-
 from .actions import clean_cache_relations, clean_targets
+from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, UserError
@@ -22,12 +22,19 @@ from .storage import (
     set_job,
     set_job_args,
 )
-from .structures import CMJobID, Job, Promise, same_computation
-from .cachequerydb import CacheQueryDB, definition_closure
+from .structures import Job, Promise, same_computation
+from .types import CMJobID
 from .utils import interpret_strings_like, try_pickling
 from .visualization import ui_info, ui_warning
 
-__all__ = ["generate_job_id", "delete_jobs_recurse_definition"]
+__all__ = [
+    "generate_job_id",
+    "delete_jobs_recurse_definition",
+    "get_commands",
+    "interpret_commands",
+    "clean_other_jobs",
+    "comp_",
+]
 
 
 def generate_job_id(base, context):

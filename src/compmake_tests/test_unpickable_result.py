@@ -1,5 +1,7 @@
 from typing import Callable
-from .. import set_compmake_status, CompmakeConstants
+
+import compmake.interpret
+from compmake import set_compmake_status, CompmakeConstants
 from .compmake_test import CompmakeTest
 from nose.tools import istest
 
@@ -17,7 +19,7 @@ class TestUnpickable(CompmakeTest):
 
     def test_unpickable_result(self) -> None:
         self.comp(f1)
-        self.cc.batch_command("clean")
+        compmake.interpret.batch_command("clean")
 
         self.assert_cmd_fail("make")
         # since dill implemented

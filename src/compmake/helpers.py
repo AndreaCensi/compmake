@@ -3,12 +3,20 @@ import types
 from collections import namedtuple
 from typing import List, Optional, Union
 
+from .colored import compmake_colored
 from .exceptions import UserError
 from .utils import docstring_components, docstring_trim
-from .colored import compmake_colored
 
-
-__all__ = []
+__all__ = [
+    "ui_command",
+    "get_commands",
+    "ACTIONS",
+    "VISUALIZATION",
+    "COMMANDS_ADVANCED",
+    "GENERAL",
+    "ui_section",
+    "UIState",
+]
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
 # Storage for the sections

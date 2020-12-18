@@ -11,13 +11,13 @@ from compmake import (
     job_userobject_exists,
     job_userobject_sizeof,
 )
-from compmake.constants import CompmakeConstants
-from compmake.helpers import ui_command, VISUALIZATION
-from compmake.parsing import is_root_job, parse_job_list
-from compmake.structures import Cache, cache_has_large_overhead, timing_summary
-from compmake.utils.table_formatter import TableFormatter
-from compmake.utils.terminal_size import get_screen_columns
-from compmake.visualization import ui_message
+from compmake import CompmakeConstants
+from compmake import ui_command, VISUALIZATION
+from compmake import is_root_job, parse_job_list
+from compmake import Cache, cache_has_large_overhead, timing_summary
+from compmake.utils import TableFormatter
+from compmake.utils import get_screen_columns
+from compmake import ui_message
 from zuper_commons.ui import duration_compact
 
 # red, green, yellow, blue, magenta, cyan, white.

@@ -1,7 +1,8 @@
 from typing import cast, Optional, Union
 
 from compmake import get_job_cache, Promise
-from compmake.structures import Cache, CMJobID
+from compmake.structures import Cache
+from compmake.types import CMJobID
 
 __all__ = [
     "compmake_execution_stats",

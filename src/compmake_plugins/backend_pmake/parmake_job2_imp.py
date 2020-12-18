@@ -2,14 +2,20 @@ import os
 import sys
 from typing import Any, Tuple
 
-from compmake import make
-from compmake import CompmakeConstants
-from compmake import JobFailed, JobInterrupted
-from compmake import publish, register_handler, remove_all_handlers
-from compmake import result_dict_check
-from compmake import CMJobID
-from compmake.utils import setproctitle
 from future.moves.queue import Full
+
+from compmake import (
+    CompmakeConstants,
+    JobFailed,
+    JobInterrupted,
+    make,
+    publish,
+    register_handler,
+    remove_all_handlers,
+    result_dict_check,
+)
+from compmake.types import CMJobID
+from compmake.utils import setproctitle
 from zuper_commons.fs import mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 

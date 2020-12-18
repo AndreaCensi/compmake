@@ -10,12 +10,12 @@ from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
 from networkx import descendants, DiGraph
 
+from compmake.context_imp import ContextImp
 from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZKeyError, ZValueError
 from . import logger
 from .console import compmake_console_gui
-from .context import Context
 from .structures import Promise
 
 __all__ = []
@@ -233,7 +233,7 @@ def make_bridge_main(args=None):
     # logger.info(bs=bs)
 
     db = parsed.out
-    context = Context(db=db)
+    context = ContextImp(db=db)
 
     jobs = {}
 

@@ -2,16 +2,17 @@ from contextlib import contextmanager
 from typing import Collection, List, Set, Tuple, Union
 
 from zuper_commons.types import check_isinstance
-from . import Cache, CMJobID, logger
+from . import logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .queries import direct_children, direct_parents, jobs_defined
 from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
-from .structures import Cache, CMJobID, Job
+from .structures import Cache, Job
+from .types import CMJobID
 from .utils import memoized_reset
 
-__all__ = ["CacheQueryDB"]
+__all__ = ["CacheQueryDB", "definition_closure"]
 
 
 class CacheQueryDB:
@@ -216,7 +217,7 @@ class CacheQueryDB:
             return todo, done, todo_and_ready
 
     # @contract(returns=set, jobs="unicode|set(unicode)")
-    def tree_children_and_uodeps(self, jobs: Union[str, Set[str]]):
+    def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
         """ Closure of the relation children and dependencies of userobject.
         """
         stack = []

@@ -20,7 +20,7 @@ from .timedate import *
 from .values_interpretation import *
 from .which_imp import *
 from .wildcards import *
-
+from .table_formatter import *
 
 # def find_print_statements():
 #     import sys

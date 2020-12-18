@@ -4,7 +4,8 @@ from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
 from .storage import get_job, get_job_args, job_userobject_exists
-from .structures import CMJobID, IntervalTimer, Job
+from .structures import IntervalTimer, Job
+from .types import CMJobID
 
 __all__ = [
     "job_compute",

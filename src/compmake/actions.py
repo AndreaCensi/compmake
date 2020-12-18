@@ -5,8 +5,8 @@ from time import time
 from typing import List
 
 from zuper_commons.types import check_isinstance
-
 from . import logger
+from .cachequerydb import CacheQueryDB, definition_closure
 from .coloredlog import colorize_loglevel
 from .dependencies import collect_dependencies
 from .exceptions import JobFailed, JobInterrupted
@@ -26,12 +26,19 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
-from .structures import Cache, CMJobID, IntervalTimer
+from .structures import Cache, IntervalTimer
+from .types import CMJobID
 from .ui import delete_jobs_recurse_definition
-from .cachequerydb import CacheQueryDB, definition_closure
 from .utils import OutputCapture, setproctitle
 
-__all__ = []
+__all__ = [
+    "clean_targets",
+    "mark_as_failed",
+    "clean_cache_relations",
+    "mark_to_remake",
+    "mark_as_blocked",
+    "make",
+]
 
 
 def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):

@@ -4,7 +4,7 @@ from .events_structures import EventSpec
 
 compmake_registered_events = {}
 
-__all__ = []
+__all__ = ["compmake_registered_events"]
 
 
 def add(e):

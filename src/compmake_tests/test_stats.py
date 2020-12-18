@@ -1,10 +1,12 @@
+from typing import cast
+
 from nose.tools import istest
 
-from .compmake_test import CompmakeTest
-from compmake import compmake_execution_stats
+from compmake import get_job_userobject_resolved
+from compmake.types import CMJobID
+from compmake_plugins.execution_stats import compmake_execution_stats
 from zuper_commons.types import check_isinstance
-from compmake.jobs.dependencies import get_job_userobject_resolved
-from ..structures import CMJobID
+from .compmake_test import CompmakeTest
 
 
 def ff(*args):
@@ -42,7 +44,7 @@ class TestExecutionStats(CompmakeTest):
         # schedule some commands
         res = self.cc.comp_dynamic(hh)
 
-        myjobid = "myjobid"
+        myjobid = cast(CMJobID, "myjobid")
         compmake_execution_stats(self.cc, res, use_job_id=myjobid)
         self.assert_cmd_success("make recurse=1")
         self.assert_cmd_success("ls")
@@ -52,7 +54,7 @@ class TestExecutionStats(CompmakeTest):
 
         print(res)
 
-        self.assertEqual(res["jobs"], set(["hh-gg-ff", "hh-gg", "hh"]))
+        self.assertEqual(res["jobs"], {"hh-gg-ff", "hh-gg", "hh"})
 
 
 def check_result(res):

@@ -1,3 +1,5 @@
+from typing import Callable
+
 from .compmake_test import CompmakeTest
 from nose.tools import istest
 
@@ -33,7 +35,7 @@ def mockup8(context):
 
 @istest
 class TestDynamicFailure(CompmakeTest):
-    do_fail = False
+    do_fail: Callable = None
 
     def test_dynamic_failure1(self):
         mockup8(self.cc)

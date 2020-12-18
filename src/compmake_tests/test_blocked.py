@@ -1,5 +1,6 @@
-from ..structures import Cache
-from ..jobs import get_job_cache
+import compmake.interpret
+from compmake import Cache
+from compmake import get_job_cache
 from nose.tools import istest
 from .compmake_test import CompmakeTest
 
@@ -33,7 +34,7 @@ class TestBlocked(CompmakeTest):
         comp(job_success, B, job_id="C")
 
         def run():
-            self.cc.batch_command("make")
+            compmake.interpret.batch_command("make")
 
         self.assertMakeFailed(run, nfailed=1, nblocked=1)
 

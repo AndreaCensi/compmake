@@ -32,12 +32,14 @@ from .constants import CompmakeConstants
 from .context import Context
 from .exceptions import CompmakeSyntaxError, UserError
 from .storage import get_job
-from .structures import Cache, CMJobID
+from .structures import Cache
+from .types import CMJobID
 from .cachequerydb import CacheQueryDB
 from .utils import expand_wildcard
 
 __all__ = [
     "parse_job_list",
+    "is_root_job",
 ]
 
 CompmakeConstants.aliases["last"] = "*"
