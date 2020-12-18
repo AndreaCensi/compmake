@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 import sys
-
+from . import logger
 import time
 
 
@@ -35,7 +35,6 @@ class TimeTrack:
         # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()
-        from compmake import logger
 
         logger.warning(msg)
 

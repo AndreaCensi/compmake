@@ -212,6 +212,13 @@ def make(job_id: CMJobID, context, echo=False):
         capture = None
     else:
         echo = False
+
+        def publish_stdout(lines):
+            publish(context, "job-stdout", job_id=prefix, lines=lines)
+
+        def publish_stderr(lines):
+            publish(context, "job-stderr", job_id=prefix, lines=lines)
+
         capture = OutputCapture(
             context=context,
             prefix=job_id,
@@ -219,6 +226,8 @@ def make(job_id: CMJobID, context, echo=False):
             # They will generate events anyway.
             echo_stdout=echo,
             echo_stderr=echo,
+            publish_stdout=publish_stdout,
+            publish_stderr=publish_stderr,
         )
 
     # TODO: add whether we should just capture and not echo

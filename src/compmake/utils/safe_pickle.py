@@ -1,6 +1,6 @@
 import pickle
 
-from compmake import logger
+from . import logger
 
 __all__ = [
     "safe_pickle_dump",

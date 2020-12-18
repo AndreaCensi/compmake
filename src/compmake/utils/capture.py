@@ -1,9 +1,6 @@
 import sys
-
-from compmake.registrar import publish
-from six import StringIO
-
-# from contracts import check_isinstance
+from io import StringIO
+from typing import Callable, List
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
 
@@ -39,7 +36,7 @@ class LineSplitter:
         return l
 
 
-class StreamCapture(object):
+class StreamCapture:
     def __init__(self, transform=None, dest=None, after_lines=None):
         """ dest has write() and flush() """
         self.buffer = StringIO()
@@ -79,15 +76,17 @@ class StreamCapture(object):
 
 # TODO: this thing does not work with logging enabled
 class OutputCapture:
-    def __init__(self, context, prefix, echo_stdout=True, echo_stderr=True):
+    def __init__(
+        self,
+        context,
+        prefix,
+        echo_stdout: bool,
+        echo_stderr: bool,
+        publish_stdout: Callable[[List[str]], None],
+        publish_stderr: Callable[[List[str]], None],
+    ):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-
-        def publish_stdout(lines):
-            publish(context, "job-stdout", job_id=prefix, lines=lines)
-
-        def publish_stderr(lines):
-            publish(context, "job-stderr", job_id=prefix, lines=lines)
 
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
 

@@ -7,7 +7,7 @@ __all__ = [
 try:
     import psutil  # @UnusedImport
 except ImportError:
-    from compmake import logger
+    from . import logger
 
     logger.warning('Package "psutil" not found; load balancing ' "and system stats (CPU, MEM) not available.")
 
