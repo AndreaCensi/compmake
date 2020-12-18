@@ -3,14 +3,21 @@ import unittest
 from abc import ABCMeta
 from shutil import rmtree
 from tempfile import mkdtemp
-
-from compmake import logger, set_compmake_config
-from compmake.context import Context
-from compmake.exceptions import CommandFailed, MakeFailed
-from compmake.jobs import get_job, parse_job_list
-from compmake.scripts.master import compmake_main
-from compmake.storage import StorageFilesystem
-from compmake.structures import CMJobID, Job
+from compmake import CacheQueryDB
+from compmake import (
+    CMJobID,
+    CommandFailed,
+    compmake_main,
+    Context,
+    get_job,
+    Job,
+    logger,
+    MakeFailed,
+    parse_job_list,
+    set_compmake_config,
+    StorageFilesystem,
+)
+from compmake import CompmakeConstants
 
 
 class CompmakeTest(unittest.TestCase):
@@ -24,8 +31,6 @@ class CompmakeTest(unittest.TestCase):
         # don't use '\r'
         set_compmake_config("interactive", False)
         set_compmake_config("console_status", False)
-
-        from compmake.constants import CompmakeConstants
 
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
@@ -138,7 +143,6 @@ class CompmakeTest(unittest.TestCase):
 
     # @contract(returns=bool)
     def up_to_date(self, job_id) -> bool:
-        from compmake.jobs.uptodate import CacheQueryDB
 
         cq = CacheQueryDB(db=self.db)
         up, reason, timestamp = cq.up_to_date(job_id)

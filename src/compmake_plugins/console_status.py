@@ -11,7 +11,7 @@ from zuper_commons.text import indent
 from .tracker import Tracker
 from compmake import publish, register_handler
 from compmake import get_compmake_config
-from compmake.utils import compmake_colored
+from ..colored import compmake_colored
 from compmake import ui_error
 from compmake.utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
 

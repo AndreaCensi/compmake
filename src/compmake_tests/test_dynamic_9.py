@@ -1,4 +1,4 @@
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 from nose.tools import istest
 
 

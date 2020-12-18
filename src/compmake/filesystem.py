@@ -7,9 +7,9 @@ from typing import Iterator, List, NewType
 
 import dill
 
-from compmake import logger
-from compmake.exceptions import CompmakeBug, SerializationError
-from compmake.utils import safe_pickle_dump, safe_pickle_load
+from . import logger
+from .exceptions import CompmakeBug, SerializationError
+from .utils import safe_pickle_dump, safe_pickle_load
 from zuper_commons.fs import (
     DirPath,
     FilePath,

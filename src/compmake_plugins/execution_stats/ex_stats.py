@@ -9,7 +9,7 @@ __all__ = [
 
 
 # @contract(promise="unicode|isinstance(Promise)", returns=Promise)
-from compmake.uptodate import CacheQueryDB
+from compmake.cachequerydb import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
 

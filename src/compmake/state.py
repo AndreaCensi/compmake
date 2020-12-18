@@ -1,8 +1,10 @@
-from collections import namedtuple
 import sys
+from collections import namedtuple
 
-from compmake import CompmakeConstants
+from .constants import CompmakeConstants
 from .utils import AvgSystemStats
+
+__all__ = ["CompmakeGlobalState", "get_compmake_config", "set_compmake_status"]
 
 
 class CompmakeGlobalState:

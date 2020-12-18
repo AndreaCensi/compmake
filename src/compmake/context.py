@@ -1,19 +1,20 @@
 import os
 import sys
-from typing import List, Optional, Set, TYPE_CHECKING, Union
+from typing import List, Optional, Set, Union
+from .exceptions import UserError
 
-__all__ = [
-    "Context",
-]
-
-from .uptodate import CacheQueryDB
+from .cachequerydb import CacheQueryDB
 
 from .console import batch_command, compmake_console_text, interpret_commands_wrap
 
 from .ui import comp_
 
-if TYPE_CHECKING:
-    from .filesystem import StorageFilesystem
+from .filesystem import StorageFilesystem
+
+
+__all__ = [
+    "Context",
+]
 
 
 class Context:
@@ -32,13 +33,12 @@ class Context:
         """
         if currently_executing is None:
             currently_executing = ["root"]
-        from compmake import StorageFilesystem
 
         if db is None:
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
 
             # logger.info('Context(): Using default storage dir %r.' % prog)
-            dirname = "out-%s" % prog
+            dirname = f"out-{prog}"
             db = StorageFilesystem(dirname, compress=True)
 
         if isinstance(db, str):
@@ -81,8 +81,6 @@ class Context:
         if prefix is not None:
             if " " in prefix:
                 msg = "Invalid job prefix %r." % prefix
-                from .exceptions import UserError
-
                 raise UserError(msg)
 
         self._job_prefix = prefix

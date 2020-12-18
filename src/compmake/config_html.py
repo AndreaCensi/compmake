@@ -1,4 +1,4 @@
-from compmake import CompmakeGlobalState
+from .state import CompmakeGlobalState
 
 
 __all__ = [

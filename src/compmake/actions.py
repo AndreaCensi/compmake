@@ -12,7 +12,7 @@ from .dependencies import collect_dependencies
 from .exceptions import JobFailed, JobInterrupted
 from .job_execution import job_compute
 from .progress_imp2 import init_progress_tracking
-from .queries import definition_closure, direct_parents
+from .queries import direct_parents
 from .registrar import publish
 from .state import get_compmake_config
 from .storage import (
@@ -28,8 +28,10 @@ from .storage import (
 )
 from .structures import Cache, CMJobID, IntervalTimer
 from .ui import delete_jobs_recurse_definition
-from .uptodate import CacheQueryDB
+from .cachequerydb import CacheQueryDB, definition_closure
 from .utils import OutputCapture, setproctitle
+
+__all__ = []
 
 
 def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
@@ -214,10 +216,10 @@ def make(job_id: CMJobID, context, echo=False):
         echo = False
 
         def publish_stdout(lines):
-            publish(context, "job-stdout", job_id=prefix, lines=lines)
+            publish(context, "job-stdout", job_id=job_id, lines=lines)
 
         def publish_stderr(lines):
-            publish(context, "job-stderr", job_id=prefix, lines=lines)
+            publish(context, "job-stderr", job_id=job_id, lines=lines)
 
         capture = OutputCapture(
             context=context,

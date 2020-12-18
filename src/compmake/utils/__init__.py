@@ -1,5 +1,7 @@
+from .. import logger
+
+_ = logger
 from .capture import *
-from .colored import *
 from .coloredterm import *
 from .docstring import *
 from .format_exceptions import *

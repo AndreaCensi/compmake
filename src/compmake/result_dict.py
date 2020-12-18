@@ -1,4 +1,8 @@
 from zuper_commons.types import check_isinstance
+from .exceptions import JobFailed
+from .exceptions import HostFailed
+from .exceptions import CompmakeBug
+from .exceptions import JobInterrupted
 
 __all__ = [
     "result_dict_check",
@@ -30,10 +34,6 @@ def result_dict_check(res):
 
 
 def result_dict_raise_if_error(res):
-    from compmake.exceptions import JobFailed
-    from compmake.exceptions import HostFailed
-    from compmake.exceptions import CompmakeBug
-    from compmake.exceptions import JobInterrupted
 
     result_dict_check(res)
 

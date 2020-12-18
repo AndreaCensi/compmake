@@ -5,8 +5,10 @@ from typing import List, Optional, Union
 
 from .exceptions import UserError
 from .utils import docstring_components, docstring_trim
-from .visualization import compmake_colored
+from .colored import compmake_colored
 
+
+__all__ = []
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
 # Storage for the sections
@@ -80,6 +82,7 @@ def wrap(func, name, alias, section, dbchange):
 def ui_command(name=None, alias: Optional[Union[str, List[str]]] = None, section=None, dbchange=False):
     if alias is None:
         alias = []
+    # noinspection PyTypeChecker
     if isinstance(name, types.FunctionType):
         func = name
         return wrap(func, name=None, alias=[], section=None, dbchange=False)

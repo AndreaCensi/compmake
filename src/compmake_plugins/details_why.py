@@ -1,7 +1,7 @@
 from compmake import get_job_cache, job_cache_exists
 from compmake.helpers import ui_command, VISUALIZATION
 from compmake.structures import Cache
-from compmake.utils.colored import compmake_colored
+from compmake.colored import compmake_colored
 
 
 @ui_command(section=VISUALIZATION)

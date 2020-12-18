@@ -8,13 +8,17 @@ from datetime import datetime
 from subprocess import Popen
 from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
-from compmake.console import compmake_console_gui
 from networkx import descendants, DiGraph
+
 from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZKeyError, ZValueError
+from . import logger
+from .console import compmake_console_gui
+from .context import Context
+from .structures import Promise
 
-from . import logger, Promise
+__all__ = []
 
 TargetName = NewType("TargetName", str)
 
@@ -227,8 +231,6 @@ def make_bridge_main(args=None):
 
     bs = get_build_system(C, fn)
     # logger.info(bs=bs)
-
-    from compmake import Context
 
     db = parsed.out
     context = Context(db=db)

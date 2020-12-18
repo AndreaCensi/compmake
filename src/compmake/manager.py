@@ -31,7 +31,8 @@ from .storage import (
     job_userobject_exists,
 )
 from .structures import Cache, CMJobID, StateCode
-from .uptodate import CacheQueryDB, direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
+from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
+from .cachequerydb import CacheQueryDB
 from .visualization import ui_error
 
 __all__ = [
@@ -523,7 +524,7 @@ class Manager(ManagerLog):
         self.log("host_failed", job_id=job_id)
         self.check_invariants()
 
-        # from compmake.ui.visualization import error
+        # from .ui.visualization import error
         # error('Host failed, rescheduling job %r.' % job_id)
         self.processing.remove(job_id)
         del self.processing2result[job_id]

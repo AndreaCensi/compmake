@@ -4,7 +4,7 @@ from compmake.context import Context
 from compmake.jobs.queries import definition_closure
 from compmake.storage.filesystem import StorageFilesystem
 from compmake.structures import CMJobID
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 from nose.tools import istest
 
 

@@ -13,12 +13,12 @@ from . import logger
 from .constants import CompmakeConstants
 from .events_structures import Event
 from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, MakeFailed, ShellExitRequested, UserError
-from .master import read_rc_files
+from .readrcfiles import read_rc_files
 from .registrar import publish, register_handler
 from .state import CompmakeGlobalState, get_compmake_config, set_compmake_status
 from .storage import all_jobs
 from .ui import clean_other_jobs, get_commands, interpret_commands
-from .uptodate import CacheQueryDB
+from .cachequerydb import CacheQueryDB
 from .visualization import clean_console_line, DefaultConsole, ui_error
 
 __all__ = [
@@ -27,6 +27,7 @@ __all__ = [
     "batch_command",
     "compmake_console_text",
     "compmake_console_gui",
+    "ask_question",
 ]
 
 

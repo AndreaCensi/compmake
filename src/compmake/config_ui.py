@@ -1,9 +1,9 @@
 import sys
 
-from compmake import CompmakeGlobalState, get_compmake_config, UserError
-from compmake.config_html import create_config_html
-from compmake.structure import set_config_from_strings, show_config
-
+from .state import CompmakeGlobalState, get_compmake_config
+from .config_html import create_config_html
+from .structure import set_config_from_strings, show_config
+from .exceptions import UserError
 from .helpers import COMMANDS_ADVANCED, GENERAL, ui_command
 from .visualization import ui_info, ui_message
 

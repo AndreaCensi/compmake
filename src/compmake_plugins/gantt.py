@@ -2,7 +2,7 @@ from collections import namedtuple, OrderedDict
 
 from compmake import all_jobs, Cache
 from compmake import COMMANDS_ADVANCED, ui_command
-from compmake import CacheQueryDB
+from compmake.cachequerydb import CacheQueryDB
 
 
 @ui_command(section=COMMANDS_ADVANCED)

@@ -1,4 +1,4 @@
-from compmake.structures import Cache
+from .structures import Cache
 
 __all__ = ["compute_priorities"]
 

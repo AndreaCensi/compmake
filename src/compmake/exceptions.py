@@ -3,7 +3,22 @@ from typing import List
 from zuper_commons.text import indent
 from zuper_commons.types import raise_wrapped, ZException
 
-from .result_dict import result_dict_check
+__all__ = [
+    "ShellExitRequested",
+    "CompmakeBug",
+    "CompmakeDBError",
+    "CommandFailed",
+    "MakeFailed",
+    "MakeHostFailed",
+    "KeyNotFound",
+    "UserError",
+    "SerializationError",
+    "CompmakeSyntaxError",
+    "JobFailed",
+    "JobInterrupted",
+    "HostFailed",
+    "CompmakeException",
+]
 
 
 class ShellExitRequested(ZException):
@@ -25,9 +40,9 @@ class CompmakeBug(CompmakeException):
 
     @staticmethod
     def from_dict(res):
-        from compmake.result_dict import result_dict_check
-
-        result_dict_check(res)
+        # from .result_dict import result_dict_check
+        #
+        # result_dict_check(res)
         assert "bug" in res
         e = CompmakeBug(res["bug"])
         return e

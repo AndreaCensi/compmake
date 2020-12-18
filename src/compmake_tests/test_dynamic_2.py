@@ -1,7 +1,7 @@
 from nose.tools import istest
 
 from .compmake_test import CompmakeTest
-from compmake.unittests.mockup import mockup_recursive_5
+from .mockup import mockup_recursive_5
 
 
 @istest

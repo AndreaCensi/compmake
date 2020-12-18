@@ -1,6 +1,9 @@
+from .colored import compmake_colored
 from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, get_compmake_config, set_compmake_config
 from .utils import interpret_strings_like
+
+__all__ = ["add_config_switch", "add_config_section"]
 
 
 def add_config_switch(name, default_value, allowed=None, desc=None, section=None, order=0):
@@ -74,8 +77,6 @@ def show_config() -> str:
                     value += "*"
             else:
                 attrs = []
-
-            from compmake.utils.colored import compmake_colored
 
             s1 = compmake_colored(name.rjust(max_len_name), attrs=["bold"])
             s2 = compmake_colored(value.rjust(max_len_val), attrs=attrs)

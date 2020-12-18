@@ -1,4 +1,4 @@
-package=compmake
+package=compmake_tests
 
 include pypackage.mk
 

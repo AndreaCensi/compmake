@@ -1,8 +1,8 @@
 from nose.tools import istest
 
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 
-from ..exceptions import UserError
+from compmake import UserError
 
 
 def uses_nested(context):

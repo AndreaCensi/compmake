@@ -5,12 +5,12 @@ from compmake import get_compmake_config
 from compmake.registrar import register_handler
 from compmake.structures import Cache
 from compmake.utils import (
-    compmake_colored,
     get_length_on_screen,
     get_screen_columns,
     pad_to_screen,
     pad_to_screen_length,
 )
+from compmake.colored import compmake_colored
 from compmake.visualization import ui_message
 from six import StringIO
 

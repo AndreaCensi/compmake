@@ -3,63 +3,20 @@ import sys
 import traceback
 from optparse import OptionParser
 
-from zuper_commons.fs import friendly_path
-
 from . import logger
-from .console import compmake_console_gui, interpret_commands_wrap
+from .console import compmake_console_gui
 from .constants import CompmakeConstants
 from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from .filesystem import StorageFilesystem
+from .readrcfiles import read_rc_files
 from .script_utils import wrap_script_entry_point
 from .state import set_compmake_status
 from .storage import all_jobs
-from .uptodate import CacheQueryDB
 from .utils import setproctitle
-from .visualization import ui_info
 
-
+__all__ = ["main"]
 # TODO: revise all of this
-def read_rc_files(context: Context):
-    assert context is not None
-    possible = [
-        "~/.compmake/compmake.rc",
-        "~/.config/compmake.rc",
-        "~/.compmake.rc",
-        "~/compmake.rc",
-        ".compmake.rc",
-        "compmake.rc",
-    ]
-    done = False
-    for x in possible:
-        x = os.path.expanduser(x)
-        if os.path.exists(x):
-            read_commands_from_file(filename=x, context=context)
-            done = True
-    if not done:
-        # logger.info('No configuration found (looked for %s)'
-        # % "; ".join(possible))
-        pass
-
-
-def read_commands_from_file(filename: str, context: Context):
-    filename = os.path.realpath(filename)
-    if filename in context.rc_files_read:
-        return
-    else:
-        context.rc_files_read.append(filename)
-
-    cq = CacheQueryDB(context.get_compmake_db())
-
-    ui_info(context, f"Reading configuration from {friendly_path(filename)}.")
-    with open(filename, "r") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == "#":
-                continue
-            interpret_commands_wrap(line, context=context, cq=cq)
 
 
 usage = """
@@ -120,7 +77,7 @@ def compmake_main(args):
     #     contracts.disable_all()
 
     # We load plugins after we parsed the configuration
-    from compmake import plugins  # @UnusedImport
+    import compmake_plugins  # @UnusedImport
 
     # XXX make sure this is the default
     if not args:

@@ -4,7 +4,6 @@ from contextlib import contextmanager
 from typing import Collection, Set
 
 from zuper_commons.types import check_isinstance
-from .uptodate import CacheQueryDB
 from .exceptions import CompmakeBug
 from .storage import all_jobs, get_job, get_job_cache
 from .structures import Cache, CMJobID
@@ -17,7 +16,6 @@ __all__ = [
     "top_targets",
     "tree",
     "jobs_defined",
-    "definition_closure",
 ]
 
 
@@ -44,35 +42,7 @@ def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
         return set(cache.jobs_defined)
 
 
-from . import logger
-
-
 # @contract(jobs="Iterable", returns="set(unicode)")
-def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
-    """ The result does not contain jobs (unless one job defines another) """
-    # print('definition_closure(%s)' % jobs)
-    check_isinstance(jobs, (list, set))
-    jobs = set(jobs)
-
-    cq = CacheQueryDB(db)
-    stack = set(jobs)
-    result = set()
-    while stack:
-        # print('stack: %s' % stack)
-        a = stack.pop()
-        if not cq.job_exists(a):
-            logger.warning("Warning: job %r does not exist anymore; ignoring." % a)
-            continue
-
-        if cq.get_job_cache(a).state == Cache.DONE:
-            a_d = cq.jobs_defined(a)
-            # print('%s ->%s' % (a, a_d))
-            for x in a_d:
-                result.add(x)
-                stack.add(x)
-
-    # print('  result = %s' % result)
-    return result
 
 
 def direct_parents(job_id: CMJobID, db) -> Set[CMJobID]:

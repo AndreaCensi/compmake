@@ -4,6 +4,7 @@ from time import time
 from typing import Dict, List, Sequence, Tuple
 
 from compmake import (
+    compmake_colored,
     job_args_sizeof,
     job_cache_exists,
     job_cache_sizeof,
@@ -14,7 +15,6 @@ from compmake.constants import CompmakeConstants
 from compmake.helpers import ui_command, VISUALIZATION
 from compmake.parsing import is_root_job, parse_job_list
 from compmake.structures import Cache, cache_has_large_overhead, timing_summary
-from compmake.utils import compmake_colored
 from compmake.utils.table_formatter import TableFormatter
 from compmake.utils.terminal_size import get_screen_columns
 from compmake.visualization import ui_message

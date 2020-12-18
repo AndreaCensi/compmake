@@ -1,6 +1,6 @@
 from nose.tools import istest
-from compmake.unittests.compmake_test import CompmakeTest
-from compmake.unittests.mockup_dynamic_4 import mockup_dyn4
+from .compmake_test import CompmakeTest
+from .mockup_dynamic_4 import mockup_dyn4
 
 
 @istest

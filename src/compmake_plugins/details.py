@@ -2,7 +2,7 @@
 from compmake import Cache
 from compmake.helpers import ui_command, VISUALIZATION
 from compmake.queries import children, direct_children, direct_parents, parents
-from compmake.utils import compmake_colored
+from ..colored import compmake_colored
 
 from .console_output import write_line_endl
 from zuper_commons.types import check_isinstance

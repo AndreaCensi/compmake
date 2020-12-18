@@ -73,6 +73,9 @@ __all__ = [
     "Cache",
     "CMJobID",
     "DBKey",
+    "same_computation",
+    "ProgressStage",
+    "IntervalTimer",
 ]
 
 CMJobID = NewType("CMJobID", str)

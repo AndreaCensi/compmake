@@ -114,7 +114,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 #     extra = []
 
 # FIXME this is a RACE CONDITION -- needs to be done in the main thread
-# from compmake.ui.visualization import info
+# from .ui.visualization import info
 
 # info('now cleaning up; generated = %s' % generated)
 #
@@ -133,7 +133,7 @@ def execute_with_context(db, context, job_id, command, args, kwargs):
 #             # job.defined_by))
 #             delete_all_job_data(g, db=db)
 #
-#             #     from compmake.jobs.manager import
+#             #     from .jobs.manager import
 #             # clean_other_jobs_distributed
 #             #     clean_other_jobs_distributed(db=db, job_id=job_id,
 #             # new_jobs=generated)

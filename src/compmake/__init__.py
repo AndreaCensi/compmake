@@ -7,28 +7,27 @@ version = __version__
 logger = ZLogger(__name__)
 logger.debug(f"version {__version__}")
 
-from .constants import *
-from .state import *
-from .storage import *
-
-from .structures import *
-from .exceptions import *
-
-from .progress_imp2 import *
-
-from .context import *
-from .plugins.execution_stats import *
-from .master import *
-from .registrar import *
-from .priority import *
-from .helpers import *
-from .structures import *
-from .visualization import *
-from .uptodate import *
-from .parsing import *
-
-# Default initialization
-set_compmake_status(CompmakeConstants.compmake_status_embedded)
-
-if CompmakeConstants.debug_check_invariants:
-    logger.warn("debug_check_invariants = True: this might slow down quite a bit")
+# from .constants import *
+# from .state import *
+# from .storage import *
+#
+# from .structures import *
+# from .exceptions import *
+#
+# from .progress_imp2 import *
+# from .state import *
+# from .context import *
+# from .master import *
+# from .registrar import *
+# from .priority import *
+# from .helpers import *
+# from .structures import *
+# from .visualization import *
+# from .uptodate import *
+# from .parsing import *
+#
+# # Default initialization
+# set_compmake_status(CompmakeConstants.compmake_status_embedded)
+#
+# if CompmakeConstants.debug_check_invariants:
+#     logger.warn("debug_check_invariants = True: this might slow down quite a bit")

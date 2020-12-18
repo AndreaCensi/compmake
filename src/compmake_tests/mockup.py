@@ -1,6 +1,6 @@
 import sys
 
-from compmake.context import Context
+from compmake import Context
 
 
 def f(*args):

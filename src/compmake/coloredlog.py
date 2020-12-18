@@ -1,4 +1,4 @@
-from .visualization import compmake_colored
+from .colored import compmake_colored
 
 __all__ = [
     "colorize_loglevel",

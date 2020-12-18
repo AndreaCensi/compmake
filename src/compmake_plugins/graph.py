@@ -5,9 +5,9 @@ from typing import Collection
 from compmake import Context
 from compmake.exceptions import UserError
 from compmake.helpers import COMMANDS_ADVANCED, ui_command
-from compmake.queries import definition_closure, top_targets
+from compmake.queries import top_targets
 from compmake.structures import Cache, CMJobID
-from compmake.uptodate import CacheQueryDB
+from compmake.cachequerydb import CacheQueryDB, definition_closure
 from compmake.visualization import ui_info
 
 

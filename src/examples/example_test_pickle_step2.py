@@ -1,5 +1,5 @@
 from __future__ import print_function
-from compmake.utils import safe_pickle_load
+from .utils import safe_pickle_load
 
 # module = sys.modules['__main__']
 

@@ -5,7 +5,7 @@ from zuper_commons.types import raise_wrapped, ZException
 
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
-from .structures import CMJobID
+from .structures import CMJobID, Promise
 
 __all__ = [
     "substitute_dependencies",
@@ -27,7 +27,6 @@ def get_job_userobject_resolved(job_id: CMJobID, db):
 
 
 def substitute_dependencies(a, db):
-    from compmake import Promise
 
     # XXX: this is a workaround
     if leave_it_alone(a):
@@ -76,7 +75,6 @@ def substitute_dependencies(a, db):
 def collect_dependencies(ob) -> Set[CMJobID]:
     """ Returns a set of dependencies (i.e., Promise objects that
         are mentioned somewhere in the structure """
-    from compmake import Promise
 
     if isinstance(ob, Promise):
         return {ob.job_id}

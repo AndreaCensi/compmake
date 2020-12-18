@@ -2,7 +2,7 @@ from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 from compmake.jobs.queries import definition_closure, jobs_defined
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse
 
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 from nose.tools import istest
 
 

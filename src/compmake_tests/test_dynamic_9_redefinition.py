@@ -1,6 +1,6 @@
 from multiprocessing import active_children
 from nose.tools import istest
-from compmake.unittests.compmake_test import CompmakeTest
+from .compmake_test import CompmakeTest
 
 
 def g(b1, b2):

@@ -10,7 +10,6 @@ from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, UserError
 from .helpers import get_commands, UIState
 from .parsing import parse_job_list
-from .queries import definition_closure
 from .registrar import publish
 from .state import get_compmake_config, get_compmake_status
 from .storage import (
@@ -24,9 +23,11 @@ from .storage import (
     set_job_args,
 )
 from .structures import CMJobID, Job, Promise, same_computation
-from .uptodate import CacheQueryDB
+from .cachequerydb import CacheQueryDB, definition_closure
 from .utils import interpret_strings_like, try_pickling
 from .visualization import ui_info, ui_warning
+
+__all__ = ["generate_job_id", "delete_jobs_recurse_definition"]
 
 
 def generate_job_id(base, context):
@@ -402,7 +403,7 @@ def comp_(context, command_, *args, **kwargs):
                 c.parents.add(p)
 
                 # TODO: preserve defines
-                #     from compmake.ui.visualization import info
+                #     from .ui.visualization import info
                 #     info('defining job %r with children %r' % (job_id,
                 # c.children))
 

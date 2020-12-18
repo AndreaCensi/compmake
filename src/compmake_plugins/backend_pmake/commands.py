@@ -3,7 +3,6 @@ from typing import Collection
 from compmake import (
     ACTIONS,
     ask_if_sure_remake,
-    CacheQueryDB,
     CMJobID,
     DefaultsToConfig,
     mark_to_remake,
@@ -12,6 +11,7 @@ from compmake import (
     top_targets,
     ui_command,
 )
+from ...cachequerydb import CacheQueryDB
 
 from .pmake_manager import PmakeManager
 

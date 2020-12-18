@@ -2,7 +2,9 @@ import time
 from typing import Tuple, Union
 
 from zuper_commons.types import describe_type
-from compmake.structures import ProgressStage
+from .structures import ProgressStage
+
+__all__ = ["init_progress_tracking"]
 
 
 class Globals:

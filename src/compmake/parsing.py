@@ -33,7 +33,7 @@ from .context import Context
 from .exceptions import CompmakeSyntaxError, UserError
 from .storage import get_job
 from .structures import Cache, CMJobID
-from .uptodate import CacheQueryDB
+from .cachequerydb import CacheQueryDB
 from .utils import expand_wildcard
 
 __all__ = [
@@ -74,6 +74,7 @@ def eval_alias(alias, context: Context, cq: CacheQueryDB):
     assert is_alias(alias)
     value = CompmakeConstants.aliases[alias]
 
+    # noinspection PyTypeChecker
     if isinstance(value, str):
         return list([value])
     elif isinstance(value, list):

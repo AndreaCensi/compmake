@@ -3,12 +3,19 @@ from typing import Callable
 
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import get_colorize_function
-
 from .registrar import publish, register_handler
 from .state import CompmakeGlobalState, get_compmake_config
-from .utils import compmake_colored, get_screen_columns, pad_to_screen
+from .utils import get_screen_columns, pad_to_screen
 
-__all__ = ["compmake_colored", "ui_debug", "ui_error", "ui_info", "ui_message", "ui_warning"]
+__all__ = [
+    "ui_debug",
+    "ui_error",
+    "ui_info",
+    "ui_message",
+    "ui_warning",
+    "clean_console_line",
+    "DefaultConsole",
+]
 
 
 def clean_console_line(stream):
@@ -121,7 +128,7 @@ def write_message(s: str, formatting: Callable[[str], str]):
 
     lines = s.rstrip().split("\n")
 
-    from compmake.plugins.console_output import write_line_endl_w
+    from compmake_plugins.console_output import write_line_endl_w
 
     for l in lines:
         l = formatting(l)

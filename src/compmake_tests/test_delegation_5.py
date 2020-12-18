@@ -3,9 +3,9 @@ from tempfile import mkdtemp
 
 from nose.tools import istest
 
-from compmake.context import Context
-from compmake.jobs import CMJobID, get_job
-from compmake.storage.filesystem import StorageFilesystem
+from compmake import Context
+from compmake import CMJobID, get_job
+from compmake import StorageFilesystem
 
 
 def g():
