@@ -33,8 +33,8 @@ class TestOrder(CompmakeTest):
         self.comp(top, self.comp(bottom))
         self.comp(top, self.comp(bottom))
 
-        compmake.interpret.batch_command("clean")
-        compmake.interpret.batch_command("make")
+        self.batch_command("clean")
+        self.batch_command("make")
 
         self.assertEqual(["bottom", "top", "bottom", "top"], TestOrder.order)
 
@@ -44,8 +44,8 @@ class TestOrder(CompmakeTest):
         self.comp(top, self.comp(bottom))
         self.comp(bottom2)
 
-        compmake.interpret.batch_command("clean")
-        compmake.interpret.batch_command("make")
+        self.batch_command("clean")
+        self.batch_command("make")
 
         self.assertEqual(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
 
@@ -55,7 +55,7 @@ class TestOrder(CompmakeTest):
         self.comp(bottom)
         self.comp(top, self.comp(bottom2))
 
-        compmake.interpret.batch_command("clean")
-        compmake.interpret.batch_command("make")
+        self.batch_command("clean")
+        self.batch_command("make")
 
         self.assertEqual(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)

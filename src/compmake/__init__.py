@@ -40,6 +40,8 @@ from .colored import *
 from .result_dict import *
 from .actions_newprocess import *
 from .context_imp import *
+from .config_ui import *
+from .config_list import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)

@@ -6,11 +6,11 @@ import tempfile
 
 
 def get_examples_path():
-    from pkg_resources import resource_filename  # @UnresolvedImport
+    # from pkg_resources import resource_filename  # @UnresolvedImport
 
-    here = resource_filename("compmake", "unittests")
-    examples = os.path.join(here, "..", "examples")
-    examples = os.path.abspath(examples)
+    # here = resource_filename("compmake", "__init__.py")
+    # examples = os.path.join(here, "..", "examples")
+    examples = os.path.abspath("./examples")
     if not os.path.exists(examples):
         msg = "Example dir does not exist: %s" % examples
         raise Exception(msg)

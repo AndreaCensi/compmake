@@ -4,9 +4,9 @@
 from example_big_support import failure_prob, first, second, third
 
 if __name__ == "__main__":
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
 
     branch = 10
     print(

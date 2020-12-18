@@ -11,9 +11,9 @@ def func1():
 
 
 def main():
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
     c.comp(func1)
 
     c.batch_command("clean; make")

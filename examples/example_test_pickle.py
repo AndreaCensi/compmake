@@ -16,6 +16,6 @@ if __name__ == "__main__":
 
 # if __name__ == '__main__':
 #     import compmake
-#     c = compmake.Context()
+#     c = compmake.ContextImp()
 #     c.comp(f1)
 #     c.batch_command('make')

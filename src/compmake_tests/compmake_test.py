@@ -61,6 +61,9 @@ class CompmakeTest(unittest.TestCase):
     def comp(self, *args, **kwargs):
         return self.cc.comp(*args, **kwargs)
 
+    def batch_command(self, s: str):
+        return self.cc.batch_command(s)
+
     # @contract(job_id="unicode", returns=Job)
     def get_job(self, job_id: CMJobID) -> Job:
         db = self.cc.get_compmake_db()

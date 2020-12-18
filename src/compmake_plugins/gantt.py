@@ -181,7 +181,7 @@ def gantt(job_list, context, filename="gantt.html"):
 Entry = namedtuple("Entry", "dependencies periods critical")
 
 
-class SimpleGantt(object):
+class SimpleGantt:
     def __init__(self):
         self.entries = OrderedDict()
 

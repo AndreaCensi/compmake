@@ -34,7 +34,7 @@ class TestBlocked(CompmakeTest):
         comp(job_success, B, job_id="C")
 
         def run():
-            compmake.interpret.batch_command("make")
+            self.batch_command("make")
 
         self.assertMakeFailed(run, nfailed=1, nblocked=1)
 

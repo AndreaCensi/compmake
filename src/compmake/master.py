@@ -15,6 +15,8 @@ from .script_utils import wrap_script_entry_point
 from .state import set_compmake_status
 from .storage import all_jobs
 from .utils import setproctitle
+from .config_optparse import config_populate_optparser
+from . import __version__
 
 __all__ = ["main", "compmake_main"]
 # TODO: revise all of this
@@ -43,7 +45,7 @@ def compmake_main(args):
 
     setproctitle("compmake")
 
-    parser = OptionParser(version=version, usage=usage)
+    parser = OptionParser(version=__version__, usage=usage)
 
     parser.add_option("--profile", default=False, action="store_true", help="Use Python profiler")
 

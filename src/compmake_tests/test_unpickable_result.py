@@ -19,7 +19,7 @@ class TestUnpickable(CompmakeTest):
 
     def test_unpickable_result(self) -> None:
         self.comp(f1)
-        compmake.interpret.batch_command("clean")
+        self.batch_command("clean")
 
         self.assert_cmd_fail("make")
         # since dill implemented

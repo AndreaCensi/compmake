@@ -5,7 +5,7 @@ from .cachequerydb import CacheQueryDB
 from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, ShellExitRequested, UserError
 from .readrcfiles import read_rc_files
 from .registrar import publish
-from .ui import clean_other_jobs, interpret_commands
+from .actions import clean_other_jobs, interpret_commands
 from .constants import CompmakeConstants
 from .state import set_compmake_status
 

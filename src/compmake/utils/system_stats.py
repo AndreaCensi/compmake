@@ -12,7 +12,7 @@ except ImportError:
     logger.warning('Package "psutil" not found; load balancing ' "and system stats (CPU, MEM) not available.")
 
 
-class AvgSystemStats(object):
+class AvgSystemStats:
     """ Collects average statistics about the system using psutil. """
 
     # noinspection PyUnresolvedReferences
@@ -81,7 +81,7 @@ class AvgSystemStats(object):
             raise ValueError(msg)
 
 
-class Collect(object):
+class Collect:
     def __init__(self, name, function, interval, history_len):
         self.name = name
         self.function = function

@@ -18,7 +18,7 @@ from six import StringIO
 stream = sys.stdout
 
 
-class Storage(object):
+class Storage:
     max_len = 0
     last_job_id = None
 

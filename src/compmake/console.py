@@ -16,7 +16,7 @@ from .readrcfiles import read_rc_files
 from .registrar import publish, register_handler
 from .state import CompmakeGlobalState, get_compmake_config
 from .storage import all_jobs
-from .ui import clean_other_jobs, get_commands
+from .actions import clean_other_jobs
 from .cachequerydb import CacheQueryDB
 from .visualization import clean_console_line, DefaultConsole, ui_error
 

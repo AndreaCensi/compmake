@@ -1,8 +1,5 @@
 from zuper_commons.types import check_isinstance
-from .exceptions import JobFailed
-from .exceptions import HostFailed
-from .exceptions import CompmakeBug
-from .exceptions import JobInterrupted
+from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 
 __all__ = [
     "result_dict_check",
@@ -13,7 +10,7 @@ __all__ = [
 def result_dict_check(res):
     check_isinstance(res, dict)
     # print(res.__repr__().__repr__()) # XXX
-    msg = "Invalid result dict"  #% res
+    msg = "Invalid result dict"  # % res
     # print('result_dict: %s' % res)
     if "new_jobs" in res:
         assert "new_jobs" in res, msg
@@ -34,7 +31,6 @@ def result_dict_check(res):
 
 
 def result_dict_raise_if_error(res):
-
     result_dict_check(res)
 
     if "fail" in res:

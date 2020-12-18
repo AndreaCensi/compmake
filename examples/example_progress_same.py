@@ -24,9 +24,9 @@ def mylongfunction():
 if __name__ == "__main__":
     print('This is an example of how to use the "progress" function.')
 
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
 
     c.comp(mylongfunction)
 

@@ -2,9 +2,9 @@
 
 
 if __name__ == "__main__":
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
 
     from example_external_support import generate_tests, cases
 

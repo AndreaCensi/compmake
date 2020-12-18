@@ -143,7 +143,7 @@ def expand_job_list_tokens(tokens, context: Context, cq: CacheQueryDB):
             yield job
 
 
-class Operators(object):
+class Operators:
     Op = namedtuple("Op", "name")
 
     NOT = Op("not")

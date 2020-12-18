@@ -21,6 +21,6 @@ class TestAssertion(CompmakeTest):
             self.comp(job_failure, job_id="fail%d" % i)
 
         def run():
-            compmake.interpret.batch_command("parmake n=2")
+            self.batch_command("parmake n=2")
 
         self.assertMakeFailed(run, nfailed=10, nblocked=0)

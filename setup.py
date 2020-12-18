@@ -72,7 +72,7 @@ setup(
     packages=find_packages("src"),
     entry_points={
         "console_scripts": [
-            "compmake = compmake.scripts.master:main",
+            "compmake = compmake:main",
             "zuper-make = compmake.make_bridge:make_bridge_main",
             "zmake = compmake.make_bridge:make_bridge_main",
             # 'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'

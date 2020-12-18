@@ -22,9 +22,9 @@ def summary(results):
 
 
 if __name__ == "__main__":
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
 
     values = c.comp(cases)
     # comp_dynamic gives the function an extra argument

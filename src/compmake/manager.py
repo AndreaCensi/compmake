@@ -42,7 +42,7 @@ __all__ = [
 ]
 
 
-class AsyncResultInterface(object):
+class AsyncResultInterface:
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -63,7 +63,7 @@ class AsyncResultInterface(object):
         """
 
 
-class ManagerLog(object):
+class ManagerLog:
     # __metaclass__ = ContractsMeta
 
     def __init__(self, db):

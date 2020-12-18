@@ -21,7 +21,7 @@ __all__ = [
 #     return decorator(memoizer, obj)
 
 
-class memoized_reset(object):
+class memoized_reset:
     """Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and
     not re-evaluated.

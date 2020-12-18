@@ -13,6 +13,8 @@ def func1(param1):
     print("Computing func1(%r)" % param1)
     time.sleep(wait)  # Wait a little
     result = param1 * 2
+    if param1 == 2:
+        raise ValueError("simulating failure")
     return result
 
 
@@ -28,9 +30,9 @@ def draw(result):
 
 
 def main():
-    from compmake import Context
+    from compmake import ContextImp
 
-    c = Context()
+    c = ContextImp()
 
     for param1 in [1, 2, 3]:
         for param2 in [10, 11, 12]:
@@ -38,14 +40,12 @@ def main():
             res2 = c.comp(func2, res1, param2)
             c.comp(draw, res2)
 
-    c.batch_command("config echo 1")
     # Run command passed on command line or otherwise run console.
     cmds = sys.argv[1:]
     if cmds:
         c.batch_command(" ".join(cmds))
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
-
         c.compmake_console()
 
 

@@ -2,24 +2,24 @@ import os
 import sys
 from typing import List, Optional, Set, Union
 
+from .actions import comp_
 from .cachequerydb import CacheQueryDB
-from .interpret import batch_command, interpret_commands_wrap
 from .context import Context
 from .exceptions import UserError
 from .filesystem import StorageFilesystem
+from .interpret import batch_command, interpret_commands_wrap
 from .types import CMJobID
-
-from .ui import comp_
-
 
 __all__ = ["ContextImp"]
 
 
 class ContextImp(Context):
+    currently_executing: List[CMJobID]
+
     def __init__(
         self,
         db: "Optional[Union[str, StorageFilesystem]]" = None,
-        currently_executing: Optional[List[str]] = None,
+        currently_executing: Optional[List[CMJobID]] = None,
     ):
         """
             db: if a string, it is used as path for the DB
