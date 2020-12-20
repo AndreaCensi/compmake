@@ -1,15 +1,4 @@
 PyContracts3>=3.0.2
-zuper-commons-z6==6.0.32
+zuper-commons-z6>=6.0.32
+zuper-typing-z6
 SystemCmd-z6
-
-termcolor==1.1.0
-setproctitle==1.1.10
-PyYaml==5.3
-psutil==5.7.0
-decorator==4.4.2
-future==0.18.2
-networkx>=2.4,<3
-six==1.14.0
-dill
-coverage
-asciimatics

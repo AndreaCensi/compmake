@@ -34,6 +34,7 @@ install_requires = [
     "future",
     "networkx>=2,<3",
     "six",
+    "zuper-typing-z6",
     "zuper-commons-z6>=6.1.7",
     "asciimatics",
 ]
