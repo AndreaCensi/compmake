@@ -1,4 +1,3 @@
-PyContracts3>=3.0.2
-zuper-commons-z6>=6.0.32
-zuper-typing-z6
-SystemCmd-z6
+zuper-commons-z7>=6.0.32
+zuper-typing-z7
+SystemCmd-z7

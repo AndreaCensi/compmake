@@ -19,10 +19,9 @@ def get_version(filename):
 
 version = get_version(filename="src/compmake/__init__.py")
 
-line = "z6"
+line = "z7"
 
 install_requires = [
-    "PyContracts3",
     "termcolor",
     "setproctitle",
     "PyYaml",
@@ -30,12 +29,12 @@ install_requires = [
     "dill",
     "coverage",
     "decorator",
-    "SystemCmd-z6",
+    "SystemCmd-z7",
     "future",
     "networkx>=2,<3",
     "six",
-    "zuper-typing-z6",
-    "zuper-commons-z6>=6.1.7",
+    "zuper-typing-z7",
+    "zuper-commons-z7>=6.1.7",
     "asciimatics",
 ]
 

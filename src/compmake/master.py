@@ -137,10 +137,10 @@ def compmake_main(args):
         except CommandFailed:
             retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
         except CompmakeBug:
-            sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
+            sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except BaseException:
-            sys.stderr.write("unexpected exception: %s" % traceback.format_exc())
+            sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except:
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
