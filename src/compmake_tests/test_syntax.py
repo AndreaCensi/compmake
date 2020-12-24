@@ -1,16 +1,13 @@
 import sys
 
-from nose.tools import istest
+from nose.tools import assert_raises, istest
 
-from . import CompmakeTest
-from compmake import CompmakeSyntaxError, UserError
-from compmake import get_job_cache, set_job_cache
-from compmake import Cache
+from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID
-from compmake import parse_job_list
+from .compmake_test import CompmakeTest
 
 
-def dummy():
+def dummy():  # pragma: no cover
     pass
 
 
@@ -37,7 +34,7 @@ class Test1(CompmakeTest):
 
         for job_id, state in self.jobs:
             self.comp(dummy, job_id=job_id)
-            cache = get_job_cache(job_id, db=self.db)
+            cache = get_job_cache(CMJobID(job_id), db=self.db)
             cache.state = state
             set_job_cache(CMJobID(job_id), cache, db=self.db)
 
@@ -74,8 +71,8 @@ class Test1(CompmakeTest):
         b = expand_to_set(B)
 
         try:
-            self.assertEqualSet(a, b)
-        except:
+            self.assert_equal_set(a, b)
+        except:  # pragma: no cover
             sys.stdout.write("Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n" % (A, a, B, b))
             raise
 
@@ -83,10 +80,10 @@ class Test1(CompmakeTest):
         def f(x):  # it's a generator, you should try to read it
             return list(parse_job_list(x, context=self.cc))
 
-        self.assertRaises(CompmakeSyntaxError, f, s)
+        assert_raises(CompmakeSyntaxError, f, s)
 
-    def userError(self, s):
-        self.assertRaises(UserError, parse_job_list, s)
+    # def userError(self, s):
+    #     assert_raises(UserError, parse_job_list, s)
 
     def testCatchErrors(self):
         self.syntaxError("not")

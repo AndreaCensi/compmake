@@ -1,11 +1,8 @@
-import unittest
-from tempfile import mkdtemp
+from nose.tools import assert_equal
 
-from nose.tools import istest
-
-from compmake import get_job, StorageFilesystem
-from compmake.context_imp import ContextImp
+from compmake import get_job
 from compmake.types import CMJobID
+from compmake_tests.utils import Env, environment, run_test_with_env
 
 
 def g():
@@ -24,37 +21,31 @@ def h(i):
     assert i == 2
 
 
-def define_jobs(root):
-    db = StorageFilesystem(root, compress=True)
-    cc = ContextImp(db=db)
-    cc.comp(h, cc.comp_dynamic(e))
-    return db, cc
-
-
-@istest
-class TestDelegation5(unittest.TestCase):
+@run_test_with_env
+async def test_delegation_5(env: Env):
     """
         Here's the problem: when the master are overwritten then
         the additional dependencies are lost.
     """
+    J = CMJobID("h")
+    env.comp(h, env.comp_dynamic(e))
+    job0 = get_job(J, env.db)
+    assert_equal(job0.children, {"e"})
 
-    def test_delegation_5(self):
-        root = mkdtemp()
-        db, cc = define_jobs(root)
-        job0 = get_job(CMJobID("h"), db)
-        self.assertEqual(job0.children, {"e"})
+    await env.batch_command("make; ls")
 
-        cc.batch_command("make;ls")
+    job = get_job(J, env.db)
+    assert_equal(job.children, {"e", "e-f", "e-f-g"})
+    env.sti.logger.info("parents: %s" % job.parents)
+    env.sti.logger.info("children: %s" % job.children)
 
-        job = get_job(CMJobID("h"), db)
-        self.assertEqual(job.children, {"e", "e-f", "e-f-g"})
-        print("parents: %s" % job.parents)
-        print("children: %s" % job.children)
+    await env.batch_command("ls")
+    await env.batch_command("check_consistency raise_if_error=1")
+    # Now just define h again
 
-        cc.batch_command("ls")
-        cc.batch_command("check_consistency raise_if_error=1")
-        # Now just define h again
-        db, cc = define_jobs(root)
-        cc.batch_command("check_consistency raise_if_error=1")
-        job2 = get_job(CMJobID("h"), db)
-        self.assertEqual(job2.children, {"e", "e-f", "e-f-g"})
+    async with environment(env.sti, env.rootd) as env2:
+        env2.comp(h, env2.comp_dynamic(e))
+        job0 = get_job(J, env2.db)
+        await env2.batch_command("check_consistency raise_if_error=1")
+        job2 = get_job(J, env2.db)
+        assert_equal(job2.children, {"e", "e-f", "e-f-g"})

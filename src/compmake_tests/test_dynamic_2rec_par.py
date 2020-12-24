@@ -1,13 +1,11 @@
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
 from .mockup import mockup_recursive_5
 
+from .utils import Env, run_test_with_env
 
-@istest
-class TestDynamic2rec(CompmakeTest):
-    def test_dynamic1(self):
-        mockup_recursive_5(self.cc)
-        self.assert_cmd_success("parmake recurse=1;ls")
-        self.assertJobsEqual("all", ["r1", "r2", "r3", "r4", "r5"])
-        self.assertJobsEqual("done", ["r1", "r2", "r3", "r4", "r5"])
+
+@run_test_with_env
+async def test_dynamic2_recpar(env: Env):
+    mockup_recursive_5(env.cc)
+    await env.assert_cmd_success("parmake recurse=1;ls")
+    await env.assert_jobs_equal("all", ["r1", "r2", "r3", "r4", "r5"])
+    await env.assert_jobs_equal("done", ["r1", "r2", "r3", "r4", "r5"])

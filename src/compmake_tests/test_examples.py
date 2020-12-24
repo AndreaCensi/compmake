@@ -6,12 +6,12 @@ import tempfile
 
 
 def get_examples_path():
-    # from pkg_resources import resource_filename  # @UnresolvedImport
+    # from pkg_resources import resource_filename
 
     # here = resource_filename("compmake", "__init__.py")
     # examples = os.path.join(here, "..", "examples")
     examples = os.path.abspath("./examples")
-    if not os.path.exists(examples):
+    if not os.path.exists(examples):  # pragma: no cover
         msg = "Example dir does not exist: %s" % examples
         raise Exception(msg)
     return examples
@@ -20,7 +20,7 @@ def get_examples_path():
 def run_example(name, command, expect_fail=False):
     examples = get_examples_path()
     pyfile = os.path.join(examples, "%s.py" % name)
-    if not os.path.exists(pyfile):
+    if not os.path.exists(pyfile):  # pragma: no cover
         msg = "Example file does not exist: %s" % pyfile
         raise Exception(msg)
 
@@ -28,7 +28,7 @@ def run_example(name, command, expect_fail=False):
         cmd = [pyfile, command]
         try:
             res = system_cmd_result(cwd, cmd, display_stdout=False, display_stderr=False, raise_on_error=True)
-            if expect_fail:
+            if expect_fail:  # pragma: no cover
                 msg = "Expected failure of %s but everything OK." % name
                 msg += "\n cwd = %s" % cwd
                 msg += "\n" + indent(res.stderr, "stderr| ")
@@ -38,7 +38,7 @@ def run_example(name, command, expect_fail=False):
         except CmdException as e:
             stderr = e.res.stderr
             stdout = e.res.stdout
-            if not expect_fail:
+            if not expect_fail:  # pragma: no cover
                 msg = "Example %r: Command %r failed unexpectedly." % (name, command)
                 msg += "\n retcode: %r" % e.res.ret
                 msg += "\n" + indent(stderr, "stderr| ")
@@ -52,7 +52,7 @@ def create_tmp_dir():
     dirname = tempfile.mkdtemp()
     try:
         yield dirname
-    except:
+    except:  # pragma: no cover
         raise
 
 
@@ -114,45 +114,42 @@ def test_example_simple2():
     run_example("example_simple", cmd_make2)
 
 
-def example_external_support1():
-    run_example("example_external_support", cmd_make1)
+#
+# def test_example_external_support1():
+#     run_example("example_external_support", cmd_make1)
+#
+#
+# def test_example_external_support2():
+#     run_example("example_external_support", cmd_make2)
+#
+#
+# def test_example_external_support3():
+#     run_example("example_external_support", cmd_make3)
+#
+#
+# def test_example_external_support4():
+#     run_example("example_external_support", cmd_make4)
 
 
-def example_external_support2():
-    run_example("example_external_support", cmd_make2)
+def test_example_dynamic_explicitcontext3():
+    run_example("example_dynamic_explicitcontext", cmd_make3)
 
 
-def example_external_support3():
-    run_example("example_external_support", cmd_make3)
+def test_example_dynamic_explicitcontext4():
+    run_example("example_dynamic_explicitcontext", cmd_make4)
 
 
-def example_external_support4():
-    run_example("example_external_support", cmd_make4)
+def test_example_progress3():
+    run_example("example_progress", cmd_make3)
 
 
-if True:
+def test_example_progress4():
+    run_example("example_progress", cmd_make4)
 
-    # Fails for pickle reasons
-    #     @expected_failure
-    def test_example_dynamic_explicitcontext3():
-        run_example("example_dynamic_explicitcontext", cmd_make3)
 
-    #     @expected_failure
-    def test_example_dynamic_explicitcontext4():
-        run_example("example_dynamic_explicitcontext", cmd_make4)
+def test_example_simple3():
+    run_example("example_simple", cmd_make3)
 
-    #     @expected_failure
-    def test_example_progress3():
-        run_example("example_progress", cmd_make3)
 
-    #     @expected_failure
-    def test_example_progress4():
-        run_example("example_progress", cmd_make4)
-
-    #     @expected_failure
-    def test_example_simple3():
-        run_example("example_simple", cmd_make3)
-
-    #     @expected_failure
-    def test_example_simple4():
-        run_example("example_simple", cmd_make4)
+def test_example_simple4():
+    run_example("example_simple", cmd_make4)

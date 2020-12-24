@@ -2,8 +2,11 @@ import os
 import sys
 import traceback
 from optparse import OptionParser
+from typing import List
 
-from . import logger
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from . import __version__, logger
+from .config_optparse import config_populate_optparser
 from .console import compmake_console_gui
 from .constants import CompmakeConstants
 from .context import Context
@@ -11,16 +14,11 @@ from .context_imp import ContextImp
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from .filesystem import StorageFilesystem
 from .readrcfiles import read_rc_files
-from .script_utils import wrap_script_entry_point
 from .state import set_compmake_status
 from .storage import all_jobs
 from .utils import setproctitle
-from .config_optparse import config_populate_optparser
-from . import __version__
 
 __all__ = ["main", "compmake_main"]
-# TODO: revise all of this
-
 
 usage = """
 The "compmake" script takes a DB directory as argument:
@@ -34,12 +32,13 @@ For example:
 """
 
 
-def main():
-    wrap_script_entry_point(compmake_main, exceptions_no_traceback=(UserError,))
+@async_main_sti(None)
+async def main(sti: SyncTaskInterface):
+    return await compmake_main(sti, args=None)
 
 
-# noinspection PyUnresolvedReferences
-def compmake_main(args):
+async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
+    sti.started()
     if not "" in sys.path:
         sys.path.append("")
 
@@ -80,7 +79,6 @@ def compmake_main(args):
     #     contracts.disable_all()
 
     # We load plugins after we parsed the configuration
-    import compmake_plugins  # @UnusedImport
 
     # XXX make sure this is the default
     if not args:
@@ -102,8 +100,9 @@ def compmake_main(args):
 
         context = load_existing_db(one_arg)
         # If the context was custom we load it
+        # noinspection PyUnresolvedReferences
         if "context" in context.compmake_db:
-            # noinspection PyTypeChecker
+            # noinspection PyTypeChecker,PyUnresolvedReferences
             context = context.compmake_db["context"]
 
             # TODO: check number of jobs is nonzero
@@ -113,7 +112,7 @@ def compmake_main(args):
 
     args = args[1:]
 
-    def go(context2: Context):
+    async def go(context2: Context):
         assert context2 is not None
 
         if options.command:
@@ -126,12 +125,12 @@ def compmake_main(args):
         # noinspection PyBroadException
         try:
             if options.command:
-                context2.batch_command(options.command)
+                await context2.batch_command(sti, options.command)
             else:
                 if options.gui:
-                    compmake_console_gui(context2)
+                    await compmake_console_gui(sti, context2)
                 else:
-                    context2.compmake_console()
+                    await context2.compmake_console(sti)
         except MakeFailed:
             retcode = CompmakeConstants.RET_CODE_JOB_FAILED
         except CommandFailed:
@@ -153,15 +152,16 @@ def compmake_main(args):
         if options.nosysexit:
             return retcode
         else:
-            sys.exit(retcode)
+            logger.warning("temporarily always disabling sys.exit")
+            # sys.exit(retcode)
 
     if not options.profile:
-        return go(context2=context)
+        return await go(context2=context)
     else:
         # XXX: change variables
         import cProfile
 
-        cProfile.runctx("go(context)", globals(), locals(), "out/compmake.profile")
+        cProfile.runctx("await go(context)", globals(), locals(), "out/compmake.profile")
         import pstats
 
         p = pstats.Stats("out/compmake.profile")

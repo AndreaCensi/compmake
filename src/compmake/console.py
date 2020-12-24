@@ -6,18 +6,20 @@ from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.widgets import Frame, Layout, TextBox
 from future import builtins
-from zuper_commons.text import remove_escapes
 
+from zuper_commons.text import remove_escapes
+from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
+from .actions import clean_other_jobs
+from .cachequerydb import CacheQueryDB
 from .events_structures import Event
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, ShellExitRequested
+from .helpers import get_commands
 from .interpret import interpret_commands_wrap
 from .readrcfiles import read_rc_files
 from .registrar import publish, register_handler
 from .state import CompmakeGlobalState, get_compmake_config
 from .storage import all_jobs
-from .actions import clean_other_jobs
-from .cachequerydb import CacheQueryDB
 from .visualization import clean_console_line, DefaultConsole, ui_error
 
 __all__ = [
@@ -199,14 +201,14 @@ def ask_question(question, allowed=None):
 # to import other things.
 
 
-def compmake_console_text(context):
+async def compmake_console_text(sti: SyncTaskInterface, context):
     clean_other_jobs(context=context)
 
     read_rc_files(context=context)
     interactive_console(context=context)
 
 
-def compmake_console_gui(context):
+async def compmake_console_gui(sti: SyncTaskInterface, context):
     return Screen.wrapper(compmake_console_gui_, arguments=[context])
 
 

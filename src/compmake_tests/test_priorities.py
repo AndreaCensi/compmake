@@ -1,8 +1,7 @@
-from nose.tools import istest
+from nose.tools import assert_equal
 
-import compmake.interpret
-from compmake import set_compmake_status, CompmakeConstants
-from .compmake_test import CompmakeTest
+from compmake import CompmakeConstants, set_compmake_status
+from .utils import Env, run_test_with_env
 
 
 def bottom():
@@ -17,45 +16,47 @@ def top(x):
     TestOrder.order.append("top")
 
 
-@istest
-class TestOrder(CompmakeTest):
-
+class TestOrder:
     order = []
 
-    def mySetUp(self):
-        # TODO: use tmp dir
-        set_compmake_status(CompmakeConstants.compmake_status_embedded)
-        # clear the variable holding the result
-        TestOrder.order = []
 
-    def test_order(self):
-        # add two copies
-        self.comp(top, self.comp(bottom))
-        self.comp(top, self.comp(bottom))
+@run_test_with_env
+async def test_order(env: Env):
+    TestOrder.order = []
+    set_compmake_status(CompmakeConstants.compmake_status_embedded)
+    # add two copies
+    env.comp(top, env.comp(bottom))
+    env.comp(top, env.comp(bottom))
 
-        self.batch_command("clean")
-        self.batch_command("make")
+    await env.batch_command("clean")
+    await env.batch_command("make")
 
-        self.assertEqual(["bottom", "top", "bottom", "top"], TestOrder.order)
+    assert_equal(["bottom", "top", "bottom", "top"], TestOrder.order)
 
-    def test_order_2(self):
-        # choose wisely here
-        self.comp(top, self.comp(bottom))
-        self.comp(top, self.comp(bottom))
-        self.comp(bottom2)
 
-        self.batch_command("clean")
-        self.batch_command("make")
+@run_test_with_env
+async def test_order2(env: Env):
+    TestOrder.order = []
+    # choose wisely here
+    env.comp(top, env.comp(bottom))
+    env.comp(top, env.comp(bottom))
+    env.comp(bottom2)
 
-        self.assertEqual(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
+    await env.batch_command("clean")
+    await env.batch_command("make")
 
-    def test_order_3(self):
-        # choose wisely here
-        self.comp(top, self.comp(bottom2))
-        self.comp(bottom)
-        self.comp(top, self.comp(bottom2))
+    assert_equal(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
 
-        self.batch_command("clean")
-        self.batch_command("make")
 
-        self.assertEqual(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)
+@run_test_with_env
+async def test_order3(env: Env):
+    TestOrder.order = []
+    # choose wisely here
+    env.comp(top, env.comp(bottom2))
+    env.comp(bottom)
+    env.comp(top, env.comp(bottom2))
+
+    await env.batch_command("clean")
+    await env.batch_command("make")
+
+    assert_equal(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)

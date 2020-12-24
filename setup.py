@@ -79,5 +79,5 @@ setup(
         ]
     },
     install_requires=install_requires,
-    tests_require=["nose"],
+    tests_require=["nose", "aiounittest"],
 )

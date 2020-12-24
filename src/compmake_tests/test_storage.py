@@ -1,8 +1,8 @@
-from nose.tools import istest
+from nose.tools import assert_equal, istest
 
 from compmake.utils import wildcard_to_regexp
 
-from . import CompmakeTest
+from .compmake_test import CompmakeTest
 
 
 @istest
@@ -18,8 +18,8 @@ class Simple(CompmakeTest):
         k = "ciao"
         v = {"complex": 123}
         db = self.db
-        if k in db:
-            del db[k]
+        # if k in db:
+        #     del db[k]
         self.assertFalse(k in db)
         db[k] = v
         self.assertTrue(k in db)
@@ -38,10 +38,10 @@ class Simple(CompmakeTest):
                 if r.match(k):
                     yield k
 
-        self.assertEqual([], list(search("*")))
+        assert_equal([], list(search("*")))
         db["key1"] = 1
         db["key2"] = 1
-        self.assertEqual([], list(search("ciao*")))
-        self.assertEqual(["key1"], list(search("key1")))
-        self.assertEqual(["key1"], list(search("*1")))
-        self.assertEqual([], list(search("d*1")))
+        assert_equal([], list(search("ciao*")))
+        assert_equal(["key1"], list(search("key1")))
+        assert_equal(["key1"], list(search("*1")))
+        assert_equal([], list(search("d*1")))

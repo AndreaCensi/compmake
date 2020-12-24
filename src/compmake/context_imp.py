@@ -2,6 +2,7 @@ import os
 import sys
 from typing import List, Optional, Set, Union
 
+from zuper_utils_asyncio import SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -10,7 +11,7 @@ from .filesystem import StorageFilesystem
 from .interpret import batch_command, interpret_commands_wrap
 from .types import CMJobID
 
-__all__ = ["ContextImp"]
+__all__ = ["ContextImp", "load_static_storage"]
 
 
 class ContextImp(Context):
@@ -70,10 +71,10 @@ class ContextImp(Context):
     def get_compmake_db(self):
         return self.compmake_db
 
-    def get_comp_prefix(self):
+    def get_comp_prefix(self) -> str:
         return self._job_prefix
 
-    def comp_prefix(self, prefix):
+    def comp_prefix(self, prefix: str):
         if prefix is not None:
             if " " in prefix:
                 msg = "Invalid job prefix %r." % prefix
@@ -93,7 +94,7 @@ class ContextImp(Context):
     def comp_store(self, x, job_id=None):
         return comp_store_(x=x, context=self, job_id=job_id)
 
-    def interpret_commands_wrap(self, commands):
+    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
         """
             Returns:
 
@@ -107,19 +108,19 @@ class ContextImp(Context):
         cq = CacheQueryDB(self.get_compmake_db())
         return interpret_commands_wrap(commands, context=self, cq=cq)
 
-    def batch_command(self, s) -> None:
+    async def batch_command(self, sti: SyncTaskInterface, s: str) -> None:
 
         cq = CacheQueryDB(self.get_compmake_db())
         return batch_command(s, context=self, cq=cq)
 
-    def compmake_console(self):
+    async def compmake_console(self, sti: SyncTaskInterface):
 
         from .console import compmake_console_text
 
-        compmake_console_text(self)
+        await compmake_console_text(sti, self)
 
 
-def comp_store_(x, context, job_id=None):
+def comp_store_(x, context: Context, job_id: CMJobID = None):
     """
 
     Stores the object as a job, keeping track of whether
@@ -128,6 +129,7 @@ def comp_store_(x, context, job_id=None):
 
     id_object = id(x)
 
+    # noinspection PyUnresolvedReferences
     book = context.comp_store.objectid2job
     if id_object not in book:
         job_params = {}

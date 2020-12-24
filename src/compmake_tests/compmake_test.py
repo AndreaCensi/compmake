@@ -1,8 +1,11 @@
 import os
-import unittest
 from abc import ABCMeta
+from contextlib import asynccontextmanager
 from shutil import rmtree
 from tempfile import mkdtemp
+
+from aiounittest import AsyncTestCase
+from nose.tools import assert_equal
 
 from compmake import (
     CacheQueryDB,
@@ -19,9 +22,11 @@ from compmake import (
 )
 from compmake.context_imp import ContextImp
 from compmake.types import CMJobID
+from compmake_tests.utils import Env
+from zuper_utils_asyncio import SyncTaskInterface
 
 
-class CompmakeTest(unittest.TestCase):
+class CompmakeTest(AsyncTestCase):
     __metaclass__ = ABCMeta
 
     def setUp(self):
@@ -61,10 +66,9 @@ class CompmakeTest(unittest.TestCase):
     def comp(self, *args, **kwargs):
         return self.cc.comp(*args, **kwargs)
 
-    def batch_command(self, s: str):
-        return self.cc.batch_command(s)
+    async def batch_command(self, sti: SyncTaskInterface, s: str):
+        return await self.cc.batch_command(sti, s)
 
-    # @contract(job_id="unicode", returns=Job)
     def get_job(self, job_id: CMJobID) -> Job:
         db = self.cc.get_compmake_db()
         return get_job(job_id=job_id, db=db)
@@ -73,82 +77,82 @@ class CompmakeTest(unittest.TestCase):
         """ Returns the list of jobs corresponding to the given expression. """
         return list(parse_job_list(expression, context=self.cc))
 
-    def assert_cmd_success(self, cmds):
+    async def assert_cmd_success(self, sti: SyncTaskInterface, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
         print("@ %s" % cmds)
         try:
-            self.cc.batch_command(cmds)
+            await self.cc.batch_command(sti, cmds)
         except MakeFailed as e:
             print("Detected MakeFailed")
             print("Failed jobs: %s" % e.failed)
             for job_id in e.failed:
-                self.cc.interpret_commands_wrap("details %s" % job_id)
-
+                await self.cc.interpret_commands_wrap(sti, "details %s" % job_id)
+            raise
         except CommandFailed:
             # msg = 'Command %r failed. (res=%s)' % (cmds, res)
             raise
 
-        self.cc.interpret_commands_wrap("check_consistency raise_if_error=1")
+        await self.cc.interpret_commands_wrap(sti, "check_consistency raise_if_error=1")
 
-    def assert_cmd_fail(self, cmds):
+    async def assert_cmd_fail(self, sti: SyncTaskInterface, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
         print("@ %s     [supposed to fail]" % cmds)
         try:
-            self.cc.batch_command(cmds)
+            await self.cc.batch_command(sti, cmds)
         except CommandFailed:
             pass
-        else:
+        else:  # pragma: no cover
             msg = "Command %r did not fail." % cmds
             raise Exception(msg)
 
-    def assert_cmd_success_script(self, cmd_string: str):
+    async def assert_cmd_success_script(self, sti: SyncTaskInterface, cmd_string: str):
         """ This runs the "compmake_main" script which recreates the DB and
         context from disk. """
-        ret = compmake_main([self.root, "--nosysexit", "-c", cmd_string])
-        self.assertEqual(ret, 0)
+        ret = await compmake_main(sti, [self.root, "--nosysexit", "-c", cmd_string])
+        assert_equal(ret, 0)
 
     # useful mcdp_lang_tests
     def assert_defined_by(self, job_id, expected):
-        self.assertEqual(self.get_job(job_id).defined_by, expected)
+        assert_equal(self.get_job(job_id).defined_by, expected)
 
-    def assertEqualSet(self, a, b):
-        self.assertEqual(set(a), set(b))
+    def assert_equal_set(self, a, b):
+        assert_equal(set(a), set(b))
 
-    # @contract(expr="unicode")
-    def assertJobsEqual(self, expr: str, jobs, ignore_dyn_reports=True):
+    def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):
 
         # js = 'not-valid-yet'
         js = self.get_jobs(expr)
         if ignore_dyn_reports:
             js = [x for x in js if not "dynreports" in x]
         try:
-            self.assertEqualSet(js, jobs)
+            self.assert_equal_set(js, jobs)
         except:
             print("expr %r -> %s" % (expr, js))
             print("differs from %s" % jobs)
             raise
 
-    def assertMakeFailed(self, func, nfailed, nblocked):
-        try:
-            func()
-        except MakeFailed as e:
-            if len(e.failed) != nfailed:
-                msg = "Expected %d failed, got %d: %s" % (nfailed, len(e.failed), e.failed)
-                raise Exception(msg)
-            if len(e.blocked) != nblocked:
-                msg = "Expected %d blocked, got %d: %s" % (nblocked, len(e.blocked), e.blocked)
-                raise Exception(msg)
-        except Exception as e:
-            raise Exception("unexpected: %s" % e)
-
     def assert_job_uptodate(self, job_id, status):
         res = self.up_to_date(job_id)
-        self.assertEqual(res, status, "Want %r uptodate? %s" % (job_id, status))
+        assert_equal(res, status, "Want %r uptodate? %s" % (job_id, status))
 
-    # @contract(returns=bool)
     def up_to_date(self, job_id) -> bool:
 
         cq = CacheQueryDB(db=self.db)
         up, reason, timestamp = cq.up_to_date(job_id)
         print("up_to_date(%r): %s, %r, %s" % (job_id, up, reason, timestamp))
         return up
+
+
+@asynccontextmanager
+async def assert_MakeFailed(env: Env, nfailed: int, nblocked: int):
+    try:
+        yield
+    except MakeFailed as e:
+        if len(e.failed) != nfailed:
+            msg = "Expected %d failed, got %d: %s" % (nfailed, len(e.failed), e.failed)
+            raise Exception(msg)
+        if len(e.blocked) != nblocked:
+            msg = "Expected %d blocked, got %d: %s" % (nblocked, len(e.blocked), e.blocked)
+            raise Exception(msg)
+    except Exception as e:
+        raise Exception("unexpected: %s" % e)

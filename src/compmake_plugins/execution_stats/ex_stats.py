@@ -1,6 +1,6 @@
 from typing import cast, Optional, Union
 
-from compmake import get_job_cache, Promise
+from compmake import Context, get_job_cache, Promise
 from compmake.structures import Cache
 from compmake.types import CMJobID
 
@@ -9,12 +9,13 @@ __all__ = [
 ]
 
 
-# @contract(promise="unicode|isinstance(Promise)", returns=Promise)
-from compmake.cachequerydb import CacheQueryDB
+from compmake import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
 
-def compmake_execution_stats(context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None):
+def compmake_execution_stats(
+    context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None
+):
     """
         Returns a promise for a the execution stats of a job
         and its dependencies.

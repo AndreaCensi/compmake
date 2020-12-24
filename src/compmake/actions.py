@@ -49,6 +49,7 @@ __all__ = [
     "make",
     "comp_",
     "clean_other_jobs",
+    "interpret_commands",
 ]
 
 
@@ -262,6 +263,7 @@ def make(job_id: CMJobID, context, echo=False):
 
     def my_emit(_, log_record):
         # note that log_record.msg might be an exception
+        # noinspection PyBroadException
         try:
             # noinspection PyBroadException
             try:

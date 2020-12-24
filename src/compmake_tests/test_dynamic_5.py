@@ -1,11 +1,7 @@
 from typing import cast, List
 
-from nose.tools import istest
-
-from compmake import definition_closure, StorageFilesystem
-from compmake.context_imp import ContextImp
+from compmake import definition_closure
 from compmake.types import CMJobID
-from .compmake_test import CompmakeTest
 
 
 def g2():
@@ -24,7 +20,8 @@ def i2():
     pass
 
 
-def id(context):  # @ReservedAssignment
+# noinspection PyShadowingBuiltins
+def id(context):
     context.comp(i2)
 
 
@@ -38,26 +35,27 @@ def mockup5(context, both):
         context.comp_dynamic(hd)
 
 
-@istest
-class TestDynamic5(CompmakeTest):
-    def test_dynamic5(self):
-        # first define with job and run
-        mockup5(self.cc, both=True)
-        self.assert_cmd_success("make recurse=1")
+from .utils import Env, environment, run_test_with_env
 
-        self.assertJobsEqual("all", ["fd", "fd-gd", "fd-gd-g2", "hd", "hd-id", "hd-id-i2"])
-        self.assertJobsEqual("done", ["fd", "fd-gd", "fd-gd-g2", "hd", "hd-id", "hd-id-i2"])
 
-        self.assert_cmd_success("details hd-id")
-        self.assert_cmd_success("details hd-id-i2")
-        self.assertEqualSet(definition_closure(cast(List[CMJobID], ["hd-id"]), self.db), ["hd-id-i2"])
-        self.assertEqualSet(definition_closure(cast(List[CMJobID], ["hd"]), self.db), ["hd-id", "hd-id-i2"])
-        # now redo it
-        self.db = StorageFilesystem(self.root, compress=True)
-        self.cc = ContextImp(db=self.db)
+@run_test_with_env
+async def test_dynamic5(env: Env):
+    # first define with job and run
+    mockup5(env, both=True)
+    await env.assert_cmd_success("make recurse=1")
 
-        mockup5(self.cc, both=False)
-        self.assert_cmd_success("clean")
-        self.assert_cmd_success("make recurse=1")
-        self.assertJobsEqual("all", ["fd", "fd-gd", "fd-gd-g2"])
-        self.assertJobsEqual("done", ["fd", "fd-gd", "fd-gd-g2"])
+    await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "hd", "hd-id", "hd-id-i2"])
+    await env.assert_jobs_equal("done", ["fd", "fd-gd", "fd-gd-g2", "hd", "hd-id", "hd-id-i2"])
+
+    await env.assert_cmd_success("details hd-id")
+    await env.assert_cmd_success("details hd-id-i2")
+    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
+    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
+    # now redo it
+
+    async with environment(env.sti, env.rootd) as env2:
+        mockup5(env2, both=False)
+        await env2.assert_cmd_success("clean")
+        await env2.assert_cmd_success("make recurse=1")
+        await env2.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2"])
+        await env2.assert_jobs_equal("done", ["fd", "fd-gd", "fd-gd-g2"])

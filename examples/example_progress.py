@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
 import sys
 import time
@@ -32,7 +33,9 @@ def mylongfunction():
             time.sleep(wait)
 
 
-def main():
+@async_main_sti(None)
+async def main(sti: SyncTaskInterface):
+    sti.started()
     print('This is an example of how to use the "progress" function.')
     from compmake import ContextImp
 
@@ -43,10 +46,10 @@ def main():
     # Run command passed on command line or otherwise run console.
     cmds = sys.argv[1:]
     if cmds:
-        c.batch_command(" ".join(cmds))
+        await c.batch_command(sti, " ".join(cmds))
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
-        c.compmake_console()
+        await c.compmake_console(sti)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,7 @@
 from typing import Callable
 
-import compmake.interpret
-from compmake import set_compmake_status, CompmakeConstants
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+from compmake import CompmakeConstants, set_compmake_status
+from .utils import Env, run_test_with_env
 
 
 def f1() -> Callable:
@@ -11,16 +9,13 @@ def f1() -> Callable:
     return lambda _: None
 
 
-@istest
-class TestUnpickable(CompmakeTest):
-    def mySetUp(self) -> None:
-        # TODO: use tmp dir
-        set_compmake_status(CompmakeConstants.compmake_status_embedded)
+@run_test_with_env
+async def test_unpickable_result(env: Env):
+    set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
-    def test_unpickable_result(self) -> None:
-        self.comp(f1)
-        self.batch_command("clean")
+    env.comp(f1)
+    await env.batch_command("clean")
 
-        self.assert_cmd_fail("make")
-        # since dill implemented
-        # self.assert_cmd_success('make')
+    await env.assert_cmd_fail("make")
+    # since dill implemented
+    # self.assert_cmd_success('make')

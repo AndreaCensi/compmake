@@ -1,9 +1,9 @@
-from compmake import init_progress_tracking
-from compmake import progress
-
-# from contracts import ContractNotRespected
-from nose.tools import istest, nottest
 import unittest
+
+from nose.tools import assert_equal, assert_raises, istest
+
+from compmake import init_progress_tracking, progress
+from zuper_commons.test_utils import known_failure
 
 
 @istest
@@ -13,16 +13,16 @@ class TestProgress(unittest.TestCase):
         self.stack = stack
 
     def assert_stack_len(self, d):
-        self.assertEqual(d, len(self.stack))
+        assert_equal(d, len(self.stack))
 
     def setUp(self):
         init_progress_tracking(self.stack_update)
 
     def test_bad(self):
         """ Many ways to call it in the wrong way. """
-        self.assertRaises((ValueError,), progress, "task", 1)
+        assert_raises((ValueError,), progress, "task", 1)
 
-    @nottest  # FIXME, known failure
+    @known_failure
     def test_hierarchy_flat(self):
         """ Testing basic case. """
         init_progress_tracking(lambda _: None)
@@ -32,7 +32,7 @@ class TestProgress(unittest.TestCase):
         progress("A", (1, 2))
         self.assert_stack_len(1)
 
-    @nottest  # FIXME, known failure
+    @known_failure
     def test_hierarchy_flat2(self):
         data = {}
 

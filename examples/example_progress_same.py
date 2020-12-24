@@ -5,6 +5,7 @@ import sys
 from compmake import progress
 import time
 
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
 wait = 0.01
 
@@ -21,7 +22,9 @@ def mylongfunction():
         time.sleep(wait)
 
 
-if __name__ == "__main__":
+@async_main_sti(None)
+async def main_progress_same(sti: SyncTaskInterface):
+    sti.started()
     print('This is an example of how to use the "progress" function.')
 
     from compmake import ContextImp
@@ -33,7 +36,11 @@ if __name__ == "__main__":
     # Run command passed on command line or otherwise run console.
     cmds = sys.argv[1:]
     if cmds:
-        c.batch_command(" ".join(cmds))
+        await c.batch_command(sti, " ".join(cmds))
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
-        c.compmake_console()
+        await c.compmake_console(sti)
+
+
+if __name__ == "__main__":
+    main_progress_same()

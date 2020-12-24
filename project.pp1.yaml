@@ -3,18 +3,38 @@ srcdir: src
 version_file: "1"
 modules:
   - compmake
+  - compmake_plugins
 
-install_requires:
-  - zuper-commons-z7
+install_requires: [
+    termcolor,
+    setproctitle,
+    PyYaml,
+    psutil,
+    dill,
+    coverage,
+    decorator,
+    SystemCmd-z7,
+    future,
+    networkx>=2,<3,
+    six,
+    zuper-utils-asyncio,
+    zuper-commons-z7,
+    zuper-typing-z7,
+    zuper-commons-z7>=6.1.7,
+    asciimatics ]
 
 install_conflicts: [ 'compmake-*' ]
 tests_require: [ ]
 
-console_scripts: {}
+console_scripts:
+  compmake: compmake:main
+  zuper-make: compmake.make_bridge:make_bridge_main
+  zmake: compmake.make_bridge:make_bridge_main
+
 #  zt-demo: zuper_utils_asyncio:zt_demo
 nose:
   modules:
-    - MODULENAME_tests
+    - compmake_tests
   python_versions:
     - '3.7'
     - '3.8'

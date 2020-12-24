@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
 wait = 0.01
 
@@ -10,13 +10,15 @@ def func1():
     print("😁")
 
 
-def main():
+@async_main_sti(None)
+async def main(sti: SyncTaskInterface):
+    sti.started()
     from compmake import ContextImp
 
     c = ContextImp()
     c.comp(func1)
 
-    c.batch_command("clean; make")
+    await c.batch_command(sti, "clean; make")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import sys
 
-from compmake import Context
+from compmake import Context, MakeFailed
+from compmake_tests.utils import assert_raises_async, Env
 
 
 def f(*args):
@@ -18,8 +19,8 @@ def mockup1(context: Context):
     return comp(f, comp(f), comp(f, comp(f)))
 
 
-def mockup2(context: Context):
-    comp = context.comp
+async def mockup2_fails(env: Env):
+    comp = env.comp
 
     comp(f, job_id="f1")
     comp(f, job_id="f2")
@@ -31,32 +32,31 @@ def mockup2(context: Context):
 
     comp(f, job_id="verylong" + "a" * 40)
 
-    context.batch_command("make")
-    context.batch_command("clean f2")
-    context.batch_command("clean f5")
+    async with assert_raises_async(MakeFailed):
+        await env.batch_command("make")
+    # await env.batch_command("clean f2")
+    # await env.batch_command("clean f5")
 
 
-def mockup2_nofail(context: Context):
-    comp = context.comp
+async def mockup2_nofail(env: Env):
+    env.comp(f, job_id="f1")
+    env.comp(f, job_id="f2")
 
-    comp(f, job_id="f1")
-    comp(f, job_id="f2")
+    r5 = env.comp(f, job_id="f5")
+    env.comp(f, r5, job_id="needs_redoing")
 
-    r5 = comp(f, job_id="f5")
-    comp(f, r5, job_id="needs_redoing")
+    env.comp(f, job_id="verylong" + "a" * 40)
 
-    comp(f, job_id="verylong" + "a" * 40)
-
-    context.batch_command("make")
-    context.batch_command("clean f2")
-    context.batch_command("clean f5")
+    await env.batch_command("make")
+    await env.batch_command("clean f2")
+    await env.batch_command("clean f5")
 
 
-def mockup_recursive_5(context):
+def mockup_recursive_5(context: Context):
     recursive(context, 5)
 
 
-def recursive(context, v):
+def recursive(context: Context, v):
     if v == 0:
         print("finally!")
         return

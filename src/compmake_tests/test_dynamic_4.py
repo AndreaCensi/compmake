@@ -1,39 +1,42 @@
-from nose.tools import istest
-from .compmake_test import CompmakeTest
 from .mockup_dynamic_4 import mockup_dyn4
 
+from .utils import Env, run_test_with_env
 
-@istest
-class TestDynamic4(CompmakeTest):
-    def test_dynamic4(self):
-        mockup_dyn4(self.cc)
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("details schedule")
-        self.assert_cmd_success("details report")
-        self.assert_cmd_success("clean")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
 
-    def test_dynamic4b(self):
-        mockup_dyn4(self.cc)
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("details schedule")
-        self.assert_cmd_success("details report")
-        self.assert_cmd_success("clean schedule")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
+@run_test_with_env
+async def test_dynamic4a(env: Env):
+    mockup_dyn4(env.cc)
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("details schedule")
+    await env.assert_cmd_success("details report")
+    await env.assert_cmd_success("clean")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")
 
-    def test_dynamic4c(self):
-        mockup_dyn4(self.cc)
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("details schedule")
-        self.assert_cmd_success("details report")
-        self.assert_cmd_success("clean report")
-        self.assert_cmd_success("ls")
-        self.assert_cmd_success("parmake recurse=1 echo=1")
+
+@run_test_with_env
+async def test_dynamic4b(env: Env):
+    mockup_dyn4(env.cc)
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("details schedule")
+    await env.assert_cmd_success("details report")
+    await env.assert_cmd_success("clean schedule")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")
+
+
+@run_test_with_env
+async def test_dynamic4c(env: Env):
+    mockup_dyn4(env.cc)
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("details schedule")
+    await env.assert_cmd_success("details report")
+    await env.assert_cmd_success("clean report")
+    await env.assert_cmd_success("ls")
+    await env.assert_cmd_success("parmake recurse=1 echo=1")

@@ -1,6 +1,5 @@
 import functools
 
-
 __all__ = [
     "memoized_reset",
 ]
@@ -32,15 +31,22 @@ class memoized_reset:
         self.cache = {}
 
     def __call__(self, *args):
+        is_key_error = is_type_error = False
         try:
             res = self.cache[args]
             # print('using cache for %s' % self.func)
             return res
         except KeyError:
+            is_key_error = True
+
+        except TypeError:
+            is_type_error = True
+
+        if is_key_error:
             value = self.func(*args)
             self.cache[args] = value
             return value
-        except TypeError:
+        if is_type_error:
             # uncachable -- for instance, passing a list as an argument.
             # Better to not cache than to blow up entirely.
             return self.func(*args)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
 
 def func1(param1):
@@ -21,7 +22,9 @@ def summary(results):
     print("I finished with this: %s" % results)
 
 
-if __name__ == "__main__":
+@async_main_sti(None)
+async def main(sti: SyncTaskInterface):
+    sti.started()
     from compmake import ContextImp
 
     c = ContextImp()
@@ -36,7 +39,11 @@ if __name__ == "__main__":
 
     cmds = sys.argv[1:]
     if cmds:
-        c.batch_command(" ".join(cmds))
+        await c.batch_command(sti, " ".join(cmds))
     else:
         print('Use "make recurse=1" (or "parmake") to make all.')
-        c.compmake_console()
+        await c.compmake_console(sti)
+
+
+if __name__ == "__main__":
+    main()

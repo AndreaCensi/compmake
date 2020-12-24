@@ -1,8 +1,8 @@
-import compmake.interpret
-from compmake import Cache
-from compmake import get_job_cache
-from nose.tools import istest
-from .compmake_test import CompmakeTest
+from typing import cast, Dict
+
+from compmake import Cache, CMJobID, get_job_cache
+from .compmake_test import assert_MakeFailed
+from .utils import Env, run_test_with_env
 
 
 def job_success(*args, **kwargs):
@@ -14,6 +14,7 @@ def job_failure(*args, **kwargs):
 
 
 def check_job_states(db, **expected):
+    expected = cast(Dict[CMJobID, int], expected)
     for job_id, expected_status in expected.items():
         status = get_job_cache(job_id, db=db).state
         if status != expected_status:
@@ -21,21 +22,13 @@ def check_job_states(db, **expected):
             raise Exception(msg)
 
 
-@istest
-class TestBlocked(CompmakeTest):
-    def mySetUp(self):
-        pass
+@run_test_with_env
+async def test_blocked(env: Env):
+    A = env.comp(job_success, job_id="A")
+    B = env.comp(job_failure, A, job_id="B")
+    env.comp(job_success, B, job_id="C")
 
-    def testAdding(self):
-        comp = self.comp
+    async with assert_MakeFailed(env, nfailed=1, nblocked=1):
+        await env.batch_command("make")
 
-        A = comp(job_success, job_id="A")
-        B = comp(job_failure, A, job_id="B")
-        comp(job_success, B, job_id="C")
-
-        def run():
-            self.batch_command("make")
-
-        self.assertMakeFailed(run, nfailed=1, nblocked=1)
-
-        check_job_states(self.db, A=Cache.DONE, B=Cache.FAILED, C=Cache.BLOCKED)
+    check_job_states(env.db, A=Cache.DONE, B=Cache.FAILED, C=Cache.BLOCKED)

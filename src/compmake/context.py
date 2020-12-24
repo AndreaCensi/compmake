@@ -1,6 +1,7 @@
-from abc import ABC, ABCMeta, abstractmethod
-from typing import Set
+from abc import ABCMeta, abstractmethod
+from typing import List, Optional, Set
 
+from zuper_utils_asyncio import SyncTaskInterface
 from .types import CMJobID
 
 __all__ = [
@@ -10,11 +11,11 @@ __all__ = [
 
 class Context(metaclass=ABCMeta):
     @abstractmethod
-    def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:
+    async def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:
         ...
 
     @abstractmethod
-    def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
+    async def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
         ...
 
     @abstractmethod
@@ -22,7 +23,7 @@ class Context(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def reset_jobs_defined_in_this_session(self, jobs):
+    async def reset_jobs_defined_in_this_session(self, jobs):
         """ Called only when initializing the context. """
         ...
 
@@ -35,7 +36,7 @@ class Context(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def comp_prefix(self, prefix: str):
+    def comp_prefix(self, prefix: Optional[str]):
         ...
 
     # setting up jobs
@@ -48,17 +49,19 @@ class Context(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def comp_store(self, x, job_id=None):
+    async def comp_store(self, x, job_id=None):
         ...
 
     @abstractmethod
-    def interpret_commands_wrap(self, commands):
+    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: List[str]):
         ...
 
     @abstractmethod
-    def batch_command(self, s) -> None:
+    async def batch_command(self, sti: SyncTaskInterface, s: str) -> None:
         ...
 
     @abstractmethod
-    def compmake_console(self):
+    async def compmake_console(
+        self, sti: SyncTaskInterface,
+    ):
         ...

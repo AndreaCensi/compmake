@@ -14,6 +14,7 @@ from compmake.context_imp import ContextImp
 from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZKeyError, ZValueError
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 from . import logger
 from .console import compmake_console_gui
 from .structures import Promise
@@ -115,7 +116,9 @@ def replace_command(c: Command, piece: str) -> Command:
 def replace_pattern(ti: TargetInfo, piece: str) -> TargetInfo:
     dependencies = [_.replace("%", piece) for _ in ti.dependencies]
     commands = [replace_command(c, piece) for c in ti.commands]
-    return TargetInfo(dependencies=cast(List[TargetName], dependencies), commands=commands)
+    ci = TargetInfo(dependencies=cast(List[TargetName], dependencies), commands=commands)
+    logger.info(ci=ci)
+    return ci
 
 
 import re
@@ -211,7 +214,8 @@ def chill(depends_on: List[str]):
     return get_md5("-".join(map(repr, depends_on)))
 
 
-def make_bridge_main(args=None):
+@async_main_sti(None)
+async def make_bridge_main(sti: SyncTaskInterface, args=None):
     parser = argparse.ArgumentParser(prog="zuper-make",)
     parser.add_argument("-o", "--out", default="out-zuper-make")
     parser.add_argument("-c", "--command", default=None)
@@ -299,18 +303,14 @@ def make_bridge_main(args=None):
     for k in mp.targets:
         get_job_promise(C, fn, k, extra_dependencies=[], stack=())
 
-    # if parsed.draw_deps:
-    #     write_dot(G, "deps.dot")
-    #     subprocess.check_call(["dot", "-Tpdf", "-odeps.pdf", "deps.dot"])
-
     if parsed.command:
 
-        context.batch_command(parsed.command)
+        await context.batch_command(sti, parsed.command)
     else:
         if parsed.gui:
-            compmake_console_gui(context)
+            await compmake_console_gui(sti, context)
         else:
-            context.compmake_console()
+            await context.compmake_console(sti)
 
 
 def run_one_command(

@@ -1,6 +1,5 @@
-import compmake.interpret
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+from .compmake_test import assert_MakeFailed
+from .utils import Env, run_test_with_env
 
 
 def job_success(*args, **kwargs):
@@ -11,16 +10,10 @@ def job_failure(*args, **kwargs):
     assert False, "asserting false"
 
 
-@istest
-class TestAssertion(CompmakeTest):
-    def mySetUp(self):
-        pass
+@run_test_with_env
+async def test_assertion(env: Env):
+    for i in range(10):
+        env.comp(job_failure, job_id="fail%d" % i)
 
-    def testAssertion1(self):
-        for i in range(10):
-            self.comp(job_failure, job_id="fail%d" % i)
-
-        def run():
-            self.batch_command("parmake n=2")
-
-        self.assertMakeFailed(run, nfailed=10, nblocked=0)
+    async with assert_MakeFailed(env, nfailed=10, nblocked=0):
+        await env.batch_command("parmake n=2")

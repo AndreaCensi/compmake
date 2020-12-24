@@ -31,3 +31,4 @@ out-*
 compmake-graph*
 gantt.html
 requirements.resolved
+htmlcov

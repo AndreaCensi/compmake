@@ -1,6 +1,7 @@
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+from nose.tools import assert_equal
+
 from compmake import CompmakeDBError
+from .utils import assert_raises_async, Env, run_test_with_env
 
 
 def g2():
@@ -19,32 +20,34 @@ def mockup7(context):
     context.comp_dynamic(fd)
 
 
-@istest
-class TestDynamic7(CompmakeTest):
-    def test_dynamic7(self):
-        # first define with job and run
-        mockup7(self.cc)
-        self.assert_cmd_success("make recurse=1; ls")
+@run_test_with_env
+async def test_dynamic7(env: Env):
+    # first define with job and run
+    mockup7(env)
+    await env.assert_cmd_success("make recurse=1; ls")
 
-        # check that g2 is up to date
-        self.assertEqual(self.up_to_date("fd-gd-g2"), True)
+    # check that g2 is up to date
+    assert_equal(await env.up_to_date("fd-gd-g2"), True)
 
-        # now clean its parent
-        self.assert_cmd_success("clean fd")
+    # now clean its parent
+    await env.assert_cmd_success("clean fd")
 
-        # job does not exist anynmore
-        self.assertRaises(CompmakeDBError, self.up_to_date, "fd-gd-g2")
+    # job does not exist anynmore
+    async with assert_raises_async(CompmakeDBError):
+        await env.up_to_date("fd-gd-g2")
 
-    def test_dynamic7_invalidate(self):
-        # first define with job and run
-        mockup7(self.cc)
-        self.assert_cmd_success("make recurse=1; ls")
 
-        # check that g2 is up to date
-        self.assertEqual(self.up_to_date("fd-gd-g2"), True)
+@run_test_with_env
+async def test_dynamic7_invalidate(env: Env):
+    # first define with job and run
+    mockup7(env.cc)
+    await env.assert_cmd_success("make recurse=1; ls")
 
-        # now invalidate the parent
-        self.assert_cmd_success("invalidate fd")
+    # check that g2 is up to date
+    assert_equal(await env.up_to_date("fd-gd-g2"), True)
 
-        # job exists but not up to date
-        self.assertEqual(self.up_to_date("fd-gd-g2"), False)
+    # now invalidate the parent
+    await env.assert_cmd_success("invalidate fd")
+
+    # job exists but not up to date
+    assert_equal(await env.up_to_date("fd-gd-g2"), False)

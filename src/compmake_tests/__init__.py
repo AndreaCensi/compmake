@@ -1,5 +1,5 @@
 _multiprocess_can_split_ = True  # Run parallel mcdp_lang_tests
-from .compmake_test import *
+# from .compmake_test import *
 
 # Load all mcdp_lang_tests (helps with nose multiprocess)
 from . import test_blocked

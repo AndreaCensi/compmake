@@ -55,8 +55,8 @@ class frozendict2(dict):
         dict.__init__(new, *args_, **kw)
         return new
 
-    def __init__(self, *args, **kw):
-        pass
+    # def __init__(self, *args, **kw):
+    #     pass
 
     def __hash__(self):
         try:

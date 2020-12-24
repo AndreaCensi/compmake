@@ -2,9 +2,9 @@
 
 
 import sys
-
 import time
 
+from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
 wait = 0.01
 
@@ -27,7 +27,9 @@ def draw(result):
     print("Computing draw(%r)" % result)
 
 
-def main():
+@async_main_sti(None)
+async def main(sti: SyncTaskInterface):
+    sti.started()
     from compmake import ContextImp
 
     c = ContextImp()
@@ -38,15 +40,15 @@ def main():
             res2 = c.comp(func2, res1, param2)
             c.comp(draw, res2)
 
-    c.batch_command("config echo 1")
+    await c.batch_command(sti, "config echo 1")
     # Run command passed on command line or otherwise run console.
     cmds = sys.argv[1:]
     if cmds:
-        c.batch_command(" ".join(cmds))
+        await c.batch_command(sti, " ".join(cmds))
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
 
-        c.compmake_console()
+        await c.compmake_console(sti)
 
 
 if __name__ == "__main__":

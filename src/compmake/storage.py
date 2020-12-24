@@ -3,7 +3,7 @@
 """
 from typing import Iterator
 
-from zuper_commons.types import check_isinstance, raise_desc
+from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from .structures import Cache, Job
 from .types import CMJobID, DBKey
@@ -106,7 +106,9 @@ def job2cachekey(job_id: CMJobID) -> str:
     return f"{prefix}{job_id}"
 
 
-def get_job_cache(job_id, db):
+def get_job_cache(job_id: CMJobID, db):
+    assert isinstance(job_id, str)
+    # assert isinstance(db, StorageFilesystem)
     cache_key = job2cachekey(job_id)
     if cache_key in db:
         try:
@@ -126,7 +128,8 @@ def get_job_cache(job_id, db):
         # raise CompmakeException("invalid job %s, I know %s"
         # % (job_id, known))
         if not job_exists(job_id, db):
-            raise_desc(CompmakeDBError, "Requesting cache for job that does not exist.", job_id=job_id)
+            msg = "Requesting cache for job that does not exist."
+            raise CompmakeDBError(msg, job_id=job_id)
 
         cache = Cache(Cache.NOT_STARTED)
         # we only put it later: NOT_STARTEd == not existent

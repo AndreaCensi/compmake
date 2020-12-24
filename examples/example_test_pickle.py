@@ -18,4 +18,4 @@ if __name__ == "__main__":
 #     import compmake
 #     c = compmake.ContextImp()
 #     c.comp(f1)
-#     c.batch_command('make')
+#      await c.batch_command(sti,'make')

@@ -1,6 +1,7 @@
 import traceback
 
 from zuper_commons.text import indent
+from .context import Context
 from .cachequerydb import CacheQueryDB
 from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, ShellExitRequested, UserError
 from .readrcfiles import read_rc_files
@@ -12,7 +13,7 @@ from .state import set_compmake_status
 __all__ = ["interpret_commands_wrap", "batch_command"]
 
 
-def interpret_commands_wrap(commands, context, cq: CacheQueryDB) -> None:
+def interpret_commands_wrap(commands: str, context: Context, cq: CacheQueryDB) -> None:
     """
         Returns None or raises CommandFailed, ShellExitRequested,
             CompmakeBug, KeyboardInterrupt.

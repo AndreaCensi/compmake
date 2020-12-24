@@ -1,5 +1,4 @@
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+from .utils import Env, run_test_with_env
 
 
 def rec(context, n):
@@ -17,16 +16,13 @@ def f(x):
         raise ValueError("Expected 5 + 4 + 3 + 2 + 1 + 0 = 15, not %s" % x)
 
 
-@istest
-class TestDelegation2(CompmakeTest):
-    def test_delegation_2(self):
-        context = self.cc
+@run_test_with_env
+async def test_delegation_2(env: Env):
+    res = env.comp_dynamic(rec, 5, job_id="rec-main")
+    env.comp(f, res)
 
-        res = context.comp_dynamic(rec, 5, job_id="rec-main")
-        context.comp(f, res)
+    await env.assert_cmd_success("ls")
 
-        self.assert_cmd_success("ls")
+    await env.assert_cmd_success("make")
 
-        self.assert_cmd_success("make")
-
-        self.assert_cmd_success("check-consistency")
+    await env.assert_cmd_success("check-consistency")
