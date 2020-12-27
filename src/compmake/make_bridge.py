@@ -218,6 +218,7 @@ def chill(depends_on: List[str]):
 
 @async_main_sti(None)
 async def make_bridge_main(sti: SyncTaskInterface, args=None):
+    await sti.started_and_yield()
     parser = argparse.ArgumentParser(prog="zuper-make",)
     parser.add_argument("-o", "--out", default="out-zuper-make")
     parser.add_argument("-c", "--command", default=None)
