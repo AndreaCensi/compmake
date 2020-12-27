@@ -1,11 +1,13 @@
 __version__ = "6.0.15"
+__date__ = ""
 
 from zuper_commons.logs import ZLogger
 
 version = __version__
 
 logger = ZLogger(__name__)
-logger.debug(f"version {__version__}")
+logger.hello_module(name=__name__, filename=__file__, version=__version__, date=__date__)
+
 
 from .types import *
 from .constants import *

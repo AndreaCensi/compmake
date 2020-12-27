@@ -108,7 +108,9 @@ def replace_command(c: Command, piece: str) -> Command:
         return RegularCommand(line)
     elif isinstance(c, MakeC):
         targets = [_.replace("$*", piece) for _ in c.targets]
-        return MakeC(targets=cast(List[TargetName], targets), where=c.where, filename=c.filename)
+        where = c.where.replace("$*", piece)
+        filename = c.filename.replace("$*", piece)
+        return MakeC(targets=cast(List[TargetName], targets), where=where, filename=filename)
     else:
         raise ZValueError(c=c)
 
