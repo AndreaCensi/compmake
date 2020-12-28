@@ -35,6 +35,7 @@ install_requires = [
     "six",
     "zuper-typing-z7",
     "zuper-commons-z7>=6.1.7",
+    "zuper-utils-asyncio-z7",
     "asciimatics",
 ]
 
