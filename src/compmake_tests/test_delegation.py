@@ -30,6 +30,7 @@ async def test_delegation_1a(env: Env):
     await env.assert_cmd_success("make g_delegated()")
 
 
+@run_with_env
 async def test_delegation_1b(env: Env):
     g_res = env.comp_dynamic(g)
     env.comp(f, g_res)
