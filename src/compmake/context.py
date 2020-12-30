@@ -65,3 +65,7 @@ class Context(metaclass=ABCMeta):
         self, sti: SyncTaskInterface,
     ):
         ...
+
+    @abstractmethod
+    def get_currently_executing(self) -> List[CMJobID]:
+        ...

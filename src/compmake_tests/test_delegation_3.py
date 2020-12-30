@@ -1,4 +1,4 @@
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def rec(context, n):
@@ -16,7 +16,7 @@ def f(x):
         raise ValueError("Expected 5 + 4 + 3 + 2 + 1 + 0 = 15, not %s" % x)
 
 
-@run_test_with_env
+@run_with_env
 async def test_delegation_3(env: Env):
     """ Similar to TestDelegation2, but here the jobs are not named
         exclusively with job_id=... """

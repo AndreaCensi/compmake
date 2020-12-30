@@ -1,9 +1,9 @@
 from zuper_commons.test_utils import known_failure
 from .mockup import mockup2_fails, mockup2_nofail
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
-@run_test_with_env
+@run_with_env
 async def test_plugin_details(env: Env):
     await mockup2_nofail(env)
     jobs = await env.get_jobs("all")
@@ -12,7 +12,7 @@ async def test_plugin_details(env: Env):
     await env.assert_cmd_success("details %s %s" % (jobs[0], jobs[1]))
 
 
-@run_test_with_env
+@run_with_env
 async def test_plugin_list(env: Env):
     await mockup2_nofail(env)
     jobs = await env.get_jobs("all")
@@ -20,32 +20,32 @@ async def test_plugin_list(env: Env):
     await env.assert_cmd_success("ls %s" % jobs[0])
 
 
-@run_test_with_env
+@run_with_env
 async def test_plugin_check_consistency(env: Env):
     await mockup2_nofail(env)
     await env.assert_cmd_success("check-consistency")
 
 
-@run_test_with_env
+@run_with_env
 async def test_plugin_graph(env: Env):
     await mockup2_nofail(env)
     await env.assert_cmd_success("graph")
 
 
-@run_test_with_env
+@run_with_env
 async def test_plugin_why(env: Env):
     await mockup2_fails(env)
     await env.assert_cmd_success("why fail1")
 
 
 @known_failure
-@run_test_with_env
+@run_with_env
 async def test_plugin_gantt(env: Env):
     await mockup2_nofail(env)
     await env.assert_cmd_success("gantt")
 
 
-@run_test_with_env
+@run_with_env
 async def test_dump(env: Env):
     await mockup2_nofail(env)
     dirname = env.db.basepath

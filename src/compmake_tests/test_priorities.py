@@ -1,7 +1,7 @@
 from nose.tools import assert_equal
 
 from compmake import CompmakeConstants, set_compmake_status
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def bottom():
@@ -20,7 +20,7 @@ class TestOrder:
     order = []
 
 
-@run_test_with_env
+@run_with_env
 async def test_order(env: Env):
     TestOrder.order = []
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
@@ -34,7 +34,7 @@ async def test_order(env: Env):
     assert_equal(["bottom", "top", "bottom", "top"], TestOrder.order)
 
 
-@run_test_with_env
+@run_with_env
 async def test_order2(env: Env):
     TestOrder.order = []
     # choose wisely here
@@ -48,7 +48,7 @@ async def test_order2(env: Env):
     assert_equal(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
 
 
-@run_test_with_env
+@run_with_env
 async def test_order3(env: Env):
     TestOrder.order = []
     # choose wisely here

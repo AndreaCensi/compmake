@@ -35,10 +35,10 @@ def mockup5(context, both):
         context.comp_dynamic(hd)
 
 
-from .utils import Env, environment, run_test_with_env
+from .utils import Env, environment, run_with_env
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic5(env: Env):
     # first define with job and run
     mockup5(env, both=True)

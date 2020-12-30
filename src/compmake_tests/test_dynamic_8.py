@@ -10,7 +10,7 @@ from compmake import (
 )
 from compmake.types import CMJobID
 from .compmake_test import CompmakeTest
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def always():
@@ -37,7 +37,7 @@ class TestDynamic8(CompmakeTest):
     define_other = True
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic8(env: Env):
     #         """ Re-execution creates more jobs.  """
     mockup8(env)
@@ -53,7 +53,7 @@ async def test_dynamic8(env: Env):
     await env.assert_jobs_equal("all", ["fd", "fd-always"])
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic8_clean(env: Env):
     #         """ Re-execution creates more jobs.  """
     mockup8(env)
@@ -82,7 +82,7 @@ async def test_dynamic8_clean(env: Env):
     await env.assert_jobs_equal("all", ["fd", "fd-always"])
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic8_inverse(env: Env):
     """ Re-execution creates fewer jobs. """
     mockup8(env)

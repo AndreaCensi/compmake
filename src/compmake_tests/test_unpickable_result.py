@@ -1,7 +1,7 @@
 from typing import Callable
 
 from compmake import CompmakeConstants, set_compmake_status
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def f1() -> Callable:
@@ -9,7 +9,7 @@ def f1() -> Callable:
     return lambda _: None
 
 
-@run_test_with_env
+@run_with_env
 async def test_unpickable_result(env: Env):
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 

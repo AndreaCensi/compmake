@@ -29,7 +29,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 class CompmakeTest(AsyncTestCase):
     __metaclass__ = ABCMeta
 
-    def setUp(self):
+    async def setUp(self):
         self.root0 = mkdtemp()
         self.root = os.path.join(self.root0, "compmake")
         self.db = StorageFilesystem(self.root, compress=True)
@@ -41,7 +41,7 @@ class CompmakeTest(AsyncTestCase):
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()
 
-    def tearDown(self):
+    async def tearDown(self):
         if True:
             print("not deleting %s" % self.root0)
         else:
@@ -49,11 +49,11 @@ class CompmakeTest(AsyncTestCase):
         from multiprocessing import active_children
 
         c = active_children()
-        print("active children: %s" % c)
+        logger.info("active children", c=c)
         if c:
             if True:
-                msg = "Still active children: %s" % c
-                logger.warning(msg)
+                msg = "Still active children"
+                logger.warning(msg, c=c)
             else:
                 raise Exception(msg)
 
@@ -79,12 +79,12 @@ class CompmakeTest(AsyncTestCase):
 
     async def assert_cmd_success(self, sti: SyncTaskInterface, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
-        print("@ %s" % cmds)
+        logger.info("@ %s" % cmds)
         try:
             await self.cc.batch_command(sti, cmds)
         except MakeFailed as e:
-            print("Detected MakeFailed")
-            print("Failed jobs: %s" % e.failed)
+            logger.info("Detected MakeFailed")
+            logger.info("Failed jobs: %s" % e.failed)
             for job_id in e.failed:
                 await self.cc.interpret_commands_wrap(sti, "details %s" % job_id)
             raise
@@ -96,7 +96,7 @@ class CompmakeTest(AsyncTestCase):
 
     async def assert_cmd_fail(self, sti: SyncTaskInterface, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
-        print("@ %s     [supposed to fail]" % cmds)
+        logger.info("@ %s     [supposed to fail]" % cmds)
         try:
             await self.cc.batch_command(sti, cmds)
         except CommandFailed:
@@ -127,8 +127,8 @@ class CompmakeTest(AsyncTestCase):
         try:
             self.assert_equal_set(js, jobs)
         except:
-            print("expr %r -> %s" % (expr, js))
-            print("differs from %s" % jobs)
+            logger.info(f"expr {expr!r} -> {js}")
+            logger.info(f"differs from {jobs}")
             raise
 
     def assert_job_uptodate(self, job_id, status):
@@ -139,7 +139,7 @@ class CompmakeTest(AsyncTestCase):
 
         cq = CacheQueryDB(db=self.db)
         up, reason, timestamp = cq.up_to_date(job_id)
-        print("up_to_date(%r): %s, %r, %s" % (job_id, up, reason, timestamp))
+        logger.info(f"up_to_date({job_id!r}): {up}, {reason!r}, {timestamp}")
         return up
 
 

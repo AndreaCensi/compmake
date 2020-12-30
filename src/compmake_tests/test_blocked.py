@@ -2,7 +2,7 @@ from typing import cast, Dict
 
 from compmake import Cache, CMJobID, get_job_cache
 from .compmake_test import assert_MakeFailed
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def job_success(*args, **kwargs):
@@ -22,7 +22,7 @@ def check_job_states(db, **expected):
             raise Exception(msg)
 
 
-@run_test_with_env
+@run_with_env
 async def test_blocked(env: Env):
     A = env.comp(job_success, job_id="A")
     B = env.comp(job_failure, A, job_id="B")

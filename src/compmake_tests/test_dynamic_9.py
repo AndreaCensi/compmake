@@ -1,4 +1,4 @@
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def always():
@@ -33,7 +33,7 @@ class TestDynamic9:
     define_other = True
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic9(env: Env):
     """ Re-execution creates more jobs.  """
     mockup9(env)

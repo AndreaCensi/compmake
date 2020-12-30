@@ -3,7 +3,7 @@ from typing import Callable
 from .compmake_test import CompmakeTest
 from nose.tools import istest
 
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def g2():
@@ -40,7 +40,7 @@ class TestDynamicFailure(CompmakeTest):
     do_fail: Callable = None
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic_failure1(env: Env):
     mockup8(env)
     # run it
@@ -50,7 +50,7 @@ async def test_dynamic_failure1(env: Env):
     await env.assert_jobs_equal("all", ["fd"])
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic_failure2(env: Env):
     mockup8(env)
     # run it
@@ -67,7 +67,7 @@ async def test_dynamic_failure2(env: Env):
     await env.assert_jobs_equal("all", ["fd"])
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic_failure3(env: Env):
     mockup8(env)
     # run it

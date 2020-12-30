@@ -1,5 +1,5 @@
 from .compmake_test import Env
-from .utils import run_test_with_env
+from .utils import run_with_env
 
 
 def f(a):
@@ -19,7 +19,7 @@ def g_delegated():
     return 1 + 1
 
 
-@run_test_with_env
+@run_with_env
 async def test_delegation_1a(env: Env):
     g_res = env.comp_dynamic(g)
     env.comp(f, g_res)

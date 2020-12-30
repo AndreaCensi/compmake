@@ -2,7 +2,7 @@ from nose.tools import assert_equal
 
 from compmake import get_job
 from compmake.types import CMJobID
-from compmake_tests.utils import Env, environment, run_test_with_env
+from compmake_tests.utils import Env, environment, run_with_env
 
 
 def g():
@@ -21,7 +21,7 @@ def h(i):
     assert i == 2
 
 
-@run_test_with_env
+@run_with_env
 async def test_delegation_5(env: Env):
     """
         Here's the problem: when the master are overwritten then

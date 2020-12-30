@@ -53,6 +53,9 @@ class ContextImp(Context):
         # counters for prefixes (generate_job_id)
         self.generate_job_id_counters = {}
 
+    def get_currently_executing(self) -> List[CMJobID]:
+        return list(self.currently_executing)
+
     # This is used to make sure that the user doesn't define the same job
     # twice.
     def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:

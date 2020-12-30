@@ -1,9 +1,9 @@
 from .mockup_dynamic_4 import mockup_dyn4
 
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic4a(env: Env):
     mockup_dyn4(env.cc)
     await env.assert_cmd_success("ls")
@@ -16,7 +16,7 @@ async def test_dynamic4a(env: Env):
     await env.assert_cmd_success("parmake recurse=1 echo=1")
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic4b(env: Env):
     mockup_dyn4(env.cc)
     await env.assert_cmd_success("ls")
@@ -29,7 +29,7 @@ async def test_dynamic4b(env: Env):
     await env.assert_cmd_success("parmake recurse=1 echo=1")
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic4c(env: Env):
     mockup_dyn4(env.cc)
     await env.assert_cmd_success("ls")

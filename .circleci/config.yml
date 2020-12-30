@@ -28,7 +28,7 @@ jobs:
           name: Run tests
           no_output_timeout: 7m
           command: |
-            pip install --user nose
+            pip install -q --user nose
             PATH=~/.local/bin:$PATH ~/.local/bin/nosetests compmake
 
   test-3.7:

@@ -1,7 +1,7 @@
 from nose.tools import assert_equal
 
 from compmake import CompmakeDBError
-from .utils import assert_raises_async, Env, run_test_with_env
+from .utils import assert_raises_async, Env, run_with_env
 
 
 def g2():
@@ -20,7 +20,7 @@ def mockup7(context):
     context.comp_dynamic(fd)
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic7(env: Env):
     # first define with job and run
     mockup7(env)
@@ -37,7 +37,7 @@ async def test_dynamic7(env: Env):
         await env.up_to_date("fd-gd-g2")
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic7_invalidate(env: Env):
     # first define with job and run
     mockup7(env.cc)

@@ -1,10 +1,10 @@
 from .test_dynamic_1 import mockup_dynamic1, TestDynamic1
 
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
-@run_test_with_env
-async def test_dynamic_re(env: Env):
+@run_with_env
+async def test_dynamic_re1(env: Env):
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     # At this point we have generated only two jobs

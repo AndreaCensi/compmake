@@ -1,6 +1,6 @@
 from compmake import Context
 
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def cases():
@@ -37,7 +37,7 @@ class TestDynamic1:
     howmany = None  # used by cases()
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic1_cleaning(env: Env):
     mockup_dynamic1(env.cc)
     # At this point we have generated only two jobs

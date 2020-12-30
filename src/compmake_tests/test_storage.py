@@ -1,47 +1,51 @@
-from nose.tools import assert_equal, istest
+from typing import cast
 
+from nose.tools import assert_equal
+
+from compmake import StorageKey
 from compmake.utils import wildcard_to_regexp
+from .utils import Env, run_with_env
 
-from .compmake_test import CompmakeTest
+
+@run_with_env
+async def test_exists1(env: Env):
+    key = cast(StorageKey, "not-existent")
+    assert not key in env.db
 
 
-@istest
-class Simple(CompmakeTest):
-    def mySetUp(self):
-        pass
+@run_with_env
+async def test_exists2(env: Env):
+    k = cast(StorageKey, "ciao")
+    v = {"complex": 123}
+    db = env.db
+    # if k in db:
+    #     del db[k]
+    assert not (k in db)
+    db[k] = v
+    assert k in db
+    del db[k]
+    assert not (k in db)
+    db[k] = v
+    del db[k]
+    assert not (k in db)
 
-    def testExists1(self):
-        key = "not-existent"
-        assert not key in self.db
 
-    def testExists2(self):
-        k = "ciao"
-        v = {"complex": 123}
-        db = self.db
-        # if k in db:
-        #     del db[k]
-        self.assertFalse(k in db)
-        db[k] = v
-        self.assertTrue(k in db)
-        del db[k]
-        self.assertFalse(k in db)
-        db[k] = v
-        del db[k]
-        self.assertFalse(k in db)
+@run_with_env
+async def test_search(env: Env):
+    db = env.db
 
-    def testSearch(self):
-        db = self.db
+    def search(pattern):
+        r = wildcard_to_regexp(pattern)
+        for k in db.keys():
+            if r.match(k):
+                yield k
 
-        def search(pattern):
-            r = wildcard_to_regexp(pattern)
-            for k in db.keys():
-                if r.match(k):
-                    yield k
-
-        assert_equal([], list(search("*")))
-        db["key1"] = 1
-        db["key2"] = 1
-        assert_equal([], list(search("ciao*")))
-        assert_equal(["key1"], list(search("key1")))
-        assert_equal(["key1"], list(search("*1")))
-        assert_equal([], list(search("d*1")))
+    assert_equal([], list(search("*")))
+    k1 = cast(StorageKey, "key1")
+    k2 = cast(StorageKey, "key2")
+    db[k1] = 1
+    db[k2] = 1
+    assert_equal([], list(search("ciao*")))
+    assert_equal(["key1"], list(search("key1")))
+    assert_equal(["key1"], list(search("*1")))
+    assert_equal([], list(search("d*1")))

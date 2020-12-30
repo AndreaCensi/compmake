@@ -52,10 +52,10 @@ def mockup6(context, both):
     context.comp(summary, res)
 
 
-from .utils import Env, environment, run_test_with_env
+from .utils import Env, environment, run_with_env
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic6(env: Env):
     # first define with job and run
     mockup6(env.cc, both=True)

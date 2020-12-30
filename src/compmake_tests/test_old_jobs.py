@@ -1,7 +1,7 @@
 from nose.tools import assert_equal
 
 from compmake import set_compmake_config
-from compmake_tests.utils import Env, environment, run_test_with_env
+from compmake_tests.utils import Env, environment, run_with_env
 
 
 def g():
@@ -12,7 +12,7 @@ def h():
     pass
 
 
-@run_test_with_env
+@run_with_env
 async def test_cleaning_other(env: Env):
     await cleaning_other_first(env)
     jobs1 = await env.all_jobs()
@@ -43,7 +43,7 @@ def f2(context):
     context.comp(g)
 
 
-@run_test_with_env
+@run_with_env
 async def test_cleaning2(env: Env):
     await cleaning2_first(env)
     jobs1 = await env.all_jobs()
@@ -78,7 +78,7 @@ def e2(context):
     context.comp_dynamic(f2, job_id="f")
 
 
-@run_test_with_env
+@run_with_env
 async def test_cleaning3(env: Env):
     set_compmake_config("check_params", True)
     await cleaning3_first(env)

@@ -1,6 +1,6 @@
 from multiprocessing import active_children
 
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def g(b1, b2):
@@ -38,7 +38,7 @@ def mockup(context):
 #         assert_equal(len(self.get_jobs("f()")), 63)
 
 
-@run_test_with_env
+@run_with_env
 async def test_dynamic9(env: Env):
     mockup(env)
     await env.assert_cmd_success("parmake recurse=1")

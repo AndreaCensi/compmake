@@ -1,6 +1,7 @@
+import traceback
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import AsyncIterator, cast, TypeVar
+from typing import AsyncIterator, Awaitable, Callable, cast, TypeVar
 
 from nose.tools import assert_equal
 
@@ -16,8 +17,10 @@ from compmake import (
     parse_job_list,
     StorageFilesystem,
 )
-from zuper_commons.types import ZAssertionError
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_commons.cmds import ExitCode
+from zuper_commons.types import ZAssertionError, ZException, ZValueError
+from zuper_utils_asyncio import async_run_timeout, create_sync_task2, SyncTaskInterface
+from zuper_utils_asyncio.utils import with_log_control
 
 X = TypeVar("X")
 
@@ -143,16 +146,43 @@ async def environment(sti: SyncTaskInterface, rootd: str = None) -> AsyncIterato
         pass
 
 
-def run_test_with_env(f):
-    @async_main_sti(None, main_function=False)
-    async def f2(sti: SyncTaskInterface):
-        sti.started()
-
-        async with environment(sti) as env:
-            await f(env)
+def raise_exit(f):
+    def f2():
+        ret = f()
+        if ret:
+            raise ZException(f=f, ret=ret)
+            # sys.exit(ret)
 
     f2.__name__ = f.__name__
     return f2
+
+
+def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCode]:
+    if not f.__name__.startswith("test_"):
+        msg = 'Better to start test names with "test_".'
+        raise ZValueError(msg, f=f, name=f.__name__, qual=f.__qualname__)
+
+    @async_run_timeout(100)
+    async def test_main() -> ExitCode:
+        async def task(sti: SyncTaskInterface):
+            sti.started()
+            async with with_log_control(False):  # XXX
+                async with environment(sti) as env:
+                    try:
+                        res = await f(env)
+                    except BaseException:
+
+                        sti.logger.error(traceback.format_exc())
+                        sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
+
+                        raise ZException(traceback.format_exc())
+
+        t = await create_sync_task2(None, task)
+        return await t.wait_for_outcome_success_result()
+
+    test_main.__name__ = f.__name__
+    test_main.__qualname__ = f.__qualname__
+    return test_main
 
 
 @asynccontextmanager

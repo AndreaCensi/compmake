@@ -6,7 +6,7 @@ from compmake import get_job_userobject_resolved
 from compmake.types import CMJobID
 from compmake_plugins.execution_stats import compmake_execution_stats
 from zuper_commons.types import check_isinstance
-from .utils import Env, run_test_with_env
+from .utils import Env, run_with_env
 
 
 def ff(*args):
@@ -21,7 +21,7 @@ def hh(context):
     return context.comp_dynamic(gg)
 
 
-@run_test_with_env
+@run_with_env
 async def test_execution_stats(env: Env):
     # schedule some commands
     res = env.comp_dynamic(gg)
@@ -40,7 +40,7 @@ async def test_execution_stats(env: Env):
     assert_equal(res["jobs"], {"gg-ff", "gg"})
 
 
-@run_test_with_env
+@run_with_env
 async def test_execution_stats2(env: Env):
     # schedule some commands
     res = env.comp_dynamic(hh)

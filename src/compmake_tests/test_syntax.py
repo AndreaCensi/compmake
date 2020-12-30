@@ -1,54 +1,49 @@
 import sys
 
-from nose.tools import assert_raises, istest
+from nose.tools import assert_equal, assert_raises
 
 from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID
-from .compmake_test import CompmakeTest
+from .utils import Env, run_with_env
 
 
 def dummy():  # pragma: no cover
     pass
 
 
-@istest
-class Test1(CompmakeTest):
-    def mySetUp(self):
-        # Removed when refactoring
-        # remove_all_jobs()
-        # reset_jobs_definition_set()
+@run_with_env
+async def test_syntax(env: Env):
+    jobs = [
+        ("a", Cache.DONE),
+        ("b", Cache.FAILED),
+        ("c", Cache.NOT_STARTED),
+        ("d", Cache.DONE),
+        ("e", Cache.DONE),
+        #             ('f', Cache.IN_PROGRESS),
+        ("g", Cache.DONE),
+        ("h", Cache.FAILED),
+        ("i", Cache.DONE),
+        ("ii", Cache.DONE),
+        ("v_rangefinder_nonunif-plot_tensors_tex-0", Cache.DONE),
+    ]
 
-        self.jobs = [
-            ("a", Cache.DONE),
-            ("b", Cache.FAILED),
-            ("c", Cache.NOT_STARTED),
-            ("d", Cache.DONE),
-            ("e", Cache.DONE),
-            #             ('f', Cache.IN_PROGRESS),
-            ("g", Cache.DONE),
-            ("h", Cache.FAILED),
-            ("i", Cache.DONE),
-            ("ii", Cache.DONE),
-            ("v_rangefinder_nonunif-plot_tensors_tex-0", Cache.DONE),
-        ]
+    for job_id, state in jobs:
+        env.comp(dummy, job_id=job_id)
+        cache = get_job_cache(CMJobID(job_id), db=env.db)
+        cache.state = state
+        set_job_cache(CMJobID(job_id), cache, db=env.db)
 
-        for job_id, state in self.jobs:
-            self.comp(dummy, job_id=job_id)
-            cache = get_job_cache(CMJobID(job_id), db=self.db)
-            cache.state = state
-            set_job_cache(CMJobID(job_id), cache, db=self.db)
+    all_jobs = set([job_id for job_id, state in jobs])
+    selectf = lambda S: set([nid for nid, state_ in jobs if state_ == S])
+    failed = selectf(Cache.FAILED)
+    done = selectf(Cache.DONE)
+    #         self.in_progress = selectf(Cache.IN_PROGRESS)
+    not_started = selectf(Cache.NOT_STARTED)
 
-        self.all = set([job_id for job_id, state in self.jobs])
-        selectf = lambda S: set([nid for nid, state_ in self.jobs if state_ == S])
-        self.failed = selectf(Cache.FAILED)
-        self.done = selectf(Cache.DONE)
-        #         self.in_progress = selectf(Cache.IN_PROGRESS)
-        self.not_started = selectf(Cache.NOT_STARTED)
+    def selection(crit):
+        return set([nid_ for nid_, state_ in jobs if crit(nid_, state_)])
 
-    def selection(self, crit):
-        return set([nid for nid, state in self.jobs if crit(nid, state)])
-
-    def expandsTo(self, A, B):
+    def expandsTo(A, B):
         """ A, B can be:
         - set or list: list of jobs
         - string: passed to expands_jobs
@@ -61,9 +56,9 @@ class Test1(CompmakeTest):
             elif isinstance(X, list):
                 return set(X)
             elif isinstance(X, type(lambda: 0)):
-                return self.selection(X)
+                return selection(X)
             elif isinstance(X, str):
-                return set(parse_job_list(X, context=self.cc))
+                return set(parse_job_list(X, context=env.cc))
             else:
                 assert False, "Wrong type %s" % type(X)
 
@@ -71,68 +66,62 @@ class Test1(CompmakeTest):
         b = expand_to_set(B)
 
         try:
-            self.assert_equal_set(a, b)
+            assert_equal(set(a), set(b))
         except:  # pragma: no cover
             sys.stdout.write("Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n" % (A, a, B, b))
             raise
 
-    def syntaxError(self, s):
+    def syntaxError(s: str):
         def f(x):  # it's a generator, you should try to read it
-            return list(parse_job_list(x, context=self.cc))
+            return list(parse_job_list(x, context=env.cc))
 
         assert_raises(CompmakeSyntaxError, f, s)
 
     # def userError(self, s):
     #     assert_raises(UserError, parse_job_list, s)
 
-    def testCatchErrors(self):
-        self.syntaxError("not")
-        self.syntaxError("all not")
-        self.syntaxError("all not")
-        self.syntaxError("all in")
-        self.syntaxError("in $all")
-        self.syntaxError("all not e")
+    syntaxError("not")
+    syntaxError("all not")
+    syntaxError("all not")
+    syntaxError("all in")
+    syntaxError("in $all")
+    syntaxError("all not e")
 
-    def testSpecial(self):
-        """ Test that the special variables work"""
-        self.expandsTo("  ", set())
-        self.expandsTo("all", self.all)
-        self.expandsTo("failed", self.failed)
-        self.expandsTo("done", self.done)
-        self.expandsTo("DONE", self.done)
+    # def testSpecial(self):
+    """ Test that the special variables work"""
+    expandsTo("  ", set())
+    expandsTo("all", all_jobs)
+    expandsTo("failed", failed)
+    expandsTo("done", done)
+    expandsTo("DONE", done)
 
-    #         self.expandsTo('in_progress', self.in_progress)
+    #         expandsTo('in_progress', self.in_progress)
 
-    def testBasicUnion(self):
-        """ Testing basic union operator """
-        self.expandsTo("failed e", self.failed.union("e"))
-        self.expandsTo("e failed", self.failed.union("e"))
+    """ Testing basic union operator """
+    expandsTo("failed e", failed.union("e"))
+    expandsTo("e failed", failed.union("e"))
 
-    def testNot(self):
-        all_not_e = self.selection(lambda job, _: job != "e")
-        self.expandsTo("e", ["e"])
-        self.expandsTo("e*", ["e"])
-        self.expandsTo("not e", all_not_e)
-        self.expandsTo("not e*", all_not_e)
-        self.expandsTo("all except e", all_not_e)
-        self.expandsTo("not not e", ["e"])
-        self.expandsTo("not not all", "all")
-        self.expandsTo("not all", [])
-        self.expandsTo("not all except all", [])
-        self.expandsTo("not e except not e", [])
-        self.expandsTo("not a b c except not a b c", [])
-        self.expandsTo("not c except a ", "not a c")
-        self.expandsTo("a in c  ", [])
-        self.expandsTo("a in all  ", "a")
-        self.expandsTo("all in all  ", "all")
+    all_not_e = selection(lambda job, _: job != "e")
+    expandsTo("e", ["e"])
+    expandsTo("e*", ["e"])
+    expandsTo("not e", all_not_e)
+    expandsTo("not e*", all_not_e)
+    expandsTo("all except e", all_not_e)
+    expandsTo("not not e", ["e"])
+    expandsTo("not not all", "all")
+    expandsTo("not all", [])
+    expandsTo("not all except all", [])
+    expandsTo("not e except not e", [])
+    expandsTo("not a b c except not a b c", [])
+    expandsTo("not c except a ", "not a c")
+    expandsTo("a in c  ", [])
+    expandsTo("a in all  ", "a")
+    expandsTo("all in all  ", "all")
 
-    def testFailed(self):
-        self.expandsTo("all except failed", lambda _, state: state != Cache.FAILED)
-        self.expandsTo("not failed", lambda _, state: state != Cache.FAILED)
+    expandsTo("all except failed", lambda _, s_: s_ != Cache.FAILED)
+    expandsTo("not failed", lambda _, s_: s_ != Cache.FAILED)
 
-    def testIntersection(self):
-        self.expandsTo("a b in a b c", ["a", "b"])
-        self.expandsTo("a b c in d e", [])
+    expandsTo("a b in a b c", ["a", "b"])
+    expandsTo("a b c in d e", [])
 
-    def tearDown(self):
-        pass
+    # expandsTo("not started", not_started)
