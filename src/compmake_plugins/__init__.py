@@ -7,7 +7,6 @@
 from . import (
     backend_local,
     backend_pmake,
-    backend_sge,
     backend_ssh_cluster,
     clear_imp,
     commands_status,
@@ -33,7 +32,6 @@ from . import (
 _ = (
     backend_local,
     backend_pmake,
-    backend_sge,
     backend_ssh_cluster,
     clear_imp,
     commands_status,

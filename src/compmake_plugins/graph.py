@@ -3,13 +3,15 @@ from collections import defaultdict
 from typing import Collection
 
 from compmake import Context
+from compmake.cachequerydb import CacheQueryDB, definition_closure
 from compmake.exceptions import UserError
 from compmake.helpers import COMMANDS_ADVANCED, ui_command
 from compmake.queries import top_targets
 from compmake.structures import Cache
 from compmake.types import CMJobID
-from compmake.cachequerydb import CacheQueryDB, definition_closure
 from compmake.visualization import ui_info
+
+from zuper_graphs_draw import GvGen
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -143,8 +145,6 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
 def create_graph1(
     cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
 ):
-    from mcdp_report.my_gvgen import GvGen
-
     print("Creating graph")
     job_list = list(job_list)
     print(f"create_graph1({job_list})")
@@ -179,8 +179,6 @@ def create_graph1(
 def create_graph2_clusters(
     cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
 ):
-    from mcdp_report.my_gvgen import GvGen
-
     print("Creating graph")
 
     ggraph = GvGen()

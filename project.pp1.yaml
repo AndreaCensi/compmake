@@ -15,13 +15,18 @@ install_requires: [
     decorator,
     SystemCmd-z7,
     future,
-    networkx>=2,<3,
+    "networkx>=2,<3",
     six,
-    zuper-utils-asyncio,
+    zuper-utils-asyncio-z7,
     zuper-commons-z7,
     zuper-typing-z7,
-    zuper-commons-z7>=6.1.7,
-    asciimatics ]
+    "zuper-commons-z7>=6.1.7",
+    asciimatics,
+    zuper-utils-asyncio-z7,
+    zuper-graphs-z7,
+    numpy,
+    pyreadline
+]
 
 install_conflicts: [ 'compmake-*' ]
 tests_require: [ ]
@@ -31,7 +36,6 @@ console_scripts:
   zuper-make: compmake.make_bridge:make_bridge_main
   zmake: compmake.make_bridge:make_bridge_main
 
-#  zt-demo: zuper_utils_asyncio:zt_demo
 nose:
   modules:
     - compmake_tests

@@ -2,13 +2,12 @@ package=compmake_tests
 
 include pypackage.mk
 
-bump-upload:
-	$(MAKE) bump
-	$(MAKE) upload
+
 bump:
 	bumpversion patch
 	git push --tags
 	git push --all
+
 upload:
 	rm -f dist/*
 	rm -rf src/*.egg-info
@@ -16,6 +15,17 @@ upload:
 	devpi use $(TWINE_REPOSITORY_URL)
 	devpi login $(TWINE_USERNAME) --password $(TWINE_PASSWORD)
 	devpi upload --verbose dist/*
+
+COVERAGE_FILE=out/cov/data
+
+nosequick:
+	coverage erase
+	mkdir -p out/cov
+	COVERAGE_FILE=$(COVERAGE_FILE) \
+	nosetests compmake_tests --with-coverage --cover-html --cover-html-dir out/cov \
+		--cover-package compmake,compmake_plugins,compmake_tests --cover-tests --cover-erase --cover-branches
+
+
 
 vulture:
 

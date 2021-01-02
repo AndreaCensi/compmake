@@ -9,6 +9,7 @@ from .types import CMJobID
 
 __all__ = [
     "job_compute",
+    "JobCompute",
 ]
 
 

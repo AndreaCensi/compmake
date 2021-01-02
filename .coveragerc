@@ -9,7 +9,7 @@ disable_warnings =
 
 concurrency = multiprocessing
 
-parallel = true
+parallel = false
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -34,6 +34,7 @@ exclude_lines =
     if TYPE_CHECKING
     if typing.TYPE_CHECKING
     if IPCLGlobals.extra_checks:
+    _raise_bug
 
 sort = Miss
 
