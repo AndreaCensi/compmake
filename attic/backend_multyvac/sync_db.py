@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from compmake.jobs.storage import job2cachekey, job2jobargskey, job2key, job2userobjectkey
 from compmake.jobs.uptodate import CacheQueryDB
 from compmake.storage.filesystem import StorageFilesystem

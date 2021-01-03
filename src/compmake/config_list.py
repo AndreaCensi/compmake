@@ -12,12 +12,12 @@ __all__ = [
 CONFIG_GENERAL = "General configuration"
 CONFIG_APPEARANCE = "Visualization"
 CONFIG_PARALLEL = "Multiprocessing backend"
-CONFIG_MULTYVAC = "Multyvac backend"
+# CONFIG_MULTYVAC = "Multyvac backend"
 
 add_config_section(name=CONFIG_GENERAL, desc="", order=-1)
 add_config_section(name=CONFIG_APPEARANCE, desc="", order=2)
 add_config_section(name=CONFIG_PARALLEL, desc="", order=3)
-add_config_section(name=CONFIG_MULTYVAC, desc="", order=4)
+# add_config_section(name=CONFIG_MULTYVAC, desc="", order=4)
 
 add_config_switch(
     "recurse",
@@ -155,23 +155,23 @@ if False:  # To re-implement
         section=CONFIG_PARALLEL,
     )
 
-
-add_config_switch(
-    "multyvac_debug", False, desc="If true, shows multyvac's logging output.", section=CONFIG_MULTYVAC
-)
-
-add_config_switch(
-    "multyvac_max_jobs", 50, desc="Default number of cloud jobs to be instantiated", section=CONFIG_MULTYVAC
-)
-
-add_config_switch("multyvac_layer", "", desc="Multyvac 'layer'", section=CONFIG_MULTYVAC)
-
-add_config_switch(
-    "multyvac_sync_down", "", desc="Multyvac synchronization directory (output)", section=CONFIG_MULTYVAC
-)
-
-add_config_switch(
-    "multyvac_sync_up", "", desc="Multyvac synchronization directory (input)", section=CONFIG_MULTYVAC
-)
-
-add_config_switch("multyvac_core", "c2", desc="Multyvac core (c1,c2,f2)", section=CONFIG_MULTYVAC)
+#
+# add_config_switch(
+#     "multyvac_debug", False, desc="If true, shows multyvac's logging output.", section=CONFIG_MULTYVAC
+# )
+#
+# add_config_switch(
+#     "multyvac_max_jobs", 50, desc="Default number of cloud jobs to be instantiated", section=CONFIG_MULTYVAC
+# )
+#
+# add_config_switch("multyvac_layer", "", desc="Multyvac 'layer'", section=CONFIG_MULTYVAC)
+#
+# add_config_switch(
+#     "multyvac_sync_down", "", desc="Multyvac synchronization directory (output)", section=CONFIG_MULTYVAC
+# )
+#
+# add_config_switch(
+#     "multyvac_sync_up", "", desc="Multyvac synchronization directory (input)", section=CONFIG_MULTYVAC
+# )
+#
+# add_config_switch("multyvac_core", "c2", desc="Multyvac core (c1,c2,f2)", section=CONFIG_MULTYVAC)

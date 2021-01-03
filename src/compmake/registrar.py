@@ -49,7 +49,8 @@ def register_handler(event_name: str, handler):
         Registers an handler with an event name.
         The event name might contain asterisks. "*" matches all.
     """
-
+    # if not inspect.isawaitable(handler):
+    #     logger.debug('not awaitable', handler=handler)
     spec = inspect.getfullargspec(handler)
     args = set(spec.args)
     possible_args = {"event", "context", "self"}

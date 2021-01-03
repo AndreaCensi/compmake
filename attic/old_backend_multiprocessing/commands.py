@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .manager_multiprocessing import MultiprocessingManager
 from compmake.events import publish
 from compmake.jobs.queries import top_targets

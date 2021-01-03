@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .mvac_manager import MVacManager
 from compmake.constants import DefaultsToConfig
 from compmake.events import publish

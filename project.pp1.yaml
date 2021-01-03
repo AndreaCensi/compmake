@@ -12,7 +12,7 @@ install_requires: [
     psutil,
     dill,
     coverage,
-    decorator,
+#    decorator,
     SystemCmd-z7,
     future,
     "networkx>=2,<3",

@@ -98,7 +98,7 @@ class StorageFilesystem:
             except Exception as e:
                 msg = f"Could not unpickle data for key {key!r}. \n file: {filename}"
                 logger.error(msg)
-                logger.exception(e)
+                # logger.exception(e)
                 msg += "\n" + traceback.format_exc()
                 raise CompmakeBug(msg)
         elif self.method == "dill":

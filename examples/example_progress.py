@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 
