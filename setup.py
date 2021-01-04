@@ -1,84 +1,52 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
-def get_version(filename):
+def get_version_from_source(filename):
     import ast
 
-    version_ = None
+    version = None
     with open(filename) as f:
         for line in f:
             if line.startswith("__version__"):
-                version_ = ast.parse(line).body[0].value.s
+                version = ast.parse(line).body[0].value.s
                 break
         else:
-            raise ValueError("No version found in %r." % filename)
-    if version_ is None:
+            raise ValueError(f"No version found in {filename!r}.")
+    if version is None:
         raise ValueError(filename)
-    return version_
+    return version
 
 
-version = get_version(filename="src/compmake/__init__.py")
+import yaml
 
-line = "z7"
+with open("project.pp1.yaml") as f:
+    data = yaml.load(f, Loader=yaml.Loader)
 
-install_requires = [
-    "termcolor",
-    "setproctitle",
-    "PyYaml",
-    "psutil",
-    "dill",
-    "coverage",
-    "decorator",
-    "SystemCmd-z7",
-    "future",
-    "networkx>=2,<3",
-    "six",
-    "zuper-typing-z7",
-    "zuper-commons-z7>=6.1.7",
-    "zuper-utils-asyncio-z7",
-    "asciimatics",
-]
+install_requires = data["install_requires"]
+tests_require = data["tests_require"]
 
-setup(
-    name=f"compmake-{line}",
-    author="Andrea Censi",
-    url="http://compmake.org",
-    version=version,
-    description="Compmake is a non-obtrusive module that provides "
-    "'make'-like facilities to your Python applications,"
-    "including caching of results, robustness to jobs failure, "
-    "and multiprocessing/multihost parallel processing.",
-    long_description="""
-        Compmake is a non-obtrusive module that provides
-        'make'-like facilities to your Python applications,
-        including caching of results, robustness to jobs failure,
-        and multiprocessing/multihost parallel processing.
+src = data["srcdir"]
+console_scripts = [f"{k} = {v}" for k, v in data["console_scripts"].items()]
+package_name = data["package_name"]
+packages = data["modules"]
+main_package = packages[0]
+version = get_version_from_source(f"{src}/{main_package}/__init__.py")
 
-        Please see for docs: http://compmake.org
-        and get the manual PDF at: http://purl.org/censi/compmake-manual
-    """,
-    keywords="parallel processing, make, cmake, manager, recovery",
-    license="LGPL",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering",
-        "Topic :: System :: Clustering",
-        "Topic :: System :: Distributed Computing",
-        "Topic :: System :: Hardware :: Symmetric Multi-processing",
-        "License :: OSI Approved :: GNU Library or " "Lesser General Public License (LGPL)",
-    ],
-    package_dir={"": "src"},
-    packages=find_packages("src"),
-    entry_points={
-        "console_scripts": [
-            "compmake = compmake:main",
-            "zuper-make = compmake.make_bridge:make_bridge_main",
-            "zmake = compmake.make_bridge:make_bridge_main",
-            # 'compmake_slave = compmake.jobs.manager_ssh_cluster:compmake_slave'
-        ]
-    },
+# setup package
+params = dict(
+    name=package_name,
+    author=data["author"],
+    author_email=data["author_email"],
+    url=data["url"],
+    tests_require=tests_require,
     install_requires=install_requires,
-    tests_require=["nose", "aiounittest"],
+    package_dir={"": src},
+    packages=data["modules"],
+    long_description="",
+    version=version,
+    entry_points={"console_scripts": console_scripts},
 )
+
+setup(**params)
+
+# sigil eb9c1d7b9c70de6abb2a4a14d0c49253
