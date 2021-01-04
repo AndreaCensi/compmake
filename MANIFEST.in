@@ -4,3 +4,5 @@ include *.txt
 include *.mk
 include *.yml
 include *.py
+include setup.json
+exclude project.pp1.yaml
