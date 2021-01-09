@@ -13,6 +13,7 @@ from compmake import (
     top_targets,
     ui_command,
 )
+from zuper_utils_asyncio import SyncTaskInterface
 from .manager_local import ManagerLocal
 
 __all__ = [
@@ -22,7 +23,8 @@ __all__ = [
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def make(
+async def make(
+    sti: SyncTaskInterface,
     job_list,
     context,
     cq,
@@ -46,15 +48,17 @@ def make(
     if not job_list:
         job_list = list(top_targets(db=db))
 
-    manager = ManagerLocal(context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo)
+    manager = ManagerLocal(
+        sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo
+    )
     manager.add_targets(job_list)
-    manager.process()
+    await manager.process()
     return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def pretend(
-    job_list, context, cq,
+async def pretend(
+    sti, job_list, context, cq,
 ):
     """
         Pretends that a target is done. The output is None.
@@ -77,7 +81,7 @@ def pretend(
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def invalidate(non_empty_job_list, context):
+async def invalidate(sti, non_empty_job_list, context):
     """ Invalidates the cache of a job so that it will be remade. """
     db = context.get_compmake_db()
     for job in non_empty_job_list:
@@ -85,7 +89,8 @@ def invalidate(non_empty_job_list, context):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def remake(
+async def remake(
+    sti: SyncTaskInterface,
     non_empty_job_list,
     context,
     cq,
@@ -99,6 +104,7 @@ def remake(
         :param non_empty_job_list:
         :param context:
         :param cq:
+        :param sti:
         :param echo:
         :param new_process:Run the jobs in a new Python process.
         :param recurse:   Recursive remake: put generated jobs in
@@ -112,15 +118,18 @@ def remake(
     for job in non_empty_job_list:
         mark_to_remake(job, db=db)
 
-    manager = ManagerLocal(context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo)
+    manager = ManagerLocal(
+        sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo
+    )
 
     manager.add_targets(non_empty_job_list)
-    manager.process()
+    await manager.process()
     return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def rmake(
+async def rmake(
+    sti: SyncTaskInterface,
     job_list,
     context,
     cq,
@@ -128,4 +137,6 @@ def rmake(
     new_process: bool = DefaultsToConfig("new_process"),
 ):
     """ make with recurse = 1 """
-    return make(job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True)
+    return await make(
+        sti, job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True
+    )

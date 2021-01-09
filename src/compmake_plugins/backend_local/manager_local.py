@@ -1,12 +1,16 @@
 from compmake import (
     AsyncResultInterface,
+    CMJobID,
     CompmakeBug,
     make,
     Manager,
-    parmake_job2_new_process,
+    OKResult,
     result_dict_check,
     ui_warning,
 )
+from compmake.actions_newprocess import parmake_job2_new_process_1
+from compmake.result_dict import check_ok_result, result_dict_raise_if_error
+from zuper_utils_asyncio import SyncTaskInterface
 
 tr = None
 
@@ -20,11 +24,12 @@ class ManagerLocal(Manager):
     """ Specialization of manager for local execution """
 
     # @contract(new_process="bool", echo="bool")
-    def __init__(self, new_process: bool, echo: bool, *args, **kwargs):
-        Manager.__init__(self, *args, **kwargs)
+    def __init__(self, sti: SyncTaskInterface, new_process: bool, echo: bool, *args, **kwargs):
+        Manager.__init__(self, sti, *args, **kwargs)
         self.new_process = new_process
         self.echo = echo
 
+        self.sti = sti
         if new_process and echo:
             msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
             ui_warning(self.context, msg)
@@ -37,12 +42,14 @@ class ManagerLocal(Manager):
         else:
             return True
 
-    def instance_job(self, job_id):
-        return FakeAsync(job_id, context=self.context, new_process=self.new_process, echo=self.echo)
+    async def instance_job(self, job_id: CMJobID):
+
+        return FakeAsync(self.sti, job_id, context=self.context, new_process=self.new_process, echo=self.echo)
 
 
 class FakeAsync(AsyncResultInterface):
-    def __init__(self, job_id, context, new_process, echo):
+    def __init__(self, sti: SyncTaskInterface, job_id: CMJobID, context, new_process, echo):
+        self.sti = sti
         self.job_id = job_id
         self.context = context
         self.new_process = new_process
@@ -58,21 +65,20 @@ class FakeAsync(AsyncResultInterface):
         self.told_you_ready = True
         return True
 
-    def get(self, timeout=0):
+    async def get(self, timeout=0) -> OKResult:
         if not self.told_you_ready:
             msg = "Should call get() only after ready()."
             raise CompmakeBug(msg)
 
-        res = self._execute()
-        result_dict_check(res)
-        return res
+        res = await self._execute(self.sti)
+        return result_dict_raise_if_error(res)
 
-    def _execute(self):
+    async def _execute(self, sti: SyncTaskInterface) -> OKResult:
         if self.new_process:
             args = (self.job_id, self.context)
-            return parmake_job2_new_process(args)
+            return await parmake_job2_new_process_1(sti, args)
         else:
             # if use_pympler:
             #     tr.print_diff()
 
-            return make(self.job_id, context=self.context, echo=self.echo)
+            return await make(sti, self.job_id, context=self.context, echo=self.echo)

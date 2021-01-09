@@ -1,15 +1,19 @@
+import asyncio
 import itertools
 import os
 import shutil
+import signal
 import time
 import traceback
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from multiprocessing import TimeoutError
 from typing import Any, Collection, Dict, List, Set
 
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import indent
+from zuper_commons.types import ZException
+from zuper_utils_asyncio import SyncTaskInterface
 from .actions import mark_as_blocked
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -19,7 +23,7 @@ from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
 from .registrar import publish
-from .result_dict import result_dict_check
+from .result_dict import check_ok_result, result_dict_check
 from .state import get_compmake_config
 from .storage import (
     assert_job_exists,
@@ -31,7 +35,7 @@ from .storage import (
     job_userobject_exists,
 )
 from .structures import Cache, StateCode
-from .types import CMJobID
+from .types import CMJobID, OKResult, ResultDict
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 
@@ -42,15 +46,17 @@ __all__ = [
 ]
 
 
-class AsyncResultInterface:
-    __metaclass__ = ABCMeta
+class Interruption(ZException):
+    pass
 
+
+class AsyncResultInterface(ABC):
     @abstractmethod
-    def ready(self):
+    def ready(self) -> bool:
         """ Returns True if it is ready (completed or failed). """
 
     @abstractmethod
-    def get(self, timeout=0):
+    async def get(self, timeout: float = 0) -> OKResult:
         """ Either:
             - returns a dictionary with fields:
                 new_jobs: list of jobs created
@@ -64,8 +70,6 @@ class AsyncResultInterface:
 
 
 class ManagerLog:
-    # __metaclass__ = ContractsMeta
-
     def __init__(self, db):
         storage = os.path.abspath(db.basepath)
         logdir = os.path.join(storage, "logs")
@@ -73,7 +77,7 @@ class ManagerLog:
             shutil.rmtree(logdir)
         log = os.path.join(logdir, "manager.log")
         # log = 'manager-%s.log' % sys.version
-        # print('logging to %s' % log)
+        print("logging to %s" % log)
         make_sure_dir_exists(log)
         self.f = open(log, "w")
 
@@ -95,18 +99,21 @@ class Manager(ManagerLog):
     cq: CacheQueryDB
     context: Context
     db: StorageFilesystem
+
     targets: Set[CMJobID]
-    """ top level"""
+    """ top level targets"""
+
     all_targets: Set[CMJobID]
     deleted: Set[CMJobID]
     todo: Set[CMJobID]
     ready_todo: Set[CMJobID]
     processing: Set[CMJobID]
-    processing2result: Dict[CMJobID, Any]
+    processing2result: Dict[CMJobID, AsyncResultInterface]
 
     # noinspection PyUnusedLocal
-    def __init__(self, context, cq: CacheQueryDB, recurse: bool = False):
+    def __init__(self, sti: SyncTaskInterface, context, cq: CacheQueryDB, recurse: bool = False):
         self.context = context
+        self.sti = sti
         # self.cq = cq
         self.db = context.get_compmake_db()
         ManagerLog.__init__(self, db=self.db)
@@ -147,6 +154,7 @@ class Manager(ManagerLog):
         self.priorities = {}
 
         self.check_invariants()
+        self.interrupted = False
 
     # ## Derived class interface
     def process_init(self):
@@ -160,7 +168,7 @@ class Manager(ManagerLog):
         """ Return true if a new job can be accepted right away"""
 
     @abstractmethod
-    def instance_job(self, job_id: CMJobID):
+    async def instance_job(self, job_id: CMJobID):
         """ Instances a job. """
 
     def cleanup(self):
@@ -269,7 +277,7 @@ class Manager(ManagerLog):
             done=self.done,
         )
 
-    def instance_some_jobs(self):
+    async def instance_some_jobs(self):
         """
             Instances some of the jobs. Uses the
             functions can_accept_job(), next_job(), and ...
@@ -294,7 +302,7 @@ class Manager(ManagerLog):
 
             self.log("chosen next_job", job_id=job_id)
 
-            self.start_job(job_id)
+            await self.start_job(job_id)
             n += 1
 
         #         print('cur %d Instanced %d, %s' % (len(self.processing2result), n, reasons))
@@ -323,7 +331,7 @@ class Manager(ManagerLog):
 
         raise CompmakeBug(msg)
 
-    def start_job(self, job_id: CMJobID):
+    async def start_job(self, job_id: CMJobID):
         self.log("start_job", job_id=job_id)
         self.check_invariants()
         if job_id not in self.ready_todo:
@@ -332,7 +340,7 @@ class Manager(ManagerLog):
         publish(self.context, "manager-job-processing", job_id=job_id)
         self.ready_todo.remove(job_id)
         self.processing.add(job_id)
-        self.processing2result[job_id] = self.instance_job(job_id)
+        self.processing2result[job_id] = await self.instance_job(job_id)
 
         # This is for the simple case of local processing, where
         # the next line actually does something now
@@ -340,7 +348,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False):
+    async def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False) -> bool:
         """
             Checks that the job finished succesfully or unsuccesfully.
 
@@ -373,7 +381,7 @@ class Manager(ManagerLog):
             else:
                 timeout = 0
 
-            result = async_result.get(timeout=timeout)
+            result = await async_result.get(timeout=timeout)
             # print('here result: %s' % result)
             result_dict_check(result)
 
@@ -414,7 +422,7 @@ class Manager(ManagerLog):
             # No, don't mark as failed
             # (even though knowing where it was interrupted was good)
             # XXX
-            print(traceback.format_exc())
+            self.sti.logger.error(traceback.format_exc())
             raise JobInterrupted("Keyboard interrupt")
 
     def job_is_deleted(self, job_id: CMJobID):
@@ -428,8 +436,9 @@ class Manager(ManagerLog):
                 self.ready_todo.remove(job_id)
             self.deleted.add(job_id)
 
-    def check_job_finished_handle_result(self, job_id, result):
+    def check_job_finished_handle_result(self, job_id: CMJobID, result: OKResult):
         self.check_invariants()
+        result = check_ok_result(result)
         self.log(
             "check_job_finished_handle_result",
             job_id=job_id,
@@ -635,7 +644,7 @@ class Manager(ManagerLog):
     def event_check(self):
         pass
 
-    def check_any_finished(self):
+    async def check_any_finished(self):
         """
             Checks that any of the jobs finished.
 
@@ -645,11 +654,11 @@ class Manager(ManagerLog):
         # We make a copy because processing is updated during the loop
         received = False
         for job_id in self.processing.copy():
-            received = received or self.check_job_finished(job_id)
+            received = received or await self.check_job_finished(job_id)
             self.check_invariants()
         return received
 
-    def loop_until_something_finishes(self):
+    async def loop_until_something_finishes(self):
         self.check_invariants()
 
         manager_wait = get_compmake_config("manager_wait")
@@ -657,22 +666,36 @@ class Manager(ManagerLog):
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
         for _ in range(10):  # XXX
-            received = self.check_any_finished()
+            received = await self.check_any_finished()
 
             if received:
                 break
             else:
                 publish(self.context, "manager-loop", processing=list(self.processing))
-                time.sleep(manager_wait)  # TODO: make param
+                await asyncio.sleep(manager_wait)  # TODO: make param
 
             # Process events
             self.event_check()
             self.check_invariants()
 
-    def process(self):
+    async def process(self):
         """ Start processing jobs. """
         # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
+
+        self.interrupted = False
+        loop_task = None
+        self.sti.logger.user_info(pid=os.getpid())
+
+        def shutdown():
+            self.sti.logger.user_error("CTRL-C", pid=os.getpid())
+            self.interrupted = True
+            loop_task.cancel()
+            # raise Interruption('shutdown')
+
+        loop = asyncio.get_event_loop()
+
+        loop.add_signal_handler(signal.SIGINT, shutdown)
 
         if not self.todo and not self.ready_todo:
             publish(
@@ -695,36 +718,41 @@ class Manager(ManagerLog):
 
         publish(self.context, "manager-phase", phase="loop")
         try:
-            i = 0
-            while self.todo or self.ready_todo or self.processing:
-                self.log(indent(self._get_situation_string(), f"{i}: "))
-                i += 1
-                self.check_invariants()
-                # either something ready to do, or something doing
-                # otherwise, we are completely blocked
-                if (not self.ready_todo) and (not self.processing):
-                    msg = (
-                        "Nothing ready to do, and nothing cooking. "
-                        "This probably means that the Compmake job "
-                        "database was inconsistent. "
-                        "This might happen if the job creation is "
-                        'interrupted. Use the command "check-consistency" '
-                        "to check the database consistency.\n" + self._get_situation_string()
-                    )
-                    raise CompmakeBug(msg)
 
-                self.publish_progress()
-                waiting_on = self.instance_some_jobs()
-                # self.publish_progress()
+            async def loopit():
+                i = 0
+                while self.todo or self.ready_todo or self.processing:
+                    self.log(indent(self._get_situation_string(), f"{i}: "))
+                    i += 1
+                    self.check_invariants()
+                    # either something ready to do, or something doing
+                    # otherwise, we are completely blocked
+                    if (not self.ready_todo) and (not self.processing):
+                        msg = (
+                            "Nothing ready to do, and nothing cooking. "
+                            "This probably means that the Compmake job "
+                            "database was inconsistent. "
+                            "This might happen if the job creation is "
+                            'interrupted. Use the command "check-consistency" '
+                            "to check the database consistency.\n" + self._get_situation_string()
+                        )
+                        raise CompmakeBug(msg)
 
-                publish(self.context, "manager-wait", reasons=waiting_on)
+                    self.publish_progress()
+                    waiting_on = await self.instance_some_jobs()
+                    # self.publish_progress()
 
-                if self.ready_todo and not self.processing:
-                    # We time out as there are no resources
-                    publish(self.context, "manager-phase", phase="wait")
+                    publish(self.context, "manager-wait", reasons=waiting_on)
 
-                self.loop_until_something_finishes()
-                self.check_invariants()
+                    if self.ready_todo and not self.processing:
+                        # We time out as there are no resources
+                        publish(self.context, "manager-phase", phase="wait")
+
+                    await self.loop_until_something_finishes()
+                    self.check_invariants()
+
+            loop_task = asyncio.create_task(loopit())
+            res = await loop_task
             self.log(indent(self._get_situation_string(), "ending: "))
 
             # end while

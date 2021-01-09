@@ -1,6 +1,6 @@
 from typing import cast, List
 
-from compmake import definition_closure
+from compmake import clean_other_jobs, definition_closure
 from compmake.types import CMJobID
 
 
@@ -55,6 +55,7 @@ async def test_dynamic5(env: Env):
 
     async with environment(env.sti, env.rootd) as env2:
         mockup5(env2, both=False)
+        await clean_other_jobs(env2.sti, context=env2.cc)
         await env2.assert_cmd_success("clean")
         await env2.assert_cmd_success("make recurse=1")
         await env2.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2"])

@@ -13,10 +13,13 @@ from compmake import (
 )
 from compmake.exceptions import CompmakeBug
 from compmake.storage import all_jobs, get_job, job_exists
+from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
-def check_consistency(args, context, cq, raise_if_error=False):  # @ReservedAssignment
+async def check_consistency(
+    sti: SyncTaskInterface, args, context, cq, raise_if_error=False
+):  # @ReservedAssignment
     """ Checks in the DB that the relations between jobs are consistent. """
 
     db = context.get_compmake_db()

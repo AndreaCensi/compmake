@@ -2,6 +2,7 @@ from typing import List
 
 from zuper_commons.text import indent
 from zuper_commons.types import raise_wrapped, ZException
+from .types import AbortResult, FailResult, InterruptedResult, ResultDict
 
 __all__ = [
     "ShellExitRequested",
@@ -97,7 +98,7 @@ class JobFailed(CompmakeException):
 
         CompmakeException.__init__(self, job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
 
-    def get_result_dict(self):
+    def get_result_dict(self) -> FailResult:
         res = dict(
             fail=f"Job {self.job_id!r} failed.",
             job_id=self.job_id,
@@ -108,7 +109,7 @@ class JobFailed(CompmakeException):
         return res
 
     @staticmethod
-    def from_dict(res):
+    def from_dict(res: FailResult):
         from .result_dict import result_dict_check
 
         result_dict_check(res)
@@ -134,7 +135,7 @@ class JobInterrupted(CompmakeException):
         return self.msg
 
     @staticmethod
-    def from_dict(res):
+    def from_dict(res: InterruptedResult):
         from .result_dict import result_dict_check
 
         result_dict_check(res)
@@ -142,7 +143,7 @@ class JobInterrupted(CompmakeException):
         e = JobInterrupted(job_id=res["job_id"], deleted_jobs=res["deleted_jobs"])
         return e
 
-    def get_result_dict(self):
+    def get_result_dict(self) -> InterruptedResult:
         res = dict(
             interrupt=f"Job {self.job_id!r} interrupted.",
             job_id=self.job_id,
@@ -171,7 +172,7 @@ class HostFailed(CompmakeException):
     def __str__(self):
         return self.msg
 
-    def get_result_dict(self):
+    def get_result_dict(self) -> AbortResult:
         res = dict(
             abort=f"Host failed for {self.job_id!r}.",
             host=self.host,
@@ -182,7 +183,7 @@ class HostFailed(CompmakeException):
         return res
 
     @staticmethod
-    def from_dict(res):
+    def from_dict(res: AbortResult):
         from .result_dict import result_dict_check
 
         result_dict_check(res)

@@ -2,16 +2,15 @@ import os
 from typing import cast
 
 from zuper_commons.fs import friendly_path
+from zuper_utils_asyncio import SyncTaskInterface
 from .cachequerydb import CacheQueryDB
-
 from .context import Context
-
 from .visualization import ui_info
 
 __all__ = ["read_commands_from_file"]
 
 
-def read_commands_from_file(filename: str, context: Context):
+async def read_commands_from_file(sti: SyncTaskInterface, filename: str, context: Context):
     from .interpret import interpret_commands_wrap
     from .context_imp import ContextImp
 
@@ -32,4 +31,4 @@ def read_commands_from_file(filename: str, context: Context):
                 continue
             if line[0] == "#":
                 continue
-            interpret_commands_wrap(line, context=context, cq=cq)
+            await interpret_commands_wrap(sti, line, context=context, cq=cq)

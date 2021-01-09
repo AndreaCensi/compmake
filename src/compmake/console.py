@@ -59,7 +59,7 @@ def get_readline():
                 return None
 
 
-def interactive_console(context):
+async def interactive_console(sti: SyncTaskInterface, context):
     """
         raises: CommandFailed, CompmakeBug
     """
@@ -71,7 +71,7 @@ def interactive_console(context):
     while True:
         try:
             for line in compmake_console_lines(context):
-                interpret_commands_wrap(line, context=context, cq=cq)
+                await interpret_commands_wrap(sti, line, context=context, cq=cq)
         except CommandFailed as e:
             if not isinstance(e, MakeFailed):
                 ui_error(context, str(e))
@@ -81,7 +81,7 @@ def interactive_console(context):
         except ShellExitRequested:
             break
         except KeyboardInterrupt:  # CTRL-C
-            print("\nPlease use 'exit' to quit.")
+            sti.logger.user_info("\nPlease use 'exit' to quit.")
         except EOFError:  # CTRL-D
             # TODO maybe make loop different? we don't want to catch
             # EOFerror in interpret_commands
@@ -202,24 +202,24 @@ def ask_question(question, allowed=None):
 
 
 async def compmake_console_text(sti: SyncTaskInterface, context):
-    clean_other_jobs(context=context)
+    await clean_other_jobs(sti, context=context)
 
-    read_rc_files(context=context)
-    interactive_console(context=context)
+    await read_rc_files(sti, context=context)
+    await interactive_console(sti, context=context)
 
 
 async def compmake_console_gui(sti: SyncTaskInterface, context):
-    return Screen.wrapper(compmake_console_gui_, arguments=[context])
+    return Screen.wrapper(compmake_console_gui_, arguments=[sti, context])
 
 
-def compmake_console_gui_(screen: Screen, context):
-    clean_other_jobs(context=context)
+async def compmake_console_gui_(sti: SyncTaskInterface, screen: Screen, context):
+    await clean_other_jobs(sti, context=context)
 
-    read_rc_files(context=context)
+    await read_rc_files(sti, context=context)
 
     DefaultConsole.active = False
     scenes = [
-        Scene([MainList(screen, context)], -1, name="Main"),
+        Scene([MainList(sti, screen, context)], -1, name="Main"),
     ]
 
     screen.play(scenes, stop_on_resize=False, start_scene=scenes[0], allow_int=True)
@@ -228,8 +228,9 @@ def compmake_console_gui_(screen: Screen, context):
 class MainList(Frame):
     offset: int
 
-    def __init__(self, screen: Screen, context):
+    def __init__(self, sti: SyncTaskInterface, screen: Screen, context):
         self.all_lines = []
+        self.sti = sti
         self.offset = 0
         super(MainList, self).__init__(
             screen,
@@ -251,7 +252,7 @@ class MainList(Frame):
 
         cq = CacheQueryDB(context.get_compmake_db())
 
-        def on_command_change(*args):
+        async def on_command_change(*args):
             v = cmd.value
             # print(repr(v))
             # tb.value = [repr(v)]
@@ -262,7 +263,7 @@ class MainList(Frame):
                 screen.refresh()
 
                 try:
-                    interpret_commands_wrap(line, context=context, cq=cq)
+                    await interpret_commands_wrap(sti, line, context=context, cq=cq)
                 except ShellExitRequested:
                     raise StopApplication("bye")
                 except CommandFailed as e:

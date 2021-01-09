@@ -1,6 +1,7 @@
 import traceback
 
 from zuper_commons.text import indent
+from zuper_utils_asyncio import SyncTaskInterface
 from .context import Context
 from .cachequerydb import CacheQueryDB
 from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, ShellExitRequested, UserError
@@ -13,7 +14,9 @@ from .state import set_compmake_status
 __all__ = ["interpret_commands_wrap", "batch_command"]
 
 
-def interpret_commands_wrap(commands: str, context: Context, cq: CacheQueryDB) -> None:
+async def interpret_commands_wrap(
+    sti: SyncTaskInterface, commands: str, context: Context, cq: CacheQueryDB
+) -> None:
     """
         Returns None or raises CommandFailed, ShellExitRequested,
             CompmakeBug, KeyboardInterrupt.
@@ -22,7 +25,7 @@ def interpret_commands_wrap(commands: str, context: Context, cq: CacheQueryDB) -
     publish(context, "command-line-starting", command=commands)
 
     try:
-        interpret_commands(commands, context=context, cq=cq)
+        await interpret_commands(sti, commands, context=context, cq=cq)
         publish(context, "command-line-succeeded", command=commands)
     except CompmakeBug:
         raise
@@ -54,7 +57,7 @@ def interpret_commands_wrap(commands: str, context: Context, cq: CacheQueryDB) -
         raise CompmakeBug(msg) from e
 
 
-def batch_command(s, context, cq):
+async def batch_command(sti: SyncTaskInterface, s, context, cq):
     """
         Executes one command (could be a sequence)
 
@@ -64,7 +67,7 @@ def batch_command(s, context, cq):
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
     # we assume that we are done with defining jobs
-    clean_other_jobs(context=context)
+    await clean_other_jobs(sti, context=context)
 
-    read_rc_files(context=context)
-    return interpret_commands_wrap(s, context=context, cq=cq)
+    await read_rc_files(sti, context=context)
+    return await interpret_commands_wrap(sti, s, context=context, cq=cq)

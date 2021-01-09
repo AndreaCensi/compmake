@@ -13,10 +13,11 @@ from compmake import (
     VISUALIZATION,
 )
 from compmake.utils import pad_to_screen
+from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=VISUALIZATION)
-def stats(args, context, cq):
+async def stats(sti: SyncTaskInterface, args, context, cq):
     """ Displays a coarse summary of the jobs state. """
     if not args:
         job_list = cq.all_jobs()

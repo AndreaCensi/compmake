@@ -12,6 +12,7 @@ from compmake import (
     ui_command,
 )
 from compmake.types import CMJobID
+from zuper_utils_asyncio import SyncTaskInterface
 from .pmake_manager import PmakeManager
 
 __all__ = [
@@ -22,7 +23,8 @@ __all__ = [
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def parmake(
+async def parmake(
+    sti: SyncTaskInterface,
     job_list,
     context,
     cq,
@@ -60,20 +62,27 @@ def parmake(
 
     publish(context, "parmake-status", status="Starting multiprocessing manager (forking)")
     manager = PmakeManager(
-        num_processes=n, context=context, cq=cq, recurse=recurse, new_process=new_process, show_output=echo
+        sti,
+        num_processes=n,
+        context=context,
+        cq=cq,
+        recurse=recurse,
+        new_process=new_process,
+        show_output=echo,
     )
 
     publish(context, "parmake-status", status="Adding %d targets." % len(job_list))
     manager.add_targets(job_list)
 
     publish(context, "parmake-status", status="Processing")
-    manager.process()
+    await manager.process()
 
     return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def parremake(
+async def parremake(
+    sti: SyncTaskInterface,
     non_empty_job_list,
     context,
     cq,
@@ -96,15 +105,22 @@ def parremake(
         mark_to_remake(job, db=db)
 
     manager = PmakeManager(
-        num_processes=n, context=context, cq=cq, recurse=recurse, new_process=new_process, show_output=echo
+        sti,
+        num_processes=n,
+        context=context,
+        cq=cq,
+        recurse=recurse,
+        new_process=new_process,
+        show_output=echo,
     )
     manager.add_targets(non_empty_job_list)
-    manager.process()
+    await manager.process()
     return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def rparmake(
+async def rparmake(
+    sti: SyncTaskInterface,
     job_list: Collection[CMJobID],
     context,
     cq: CacheQueryDB,
@@ -113,6 +129,6 @@ def rparmake(
     echo: bool = DefaultsToConfig("echo"),
 ):
     """ Shortcut to parmake with default recurse = True. """
-    return parmake(
-        job_list=job_list, context=context, cq=cq, n=n, new_process=new_process, echo=echo, recurse=True
+    return await parmake(
+        sti, job_list=job_list, context=context, cq=cq, n=n, new_process=new_process, echo=echo, recurse=True
     )

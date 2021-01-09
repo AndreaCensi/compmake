@@ -8,7 +8,7 @@ from multiprocessing.context import BaseContext
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
-from compmake.actions_newprocess import parmake_job2_new_process
+from compmake.actions_newprocess import parmake_job2_new_process, parmake_job2_new_process_1
 from compmake.exceptions import MakeHostFailed
 from compmake.manager import Manager
 from compmake.registrar import broadcast_event, publish
@@ -18,6 +18,7 @@ from future.moves.queue import Empty
 from psutil import NoSuchProcess
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
+from zuper_utils_asyncio import SyncTaskInterface
 
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
@@ -61,6 +62,7 @@ class PmakeManager(Manager):
 
     def __init__(
         self,
+        sti: SyncTaskInterface,
         context,
         cq,
         num_processes: int,
@@ -68,7 +70,7 @@ class PmakeManager(Manager):
         new_process: bool = False,
         show_output: bool = False,
     ):
-        Manager.__init__(self, context=context, cq=cq, recurse=recurse)
+        Manager.__init__(self, sti, context=context, cq=cq, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process
@@ -154,7 +156,7 @@ class PmakeManager(Manager):
             return False
         return True
 
-    def instance_job(self, job_id: CMJobID):
+    async def instance_job(self, job_id: CMJobID):
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
         name = sorted(self.sub_available)[0]
@@ -167,7 +169,7 @@ class PmakeManager(Manager):
 
         check_isinstance(job_id, str)
         if self.new_process:
-            f = parmake_job2_new_process
+            f = parmake_job2_new_process_1
             args = (job_id, self.context)
 
         else:

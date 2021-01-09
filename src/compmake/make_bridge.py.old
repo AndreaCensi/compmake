@@ -1,11 +1,8 @@
 import argparse
 import os
-import subprocess
-import sys
 import traceback
 from dataclasses import dataclass
 from datetime import datetime
-from subprocess import Popen
 from typing import cast, Dict, List, NewType, Optional, Tuple, Union
 
 from networkx import descendants, DiGraph
@@ -14,6 +11,7 @@ from compmake.context_imp import ContextImp
 from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from_utf8_file
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZKeyError, ZValueError
+from zuper_launcher.remote_env import setup_environment
 from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 from . import logger
 from .console import compmake_console_gui
@@ -218,105 +216,106 @@ def chill(depends_on: List[str]):
 
 @async_main_sti(None)
 async def make_bridge_main(sti: SyncTaskInterface, args=None):
-    await sti.started_and_yield()
-    parser = argparse.ArgumentParser(prog="zuper-make",)
-    parser.add_argument("-o", "--out", default="out-zuper-make")
-    parser.add_argument("-c", "--command", default=None)
-    parser.add_argument("--gui", default=False, action="store_true")
-    parser.add_argument("--retries", default=1, type=int, help="Number of times to retry")
-    parser.add_argument(
-        "--draw-deps", default=False, action="store_true", help="Creates the depedency graph using dot."
-    )
+    async with setup_environment(sti, os.getcwd()):
+        await sti.started_and_yield()
+        parser = argparse.ArgumentParser(prog="zuper-make", )
+        parser.add_argument("-o", "--out", default="out-zuper-make")
+        parser.add_argument("-c", "--command", default=None)
+        parser.add_argument("--gui", default=False, action="store_true")
+        parser.add_argument("--retries", default=1, type=int, help="Number of times to retry")
+        parser.add_argument(
+            "--draw-deps", default=False, action="store_true", help="Creates the depedency graph using dot."
+        )
 
-    parsed, extra = parser.parse_known_args(args=args)
-    fn = cast(AbsFilePath, os.path.abspath(extra[0]))
-    retries = parsed.retries
-    C: DirPath
-    C = cast(DirPath, os.path.dirname(fn))
-    if not C:
-        C = cast(DirPath, os.path.abspath(os.getcwd()))
+        parsed, extra = parser.parse_known_args(args=args)
+        fn = cast(AbsFilePath, os.path.abspath(extra[0]))
+        retries = parsed.retries
+        C: DirPath
+        C = cast(DirPath, os.path.dirname(fn))
+        if not C:
+            C = cast(DirPath, os.path.abspath(os.getcwd()))
 
-    bs = get_build_system(C, fn)
-    # logger.info(bs=bs)
+        bs = get_build_system(C, fn)
+        # logger.info(bs=bs)
 
-    db = parsed.out
-    context = ContextImp(db=db)
+        db = parsed.out
+        context = ContextImp(db=db)
 
-    jobs = {}
+        jobs = {}
 
-    def get_job_promise(
-        C_: AbsDirPath,
-        fn_: AbsFilePath,
-        target_: TargetName,
-        extra_dependencies: List[Tuple[AbsDirPath, AbsFilePath, TargetName]],
-        stack: Tuple[Tuple[AbsDirPath, AbsFilePath, TargetName], ...],
-    ) -> Promise:
+        def get_job_promise(
+            C_: AbsDirPath,
+            fn_: AbsFilePath,
+            target_: TargetName,
+            extra_dependencies: List[Tuple[AbsDirPath, AbsFilePath, TargetName]],
+            stack: Tuple[Tuple[AbsDirPath, AbsFilePath, TargetName], ...],
+        ) -> Promise:
 
-        key = (C_, fn_, target_)
-        stack2 = stack + (key,)
-        if key in extra_dependencies:
-            raise ZValueError("problem", key=key, extra_dependencies=extra_dependencies, stack=stack2)
-        # logger.info(key=key, extra_dependencies=len(extra_dependencies))
-        if key not in jobs:
-            m: MakeTarget = bs.get_make_target(C_, fn_, target_)
-            # logger.info(m=m, extra_dependencies=extra_dependencies)
+            key = (C_, fn_, target_)
+            stack2 = stack + (key,)
+            if key in extra_dependencies:
+                raise ZValueError("problem", key=key, extra_dependencies=extra_dependencies, stack=stack2)
+            # logger.info(key=key, extra_dependencies=len(extra_dependencies))
+            if key not in jobs:
+                m: MakeTarget = bs.get_make_target(C_, fn_, target_)
+                # logger.info(m=m, extra_dependencies=extra_dependencies)
 
-            depends_on = []
+                depends_on = []
 
-            for d, e, f in extra_dependencies:
-                jp = get_job_promise(d, e, f, extra_dependencies=[], stack=stack2)
-                depends_on.append(jp)
+                for d, e, f in extra_dependencies:
+                    jp = get_job_promise(d, e, f, extra_dependencies=[], stack=stack2)
+                    depends_on.append(jp)
 
-            for d, e, f in m.dependencies:
-                # logger.debug(key=key, dep=(d,e,f))
-                if (d, e) == (C_, fn_):
-                    jp = get_job_promise(d, e, f, extra_dependencies=extra_dependencies, stack=stack2)
+                for d, e, f in m.dependencies:
+                    # logger.debug(key=key, dep=(d,e,f))
+                    if (d, e) == (C_, fn_):
+                        jp = get_job_promise(d, e, f, extra_dependencies=extra_dependencies, stack=stack2)
+                    else:
+                        extra_deps = extra_dependencies + m.get_local_deps2()
+                        jp = get_job_promise(d, e, f, extra_dependencies=extra_deps, stack=stack2)
+                    depends_on.append(jp)
+
+                if fn_ == fn:
+                    job_id = target_
                 else:
-                    extra_deps = extra_dependencies + m.get_local_deps2()
-                    jp = get_job_promise(d, e, f, extra_dependencies=extra_deps, stack=stack2)
-                depends_on.append(jp)
+                    job_id = os.path.basename(C_) + "--" + target_
 
-            if fn_ == fn:
-                job_id = target_
-            else:
-                job_id = os.path.basename(C_) + "--" + target_
+                # if not m.other_commands:
+                #     job_id += '-c'
+                ignore_others: List[TargetName] = m.get_local_deps()
+                if m.other_commands:
+                    jobs[key] = context.comp(
+                        run_one_command,
+                        C=m.cwdir,
+                        fnrel=m.filename,
+                        target=m.target,
+                        ignore_others=ignore_others,
+                        depends_on=depends_on,
+                        retries=retries,
+                        job_id=job_id,
+                    )
+                else:
+                    jobs[key] = context.comp(chill, depends_on=depends_on, job_id=job_id, )
 
-            # if not m.other_commands:
-            #     job_id += '-c'
-            ignore_others: List[TargetName] = m.get_local_deps()
-            if m.other_commands:
-                jobs[key] = context.comp(
-                    run_one_command,
-                    C=m.cwdir,
-                    fnrel=m.filename,
-                    target=m.target,
-                    ignore_others=ignore_others,
-                    depends_on=depends_on,
-                    retries=retries,
-                    job_id=job_id,
-                )
-            else:
-                jobs[key] = context.comp(chill, depends_on=depends_on, job_id=job_id,)
+            res = jobs[key]
+            # check_isinstance(res, str)
+            return res
 
-        res = jobs[key]
-        # check_isinstance(res, str)
-        return res
+        mp = bs.get_mp(C, fn)
+        for k in mp.targets:
+            get_job_promise(C, fn, k, extra_dependencies=[], stack=())
 
-    mp = bs.get_mp(C, fn)
-    for k in mp.targets:
-        get_job_promise(C, fn, k, extra_dependencies=[], stack=())
-
-    if parsed.command:
-
-        await context.batch_command(sti, parsed.command)
-    else:
-        if parsed.gui:
-            await compmake_console_gui(sti, context)
+        if parsed.command:
+            await context.batch_command(sti, parsed.command)
         else:
-            await context.compmake_console(sti)
+            if parsed.gui:
+                await compmake_console_gui(sti, context)
+            else:
+                await context.compmake_console(sti)
 
 
-def run_one_command(
+async def run_one_command(
+    sti: SyncTaskInterface,
     C: str,
     fnrel: str,
     target: TargetName,
@@ -340,16 +339,23 @@ Running:                [try {retry + 1} of {retries}]
     {commands}
 
     """
-        logger.info(s)
+        sti.logger.info(s)
 
-        all_output = []
-        p = Popen(command, cwd=C, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-        for line in p.stdout:
-            sys.stdout.write(line)
-            all_output.append(line)
-            sys.stdout.flush()
-        p.wait(timeout=60)
-        retcode = p.returncode
+        pp = await sti.get_pi()
+
+        p = await pp.run2(*command, cwd=C)
+
+        retcode = await p.wait()
+        all_output = await p.stdout_read()
+
+        # all_output = []
+        # p = Popen(command, cwd=C, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        # for line in p.stdout:
+        #     sys.stdout.write(line)
+        #     all_output.append(line)
+        #     sys.stdout.flush()
+        # p.wait(timeout=60)
+        # retcode = p.returncode
         # logger.info(f'retcode: {retcode}')
         if retcode == 0:
             break

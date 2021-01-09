@@ -1,3 +1,4 @@
+import os
 import traceback
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
@@ -15,8 +16,12 @@ from compmake import (
     Job,
     MakeFailed,
     parse_job_list,
+    read_rc_files,
+    set_compmake_config,
     StorageFilesystem,
 )
+from zuper_abstract_fs import LocalFS
+from zuper_abstract_subprocess import get_local_process
 from zuper_commons.cmds import ExitCode
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import async_run_timeout, create_sync_task2, SyncTaskInterface
@@ -46,6 +51,8 @@ class Env:
         self.db = StorageFilesystem(self.rootd, compress=True)
         self.cc = ContextImp(self.db)
         self.cq = CacheQueryDB(db=self.db)
+        set_compmake_config("console_status", False)
+        await read_rc_files(self.sti, context=self.cc)
 
     async def all_jobs(self):
         """ Returns the list of jobs corresponding to the given expression. """
@@ -83,7 +90,10 @@ class Env:
             raise
 
     def assert_equal_set(self, a, b):
-        assert_equal(set(a), set(b))
+        sa = set(a)
+        sb = set(b)
+        if sa != sb:
+            raise ZAssertionError("different sets", sa=sa, sb=sb, only_sa=sa - sb, only_sb=sb - sa)
 
     async def assert_cmd_fail(self, cmds):
         """ Executes the (list of) commands and checks it was succesful. """
@@ -120,12 +130,13 @@ class Env:
 
         await self.cc.interpret_commands_wrap(self.sti, "check_consistency raise_if_error=1")
 
-    async def batch_command(self, s):
-        await self.cc.batch_command(self.sti, s)
+    async def batch_command(self, s: str):
+        await self.cc.interpret_commands_wrap(self.sti, s)
+        # await self.cc.batch_command(self.sti, s)
 
     async def up_to_date(self, job_id: str) -> bool:
         up, reason, timestamp = self.cq.up_to_date(cast(CMJobID, job_id))
-        print("up_to_date(%r): %s, %r, %s" % (job_id, up, reason, timestamp))
+        self.sti.logger.info("up_to_date(%r): %s, %r, %s" % (job_id, up, reason, timestamp))
         return up
 
 
@@ -166,22 +177,33 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
     async def test_main() -> ExitCode:
         async def task(sti: SyncTaskInterface):
             sti.started()
-            async with with_log_control(False):  # XXX
-                async with environment(sti) as env:
-                    try:
-                        res = await f(env)
-                    except BaseException:
+            cwd = os.getcwd()
+            sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
+            async with get_local_process(sti, cwd) as pi:
 
-                        sti.logger.error(traceback.format_exc())
-                        sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
+                async def gen(_sti: SyncTaskInterface):
+                    return pi
 
-                        raise ZException(traceback.format_exc())
+                sti.set_pi_gen(gen)
+
+                async with with_log_control(False):  # XXX
+                    async with environment(sti) as env:
+                        try:
+                            res = await f(env)
+                        except BaseException:
+
+                            sti.logger.error(traceback.format_exc())
+                            sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
+
+                            raise ZException(traceback.format_exc())
 
         t = await create_sync_task2(None, task)
         return await t.wait_for_outcome_success_result()
 
     test_main.__name__ = f.__name__
     test_main.__qualname__ = f.__qualname__
+    # noinspection PyUnresolvedReferences
+    test_main.__module__ = f.__module__
     return test_main
 
 

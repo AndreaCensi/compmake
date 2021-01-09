@@ -11,8 +11,8 @@ WORKDIR /compmake
 COPY requirements.pin.txt .
 RUN pip install -r requirements.pin.txt
 
-COPY requirements.resolved .
-RUN pip install -r requirements.resolved
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 COPY . .
 

@@ -4,7 +4,7 @@ from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_comman
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def gantt(job_list, context, filename="gantt.html"):
+async def gantt(sti, job_list, context, filename="gantt.html"):
     """
 
     """

@@ -33,8 +33,10 @@ __all__ = [
     "parmake_job2",
 ]
 
+from zuper_utils_asyncio import SyncTaskInterface
 
-def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
+
+async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bool, str]):
     """
     args = tuple job_id, context, queue_name, show_events
 
@@ -44,6 +46,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
     because it might contain a Promise.
 
     """
+    sti.logger.info("parmake_job2 started", args=args)
     job_id, context, event_queue_name, show_output, logdir = args
 
     mkdirs_thread_safe(logdir)
@@ -52,22 +55,25 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
 
     sys.stdout = open(stdout_fn, "w")
     sys.stderr = open(stderr_fn, "w")
-
-    check_isinstance(job_id, str)
-    check_isinstance(event_queue_name, str)
-    from .pmake_manager import PmakeManager
-
-    # logger.info(f"queues: {PmakeManager.queues}")
-    event_queue = PmakeManager.queues[event_queue_name]
-
-    db = context.get_compmake_db()
-
-    setproctitle(f"compmake:{job_id}")
-
-    class G:
-        nlostmessages = 0
+    sys.stdout.write("Activating stdout.\n")
+    sys.stderr.write("Activating stderr.\n")
 
     try:
+
+        check_isinstance(job_id, str)
+        check_isinstance(event_queue_name, str)
+        from .pmake_manager import PmakeManager
+
+        # logger.info(f"queues: {PmakeManager.queues}")
+        event_queue = PmakeManager.queues[event_queue_name]
+
+        db = context.get_compmake_db()
+
+        setproctitle(f"compmake:{job_id}")
+
+        class G:
+            nlostmessages = 0
+
         # We register a handler for the events to be passed back
         # to the main process
         def handler(event):
@@ -103,7 +109,7 @@ def parmake_job2(args: Tuple[CMJobID, Any, str, bool, str]):
 
         publish(context, "worker-status", job_id=job_id, status="connected")
 
-        res = make(job_id, context=context)
+        res = await make(sti, job_id, context=context)
 
         publish(context, "worker-status", job_id=job_id, status="ended")
 

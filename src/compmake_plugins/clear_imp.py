@@ -2,7 +2,7 @@ from compmake import GENERAL, ui_command
 
 
 @ui_command(section=GENERAL)
-def clear():  # @ReservedAssignment
+async def clear(sti):  # @ReservedAssignment
     """ Clear the screen. """
     import sys
 

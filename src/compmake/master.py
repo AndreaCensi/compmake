@@ -4,7 +4,9 @@ import traceback
 from optparse import OptionParser
 from typing import List
 
+from zuper_commons.fs import DirPath
 from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio.envs import setup_environment2
 from . import __version__, logger
 from .config_optparse import config_populate_optparser
 from .console import compmake_console_gui
@@ -34,7 +36,8 @@ For example:
 
 @async_main_sti(None)
 async def main(sti: SyncTaskInterface):
-    return await compmake_main(sti, args=None)
+    async with setup_environment2(sti, os.getcwd()):
+        return await compmake_main(sti, args=None)
 
 
 async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
@@ -98,7 +101,7 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         if os.path.exists(child):
             one_arg = child
 
-        context = load_existing_db(one_arg)
+        context = await load_existing_db(one_arg)
         # If the context was custom we load it
         # noinspection PyUnresolvedReferences
         if "context" in context.compmake_db:
@@ -120,7 +123,7 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         else:
             set_compmake_status(CompmakeConstants.compmake_status_interactive)
 
-        read_rc_files(context2)
+        await read_rc_files(sti, context2)
 
         # noinspection PyBroadException
         try:
@@ -187,7 +190,7 @@ def write_atomic(filename, contents):
     os.rename(tmpfile, filename)
 
 
-def load_existing_db(dirname) -> Context:
+async def load_existing_db(dirname: DirPath) -> Context:
     assert os.path.isdir(dirname)
     logger.info(f"Loading existing jobs DB {dirname!r}.")
     # check if it is compressed
@@ -203,6 +206,6 @@ def load_existing_db(dirname) -> Context:
     context = ContextImp(db=db)
     jobs = list(all_jobs(db=db))
     # logger.info('Found %d existing jobs.' % len(jobs))
-    context.reset_jobs_defined_in_this_session(jobs)
+    await context.reset_jobs_defined_in_this_session(jobs)
 
     return context

@@ -78,7 +78,7 @@ async def test_dynamic6(env: Env):
     async with environment(env.sti, env.rootd) as env2:
         print("running again with both=False")
         mockup6(env2, both=False)
-        clean_other_jobs(context=env2.cc)
+        await clean_other_jobs(env.sti, context=env2.cc)
 
         await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])
 

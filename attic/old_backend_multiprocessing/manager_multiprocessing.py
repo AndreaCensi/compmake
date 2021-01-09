@@ -251,8 +251,7 @@ class AsyncResultWrap(AsyncResultInterface):
 
     def get(self, timeout=0):  # @UnusedVariable
         res = self.async_result.get(timeout=timeout)
-        result_dict_raise_if_error(res)
-        return res
+        return result_dict_raise_if_error(res)
 
 
 def worker_initialization() -> None:

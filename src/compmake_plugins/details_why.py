@@ -5,7 +5,7 @@ from compmake.colored import compmake_colored
 
 
 @ui_command(section=VISUALIZATION)
-def why(non_empty_job_list, context, cq):
+async def why(sti, non_empty_job_list, context, cq):
     """ Shows the last line of the error """
     lines = []
     for job_id in non_empty_job_list:

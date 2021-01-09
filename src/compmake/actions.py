@@ -6,6 +6,7 @@ from time import time
 from typing import Callable, cast, Dict, List, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
+from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .coloredlog import colorize_loglevel
@@ -167,7 +168,7 @@ def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> 
     set_job_cache(job_id, cache, db=db)
 
 
-def make(job_id: CMJobID, context, echo=False):
+async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     """
         Makes a single job.
 
@@ -299,7 +300,7 @@ def make(job_id: CMJobID, context, echo=False):
         return deleted_jobs_
 
     try:
-        result = job_compute(job=job, context=context)
+        result = await job_compute(sti, job=job, context=context)
 
         assert isinstance(result, dict) and len(result) == 5
         user_object = result["user_object"]
@@ -352,7 +353,7 @@ def make(job_id: CMJobID, context, echo=False):
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
+        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs)) from None
     finally:
         int_finally = IntervalTimer()
         if capture is not None:
@@ -478,7 +479,7 @@ def generate_job_id(base, context):
     raise CompmakeBug("Could not generate a job id")
 
 
-def clean_other_jobs(context):
+async def clean_other_jobs(sti: SyncTaskInterface, context):
     """ Cleans jobs not defined in the session """
     # print('cleaning other jobs. Defined: %r' %
     # context.get_jobs_defined_in_this_session())
@@ -846,7 +847,9 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
     return Promise(job_id)
 
 
-def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, separator=";") -> None:
+async def interpret_commands(
+    sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator=";"
+) -> None:
     """
         Interprets what could possibly be a list of commands (separated by ";")
 
@@ -871,7 +874,7 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
         try:
             publish(context, "command-starting", command=cmd)
             # noinspection PyNoneFunctionAssignment
-            retcode = interpret_single_command(cmd, context=context, cq=cq)
+            retcode = await interpret_single_command(sti, cmd, context=context, cq=cq)
 
         except KeyboardInterrupt:
             publish(
@@ -898,10 +901,9 @@ def interpret_commands(commands_str: str, context: Context, cq: CacheQueryDB, se
                 raise CommandFailed(f"ret code {retcode}")
 
 
-def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
+async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context, cq: CacheQueryDB):
     """ Returns None or raises CommandFailed """
-    if not isinstance(commands_line, str):
-        raise ValueError("Expected a string")
+    check_isinstance(commands_line, str)
 
     ui_commands = get_commands()
 
@@ -914,7 +916,7 @@ def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
         command_name = UIState.alias2name[command_name]
 
     if not command_name in ui_commands:
-        msg = "Unknown command %r (try 'help'). " % command_name
+        msg = f"Unknown command {command_name!r} (try 'help'). "
         raise UserError(msg)
 
     # XXX: use more elegant method
@@ -932,6 +934,8 @@ def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
 
     defaults = get_defaults(signature)
     args_without_default = get_args_without_defaults(signature)
+    if "sti" in args_without_default:
+        args_without_default.remove("sti")
 
     for a in args:
         if a.find("=") > 0:
@@ -1001,13 +1005,21 @@ def interpret_single_command(commands_line: str, context, cq: CacheQueryDB):
 
     for x in args_without_default:
         if not x in kwargs:
-            msg = "Required argument %r not given." % x
-            raise UserError(msg)
+            msg = f"Required argument {x!r} not given."
+            raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
+
+    if "sti" in function_args:
+        kwargs["sti"] = sti
+
+    is_async = inspect.iscoroutinefunction(function)
 
     try:
-        res = function(**kwargs)
+        if is_async:
+            res = await function(**kwargs)
+        else:
+            res = function(**kwargs)
         if (res is not None) and (res != 0):
-            msg = "Command %r failed: %s" % (commands_line, res)
+            msg = f"Command {commands_line!r} failed: {res}"
             raise CommandFailed(msg)
         return None
     finally:

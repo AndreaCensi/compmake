@@ -33,8 +33,6 @@ tests_require: [ ]
 
 console_scripts:
   compmake: compmake:main
-  zuper-make: compmake.make_bridge:make_bridge_main
-  zmake: compmake.make_bridge:make_bridge_main
 
 nose:
   modules:

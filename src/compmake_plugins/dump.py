@@ -14,7 +14,7 @@ from zuper_typing import debug_print
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def dump(non_empty_job_list, context, directory="."):
+async def dump(sti, non_empty_job_list, context, directory="."):
     """ Dumps the result of jobs as pickle files.
 
         Arguments:
@@ -35,7 +35,7 @@ def dump(non_empty_job_list, context, directory="."):
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def dump_stdout(non_empty_job_list, context, resolve=False):
+async def dump_stdout(sti, non_empty_job_list, context, resolve=False):
     """ Dumps the result of jobs on stdout. """
     db = context.get_compmake_db()
     for job_id in non_empty_job_list:

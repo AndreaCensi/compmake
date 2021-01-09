@@ -5,6 +5,7 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
+from zuper_utils_asyncio import SyncTaskInterface
 from .state import get_compmake_status
 
 from .actions import clean_targets, make
@@ -29,7 +30,7 @@ __all__ = [
 
 # noinspection PyUnusedLocal,PyShadowingBuiltins
 @ui_command(alias=["exit"])
-def quit(context):
+async def quit(sti: SyncTaskInterface, context):
     """ Exits Compmake's console. """
     raise ShellExitRequested()
 
@@ -45,7 +46,7 @@ def raise_error_if_manager_failed(manager):
 
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-def delete(job_list, context):
+async def delete(sti: SyncTaskInterface, job_list, context):
     """ Remove completely the job from the DB. Useful for generated jobs (
     "delete not root"). """
 
@@ -57,7 +58,7 @@ def delete(job_list, context):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-def clean(job_list, context, cq: CacheQueryDB):
+async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
     """
         Cleans the result of the selected computation (or everything if
         nothing specified).
@@ -90,8 +91,10 @@ def clean(job_list, context, cq: CacheQueryDB):
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-def make_single(job_list, context, out_result):
+async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
     """ Makes a single job -- not for users, but for slave mode. """
+    print("amke_single", job_list, out_result)
+
     if len(job_list) > 1:
         raise UserError("I want only one job")
 
@@ -99,7 +102,7 @@ def make_single(job_list, context, out_result):
 
     try:
         # info('making job %s' % job_id)
-        res = make(job_id=job_id, context=context)
+        res = await make(sti, job_id=job_id, context=context)
         # info('Writing to %r' % out_result)
         safe_pickle_dump(res, out_result)
         return 0

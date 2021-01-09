@@ -3,6 +3,8 @@ import types
 from collections import namedtuple
 from typing import List, Optional, Union
 
+from zuper_commons.types import ZValueError
+from zuper_utils_asyncio import SyncTaskInterface
 from .colored import compmake_colored
 from .exceptions import UserError
 from .utils import docstring_components, docstring_trim
@@ -17,6 +19,8 @@ __all__ = [
     "ui_section",
     "UIState",
 ]
+from . import logger
+
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
 # Storage for the sections
@@ -105,11 +109,22 @@ def register_command(name, func, docs, alias=None, section=None, dbchange=False)
         alias = [alias]
     if not section:
         section = UIState.last_section_name
-    assert not name in UIState.commands, "Command %r already defined " % name
+    c = Command(function=func, name=name, doc=docs, alias=alias, section=section, dbchange=dbchange)
+    if name in UIState.commands:
+        prev = UIState.commands[name]
+
+        msg = "Command %r already defined " % name
+        # logger.debug(msg, c=c, prev=prev)
+        return
+        raise ZValueError(
+            msg,
+            prev=UIState.commands[name],
+            prevf=UIState.commands[name].function.__module__,
+            cur=c,
+            curf=c.function.__module__,
+        )
     assert docs is not None, "Command %r need docs." % name
-    UIState.commands[name] = Command(
-        function=func, name=name, doc=docs, alias=alias, section=section, dbchange=dbchange
-    )
+    UIState.commands[name] = c
     assert section in UIState.sections, "Section %r not defined" % section
     UIState.sections[section].commands.append(name)
     for a in alias:
@@ -124,7 +139,7 @@ def get_commands():
 
 # noinspection PyShadowingBuiltins
 @ui_command(section=GENERAL)
-def help(args):  # @ReservedAssignment
+async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
     """
         Prints help about the other commands. (try 'help help')
 

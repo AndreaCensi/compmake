@@ -11,9 +11,18 @@ def job_failure(*args, **kwargs):
 
 
 @run_with_env
+async def test_assertion_make(env: Env):
+    for i in range(10):
+        env.comp(job_failure, job_id=f"fail{i:02d}")
+
+    async with assert_MakeFailed(env, nfailed=10, nblocked=0):
+        await env.batch_command("make")
+
+
+@run_with_env
 async def test_assertion(env: Env):
     for i in range(10):
-        env.comp(job_failure, job_id="fail%d" % i)
+        env.comp(job_failure, job_id=f"fail{i:02d}")
 
     async with assert_MakeFailed(env, nfailed=10, nblocked=0):
         await env.batch_command("parmake n=2")

@@ -1,10 +1,10 @@
 """ The actual interface of some commands in commands.py """
 from compmake import (
     Cache,
+    CacheQueryDB,
     children,
+    CMJobID,
     compmake_colored,
-    direct_children,
-    direct_parents,
     get_job,
     get_job_args,
     get_job_cache,
@@ -13,7 +13,6 @@ from compmake import (
     job_cache_sizeof,
     job_userobject_exists,
     job_userobject_sizeof,
-    parents,
     ui_command,
     VISUALIZATION,
 )
@@ -22,7 +21,7 @@ from .console_output import write_line_endl
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")
-def details(non_empty_job_list, context, cq, max_lines=None):
+async def details(sti, non_empty_job_list, context, cq, max_lines=None):
     """ Shows the details for the given jobs including
         dependencies and stderr/stdout.
 
@@ -40,11 +39,11 @@ def details(non_empty_job_list, context, cq, max_lines=None):
         num += 1
 
 
-def list_job_detail(job_id, context, cq, max_lines):
+def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     db = context.get_compmake_db()
 
-    dparents = direct_parents(job_id, db=db)
-    all_parents = parents(job_id, db=db)
+    dparents = cq.direct_parents(job_id)
+    all_parents = cq.parents(job_id)
     other_parents = set(all_parents) - set(dparents)
 
     # TODO: use quicker up to date
@@ -66,10 +65,10 @@ def list_job_detail(job_id, context, cq, max_lines):
     command, args, kwargs = job_args
     print(bold("command:") + "%s" % command)
 
-    dchildren = direct_children(job_id, db=db)
+    dchildren = cq.direct_children(job_id)
     print(bold("Dependencies: (direct)") + " (%d) " % len(dchildren) + format_list(dchildren))
 
-    all_children = children(job_id, db=db)
+    all_children = children(job_id, db=db)  # XXX
     other_children = set(all_children) - set(dchildren)
     print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_list(other_children))
 

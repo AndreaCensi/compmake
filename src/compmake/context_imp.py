@@ -67,7 +67,7 @@ class ContextImp(Context):
     def get_jobs_defined_in_this_session(self) -> Set[str]:
         return set(self._jobs_defined_in_this_session)
 
-    def reset_jobs_defined_in_this_session(self, jobs):
+    async def reset_jobs_defined_in_this_session(self, jobs):
         """ Called only when initializing the context. """
         self._jobs_defined_in_this_session = set(jobs)
 
@@ -109,18 +109,18 @@ class ContextImp(Context):
         """
 
         cq = CacheQueryDB(self.get_compmake_db())
-        return interpret_commands_wrap(commands, context=self, cq=cq)
+        return await interpret_commands_wrap(sti, commands, context=self, cq=cq)
 
     async def batch_command(self, sti: SyncTaskInterface, s: str) -> None:
 
         cq = CacheQueryDB(self.get_compmake_db())
-        return batch_command(s, context=self, cq=cq)
+        return await batch_command(sti, s, context=self, cq=cq)
 
     async def compmake_console(self, sti: SyncTaskInterface):
 
         from .console import compmake_console_text
 
-        await compmake_console_text(sti, self)
+        return await compmake_console_text(sti, self)
 
 
 def comp_store_(x, context: Context, job_id: CMJobID = None):

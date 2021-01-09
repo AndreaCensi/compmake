@@ -28,13 +28,17 @@ from zuper_commons.ui import duration_compact
 #     format_separator = dict(color="white", attrs=["concealed"])
 #     format_when = dict(color="white", attrs=["concealed"])
 # else:
+from zuper_utils_asyncio import SyncTaskInterface
+
 format_utility_job = dict()
 format_separator = dict()
 format_when = dict()
 
 
 @ui_command(section=VISUALIZATION, alias="list")
-def ls(args, context, cq, complete_names=False, reason=False, all_details=False):  # @ReservedAssignment
+async def ls(
+    sti: SyncTaskInterface, args, context, cq, complete_names=False, reason=False, all_details=False
+):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified
         specified).

@@ -38,7 +38,7 @@ async def test_ID(env: Env):
     job_id = cast(CMJobID, "terminus")
     c = env.comp(f1, job_id=job_id)
     assert_equal(c.job_id, job_id)
-    make(job_id, context=env.cc)
+    await make(env.sti, job_id, context=env.cc)
 
 
 @run_with_env
