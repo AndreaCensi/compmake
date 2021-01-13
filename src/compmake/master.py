@@ -204,7 +204,7 @@ async def load_existing_db(dirname: DirPath) -> Context:
 
     db = StorageFilesystem(dirname, compress=compress)
     context = ContextImp(db=db)
-    jobs = list(all_jobs(db=db))
+    jobs = await (all_jobs(db=db))
     # logger.info('Found %d existing jobs.' % len(jobs))
     await context.reset_jobs_defined_in_this_session(jobs)
 

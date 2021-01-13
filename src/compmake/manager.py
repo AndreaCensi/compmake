@@ -3,7 +3,6 @@ import itertools
 import os
 import shutil
 import signal
-import time
 import traceback
 import warnings
 from abc import ABC, abstractmethod
@@ -35,7 +34,7 @@ from .storage import (
     job_userobject_exists,
 )
 from .structures import Cache, StateCode
-from .types import CMJobID, OKResult, ResultDict
+from .types import CMJobID, OKResult
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 
@@ -57,15 +56,15 @@ class AsyncResultInterface(ABC):
 
     @abstractmethod
     async def get(self, timeout: float = 0) -> OKResult:
-        """ Either:
-            - returns a dictionary with fields:
-                new_jobs: list of jobs created
-                user_object_deps: ...
-            or:
-            - raises JobFailed
-            - raises HostFailed
-            - raises JobInterrupted
-            - raises TimeoutError (not ready)
+        """Either:
+        - returns a dictionary with fields:
+            new_jobs: list of jobs created
+            user_object_deps: ...
+        or:
+        - raises JobFailed
+        - raises HostFailed
+        - raises JobInterrupted
+        - raises TimeoutError (not ready)
         """
 
 
@@ -177,8 +176,8 @@ class Manager(ManagerLog):
 
     def next_job(self) -> CMJobID:
         """
-            Returns one job from the ready_todo list
-            Uses self.priorities to decide which job to use.
+        Returns one job from the ready_todo list
+        Uses self.priorities to decide which job to use.
         """
         self.check_invariants()
 
@@ -192,7 +191,7 @@ class Manager(ManagerLog):
         self.log("add_targets()", targets=targets)
         self.check_invariants()
         for t in targets:
-            assert_job_exists(t, self.db)
+            await assert_job_exists(t, self.db)
 
             if t in self.processing:
                 msg = f"Adding a job already in processing: {t!r}"
@@ -215,7 +214,7 @@ class Manager(ManagerLog):
         cq = CacheQueryDB(self.db)
         # Note this would not work for recursive jobs
         # cq = self.cq
-        targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
+        targets_todo_plus_deps, targets_done, ready_todo = await cq.list_todo_targets(targets)
         not_ready = targets_todo_plus_deps - ready_todo
 
         self.log(
@@ -235,7 +234,7 @@ class Manager(ManagerLog):
 
         # let's check the additional jobs exist
         for d in targets_todo_plus_deps - set(targets):
-            if not job_exists(d, self.db):
+            if not await job_exists(d, self.db):
                 msg = "Adding job that does not exist: %r." % d
                 raise CompmakeBug(msg)
 
@@ -279,10 +278,10 @@ class Manager(ManagerLog):
 
     async def instance_some_jobs(self):
         """
-            Instances some of the jobs. Uses the
-            functions can_accept_job(), next_job(), and ...
+        Instances some of the jobs. Uses the
+        functions can_accept_job(), next_job(), and ...
 
-            Returns a dictionary of wait conditions.
+        Returns a dictionary of wait conditions.
         """
         self.check_invariants()
 
@@ -350,16 +349,16 @@ class Manager(ManagerLog):
 
     async def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False) -> bool:
         """
-            Checks that the job finished succesfully or unsuccesfully.
+        Checks that the job finished succesfully or unsuccesfully.
 
-            Returns True if that's the case.
-            Captures HostFailed, JobFailed and returns True.
+        Returns True if that's the case.
+        Captures HostFailed, JobFailed and returns True.
 
-            Returns False if the job is still processing.
+        Returns False if the job is still processing.
 
-            Capture KeyboardInterrupt and raises JobInterrupted.
+        Capture KeyboardInterrupt and raises JobInterrupted.
 
-            Handles update of various sets.
+        Handles update of various sets.
         """
         self.log("check_job_finished", job_id=job_id)
         self.check_invariants()
@@ -425,8 +424,8 @@ class Manager(ManagerLog):
             self.sti.logger.error(traceback.format_exc())
             raise JobInterrupted("Keyboard interrupt")
 
-    def job_is_deleted(self, job_id: CMJobID):
-        if job_exists(job_id, self.db):
+    async def job_is_deleted(self, job_id: CMJobID):
+        if await job_exists(job_id, self.db):
             msg = f"Job {job_id!r} declared deleted still exists"
             raise CompmakeBug(msg)
         if job_id in self.all_targets:
@@ -471,15 +470,17 @@ class Manager(ManagerLog):
             # % (job_id, deps))
 
             # We first add extra dependencies to all those jobs
-            jobs_depending_on_this = direct_parents(job_id, self.db)
+            jobs_depending_on_this = await direct_parents(job_id, self.db)
             # print('need to update %s' % jobs_depending_on_this)
             for parent in jobs_depending_on_this:
-                db_job_add_dynamic_children(job_id=parent, children=deps, returned_by=job_id, db=self.db)
+                await db_job_add_dynamic_children(
+                    job_id=parent, children=deps, returned_by=job_id, db=self.db
+                )
 
                 # also add inverse relation
                 for d in deps:
                     self.log("updating dep", job_id=job_id, parent=parent, d=d)
-                    db_job_add_parent(job_id=d, parent=parent, db=self.db)
+                    await db_job_add_parent(job_id=d, parent=parent, db=self.db)
 
             for parent in jobs_depending_on_this:
                 self.log("rescheduling parent", job_id=job_id, parent=parent)
@@ -546,8 +547,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_failed(self, job_id: CMJobID, deleted_jobs):
-        """ The specified job has failed. Update the structures,
-            mark any parent as failed as well. """
+        """The specified job has failed. Update the structures,
+        mark any parent as failed as well."""
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
         assert job_id in self.processing
@@ -573,7 +574,7 @@ class Manager(ManagerLog):
             if p not in self.blocked:
                 publish(self.context, "manager-job-blocked", job_id=p, blocking_job_id=job_id)
 
-                mark_as_blocked(p, dependency=job_id, db=self.db)
+                await mark_as_blocked(p, dependency=job_id, db=self.db)
                 self.todo.remove(p)
                 self.blocked.add(p)
 
@@ -581,8 +582,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_succeeded(self, job_id: CMJobID):
-        """ Mark the specified job as succeeded. Update the structures,
-            mark any parents which are ready as ready_todo. """
+        """Mark the specified job as succeeded. Update the structures,
+        mark any parents which are ready as ready_todo."""
         self.log("job_succeeded", job_id=job_id)
         self.check_invariants()
         publish(self.context, "manager-job-done", job_id=job_id)
@@ -594,7 +595,7 @@ class Manager(ManagerLog):
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
-        parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
+        parent_jobs = await direct_uptodate_deps_inverse(job_id, db=self.db)
         cq = CacheQueryDB(self.db)
 
         parents_todo = set(self.todo & parent_jobs)
@@ -612,7 +613,7 @@ class Manager(ManagerLog):
 
             self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
 
-            its_children = direct_children(opportunity, db=self.db)
+            its_children = await direct_children(opportunity, db=self.db)
             # print('its children: %r' % its_children)
 
             for child in its_children:
@@ -626,7 +627,7 @@ class Manager(ManagerLog):
                         # still some dependency left
                         break
                 else:
-                    up, _, _ = cq.up_to_date(child)
+                    up, _, _ = await cq.up_to_date(child)
                     if not up:
                         # print('The child %s is not up_to_date' % child)
                         break
@@ -646,10 +647,10 @@ class Manager(ManagerLog):
 
     async def check_any_finished(self):
         """
-            Checks that any of the jobs finished.
+        Checks that any of the jobs finished.
 
-            Returns True if something finished (either success or failure).
-            Returns False if something finished unseccesfully.
+        Returns True if something finished (either success or failure).
+        Returns False if something finished unseccesfully.
         """
         # We make a copy because processing is updated during the loop
         received = False
@@ -888,19 +889,19 @@ class Manager(ManagerLog):
         if False:
 
             for job_id in self.done:
-                if not job_exists(job_id, self.db):
+                if not await job_exists(job_id, self.db):
                     raise CompmakeBug("job %r in done does not exist" % job_id)
 
             for job_id in self.todo:
-                if not job_exists(job_id, self.db):
+                if not await job_exists(job_id, self.db):
                     raise CompmakeBug("job %r in todo does not exist" % job_id)
 
             for job_id in self.failed:
-                if not job_exists(job_id, self.db):
+                if not await job_exists(job_id, self.db):
                     raise CompmakeBug("job %r in failed does not exist" % job_id)
 
             for job_id in self.blocked:
-                if not job_exists(job_id, self.db):
+                if not await job_exists(job_id, self.db):
                     raise CompmakeBug("job %r in blocked does not exist" % job_id)
 
 
@@ -909,11 +910,11 @@ def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
 
-    if not job_cache_exists(job_id, db):
+    if not await job_cache_exists(job_id, db):
         msg = f"The job {job_id!r} was reported as done/failed but no record of it was found."
         raise CompmakeBug(msg)
     else:
-        cache = get_job_cache(job_id, db)
+        cache = await get_job_cache(job_id, db)
         if not cache.state in states:
             possible = [Cache.state2desc[s] for s in states]
             found = Cache.state2desc[cache.state]
@@ -921,7 +922,7 @@ def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
             raise CompmakeBug(msg)
 
         if cache.state == Cache.DONE:
-            if not job_userobject_exists(job_id, db):
+            if not await job_userobject_exists(job_id, db):
                 msg = f"Job {job_id!r} marked as DONE but no userobject exists"
                 raise CompmakeBug(msg)
 
@@ -971,15 +972,15 @@ def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
 #             self.clean_other_jobs(g, [])
 
 
-def check_job_cache_says_failed(job_id, db, e):
+async def check_job_cache_says_failed(job_id, db, e):
     """ Raises CompmakeBug if the job is not marked as failed. """
-    if not job_cache_exists(job_id, db):
+    if not await job_cache_exists(job_id, db):
         msg = f"The job {job_id!r} was reported as failed but no record of it was found."
         # msg += "\n" + "JobFailed exception:"
         # msg += "\n" + indent(str(e), "| ")
         raise CompmakeBug(msg, e=str(e))
     else:
-        cache = get_job_cache(job_id, db)
+        cache = await get_job_cache(job_id, db)
         if not cache.state == Cache.FAILED:
             msg = f"The job {job_id!r} was reported as failed but it was not marked as such in the DB."
             msg += f"\n seen state: {Cache.state2desc[cache.state]} "

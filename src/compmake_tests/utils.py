@@ -20,6 +20,7 @@ from compmake import (
     set_compmake_config,
     StorageFilesystem,
 )
+from compmake.storage import get_job2
 from zuper_abstract_fs import LocalFS
 from zuper_abstract_subprocess import get_local_process
 from zuper_commons.cmds import ExitCode
@@ -57,10 +58,10 @@ class Env:
     async def all_jobs(self):
         """ Returns the list of jobs corresponding to the given expression. """
         # db = StorageFilesystem(self.env, compress=True)
-        return sorted(list(all_jobs(self.db)))
+        return sorted(list(await all_jobs(self.db)))
 
     async def get_job(self, job_id) -> Job:
-        return get_job(job_id=job_id, db=self.db)
+        return await get_job2(job_id=job_id, db=self.db)
 
     async def assert_defined_by(self, job_id, expected):
         assert_equal((await self.get_job(job_id)).defined_by, expected)

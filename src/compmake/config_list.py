@@ -127,33 +127,33 @@ add_config_switch(
     desc="Maximum number of parallel jobs. Default is " "cpu_count().",
     section=CONFIG_PARALLEL,
 )
-
-if False:  # To re-implement
-    add_config_switch("max_mem_load", 90.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
-
-    add_config_switch("max_swap", 20.0, desc="Maximum swap usage (%)", section=CONFIG_PARALLEL)
-
-    add_config_switch(
-        "max_cpu_load",
-        100.0,
-        desc="Maximum CPU load (%). No jobs will be instantiated " "if over threshold.",
-        section=CONFIG_PARALLEL,
-    )
-
-    add_config_switch(
-        "autobal_after",
-        cpu_count(),
-        # TODO: number of processors / 2
-        desc="Autobalances after the given number of processes (%)",
-        section=CONFIG_PARALLEL,
-    )
-
-    add_config_switch(
-        "min_proc_interval",
-        0,
-        desc="Minimum time interval between instantiating jobs.",
-        section=CONFIG_PARALLEL,
-    )
+#
+# if False:  # To re-implement
+#     add_config_switch("max_mem_load", 90.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
+#
+#     add_config_switch("max_swap", 20.0, desc="Maximum swap usage (%)", section=CONFIG_PARALLEL)
+#
+#     add_config_switch(
+#         "max_cpu_load",
+#         100.0,
+#         desc="Maximum CPU load (%). No jobs will be instantiated " "if over threshold.",
+#         section=CONFIG_PARALLEL,
+#     )
+#
+#     add_config_switch(
+#         "autobal_after",
+#         cpu_count(),
+#         # TODO: number of processors / 2
+#         desc="Autobalances after the given number of processes (%)",
+#         section=CONFIG_PARALLEL,
+#     )
+#
+#     add_config_switch(
+#         "min_proc_interval",
+#         0,
+#         desc="Minimum time interval between instantiating jobs.",
+#         section=CONFIG_PARALLEL,
+#     )
 
 #
 # add_config_switch(

@@ -17,8 +17,8 @@ def compmake_execution_stats(
     context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None
 ):
     """
-        Returns a promise for a the execution stats of a job
-        and its dependencies.
+    Returns a promise for a the execution stats of a job
+    and its dependencies.
     """
     check_isinstance(promise, (Promise, str))
 
@@ -42,15 +42,15 @@ def dummy(*args):
     pass
 
 
-def count_resources(context, the_job):
+async def count_resources(context, the_job):
     db = context.get_compmake_db()
-    cache = get_job_cache(the_job, db=db)
+    cache = await get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
         msg = "The job %s was supposed to be finished: %s" % (the_job, cache)
         raise Exception(msg)
 
     cq = CacheQueryDB(db)
-    children = cq.tree_children_and_uodeps(the_job)
+    children = await cq.tree_children_and_uodeps(the_job)
     check_isinstance(children, set)
     children.add(the_job)
 
@@ -63,10 +63,10 @@ def count_resources(context, the_job):
     return context.comp(finalize_result, res)
 
 
-def my_get_job_cache(context, the_job):
+async def my_get_job_cache(context, the_job):
     """ Gets the job cache, making sure it was done """
     db = context.get_compmake_db()
-    cache = get_job_cache(the_job, db=db)
+    cache = await get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
         msg = "The job %s was supposed to be finished: %s" % (the_job, cache)
         raise Exception(msg)

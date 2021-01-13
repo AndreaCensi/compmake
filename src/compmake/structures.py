@@ -105,11 +105,11 @@ class Job:
     ):
         """
 
-            needs_context: new facility for dynamic jobs
-            defined_by: name of jobs defining this job dynamically
-                        This is the stack of jobs. 'root' is the first.
+        needs_context: new facility for dynamic jobs
+        defined_by: name of jobs defining this job dynamically
+                    This is the stack of jobs. 'root' is the first.
 
-            children: the direct dependencies
+        children: the direct dependencies
         """
         self.job_id = job_id
         self.children = set(children)
@@ -178,6 +178,8 @@ class IntervalTimer:
         self.c0 = time.process_time()
         self.t0 = time.time()
         self.stopped = False
+        self.c1 = None
+        self.t1 = None
 
     def stop(self):
         self.stopped = True

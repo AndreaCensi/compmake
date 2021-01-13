@@ -31,7 +31,7 @@ def console_starting(context):
     )
 
     # printb("Welcome to the Compmake console. ")
-    njobs = len(list(all_jobs(db)))
+    njobs = len(await (all_jobs(db)))
     # printb(version_string + ("  (%d jobs loaded)" % njobs) + banner_s)
     printb(version_string + ("  (%d jobs loaded)" % njobs))
 

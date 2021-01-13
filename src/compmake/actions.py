@@ -11,7 +11,7 @@ from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .coloredlog import colorize_loglevel
 from .constants import CompmakeConstants, DefaultsToConfig
-from .context import Context
+from .context import Context, Storage
 from .dependencies import collect_dependencies
 from .exceptions import CommandFailed, CompmakeBug, JobFailed, JobInterrupted, UserError
 from .helpers import get_commands, UIState
@@ -26,7 +26,7 @@ from .storage import (
     db_job_add_parent_relation,
     delete_all_job_data,
     delete_job_cache,
-    get_job,
+    get_job2,
     get_job_args,
     get_job_cache,
     job_cache_exists,
@@ -54,20 +54,20 @@ __all__ = [
 ]
 
 
-def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
+async def clean_targets(job_list: List[CMJobID], db: Storage, cq: CacheQueryDB):
     #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
 
     # now we need to delete the definition closure
     # logger.info('getting closure')
-    closure = definition_closure(job_list, db)
+    closure = await definition_closure(job_list, db)
 
     basic = job_list - closure
 
     # logger.info(job_list=job_list, closure=closure, basic=basic)
     other_clean = set()
     for job_id in job_list:
-        other_clean.update(cq.parents(job_id))
+        other_clean.update(await cq.parents(job_id))
 
     other_clean -= closure
     #
@@ -81,19 +81,19 @@ def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
     # logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
         # logger.info('clean_cache_relations', job_id=job_id)
-        clean_cache_relations(job_id, db)
+        await clean_cache_relations(job_id, db)
 
     # delete all in closure
     for job_id in closure:
         # logger.info('delete_all_job_data', job_id=job_id)
-        delete_all_job_data(job_id, db)
+        await delete_all_job_data(job_id, db)
 
     # just remove cache in basic
     for job_id in basic:
         # Cleans associated objects
-        if job_cache_exists(job_id, db):
+        if await job_cache_exists(job_id, db):
             # logger.info('delete_job_cache', job_id=job_id)
-            delete_job_cache(job_id, db)
+            await delete_job_cache(job_id, db)
     # logger.info('done')
     # now we have to undo this one:
     # jobs_depending_on_this = direct_parents(job_id, self.db)
@@ -105,24 +105,24 @@ def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
 
 
-def clean_cache_relations(job_id: CMJobID, db):
+async def clean_cache_relations(job_id: CMJobID, db):
     # print('cleaning cache relations for %r ' % job_id)
-    if not job_exists(job_id, db):
+    if not await job_exists(job_id, db):
         logger.warning("Cleaning cache for job %r which does not exist anymore; ignoring" % job_id)
         return
 
     # for all jobs that were done
-    cache = get_job_cache(job_id, db)
+    cache = await get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
-        for parent in direct_parents(job_id, db):
-            if not job_exists(parent, db):
+        for parent in await direct_parents(job_id, db):
+            if not await job_exists(parent, db):
                 msg = (
                     "Could not find job %r (parent of %s) - ok if the job was deleted"
                     " otherwise it is a bug" % (parent, job_id)
                 )
                 logger.warning(msg)
                 continue
-            parent_job = get_job(parent, db)
+            parent_job = await get_job2(parent, db)
             # print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
             if not job_id in parent_job.dynamic_children:
                 # print('    skipping parent %r ' % parent)
@@ -133,27 +133,27 @@ def clean_cache_relations(job_id: CMJobID, db):
                 # print('    children %s' % parent_job.children)
                 del parent_job.dynamic_children[job_id]
                 parent_job.children = parent_job.children - dynamic_children
-                set_job(parent, parent_job, db)
+                await set_job(parent, parent_job, db)
                 # print('     changed in %s' % parent_job.children)
 
 
-def mark_to_remake(job_id: CMJobID, db):
+async def mark_to_remake(job_id: CMJobID, db):
     """ Delets and invalidates the cache for this object """
     # TODO: think of the difference between this and clean_target
-    cache = get_job_cache(job_id, db)
+    cache = await get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
         cache.timestamp = Cache.TIMESTAMP_TO_REMAKE
-    set_job_cache(job_id, cache, db=db)
+    await set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id: CMJobID, dependency=None, db=None) -> None:  # XXX
+async def mark_as_blocked(job_id: CMJobID, dependency=None, db=None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
-    set_job_cache(job_id, cache, db=db)
+    await set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> None:
+async def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> None:
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
     if isinstance(exception, str):
@@ -165,22 +165,22 @@ def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> 
     cache.exception = exception
     cache.backtrace = backtrace
     cache.timestamp = time()
-    set_job_cache(job_id, cache, db=db)
+    await set_job_cache(job_id, cache, db=db)
 
 
 async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     """
-        Makes a single job.
+    Makes a single job.
 
-        Returns a dictionary with fields:
-             "user_object"
-             "user_object_deps" = set of Promises
-             "new_jobs" -> new jobs defined
-             "deleted_jobs" -> jobs that were defined but not anymore
+    Returns a dictionary with fields:
+         "user_object"
+         "user_object_deps" = set of Promises
+         "new_jobs" -> new jobs defined
+         "deleted_jobs" -> jobs that were defined but not anymore
 
-        Raises JobFailed
-        or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
-        captured.
+    Raises JobFailed
+    or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
+    captured.
     """
     db = context.get_compmake_db()
 
@@ -205,8 +205,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     #                     deleted_jobs=[],
     #                     new_jobs=[])
 
-    job = get_job(job_id, db=db)
-    cache = get_job_cache(job_id, db=db)
+    job = await get_job2(job_id, db=db)
+    cache = await get_job_cache(job_id, db=db)
 
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
@@ -218,7 +218,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     # Note that at this point we save important information in the Cache
     # so if we set this then it's going to destroy it
     # cache.state = Cache.IN _ PROGRESS
-    # set_job_cache(job_id, cache, db=db)
+    # await set_job_cache(job_id, cache, db=db)
 
     # TODO: delete previous user object
 
@@ -283,7 +283,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
 
     already = set(context.get_jobs_defined_in_this_session())
 
-    def get_deleted_jobs():
+    async def get_deleted_jobs():
         generated = set(context.get_jobs_defined_in_this_session()) - already
         # print('failure: rolling back %s' % generated)
 
@@ -294,7 +294,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
         # and also the ones that were generated
         todelete_.update(generated)
 
-        deleted_jobs_ = delete_jobs_recurse_definition(jobs=todelete_, db=db)
+        deleted_jobs_ = await delete_jobs_recurse_definition(jobs=todelete_, db=db)
         # now we failed, so we need to roll back other changes
         # to the db
         return deleted_jobs_
@@ -312,10 +312,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
 
     except KeyboardInterrupt as e:
         bt = traceback.format_exc()
-        deleted_jobs = get_deleted_jobs()
-        mark_as_failed(job_id, "KeyboardInterrupt: " + str(e), backtrace=bt, db=db)
+        deleted_jobs = await get_deleted_jobs()
+        await mark_as_failed(job_id, "KeyboardInterrupt: " + str(e), backtrace=bt, db=db)
 
-        cache = get_job_cache(job_id, db=db)
+        cache = await get_job_cache(job_id, db=db)
         if capture is not None:
             cache.captured_stderr = capture.get_logged_stderr()
             cache.captured_stdout = capture.get_logged_stdout()
@@ -324,7 +324,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
             cache.captured_stderr = msg
             cache.captured_stdout = msg
 
-        set_job_cache(job_id, cache, db=db)
+        await set_job_cache(job_id, cache, db=db)
 
         raise JobInterrupted(job_id=job_id, deleted_jobs=list(deleted_jobs))
 
@@ -339,10 +339,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     ) as e:
         bt = traceback.format_exc()
         s = "%s: %s" % (type(e).__name__, e)
-        mark_as_failed(job_id, s, backtrace=bt, db=db)
-        deleted_jobs = get_deleted_jobs()
+        await mark_as_failed(job_id, s, backtrace=bt, db=db)
+        deleted_jobs = await get_deleted_jobs()
 
-        cache = get_job_cache(job_id, db=db)
+        cache = await get_job_cache(job_id, db=db)
         if capture is not None:
             cache.captured_stderr = capture.get_logged_stderr()
             cache.captured_stdout = capture.get_logged_stdout()
@@ -351,7 +351,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
             cache.captured_stderr = msg
             cache.captured_stdout = msg
 
-        set_job_cache(job_id, cache, db=db)
+        await set_job_cache(job_id, cache, db=db)
 
         raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs)) from None
     finally:
@@ -377,13 +377,13 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
             if x not in new_jobs:
                 todelete.add(x)
 
-        deleted_jobs = delete_jobs_recurse_definition(jobs=todelete, db=db)
+        deleted_jobs = await delete_jobs_recurse_definition(jobs=todelete, db=db)
     else:
         deleted_jobs = set()
 
     # print('Now %s has deleted %s' % (job_id, deleted_jobs))
 
-    set_job_userobject(job_id, user_object, db=db)
+    await set_job_userobject(job_id, user_object, db=db)
     int_save_results.stop()
 
     #    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
@@ -412,7 +412,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     cache.cputime_used = int_make.get_cputime_used()
     cache.host = host
     cache.jobs_defined = new_jobs
-    set_job_cache(job_id, cache, db=db)
+    await set_job_cache(job_id, cache, db=db)
 
     return dict(
         user_object=user_object,
@@ -422,10 +422,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     )
 
 
-def generate_job_id(base, context):
+async def generate_job_id(base, context) -> CMJobID:
     """
-        Generates a unique job_id for the specified commmand.
-        Takes into account job_prefix if that's defined.
+    Generates a unique job_id for the specified commmand.
+    Takes into account job_prefix if that's defined.
     """
 
     stack = context.currently_executing
@@ -460,13 +460,14 @@ def generate_job_id(base, context):
         defined = context.was_job_defined_in_this_session(x)
         if defined:
             continue
-        exists = defined or cq.job_exists(x)
+        exists = defined or await cq.job_exists(x)
         if not exists:
             # print('u')
             return x
         else:
+            j = await cq.get_job(x)
             # if it is the same job defined in the same stack
-            defined_by = cq.get_job(x).defined_by
+            defined_by = j.defined_by
             # print('a')
             # print('  Found, he was defined by %s' % defined_by)
             if defined_by == stack:
@@ -500,10 +501,10 @@ async def clean_other_jobs(sti: SyncTaskInterface, context):
 
     todelete = set()
 
-    for job_id in all_jobs(force_db=True, db=db):
+    for job_id in await all_jobs(force_db=True, db=db):
         if not context.was_job_defined_in_this_session(job_id):
             # it might be ok if it was not defined by ['root']
-            job = get_job(job_id, db=db)
+            job = await get_job2(job_id, db=db)
             if job.defined_by != ["root"]:
                 # keeping this around
                 continue
@@ -537,23 +538,23 @@ async def clean_other_jobs(sti: SyncTaskInterface, context):
             #                 # job.defined_by))
 
             todelete.add(job_id)
-    delete_jobs_recurse_definition(todelete, db)
+    await delete_jobs_recurse_definition(todelete, db)
 
 
-def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
-    """ Deletes all jobs given and the jobs that they defined.
-        Returns the set of jobs deleted. """
+async def delete_jobs_recurse_definition(jobs, db: Storage) -> Set[CMJobID]:
+    """Deletes all jobs given and the jobs that they defined.
+    Returns the set of jobs deleted."""
 
-    closure = definition_closure(jobs, db)
+    closure = await definition_closure(jobs, db)
 
-    all_jobs = jobs | closure
-    for job_id in all_jobs:
-        clean_cache_relations(job_id, db)
+    aj = jobs | closure
+    for job_id in aj:
+        await clean_cache_relations(job_id, db)
 
-    for job_id in all_jobs:
-        delete_all_job_data(job_id, db)
+    for job_id in aj:
+        await delete_all_job_data(job_id, db)
 
-    return all_jobs
+    return aj
 
 
 class WarningStorage:
@@ -562,18 +563,18 @@ class WarningStorage:
 
 def comp_(context: Context, command_: Callable, *args, **kwargs):
     """
-        Main method to define a computation step.
+    Main method to define a computation step.
 
-        Extra arguments:
+    Extra arguments:
 
-        :arg:job_id:   sets the job id (respects job_prefix)
-        :arg:extra_dep: extra dependencies (not passed as arguments)
-        :arg:command_name: used to define job name if job_id not provided.
-        If not given, command_.__name__ is used.
+    :arg:job_id:   sets the job id (respects job_prefix)
+    :arg:extra_dep: extra dependencies (not passed as arguments)
+    :arg:command_name: used to define job name if job_id not provided.
+    If not given, command_.__name__ is used.
 
-        :arg:needs_context: if this is a dynamic job
+    :arg:needs_context: if this is a dynamic job
 
-        Raises UserError if command is not pickable.
+    Raises UserError if command is not pickable.
     """
     from .context_imp import ContextImp
 
@@ -629,7 +630,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
         command_desc = type(command).__name__
 
     args = list(args)  # args is a non iterable tuple
-
+    job_id: CMJobID
     # Get job id from arguments
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
@@ -655,18 +656,18 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
 
         job_prefix = context.get_comp_prefix()
         if job_prefix:
-            job_id = "%s-%s" % (job_prefix, job_id)
+            job_id = cast(CMJobID, "%s-%s" % (job_prefix, job_id))
 
         del kwargs[CompmakeConstants.job_id_key]
 
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
-            if not job_exists(job_id, db=db):
+            if not await job_exists(job_id, db=db):
                 msg = "The job %r was defined but not found in DB. I will let it slide." % job_id
                 print(msg)
             else:
                 msg = "The job %r was already defined in this session." % job_id
-                old_job = get_job(job_id, db=db)
+                old_job = await get_job2(job_id, db=db)
                 msg += "\n  old_job.defined_by: %s " % old_job.defined_by
                 msg += "\n context.currently_executing: %s " % context.currently_executing
                 msg += " others defined in session: %s" % context.get_jobs_defined_in_this_session()
@@ -681,11 +682,11 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
                 msg = "Job %r already defined." % job_id
                 raise UserError(msg)
         else:
-            if job_exists(job_id, db=db):
+            if await job_exists(job_id, db=db):
                 # ok, you gave us a job_id, but we still need to check whether
                 # it is the same job
                 stack = context.currently_executing
-                defined_by = get_job(job_id, db=db).defined_by
+                defined_by = (await get_job2(job_id, db=db)).defined_by
                 if defined_by == stack:
                     # this is the same job-redefining
                     pass
@@ -693,18 +694,18 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
 
                     for i in range(1000):  # XXX
                         n = cast(CMJobID, f"{job_id}-{i}")
-                        if not job_exists(n, db=db):
+                        if not await job_exists(n, db=db):
                             job_id = n
                             break
 
-                    if False:
-                        print("The job_id %r was given explicitly but already " "defined." % job_id)
-                        print("current stack: %s" % stack)
-                        print("    its stack: %s" % defined_by)
-                        print("New job_id is %s" % job_id)
+                    # if False:
+                    #     print("The job_id %r was given explicitly but already " "defined." % job_id)
+                    #     print("current stack: %s" % stack)
+                    #     print("    its stack: %s" % defined_by)
+                    #     print("New job_id is %s" % job_id)
 
     else:
-        job_id = generate_job_id(command_desc, context=context)
+        job_id = await generate_job_id(command_desc, context=context)
 
     context.add_job_defined_in_this_session(job_id)
 
@@ -742,7 +743,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
     children.update(extra_dep)
 
     for c in children:
-        if not job_exists(c, db):
+        if not await job_exists(c, db):
             msg = "Job %r references a job %r that doesnt exist." % (job_id, c)
             raise ValueError(msg)
 
@@ -761,16 +762,16 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
 
     # Need to inherit the pickle
     if context.currently_executing[-1] != "root":
-        parent_job = get_job(context.currently_executing[-1], db)
+        parent_job = await get_job2(context.currently_executing[-1], db)
         c.pickle_main_context = parent_job.pickle_main_context
 
-    if job_exists(job_id, db):
-        old_job = get_job(job_id, db)
+    if await job_exists(job_id, db):
+        old_job = await get_job2(job_id, db)
 
         if old_job.defined_by != c.defined_by:
-            warning("Redefinition of %s: " % job_id)
-            warning(" cur defined_by: %s" % c.defined_by)
-            warning(" old defined_by: %s" % old_job.defined_by)
+            ui_warning(context, "Redefinition of %s: " % job_id)
+            ui_warning(context, "cur defined_by: %s" % c.defined_by)
+            ui_warning(context, "old defined_by: %s" % old_job.defined_by)
 
         if old_job.children != c.children:
             # warning('Redefinition problem:')
@@ -805,9 +806,9 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
                 #     if True or c.defined_by == ['root']:
 
     for child in children:
-        db_job_add_parent_relation(child=child, parent=job_id, db=db)
+        await db_job_add_parent_relation(child=child, parent=job_id, db=db)
 
-    if get_compmake_config("check_params") and job_exists(job_id, db):
+    if get_compmake_config("check_params") and await job_exists(job_id, db):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
         # however, by unpickling(), it will start
@@ -821,14 +822,14 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
         #             old_status = get_compmake_status()
         #             set_compmake_status(
         # CompmakeConstants.compmake_status_slave)
-        all_args_old = get_job_args(job_id, db=db)
+        all_args_old = await get_job_args(job_id, db=db)
         #             set_compmake_status(old_status)
         same, reason = same_computation(all_args, all_args_old)
 
         if not same:
             # print('different job, cleaning cache:\n%s  ' % reason)
             cq = CacheQueryDB(db)  # FIXME was not needed before
-            clean_targets([job_id], db, cq=cq)
+            await clean_targets([job_id], db, cq=cq)
             #             if job_cache_exists(job_id, db):
             #                 delete_job_cache(job_id, db)
             publish(context, "job-redefined", job_id=job_id, reason=reason)
@@ -840,8 +841,8 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
             #                 publish(context, 'job-already-defined',
             # job_id=job_id)
 
-    set_job_args(job_id, all_args, db=db)
-    set_job(job_id, c, db=db)
+    await set_job_args(job_id, all_args, db=db)
+    await set_job(job_id, c, db=db)
     publish(context, "job-defined", job_id=job_id)
 
     return Promise(job_id)
@@ -851,9 +852,9 @@ async def interpret_commands(
     sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator=";"
 ) -> None:
     """
-        Interprets what could possibly be a list of commands (separated by ";")
+    Interprets what could possibly be a list of commands (separated by ";")
 
-        Returns None
+    Returns None
     """
     if not isinstance(commands_str, str):
         msg = "I expected a string, got %s." % describe_type(commands_str)

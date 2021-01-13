@@ -14,9 +14,9 @@ debug_padding = False
 
 def pad_to_screen(s: str, pad=" ", last=None) -> str:
     """
-        Pads a string to the terminal size.
+    Pads a string to the terminal size.
 
-        The string length is computed after removing shell escape sequences.
+    The string length is computed after removing shell escape sequences.
     """
     total_screen_length = get_screen_columns()
 

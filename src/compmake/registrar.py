@@ -24,9 +24,9 @@ __all__ = [
 
 def remove_all_handlers():
     """
-        Removes all event handlers. Useful when
-        events must not be processed locally but routed
-        to the original process somewhere else.
+    Removes all event handlers. Useful when
+    events must not be processed locally but routed
+    to the original process somewhere else.
     """
     CompmakeGlobalState.EventHandlers.handlers = {}
     CompmakeGlobalState.EventHandlers.fallback = []
@@ -34,8 +34,8 @@ def remove_all_handlers():
 
 def register_fallback_handler(handler):
     """
-        Registers an handler who is going to be called when no other handler
-        can deal with an event. Useful to see if we are ignoring some event.
+    Registers an handler who is going to be called when no other handler
+    can deal with an event. Useful to see if we are ignoring some event.
     """
     CompmakeGlobalState.EventHandlers.fallback.append(handler)
 
@@ -46,8 +46,8 @@ import inspect
 # TODO: make decorator
 def register_handler(event_name: str, handler):
     """
-        Registers an handler with an event name.
-        The event name might contain asterisks. "*" matches all.
+    Registers an handler with an event name.
+    The event name might contain asterisks. "*" matches all.
     """
     # if not inspect.isawaitable(handler):
     #     logger.debug('not awaitable', handler=handler)
@@ -75,8 +75,8 @@ def register_handler(event_name: str, handler):
 
 
 def publish(context: Context, event_name: str, **kwargs):
-    """ Publishes an event. Checks that it is registered and with the right
-        attributes. Then it is passed to broadcast_event(). """
+    """Publishes an event. Checks that it is registered and with the right
+    attributes. Then it is passed to broadcast_event()."""
     if event_name not in compmake_registered_events:
         msg = "Event %r not registered" % event_name
         logger.error(msg)

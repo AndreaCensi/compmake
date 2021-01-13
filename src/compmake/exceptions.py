@@ -2,7 +2,7 @@ from typing import List
 
 from zuper_commons.text import indent
 from zuper_commons.types import raise_wrapped, ZException
-from .types import AbortResult, FailResult, InterruptedResult, ResultDict
+from .types import AbortResult, FailResult, InterruptedResult
 
 __all__ = [
     "ShellExitRequested",
@@ -153,8 +153,8 @@ class JobInterrupted(CompmakeException):
 
 
 class HostFailed(CompmakeException):
-    """ The job has been interrupted and must
-        be redone (it has not failed, though) """
+    """The job has been interrupted and must
+    be redone (it has not failed, though)"""
 
     def __init__(self, host, job_id, reason, bt):
         self.host = host

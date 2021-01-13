@@ -32,8 +32,7 @@ def mockup8(context):
     context.comp_dynamic(fd)
 
 
-@istest
-class TestDynamic8(CompmakeTest):
+class TestDynamic8:
     define_other = True
 
 
@@ -69,7 +68,7 @@ async def test_dynamic8_clean(env: Env):
     env.assert_equal_set(jobs_defined(j, env.db), ["fd-always", "fd-other"])
 
     env.assert_equal_set(definition_closure([j], env.db), ["fd-always", "fd-other"])
-    direct = direct_uptodate_deps_inverse(j, env.db)
+    direct = await direct_uptodate_deps_inverse(j, env.db)
     env.assert_equal_set(direct, ["fd-always", "fd-other"])
     direct_closure = direct_uptodate_deps_inverse_closure(j, env.db)
     env.assert_equal_set(direct_closure, ["fd-always", "fd-other"])

@@ -1,12 +1,38 @@
-from abc import ABCMeta, abstractmethod
-from typing import List, Optional, Set
+from abc import ABC, ABCMeta, abstractmethod
+from typing import AsyncIterable, List, Optional, Set
 
 from zuper_utils_asyncio import SyncTaskInterface
-from .types import CMJobID
+from .types import CMJobID, DBKey
 
-__all__ = [
-    "Context",
-]
+__all__ = ["Context", "Storage", "StorageKey"]
+
+StorageKey = DBKey  # NewType("StorageKey", str)
+
+
+class Storage(ABC):
+    @abstractmethod
+    def list(self, pattern: str) -> AsyncIterable[StorageKey]:
+        ...
+
+    @abstractmethod
+    async def get(self, key: StorageKey):
+        ...
+
+    @abstractmethod
+    async def contains(self, key: StorageKey):
+        ...
+
+    @abstractmethod
+    async def remove(self, key: StorageKey):
+        ...
+
+    @abstractmethod
+    async def set(self, key: StorageKey, ob: object):
+        ...
+
+    @abstractmethod
+    async def sizeof(self, key: StorageKey) -> int:
+        ...
 
 
 class Context(metaclass=ABCMeta):
@@ -28,7 +54,7 @@ class Context(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def get_compmake_db(self):
+    def get_compmake_db(self) -> Storage:
         ...
 
     @abstractmethod

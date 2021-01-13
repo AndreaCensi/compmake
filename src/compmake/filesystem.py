@@ -3,13 +3,10 @@ import stat
 import traceback
 from glob import glob
 from os.path import basename
-from typing import Iterator, List, NewType
+from typing import Iterable, Iterator, List
 
 import dill
 
-from . import logger
-from .exceptions import CompmakeBug, SerializationError
-from .utils import safe_pickle_dump, safe_pickle_load
 from zuper_commons.fs import (
     DirPath,
     FilePath,
@@ -19,10 +16,13 @@ from zuper_commons.fs import (
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import ZException
+from . import logger
+from .context import Storage, StorageKey
+from .exceptions import CompmakeBug, SerializationError
+from .utils import safe_pickle_dump, safe_pickle_load, wildcard_to_regexp
 
 __all__ = [
     "StorageFilesystem",
-    "StorageKey",
 ]
 
 
@@ -30,28 +30,41 @@ def track_time(x):
     return x
 
 
-#
-# else:
-#     from ..utils import TimeTrack
-#
-#     track_time = TimeTrack.decorator
-
 trace_queries = False
 
-StorageKey = NewType("StorageKey", str)
 
-
-class StorageFilesystem:
+class StorageFilesystem(Storage):
     basepath: DirPath
     checked_existence: bool
     method: str
     """ `pickle` or `dill` """
+
+    async def list(self, pattern: str) -> Iterable[StorageKey]:
+        regexp = wildcard_to_regexp(pattern)
+
+        for x in self.keys():
+            if regexp.match(x):
+                yield x
+
+    async def get(self, key: StorageKey):
+        return self[key]
+
+    async def contains(self, key: StorageKey):
+        return key in self
+
+    async def remove(self, key: StorageKey):
+        del self[key]
+
+    async def set(self, key: StorageKey, ob: object):
+        self[key] = ob
+
     file_extension: str
 
     def __init__(self, basepath: DirPath, compress: bool = False):
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
         self.method = method = "pickle"
+        # self.method = method = "ipce"
 
         if compress:
             self.file_extension = f".{method}.gz"
@@ -137,6 +150,12 @@ class StorageFilesystem:
                 logger.error(emsg)
                 raise SerializationError(msg + "\n" + emsg)
         elif self.method == "dill":
+            dill.settings["recurse"] = True
+            dill.settings["byref"] = True
+            with safe_write(filename) as f:
+                return dill.dump(value, f)
+        elif self.method == "ipcl":
+            # ob = ipce_from_object()
             dill.settings["recurse"] = True
             dill.settings["byref"] = True
             with safe_write(filename) as f:

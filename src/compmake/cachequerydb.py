@@ -4,10 +4,11 @@ from typing import Collection, List, Set, Tuple, Union
 from zuper_commons.types import check_isinstance
 from . import logger
 from .constants import CompmakeConstants
+from .context import Storage
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .queries import direct_children, direct_parents, jobs_defined
-from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
+from .storage import all_jobs, get_job2, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
 from .utils import memoized_reset
@@ -17,8 +18,8 @@ __all__ = ["CacheQueryDB", "definition_closure"]
 
 class CacheQueryDB:
     """
-        This works as a view on a DB which is assumed not to change
-        between calls.
+    This works as a view on a DB which is assumed not to change
+    between calls.
     """
 
     def __init__(self, db):
@@ -36,39 +37,38 @@ class CacheQueryDB:
         self.jobs_defined.reset()
 
     @memoized_reset
-    def get_job_cache(self, job_id: CMJobID) -> Cache:
+    async def get_job_cache(self, job_id: CMJobID) -> Cache:
 
-        return get_job_cache(job_id, db=self.db)
-
-    @memoized_reset
-    def jobs_defined(self, job_id: CMJobID):
-        return jobs_defined(job_id, db=self.db)
+        return await get_job_cache(job_id, db=self.db)
 
     @memoized_reset
-    def get_job(self, job_id: CMJobID) -> Job:
-
-        return get_job(job_id, db=self.db)
-
-    @memoized_reset
-    def all_jobs(self) -> List[CMJobID]:
-
-        # NOTE: very important, do not memoize iterator
-        res = list(all_jobs(db=self.db))
-        return res
+    async def jobs_defined(self, job_id: CMJobID):
+        return await jobs_defined(job_id, db=self.db)
 
     @memoized_reset
-    def job_exists(self, job_id: CMJobID) -> bool:
+    async def get_job(self, job_id: CMJobID) -> Job:
 
-        return job_exists(job_id=job_id, db=self.db)
+        return await get_job2(job_id, db=self.db)
 
     @memoized_reset
-    def up_to_date(self, job_id: CMJobID) -> Tuple[bool, str, float]:
+    async def all_jobs(self) -> List[CMJobID]:
+
+        # noinspection PyTypeChecker
+        return await all_jobs(self.db)
+
+    @memoized_reset
+    async def job_exists(self, job_id: CMJobID) -> bool:
+
+        return await job_exists(job_id=job_id, db=self.db)
+
+    @memoized_reset
+    async def up_to_date(self, job_id: CMJobID) -> Tuple[bool, str, float]:
         with db_error_wrap("up_to_date()", job_id=job_id):
-            return self._up_to_date_actual(job_id)
+            return await self._up_to_date_actual(job_id)
 
-    def _up_to_date_actual(self, job_id: CMJobID) -> Tuple[bool, str, float]:
+    async def _up_to_date_actual(self, job_id: CMJobID) -> Tuple[bool, str, float]:
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
-            cache = self.get_job_cache(job_id)  # OK
+            cache = await self.get_job_cache(job_id)  # OK
 
             if cache.state == Cache.NOT_STARTED:
                 return False, "Not started", cache.timestamp
@@ -76,10 +76,10 @@ class CacheQueryDB:
             if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
                 return False, "Marked invalid", cache.timestamp
 
-            dependencies = self.direct_children(job_id)
+            dependencies = await self.direct_children(job_id)
 
             for child in dependencies:
-                if not self.job_exists(child):
+                if not await self.job_exists(child):
                     if CompmakeConstants.tolerate_db_inconsistencies:
                         logger.warn(f"Skipping not exiting child {child} of {job_id}")
                         # TODO: find out why
@@ -92,7 +92,8 @@ class CacheQueryDB:
                         return False, f"At least: Dep {child!r} have been updated.", cache.timestamp
 
             # plus jobs that defined it
-            defined_by = list(self.get_job(job_id).defined_by)
+            j = await self.get_job(job_id)
+            defined_by = list(j.defined_by)
             defined_by.remove(CMJobID("root"))
             dependencies.update(defined_by)
 
@@ -112,37 +113,37 @@ class CacheQueryDB:
             return True, "", cache.timestamp
 
     @memoized_reset
-    def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
+    async def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
 
-        return direct_children(job_id, db=self.db)
-
-    @memoized_reset
-    def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
-
-        return direct_parents(job_id, db=self.db)
+        return await direct_children(job_id, db=self.db)
 
     @memoized_reset
-    def parents(self, job_id: CMJobID) -> Set[CMJobID]:
+    async def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
+
+        return await direct_parents(job_id, db=self.db)
+
+    @memoized_reset
+    async def parents(self, job_id: CMJobID) -> Set[CMJobID]:
 
         t = set()
-        parents_jobs = self.direct_parents(job_id)
+        parents_jobs = await self.direct_parents(job_id)
         for p in parents_jobs:
             t.add(p)
-            t.update(self.parents(p))
+            t.update(await self.parents(p))
         return t
 
     @memoized_reset
-    def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
+    async def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
         """ Returns true if all the dependencies are up to date """
-        for child in self.direct_children(job_id):
-            child_up, _, _ = self.up_to_date(child)
+        for child in await self.direct_children(job_id):
+            child_up, _, _ = await self.up_to_date(child)
             if not child_up:
                 return False
         return True
 
-    def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
-        """ More efficient version of tree()
-            which is direct_children() recursively. """
+    async def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
+        """More efficient version of tree()
+        which is direct_children() recursively."""
         stack = []
 
         stack.extend(jobs)
@@ -152,23 +153,25 @@ class CacheQueryDB:
         while stack:
             job_id = stack.pop()
 
-            for c in self.direct_children(job_id):
+            for c in await self.direct_children(job_id):
                 if not c in result:
                     result.add(c)
                     stack.append(c)
 
         return list(result)
 
-    def list_todo_targets(self, jobs: Collection[CMJobID]) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
+    async def list_todo_targets(
+        self, jobs: Collection[CMJobID]
+    ) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
         """
-            Returns a tuple (todo, jobs_done, ready):
-             todo:  set of job ids to do (children that are not up to date)
-             done:  top level targets (in jobs) that are already done.
-             ready: ready to do (dependencies_up_to_date)
+        Returns a tuple (todo, jobs_done, ready):
+         todo:  set of job ids to do (children that are not up to date)
+         done:  top level targets (in jobs) that are already done.
+         ready: ready to do (dependencies_up_to_date)
         """
         with db_error_wrap("list_todo_targets()", jobs=jobs):
             for j in jobs:
-                if not self.job_exists(j):
+                if not await self.job_exists(j):
                     raise CompmakeBug("Job does not exist", job_id=j)
 
             todo = set()
@@ -197,8 +200,8 @@ class CacheQueryDB:
                     done.add(job_id)
                 else:
                     todo.add(job_id)
-                    for child in self.direct_children(job_id):
-                        if not self.job_exists(child):
+                    for child in await self.direct_children(job_id):
+                        if not await self.job_exists(child):
                             msg = f"Job {job_id!r} references a not existing job {child!r}. "
                             msg += (
                                 "This might happen when you change a dynamic job "
@@ -212,14 +215,13 @@ class CacheQueryDB:
                         if not child in seen:
                             stack.append(child)
 
-            todo_and_ready = set([job_id for job_id in todo if self.dependencies_up_to_date(job_id)])
+            todo_and_ready = set([job_id for job_id in todo if await self.dependencies_up_to_date(job_id)])
 
             return todo, done, todo_and_ready
 
     # @contract(returns=set, jobs="unicode|set(unicode)")
-    def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
-        """ Closure of the relation children and dependencies of userobject.
-        """
+    async def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
+        """Closure of the relation children and dependencies of userobject."""
         stack = []
         if isinstance(jobs, str):
             jobs = [jobs]
@@ -228,9 +230,10 @@ class CacheQueryDB:
 
         result = set()
 
-        def descendants(a_job_id):
-            deps = collect_dependencies(get_job_userobject(a_job_id, self.db))
-            children = self.direct_children(a_job_id)
+        async def descendants(a_job_id):
+            jo = await get_job_userobject(a_job_id, self.db)
+            deps = collect_dependencies(jo)
+            children = await self.direct_children(a_job_id)
             check_isinstance(children, set)
             r = children | deps
             check_isinstance(r, set)
@@ -239,8 +242,8 @@ class CacheQueryDB:
         while stack:
             job_id = stack.pop()
 
-            for c in descendants(job_id):
-                if not self.job_exists(c):
+            for c in await descendants(job_id):
+                if not await self.job_exists(c):
                     raise ValueError(c)
                 if not c in result:
                     result.add(c)
@@ -257,9 +260,10 @@ def db_error_wrap(what, **args):
         raise CompmakeDBError(what, **args) from e
 
 
-def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
+async def definition_closure(jobs: Collection[CMJobID], db: Storage) -> Set[CMJobID]:
     """ The result does not contain jobs (unless one job defines another) """
     # print('definition_closure(%s)' % jobs)
+    # noinspection PyTypeChecker
     check_isinstance(jobs, (list, set))
     jobs = set(jobs)
 
@@ -269,12 +273,12 @@ def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
     while stack:
         # print('stack: %s' % stack)
         a = stack.pop()
-        if not cq.job_exists(a):
+        if not await cq.job_exists(a):
             logger.warning("Warning: job %r does not exist anymore; ignoring." % a)
             continue
-
-        if cq.get_job_cache(a).state == Cache.DONE:
-            a_d = cq.jobs_defined(a)
+        cache = await cq.get_job_cache(a)
+        if cache.state == Cache.DONE:
+            a_d = await cq.jobs_defined(a)
             # print('%s ->%s' % (a, a_d))
             for x in a_d:
                 result.add(x)

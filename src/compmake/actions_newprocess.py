@@ -47,7 +47,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args):
     from .filesystem import StorageFilesystem
 
     db: StorageFilesystem = context.get_compmake_db()
-    jobs = list(all_jobs(db=db))
+    jobs = await all_jobs(db=db)
     if not jobs:
         raise ZException()
     storage = db.basepath  # XXX:

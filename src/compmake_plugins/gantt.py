@@ -5,15 +5,13 @@ from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_comman
 
 @ui_command(section=COMMANDS_ADVANCED)
 async def gantt(sti, job_list, context, filename="gantt.html"):
-    """
-
-    """
+    """"""
     from networkx.algorithms.dag import topological_sort
 
     db = context.get_compmake_db()
     if not job_list:
         #        job_list = list(top_targets(db))
-        job_list = all_jobs(db)
+        job_list = await all_jobs(db)
     # plus all the jobs that were defined by them
     job_list = set(job_list)
     #    job_list.update(definition_closure(job_list, db))
@@ -24,24 +22,24 @@ async def gantt(sti, job_list, context, filename="gantt.html"):
     cq = CacheQueryDB(db)
 
     for job_id in job_list:
-        cache = cq.get_job_cache(job_id)
+        cache = await cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:
             continue
         length = cache.int_make.get_cputime_used()
         attr_dict = dict(cache=cache, length=length)
         G.add_node(job_id, **attr_dict)
 
-        dependencies = cq.direct_children(job_id)
+        dependencies = await cq.direct_children(job_id)
         for c in dependencies:
             G.add_edge(c, job_id)
 
-        defined = cq.jobs_defined(job_id)
+        defined = await cq.jobs_defined(job_id)
         for c in defined:
             G.add_edge(job_id, c)
 
     order = list(topological_sort(G))
     for job_id in order:
-        cache = cq.get_job_cache(job_id)
+        cache = await cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:
             continue
         length = G.nodes[job_id]["length"]

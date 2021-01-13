@@ -18,8 +18,8 @@ async def interpret_commands_wrap(
     sti: SyncTaskInterface, commands: str, context: Context, cq: CacheQueryDB
 ) -> None:
     """
-        Returns None or raises CommandFailed, ShellExitRequested,
-            CompmakeBug, KeyboardInterrupt.
+    Returns None or raises CommandFailed, ShellExitRequested,
+        CompmakeBug, KeyboardInterrupt.
     """
     assert context is not None
     publish(context, "command-line-starting", command=commands)
@@ -59,9 +59,9 @@ async def interpret_commands_wrap(
 
 async def batch_command(sti: SyncTaskInterface, s, context, cq):
     """
-        Executes one command (could be a sequence)
+    Executes one command (could be a sequence)
 
-        Returns None or raises CommandsFailed, CompmakeBug.
+    Returns None or raises CommandsFailed, CompmakeBug.
     """
 
     set_compmake_status(CompmakeConstants.compmake_status_embedded)

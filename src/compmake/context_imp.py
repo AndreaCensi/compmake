@@ -23,10 +23,10 @@ class ContextImp(Context):
         currently_executing: Optional[List[CMJobID]] = None,
     ):
         """
-            db: if a string, it is used as path for the DB
+        db: if a string, it is used as path for the DB
 
-            currently_executing: str, job currently executing
-                defaults to ['root']
+        currently_executing: str, job currently executing
+            defaults to ['root']
         """
         if currently_executing is None:
             currently_executing = ["root"]
@@ -86,26 +86,26 @@ class ContextImp(Context):
         self._job_prefix = prefix
 
     # setting up jobs
-    def comp_dynamic(self, command_, *args, **kwargs):
+    async def comp_dynamic(self, command_, *args, **kwargs):
 
-        return comp_(self, command_, *args, needs_context=True, **kwargs)
+        return await comp_(self, command_, *args, needs_context=True, **kwargs)
 
-    def comp(self, command_, *args, **kwargs):
+    async def comp(self, command_, *args, **kwargs):
 
-        return comp_(self, command_, *args, **kwargs)
+        return await comp_(self, command_, *args, **kwargs)
 
-    def comp_store(self, x, job_id=None):
-        return comp_store_(x=x, context=self, job_id=job_id)
+    async def comp_store(self, x, job_id=None):
+        return await comp_store_(x=x, context=self, job_id=job_id)
 
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
         """
-            Returns:
+        Returns:
 
-            0            everything ok
-            int not 0    error
-            string       an error, explained
+        0            everything ok
+        int not 0    error
+        string       an error, explained
 
-            False?       we want to exit (not found in source though)
+        False?       we want to exit (not found in source though)
         """
 
         cq = CacheQueryDB(self.get_compmake_db())

@@ -12,6 +12,7 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
+from compmake.storage import get_job2
 from compmake.utils import pad_to_screen
 from zuper_utils_asyncio import SyncTaskInterface
 
@@ -20,7 +21,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 async def stats(sti: SyncTaskInterface, args, context, cq):
     """ Displays a coarse summary of the jobs state. """
     if not args:
-        job_list = cq.all_jobs()
+        job_list = await cq.all_jobs()
     else:
         job_list = parse_job_list(args, context=context, cq=cq)
 
@@ -50,7 +51,7 @@ def display_stats(job_list, context):
         states2count[cache.state] += 1
         total += 1
 
-        function_id = get_job(job_id, db=db).command_desc
+        function_id = (await get_job2(job_id, db=db)).command_desc
         # initialize record if not present
         if not function_id in function2state2count:
             function2state2count[function_id] = dict(list(map(lambda x: (x, 0), states_order)) + [("all", 0)])

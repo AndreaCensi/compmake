@@ -28,23 +28,23 @@ def graph(
 ):
     """
 
-        Creates a graph of the given targets and dependencies.
+    Creates a graph of the given targets and dependencies.
 
-        Usage:
+    Usage:
 
-            @: graph filename=filename label=[id,function,none] color=[0|1] format=png filter=[dot|circo|...]
+        @: graph filename=filename label=[id,function,none] color=[0|1] format=png filter=[dot|circo|...]
 
-        Options:
+    Options:
 
-            filename:  name of generated filename in the dot format
-            label='none','id','function'
-            color=[0|1]: whether to color the nodes
-            filter=[dot,circo,twopi,...]  which algorithm to use to arrange
-                       the nodes. The best choice depends on
-                       the topology of your
-                       computation. The default is 'dot'
-                       (hierarchy top-bottom).
-            format=[png,...]  The output file format.
+        filename:  name of generated filename in the dot format
+        label='none','id','function'
+        color=[0|1]: whether to color the nodes
+        filter=[dot,circo,twopi,...]  which algorithm to use to arrange
+                   the nodes. The best choice depends on
+                   the topology of your
+                   computation. The default is 'dot'
+                   (hierarchy top-bottom).
+        format=[png,...]  The output file format.
     """
     processing = processing or []
     possible = ["none", "id", "function"]
@@ -54,7 +54,7 @@ def graph(
 
     db = context.get_compmake_db()
     if not job_list:
-        job_list = list(top_targets(db))
+        job_list = list(await top_targets(db))
 
     print(f"jobs: {job_list}")
     print(f"processing: {processing}")
@@ -73,19 +73,19 @@ def graph(
     cq = CacheQueryDB(db)
     job_list = set(job_list)
     # all the dependencies
-    job_list.update(cq.tree(job_list))
+    job_list.update(await cq.tree(job_list))
 
     # plus all the jobs that were defined by them
-    job_list.update(definition_closure(job_list, db))
+    job_list.update(await definition_closure(job_list, db))
 
     job_list = set(job_list)
 
     #     print('closure: %s' % sorted(job_list))
 
     if cluster:
-        ggraph = create_graph2_clusters(cq, job_list, label=label, color=color, processing=processing)
+        ggraph = await create_graph2_clusters(cq, job_list, label=label, color=color, processing=processing)
     else:
-        ggraph = create_graph1(cq, job_list, label=label, color=color, processing=processing)
+        ggraph = await create_graph1(cq, job_list, label=label, color=color, processing=processing)
     print(f"Writing graph on {filename!r}.")
     # TODO: add check?
 
@@ -105,8 +105,8 @@ def graph(
     ui_info(context, f"Written output on files {filename}, {output}.")
 
 
-def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):
-    cache = cq.get_job_cache(x)
+async def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):
+    cache = await cq.get_job_cache(x)
 
     # state2color = {
     #     Cache.NOT_STARTED: "grey",
@@ -134,7 +134,7 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     if label == "id":
         return job_id
     if label == "function":
-        job = cq.get_job(job_id)
+        job = await cq.get_job(job_id)
         return f"{job.command_desc}()"
     assert False
     #
@@ -142,7 +142,7 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     #
 
 
-def create_graph1(
+async def create_graph1(
     cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
 ):
     print("Creating graph")
@@ -157,7 +157,8 @@ def create_graph1(
 
         if color:
             ggraph.styleAppend(job_id, "style", "filled")
-            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing)["color"])
+            c = await get_color_for(job_id, cq, processing)
+            ggraph.styleAppend(job_id, "fillcolor", c["color"])
             ggraph.styleApply(job_id, job2node[job_id])
         else:
             ggraph.styleAppend(job_id, "style", "filled")
@@ -168,7 +169,7 @@ def create_graph1(
     for job_id in job_list:
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
-        for child in cq.direct_children(job_id):
+        for child in await cq.direct_children(job_id):
             # arrows follows flux of data
             print(f"{job2node[child]}->{job2node[job_id]}")
             ggraph.newLink(job2node[child], job2node[job_id])
@@ -176,7 +177,7 @@ def create_graph1(
     return ggraph
 
 
-def create_graph2_clusters(
+async def create_graph2_clusters(
     cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
 ):
     print("Creating graph")
@@ -186,7 +187,7 @@ def create_graph2_clusters(
     cluster2jobs = defaultdict(lambda: set())
     job2cluster = {}
     for job_id in job_list:
-        job = cq.get_job(job_id)
+        job = await cq.get_job(job_id)
         cluster = job.defined_by[-1]
         cluster2jobs[cluster].add(job_id)
         job2cluster[job_id] = cluster
@@ -208,14 +209,14 @@ def create_graph2_clusters(
             ggraph.styleApply("cluster", cluster2node[cluster])
 
         for job_id in cluster_jobs:
-            # job = cq.get_job(job_id)
+            # job = await cq.get_job(job_id)
 
             job_label = get_node_label(cq, job_id, label)
             job2node[job_id] = ggraph.newItem(job_label, cluster2node[cluster])
 
             if color:
                 ggraph.styleAppend(job_id, "style", "filled")
-                ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing))
+                ggraph.styleAppend(job_id, "fillcolor", await get_color_for(job_id, cq, processing))
                 ggraph.styleApply(job_id, job2node[job_id])
             else:
                 ggraph.styleAppend(job_id, "style", "filled")
@@ -229,7 +230,7 @@ def create_graph2_clusters(
     for job_id in job_list:
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
-        for child in cq.direct_children(job_id):
+        for child in await cq.direct_children(job_id):
             ggraph.newLink(job2node[child], job2node[job_id])
 
     # generation

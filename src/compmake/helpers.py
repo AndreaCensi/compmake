@@ -19,7 +19,6 @@ __all__ = [
     "ui_section",
     "UIState",
 ]
-from . import logger
 
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
@@ -113,9 +112,8 @@ def register_command(name, func, docs, alias=None, section=None, dbchange=False)
     if name in UIState.commands:
         prev = UIState.commands[name]
 
-        msg = "Command %r already defined " % name
+        msg = f"Command {name!r} already defined "
         # logger.debug(msg, c=c, prev=prev)
-        return
         raise ZValueError(
             msg,
             prev=UIState.commands[name],
@@ -123,13 +121,13 @@ def register_command(name, func, docs, alias=None, section=None, dbchange=False)
             cur=c,
             curf=c.function.__module__,
         )
-    assert docs is not None, "Command %r need docs." % name
+    assert docs is not None, f"Command {name!r} need docs."
     UIState.commands[name] = c
-    assert section in UIState.sections, "Section %r not defined" % section
+    assert section in UIState.sections, f"Section {section!r} not defined"
     UIState.sections[section].commands.append(name)
     for a in alias:
-        assert not a in UIState.alias2name, 'Alias "%s" already used' % a
-        assert not a in UIState.commands, 'Alias "%s" is already a command' % a
+        assert not a in UIState.alias2name, f'Alias "{a}" already used'
+        assert not a in UIState.commands, f'Alias "{a}" is already a command'
         UIState.alias2name[a] = name
 
 
@@ -141,13 +139,13 @@ def get_commands():
 @ui_command(section=GENERAL)
 async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
     """
-        Prints help about the other commands. (try 'help help')
+    Prints help about the other commands. (try 'help help')
 
-        Usage:
+    Usage:
 
-        @: help [command]
+    @: help [command]
 
-        If command is given, extended help is printed about it.
+    If command is given, extended help is printed about it.
     """
     commands = get_commands()
     if not args:
@@ -191,9 +189,9 @@ def list_commands_with_sections(file=sys.stdout):  # @ReservedAssignment
             dc = docstring_components(cmd.doc)
             short_doc = dc["first"]
             #             short_doc = cmd.doc.split('\n')[0].strip()
-            if False:  # display * next to jobs affecting the DB
-                if dbchange:
-                    name += "*"
+            # if False:  # display * next to jobs affecting the DB
+            #     if dbchange:
+            #         name += "*"
             n = name.ljust(max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=["bold"])

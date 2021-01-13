@@ -11,6 +11,7 @@ from compmake import (
     get_job,
     jobs_defined,
 )
+from compmake.storage import get_job2
 from compmake.types import CMJobID
 
 
@@ -82,7 +83,7 @@ async def test_dynamic6(env: Env):
 
         await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])
 
-        job = get_job(cast(CMJobID, "summary"), env2.db)
+        job = await get_job2(cast(CMJobID, "summary"), env2.db)
         print("job.children: %s" % job.children)
         print("job.dynamic_children: %s" % job.dynamic_children)
         assert_equal(job.dynamic_children, {"fd": {"fd-gd"}})

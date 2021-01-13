@@ -43,8 +43,8 @@ async def test_ID(env: Env):
 
 @run_with_env
 async def test_ID2(env: Env):
-    """ Make sure we set up a warning if the job_id key
-        is already used """
+    """Make sure we set up a warning if the job_id key
+    is already used"""
     assert env.comp(f1, job_id="ciao")
     assert_raises(UserError, env.comp, f1, job_id="ciao")
 
@@ -82,7 +82,7 @@ from .utils import Env, run_with_env
 
 @run_with_env
 async def test_job_param(env: Env):
-    """ We should issue a warning if job_id is used
-        as a parameter in the function """
+    """We should issue a warning if job_id is used
+    as a parameter in the function"""
     env.comp(uses_id)
     assert_raises(UserError, env.comp, uses_id, job_id="myjobid")

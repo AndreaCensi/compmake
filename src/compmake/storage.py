@@ -1,13 +1,13 @@
 """
     These are all wrappers around the raw methods in storage
 """
-from typing import Iterator
+from typing import cast, Iterator, List
 
 from zuper_commons.types import check_isinstance
+from .context import Storage
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from .structures import Cache, Job
 from .types import CMJobID, DBKey
-from .utils import wildcard_to_regexp
 from .utils.pickle_frustration import pickle_main_context_load
 
 __all__ = [
@@ -15,7 +15,6 @@ __all__ = [
     "key2job",
     "all_jobs",
     "get_job_args",
-    "get_job",
     "job_args_exists",
     "assert_job_exists",
     "set_job",
@@ -42,6 +41,7 @@ __all__ = [
     "job2userobjectkey",
     "get_job_userobject",
     "job_args_sizeof",
+    "get_job2",
 ]
 KEY_JOB_PREFIX = "cm-job-"
 
@@ -54,68 +54,93 @@ def key2job(key: DBKey) -> CMJobID:
     return CMJobID(key.replace(KEY_JOB_PREFIX, "", 1))
 
 
-def all_jobs(db, force_db: bool = False) -> Iterator[CMJobID]:
-    """ Returns the list of all jobs.
-        If force_db is True, read jobs from DB.
-        Otherwise, use local cache.
-     """
+async def all_jobs(db: Storage, force_db: bool = False) -> List[CMJobID]:
+    """Returns the list of all jobs.
+    If force_db is True, read jobs from DB.
+    Otherwise, use local cache.
+    """
+    res = []
     pattern = job2key(CMJobID("*"))
-    regexp = wildcard_to_regexp(pattern)
+    async for key in db.list(pattern):
+        # regexp = wildcard_to_regexp(pattern)
+        #
+        # for key in db.keys():
+        #     if regexp.match(key):
+        res.append(key2job(key))
+    return res
 
-    for key in db.keys():
-        if regexp.match(key):
-            yield key2job(key)
+
+async def all_jobs0(db: Storage, force_db: bool = False) -> Iterator[CMJobID]:
+    """Returns the list of all jobs.
+    If force_db is True, read jobs from DB.
+    Otherwise, use local cache.
+    """
+    pattern = job2key(CMJobID("*"))
+    async for key in db.list(pattern):
+        # regexp = wildcard_to_regexp(pattern)
+        #
+        # for key in db.keys():
+        #     if regexp.match(key):
+        yield key2job(key)
 
 
-def get_job(job_id: CMJobID, db) -> Job:
+#
+# def get_job(job_id: CMJobID, db: Storage) -> Job:
+#     key = job2key(job_id)
+#     computation = db[key]
+#     assert isinstance(computation, Job)
+#     return computation
+
+
+async def get_job2(job_id: CMJobID, db: Storage) -> Job:
     key = job2key(job_id)
-    computation = db[key]
+    computation = await db.get(key)
     assert isinstance(computation, Job)
     return computation
 
 
-def job_exists(job_id: CMJobID, db) -> bool:
+async def job_exists(job_id: CMJobID, db: Storage) -> bool:
     key = job2key(job_id)
-    return key in db
+    return await db.contains(key)
 
 
-def assert_job_exists(job_id: CMJobID, db):
+async def assert_job_exists(job_id: CMJobID, db: Storage):
     """
-        :raise CompmakeBug: if the job does not exist
+    :raise CompmakeBug: if the job does not exist
     """
-    get_job(job_id, db)
+    await get_job2(job_id, db)
 
 
-def set_job(job_id: CMJobID, job: Job, db) -> None:
+async def set_job(job_id: CMJobID, job: Job, db: Storage) -> None:
     # TODO: check if they changed
     key = job2key(job_id)
     assert isinstance(job, Job)
-    db[key] = job
+    await db.set(key, job)
 
 
-def delete_job(job_id: CMJobID, db) -> None:
+async def delete_job(job_id: CMJobID, db: Storage) -> None:
     key = job2key(job_id)
-    del db[key]
+    await db.remove(key)
 
 
 #
 # Cache objects
 #
-def job2cachekey(job_id: CMJobID) -> str:
+def job2cachekey(job_id: CMJobID) -> DBKey:
     prefix = "cm-cache-"
-    return f"{prefix}{job_id}"
+    return cast(DBKey, f"{prefix}{job_id}")
 
 
-def get_job_cache(job_id: CMJobID, db):
+async def get_job_cache(job_id: CMJobID, db: Storage):
     assert isinstance(job_id, str)
     # assert isinstance(db, StorageFilesystem)
     cache_key = job2cachekey(job_id)
     if cache_key in db:
         try:
-            cache = db[cache_key]
+            cache = await db.get(cache_key)
             assert isinstance(cache, Cache)
         except Exception as e:
-            del db[cache_key]
+            await db.remove(cache_key)
             # also remove user object?
             msg = f'Could not read Cache object for job "{job_id}": {e}; deleted.'
             raise CompmakeException(msg)
@@ -127,7 +152,7 @@ def get_job_cache(job_id: CMJobID, db):
         # if not job_id in known:
         # raise CompmakeException("invalid job %s, I know %s"
         # % (job_id, known))
-        if not job_exists(job_id, db):
+        if not (await job_exists(job_id, db)):
             msg = "Requesting cache for job that does not exist."
             raise CompmakeDBError(msg, job_id=job_id)
 
@@ -137,40 +162,40 @@ def get_job_cache(job_id: CMJobID, db):
         return cache
 
 
-def job_cache_exists(job_id: CMJobID, db) -> bool:
+async def job_cache_exists(job_id: CMJobID, db: Storage) -> bool:
     key = job2cachekey(job_id)
-    return key in db
+    return await db.contains(key)
 
 
-def job_cache_sizeof(job_id: CMJobID, db) -> int:
+async def job_cache_sizeof(job_id: CMJobID, db: Storage) -> int:
     key = job2cachekey(job_id)
-    return db.sizeof(key)
+    return await db.sizeof(key)
 
 
-def set_job_cache(job_id: CMJobID, cache: Cache, db):
+async def set_job_cache(job_id: CMJobID, cache: Cache, db: Storage):
     assert isinstance(cache, Cache)
     check_isinstance(cache.captured_stderr, (type(None), str))
     check_isinstance(cache.captured_stdout, (type(None), str))
     check_isinstance(cache.exception, (type(None), str))
     check_isinstance(cache.backtrace, (type(None), str))
     key = job2cachekey(job_id)
-    db[key] = cache
+    await db.set(key, cache)
 
 
-def delete_job_cache(job_id: CMJobID, db):
+async def delete_job_cache(job_id: CMJobID, db: Storage):
     key = job2cachekey(job_id)
-    del db[key]
+    await db.remove(key)
 
 
 #
 # User objects
 #
-def job2userobjectkey(job_id: CMJobID):
+def job2userobjectkey(job_id: CMJobID) -> DBKey:
     prefix = "cm-res-"
-    return f"{prefix}{job_id}"
+    return cast(DBKey, f"{prefix}{job_id}")
 
 
-def get_job_userobject(job_id: CMJobID, db) -> object:
+async def get_job_userobject(job_id: CMJobID, db: Storage) -> object:
     # available = is_job_userobject_available(job_id, db)
     # if not available:
     # available_job = job_exists(job_id, db)
@@ -183,119 +208,117 @@ def get_job_userobject(job_id: CMJobID, db) -> object:
     #         raise CompmakeBug(msg)
     # print('loading %r ' % job_id)
     key = job2userobjectkey(job_id)
-    res = db[key]
-    # print('... done')
-    return res
+    return await db.get(key)
 
 
-def job_userobject_sizeof(job_id: CMJobID, db) -> int:
+async def job_userobject_sizeof(job_id: CMJobID, db: Storage) -> int:
     key = job2userobjectkey(job_id)
-    return db.sizeof(key)
+    return await db.sizeof(key)
 
 
-def is_job_userobject_available(job_id: CMJobID, db) -> bool:
+async def is_job_userobject_available(job_id: CMJobID, db: Storage) -> bool:
     key = job2userobjectkey(job_id)
-    return key in db
+    return await db.contains(key)
 
 
 job_userobject_exists = is_job_userobject_available
 
 
-def set_job_userobject(job_id: CMJobID, obj, db):
+async def set_job_userobject(job_id: CMJobID, obj, db: Storage):
     key = job2userobjectkey(job_id)
-    db[key] = obj
+    await db.set(key, obj)
 
 
-def delete_job_userobject(job_id: CMJobID, db):
+async def delete_job_userobject(job_id: CMJobID, db: Storage):
     key = job2userobjectkey(job_id)
-    del db[key]
+    await db.remove(key)
 
 
-def job2jobargskey(job_id: CMJobID):
+def job2jobargskey(job_id: CMJobID) -> DBKey:
     prefix = "cm-args-"
-    return f"{prefix}{job_id}"
+    return cast(DBKey, f"{prefix}{job_id}")
 
 
-def get_job_args(job_id: CMJobID, db):
+async def get_job_args(job_id: CMJobID, db: Storage):
     key = job2jobargskey(job_id)
 
     # if False:
     #     return db[key]
     # else:
-    job = get_job(job_id, db)
+    job = await get_job2(job_id, db)
     pickle_main_context = job.pickle_main_context
     with pickle_main_context_load(pickle_main_context):
-        return db[key]
+        return await db.get(key)
 
 
-def job_args_exists(job_id: CMJobID, db) -> bool:
+async def job_args_exists(job_id: CMJobID, db: Storage) -> bool:
     key = job2jobargskey(job_id)
-    return key in db
+    return await db.contains(key)
 
 
-def job_args_sizeof(job_id: CMJobID, db) -> int:
+async def job_args_sizeof(job_id: CMJobID, db: Storage) -> int:
     key = job2jobargskey(job_id)
-    return db.sizeof(key)
+    return await db.sizeof(key)
 
 
-def set_job_args(job_id: CMJobID, obj, db):
+async def set_job_args(job_id: CMJobID, obj, db: Storage):
     key = job2jobargskey(job_id)
-    db[key] = obj
+    await db.set(key, obj)
 
 
-def delete_job_args(job_id: CMJobID, db):
+async def delete_job_args(job_id: CMJobID, db: Storage):
     key = job2jobargskey(job_id)
-    del db[key]
+    await db.remove(key)
 
 
-def delete_all_job_data(job_id: CMJobID, db):
+async def delete_all_job_data(job_id: CMJobID, db: Storage):
     # print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
-    if job_exists(**args):
-        delete_job(**args)
-    if job_args_exists(**args):
-        delete_job_args(**args)
-    if job_userobject_exists(**args):
-        delete_job_userobject(**args)
-    if job_cache_exists(**args):
-        delete_job_cache(**args)
+    if await job_exists(**args):
+        await delete_job(**args)
+    if await job_args_exists(**args):
+        await delete_job_args(**args)
+    if await job_userobject_exists(**args):
+        await delete_job_userobject(**args)
+    if await job_cache_exists(**args):
+        await delete_job_cache(**args)
 
 
 # These are delicate and should be implemented differently
-def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db):
-    job = get_job(job_id, db)
+async def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db: Storage):
+    job = await get_job2(job_id, db)
     if not returned_by in job.children:
         msg = f"{job_id!r} does not know it has child  {returned_by!r}"
         raise CompmakeBug(msg)
 
     job.children.update(children)
     job.dynamic_children[returned_by] = children
-    set_job(job_id, job, db)
-    job2 = get_job(job_id, db)
+    await set_job(job_id, job, db)
+    job2 = await get_job2(job_id, db)
     assert job2.children == job.children, "Race condition"
     assert job2.dynamic_children == job.dynamic_children, "Race condition"
 
 
-def db_job_add_parent(db, job_id, parent):
-    j = get_job(job_id, db)
+async def db_job_add_parent(db, job_id, parent):
+    j = await get_job2(job_id, db)
     # print('%s old parents list: %s' % (d, j.parents))
     j.parents.add(parent)
-    set_job(job_id, j, db)
-    j2 = get_job(job_id, db)
+    await set_job(job_id, j, db)
+    j2 = await get_job2(job_id, db)
     assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
-def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db):
-    child_comp = get_job(child, db=db)
+async def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: Storage):
+    child_comp = await get_job2(child, db=db)
     orig = set(child_comp.parents)
     want = orig | {parent}
     # alright, need to take care of race condition
     while True:
         # Try to write
         child_comp.parents = want
-        set_job(child, child_comp, db=db)
+        await set_job(child, child_comp, db=db)
         # now read back
-        child_comp = get_job(child, db=db)
+        child_comp = await get_job2(child, db=db)
         if child_comp.parents != want:
             print(f"race condition for parents of {child}")
             print(f"orig: {orig}")

@@ -2,11 +2,10 @@ import inspect
 
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
-
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
-from .storage import get_job, get_job_args, job_userobject_exists
+from .storage import get_job2, get_job_args, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
 
@@ -18,12 +17,12 @@ __all__ = [
 
 def get_cmd_args_kwargs(job_id: CMJobID, db):
     """ Substitutes dependencies and gets actual cmd, args, kwargs. """
-    command, args, kwargs = get_job_args(job_id, db=db)
+    command, args, kwargs = await get_job_args(job_id, db=db)
     kwargs = dict(**kwargs)
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
-        if not job_userobject_exists(dep, db):
+        if not await job_userobject_exists(dep, db):
             msg = f"Dependency {dep!r} was not done."
             raise CompmakeBug(msg)
     args2 = substitute_dependencies(args, db=db)
@@ -97,7 +96,7 @@ async def execute_with_context(sti: SyncTaskInterface, db, context, job_id, comm
     """ Returns a dictionary with fields "user_object" and "new_jobs" """
     assert isinstance(context, Context)
 
-    cur_job = get_job(job_id=job_id, db=db)
+    cur_job = await get_job2(job_id=job_id, db=db)
     context.currently_executing = cur_job.defined_by + [job_id]
 
     sig = inspect.signature(command)

@@ -47,23 +47,23 @@ def raise_error_if_manager_failed(manager):
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 async def delete(sti: SyncTaskInterface, job_list, context):
-    """ Remove completely the job from the DB. Useful for generated jobs (
-    "delete not root"). """
+    """Remove completely the job from the DB. Useful for generated jobs (
+    "delete not root")."""
 
     job_list = [x for x in job_list]
 
     db = context.get_compmake_db()
     for job_id in job_list:
-        delete_all_job_data(job_id=job_id, db=db)
+        await delete_all_job_data(job_id=job_id, db=db)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
 async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
     """
-        Cleans the result of the selected computation (or everything if
-        nothing specified).
+    Cleans the result of the selected computation (or everything if
+    nothing specified).
 
-        If cleaning a dynamic job, it *deletes* all jobs it created.
+    If cleaning a dynamic job, it *deletes* all jobs it created.
 
     """
     db = context.get_compmake_db()
@@ -72,7 +72,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
     job_list = [x for x in job_list]
 
     if not job_list:
-        job_list = list(all_jobs(db=db))
+        job_list = await all_jobs(db=db)
 
     if not job_list:
         return
@@ -86,7 +86,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
             return
 
     # ui_info(context, f'Going to clean {job_list}')
-    clean_targets(job_list, db=db, cq=cq)
+    await clean_targets(job_list, db=db, cq=cq)
 
 
 # TODO: add hidden

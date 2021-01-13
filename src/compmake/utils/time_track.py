@@ -14,6 +14,10 @@ class TimeTrack:
         self.t0 = time.time()
         self.c0 = time.process_time()
         self.what = what
+        self.t1 = None
+        self.c1 = None
+        self.cd = None
+        self.td = None
 
     def show(self, stream=sys.stdout, min_td=0.001):
         self.t1 = time.time()

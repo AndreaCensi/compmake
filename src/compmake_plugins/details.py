@@ -5,7 +5,6 @@ from compmake import (
     children,
     CMJobID,
     compmake_colored,
-    get_job,
     get_job_args,
     get_job_cache,
     job_args_sizeof,
@@ -16,38 +15,39 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
+from compmake.storage import get_job2
 from zuper_commons.types import check_isinstance
 from .console_output import write_line_endl
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")
 async def details(sti, non_empty_job_list, context, cq, max_lines=None):
-    """ Shows the details for the given jobs including
-        dependencies and stderr/stdout.
+    """Shows the details for the given jobs including
+    dependencies and stderr/stdout.
 
-        The stderr/stdout lines are truncated. Use the ``max_lines``
-        argument to see more:
+    The stderr/stdout lines are truncated. Use the ``max_lines``
+    argument to see more:
 
-            details max_lines=1000
+        details max_lines=1000
     """
     num = 0
     for job_id in non_empty_job_list:
         # insert a separator if there is more than one job
         if num > 0:
             print("-" * 74)
-        list_job_detail(job_id, context, cq, max_lines=max_lines)
+        await list_job_detail(job_id, context, cq, max_lines=max_lines)
         num += 1
 
 
-def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
+async def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     db = context.get_compmake_db()
 
-    dparents = cq.direct_parents(job_id)
-    all_parents = cq.parents(job_id)
+    dparents = await cq.direct_parents(job_id)
+    all_parents = await cq.parents(job_id)
     other_parents = set(all_parents) - set(dparents)
 
     # TODO: use quicker up to date
-    up, reason, _ = cq.up_to_date(job_id)
+    up, reason, _ = await cq.up_to_date(job_id)
 
     red = lambda x: compmake_colored(x, "red")
     bold = lambda x: compmake_colored((x + " ").rjust(15), attrs=["bold"])
@@ -55,20 +55,20 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     def format_list(x):
         return "\n- ".join([""] + sorted(x))
 
-    job = get_job(job_id, db=db)
+    job = await get_job2(job_id, db=db)
 
     # TODO: make it work in Python3K
     print(bold("Job ID:") + "%s" % job_id)
     print(bold("Defined by:") + "%s" % job.defined_by)
 
-    job_args = get_job_args(job_id, db=db)
+    job_args = await get_job_args(job_id, db=db)
     command, args, kwargs = job_args
     print(bold("command:") + "%s" % command)
 
-    dchildren = cq.direct_children(job_id)
+    dchildren = await cq.direct_children(job_id)
     print(bold("Dependencies: (direct)") + " (%d) " % len(dchildren) + format_list(dchildren))
 
-    all_children = children(job_id, db=db)  # XXX
+    all_children = await children(job_id, db=db)  # XXX
     other_children = set(all_children) - set(dchildren)
     print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_list(other_children))
 
@@ -77,8 +77,8 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     print(bold("Depending on this (direct):") + format_list(dparents))
     print(bold("Depending on this (other):") + format_list(other_parents))
 
-    if job_cache_exists(job_id, db=db):
-        cache2 = get_job_cache(job_id, db=db)
+    if await job_cache_exists(job_id, db=db):
+        cache2 = await get_job_cache(job_id, db=db)
 
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
         print(bold("Uptodate:") + "%s (%s)" % (up, reason))
@@ -102,17 +102,17 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         print(bold("Status:") + "%s" % Cache.state2desc[Cache.NOT_STARTED])
         cache2 = None
 
-    jobargs_size = job_args_sizeof(job_id, db)
+    jobargs_size = await job_args_sizeof(job_id, db)
     print(bold("      args size: ") + "%s" % jobargs_size)
 
-    if job_cache_exists(job_id, db):
-        cache_size = job_cache_sizeof(job_id, db)
+    if await job_cache_exists(job_id, db):
+        cache_size = await job_cache_sizeof(job_id, db)
         print(bold("     cache size: ") + "%s" % cache_size)
     else:
         cache_size = 0
 
-    if job_userobject_exists(job_id, db):
-        userobject_size = job_userobject_sizeof(job_id, db)
+    if await job_userobject_exists(job_id, db):
+        userobject_size = await job_userobject_sizeof(job_id, db)
         print(bold("userobject size: ") + "%s" % userobject_size)
     else:
         userobject_size = 0

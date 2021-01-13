@@ -15,13 +15,13 @@ __all__ = [
 ]
 
 
-def get_job_userobject_resolved(job_id: CMJobID, db):
-    """ This gets the job's result, and recursively substitute all
-    dependencies. """
+async def get_job_userobject_resolved(job_id: CMJobID, db):
+    """This gets the job's result, and recursively substitute all
+    dependencies."""
     ob = get_job_userobject(job_id, db)
     all_deps = collect_dependencies(ob)
     for dep in all_deps:
-        if not job_userobject_exists(dep, db):
+        if not await job_userobject_exists(dep, db):
             msg = f"Cannot resolve {job_id!r}: dependency {dep!r} was not done."
             raise CompmakeBug(msg)
     return substitute_dependencies(ob, db)
@@ -74,8 +74,8 @@ def substitute_dependencies(a, db):
 
 
 def collect_dependencies(ob) -> Set[CMJobID]:
-    """ Returns a set of dependencies (i.e., Promise objects that
-        are mentioned somewhere in the structure """
+    """Returns a set of dependencies (i.e., Promise objects that
+    are mentioned somewhere in the structure"""
 
     if isinstance(ob, Promise):
         return {ob.job_id}
@@ -94,8 +94,8 @@ def collect_dependencies(ob) -> Set[CMJobID]:
 
 
 def leave_it_alone(x):
-    """ Returns True for those objects that have trouble with factory methods
-        like namedtuples. """
+    """Returns True for those objects that have trouble with factory methods
+    like namedtuples."""
     if isnamedtupleinstance(x):
         return True
 

@@ -61,7 +61,7 @@ def get_readline():
 
 async def interactive_console(sti: SyncTaskInterface, context):
     """
-        raises: CommandFailed, CompmakeBug
+    raises: CommandFailed, CompmakeBug
     """
     publish(context, "console-starting")
 
@@ -92,19 +92,19 @@ async def interactive_console(sti: SyncTaskInterface, context):
     return None
 
 
-def get_completions(context):
+async def get_completions(context):
     db = context.get_compmake_db()
     if CompmakeGlobalState.cached_completions is None:
         available = get_commands().keys()
-        available.extend(list(all_jobs(db=db)))  # give it a list
+        available.extend(await all_jobs(db=db))  # give it a list
         # TODO: add function type "myfunc()"
         CompmakeGlobalState.cached_completions = available
 
     return CompmakeGlobalState.cached_completions
 
 
-def tab_completion2(context, text, state):
-    completions = get_completions(context=context)
+async def tab_completion2(context, text, state):
+    completions = await get_completions(context=context)
     matches = sorted(x for x in completions if x.startswith(text))
     try:
         response = matches[state]
@@ -149,6 +149,7 @@ def compmake_console_lines(context):
 
         # noinspection PyUnresolvedReferences
         readline.set_history_length(300)
+        # FIXME - need different way
         completer = lambda text, state: tab_completion2(context, text, state)
         # noinspection PyUnresolvedReferences
         readline.set_completer(completer)

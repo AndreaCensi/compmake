@@ -49,8 +49,8 @@ async def test_dynamic5(env: Env):
 
     await env.assert_cmd_success("details hd-id")
     await env.assert_cmd_success("details hd-id-i2")
-    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
-    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
+    env.assert_equal_set(await definition_closure(cast(List[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
+    env.assert_equal_set(await definition_closure(cast(List[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
     # now redo it
 
     async with environment(env.sti, env.rootd) as env2:

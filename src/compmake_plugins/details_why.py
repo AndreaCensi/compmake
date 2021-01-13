@@ -46,7 +46,7 @@ def details_why_one(job_id, context, cq):
 
     lines = []
     if job_cache_exists(job_id, db):
-        cache = get_job_cache(job_id, db)
+        cache = await get_job_cache(job_id, db)
 
         status = Cache.state2desc[cache.state]
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:

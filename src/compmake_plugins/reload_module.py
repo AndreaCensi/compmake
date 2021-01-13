@@ -9,11 +9,11 @@ from compmake.visualization import ui_info, ui_error
 
 @ui_command(section=COMMANDS_ADVANCED)
 def reload(module, context):  # @ReservedAssignment
-    """ Reloads a module.
+    """Reloads a module.
 
-        Usage::
+    Usage::
 
-            reload module=my_module
+        reload module=my_module
 
     """
 

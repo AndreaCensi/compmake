@@ -27,7 +27,7 @@ def get_screen_columns():
 
 def getTerminalSize():
     """
-        columns, lines = getTerminalSize()
+    columns, lines = getTerminalSize()
     """
     cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
     if not cr:

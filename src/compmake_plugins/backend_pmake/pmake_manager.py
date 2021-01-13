@@ -44,9 +44,9 @@ SubName = NewType("SubName", str)
 
 class PmakeManager(Manager):
     """
-        Specialization of Manager for local multiprocessing, using
-        an adhoc implementation of "pool" because of bugs of the
-        Python 2.7 implementation of pool multiprocessing.
+    Specialization of Manager for local multiprocessing, using
+    an adhoc implementation of "pool" because of bugs of the
+    Python 2.7 implementation of pool multiprocessing.
     """
 
     queues = {}

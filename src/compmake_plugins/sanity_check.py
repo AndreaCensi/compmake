@@ -12,21 +12,19 @@ from compmake import (
     ui_error,
 )
 from compmake.exceptions import CompmakeBug
-from compmake.storage import all_jobs, get_job, job_exists
+from compmake.storage import all_jobs, get_job2, job_exists
 from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
-async def check_consistency(
-    sti: SyncTaskInterface, args, context, cq, raise_if_error=False
-):  # @ReservedAssignment
+async def check_consistency(sti: SyncTaskInterface, args, context, cq, raise_if_error=False):
     """ Checks in the DB that the relations between jobs are consistent. """
 
     db = context.get_compmake_db()
 
     # Do not use cq
     if not args:
-        job_list = all_jobs(db=db)
+        job_list = await all_jobs(db=db)
     else:
         job_list = parse_job_list(args, context=context)
 
@@ -35,7 +33,7 @@ async def check_consistency(
     errors = {}
     for job_id in job_list:
         try:
-            ok, reasons = check_job(job_id, context)
+            ok, reasons = await check_job(job_id, context)
             if not ok:
                 errors[job_id] = reasons
         except CompmakeBug as e:
@@ -54,10 +52,10 @@ async def check_consistency(
     return 0
 
 
-def check_job(job_id, context) -> Tuple[bool, List[str]]:
+async def check_job(job_id, context) -> Tuple[bool, List[str]]:
     db = context.get_compmake_db()
 
-    job = get_job(job_id, db)
+    job = await get_job2(job_id, db)
     defined_by = job.defined_by
     assert "root" in defined_by
 

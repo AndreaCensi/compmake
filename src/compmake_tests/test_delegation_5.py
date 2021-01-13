@@ -1,6 +1,6 @@
 from nose.tools import assert_equal
 
-from compmake import get_job
+from compmake.storage import get_job2
 from compmake.types import CMJobID
 from compmake_tests.utils import Env, environment, run_with_env
 
@@ -24,17 +24,17 @@ def h(i):
 @run_with_env
 async def test_delegation_5(env: Env):
     """
-        Here's the problem: when the master are overwritten then
-        the additional dependencies are lost.
+    Here's the problem: when the master are overwritten then
+    the additional dependencies are lost.
     """
     J = CMJobID("h")
     env.comp(h, env.comp_dynamic(e))
-    job0 = get_job(J, env.db)
+    job0 = await get_job2(J, env.db)
     assert_equal(job0.children, {"e"})
 
     await env.batch_command("make; ls")
 
-    job = get_job(J, env.db)
+    job = await get_job2(J, env.db)
     assert_equal(job.children, {"e", "e-f", "e-f-g"})
     env.sti.logger.info("parents: %s" % job.parents)
     env.sti.logger.info("children: %s" % job.children)
@@ -45,7 +45,7 @@ async def test_delegation_5(env: Env):
 
     async with environment(env.sti, env.rootd) as env2:
         env2.comp(h, env2.comp_dynamic(e))
-        job0 = get_job(J, env2.db)
+        job0 = await get_job2(J, env2.db)
         await env2.batch_command("check_consistency raise_if_error=1")
-        job2 = get_job(J, env2.db)
+        job2 = await get_job2(J, env2.db)
         assert_equal(job2.children, {"e", "e-f", "e-f-g"})

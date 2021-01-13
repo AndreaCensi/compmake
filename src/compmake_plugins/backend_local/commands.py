@@ -33,20 +33,20 @@ async def make(
     recurse: bool = DefaultsToConfig("recurse"),
 ):
     """
-        Makes selected targets; or all targets if none specified.
+    Makes selected targets; or all targets if none specified.
 
-        Options:
-            make recurse=1      Recursive make: put generated jobs in the
-            queue.
-            make new_process=1  Run the jobs in a new Python process.
-            make echo=1         Displays the stdout/stderr for the job on
-            the console.
+    Options:
+        make recurse=1      Recursive make: put generated jobs in the
+        queue.
+        make new_process=1  Run the jobs in a new Python process.
+        make echo=1         Displays the stdout/stderr for the job on
+        the console.
 
-            make new_process=1 echo=1   Not supported yet.
+        make new_process=1 echo=1   Not supported yet.
     """
     db = context.get_compmake_db()
     if not job_list:
-        job_list = list(top_targets(db=db))
+        job_list = list(await top_targets(db=db))
 
     manager = ManagerLocal(
         sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo
@@ -61,11 +61,11 @@ async def pretend(
     sti, job_list, context, cq,
 ):
     """
-        Pretends that a target is done. The output is None.
+    Pretends that a target is done. The output is None.
     """
     db = context.get_compmake_db()
     if not job_list:
-        job_list = list(top_targets(db=db))
+        job_list = list(await top_targets(db=db))
 
     for job_id in job_list:
         i = IntervalTimer()
@@ -76,8 +76,8 @@ async def pretend(
         cache.timestamp = time.time()
         cache.int_compute = cache.int_gc = i
         cache.int_load_results = cache.int_make = cache.int_save_results = i
-        set_job_cache(job_id, cache, db)
-        set_job_userobject(job_id, None, db)
+        await set_job_cache(job_id, cache, db)
+        await set_job_userobject(job_id, None, db)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
@@ -85,7 +85,7 @@ async def invalidate(sti, non_empty_job_list, context):
     """ Invalidates the cache of a job so that it will be remade. """
     db = context.get_compmake_db()
     for job in non_empty_job_list:
-        mark_to_remake(job, db=db)
+        await mark_to_remake(job, db=db)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
@@ -99,15 +99,15 @@ async def remake(
     recurse: bool = DefaultsToConfig("recurse"),
 ):
     """
-        Remake the selected targets (equivalent to clean and make).
+    Remake the selected targets (equivalent to clean and make).
 
-        :param non_empty_job_list:
-        :param context:
-        :param cq:
-        :param sti:
-        :param echo:
-        :param new_process:Run the jobs in a new Python process.
-        :param recurse:   Recursive remake: put generated jobs in
+    :param non_empty_job_list:
+    :param context:
+    :param cq:
+    :param sti:
+    :param echo:
+    :param new_process:Run the jobs in a new Python process.
+    :param recurse:   Recursive remake: put generated jobs in
     """
     non_empty_job_list = list(non_empty_job_list)
 
@@ -116,7 +116,7 @@ async def remake(
 
     db = context.get_compmake_db()
     for job in non_empty_job_list:
-        mark_to_remake(job, db=db)
+        await mark_to_remake(job, db=db)
 
     manager = ManagerLocal(
         sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo

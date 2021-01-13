@@ -4,9 +4,9 @@ __all__ = ["compute_priorities"]
 
 
 def compute_priorities(all_targets, cq, priorities=None):
-    """ Computes the priority for all_targets.
+    """Computes the priority for all_targets.
 
-        :param priorities: str->float: cache
+    :param priorities: str->float: cache
     """
     if priorities is None:
         priorities = {}
@@ -18,8 +18,8 @@ def compute_priorities(all_targets, cq, priorities=None):
 
 
 def compute_priority(job_id, priorities, targets, cq):
-    """ Computes the priority for one job. It uses caching results in
-        self.priorities if they are found. """
+    """Computes the priority for one job. It uses caching results in
+    self.priorities if they are found."""
     if job_id in priorities:
         return priorities[job_id]
 
@@ -27,7 +27,7 @@ def compute_priority(job_id, priorities, targets, cq):
     parents_which_are_targets = [x for x in parents if x in targets]
 
     # Dynamic jobs get bonus
-    job = cq.get_job(job_id)
+    job = await cq.get_job(job_id)
     if job.needs_context:
         base_priority = 10
     else:
@@ -37,7 +37,7 @@ def compute_priority(job_id, priorities, targets, cq):
         # top level target
         base_priority += 5
 
-    cache = cq.get_job_cache(job_id)
+    cache = await cq.get_job_cache(job_id)
     if cache.state == Cache.FAILED:
         base_priority -= 100
 

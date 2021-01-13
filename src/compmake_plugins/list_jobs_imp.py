@@ -4,24 +4,24 @@ from time import time
 from typing import Dict, List, Sequence, Tuple
 
 from compmake import (
+    Cache,
+    cache_has_large_overhead,
     compmake_colored,
+    CompmakeConstants,
+    is_root_job,
     job_args_sizeof,
     job_cache_exists,
     job_cache_sizeof,
     job_userobject_exists,
     job_userobject_sizeof,
+    parse_job_list,
+    timing_summary,
+    ui_command,
+    ui_message,
+    VISUALIZATION,
 )
-from compmake import CompmakeConstants
-from compmake import ui_command, VISUALIZATION
-from compmake import is_root_job, parse_job_list
-from compmake import Cache, cache_has_large_overhead, timing_summary
-from compmake.utils import TableFormatter
-from compmake.utils import get_screen_columns
-from compmake import ui_message
+from compmake.utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import duration_compact
-
-# red, green, yellow, blue, magenta, cyan, white.
-
 
 # if False:
 #     format_utility_job = dict(color="white", attrs=["concealed"])
@@ -29,6 +29,8 @@ from zuper_commons.ui import duration_compact
 #     format_when = dict(color="white", attrs=["concealed"])
 # else:
 from zuper_utils_asyncio import SyncTaskInterface
+
+# red, green, yellow, blue, magenta, cyan, white.
 
 format_utility_job = dict()
 format_separator = dict()
@@ -40,17 +42,17 @@ async def ls(
     sti: SyncTaskInterface, args, context, cq, complete_names=False, reason=False, all_details=False
 ):  # @ReservedAssignment
     """
-        Lists the status of the given jobs (or all jobs if none specified
-        specified).
+    Lists the status of the given jobs (or all jobs if none specified
+    specified).
 
-        Options:
+    Options:
 
-            ls complete_names=1   # do not abbreviate names
-            ls reason=1  # show why jobs are not uptodate
+        ls complete_names=1   # do not abbreviate names
+        ls reason=1  # show why jobs are not uptodate
     """
 
     if not args:
-        job_list = cq.all_jobs()
+        job_list = await cq.all_jobs()
     else:
         job_list = parse_job_list(tokens=args, context=context, cq=cq)
 
@@ -63,21 +65,21 @@ async def ls(
 # @contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
 def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     """
-        Converts a list of object IDs to a minimal non-ambiguous list of names.
+    Converts a list of object IDs to a minimal non-ambiguous list of names.
 
-        For example, the names: ::
+    For example, the names: ::
 
-            test_learn_fast_10
-            test_learn_slow_10
-            test_learn_faster_10
+        test_learn_fast_10
+        test_learn_slow_10
+        test_learn_faster_10
 
-        is converted to: ::
+    is converted to: ::
 
-            fast
-            slow
-            faster
+        fast
+        slow
+        faster
 
-        Returns prefix, minimal, postfix
+    Returns prefix, minimal, postfix
     """
     if len(objects) == 1:
         return "", list(objects), ""
@@ -138,12 +140,12 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False, re
     for job_id in job_list:
         tf.row()
 
-        cache = cq.get_job_cache(job_id)
+        cache = await cq.get_job_cache(job_id)
 
         # TODO: only ask up_to_date if necessary
-        up, up_reason, up_ts = cq.up_to_date(job_id)
+        up, up_reason, up_ts = await cq.up_to_date(job_id)
 
-        job = cq.get_job(job_id)
+        job = await cq.get_job(job_id)
 
         is_root = is_root_job(job)
         if not is_root:
@@ -252,10 +254,10 @@ def format_size(nbytes: int) -> str:
     return f"{mb:.2f} MB"
 
 
-def get_sizes(job_id, db) -> Dict:
-    """ Returns byte sizes for jobs pieces.
+def get_sizes(job_id, db: Storage) -> Dict:
+    """Returns byte sizes for jobs pieces.
 
-        Returns dict with keys 'args','cache','result','total'.
+    Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
     res["args"] = job_args_sizeof(job_id, db)

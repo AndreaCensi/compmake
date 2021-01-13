@@ -84,9 +84,9 @@ def graph_animation(
     job_list, context, dirname="compmake-graph-animation", dpi=150, width=900, height=900, label="function"
 ):
     """
-        Runs a step-by-step animation.
+    Runs a step-by-step animation.
 
-        Registers the handlers. Then call 'make' or 'parmake'.
+    Registers the handlers. Then call 'make' or 'parmake'.
     """
     possible = ["none", "id", "function"]
     if not label in possible:

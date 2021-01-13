@@ -12,9 +12,9 @@ __all__ = [
 
 
 class LineSplitter:
-    """ A simple utility to split an incoming sequence of chars
-        in lines. Push characters using append_chars() and
-        get the completed lines using lines(). """
+    """A simple utility to split an incoming sequence of chars
+    in lines. Push characters using append_chars() and
+    get the completed lines using lines()."""
 
     def __init__(self):
         self.current = ""

@@ -10,8 +10,8 @@ __all__ = [
 
 
 class Tracker:
-    """ This class keeps track of the status of the computation.
-        It listens to progress events. """
+    """This class keeps track of the status of the computation.
+    It listens to progress events."""
 
     processing: Set[CMJobID]
     targets: Set[CMJobID]

@@ -24,17 +24,16 @@
 """
 import types
 from collections import namedtuple
-from typing import cast
+from typing import Awaitable, Callable, cast, List
 
 from zuper_commons.types import check_isinstance
-
+from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
 from .exceptions import CompmakeSyntaxError, UserError
-from .storage import get_job
+from .storage import get_job2
 from .structures import Cache
 from .types import CMJobID
-from .cachequerydb import CacheQueryDB
 from .utils import expand_wildcard
 
 __all__ = [
@@ -45,9 +44,9 @@ __all__ = [
 CompmakeConstants.aliases["last"] = "*"
 
 
-def add_alias(alias, value):
-    """ Sets the given alias to value. See eval_alias() for a discussion
-    of the meaning of value. """
+def add_alias(alias: str, value: Callable[[Context, CacheQueryDB], Awaitable[List[CMJobID]]]) -> None:
+    """Sets the given alias to value. See eval_alias() for a discussion
+    of the meaning of value."""
     CompmakeConstants.aliases[alias] = value
 
 
@@ -83,64 +82,68 @@ def eval_alias(alias, context: Context, cq: CacheQueryDB):
         assert_list_of_strings(value)
         return value
     elif isinstance(value, types.FunctionType):
-        result = value(context=context, cq=cq)
-        # can be generator; no assert_list_of_strings(result)
+        result = await value(context=context, cq=cq)
+        assert_list_of_strings(result)
         return result
     else:
         msg = 'I cannot interpret alias "%s" -> "%s".' % (alias, value)
         raise ValueError(msg)
 
 
-def list_matching_functions(token: str, context: Context, cq: CacheQueryDB):
+async def list_matching_functions(token: str, context: Context, cq: CacheQueryDB) -> List[CMJobID]:
     db = context.get_compmake_db()
     assert token.endswith("()")
     if len(token) < 3:
         raise UserError('Malformed token "%s".' % token)
 
     function_id = token[:-2]
-
+    res: List[CMJobID] = []
     num_matches = 0
-    for job_id in cq.all_jobs():
+    for job_id in await cq.all_jobs():
         # command name (f.__name__)
-        command_desc = get_job(job_id, db=db).command_desc
+        j = await get_job2(job_id, db=db)
+        command_desc = j.command_desc
         if function_id.lower() == command_desc.lower():
-            yield job_id
+            res.append(job_id)
             num_matches += 1
 
     if num_matches == 0:
         raise UserError('Could not find matches for function "%s()".' % function_id)
+    return res
 
 
-def expand_job_list_token(token, context: Context, cq: CacheQueryDB):
-    """ Parses a token (string). Returns a generator of jobs.
-        Raises UserError, CompmakeSyntaxError """
+async def expand_job_list_token(token, context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    """Parses a token (string). Returns a generator of jobs.
+    Raises UserError, CompmakeSyntaxError"""
 
     assert isinstance(token, str)
 
     if token.find("*") > -1:
-        return expand_wildcard(token, cq.all_jobs())
+        return expand_wildcard(token, await cq.all_jobs())
     elif is_alias(token):
-        return eval_alias(token, context, cq)
+        return await eval_alias(token, context, cq)
     elif token.endswith("()"):
-        return list_matching_functions(token, context, cq)
+        return await list_matching_functions(token, context, cq)
     else:
         # interpret as a job id
         job_id = cast(CMJobID, token)
-        if not cq.job_exists(job_id):
+        if not await cq.job_exists(job_id):
             msg = f'Job or expression "{job_id}" not found.'
             raise UserError(msg)
         return [job_id]
 
 
-def expand_job_list_tokens(tokens, context: Context, cq: CacheQueryDB):
-    """ Expands a list of tokens using expand_job_list_token().
-        yields job_id """
+async def expand_job_list_tokens(tokens, context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    """Expands a list of tokens using expand_job_list_token().
+    yields job_id"""
+    res: List[CMJobID] = []
     for token in tokens:
         if not isinstance(token, str):
             # print tokens XXX
             pass
-        for job in expand_job_list_token(token, context, cq):
-            yield job
+        for job in await expand_job_list_token(token, context, cq):
+            res.append(job)
+    return res
 
 
 class Operators:
@@ -161,8 +164,8 @@ class Operators:
 
     @staticmethod
     def parse(tokens):
-        """ Parses a list of tokens for known operators.
-        Returns a list where the operators are replaced by their codes. """
+        """Parses a list of tokens for known operators.
+        Returns a list where the operators are replaced by their codes."""
 
         def token2op(token):
             """ Translates one token, or returns the same """
@@ -172,83 +175,95 @@ class Operators:
         return list(map(token2op, tokens))
 
 
-def list_jobs_with_state(state, context: Context, cq: CacheQueryDB):
+async def list_jobs_with_state(state, context: Context, cq: CacheQueryDB) -> List[CMJobID]:
     """ Returns a list of jobs in the given state. """
-    for job_id in cq.all_jobs():
-        if cq.get_job_cache(job_id).state == state:  # TODO
-            yield job_id
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        c = await cq.get_job_cache(job_id)
+        if c.state == state:  # TODO
+            res.append(job_id)
+    return res
 
 
-def list_ready_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that can be done now,
-        as their dependencies are up-to-date. """
-    for job_id in cq.all_jobs():
-        if cq.dependencies_up_to_date(job_id):
-            yield job_id
+async def list_ready_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    """Returns a list of jobs that can be done now,
+    as their dependencies are up-to-date."""
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        if await cq.dependencies_up_to_date(job_id):
+            res.append(job_id)
+    return res
 
 
-def list_uptodate_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that are uptodate
-        (DONE, and all depednencies DONE)."""
-    for job_id in cq.all_jobs():
-        up, _, _ = cq.up_to_date(job_id)
+async def list_uptodate_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    """Returns a list of jobs that are uptodate
+    (DONE, and all depednencies DONE)."""
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        up, _, _ = await cq.up_to_date(job_id)
         if up:
-            yield job_id
+            res.append(job_id)
+    return res
 
 
-def list_todo_jobs(context: Context, cq: CacheQueryDB):
+async def list_todo_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
     """
-        Returns a list of jobs that haven't been DONE.
-        Note that it could be DONE but not up-to-date.
+    Returns a list of jobs that haven't been DONE.
+    Note that it could be DONE but not up-to-date.
     """
-    for job_id in cq.all_jobs():
-        if cq.get_job_cache(job_id).state != Cache.DONE:
-            yield job_id
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        c = await cq.get_job_cache(job_id)
+        if c.state != Cache.DONE:
+            res.append(job_id)
+    return res
 
 
-def list_root_jobs(context: Context, cq: CacheQueryDB):
+async def list_root_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
     """ Returns a list of jobs that were defined by the original process.  """
-    for job_id in cq.all_jobs():
-        job = cq.get_job(job_id)
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        job = await cq.get_job(job_id)
         if is_root_job(job):
-            yield job_id
+            res.append(job_id)
+    return res
 
 
-def list_generated_jobs(context: Context, cq: CacheQueryDB):
+async def list_generated_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
     """ Returns a list of jobs that were generated by other jobs.  """
-    for job_id in cq.all_jobs():
-        job = cq.get_job(job_id)
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        job = await cq.get_job(job_id)
         if not is_root_job(job):
-            yield job_id
+            res.append(job_id)
+    return res
 
 
-def list_levelX_jobs(context, cq, X):
+async def list_levelX_jobs(context, cq, X) -> List[CMJobID]:
     """ Returns a list of jobs that are at level X """
-    for job_id in cq.all_jobs():
-        job = cq.get_job(job_id)
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        job = await cq.get_job(job_id)
         level = len(job.defined_by) - 1
         if level == X:
-            yield job_id
+            res.append(job_id)
+    return res
 
 
-def list_level1_jobs(context: Context, cq: CacheQueryDB):
-    for x in list_levelX_jobs(context, cq, 1):
-        yield x
+async def list_level1_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_levelX_jobs(context, cq, 1)
 
 
-def list_level2_jobs(context: Context, cq: CacheQueryDB):
-    for x in list_levelX_jobs(context, cq, 2):
-        yield x
+async def list_level2_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_levelX_jobs(context, cq, 2)
 
 
-def list_level3_jobs(context: Context, cq: CacheQueryDB):
-    for x in list_levelX_jobs(context, cq, 3):
-        yield x
+async def list_level3_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_levelX_jobs(context, cq, 3)
 
 
-def list_level4_jobs(context: Context, cq: CacheQueryDB):
-    for x in list_levelX_jobs(context, cq, 4):
-        yield x
+async def list_level4_jobs(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_levelX_jobs(context, cq, 4)
 
 
 def is_root_job(job):
@@ -259,38 +274,59 @@ def is_dynamic_job(job):
     return bool(job.needs_context)
 
 
-def list_dynamic_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that are uptodate
-        (DONE, and all depednencies DONE)."""
-    for job_id in cq.all_jobs():
-        job = cq.get_job(job_id)
+async def list_dynamic_jobs(context: Context, cq: CacheQueryDB):
+    """Returns a list of jobs that are uptodate
+    (DONE, and all depednencies DONE)."""
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        job = await cq.get_job(job_id)
         if is_dynamic_job(job):
-            yield job_id
-
-
-def list_top_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that are top-level targets.  """
-    for job_id in cq.all_jobs():
-        if not cq.direct_parents(job_id):
-            yield job_id
-
-
-def list_bottom_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that do not depend on anything else. """
-    for job_id in cq.all_jobs():
-        if not cq.direct_children(job_id):  # TODO
-            yield job_id
-
-
-def obtain_all(context: Context, cq: CacheQueryDB):
-    res = list(cq.all_jobs())
-    print("obtain all: %s" % res)
+            res.append(job_id)
     return res
 
 
+async def list_top_jobs(context: Context, cq: CacheQueryDB):
+    """ Returns a list of jobs that are top-level targets.  """
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        if not await cq.direct_parents(job_id):
+            res.append(job_id)
+    return res
+
+
+async def list_bottom_jobs(context: Context, cq: CacheQueryDB):
+    """ Returns a list of jobs that do not depend on anything else. """
+    res: List[CMJobID] = []
+    for job_id in await cq.all_jobs():
+        if not await cq.direct_children(job_id):  # TODO
+            res.append(job_id)
+    return res
+
+
+async def obtain_all(context: Context, cq: CacheQueryDB):
+    res = await cq.all_jobs()
+    return res
+
+
+async def list_failed(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_jobs_with_state(Cache.FAILED, context=context, cq=cq)
+
+
+async def list_blocked(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_jobs_with_state(Cache.BLOCKED, context=context, cq=cq)
+
+
+async def list_done(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_jobs_with_state(Cache.DONE, context=context, cq=cq)
+
+
+async def list_not_started(context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    return await list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq)
+
+
 add_alias("all", obtain_all)
-add_alias("failed", lambda context, cq: list_jobs_with_state(Cache.FAILED, context=context, cq=cq))
-add_alias("blocked", lambda context, cq: list_jobs_with_state(Cache.BLOCKED, context=context, cq=cq))
+add_alias("failed", list_failed)
+add_alias("blocked", list_blocked)
 add_alias("ready", list_ready_jobs)
 add_alias("todo", list_todo_jobs)
 add_alias("top", list_top_jobs)
@@ -303,25 +339,25 @@ add_alias("level3", list_level3_jobs)
 add_alias("level4", list_level4_jobs)
 add_alias("dynamic", list_dynamic_jobs)
 add_alias("bottom", list_bottom_jobs)
-add_alias("done", lambda context, cq: list_jobs_with_state(Cache.DONE, context=context, cq=cq))
+add_alias("done", list_done)
 # add_alias('in_progress',
 #           lambda context, cq:
 #           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
-add_alias("not_started", lambda context, cq: list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
+add_alias("not_started", list_not_started)
 
 
 def parse_job_list(tokens, context, cq=None):
     """
-        Parses a job list. tokens can be:
+    Parses a job list. tokens can be:
 
-        1. a string, in that case it is split()
-        2. a list, in which case each element is treated as a token.
+    1. a string, in that case it is split()
+    2. a list, in which case each element is treated as a token.
 
-        NO(If tokens is not empty, then if it evaluates to empty,
-        an error is raised (e.g. "make failed" and no failed jobs will
-        throw an error).)
+    NO(If tokens is not empty, then if it evaluates to empty,
+    an error is raised (e.g. "make failed" and no failed jobs will
+    throw an error).)
 
-        Returns a list of strings.
+    Returns a list of strings.
     """
     if cq is None:
         cq = CacheQueryDB(context.get_compmake_db())
@@ -336,7 +372,7 @@ def parse_job_list(tokens, context, cq=None):
     ops = Operators.parse(tokens)
 
     # print(" %s => %s" % (tokens, ops))
-    result = eval_ops(ops=ops, context=context, cq=cq)
+    result = await eval_ops(ops=ops, context=context, cq=cq)
 
     # FIXME, remove
     result = list(result)
@@ -345,9 +381,9 @@ def parse_job_list(tokens, context, cq=None):
     return result
 
 
-def eval_ops(ops, context: Context, cq: CacheQueryDB):
-    """ Evaluates an expression.
-      ops: list of strings and int representing operators """
+async def eval_ops(ops, context: Context, cq: CacheQueryDB) -> List[CMJobID]:
+    """Evaluates an expression.
+    ops: list of strings and int representing operators"""
     check_isinstance(ops, list)
 
     def list_split(l, index):
@@ -368,11 +404,14 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
                 " ".join(right),
             )
             raise CompmakeSyntaxError(msg)
-        left = eval_ops(ops=left, context=context, cq=cq)
-        right = set(eval_ops(ops=right, context=context, cq=cq))
+        left = await eval_ops(ops=left, context=context, cq=cq)
+        right = set(await eval_ops(ops=right, context=context, cq=cq))
+        res: List[CMJobID] = []
         for x in left:
             if x in right:
-                yield x
+                res.append(x)
+
+        return res
 
     elif Operators.DIFFERENCE in ops:
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
@@ -384,11 +423,14 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
             )
             raise CompmakeSyntaxError(msg)
 
-        left = eval_ops(ops=left, context=context, cq=cq)
-        right = set(eval_ops(ops=right, context=context, cq=cq))
+        left = await eval_ops(ops=left, context=context, cq=cq)
+        right = await eval_ops(ops=right, context=context, cq=cq)
+        res: List[CMJobID] = []
         for x in left:
             if x not in right:
-                yield x
+                res.append(x)
+
+        return res
 
     elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
@@ -400,29 +442,33 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
             )
             raise CompmakeSyntaxError(msg)
 
-        right_res = set(eval_ops(ops=right, context=context, cq=cq))
+        right_res = await eval_ops(ops=right, context=context, cq=cq)
         # if not all_jobs:
         # assert False
         # print("NOT")
         #         print(' all_jobs evalatued to %r' % (all_jobs))
         #         print(' right ops %r evalatued to %r' % (right, right_res))
         #         result = []
-        for x in cq.all_jobs():
+        res: List[CMJobID] = []
+        for x in await cq.all_jobs():
             if not x in right_res:
-                yield x
-                #
-                #             in_right = x in right_res
-                #             print('   is %r in not set -> %s' % (x,
-                # in_right))
-                #             if not in_right:
-                #                 result.append(x)
-                #         print(' result -> %s' % result)
-                #         for x in result:
-                #             yield x
+                res.append(x)
+        return res
+        #
+        #             in_right = x in right_res
+        #             print('   is %r in not set -> %s' % (x,
+        # in_right))
+        #             if not in_right:
+        #                 result.append(x)
+        #         print(' result -> %s' % result)
+        #         for x in result:
+        #             yield x
 
     else:
         # no operators: simple list
         # cannot do this anymore, now it's a generator.
         # assert_list_of_strings(ops)
-        for x in expand_job_list_tokens(ops, context=context, cq=cq):
-            yield x
+        res: List[CMJobID] = []
+        for x in await expand_job_list_tokens(ops, context=context, cq=cq):
+            res.append(x)
+        return res
