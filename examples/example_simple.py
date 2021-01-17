@@ -33,7 +33,7 @@ async def main(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
-
+    await c.init()
     for param1 in [1, 2, 3]:
         for param2 in [10, 11, 12]:
             res1 = c.comp(func1, param1)

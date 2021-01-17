@@ -1,12 +1,9 @@
-import traceback
-from typing import cast
+from typing import Any, Awaitable, Callable, cast
 
 from zuper_commons.fs import make_sure_dir_exists
-from zuper_commons.text import indent
-from zuper_commons.types import ZValueError
+from zuper_commons.types import ZException, ZValueError
 from . import logger
 from .context import Context
-
 from .events_structures import Event
 from .exceptions import CompmakeException
 from .registered_events import compmake_registered_events
@@ -14,7 +11,6 @@ from .state import CompmakeGlobalState
 from .utils import wildcard_to_regexp
 
 __all__ = [
-    "broadcast_event",
     "remove_all_handlers",
     "register_fallback_handler",
     "register_handler",
@@ -42,13 +38,16 @@ def register_fallback_handler(handler):
 
 import inspect
 
+# SubEvent = TypeVar('SubEvent', bound=Event)
 
 # TODO: make decorator
-def register_handler(event_name: str, handler):
+def register_handler(event_name: str, handler: Callable[[Context, Any], Awaitable[object]]):
     """
         Registers an handler with an event name.
         The event name might contain asterisks. "*" matches all.
     """
+    if not inspect.iscoroutinefunction(handler):
+        raise ZException("need all handlers to be couroutine", problem=handler)
     # if not inspect.isawaitable(handler):
     #     logger.debug('not awaitable', handler=handler)
     spec = inspect.getfullargspec(handler)
@@ -77,6 +76,9 @@ def register_handler(event_name: str, handler):
 def publish(context: Context, event_name: str, **kwargs):
     """ Publishes an event. Checks that it is registered and with the right
         attributes. Then it is passed to broadcast_event(). """
+    from .context_imp import ContextImp
+
+    context = cast(ContextImp, context)
     if event_name not in compmake_registered_events:
         msg = "Event %r not registered" % event_name
         logger.error(msg)
@@ -92,45 +94,11 @@ def publish(context: Context, event_name: str, **kwargs):
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
-    broadcast_event(context, event)
+    context.splitter.push(event)
+    # broadcast_event(context, event)
 
 
 # @contract(context=Context, event=Event)
-def broadcast_event(context: Context, event: Event):
-    all_handlers = CompmakeGlobalState.EventHandlers.handlers
-
-    handlers = all_handlers.get(event.name, [])
-    if handlers:
-        for handler in handlers:
-            spec = inspect.getfullargspec(handler)
-            # noinspection PyBroadException
-            try:
-                kwargs = {}
-                if "event" in spec.args:
-                    kwargs["event"] = event
-                if "context" in spec.args:
-                    kwargs["context"] = context
-                handler(**kwargs)
-                # TODO: do not catch interrupted, etc.
-            except KeyboardInterrupt:
-                raise
-            except BaseException:
-                try:
-                    msg = [
-                        "compmake BUG: Error in event handler.",
-                        "  event: %s" % event.name,
-                        "handler: %s" % handler,
-                        " kwargs: %s" % list(event.kwargs.keys()),
-                        "     bt: ",
-                        indent(traceback.format_exc(), "| "),
-                    ]
-                    msg = "\n".join(msg)
-                    CompmakeGlobalState.original_stderr.write(msg)
-                except:
-                    pass
-    else:
-        for handler in CompmakeGlobalState.EventHandlers.fallback:
-            handler(context=context, event=event)
 
 
 import os
@@ -147,7 +115,7 @@ def get_events_log_file(db):
     return lf
 
 
-def handle_event_logs(context: Context, event):
+async def handle_event_logs(context: Context, event):
     from .context_imp import ContextImp
 
     context = cast(ContextImp, context)

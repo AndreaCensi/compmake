@@ -1,14 +1,19 @@
 import sys
+from typing import Awaitable, Callable, List
 from collections import namedtuple
+from typing import Dict
 
+from zuper_commons.types import ZValueError
+from .context import Context
 from .constants import CompmakeConstants
+from .events_structures import Event
 from .utils import AvgSystemStats
 
 __all__ = [
     "CompmakeGlobalState",
-    "get_compmake_config",
+    "get_compmake_config0",
     "set_compmake_status",
-    "set_compmake_config",
+    "set_compmake_config0",
     "ConfigSection",
     "ConfigSwitch",
     "get_compmake_status",
@@ -23,9 +28,9 @@ class CompmakeGlobalState:
 
     class EventHandlers:
         # event name -> list of functions
-        handlers = {}
+        handlers: Dict[str, List[Callable[[Context, Event], Awaitable[object]]]] = {}
         # list of handler, called when there is no other specialized handler
-        fallback = []
+        fallback: List[Callable[[Context, Event], Awaitable[object]]] = []
 
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)
@@ -33,23 +38,27 @@ class CompmakeGlobalState:
     # Configuration vlues
     compmake_config = {}
     # config name -> ConfigSwitch
-    config_switches = {}
+    config_switches: "Dict[str, ConfigSwitch]" = {}
     # section name -> ConfigSection
-    config_sections = {}
+    config_sections: "Dict[str, ConfigSection]" = {}
 
     # Cached list of options for completions in console
     cached_completions = None
 
 
-def get_compmake_config(key):
+def get_compmake_config0(key: str):
     config = CompmakeGlobalState.compmake_config
-    if not key in config:
-        msg = "Config %r not found. Known: %s" % (key, list(config))
-        raise ValueError(msg)
-    return config[key]
+
+    if not key in CompmakeGlobalState.config_switches:
+        msg = f"Config {key!r} not found"
+        raise ZValueError(msg, known=list(CompmakeGlobalState.config_switches))
+
+    c = CompmakeGlobalState.config_switches[key]
+
+    return config.get(key, c.default_value)
 
 
-def set_compmake_config(key: str, value):
+def set_compmake_config0(key: str, value):
     # TODO: check exists
     CompmakeGlobalState.compmake_config[key] = value
 

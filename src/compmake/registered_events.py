@@ -1,10 +1,11 @@
-# Warning: this is an auto-generated file
-# really
-from .events_structures import EventSpec
+from dataclasses import dataclass
+
+from .types import CMJobID
+from .events_structures import Event, EventSpec
 
 compmake_registered_events = {}
 
-__all__ = ["compmake_registered_events"]
+__all__ = ["compmake_registered_events", "JobProgressEvent"]
 
 
 def add(e):
@@ -19,6 +20,17 @@ add(EventSpec("ui-status-summary", ["string"]))
 
 add(EventSpec("job-stdout", ["job_id", "host", "lines"]))
 add(EventSpec("job-stderr", ["job_id", "host", "lines"]))
+
+
+@dataclass
+class JobProgressEvent(Event):
+    job_id: CMJobID
+    host: str
+    done: bool
+    progress: object
+    goal: object
+
+
 add(EventSpec("job-progress", ["job_id", "host", "done", "progress", "goal"]))
 add(EventSpec("job-progress-plus", ["job_id", "host", "stack"]))
 add(EventSpec("job-succeeded", ["job_id", "host"]))

@@ -8,18 +8,18 @@ from multiprocessing.context import BaseContext
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
-from compmake.actions_newprocess import parmake_job2_new_process, parmake_job2_new_process_1
-from compmake.exceptions import MakeHostFailed
-from compmake.manager import Manager
-from compmake.registrar import broadcast_event, publish
-from compmake.types import CMJobID
-from compmake.visualization import ui_warning
 from future.moves.queue import Empty
 from psutil import NoSuchProcess
+
+from compmake.actions_newprocess import parmake_job2_new_process_1
+from compmake.exceptions import MakeHostFailed
+from compmake.manager import Manager
+from compmake.registrar import publish
+from compmake.types import CMJobID
+from compmake.visualization import ui_warning
 from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
-
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
 
@@ -167,15 +167,17 @@ class PmakeManager(Manager):
 
         self.job2subname[job_id] = name
 
+        db = self.context.get_compmake_db()
         check_isinstance(job_id, str)
         if self.new_process:
             f = parmake_job2_new_process_1
-            args = (job_id, self.context)
+            # args = (job_id, self.context)
 
+            args = (job_id, db.basepath)
         else:
             f = parmake_job2
             logdir = os.path.join(self.context.get_compmake_db().basepath, "parmake_job2_logs")
-            args = (job_id, self.context, self.event_queue_name, self.show_output, logdir)
+            args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(f, args)
         return async_result
@@ -187,7 +189,8 @@ class PmakeManager(Manager):
             try:
                 event = self.event_queue.get(block=False)  # @UndefinedVariable
                 event.kwargs["remote"] = True
-                broadcast_event(self.context, event)
+                # broadcast_event(self.context, event)
+                # FIXME
             except Empty:
                 break
 

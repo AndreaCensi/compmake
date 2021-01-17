@@ -4,6 +4,7 @@ from compmake import (
     ACTIONS,
     ask_if_sure_remake,
     CacheQueryDB,
+    Context,
     DefaultsToConfig,
     mark_to_remake,
     publish,
@@ -26,7 +27,7 @@ __all__ = [
 async def parmake(
     sti: SyncTaskInterface,
     job_list,
-    context,
+    context: Context,
     cq,
     n: int = DefaultsToConfig("max_parallel_jobs"),
     recurse: bool = DefaultsToConfig("recurse"),

@@ -1,6 +1,7 @@
-import os
 import sys
+from typing import AsyncIterable
 
+from aioconsole import AsynchronousConsole
 from asciimatics.exceptions import StopApplication
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
@@ -9,16 +10,16 @@ from future import builtins
 
 from zuper_commons.text import remove_escapes
 from zuper_utils_asyncio import SyncTaskInterface
-from . import logger
 from .actions import clean_other_jobs
 from .cachequerydb import CacheQueryDB
+from .context import Context
 from .events_structures import Event
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, ShellExitRequested
 from .helpers import get_commands
 from .interpret import interpret_commands_wrap
 from .readrcfiles import read_rc_files
 from .registrar import publish, register_handler
-from .state import CompmakeGlobalState, get_compmake_config
+from .state import CompmakeGlobalState
 from .storage import all_jobs
 from .visualization import clean_console_line, DefaultConsole, ui_error
 
@@ -30,33 +31,34 @@ __all__ = [
 ]
 
 
-def get_readline():
-    """
-    Returns a reference to the readline (or Pyreadline) module if they
-    are available and the config "readline" is True, otherwise None.
-    :return:Reference to readline module or None
-    """
-    use_readline = get_compmake_config("readline")
-    if not use_readline:
-        return None
-    else:
-        try:
-            import readline
-
-            return readline
-        except BaseException as e:
-            try:
-                # noinspection PyUnresolvedReferences
-                import pyreadline as readline  # @UnresolvedImport
-
-                return readline
-            except Exception as e2:
-                # TODO: write message
-                msg = "Neither readline or pyreadline available."
-                msg += "\n- readline error: %s" % e
-                msg += "\n- pyreadline error: %s" % e2
-                logger.warning(msg)
-                return None
+#
+# def get_readline():
+#     """
+#     Returns a reference to the readline (or Pyreadline) module if they
+#     are available and the config "readline" is True, otherwise None.
+#     :return:Reference to readline module or None
+#     """
+#     use_readline = get_compmake_config("readline")
+#     if not use_readline:
+#         return None
+#     else:
+#         try:
+#             import readline
+#
+#             return readline
+#         except BaseException as e:
+#             try:
+#                 # noinspection PyUnresolvedReferences
+#                 import pyreadline as readline  # @UnresolvedImport
+#
+#                 return readline
+#             except Exception as e2:
+#                 # TODO: write message
+#                 msg = "Neither readline or pyreadline available."
+#                 msg += "\n- readline error: %s" % e
+#                 msg += "\n- pyreadline error: %s" % e2
+#                 logger.warning(msg)
+#                 return None
 
 
 async def interactive_console(sti: SyncTaskInterface, context):
@@ -70,7 +72,7 @@ async def interactive_console(sti: SyncTaskInterface, context):
 
     while True:
         try:
-            for line in compmake_console_lines(context):
+            async for line in compmake_console_lines(context):
                 await interpret_commands_wrap(sti, line, context=context, cq=cq)
         except CommandFailed as e:
             if not isinstance(e, MakeFailed):
@@ -117,59 +119,122 @@ def tab_completion2(context, text, state):
 COMPMAKE_HISTORY_FILENAME = ".compmake_history.txt"
 
 
-def compmake_console_lines(context):
+#
+# def compmake_console_lines_old(context):
+#     """ Returns lines with at least one character. """
+#     readline = get_readline()
+#
+#     if readline is not None:
+#         try:
+#             # Rewrite history
+#             # TODO: use readline's support for history
+#             if os.path.exists(COMPMAKE_HISTORY_FILENAME):
+#                 with open(COMPMAKE_HISTORY_FILENAME) as f:
+#                     lines = f.read().split("\n")
+#
+#                 with open(COMPMAKE_HISTORY_FILENAME, "w") as f:
+#                     last_word = None
+#                     for word in lines:
+#                         word = word.strip()
+#                         if len(word) == 1:
+#                             continue  # 'y', 'n'
+#                         if word in ["exit", "quit", "ls"]:
+#                             continue
+#                         if word == last_word:  # no doubles
+#                             continue
+#                         f.write("%s\n" % word)
+#                         last_word = word
+#
+#             # noinspection PyUnresolvedReferences
+#             readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
+#         except:
+#             pass
+#
+#         # noinspection PyUnresolvedReferences
+#         readline.set_history_length(300)
+#         completer = lambda text, state: tab_completion2(context, text, state)
+#         # noinspection PyUnresolvedReferences
+#         readline.set_completer(completer)
+#         # noinspection PyUnresolvedReferences
+#         readline.set_completer_delims(" ")
+#         # noinspection PyUnresolvedReferences
+#         readline.parse_and_bind("tab: complete")
+#
+#     while True:
+#         clean_console_line(sys.stdout)
+#
+#         # TODO: find alternative, not reliable if colored
+#         # line = raw_input(colored('@: ', 'cyan'))
+#         line = builtins.input("@: ")
+#         line = line.strip()
+#         if not line:
+#             continue
+#
+#         if readline is not None:
+#             # noinspection PyUnresolvedReferences
+#             readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
+#
+#         yield line
+
+
+async def compmake_console_lines(context: Context) -> AsyncIterable[str]:
     """ Returns lines with at least one character. """
-    readline = get_readline()
+    # readline = get_readline()
+    #
+    # if readline is not None:
+    #     try:
+    #         # Rewrite history
+    #         # TODO: use readline's support for history
+    #         if os.path.exists(COMPMAKE_HISTORY_FILENAME):
+    #             with open(COMPMAKE_HISTORY_FILENAME) as f:
+    #                 lines = f.read().split("\n")
+    #
+    #             with open(COMPMAKE_HISTORY_FILENAME, "w") as f:
+    #                 last_word = None
+    #                 for word in lines:
+    #                     word = word.strip()
+    #                     if len(word) == 1:
+    #                         continue  # 'y', 'n'
+    #                     if word in ["exit", "quit", "ls"]:
+    #                         continue
+    #                     if word == last_word:  # no doubles
+    #                         continue
+    #                     f.write("%s\n" % word)
+    #                     last_word = word
+    #
+    #         # noinspection PyUnresolvedReferences
+    #         readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
+    #     except:
+    #         pass
+    #
+    #     # noinspection PyUnresolvedReferences
+    #     readline.set_history_length(300)
+    #     completer = lambda text, state: tab_completion2(context, text, state)
+    #     # noinspection PyUnresolvedReferences
+    #     readline.set_completer(completer)
+    #     # noinspection PyUnresolvedReferences
+    #     readline.set_completer_delims(" ")
+    #     # noinspection PyUnresolvedReferences
+    #     readline.parse_and_bind("tab: complete")
 
-    if readline is not None:
-        try:
-            # Rewrite history
-            # TODO: use readline's support for history
-            if os.path.exists(COMPMAKE_HISTORY_FILENAME):
-                with open(COMPMAKE_HISTORY_FILENAME) as f:
-                    lines = f.read().split("\n")
-
-                with open(COMPMAKE_HISTORY_FILENAME, "w") as f:
-                    last_word = None
-                    for word in lines:
-                        word = word.strip()
-                        if len(word) == 1:
-                            continue  # 'y', 'n'
-                        if word in ["exit", "quit", "ls"]:
-                            continue
-                        if word == last_word:  # no doubles
-                            continue
-                        f.write("%s\n" % word)
-                        last_word = word
-
-            # noinspection PyUnresolvedReferences
-            readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
-        except:
-            pass
-
-        # noinspection PyUnresolvedReferences
-        readline.set_history_length(300)
-        completer = lambda text, state: tab_completion2(context, text, state)
-        # noinspection PyUnresolvedReferences
-        readline.set_completer(completer)
-        # noinspection PyUnresolvedReferences
-        readline.set_completer_delims(" ")
-        # noinspection PyUnresolvedReferences
-        readline.parse_and_bind("tab: complete")
+    console = AsynchronousConsole()
 
     while True:
         clean_console_line(sys.stdout)
 
+        # commands = {"history": (get_history, parser)}
+        # cli =  AsynchronousCli(commands,   prog="echo")
+        prompt = "@: "
+        line = await console.ainput(prompt=prompt, use_stderr=True)
         # TODO: find alternative, not reliable if colored
         # line = raw_input(colored('@: ', 'cyan'))
-        line = builtins.input("@: ")
+        # line = builtins.input("@: ")
         line = line.strip()
         if not line:
             continue
 
-        if readline is not None:
-            # noinspection PyUnresolvedReferences
-            readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
+            # # noinspection PyUnresolvedReferences
+            # readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
 
         yield line
 
@@ -281,7 +346,7 @@ class MainList(Frame):
 
         H = 25
 
-        def handle_ui_message(context, event: Event):
+        async def handle_ui_message(context, event: Event):
             string = event.kwargs["string"]
             string = remove_escapes(string)
             self.all_lines = self.all_lines + string.split("\n")
@@ -291,7 +356,7 @@ class MainList(Frame):
 
         register_handler("ui-message", handle_ui_message)
 
-        def handle_ui_status_summary(context, event: Event):
+        async def handle_ui_status_summary(context, event: Event):
             string = event.kwargs["string"]
             string = remove_escapes(string)
             status.value = [string]

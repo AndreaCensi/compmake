@@ -44,19 +44,19 @@ class Tracker:
         self.nloops = 0
         self.wait_reasons = {}
 
-    def event_manager_wait(self, context, event):
+    async def event_manager_wait(self, context, event):
         self.wait_reasons = event.reasons
 
-    def event_manager_loop(self, context, event):
+    async def event_manager_loop(self, context, event):
         self.nloops += 1
 
-    def event_job_progress(self, context, event):
+    async def event_job_progress(self, context, event):
         """ Receive news from the job """
         # attrs = ['job_id', 'host', 'done', 'progress', 'goal']
         stat = f"{event.progress}/{event.goal}"
         self.status[event.job_id] = stat
 
-    def event_job_progress_plus(self, context, event):
+    async def event_job_progress_plus(self, context, event):
         self.status_plus[event.job_id] = event.stack
         if len(event.stack) > 0:
             i, n = event.stack[0].iterations
@@ -69,7 +69,7 @@ class Tracker:
             stat = "-"
         self.status[event.job_id] = stat
 
-    def event_manager_progress(self, context, event):
+    async def event_manager_progress(self, context, event):
         """ Receive progress message (updates processing) """
         # attrs=['targets', 'done', 'todo', 'failed', 'ready', 'processing']
         self.processing = event.processing

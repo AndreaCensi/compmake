@@ -16,6 +16,7 @@ async def main(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
+    await c.init()
     c.comp(func1)
 
     await c.batch_command(sti, "clean; make")

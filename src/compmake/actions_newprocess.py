@@ -1,30 +1,20 @@
 import os
-from typing import List
+from typing import List, Tuple
 
-from zuper_commons.fs import mkdirs_thread_safe
+from zuper_commons.fs import DirPath, mkdirs_thread_safe
 from zuper_commons.text import indent
-from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_utils_asyncio.envs import setup_environment2
-from zuper_utils_asyncio.utils import async_run_simple1
 from . import logger
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
+from .types import CMJobID
 from .utils import safe_pickle_load, which
 
 __all__ = [
     "result_dict_check",
     "parmake_job2_new_process_1",
-    "parmake_job2_new_process",
 ]
-
-
-@async_run_simple1
-async def parmake_job2_new_process(sti: SyncTaskInterface, args):
-    async with setup_environment2(sti, os.getcwd()):
-        await sti.started_and_yield()
-        return await parmake_job2_new_process_1(sti, args)
 
 
 def get_command_line(s: List[str]) -> str:
@@ -39,18 +29,18 @@ def get_command_line(s: List[str]) -> str:
     return " ".join(map(quote, s))
 
 
-async def parmake_job2_new_process_1(sti: SyncTaskInterface, args):
+async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]):
     """ Starts the job in a new compmake process. """
-    (job_id, context) = args
+    (job_id, storage) = args
     compmake_bin = which("compmake")
-    from .storage import all_jobs
-    from .filesystem import StorageFilesystem
-
-    db: StorageFilesystem = context.get_compmake_db()
-    jobs = list(all_jobs(db=db))
-    if not jobs:
-        raise ZException()
-    storage = db.basepath  # XXX:
+    # from .storage import all_jobs
+    # from .filesystem import StorageFilesystem
+    # db = StorageFilesystem(storage,compress=True) # XXX
+    # # db: StorageFilesystem = context.get_compmake_db()
+    # jobs = list(all_jobs(db=db))
+    # if not jobs:
+    #     raise ZException()
+    # storage = db.basepath  # XXX:
     where = os.path.join(storage, "parmake_job2_new_process")
     mkdirs_thread_safe(where)
 
@@ -93,7 +83,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args):
     # ret = cmd_res.ret
 
     if ret == CompmakeConstants.RET_CODE_JOB_FAILED:  # XXX:
-        msg = "Job %r failed in external process" % job_id
+        msg = f"Job {job_id!r} failed in external process"
         msg += indent(stdout, "stdout| ")
         msg += indent(stderr, "stderr| ")
 
@@ -104,7 +94,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args):
         raise JobFailed.from_dict(res)
 
     elif ret != 0:
-        msg = "Host failed while doing %r" % job_id
+        msg = f"Host failed while doing {job_id!r}"
         msg += "\n cmd: %s" % " ".join(cmd)
         msg += "\n" + indent(stdout, "stdout| ")
         msg += "\n" + indent(stderr, "stderr| ")

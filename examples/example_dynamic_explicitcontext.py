@@ -28,7 +28,7 @@ async def main(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
-
+    await c.init()
     values = c.comp(cases)
     # comp_dynamic gives the function an extra argument
     # "context" to further define jobs

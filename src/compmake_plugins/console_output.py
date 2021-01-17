@@ -1,7 +1,11 @@
 import sys
+from io import StringIO
 from typing import List
 
-from compmake import get_compmake_config
+
+from compmake import Context
+from compmake.colored import compmake_colored
+from compmake.events_structures import Event
 from compmake.registrar import register_handler
 from compmake.structures import Cache
 from compmake.utils import (
@@ -10,9 +14,7 @@ from compmake.utils import (
     pad_to_screen,
     pad_to_screen_length,
 )
-from compmake.colored import compmake_colored
 from compmake.visualization import ui_message
-from six import StringIO
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -193,7 +195,7 @@ def break_lines_and_pad(prefix, line, postfix, max_size):
     return lines
 
 
-def handle_event(event, is_stderr: bool):
+async def handle_event(context: Context, event, is_stderr: bool):
     job_id = event.kwargs["job_id"]
     lines = event.kwargs["lines"]
 
@@ -231,16 +233,16 @@ def clip_up_to(line: str, max_len: int):
     return line[:max_len], line[max_len:]
 
 
-def handle_event_stdout(event, context):
-    if get_compmake_config("echo") and get_compmake_config("echo_stdout"):
-        handle_event(event, False)
+async def handle_event_stdout(context: Context, event):
+    if context.get_compmake_config("echo") and context.get_compmake_config("echo_stdout"):
+        await handle_event(context, event, False)
 
 
-def handle_event_stderr(event, context):
-    echo = get_compmake_config("echo")
-    echo_stderr = get_compmake_config("echo_stderr")
+async def handle_event_stderr(context: Context, event):
+    echo = context.get_compmake_config("echo")
+    echo_stderr = context.get_compmake_config("echo_stderr")
     if echo and echo_stderr:
-        handle_event(event, True)
+        await handle_event(context, event, True)
 
 
 register_handler("job-stdout", handle_event_stdout)
@@ -267,21 +269,21 @@ def color_ready(s):
     return compmake_colored(s, **Cache.styles["ready"])
 
 
-def handle_job_done(event, context):
+async def handle_job_done(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.DONE]:>10}"
     glyph = Cache.glyphs[Cache.DONE]
     ui_message(context, color_done(f"{glyph} {desc} {job_id}"))
 
 
-def handle_job_failed(event, context):
+async def handle_job_failed(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.FAILED]:>10}"
     glyph = Cache.glyphs[Cache.FAILED]
     ui_message(context, color_failed(f"{glyph} {desc} {job_id}"))
 
 
-def handle_job_processing(event, context):
+async def handle_job_processing(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.PROCESSING]:>10}"
     glyph = Cache.glyphs[Cache.PROCESSING]
@@ -289,7 +291,7 @@ def handle_job_processing(event, context):
 
 
 #  9 ✔ 1 ⚙ 2 ▴‍
-def handle_job_blocked(event, context):
+async def handle_job_blocked(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     blocking_job_id = event.kwargs["blocking_job_id"]
     desc = f"{Cache.state2desc[Cache.BLOCKED]:>10}"
@@ -297,7 +299,7 @@ def handle_job_blocked(event, context):
     ui_message(context, color_blocked(f"{glyph} {desc} {job_id}") + f" because of {blocking_job_id}")
 
 
-def handle_job_ready(event, context):
+async def handle_job_ready(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     glyph = Cache.glyphs["ready"]
     desc = f'{"ready":>10}'

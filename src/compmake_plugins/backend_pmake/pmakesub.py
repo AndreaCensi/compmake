@@ -31,11 +31,10 @@ class PmakeSub:
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
         # print('starting process %s ' % name)
-        self.proc = ctx.Process(
-            target=pmake_worker,
-            args=(self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log),
-            name=name,
-        )
+
+        args = (self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log)
+        logger.info(args=args)
+        self.proc = ctx.Process(target=pmake_worker, args=args, name=name,)
         self.proc.start()
 
     def terminate(self):

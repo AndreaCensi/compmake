@@ -8,7 +8,7 @@ async def main(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
-
+    await c.init()
     from example_external_support import generate_tests, cases
 
     values = c.comp(cases)

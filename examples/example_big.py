@@ -11,6 +11,7 @@ async def main(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
+    await c.init()
 
     branch = 10
     print(

@@ -1,5 +1,5 @@
 """ Implements the initial and final banner """
-from compmake import all_jobs, version
+from compmake import all_jobs, Context, version
 from compmake.registrar import register_handler
 from compmake.utils import pad_to_screen
 from compmake.colored import compmake_colored
@@ -14,7 +14,7 @@ name = "Compmake"
 # ]
 
 
-def console_starting(context):
+async def console_starting(context: Context):
     db = context.get_compmake_db()
 
     # starting console
@@ -36,7 +36,7 @@ def console_starting(context):
     printb(version_string + ("  (%d jobs loaded)" % njobs))
 
 
-def console_ending(event, context):
+async def console_ending(context: Context, event):
     url = compmake_colored(compmake_issues_url, attrs=["bold"])
     msg = f"Thanks for using Compmake. Please report problems to {url}"
 

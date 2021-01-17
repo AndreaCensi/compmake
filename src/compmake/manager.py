@@ -3,7 +3,6 @@ import itertools
 import os
 import shutil
 import signal
-import time
 import traceback
 import warnings
 from abc import ABC, abstractmethod
@@ -24,7 +23,6 @@ from .priority import compute_priorities
 from .queries import direct_children, direct_parents
 from .registrar import publish
 from .result_dict import check_ok_result, result_dict_check
-from .state import get_compmake_config
 from .storage import (
     assert_job_exists,
     db_job_add_dynamic_children,
@@ -35,7 +33,7 @@ from .storage import (
     job_userobject_exists,
 )
 from .structures import Cache, StateCode
-from .types import CMJobID, OKResult, ResultDict
+from .types import CMJobID, OKResult
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 
@@ -661,7 +659,7 @@ class Manager(ManagerLog):
     async def loop_until_something_finishes(self):
         self.check_invariants()
 
-        manager_wait = get_compmake_config("manager_wait")
+        manager_wait = self.context.get_compmake_config("manager_wait")
 
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue

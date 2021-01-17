@@ -17,14 +17,11 @@ from compmake import (
     MakeFailed,
     parse_job_list,
     read_rc_files,
-    set_compmake_config,
     StorageFilesystem,
 )
-from zuper_abstract_fs import LocalFS
-from zuper_abstract_subprocess import get_local_process
 from zuper_commons.cmds import ExitCode
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
-from zuper_utils_asyncio import async_run_timeout, create_sync_task2, SyncTaskInterface
+from zuper_utils_asyncio import async_run_timeout, create_sync_task2, setup_environment2, SyncTaskInterface
 from zuper_utils_asyncio.utils import with_log_control
 
 X = TypeVar("X")
@@ -50,8 +47,9 @@ class Env:
     async def init(self):
         self.db = StorageFilesystem(self.rootd, compress=True)
         self.cc = ContextImp(self.db)
+        await self.cc.init()
         self.cq = CacheQueryDB(db=self.db)
-        set_compmake_config("console_status", False)
+        self.cc.set_compmake_config("console_status", False)
         await read_rc_files(self.sti, context=self.cc)
 
     async def all_jobs(self):
@@ -178,13 +176,9 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
         async def task(sti: SyncTaskInterface):
             sti.started()
             cwd = os.getcwd()
-            sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
-            async with get_local_process(sti, cwd) as pi:
+            # sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
 
-                async def gen(_sti: SyncTaskInterface):
-                    return pi
-
-                sti.set_pi_gen(gen)
+            async with setup_environment2(sti, working_dir=cwd):
 
                 async with with_log_control(False):  # XXX
                     async with environment(sti) as env:

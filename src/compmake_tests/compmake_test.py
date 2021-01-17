@@ -17,7 +17,6 @@ from compmake import (
     logger,
     MakeFailed,
     parse_job_list,
-    set_compmake_config,
     StorageFilesystem,
 )
 from compmake.context_imp import ContextImp
@@ -34,9 +33,10 @@ class CompmakeTest(AsyncTestCase):
         self.root = os.path.join(self.root0, "compmake")
         self.db = StorageFilesystem(self.root, compress=True)
         self.cc = ContextImp(db=self.db)
+        await self.cc.init()
         # don't use '\r'
-        set_compmake_config("interactive", False)
-        set_compmake_config("console_status", False)
+        self.cc.set_compmake_config("interactive", False)
+        self.cc.set_compmake_config("console_status", False)
 
         CompmakeConstants.debug_check_invariants = True
         self.mySetUp()

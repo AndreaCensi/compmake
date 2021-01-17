@@ -30,7 +30,7 @@ async def main_progress_same(sti: SyncTaskInterface):
     from compmake import ContextImp
 
     c = ContextImp()
-
+    await c.init()
     c.comp(mylongfunction)
 
     # Run command passed on command line or otherwise run console.

@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from .state import get_compmake_config
+from compmake import get_compmake_config0
 from zuper_commons.ui import get_colorize_function
 
 __all__ = ["compmake_colored"]
@@ -11,7 +11,7 @@ class ColoredCached:
 
 
 def compmake_colored(x: str, color: str = None, on_color: str = None, attrs: Sequence[str] = None) -> str:
-    colorize = get_compmake_config("colorize")
+    colorize = get_compmake_config0("colorize")
     if not colorize:
         return x
 
@@ -25,7 +25,6 @@ def compmake_colored(x: str, color: str = None, on_color: str = None, attrs: Seq
 
     f = ColoredCached.functions[key]
 
-    colorize = get_compmake_config("colorize")
     if colorize:
         return f(x)
         # return termcolor_colored(x, color, on_color, attrs)

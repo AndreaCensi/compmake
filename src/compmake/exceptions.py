@@ -2,7 +2,7 @@ from typing import List
 
 from zuper_commons.text import indent
 from zuper_commons.types import raise_wrapped, ZException
-from .types import AbortResult, FailResult, InterruptedResult, ResultDict
+from .types import AbortResult, FailResult, InterruptedResult
 
 __all__ = [
     "ShellExitRequested",

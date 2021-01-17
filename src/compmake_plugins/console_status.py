@@ -6,21 +6,18 @@ from collections import namedtuple
 from datetime import datetime
 from typing import Dict
 
-from compmake import CompmakeGlobalState
+from compmake import compmake_colored, CompmakeGlobalState, Context, publish, register_handler, ui_error
+from compmake.events_structures import Event
+from compmake.utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
 from zuper_commons.text import indent
 from .tracker import Tracker
-from compmake import publish, register_handler
-from compmake import get_compmake_config
-from compmake import compmake_colored
-from compmake import ui_error
-from compmake.utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
 
 stream = sys.stderr
 
 tracker = Tracker()
 
 
-def system_status():
+def system_status(context: Context):
     stats = CompmakeGlobalState.system_stats
     if not stats.available():  # psutil not installed
         # TODO: use os.load
@@ -30,7 +27,7 @@ def system_status():
     cur_mem = stats.cur_phymem_usage_percent()
     swap = stats.cur_virtmem_usage_percent()
 
-    console_status_style = get_compmake_config("console_status_style")
+    console_status_style = context.get_compmake_config("console_status_style")
     if console_status_style == "normal":
 
         s_mem = f"mem {cur_mem:2.0f}%"
@@ -97,18 +94,18 @@ def get_spins():
 spins = get_spins()
 
 
-def spinner():
-    spin_interval = get_compmake_config("console_status_delta") * 0.8
+def spinner(context: Context):
+    spin_interval = context.get_compmake_config("console_status_delta") * 0.8
     t = time.time()
     i = t / spin_interval
     i = int(i) % len(spins)
     return spins[i]
 
 
-def job_counts():
+def job_counts(context: Context):
     ss = []
 
-    console_status_style = get_compmake_config("console_status_style")
+    console_status_style = context.get_compmake_config("console_status_style")
 
     styles = {
         "normal": {
@@ -226,8 +223,8 @@ class Tmp:
     last_manager_loop = time.time()
 
 
-def its_time():
-    delta = float(get_compmake_config("console_status_delta"))
+def its_time(context: Context):
+    delta = float(context.get_compmake_config("console_status_delta"))
     t = time.time()
     dt = t - Tmp.last_manager_loop
     if dt > delta:
@@ -237,29 +234,32 @@ def its_time():
         return False
 
 
-def handle_event_period(context, event):
-    if its_time():
-        handle_event(context, event)
+async def handle_event_period(context: Context, event: Event):
+    if not context.get_compmake_config("status_line_enabled"):
+        return
+
+    if its_time(context):
+        await handle_event(context, event)
 
 
 ShowOption = namedtuple("Option", "length left right weight")
 
 
-def handle_event(context, event):
-    if not get_compmake_config("status_line_enabled"):
+async def handle_event(context: Context, event: Event):
+    if not context.get_compmake_config("status_line_enabled"):
         return
 
-    status = system_status()
+    status = system_status(context)
 
     options_right = []
 
     if status:
-        options_right.append("%s %s " % (status, job_counts()))
-        options_right.append("%s %s %s" % (wait_reasons(), status, job_counts()))
+        options_right.append("%s %s " % (status, job_counts(context)))
+        options_right.append("%s %s %s" % (wait_reasons(), status, job_counts(context)))
 
-    options_right.append(job_counts())
+    options_right.append(job_counts(context))
 
-    sp = spinner()
+    sp = spinner(context)
     options_left = [sp]
 
     for level in [4, 3, 2, 1, 0, -1, -2, -3]:
@@ -304,17 +304,20 @@ def handle_event(context, event):
     publish(context, "ui-status-summary", string=line)
 
 
-def manager_host_failed(context, event):
-    s = "Host failed for job %s: %s" % (event.job_id, event.reason)
+async def manager_host_failed(context: Context, event: Event):
+    if not context.get_compmake_config("status_line_enabled"):
+        return
+        # noinspection PyUnresolvedReferences
+    s = f"Host failed for job {event.kwargs['job_id']}: {event.kwargs['reason']}"
+    # noinspection PyUnresolvedReferences
     s += indent(event.bt.strip(), "| ")
     ui_error(context, s)
 
 
-if get_compmake_config("status_line_enabled"):
-    register_handler("manager-loop", handle_event_period)
-    register_handler("manager-progress", handle_event_period)
-    register_handler("job-progress", handle_event)
-    register_handler("job-progress-plus", handle_event)
-    register_handler("job-stdout", handle_event)
-    register_handler("job-stderr", handle_event)
-    register_handler("manager-host-failed", manager_host_failed)
+register_handler("manager-loop", handle_event_period)
+register_handler("manager-progress", handle_event_period)
+register_handler("job-progress", handle_event)
+register_handler("job-progress-plus", handle_event)
+register_handler("job-stdout", handle_event)
+register_handler("job-stderr", handle_event)
+register_handler("manager-host-failed", manager_host_failed)

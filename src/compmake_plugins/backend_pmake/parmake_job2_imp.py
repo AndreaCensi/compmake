@@ -1,11 +1,13 @@
 import os
 import sys
-from typing import Any, Tuple
+from typing import Tuple
 
 from future.moves.queue import Full
 
 from compmake import (
     CompmakeConstants,
+    Context,
+    ContextImp,
     JobFailed,
     JobInterrupted,
     make,
@@ -13,20 +15,14 @@ from compmake import (
     register_handler,
     remove_all_handlers,
     result_dict_check,
+    StorageFilesystem,
 )
+from compmake.events_structures import Event
+from compmake.registered_events import JobProgressEvent
 from compmake.types import CMJobID
 from compmake.utils import setproctitle
-from zuper_commons.fs import mkdirs_thread_safe
+from zuper_commons.fs import DirPath, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
-
-#
-# method = multiprocessing.get_start_method(allow_none=True)
-# if method is not None:
-#     if method !='fork':
-#         msg = f'Need "fork", already set to {method}'
-#         logger.error(msg)
-#     else:
-#         multiprocessing.set_start_method("fork")
 
 
 __all__ = [
@@ -36,7 +32,7 @@ __all__ = [
 from zuper_utils_asyncio import SyncTaskInterface
 
 
-async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bool, str]):
+async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, str]):
     """
     args = tuple job_id, context, queue_name, show_events
 
@@ -47,7 +43,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bo
 
     """
     sti.logger.info("parmake_job2 started", args=args)
-    job_id, context, event_queue_name, show_output, logdir = args
+    job_id, basepath, event_queue_name, show_output, logdir = args
 
     mkdirs_thread_safe(logdir)
     stdout_fn = os.path.join(logdir, f"{job_id}.stdout.log")
@@ -58,16 +54,18 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bo
     sys.stdout.write("Activating stdout.\n")
     sys.stderr.write("Activating stderr.\n")
 
+    check_isinstance(job_id, str)
+    check_isinstance(event_queue_name, str)
+    from .pmake_manager import PmakeManager
+
+    # logger.info(f"queues: {PmakeManager.queues}")
+    event_queue = PmakeManager.queues[event_queue_name]
+
+    db = StorageFilesystem(basepath, compress=True)
+    context = ContextImp(db=db)
+    await context.init()
+
     try:
-
-        check_isinstance(job_id, str)
-        check_isinstance(event_queue_name, str)
-        from .pmake_manager import PmakeManager
-
-        # logger.info(f"queues: {PmakeManager.queues}")
-        event_queue = PmakeManager.queues[event_queue_name]
-
-        db = context.get_compmake_db()
 
         setproctitle(f"compmake:{job_id}")
 
@@ -76,7 +74,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bo
 
         # We register a handler for the events to be passed back
         # to the main process
-        def handler(event):
+        async def handler(context: Context, event: Event):
             try:
                 if not CompmakeConstants.disable_interproc_queue:
                     event_queue.put(event, block=False)
@@ -92,7 +90,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, Any, str, bo
         if show_output:
             register_handler("*", handler)
 
-        def proctitle(event):
+        async def proctitle(context: Context, event: JobProgressEvent):
             stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
             setproctitle(stat)
 

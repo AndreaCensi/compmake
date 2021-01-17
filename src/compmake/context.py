@@ -69,3 +69,7 @@ class Context(metaclass=ABCMeta):
     @abstractmethod
     def get_currently_executing(self) -> List[CMJobID]:
         ...
+
+    @abstractmethod
+    def get_compmake_config(self, c: str):
+        pass

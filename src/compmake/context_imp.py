@@ -1,20 +1,31 @@
+import inspect
 import os
 import sys
+import traceback
 from typing import List, Optional, Set, Union
 
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_commons.text import indent
+from zuper_utils_asyncio import async_errors, create_sync_task2, Splitter, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
+from .events_structures import Event
 from .exceptions import UserError
 from .filesystem import StorageFilesystem
 from .interpret import batch_command, interpret_commands_wrap
+from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_config0
 from .types import CMJobID
 
 __all__ = ["ContextImp", "load_static_storage"]
 
 
 class ContextImp(Context):
+    def get_compmake_config(self, c: str):
+        return get_compmake_config0(c)
+
+    def set_compmake_config(self, c: str, v):
+        return set_compmake_config0(c, v)
+
     currently_executing: List[CMJobID]
 
     def __init__(
@@ -52,6 +63,51 @@ class ContextImp(Context):
 
         # counters for prefixes (generate_job_id)
         self.generate_job_id_counters = {}
+
+        self.splitter = None
+
+    async def init(self):
+        self.splitter = await Splitter.make_init(Event)
+        self.br = await create_sync_task2(None, self.broadcast)
+
+    @async_errors
+    async def broadcast(self, sti: SyncTaskInterface):
+        sti.started()
+        async for a, event in self.splitter.read():
+            all_handlers = CompmakeGlobalState.EventHandlers.handlers
+
+            handlers = all_handlers.get(event.name, [])
+            if handlers:
+                for handler in handlers:
+                    spec = inspect.getfullargspec(handler)
+                    # noinspection PyBroadException
+                    try:
+                        kwargs = {}
+                        if "event" in spec.args:
+                            kwargs["event"] = event
+                        if "context" in spec.args:
+                            kwargs["context"] = self
+                        await handler(**kwargs)
+                        # TODO: do not catch interrupted, etc.
+                    except KeyboardInterrupt:
+                        raise
+                    except BaseException:
+                        try:
+                            msg = [
+                                "compmake BUG: Error in event handler.",
+                                "  event: %s" % event.name,
+                                "handler: %s" % handler,
+                                " kwargs: %s" % list(event.kwargs.keys()),
+                                "     bt: ",
+                                indent(traceback.format_exc(), "| "),
+                            ]
+                            msg = "\n".join(msg)
+                            CompmakeGlobalState.original_stderr.write(msg)
+                        except:
+                            pass
+            else:
+                for handler in CompmakeGlobalState.EventHandlers.fallback:
+                    await handler(self, event)
 
     def get_currently_executing(self) -> List[CMJobID]:
         return list(self.currently_executing)

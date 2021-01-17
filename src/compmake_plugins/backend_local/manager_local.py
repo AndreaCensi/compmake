@@ -2,14 +2,14 @@ from compmake import (
     AsyncResultInterface,
     CMJobID,
     CompmakeBug,
+    Context,
     make,
     Manager,
     OKResult,
-    result_dict_check,
     ui_warning,
 )
 from compmake.actions_newprocess import parmake_job2_new_process_1
-from compmake.result_dict import check_ok_result, result_dict_raise_if_error
+from compmake.result_dict import result_dict_raise_if_error
 from zuper_utils_asyncio import SyncTaskInterface
 
 tr = None
@@ -48,7 +48,11 @@ class ManagerLocal(Manager):
 
 
 class FakeAsync(AsyncResultInterface):
-    def __init__(self, sti: SyncTaskInterface, job_id: CMJobID, context, new_process, echo):
+    context: Context
+
+    def __init__(
+        self, sti: SyncTaskInterface, job_id: CMJobID, context: Context, new_process: bool, echo: bool
+    ):
         self.sti = sti
         self.job_id = job_id
         self.context = context
@@ -75,7 +79,9 @@ class FakeAsync(AsyncResultInterface):
 
     async def _execute(self, sti: SyncTaskInterface) -> OKResult:
         if self.new_process:
-            args = (self.job_id, self.context)
+            basepath = self.context.get_compmake_db().basepath
+            args = (self.job_id, basepath)
+
             return await parmake_job2_new_process_1(sti, args)
         else:
             # if use_pympler:

@@ -1,6 +1,6 @@
 from nose.tools import assert_equal
 
-from compmake import set_compmake_config
+from compmake import clean_other_jobs
 from compmake_tests.utils import Env, environment, run_with_env
 
 
@@ -18,6 +18,7 @@ async def test_cleaning_other(env: Env):
     jobs1 = await env.all_jobs()
     assert_equal(jobs1, ["g", "h"])
     async with environment(env.sti, env.rootd) as env2:
+
         await cleaning_other_second(env2)
     jobs2 = await env.all_jobs()
     assert_equal(jobs2, ["g"])
@@ -31,6 +32,7 @@ async def cleaning_other_first(env: Env):
 
 async def cleaning_other_second(env: Env):
     env.comp(g, job_id="g")
+    await clean_other_jobs(env.sti, context=env.cc)
     await env.batch_command("make")
 
 
@@ -80,7 +82,7 @@ def e2(context):
 
 @run_with_env
 async def test_cleaning3(env: Env):
-    set_compmake_config("check_params", True)
+    env.cc.set_compmake_config("check_params", True)
     await cleaning3_first(env)
     jobs1 = await env.all_jobs()
     assert_equal(jobs1, ["e", "f", "f-g", "f-h"])

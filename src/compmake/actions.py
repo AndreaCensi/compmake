@@ -9,7 +9,6 @@ from zuper_commons.types import check_isinstance, describe_type, describe_value,
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
-from .coloredlog import colorize_loglevel
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
@@ -20,7 +19,7 @@ from .parsing import parse_job_list
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
 from .registrar import publish
-from .state import get_compmake_config, get_compmake_status
+from .state import get_compmake_status
 from .storage import (
     all_jobs,
     db_job_add_parent_relation,
@@ -188,7 +187,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
 
     host = "hostname"  # XXX
 
-    if get_compmake_config("set_proc_title"):
+    if context.get_compmake_config("set_proc_title"):
         setproctitle(f"cm-{job_id}")
 
     # TODO: should we make sure we are up to date???
@@ -272,7 +271,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
 
             except:
                 s_ = f"Could not print log_record {id(log_record)}"
-            log_record.msg = colorize_loglevel(log_record.levelno, s_)
+            # log_record.msg = colorize_loglevel(log_record.levelno, s_)
             res = formatter.format(log_record)
             print(res)
             # this will be captured by OutputCapture anyway
@@ -768,9 +767,9 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
         old_job = get_job(job_id, db)
 
         if old_job.defined_by != c.defined_by:
-            warning("Redefinition of %s: " % job_id)
-            warning(" cur defined_by: %s" % c.defined_by)
-            warning(" old defined_by: %s" % old_job.defined_by)
+            ui_warning(context, "Redefinition of %s: " % job_id)
+            ui_warning(context, " cur defined_by: %s" % c.defined_by)
+            ui_warning(context, " old defined_by: %s" % old_job.defined_by)
 
         if old_job.children != c.children:
             # warning('Redefinition problem:')
@@ -807,7 +806,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
     for child in children:
         db_job_add_parent_relation(child=child, parent=job_id, db=db)
 
-    if get_compmake_config("check_params") and job_exists(job_id, db):
+    if context.get_compmake_config("check_params") and job_exists(job_id, db):
         # OK, this is going to be black magic.
         # We want to load the previous job definition,
         # however, by unpickling(), it will start
@@ -841,6 +840,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
             # job_id=job_id)
 
     set_job_args(job_id, all_args, db=db)
+
     set_job(job_id, c, db=db)
     publish(context, "job-defined", job_id=job_id)
 
@@ -917,7 +917,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
     if not command_name in ui_commands:
         msg = f"Unknown command {command_name!r} (try 'help'). "
-        raise UserError(msg)
+        raise UserError(msg, known=sorted(ui_commands))
 
     # XXX: use more elegant method
     cmd = ui_commands[command_name]
@@ -956,7 +956,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
                 default_value = defaults[k]
 
                 if isinstance(default_value, DefaultsToConfig):
-                    default_value = get_compmake_config(default_value.switch)
+                    default_value = context.get_compmake_config(default_value.switch)
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
@@ -971,7 +971,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     # set default values
     for argname, argdefault in defaults.items():
         if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
-            v = get_compmake_config(argdefault.switch)
+            v = context.get_compmake_config(argdefault.switch)
             kwargs[argname] = v
 
     if "args" in function_args:

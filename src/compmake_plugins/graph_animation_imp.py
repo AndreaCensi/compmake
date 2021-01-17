@@ -17,7 +17,7 @@ class Global:
     processing = set()
 
 
-def update_graph(context, event):
+async def update_graph(context, event):
     print("event: %s" % event)
 
     if event.name in ["manager-job-processing"]:

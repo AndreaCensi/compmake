@@ -52,6 +52,7 @@ class StorageFilesystem:
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
         self.method = method = "pickle"
+        # self.method = method= "dill"
 
         if compress:
             self.file_extension = f".{method}.gz"
@@ -60,11 +61,9 @@ class StorageFilesystem:
             self.file_extension = f".{method}"
             others = list(self.keys0(f".{method}.gz"))
         if others:
-            msg = "Extension is %s but found %s files with other extension." % (
-                self.file_extension,
-                len(others),
-            )
-            raise ZException(msg)
+            msg = f"Extension is {self.file_extension} but found {len(others)} files with other extension."
+            msg += f" Check that you did not use compress = {not compress} somewhere else."
+            raise ZException(msg, others=others)
 
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
@@ -135,7 +134,7 @@ class StorageFilesystem:
                 # logger.exception(e)
                 emsg = find_pickling_error(value)
                 logger.error(emsg)
-                raise SerializationError(msg + "\n" + emsg)
+                raise SerializationError(msg + "\n" + emsg, tb=traceback.format_exc())
         elif self.method == "dill":
             dill.settings["recurse"] = True
             dill.settings["byref"] = True

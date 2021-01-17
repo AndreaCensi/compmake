@@ -4,8 +4,9 @@ from typing import Callable
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import get_colorize_function
 from .registrar import publish, register_handler
-from .state import CompmakeGlobalState, get_compmake_config
+from .state import CompmakeGlobalState
 from .utils import get_screen_columns, pad_to_screen
+from .context import Context
 
 __all__ = [
     "ui_debug",
@@ -63,7 +64,7 @@ class DefaultConsole:
     active = True
 
 
-def handle_ui_message_console(context, event):
+async def handle_ui_message_console(context, event):
     if not DefaultConsole.active:
         return
     write_message(event.kwargs["string"], lambda x: x)
@@ -74,17 +75,15 @@ register_handler("ui-message", handle_ui_message_console)
 original_stderr = sys.stderr
 
 
-def handle_ui_status_summary(context, event):
+async def handle_ui_status_summary(context: Context, event):
     if not DefaultConsole.active:
         return
     line = event.kwargs["string"]
-    if get_compmake_config("console_status"):
-        # if six.PY2:
-        #     if isinstance(line, unicode):
-        #         line = line.encode('utf-8')
+    if context.get_compmake_config("console_status"):
+
         original_stderr.write(line)
 
-        interactive = get_compmake_config("interactive")
+        interactive = context.get_compmake_config("interactive")
         if interactive:
             original_stderr.write("\r")
         else:

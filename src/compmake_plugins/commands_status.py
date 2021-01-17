@@ -1,13 +1,12 @@
-from zuper_commons.text import indent
-
+from compmake import Context
 from compmake.registrar import register_handler
-from compmake.state import get_compmake_config
 from compmake.visualization import ui_error, ui_info
+from zuper_commons.text import indent
 
 
 # TODO: command-succeeded: {'command': '
 # command-interrupted: {'reason': 'KeyboardInterrupt', 'command': 'ls todo'}
-def command_interrupted(context, event):
+async def command_interrupted(context, event):
     c = event.kwargs["command"]
     traceback = event.kwargs["traceback"]
     ui_error(context, f"Command {c!r} interrupted.")
@@ -17,7 +16,7 @@ def command_interrupted(context, event):
 register_handler("command-interrupted", command_interrupted)
 
 
-def command_failed(context, event):
+async def command_failed(context, event):
     c = event.kwargs["command"]
     r = event.kwargs["reason"]
     ui_error(context, f"Command {c!r} failed: {r}")
@@ -29,7 +28,7 @@ register_handler("command-failed", command_failed)
 my_prefix = ""
 
 
-def command_line_interrupted(context, event):
+async def command_line_interrupted(context, event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
     if not ";" in command:
@@ -40,7 +39,7 @@ def command_line_interrupted(context, event):
 register_handler("command-line-interrupted", command_line_interrupted)
 
 
-def command_line_failed(context, event):
+async def command_line_failed(context, event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
     if not ";" in command:
@@ -51,8 +50,8 @@ def command_line_failed(context, event):
 register_handler("command-line-failed", command_line_failed)
 
 
-def job_failed(context, event):
-    yes = get_compmake_config("details_failed_job")
+async def job_failed(context: Context, event):
+    yes = context.get_compmake_config("details_failed_job")
     if not yes:
         return
     job_id = event.kwargs["job_id"]
@@ -77,7 +76,7 @@ def job_failed(context, event):
 register_handler("job-failed", job_failed)
 
 
-def job_interrupted(context, event):
+async def job_interrupted(context, event):
     ui_error(
         context,
         my_prefix + "Job %r interrupted:\n %s" % (event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")),
@@ -87,7 +86,7 @@ def job_interrupted(context, event):
 register_handler("job-interrupted", job_interrupted)
 
 
-def compmake_bug(context, event):
+async def compmake_bug(context, event):
     ui_error(context, my_prefix + event.kwargs["user_msg"])
     ui_error(context, my_prefix + event.kwargs["dev_msg"])
 
@@ -97,7 +96,7 @@ register_handler("compmake-bug", compmake_bug)
 
 # We ignore some other events; otherwise they will be catched
 # by the default handler
-def ignore(context, event):
+async def ignore(context, event):
     pass
 
 
@@ -121,7 +120,7 @@ if True:  # debugging
     register_handler("manager-job-processing", ignore)
 
 
-def manager_succeeded(context, event):
+async def manager_succeeded(context, event):
     if event.kwargs["nothing_to_do"]:
         ui_info(context, "Nothing to do.")
     else:

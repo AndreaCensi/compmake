@@ -19,7 +19,6 @@ __all__ = [
     "ui_section",
     "UIState",
 ]
-from . import logger
 
 # Storage for the commands
 Command = namedtuple("Command", "function name doc alias section dbchange")
