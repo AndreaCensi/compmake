@@ -73,3 +73,7 @@ class Context(metaclass=ABCMeta):
     @abstractmethod
     def get_compmake_config(self, c: str):
         pass
+
+    @abstractmethod
+    async def write_message_console(self, s: str):
+        ...

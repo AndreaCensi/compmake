@@ -1,10 +1,11 @@
 """
     These are all wrappers around the raw methods in storage
 """
-from typing import Iterator
+from typing import cast, Iterator
 
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
+from .filesystem import StorageFilesystem
 from .structures import Cache, Job
 from .types import CMJobID, DBKey
 from .utils import wildcard_to_regexp
@@ -67,33 +68,33 @@ def all_jobs(db, force_db: bool = False) -> Iterator[CMJobID]:
             yield key2job(key)
 
 
-def get_job(job_id: CMJobID, db) -> Job:
+def get_job(job_id: CMJobID, db: StorageFilesystem) -> Job:
     key = job2key(job_id)
     computation = db[key]
     assert isinstance(computation, Job)
     return computation
 
 
-def job_exists(job_id: CMJobID, db) -> bool:
+def job_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
     key = job2key(job_id)
     return key in db
 
 
-def assert_job_exists(job_id: CMJobID, db):
+def assert_job_exists(job_id: CMJobID, db: StorageFilesystem):
     """
         :raise CompmakeBug: if the job does not exist
     """
     get_job(job_id, db)
 
 
-def set_job(job_id: CMJobID, job: Job, db) -> None:
+def set_job(job_id: CMJobID, job: Job, db: StorageFilesystem) -> None:
     # TODO: check if they changed
     key = job2key(job_id)
     assert isinstance(job, Job)
     db[key] = job
 
 
-def delete_job(job_id: CMJobID, db) -> None:
+def delete_job(job_id: CMJobID, db: StorageFilesystem) -> None:
     key = job2key(job_id)
     del db[key]
 
@@ -101,12 +102,12 @@ def delete_job(job_id: CMJobID, db) -> None:
 #
 # Cache objects
 #
-def job2cachekey(job_id: CMJobID) -> str:
+def job2cachekey(job_id: CMJobID) -> DBKey:
     prefix = "cm-cache-"
-    return f"{prefix}{job_id}"
+    return cast(DBKey, f"{prefix}{job_id}")
 
 
-def get_job_cache(job_id: CMJobID, db):
+def get_job_cache(job_id: CMJobID, db: StorageFilesystem):
     assert isinstance(job_id, str)
     # assert isinstance(db, StorageFilesystem)
     cache_key = job2cachekey(job_id)
@@ -131,23 +132,23 @@ def get_job_cache(job_id: CMJobID, db):
             msg = "Requesting cache for job that does not exist."
             raise CompmakeDBError(msg, job_id=job_id)
 
-        cache = Cache(Cache.NOT_STARTED)
-        # we only put it later: NOT_STARTEd == not existent
-        # get_compmake_db().set(cache_key, cache)
-        return cache
+    cache = Cache(Cache.NOT_STARTED)
+    # we only put it later: NOT_STARTEd == not existent
+    # get_compmake_db().set(cache_key, cache)
+    return cache
 
 
-def job_cache_exists(job_id: CMJobID, db) -> bool:
+def job_cache_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
     key = job2cachekey(job_id)
     return key in db
 
 
-def job_cache_sizeof(job_id: CMJobID, db) -> int:
+def job_cache_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     key = job2cachekey(job_id)
     return db.sizeof(key)
 
 
-def set_job_cache(job_id: CMJobID, cache: Cache, db):
+def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem):
     assert isinstance(cache, Cache)
     check_isinstance(cache.captured_stderr, (type(None), str))
     check_isinstance(cache.captured_stdout, (type(None), str))
@@ -157,7 +158,7 @@ def set_job_cache(job_id: CMJobID, cache: Cache, db):
     db[key] = cache
 
 
-def delete_job_cache(job_id: CMJobID, db):
+def delete_job_cache(job_id: CMJobID, db: StorageFilesystem):
     key = job2cachekey(job_id)
     del db[key]
 
@@ -170,7 +171,7 @@ def job2userobjectkey(job_id: CMJobID):
     return f"{prefix}{job_id}"
 
 
-def get_job_userobject(job_id: CMJobID, db) -> object:
+def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
     # available = is_job_userobject_available(job_id, db)
     # if not available:
     # available_job = job_exists(job_id, db)
@@ -188,12 +189,12 @@ def get_job_userobject(job_id: CMJobID, db) -> object:
     return res
 
 
-def job_userobject_sizeof(job_id: CMJobID, db) -> int:
+def job_userobject_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     key = job2userobjectkey(job_id)
     return db.sizeof(key)
 
 
-def is_job_userobject_available(job_id: CMJobID, db) -> bool:
+def is_job_userobject_available(job_id: CMJobID, db: StorageFilesystem) -> bool:
     key = job2userobjectkey(job_id)
     return key in db
 
@@ -201,12 +202,12 @@ def is_job_userobject_available(job_id: CMJobID, db) -> bool:
 job_userobject_exists = is_job_userobject_available
 
 
-def set_job_userobject(job_id: CMJobID, obj, db):
+def set_job_userobject(job_id: CMJobID, obj, db: StorageFilesystem):
     key = job2userobjectkey(job_id)
     db[key] = obj
 
 
-def delete_job_userobject(job_id: CMJobID, db):
+def delete_job_userobject(job_id: CMJobID, db: StorageFilesystem):
     key = job2userobjectkey(job_id)
     del db[key]
 
@@ -216,7 +217,7 @@ def job2jobargskey(job_id: CMJobID):
     return f"{prefix}{job_id}"
 
 
-def get_job_args(job_id: CMJobID, db):
+def get_job_args(job_id: CMJobID, db: StorageFilesystem):
     key = job2jobargskey(job_id)
 
     # if False:
@@ -228,27 +229,28 @@ def get_job_args(job_id: CMJobID, db):
         return db[key]
 
 
-def job_args_exists(job_id: CMJobID, db) -> bool:
+def job_args_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
     key = job2jobargskey(job_id)
     return key in db
 
 
-def job_args_sizeof(job_id: CMJobID, db) -> int:
+def job_args_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     key = job2jobargskey(job_id)
     return db.sizeof(key)
 
 
-def set_job_args(job_id: CMJobID, obj, db):
+def set_job_args(job_id: CMJobID, obj, db: StorageFilesystem):
     key = job2jobargskey(job_id)
+
     db[key] = obj
 
 
-def delete_job_args(job_id: CMJobID, db):
+def delete_job_args(job_id: CMJobID, db: StorageFilesystem):
     key = job2jobargskey(job_id)
     del db[key]
 
 
-def delete_all_job_data(job_id: CMJobID, db):
+def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem):
     # print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
@@ -262,7 +264,7 @@ def delete_all_job_data(job_id: CMJobID, db):
 
 
 # These are delicate and should be implemented differently
-def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db):
+def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db: StorageFilesystem):
     job = get_job(job_id, db)
     if not returned_by in job.children:
         msg = f"{job_id!r} does not know it has child  {returned_by!r}"
@@ -285,7 +287,7 @@ def db_job_add_parent(db, job_id, parent):
     assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
-def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db):
+def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem):
     child_comp = get_job(child, db=db)
     orig = set(child_comp.parents)
     want = orig | {parent}

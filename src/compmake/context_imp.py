@@ -1,10 +1,15 @@
+import asyncio
 import inspect
 import os
 import sys
 import traceback
+from dataclasses import dataclass
 from typing import List, Optional, Set, Union
 
+import aiofiles
+
 from zuper_commons.text import indent
+from zuper_typing import value_liskov
 from zuper_utils_asyncio import async_errors, create_sync_task2, Splitter, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
@@ -15,11 +20,48 @@ from .filesystem import StorageFilesystem
 from .interpret import batch_command, interpret_commands_wrap
 from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_config0
 from .types import CMJobID
+from .utils import pad_to_screen
 
 __all__ = ["ContextImp", "load_static_storage"]
 
 
+@dataclass
+class Prompt:
+    p: str
+
+
+@dataclass
+class UIMessage:
+    s: str
+
+
 class ContextImp(Context):
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        if "splitter" in state:
+            state.pop("splitter")
+        if "splitter_ui_console" in state:
+            state.pop("splitter_ui_console")
+        # # Remove the unpicklable entries.
+        # for k, v in state.items():
+        #     try:
+        #         pickle.dumps(v)
+        #     except BaseException as e:
+        #         msg = f'Cannot pickle member {k!r}'
+        #         raise ZValueError(msg, k=k, v=v) from e
+
+        return state
+
+    async def write_message_console(self, s: str):
+        if s.startswith("prompt:"):
+            rest = s[len("prompt:") :]
+            self.splitter_ui_console.push(Prompt(rest))
+        else:
+            self.splitter_ui_console.push(UIMessage(s))
+
     def get_compmake_config(self, c: str):
         return get_compmake_config0(c)
 
@@ -65,9 +107,37 @@ class ContextImp(Context):
         self.generate_job_id_counters = {}
 
         self.splitter = None
+        self.splitter_ui_console = None
 
     async def init(self):
         self.splitter = await Splitter.make_init(Event)
+        self.splitter_ui_console = await Splitter.make_init(Union[UIMessage, Prompt])
+
+        @async_errors
+        async def go():
+            async with aiofiles.open("/dev/stdout", "w") as stdout:
+                await stdout.write("Logging to stdout\n")
+                await stdout.flush()
+                async for _, x in self.splitter_ui_console.read():
+                    # await stdout.write(str(x)+'\n')
+                    if value_liskov(x, UIMessage):
+                        s = x.s
+                        lines = s.rstrip().split("\n")
+                        for l in lines:
+                            p = pad_to_screen(l)
+                            await stdout.write(p + "\n")
+                            await stdout.flush()
+                    elif value_liskov(x, Prompt):
+                        s = x.p
+                        await stdout.write("\n\r")
+
+                        await stdout.write(s)
+                        await stdout.flush()
+                    else:
+                        raise ValueError(x)
+
+        self.write_task = asyncio.create_task(go())
+
         self.br = await create_sync_task2(None, self.broadcast)
 
     @async_errors
@@ -143,11 +213,9 @@ class ContextImp(Context):
 
     # setting up jobs
     def comp_dynamic(self, command_, *args, **kwargs):
-
         return comp_(self, command_, *args, needs_context=True, **kwargs)
 
     def comp(self, command_, *args, **kwargs):
-
         return comp_(self, command_, *args, **kwargs)
 
     def comp_store(self, x, job_id=None):
@@ -168,12 +236,10 @@ class ContextImp(Context):
         return await interpret_commands_wrap(sti, commands, context=self, cq=cq)
 
     async def batch_command(self, sti: SyncTaskInterface, s: str) -> None:
-
         cq = CacheQueryDB(self.get_compmake_db())
         return await batch_command(sti, s, context=self, cq=cq)
 
     async def compmake_console(self, sti: SyncTaskInterface):
-
         from .console import compmake_console_text
 
         return await compmake_console_text(sti, self)

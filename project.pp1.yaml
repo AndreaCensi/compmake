@@ -25,7 +25,8 @@ install_requires: [
     zuper-utils-asyncio-z7,
     zuper-graphs-z7,
     numpy,
-    pyreadline
+    pyreadline,
+    aiofiles,
 ]
 
 install_conflicts: [ 'compmake-*' ]

@@ -9,7 +9,6 @@ from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
 from zuper_utils_asyncio.envs import setup_environment2
 from . import __version__, logger
 from .config_optparse import config_populate_optparser
-from .console import compmake_console_gui
 from .constants import CompmakeConstants
 from .context import Context
 from .context_imp import ContextImp
@@ -131,7 +130,8 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
                 await context2.batch_command(sti, options.command)
             else:
                 if options.gui:
-                    await compmake_console_gui(sti, context2)
+                    raise NotImplementedError()
+                    # await compmake_console_gui(sti, context2)
                 else:
                     await context2.compmake_console(sti)
         except MakeFailed:

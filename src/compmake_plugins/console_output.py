@@ -2,7 +2,6 @@ import sys
 from io import StringIO
 from typing import List
 
-
 from compmake import Context
 from compmake.colored import compmake_colored
 from compmake.events_structures import Event
@@ -195,7 +194,7 @@ def break_lines_and_pad(prefix, line, postfix, max_size):
     return lines
 
 
-async def handle_event(context: Context, event, is_stderr: bool):
+async def handle_event_stdx(context: Context, event, is_stderr: bool):
     job_id = event.kwargs["job_id"]
     lines = event.kwargs["lines"]
 
@@ -234,15 +233,17 @@ def clip_up_to(line: str, max_len: int):
 
 
 async def handle_event_stdout(context: Context, event):
-    if context.get_compmake_config("echo") and context.get_compmake_config("echo_stdout"):
-        await handle_event(context, event, False)
+    echo = context.get_compmake_config("echo")
+    echo_stdout = context.get_compmake_config("echo_stdout")
+    if echo and echo_stdout:
+        await handle_event_stdx(context, event, False)
 
 
 async def handle_event_stderr(context: Context, event):
     echo = context.get_compmake_config("echo")
     echo_stderr = context.get_compmake_config("echo_stderr")
     if echo and echo_stderr:
-        await handle_event(context, event, True)
+        await handle_event_stdx(context, event, True)
 
 
 register_handler("job-stdout", handle_event_stdout)

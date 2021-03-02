@@ -7,18 +7,17 @@ from typing import Iterator, List, NewType
 
 import dill
 
-from . import logger
-from .exceptions import CompmakeBug, SerializationError
-from .utils import safe_pickle_dump, safe_pickle_load
 from zuper_commons.fs import (
     DirPath,
     FilePath,
-    find_pickling_error,
     safe_read,
     safe_write,
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import ZException
+from . import logger
+from .exceptions import CompmakeBug, SerializationError
+from .utils import safe_pickle_dump, safe_pickle_load
 
 __all__ = [
     "StorageFilesystem",
@@ -129,12 +128,13 @@ class StorageFilesystem:
             except KeyboardInterrupt:
                 raise
             except BaseException as e:
-                msg = f"Cannot set key {key}: cannot pickle object of class {value.__class__.__name__}"
-                logger.error(msg, e=traceback.format_exc())
+                msg = f"Cannot set key {key!r}: cannot pickle object of class {value.__class__.__name__}"
+                # raise SerializationError(msg, tb=traceback.format_exc(), ob=value) from e
+                # logger.error(msg, e=traceback.format_exc())
                 # logger.exception(e)
-                emsg = find_pickling_error(value)
-                logger.error(emsg)
-                raise SerializationError(msg + "\n" + emsg, tb=traceback.format_exc())
+                # emsg = find_pickling_error(value)
+                # logger.error(emsg)
+                raise SerializationError(msg, tb=traceback.format_exc(), value=value) from e
         elif self.method == "dill":
             dill.settings["recurse"] = True
             dill.settings["byref"] = True

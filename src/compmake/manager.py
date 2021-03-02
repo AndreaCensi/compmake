@@ -571,7 +571,7 @@ class Manager(ManagerLog):
             if p not in self.blocked:
                 publish(self.context, "manager-job-blocked", job_id=p, blocking_job_id=job_id)
 
-                mark_as_blocked(p, dependency=job_id, db=self.db)
+                mark_as_blocked(p, self.db, dependency=job_id)
                 self.todo.remove(p)
                 self.blocked.add(p)
 

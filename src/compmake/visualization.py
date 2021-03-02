@@ -1,12 +1,10 @@
 import sys
 from typing import Callable
 
-from zuper_commons.types import check_isinstance
 from zuper_commons.ui import get_colorize_function
-from .registrar import publish, register_handler
-from .state import CompmakeGlobalState
-from .utils import get_screen_columns, pad_to_screen
 from .context import Context
+from .registrar import publish, register_handler
+from .utils import get_screen_columns
 
 __all__ = [
     "ui_debug",
@@ -67,7 +65,9 @@ class DefaultConsole:
 async def handle_ui_message_console(context, event):
     if not DefaultConsole.active:
         return
-    write_message(event.kwargs["string"], lambda x: x)
+    # write_message(event.kwargs["string"], lambda x: x)
+
+    await context.write_message_console(event.kwargs["string"])
 
 
 register_handler("ui-message", handle_ui_message_console)
@@ -119,17 +119,17 @@ def make_colored(s: str, f: Callable[[str], str]) -> str:
 # def debug(s: str):  # XXX: never used?
 #     write_message(s, lambda x: compmake_colored(x, "magenta"))
 
-
-def write_message(s: str, formatting: Callable[[str], str]):
-    check_isinstance(s, str)
-
-    stdout = CompmakeGlobalState.original_stdout
-
-    lines = s.rstrip().split("\n")
-
-    from compmake_plugins.console_output import write_line_endl_w
-
-    for l in lines:
-        l = formatting(l)
-        s = pad_to_screen(l)
-        write_line_endl_w(s, stdout)
+#
+# def write_message(s: str, formatting: Callable[[str], str]):
+#     check_isinstance(s, str)
+#
+#     stdout = CompmakeGlobalState.original_stdout
+#
+#     lines = s.rstrip().split("\n")
+#
+#     from compmake_plugins.console_output import write_line_endl_w
+#
+#     for l in lines:
+#         l = formatting(l)
+#         s = pad_to_screen(l)
+#         write_line_endl_w(s, stdout)

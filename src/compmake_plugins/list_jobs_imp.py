@@ -4,24 +4,26 @@ from time import time
 from typing import Dict, List, Sequence, Tuple
 
 from compmake import (
+    Cache,
+    cache_has_large_overhead,
+    CacheQueryDB,
     compmake_colored,
+    CompmakeConstants,
+    Context,
+    is_root_job,
     job_args_sizeof,
     job_cache_exists,
     job_cache_sizeof,
     job_userobject_exists,
     job_userobject_sizeof,
+    parse_job_list,
+    timing_summary,
+    ui_command,
+    ui_message,
+    VISUALIZATION,
 )
-from compmake import CompmakeConstants
-from compmake import ui_command, VISUALIZATION
-from compmake import is_root_job, parse_job_list
-from compmake import Cache, cache_has_large_overhead, timing_summary
-from compmake.utils import TableFormatter
-from compmake.utils import get_screen_columns
-from compmake import ui_message
+from compmake.utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import duration_compact
-
-# red, green, yellow, blue, magenta, cyan, white.
-
 
 # if False:
 #     format_utility_job = dict(color="white", attrs=["concealed"])
@@ -30,6 +32,8 @@ from zuper_commons.ui import duration_compact
 # else:
 from zuper_utils_asyncio import SyncTaskInterface
 
+# red, green, yellow, blue, magenta, cyan, white.
+
 format_utility_job = dict()
 format_separator = dict()
 format_when = dict()
@@ -37,7 +41,13 @@ format_when = dict()
 
 @ui_command(section=VISUALIZATION, alias="list")
 async def ls(
-    sti: SyncTaskInterface, args, context, cq, complete_names=False, reason=False, all_details=False
+    sti: SyncTaskInterface,
+    args,
+    context: Context,
+    cq: CacheQueryDB,
+    complete_names: bool = False,
+    reason: bool = False,
+    all_details: bool = False,
 ):  # @ReservedAssignment
     """
         Lists the status of the given jobs (or all jobs if none specified

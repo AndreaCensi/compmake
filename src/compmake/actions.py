@@ -4,7 +4,7 @@ import traceback
 from logging import Formatter
 from time import time
 from typing import Callable, cast, Dict, List, Set
-
+from .filesystem import StorageFilesystem
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
@@ -53,7 +53,7 @@ __all__ = [
 ]
 
 
-def clean_targets(job_list: List[CMJobID], db, cq: CacheQueryDB):
+def clean_targets(job_list: List[CMJobID], db: StorageFilesystem, cq: CacheQueryDB):
     #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
 
@@ -145,20 +145,41 @@ def mark_to_remake(job_id: CMJobID, db):
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id: CMJobID, dependency=None, db=None) -> None:  # XXX
+def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency=None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_failed(job_id: CMJobID, exception=None, backtrace=None, db=None) -> None:
+def mark_as_notstarted(job_id: CMJobID, db: StorageFilesystem) -> None:  # XXX
+    cache = Cache(Cache.NOT_STARTED)
+
+    set_job_cache(job_id, cache, db=db)
+
+
+def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result):
+    i = IntervalTimer()
+    i.stop()
+    cache = Cache(Cache.DONE)
+    cache.cputime_used = 0
+    cache.walltime_used = 0
+    cache.timestamp = time()
+    cache.int_compute = cache.int_gc = i
+    cache.int_load_results = cache.int_make = cache.int_save_results = i
+    set_job_cache(job_id, cache, db)
+    set_job_userobject(job_id, result, db)
+
+
+def mark_as_failed(
+    job_id: CMJobID, db: StorageFilesystem, exception: str = None, backtrace: str = None
+) -> None:
     """ Marks job_id  as failed """
     cache = Cache(Cache.FAILED)
     if isinstance(exception, str):
         pass
     else:
-        exception = exception.__str__()
+        exception = str(exception)
 
     check_isinstance(backtrace, (type(None), str))
     cache.exception = exception
@@ -312,7 +333,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     except KeyboardInterrupt as e:
         bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
-        mark_as_failed(job_id, "KeyboardInterrupt: " + str(e), backtrace=bt, db=db)
+        mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
 
         cache = get_job_cache(job_id, db=db)
         if capture is not None:
@@ -338,7 +359,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     ) as e:
         bt = traceback.format_exc()
         s = "%s: %s" % (type(e).__name__, e)
-        mark_as_failed(job_id, s, backtrace=bt, db=db)
+        mark_as_failed(job_id, db, s, backtrace=bt)
         deleted_jobs = get_deleted_jobs()
 
         cache = get_job_cache(job_id, db=db)
