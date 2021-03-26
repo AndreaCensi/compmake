@@ -22,7 +22,9 @@
     "zuper-utils-asyncio-z7",
     "zuper-zapp-z7"
   ],
-  "tests_require": [],
+  "tests_require": [
+    "aiounittest"
+  ],
   "srcdir": "src",
   "package_name": "compmake-z7",
   "entry_points": {
@@ -41,7 +43,7 @@
     "compmake_plugins.backend_ssh_cluster",
     "compmake_plugins.execution_stats"
   ],
-  "version": "7.1.2103262006",
+  "version": "7.1.2103262218",
   "author": "",
   "author_email": "info@zupermind.com",
   "url": "http://github.com/AndreaCensi/compmake"
