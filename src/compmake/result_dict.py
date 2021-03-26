@@ -5,6 +5,7 @@ from .types import OKResult, ResultDict
 __all__ = [
     "result_dict_check",
     "result_dict_raise_if_error",
+    "check_ok_result",
 ]
 
 

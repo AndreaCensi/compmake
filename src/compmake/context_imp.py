@@ -116,7 +116,7 @@ class ContextImp(Context):
         @async_errors
         async def go():
             async with aiofiles.open("/dev/stdout", "w") as stdout:
-                await stdout.write("Logging to stdout\n")
+                # await stdout.write("Logging to stdout\n")
                 await stdout.flush()
                 async for _, x in self.splitter_ui_console.read():
                     # await stdout.write(str(x)+'\n')
