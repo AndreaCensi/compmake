@@ -5,6 +5,7 @@ import sys
 import time
 
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp import async_main_sti
 
 wait = 0.01
 
