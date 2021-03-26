@@ -5,7 +5,8 @@ import sys
 from compmake import progress
 import time
 
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp  import async_main_sti
 
 wait = 0.01
 

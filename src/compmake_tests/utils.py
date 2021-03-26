@@ -1,10 +1,10 @@
-import os
 import traceback
+
+import os
 from contextlib import asynccontextmanager
+from nose.tools import assert_equal
 from tempfile import mkdtemp
 from typing import AsyncIterator, Awaitable, Callable, cast, TypeVar
-
-from nose.tools import assert_equal
 
 from compmake import (
     all_jobs,
@@ -21,8 +21,9 @@ from compmake import (
 )
 from zuper_commons.cmds import ExitCode
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
-from zuper_utils_asyncio import async_run_timeout, create_sync_task2, setup_environment2, SyncTaskInterface
-from zuper_utils_asyncio.utils import with_log_control
+from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
+from zuper_zapp import async_run_timeout, setup_environment2
+from zuper_zapp.utils import with_log_control
 
 X = TypeVar("X")
 

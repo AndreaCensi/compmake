@@ -1,0 +1,47 @@
+{
+  "install_requires": [
+    "PyYaml",
+    "SystemCmd-z7",
+    "aiofiles",
+    "asciimatics",
+    "coverage",
+    "dill",
+    "future",
+    "networkx>=2,<3",
+    "numpy",
+    "psutil",
+    "pyreadline",
+    "setproctitle",
+    "six",
+    "termcolor",
+    "zuper-commons-z7",
+    "zuper-commons-z7>=6.1.7",
+    "zuper-graphs-z7",
+    "zuper-typing-z7",
+    "zuper-utils-asyncio-z7",
+    "zuper-utils-asyncio-z7"
+  ],
+  "tests_require": [],
+  "srcdir": "src",
+  "package_name": "compmake-z7",
+  "entry_points": {
+    "console_scripts": [
+      "compmake = compmake:main"
+    ]
+  },
+  "zip_safe": false,
+  "include_package_data": false,
+  "modules": [
+    "compmake",
+    "compmake.utils",
+    "compmake_plugins",
+    "compmake_plugins.backend_local",
+    "compmake_plugins.backend_pmake",
+    "compmake_plugins.backend_ssh_cluster",
+    "compmake_plugins.execution_stats"
+  ],
+  "version": "7.1.2103021136",
+  "author": "",
+  "author_email": "info@zupermind.com",
+  "url": "http://github.com/AndreaCensi/compmake"
+}

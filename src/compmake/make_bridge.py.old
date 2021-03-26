@@ -12,7 +12,8 @@ from zuper_commons.fs import AbsDirPath, AbsFilePath, DirPath, read_ustring_from
 from zuper_commons.text import get_md5
 from zuper_commons.types import ZException, ZKeyError, ZValueError
 from zuper_launcher.remote_env import setup_environment
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp  import async_main_sti
 from . import logger
 from .console import compmake_console_gui
 from .structures import Promise

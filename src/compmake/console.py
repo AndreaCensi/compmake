@@ -1,7 +1,6 @@
 import asyncio
-from typing import AsyncIterable, cast
-
 from future import builtins
+from typing import AsyncIterable, cast
 
 from zuper_utils_asyncio import SyncTaskInterface
 from .actions import clean_other_jobs
@@ -186,7 +185,7 @@ import os
 async def compmake_console_lines(context: Context) -> AsyncIterable[str]:
     """ Returns lines with at least one character. """
     readline = get_readline()
-    from .context_imp import ContextImp, Prompt
+    from .context_imp import ContextImp
 
     context = cast(ContextImp, context)
 

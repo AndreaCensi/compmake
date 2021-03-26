@@ -27,6 +27,7 @@ install_requires: [
     numpy,
     pyreadline,
     aiofiles,
+    zuper-zapp-z7,
 ]
 
 install_conflicts: [ 'compmake-*' ]

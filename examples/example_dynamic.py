@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp  import async_main_sti
 
 
 def func1(param1):

@@ -4,7 +4,7 @@
 import sys
 import time
 
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
 
 wait = 0.01
 

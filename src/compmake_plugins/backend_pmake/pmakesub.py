@@ -13,9 +13,7 @@ from compmake.manager import AsyncResultInterface
 from compmake.result_dict import result_dict_raise_if_error
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_utils_asyncio.envs import setup_environment2
-
-from zuper_utils_asyncio.utils import async_run_simple1
+from zuper_zapp import setup_environment2, async_run_simple1
 
 
 __all__ = [

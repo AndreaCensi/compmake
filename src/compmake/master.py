@@ -5,8 +5,10 @@ from optparse import OptionParser
 from typing import List
 
 from zuper_commons.fs import DirPath
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
-from zuper_utils_asyncio.envs import setup_environment2
+
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp import async_main_sti
+from zuper_zapp import setup_environment2
 from . import __version__, logger
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants

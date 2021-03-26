@@ -2,7 +2,8 @@
 
 
 from example_big_support import failure_prob, first, second, third
-from zuper_utils_asyncio import async_main_sti, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp  import async_main_sti
 
 
 @async_main_sti(None)
