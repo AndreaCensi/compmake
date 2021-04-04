@@ -8,7 +8,7 @@ modules:
 install_requires: [
     termcolor,
     setproctitle,
-    PyYaml,
+    PyYAML,
     psutil,
     dill,
     coverage,
@@ -16,7 +16,7 @@ install_requires: [
     SystemCmd-z7,
     future,
     "networkx>=2,<3",
-    six,
+#    six,
     zuper-utils-asyncio-z7,
     zuper-commons-z7,
     zuper-typing-z7,
