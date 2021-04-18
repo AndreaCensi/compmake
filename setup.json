@@ -1,6 +1,6 @@
 {
   "install_requires": [
-    "PyYaml",
+    "PyYAML",
     "SystemCmd-z7",
     "aiofiles",
     "asciimatics",
@@ -12,7 +12,6 @@
     "psutil",
     "pyreadline",
     "setproctitle",
-    "six",
     "termcolor",
     "zuper-commons-z7",
     "zuper-commons-z7>=6.1.7",
@@ -43,8 +42,8 @@
     "compmake_plugins.backend_ssh_cluster",
     "compmake_plugins.execution_stats"
   ],
-  "version": "7.1.2103262218",
+  "version": "7.1.2104181513",
   "author": "",
   "author_email": "info@zupermind.com",
-  "url": "http://github.com/AndreaCensi/compmake"
+  "url": "https://github.com/AndreaCensi/compmake"
 }
