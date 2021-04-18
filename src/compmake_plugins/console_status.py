@@ -169,8 +169,8 @@ def current_slot(intervals):
 
 
 def display_rotating(strings, intervals, align_right=False):
-    """ Rotates the display of the given strings.
-        For now, we assume intervals to be round integers.
+    """Rotates the display of the given strings.
+    For now, we assume intervals to be round integers.
     """
     which = current_slot(intervals)
     L = max(get_length_on_screen(x) for x in strings)

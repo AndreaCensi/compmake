@@ -35,21 +35,21 @@ async def parmake(
     echo: bool = DefaultsToConfig("echo"),
 ):
     """
-        Parallel equivalent of make.
+    Parallel equivalent of make.
 
-        Uses multiprocessing.Process as a backend and a Python queue to
-        communicate with the workers.
+    Uses multiprocessing.Process as a backend and a Python queue to
+    communicate with the workers.
 
-        Options:
+    Options:
 
-          parmake n=10             Uses 10 workers
-          parmake recurse=1        Recursive make: put generated jobs in the
-          queue.
-          parmake new_process=1    Run the jobs in a new Python process.
-          parmake echo=1           Shows the output of the jobs. This might
-          slow down everything.
+      parmake n=10             Uses 10 workers
+      parmake recurse=1        Recursive make: put generated jobs in the
+      queue.
+      parmake new_process=1    Run the jobs in a new Python process.
+      parmake echo=1           Shows the output of the jobs. This might
+      slow down everything.
 
-          parmake new_process=1 echo=1   Not supported yet.
+      parmake new_process=1 echo=1   Not supported yet.
 
     """
 
@@ -93,7 +93,7 @@ async def parremake(
     echo: bool = DefaultsToConfig("echo"),
 ):
     """
-        Parallel equivalent of "remake".
+    Parallel equivalent of "remake".
     """
     # TODO: test this
     db = context.get_compmake_db()

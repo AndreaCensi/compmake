@@ -32,7 +32,11 @@ class PmakeSub:
 
         args = (self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log)
         # logger.info(args=args)
-        self.proc = ctx.Process(target=pmake_worker, args=args, name=name,)
+        self.proc = ctx.Process(
+            target=pmake_worker,
+            args=args,
+            name=name,
+        )
         self.proc.start()
 
     def terminate(self):

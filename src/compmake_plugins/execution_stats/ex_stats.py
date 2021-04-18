@@ -17,8 +17,8 @@ def compmake_execution_stats(
     context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None
 ):
     """
-        Returns a promise for a the execution stats of a job
-        and its dependencies.
+    Returns a promise for a the execution stats of a job
+    and its dependencies.
     """
     check_isinstance(promise, (Promise, str))
 

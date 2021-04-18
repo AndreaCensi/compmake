@@ -44,7 +44,7 @@ async def test_syntax(env: Env):
         return set([nid_ for nid_, state_ in jobs if crit(nid_, state_)])
 
     def expandsTo(A, B):
-        """ A, B can be:
+        """A, B can be:
         - set or list: list of jobs
         - string: passed to expands_jobs
         - lambda: passed to selection()

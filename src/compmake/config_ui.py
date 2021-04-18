@@ -16,14 +16,14 @@ __all__ = [
 
 @ui_command(section=GENERAL)
 async def config(sti, args, context: Context):
-    """ Get/set configuration parameters.
+    """Get/set configuration parameters.
 
-Usage:
+    Usage:
 
-    @: config  <switch>  <value>
+        @: config  <switch>  <value>
 
-Without arguments, shows all configuration switches.
- """
+    Without arguments, shows all configuration switches.
+    """
     if not args:
         # show
         b = show_config(context)

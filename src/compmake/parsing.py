@@ -46,8 +46,8 @@ CompmakeConstants.aliases["last"] = "*"
 
 
 def add_alias(alias, value):
-    """ Sets the given alias to value. See eval_alias() for a discussion
-    of the meaning of value. """
+    """Sets the given alias to value. See eval_alias() for a discussion
+    of the meaning of value."""
     CompmakeConstants.aliases[alias] = value
 
 
@@ -112,8 +112,8 @@ def list_matching_functions(token: str, context: Context, cq: CacheQueryDB):
 
 
 def expand_job_list_token(token, context: Context, cq: CacheQueryDB):
-    """ Parses a token (string). Returns a generator of jobs.
-        Raises UserError, CompmakeSyntaxError """
+    """Parses a token (string). Returns a generator of jobs.
+    Raises UserError, CompmakeSyntaxError"""
 
     assert isinstance(token, str)
 
@@ -133,8 +133,8 @@ def expand_job_list_token(token, context: Context, cq: CacheQueryDB):
 
 
 def expand_job_list_tokens(tokens, context: Context, cq: CacheQueryDB):
-    """ Expands a list of tokens using expand_job_list_token().
-        yields job_id """
+    """Expands a list of tokens using expand_job_list_token().
+    yields job_id"""
     for token in tokens:
         if not isinstance(token, str):
             # print tokens XXX
@@ -161,8 +161,8 @@ class Operators:
 
     @staticmethod
     def parse(tokens):
-        """ Parses a list of tokens for known operators.
-        Returns a list where the operators are replaced by their codes. """
+        """Parses a list of tokens for known operators.
+        Returns a list where the operators are replaced by their codes."""
 
         def token2op(token):
             """ Translates one token, or returns the same """
@@ -180,16 +180,16 @@ def list_jobs_with_state(state, context: Context, cq: CacheQueryDB):
 
 
 def list_ready_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that can be done now,
-        as their dependencies are up-to-date. """
+    """Returns a list of jobs that can be done now,
+    as their dependencies are up-to-date."""
     for job_id in cq.all_jobs():
         if cq.dependencies_up_to_date(job_id):
             yield job_id
 
 
 def list_uptodate_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that are uptodate
-        (DONE, and all depednencies DONE)."""
+    """Returns a list of jobs that are uptodate
+    (DONE, and all depednencies DONE)."""
     for job_id in cq.all_jobs():
         up, _, _ = cq.up_to_date(job_id)
         if up:
@@ -198,8 +198,8 @@ def list_uptodate_jobs(context: Context, cq: CacheQueryDB):
 
 def list_todo_jobs(context: Context, cq: CacheQueryDB):
     """
-        Returns a list of jobs that haven't been DONE.
-        Note that it could be DONE but not up-to-date.
+    Returns a list of jobs that haven't been DONE.
+    Note that it could be DONE but not up-to-date.
     """
     for job_id in cq.all_jobs():
         if cq.get_job_cache(job_id).state != Cache.DONE:
@@ -260,8 +260,8 @@ def is_dynamic_job(job):
 
 
 def list_dynamic_jobs(context: Context, cq: CacheQueryDB):
-    """ Returns a list of jobs that are uptodate
-        (DONE, and all depednencies DONE)."""
+    """Returns a list of jobs that are uptodate
+    (DONE, and all depednencies DONE)."""
     for job_id in cq.all_jobs():
         job = cq.get_job(job_id)
         if is_dynamic_job(job):
@@ -312,16 +312,16 @@ add_alias("not_started", lambda context, cq: list_jobs_with_state(Cache.NOT_STAR
 
 def parse_job_list(tokens, context, cq=None):
     """
-        Parses a job list. tokens can be:
+    Parses a job list. tokens can be:
 
-        1. a string, in that case it is split()
-        2. a list, in which case each element is treated as a token.
+    1. a string, in that case it is split()
+    2. a list, in which case each element is treated as a token.
 
-        NO(If tokens is not empty, then if it evaluates to empty,
-        an error is raised (e.g. "make failed" and no failed jobs will
-        throw an error).)
+    NO(If tokens is not empty, then if it evaluates to empty,
+    an error is raised (e.g. "make failed" and no failed jobs will
+    throw an error).)
 
-        Returns a list of strings.
+    Returns a list of strings.
     """
     if cq is None:
         cq = CacheQueryDB(context.get_compmake_db())
@@ -346,8 +346,8 @@ def parse_job_list(tokens, context, cq=None):
 
 
 def eval_ops(ops, context: Context, cq: CacheQueryDB):
-    """ Evaluates an expression.
-      ops: list of strings and int representing operators """
+    """Evaluates an expression.
+    ops: list of strings and int representing operators"""
     check_isinstance(ops, list)
 
     def list_split(l, index):

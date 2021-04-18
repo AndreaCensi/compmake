@@ -15,9 +15,9 @@ def wildcard_to_regexp(arg):
 
 
 def expand_wildcard(wildcard, universe):
-    """ Expands a wildcard expression against the given list.
-        wildcard: string with '*'
-        universe: list of strings
+    """Expands a wildcard expression against the given list.
+    wildcard: string with '*'
+    universe: list of strings
     """
     assert wildcard.find("*") > -1
     regexp = wildcard_to_regexp(wildcard)

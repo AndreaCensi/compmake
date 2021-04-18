@@ -106,8 +106,8 @@ class CompmakeTest(AsyncTestCase):
             raise Exception(msg)
 
     async def assert_cmd_success_script(self, sti: SyncTaskInterface, cmd_string: str):
-        """ This runs the "compmake_main" script which recreates the DB and
-        context from disk. """
+        """This runs the "compmake_main" script which recreates the DB and
+        context from disk."""
         ret = await compmake_main(sti, [self.root, "--nosysexit", "-c", cmd_string])
         assert_equal(ret, 0)
 

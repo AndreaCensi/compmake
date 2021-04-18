@@ -213,4 +213,6 @@ async def assert_raises_async(ExceptionType):
         raise ZAssertionError(msg) from e
     else:
         msg = f"Expected exception {ExceptionType.__name__} but none was thrown."
-        raise ZAssertionError(msg,)
+        raise ZAssertionError(
+            msg,
+        )

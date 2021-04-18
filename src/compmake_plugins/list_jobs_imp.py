@@ -50,13 +50,13 @@ async def ls(
     all_details: bool = False,
 ):  # @ReservedAssignment
     """
-        Lists the status of the given jobs (or all jobs if none specified
-        specified).
+    Lists the status of the given jobs (or all jobs if none specified
+    specified).
 
-        Options:
+    Options:
 
-            ls complete_names=1   # do not abbreviate names
-            ls reason=1  # show why jobs are not uptodate
+        ls complete_names=1   # do not abbreviate names
+        ls reason=1  # show why jobs are not uptodate
     """
 
     if not args:
@@ -73,21 +73,21 @@ async def ls(
 # @contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
 def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     """
-        Converts a list of object IDs to a minimal non-ambiguous list of names.
+    Converts a list of object IDs to a minimal non-ambiguous list of names.
 
-        For example, the names: ::
+    For example, the names: ::
 
-            test_learn_fast_10
-            test_learn_slow_10
-            test_learn_faster_10
+        test_learn_fast_10
+        test_learn_slow_10
+        test_learn_faster_10
 
-        is converted to: ::
+    is converted to: ::
 
-            fast
-            slow
-            faster
+        fast
+        slow
+        faster
 
-        Returns prefix, minimal, postfix
+    Returns prefix, minimal, postfix
     """
     if len(objects) == 1:
         return "", list(objects), ""
@@ -263,9 +263,9 @@ def format_size(nbytes: int) -> str:
 
 
 def get_sizes(job_id, db) -> Dict:
-    """ Returns byte sizes for jobs pieces.
+    """Returns byte sizes for jobs pieces.
 
-        Returns dict with keys 'args','cache','result','total'.
+    Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
     res["args"] = job_args_sizeof(job_id, db)

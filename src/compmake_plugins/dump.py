@@ -15,10 +15,10 @@ from zuper_typing import debug_print
 
 @ui_command(section=COMMANDS_ADVANCED)
 async def dump(sti, non_empty_job_list, context, directory="."):
-    """ Dumps the result of jobs as pickle files.
+    """Dumps the result of jobs as pickle files.
 
-        Arguments:
-            directory='.'   where to dump the files
+    Arguments:
+        directory='.'   where to dump the files
 
     """
     db = context.get_compmake_db()

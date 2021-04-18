@@ -44,9 +44,9 @@ def up_to_date(job_id: CMJobID, db) -> Tuple[bool, str]:
 
 
 def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
-    """ Returns all direct 'dependencies' of this job:
-        the jobs that are children (arguemnts)
-        plus the job that defined it (if not root).
+    """Returns all direct 'dependencies' of this job:
+    the jobs that are children (arguemnts)
+    plus the job that defined it (if not root).
     """
     dependencies = direct_children(job_id, db)
 
@@ -60,12 +60,12 @@ def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
 
 
 def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
-    """ Returns all jobs that have this as
-        a direct 'dependency'
-        the jobs that are direct parents
-        plus the jobs that were defined by it.
+    """Returns all jobs that have this as
+    a direct 'dependency'
+    the jobs that are direct parents
+    plus the jobs that were defined by it.
 
-        Assumes that the job is DONE.
+    Assumes that the job is DONE.
     """
 
     dep_inv = direct_parents(job_id, db)
@@ -78,8 +78,8 @@ def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
 
 def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db) -> Set[CMJobID]:
     """
-        Closure of direct_uptodate_deps_inverse:
-        all jobs that depend on this.
+    Closure of direct_uptodate_deps_inverse:
+    all jobs that depend on this.
     """
     # all parents
     dep_inv = parents(job_id, db)

@@ -22,13 +22,13 @@ from .console_output import write_line_endl
 
 @ui_command(section=VISUALIZATION, alias="lsl")
 async def details(sti, non_empty_job_list, context, cq, max_lines=None):
-    """ Shows the details for the given jobs including
-        dependencies and stderr/stdout.
+    """Shows the details for the given jobs including
+    dependencies and stderr/stdout.
 
-        The stderr/stdout lines are truncated. Use the ``max_lines``
-        argument to see more:
+    The stderr/stdout lines are truncated. Use the ``max_lines``
+    argument to see more:
 
-            details max_lines=1000
+        details max_lines=1000
     """
     num = 0
     for job_id in non_empty_job_list:

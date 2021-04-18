@@ -27,23 +27,23 @@ def init_progress_tracking(my_callback):
 # @contract(taskname="unicode", iterations="tuple(int|float,int|float)")
 def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, float]], iteration_desc=None):
     """
-        Function used by the user to describe the state of the computation.
+     Function used by the user to describe the state of the computation.
 
-       Parameters
-       ---------
+    Parameters
+    ---------
 
-       - ``name``: must be a string, describing the current task.
+    - ``name``: must be a string, describing the current task.
 
-       - ``iterations``: must be a tuple of two integers (k,N), meaning
-          that the current iteration is the k-th out of N.
+    - ``iterations``: must be a tuple of two integers (k,N), meaning
+       that the current iteration is the k-th out of N.
 
-       - ``iteration_desc``: an optional string describing the current iteration
+    - ``iteration_desc``: an optional string describing the current iteration
 
 
 
-            for i in range(n):
-                progress('Reading files', (i,n),
-                         'processing file %s' % file[i])
+         for i in range(n):
+             progress('Reading files', (i,n),
+                      'processing file %s' % file[i])
     """
 
     if not isinstance(taskname, str):

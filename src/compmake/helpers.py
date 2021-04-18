@@ -140,13 +140,13 @@ def get_commands():
 @ui_command(section=GENERAL)
 async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
     """
-        Prints help about the other commands. (try 'help help')
+    Prints help about the other commands. (try 'help help')
 
-        Usage:
+    Usage:
 
-        @: help [command]
+    @: help [command]
 
-        If command is given, extended help is printed about it.
+    If command is given, extended help is printed about it.
     """
     commands = get_commands()
     if not args:

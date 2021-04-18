@@ -24,8 +24,8 @@ def h(i):
 @run_with_env
 async def test_delegation_5(env: Env):
     """
-        Here's the problem: when the master are overwritten then
-        the additional dependencies are lost.
+    Here's the problem: when the master are overwritten then
+    the additional dependencies are lost.
     """
     J = CMJobID("h")
     env.comp(h, env.comp_dynamic(e))

@@ -55,15 +55,15 @@ class AsyncResultInterface(ABC):
 
     @abstractmethod
     async def get(self, timeout: float = 0) -> OKResult:
-        """ Either:
-            - returns a dictionary with fields:
-                new_jobs: list of jobs created
-                user_object_deps: ...
-            or:
-            - raises JobFailed
-            - raises HostFailed
-            - raises JobInterrupted
-            - raises TimeoutError (not ready)
+        """Either:
+        - returns a dictionary with fields:
+            new_jobs: list of jobs created
+            user_object_deps: ...
+        or:
+        - raises JobFailed
+        - raises HostFailed
+        - raises JobInterrupted
+        - raises TimeoutError (not ready)
         """
 
 
@@ -175,8 +175,8 @@ class Manager(ManagerLog):
 
     def next_job(self) -> CMJobID:
         """
-            Returns one job from the ready_todo list
-            Uses self.priorities to decide which job to use.
+        Returns one job from the ready_todo list
+        Uses self.priorities to decide which job to use.
         """
         self.check_invariants()
 
@@ -277,10 +277,10 @@ class Manager(ManagerLog):
 
     async def instance_some_jobs(self):
         """
-            Instances some of the jobs. Uses the
-            functions can_accept_job(), next_job(), and ...
+        Instances some of the jobs. Uses the
+        functions can_accept_job(), next_job(), and ...
 
-            Returns a dictionary of wait conditions.
+        Returns a dictionary of wait conditions.
         """
         self.check_invariants()
 
@@ -348,16 +348,16 @@ class Manager(ManagerLog):
 
     async def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False) -> bool:
         """
-            Checks that the job finished succesfully or unsuccesfully.
+        Checks that the job finished succesfully or unsuccesfully.
 
-            Returns True if that's the case.
-            Captures HostFailed, JobFailed and returns True.
+        Returns True if that's the case.
+        Captures HostFailed, JobFailed and returns True.
 
-            Returns False if the job is still processing.
+        Returns False if the job is still processing.
 
-            Capture KeyboardInterrupt and raises JobInterrupted.
+        Capture KeyboardInterrupt and raises JobInterrupted.
 
-            Handles update of various sets.
+        Handles update of various sets.
         """
         self.log("check_job_finished", job_id=job_id)
         self.check_invariants()
@@ -544,8 +544,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_failed(self, job_id: CMJobID, deleted_jobs):
-        """ The specified job has failed. Update the structures,
-            mark any parent as failed as well. """
+        """The specified job has failed. Update the structures,
+        mark any parent as failed as well."""
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
         assert job_id in self.processing
@@ -579,8 +579,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
     def job_succeeded(self, job_id: CMJobID):
-        """ Mark the specified job as succeeded. Update the structures,
-            mark any parents which are ready as ready_todo. """
+        """Mark the specified job as succeeded. Update the structures,
+        mark any parents which are ready as ready_todo."""
         self.log("job_succeeded", job_id=job_id)
         self.check_invariants()
         publish(self.context, "manager-job-done", job_id=job_id)
@@ -644,10 +644,10 @@ class Manager(ManagerLog):
 
     async def check_any_finished(self):
         """
-            Checks that any of the jobs finished.
+        Checks that any of the jobs finished.
 
-            Returns True if something finished (either success or failure).
-            Returns False if something finished unseccesfully.
+        Returns True if something finished (either success or failure).
+        Returns False if something finished unseccesfully.
         """
         # We make a copy because processing is updated during the loop
         received = False

@@ -28,23 +28,23 @@ def graph(
 ):
     """
 
-        Creates a graph of the given targets and dependencies.
+    Creates a graph of the given targets and dependencies.
 
-        Usage:
+    Usage:
 
-            @: graph filename=filename label=[id,function,none] color=[0|1] format=png filter=[dot|circo|...]
+        @: graph filename=filename label=[id,function,none] color=[0|1] format=png filter=[dot|circo|...]
 
-        Options:
+    Options:
 
-            filename:  name of generated filename in the dot format
-            label='none','id','function'
-            color=[0|1]: whether to color the nodes
-            filter=[dot,circo,twopi,...]  which algorithm to use to arrange
-                       the nodes. The best choice depends on
-                       the topology of your
-                       computation. The default is 'dot'
-                       (hierarchy top-bottom).
-            format=[png,...]  The output file format.
+        filename:  name of generated filename in the dot format
+        label='none','id','function'
+        color=[0|1]: whether to color the nodes
+        filter=[dot,circo,twopi,...]  which algorithm to use to arrange
+                   the nodes. The best choice depends on
+                   the topology of your
+                   computation. The default is 'dot'
+                   (hierarchy top-bottom).
+        format=[png,...]  The output file format.
     """
     processing = processing or []
     possible = ["none", "id", "function"]

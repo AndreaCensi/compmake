@@ -76,10 +76,10 @@ class ContextImp(Context):
         currently_executing: Optional[List[CMJobID]] = None,
     ):
         """
-            db: if a string, it is used as path for the DB
+        db: if a string, it is used as path for the DB
 
-            currently_executing: str, job currently executing
-                defaults to ['root']
+        currently_executing: str, job currently executing
+            defaults to ['root']
         """
         if currently_executing is None:
             currently_executing = ["root"]
@@ -223,13 +223,13 @@ class ContextImp(Context):
 
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
         """
-            Returns:
+        Returns:
 
-            0            everything ok
-            int not 0    error
-            string       an error, explained
+        0            everything ok
+        int not 0    error
+        string       an error, explained
 
-            False?       we want to exit (not found in source though)
+        False?       we want to exit (not found in source though)
         """
 
         cq = CacheQueryDB(self.get_compmake_db())

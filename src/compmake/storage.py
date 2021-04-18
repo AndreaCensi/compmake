@@ -56,10 +56,10 @@ def key2job(key: DBKey) -> CMJobID:
 
 
 def all_jobs(db, force_db: bool = False) -> Iterator[CMJobID]:
-    """ Returns the list of all jobs.
-        If force_db is True, read jobs from DB.
-        Otherwise, use local cache.
-     """
+    """Returns the list of all jobs.
+    If force_db is True, read jobs from DB.
+    Otherwise, use local cache.
+    """
     pattern = job2key(CMJobID("*"))
     regexp = wildcard_to_regexp(pattern)
 
@@ -82,7 +82,7 @@ def job_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
 
 def assert_job_exists(job_id: CMJobID, db: StorageFilesystem):
     """
-        :raise CompmakeBug: if the job does not exist
+    :raise CompmakeBug: if the job does not exist
     """
     get_job(job_id, db)
 

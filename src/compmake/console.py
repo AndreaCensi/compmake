@@ -57,7 +57,7 @@ def get_readline():
 
 async def interactive_console(sti: SyncTaskInterface, context):
     """
-        raises: CommandFailed, CompmakeBug
+    raises: CommandFailed, CompmakeBug
     """
     publish(context, "console-starting")
 

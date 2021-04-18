@@ -17,9 +17,9 @@ from zuper_commons.text import indent
 
 def import_name(name: str):
     """
-        Loads the python object with the given name.
+    Loads the python object with the given name.
 
-        Note that "name" might be "module.module.name" as well.
+    Note that "name" might be "module.module.name" as well.
     """
     try:
         return __import__(name, fromlist=["dummy"])

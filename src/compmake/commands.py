@@ -47,8 +47,8 @@ def raise_error_if_manager_failed(manager):
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 async def delete(sti: SyncTaskInterface, job_list, context):
-    """ Remove completely the job from the DB. Useful for generated jobs (
-    "delete not root"). """
+    """Remove completely the job from the DB. Useful for generated jobs (
+    "delete not root")."""
 
     job_list = [x for x in job_list]
 
@@ -60,10 +60,10 @@ async def delete(sti: SyncTaskInterface, job_list, context):
 @ui_command(section=ACTIONS, dbchange=True)
 async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
     """
-        Cleans the result of the selected computation (or everything if
-        nothing specified).
+    Cleans the result of the selected computation (or everything if
+    nothing specified).
 
-        If cleaning a dynamic job, it *deletes* all jobs it created.
+    If cleaning a dynamic job, it *deletes* all jobs it created.
 
     """
     db = context.get_compmake_db()

@@ -32,10 +32,10 @@ def docstring_trim(docstring):
 def docstring_components(docstring):
     """
 
-        Removes leading whitespace and returns a dict
-        with fields "first" and "rest".
+    Removes leading whitespace and returns a dict
+    with fields "first" and "rest".
 
-        This is the rest.
+    This is the rest.
 
     """
 

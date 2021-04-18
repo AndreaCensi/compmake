@@ -18,8 +18,8 @@ def f(x):
 
 @run_with_env
 async def test_delegation_4(env: Env):
-    """ Similar to TestDelegation2 and 3, but here the jobs are not named
-        exclusively with job_id=... """
+    """Similar to TestDelegation2 and 3, but here the jobs are not named
+    exclusively with job_id=..."""
 
     res = env.comp_dynamic(rec, 5, job_id="rec-main")
     env.comp(f, res)

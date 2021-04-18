@@ -17,8 +17,8 @@ __all__ = ["CacheQueryDB", "definition_closure"]
 
 class CacheQueryDB:
     """
-        This works as a view on a DB which is assumed not to change
-        between calls.
+    This works as a view on a DB which is assumed not to change
+    between calls.
     """
 
     def __init__(self, db):
@@ -141,8 +141,8 @@ class CacheQueryDB:
         return True
 
     def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
-        """ More efficient version of tree()
-            which is direct_children() recursively. """
+        """More efficient version of tree()
+        which is direct_children() recursively."""
         stack = []
 
         stack.extend(jobs)
@@ -161,10 +161,10 @@ class CacheQueryDB:
 
     def list_todo_targets(self, jobs: Collection[CMJobID]) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
         """
-            Returns a tuple (todo, jobs_done, ready):
-             todo:  set of job ids to do (children that are not up to date)
-             done:  top level targets (in jobs) that are already done.
-             ready: ready to do (dependencies_up_to_date)
+        Returns a tuple (todo, jobs_done, ready):
+         todo:  set of job ids to do (children that are not up to date)
+         done:  top level targets (in jobs) that are already done.
+         ready: ready to do (dependencies_up_to_date)
         """
         with db_error_wrap("list_todo_targets()", jobs=jobs):
             for j in jobs:
@@ -218,8 +218,7 @@ class CacheQueryDB:
 
     # @contract(returns=set, jobs="unicode|set(unicode)")
     def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
-        """ Closure of the relation children and dependencies of userobject.
-        """
+        """Closure of the relation children and dependencies of userobject."""
         stack = []
         if isinstance(jobs, str):
             jobs = [jobs]

@@ -33,7 +33,10 @@ async def g3(a: int) -> int:
     return a * 2
 
 
-async def f3(context: Context, sti: SyncTaskInterface,) -> int:
+async def f3(
+    context: Context,
+    sti: SyncTaskInterface,
+) -> int:
     sti.logger.info("inside f3")
     res = []
     for a in [1, 2, 3]:

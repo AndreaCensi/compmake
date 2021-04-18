@@ -153,8 +153,8 @@ class JobInterrupted(CompmakeException):
 
 
 class HostFailed(CompmakeException):
-    """ The job has been interrupted and must
-        be redone (it has not failed, though) """
+    """The job has been interrupted and must
+    be redone (it has not failed, though)"""
 
     def __init__(self, host, job_id, reason, bt):
         self.host = host

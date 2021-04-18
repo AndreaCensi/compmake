@@ -192,17 +192,17 @@ def mark_as_failed(
 
 async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     """
-        Makes a single job.
+    Makes a single job.
 
-        Returns a dictionary with fields:
-             "user_object"
-             "user_object_deps" = set of Promises
-             "new_jobs" -> new jobs defined
-             "deleted_jobs" -> jobs that were defined but not anymore
+    Returns a dictionary with fields:
+         "user_object"
+         "user_object_deps" = set of Promises
+         "new_jobs" -> new jobs defined
+         "deleted_jobs" -> jobs that were defined but not anymore
 
-        Raises JobFailed
-        or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
-        captured.
+    Raises JobFailed
+    or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
+    captured.
     """
     db = context.get_compmake_db()
 
@@ -446,8 +446,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
 
 def generate_job_id(base, context):
     """
-        Generates a unique job_id for the specified commmand.
-        Takes into account job_prefix if that's defined.
+    Generates a unique job_id for the specified commmand.
+    Takes into account job_prefix if that's defined.
     """
 
     stack = context.currently_executing
@@ -563,8 +563,8 @@ async def clean_other_jobs(sti: SyncTaskInterface, context):
 
 
 def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
-    """ Deletes all jobs given and the jobs that they defined.
-        Returns the set of jobs deleted. """
+    """Deletes all jobs given and the jobs that they defined.
+    Returns the set of jobs deleted."""
 
     closure = definition_closure(jobs, db)
 
@@ -584,18 +584,18 @@ class WarningStorage:
 
 def comp_(context: Context, command_: Callable, *args, **kwargs):
     """
-        Main method to define a computation step.
+    Main method to define a computation step.
 
-        Extra arguments:
+    Extra arguments:
 
-        :arg:job_id:   sets the job id (respects job_prefix)
-        :arg:extra_dep: extra dependencies (not passed as arguments)
-        :arg:command_name: used to define job name if job_id not provided.
-        If not given, command_.__name__ is used.
+    :arg:job_id:   sets the job id (respects job_prefix)
+    :arg:extra_dep: extra dependencies (not passed as arguments)
+    :arg:command_name: used to define job name if job_id not provided.
+    If not given, command_.__name__ is used.
 
-        :arg:needs_context: if this is a dynamic job
+    :arg:needs_context: if this is a dynamic job
 
-        Raises UserError if command is not pickable.
+    Raises UserError if command is not pickable.
     """
     from .context_imp import ContextImp
 
@@ -874,9 +874,9 @@ async def interpret_commands(
     sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator=";"
 ) -> None:
     """
-        Interprets what could possibly be a list of commands (separated by ";")
+    Interprets what could possibly be a list of commands (separated by ";")
 
-        Returns None
+    Returns None
     """
     if not isinstance(commands_str, str):
         msg = "I expected a string, got %s." % describe_type(commands_str)

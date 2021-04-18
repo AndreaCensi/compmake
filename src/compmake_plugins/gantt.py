@@ -5,9 +5,7 @@ from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_comman
 
 @ui_command(section=COMMANDS_ADVANCED)
 async def gantt(sti, job_list, context, filename="gantt.html"):
-    """
-
-    """
+    """"""
     from networkx.algorithms.dag import topological_sort
 
     db = context.get_compmake_db()

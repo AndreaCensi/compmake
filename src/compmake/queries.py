@@ -31,8 +31,8 @@ def trace_bugs(msg):
 # @contract(returns="set(unicode)")
 def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
     """
-        Gets the jobs defined by the given job.
-        The job must be DONE.
+    Gets the jobs defined by the given job.
+    The job must be DONE.
     """
     check_isinstance(job_id, str)
     with trace_bugs("jobs_defined(%r)" % job_id):
@@ -47,8 +47,8 @@ def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
 
 
 def direct_parents(job_id: CMJobID, db) -> Set[CMJobID]:
-    """ Returns the direct parents of the specified job.
-        (Jobs that depend directly on this one) """
+    """Returns the direct parents of the specified job.
+    (Jobs that depend directly on this one)"""
     check_isinstance(job_id, str)
     with trace_bugs(f"direct_parents({job_id!r})"):
         computation = get_job(job_id, db=db)
@@ -87,8 +87,8 @@ def top_targets(db):
 # @contract(jobs="list|set")
 def tree(jobs: Collection[CMJobID], db):
     """
-        Returns the tree of all dependencies of the jobs.
-        Note this is very inefficient because recursive.
+    Returns the tree of all dependencies of the jobs.
+    Note this is very inefficient because recursive.
     """
     warnings.warn("Do not use -- very inefficient")
     t = set(jobs)
@@ -99,8 +99,8 @@ def tree(jobs: Collection[CMJobID], db):
 
 
 def parents(job_id: CMJobID, db):
-    """ Returns the set of all the parents, grandparents, etc.
-        (does not include job_id) """
+    """Returns the set of all the parents, grandparents, etc.
+    (does not include job_id)"""
     check_isinstance(job_id, str)
 
     with trace_bugs(f"parents({job_id!r})"):

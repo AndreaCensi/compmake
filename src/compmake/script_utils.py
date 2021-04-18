@@ -6,11 +6,11 @@ __all__ = ["wrap_script_entry_point"]
 
 def wrap_script_entry_point(function, exceptions_no_traceback):
     """
-        Wraps the main() of a script.
-        For Exception: we exit with value 2.
+    Wraps the main() of a script.
+    For Exception: we exit with value 2.
 
-        :param exceptions_no_traceback: tuple of exceptions for which we
-         just print the error, and return 1.
+    :param exceptions_no_traceback: tuple of exceptions for which we
+     just print the error, and return 1.
 
     """
     try:

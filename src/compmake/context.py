@@ -62,7 +62,8 @@ class Context(metaclass=ABCMeta):
 
     @abstractmethod
     async def compmake_console(
-        self, sti: SyncTaskInterface,
+        self,
+        sti: SyncTaskInterface,
     ):
         ...
 
