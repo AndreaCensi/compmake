@@ -62,7 +62,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
     ]
 
     logger.info(cmd=cmd, cmdline=get_command_line(cmd))
-    pi = await sti.get_pi()
+    pi = await get_pi(sti)
 
     cwd = os.getcwd()
 

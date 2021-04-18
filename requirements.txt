@@ -1,3 +1,3 @@
-zuper-commons-z7>=6.0.32
+zuper-commons-z7
 zuper-typing-z7
 SystemCmd-z7

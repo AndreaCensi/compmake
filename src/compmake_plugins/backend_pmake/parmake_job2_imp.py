@@ -42,7 +42,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     because it might contain a Promise.
 
     """
-    sti.logger.info("parmake_job2 started", args=args)
+    # sti.logger.info("parmake_job2 started", args=args)
     job_id, basepath, event_queue_name, show_output, logdir = args
 
     mkdirs_thread_safe(logdir)
