@@ -2,20 +2,21 @@ jobs:
   test-3.8-production:
     docker:
     - {image: python:3.8}
-    environment: {COLUMNS: '160', PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}
+    environment: {COLUMNS: '160', COVER_PACKAGES: 'compmake_tests,compmake_plugins.backend_ssh_cluster.commands,compmake_plugins.stats,compmake_plugins.execution_stats.ex_stats,compmake.commands_html,compmake.redisdb,compmake_plugins.tracker,compmake_plugins.details,compmake.interpret,compmake.utils.strings_with_escapes,compmake.actions_newprocess,compmake.master,compmake.config_html,compmake.filesystem,compmake.result_dict,compmake.events_structures,compmake_plugins.details_why,compmake_plugins.backend_pmake.pmake_manager,compmake.structure,compmake_plugins.backend_local,compmake.dependencies,compmake.structures,compmake.job_execution,compmake.utils.terminal_size,compmake_plugins.graph_animation_imp,compmake.utils.frozen,compmake.visualization,compmake.queries,compmake,compmake_plugins.backend_pmake,compmake.colored,compmake.state,compmake.readrcfiles,compmake.utils.capture,compmake_plugins.graph,compmake_plugins.debug_priority,compmake.progress_imp2,compmake.types,compmake_plugins.dump,compmake_plugins.backend_pmake.parmake_job2_imp,compmake_plugins.sanity_check,compmake_plugins.commands_status,compmake.constants,compmake.utils.system_stats,compmake.script_utils,compmake.utils.docstring,compmake_plugins.console_banners,compmake_plugins.backend_local.manager_local,compmake_plugins.backend_ssh_cluster,compmake.utils.table_formatter,compmake.utils.values_interpretation,compmake.context_imp,compmake.utils.format_exceptions,compmake.ui,compmake.utils.time_track,compmake_plugins.reload_module,compmake.manager,compmake_plugins.backend_pmake.commands,compmake.priority,compmake.utils.wildcards,compmake_plugins.job_definition_status,compmake_plugins.console_output,compmake.context,compmake.registered_events,compmake.storage,compmake_plugins.backend_ssh_cluster.cluster_conf,compmake.utils.proctitle,compmake.utils.pickle_frustration,compmake_plugins.gantt,compmake.utils.timedate,compmake.commands,compmake.config_ui,compmake.utils.which_imp,compmake_plugins.event_debugger,compmake_plugins.execution_stats,compmake.utils.memoize_imp,compmake.uptodate,compmake.config_list,compmake_plugins.console_status,compmake.memorycache,compmake.utils.pickling_utils,compmake.utils.safe_pickle,compmake_plugins.clear_imp,compmake.cachequerydb,compmake.actions,compmake_plugins,compmake.registrar,compmake.exceptions,compmake.utils.coloredterm,compmake_plugins.backend_local.commands,compmake.parsing,compmake.utils.values_interpretation_test,compmake.helpers,compmake_plugins.backend_pmake.pmakesub,compmake.config_optparse,compmake.coloredlog,compmake.utils.instantiate_utils,compmake.__main__,compmake.utils.colored,compmake_plugins.backend_ssh_cluster.manager_ssh_cluster,compmake_plugins.credits,compmake.console,compmake_plugins.list_jobs_imp,compmake.readcommands,compmake.utils',
+      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin,
+      TEST_PACKAGES: compmake_tests}
     steps:
     - checkout
     - run: {command: "mkdir -p  build-stats\nenv | tee  build-stats/env.txt\n", name: Build
           stats (1)}
     - store_artifacts: {destination: build-stats, path: build-stats}
-    - run: {command: "pip3 install -U pip\npip3 install pipdeptree coverage\n\npip3\
-          \ install --user shyaml\nshyaml get-values install_requires < project.pp1.yaml\
-          \ > .requirements.txt\npip3 install --user --upgrade -r .requirements.txt\n\
-          rm .requirements.txt\n", name: Install deps}
-    - run: {command: "pip3 install --user shyaml\nshyaml get-values tests_require\
-          \ < project.pp1.yaml > .requirements_tests.txt\npip3 install --user --upgrade\
-          \ -r .requirements_tests.txt\nrm .requirements_tests.txt\n\npip install\
-          \ \t\tpipdeptree==0.13.2\t\tbump2version\t\tnose==1.3.7\t\tnose2==0.10\t\
+    - run: {command: "pip3 install -U pip\npip3 install pipdeptree coverage shyaml\n\
+          \nshyaml get-values install_requires < project.pp1.yaml > .requirements.txt\n\
+          pip3 install  -r .requirements.txt\nrm .requirements.txt\n", name: Install
+          deps}
+    - run: {command: "shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt\n\
+          pip3 install -r .requirements_tests.txt\nrm .requirements_tests.txt\n\n\
+          pip install \t\tpipdeptree==0.13.2\t\tbump2version\t\tnose==1.3.7\t\tnose2==0.10\t\
           \tnose2-html-report==0.6.0\t\tnose-parallel==0.4.0\t\tnose_xunitmp==0.4.1\t\
           \tpre-commit==2.11.1\t\trednose==1.3.0\t\tcoverage\tsphinx\t\tsphinx-rtd-theme\n",
         name: Install testing deps}
@@ -32,7 +33,8 @@ jobs:
           \n#              --processes=8 --process-timeout=1000 --process-restartworker\
           \ \\\n# --cover-packages=${COVER_PACKAGES} \\\nnosetests \\\n  --rednose\
           \ --immediate \\\n  --cover-tests --with-coverage \\\n  --with-xunitmp --xunitmp-file=${xunit_output}\
-          \ \\\n  src\n", name: Run tests}
+          \ \\\n  --cover-packages=${COVER_PACKAGES} \\\n  ${TEST_PACKAGES}\n", name: Run
+          tests}
     - store_test_results: {path: out/test-results, when: always}
     - run: {command: "coverage combine\ncoverage html -d out/coverage\ncoverage xml\n",
         name: Coverage report, when: always}
@@ -43,20 +45,21 @@ jobs:
   test-3.8-staging:
     docker:
     - {image: python:3.8}
-    environment: {COLUMNS: '160', PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}
+    environment: {COLUMNS: '160', COVER_PACKAGES: 'compmake_tests,compmake_plugins.backend_ssh_cluster.commands,compmake_plugins.stats,compmake_plugins.execution_stats.ex_stats,compmake.commands_html,compmake.redisdb,compmake_plugins.tracker,compmake_plugins.details,compmake.interpret,compmake.utils.strings_with_escapes,compmake.actions_newprocess,compmake.master,compmake.config_html,compmake.filesystem,compmake.result_dict,compmake.events_structures,compmake_plugins.details_why,compmake_plugins.backend_pmake.pmake_manager,compmake.structure,compmake_plugins.backend_local,compmake.dependencies,compmake.structures,compmake.job_execution,compmake.utils.terminal_size,compmake_plugins.graph_animation_imp,compmake.utils.frozen,compmake.visualization,compmake.queries,compmake,compmake_plugins.backend_pmake,compmake.colored,compmake.state,compmake.readrcfiles,compmake.utils.capture,compmake_plugins.graph,compmake_plugins.debug_priority,compmake.progress_imp2,compmake.types,compmake_plugins.dump,compmake_plugins.backend_pmake.parmake_job2_imp,compmake_plugins.sanity_check,compmake_plugins.commands_status,compmake.constants,compmake.utils.system_stats,compmake.script_utils,compmake.utils.docstring,compmake_plugins.console_banners,compmake_plugins.backend_local.manager_local,compmake_plugins.backend_ssh_cluster,compmake.utils.table_formatter,compmake.utils.values_interpretation,compmake.context_imp,compmake.utils.format_exceptions,compmake.ui,compmake.utils.time_track,compmake_plugins.reload_module,compmake.manager,compmake_plugins.backend_pmake.commands,compmake.priority,compmake.utils.wildcards,compmake_plugins.job_definition_status,compmake_plugins.console_output,compmake.context,compmake.registered_events,compmake.storage,compmake_plugins.backend_ssh_cluster.cluster_conf,compmake.utils.proctitle,compmake.utils.pickle_frustration,compmake_plugins.gantt,compmake.utils.timedate,compmake.commands,compmake.config_ui,compmake.utils.which_imp,compmake_plugins.event_debugger,compmake_plugins.execution_stats,compmake.utils.memoize_imp,compmake.uptodate,compmake.config_list,compmake_plugins.console_status,compmake.memorycache,compmake.utils.pickling_utils,compmake.utils.safe_pickle,compmake_plugins.clear_imp,compmake.cachequerydb,compmake.actions,compmake_plugins,compmake.registrar,compmake.exceptions,compmake.utils.coloredterm,compmake_plugins.backend_local.commands,compmake.parsing,compmake.utils.values_interpretation_test,compmake.helpers,compmake_plugins.backend_pmake.pmakesub,compmake.config_optparse,compmake.coloredlog,compmake.utils.instantiate_utils,compmake.__main__,compmake.utils.colored,compmake_plugins.backend_ssh_cluster.manager_ssh_cluster,compmake_plugins.credits,compmake.console,compmake_plugins.list_jobs_imp,compmake.readcommands,compmake.utils',
+      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin,
+      TEST_PACKAGES: compmake_tests}
     steps:
     - checkout
     - run: {command: "mkdir -p  build-stats\nenv | tee  build-stats/env.txt\n", name: Build
           stats (1)}
     - store_artifacts: {destination: build-stats, path: build-stats}
-    - run: {command: "pip3 install -U pip\npip3 install pipdeptree coverage\n\npip3\
-          \ install --user shyaml\nshyaml get-values install_requires < project.pp1.yaml\
-          \ > .requirements.txt\npip3 install --user --upgrade -r .requirements.txt\n\
-          rm .requirements.txt\n", name: Install deps}
-    - run: {command: "pip3 install --user shyaml\nshyaml get-values tests_require\
-          \ < project.pp1.yaml > .requirements_tests.txt\npip3 install --user --upgrade\
-          \ -r .requirements_tests.txt\nrm .requirements_tests.txt\n\npip install\
-          \ \t\tpipdeptree==0.13.2\t\tbump2version\t\tnose==1.3.7\t\tnose2==0.10\t\
+    - run: {command: "pip3 install -U pip\npip3 install pipdeptree coverage shyaml\n\
+          \nshyaml get-values install_requires < project.pp1.yaml > .requirements.txt\n\
+          pip3 install  -r .requirements.txt\nrm .requirements.txt\n", name: Install
+          deps}
+    - run: {command: "shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt\n\
+          pip3 install -r .requirements_tests.txt\nrm .requirements_tests.txt\n\n\
+          pip install \t\tpipdeptree==0.13.2\t\tbump2version\t\tnose==1.3.7\t\tnose2==0.10\t\
           \tnose2-html-report==0.6.0\t\tnose-parallel==0.4.0\t\tnose_xunitmp==0.4.1\t\
           \tpre-commit==2.11.1\t\trednose==1.3.0\t\tcoverage\tsphinx\t\tsphinx-rtd-theme\n",
         name: Install testing deps}
@@ -73,7 +76,8 @@ jobs:
           \n#              --processes=8 --process-timeout=1000 --process-restartworker\
           \ \\\n# --cover-packages=${COVER_PACKAGES} \\\nnosetests \\\n  --rednose\
           \ --immediate \\\n  --cover-tests --with-coverage \\\n  --with-xunitmp --xunitmp-file=${xunit_output}\
-          \ \\\n  src\n", name: Run tests}
+          \ \\\n  --cover-packages=${COVER_PACKAGES} \\\n  ${TEST_PACKAGES}\n", name: Run
+          tests}
     - store_test_results: {path: out/test-results, when: always}
     - run: {command: "coverage combine\ncoverage html -d out/coverage\ncoverage xml\n",
         name: Coverage report, when: always}
@@ -95,4 +99,4 @@ workflows:
           branches: {ignore: /z7-stage.*/}
   version: 2
 
-# sigil fb93096043bbdbbf196f80475305823d
+# sigil 2fffb3b85891b6f42294299e61d632ee
