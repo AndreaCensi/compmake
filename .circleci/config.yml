@@ -1,43 +1,44 @@
-
+jobs:
+  test-3.8:
+    docker:
+    - {image: python:3.8}
+    environment: {COLUMNS: '160', PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}
+    steps:
+    - checkout
+    - run: {command: "mkdir -p  build-stats\nenv | tee  build-stats/env.txt\n", name: Build
+          stats (1)}
+    - store_artifacts: {destination: build-stats, path: build-stats}
+    - run: {command: "pip3 install pipdeptree coverage\nmake install-deps\n", name: Install
+          deps}
+    - run: {command: "make install-testing-deps\n", name: Install testing deps}
+    - run: {command: "echo TERM = $TERM\n\npipdeptree | tee  build-stats/pipdeptree.txt\n\
+          pip list   | tee  build-stats/pip-list.txt\npip freeze | tee  build-stats/pip-freeze.txt\n",
+        name: Build stats (2)}
+    - store_artifacts: {destination: build-stats, path: build-stats}
+    - run: {command: "python setup.py develop --prefix ~/.local --no-deps\n", name: setup.py
+          develop}
+    - run: {command: "FILE=src/conf.py\nif test -f \"$FILE\"; then\n    make docs;\n\
+          fi\n", name: Make docs}
+    - run: {command: "make test\n", name: Run tests}
+    - store_test_results: {path: out/test-results, when: always}
+    - run: {command: "coverage combine\ncoverage report -d out/coverage\ncoverage\
+          \ xml\n", name: Coverage report, when: always}
+    - store_artifacts: {destination: coverage, path: out/coverage, when: always}
+    - store_artifacts: {destination: tests, path: out/tests, when: always}
+    - run: {command: "bash <(curl -s https://codecov.io/bash)\n", name: CodeCov, when: always}
+    working_directory: ~/repo
 version: 2
 workflows:
-  version: 2
   test:
     jobs:
-#      - test-3.6
-#      - test-3.7
-      - test-3.8:
-          context: pip-staging
-jobs:
-  test-3.6: &test-template
-    docker:
-      - image: circleci/python:3.6-jessie
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: Install deps
-          command: |
-            echo ${PIP_INDEX_URL} | tr '[:lower:]' '[:upper:]'
-            pip install -q --user --upgrade -r requirements.pin.txt
-            pip install -q --user --upgrade -r requirements.txt
-            # python setup.py develop --prefix ~/.local --no-deps
-            pip install -e .
+    - test-3.8-staging:
+        context: pip-staging
+        filters:
+          branches: {only: /z7-stage-.*/}
+    - test-3.8-production:
+        context: z7-production
+        filters:
+          branches: {ignore: /z7-stage-.*/}
+  version: 2
 
-      - run:
-          name: Run tests
-          no_output_timeout: 7m
-          command: |
-            pip install -q --user nose
-            PATH=~/.local/bin:$PATH ~/.local/bin/nosetests compmake
-
-  test-3.7:
-    <<: *test-template
-    docker:
-      - image: python:3.7
-
-
-  test-3.8:
-    <<: *test-template
-    docker:
-      - image: python:3.8
+# sigil 3f23ef988cf1f312c647d746fb5a034a
