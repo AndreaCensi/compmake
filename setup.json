@@ -3,7 +3,6 @@
     "PyYAML",
     "SystemCmd-z7",
     "aiofiles",
-    "asciimatics",
     "coverage",
     "dill",
     "future",
