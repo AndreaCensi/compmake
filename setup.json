@@ -6,18 +6,19 @@
     "coverage",
     "dill",
     "future",
-    "networkx>=2,<3",
+    "networkx",
     "numpy",
     "psutil",
     "pyreadline",
     "setproctitle",
     "termcolor",
     "zuper-commons-z7",
-    "zuper-commons-z7>=6.1.7",
+    "zuper-commons-z7",
     "zuper-graphs-z7",
     "zuper-typing-z7",
     "zuper-utils-asyncio-z7",
     "zuper-utils-asyncio-z7",
+    "zuper-zapp-interfaces-z7",
     "zuper-zapp-z7"
   ],
   "tests_require": [
@@ -41,7 +42,7 @@
     "compmake_plugins.backend_ssh_cluster",
     "compmake_plugins.execution_stats"
   ],
-  "version": "7.1.2104181513",
+  "version": "7.1.2104191743",
   "author": "",
   "author_email": "info@zupermind.com",
   "url": "https://github.com/AndreaCensi/compmake"
