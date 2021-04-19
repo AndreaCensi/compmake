@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+from typing import List
 
 from compmake import progress
 import time
@@ -24,7 +25,7 @@ def mylongfunction():
 
 
 @async_main_sti(None)
-async def main_progress_same(sti: SyncTaskInterface):
+async def main_progress_same(sti: SyncTaskInterface, args: List[str]):
     sti.started()
     print('This is an example of how to use the "progress" function.')
 

@@ -4,11 +4,11 @@ import traceback
 from optparse import OptionParser
 from typing import List
 
+from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import DirPath
-
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import async_main_sti
-from zuper_zapp import setup_environment2
+from zuper_zapp import zapp1, ZappEnv
+from zuper_zapp_interfaces import SERVICE_FS, SERVICE_LOG, SERVICE_NOTE, SERVICE_PROCESS
 from . import __version__, logger
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
@@ -35,10 +35,13 @@ For example:
 """
 
 
-@async_main_sti(None)
-async def main(sti: SyncTaskInterface):
-    async with setup_environment2(sti, os.getcwd()):
-        return await compmake_main(sti, args=None)
+# @async_main_sti(None)
+
+
+@zapp1(required=[SERVICE_LOG, SERVICE_FS, SERVICE_PROCESS, SERVICE_NOTE])
+async def main(zenv: ZappEnv) -> ExitCode:
+    # async with setup_environment2(sti, os.getcwd()):
+    return await compmake_main(zenv.sti, args=zenv.args)
 
 
 async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):

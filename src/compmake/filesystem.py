@@ -48,6 +48,8 @@ class StorageFilesystem:
     file_extension: str
 
     def __init__(self, basepath: DirPath, compress: bool = False):
+        if not compress:
+            raise Exception()
         self.basepath = os.path.realpath(basepath)
         self.checked_existence = False
         self.method = method = "pickle"

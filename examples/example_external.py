@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+from typing import List
+
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp  import async_main_sti
 
 
 @async_main_sti(None)
-async def main(sti: SyncTaskInterface):
+async def main(sti: SyncTaskInterface, args: List[str]):
     sti.started()
     from compmake import ContextImp
 
