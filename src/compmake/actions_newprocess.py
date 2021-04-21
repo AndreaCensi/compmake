@@ -4,6 +4,7 @@ from typing import List, Tuple
 from zuper_commons.fs import DirPath, mkdirs_thread_safe
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_zapp_interfaces import get_pi
 from . import logger
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
