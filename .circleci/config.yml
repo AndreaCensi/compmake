@@ -101,10 +101,7 @@ jobs:
       #     name: Notebooks
       #     command: |
       #       make -C notebooks cleanup all
-    - run:
-        name: Run simple tests
-        command: |
-          nosetests compmake_tests
+
     - run:
         name: Run tests
         command: |
@@ -116,6 +113,7 @@ jobs:
           nosetests \
             --rednose --immediate \
             --cover-tests --with-coverage \
+            --with-xunit --xunit-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
             ${TEST_PACKAGES}
 
@@ -237,7 +235,7 @@ jobs:
           nosetests \
             --rednose --immediate \
             --cover-tests --with-coverage \
-            --with-xunitmp --xunitmp-file=${xunit_output} \
+            --with-xunit --xunit-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
             ${TEST_PACKAGES}
 
@@ -359,7 +357,7 @@ jobs:
           nosetests \
             --rednose --immediate \
             --cover-tests --with-coverage \
-            --with-xunitmp --xunitmp-file=${xunit_output} \
+            --with-xunit --xunit-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
             ${TEST_PACKAGES}
 
@@ -481,7 +479,7 @@ jobs:
           nosetests \
             --rednose --immediate \
             --cover-tests --with-coverage \
-            --with-xunitmp --xunitmp-file=${xunit_output} \
+            --with-xunit --xunit-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
             ${TEST_PACKAGES}
 
@@ -515,4 +513,4 @@ jobs:
         command: |
           bash <(curl -s https://codecov.io/bash)
 
-# sigil 1ba7d698574405b64882b0346c3aab33
+# sigil 5c96a87e57b3de57b912d6b1bbd94748
