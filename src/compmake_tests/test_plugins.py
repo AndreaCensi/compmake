@@ -38,7 +38,6 @@ async def test_plugin_why(env: Env):
     await env.assert_cmd_success("why fail1")
 
 
-@known_failure
 @run_with_env
 async def test_plugin_gantt(env: Env):
     await mockup2_nofail(env)

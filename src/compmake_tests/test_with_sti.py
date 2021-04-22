@@ -1,6 +1,7 @@
 from nose.tools import raises
 
 from compmake import Context
+from zuper_commons.test_utils import known_failure
 from zuper_utils_asyncio import SyncTaskInterface
 from .utils import Env, run_with_env
 
@@ -11,6 +12,7 @@ def f1(sti: SyncTaskInterface) -> int:
     return 10
 
 
+@known_failure
 @raises(Exception)
 @run_with_env
 async def test_with_sti_not_async(env: Env):
