@@ -201,7 +201,9 @@ class PmakeManager(Manager):
         # print('process_finished()')
 
         self.event_queue.close()
-        del PmakeManager.queues[self.event_queue_name]
+
+        for name in self.sub_available:
+            self.subs[name].terminate()
 
         for name in self.sub_processing:
             self.subs[name].proc.terminate()
@@ -209,8 +211,7 @@ class PmakeManager(Manager):
         for name in self.sub_processing:
             self.subs[name].proc.join()
 
-        for name in self.sub_available:
-            self.subs[name].terminate()
+        del PmakeManager.queues[self.event_queue_name]
 
         # XXX: in practice this never works well
         # if False:
