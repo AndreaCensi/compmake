@@ -10,7 +10,7 @@ from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
 from .types import CMJobID
-from .utils import safe_pickle_load, which
+from .utils import safe_pickle_load
 
 __all__ = [
     "result_dict_check",
@@ -33,7 +33,7 @@ def get_command_line(s: List[str]) -> str:
 async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]):
     """ Starts the job in a new compmake process. """
     (job_id, storage) = args
-    compmake_bin = which("compmake")
+    # compmake_bin = which("compmake")
     # from .storage import all_jobs
     # from .filesystem import StorageFilesystem
     # db = StorageFilesystem(storage,compress=True) # XXX
@@ -47,7 +47,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
 
     out_result = os.path.join(where, "%s.results.pickle" % job_id)
     out_result = os.path.abspath(out_result)
-    cmd = [compmake_bin, storage]
+    cmd = ["python3", "-m", "compmake", storage]
 
     # from contracts import all_disabled, indent
     # if not all_disabled():
