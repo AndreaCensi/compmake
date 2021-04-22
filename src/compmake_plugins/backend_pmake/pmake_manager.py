@@ -206,6 +206,9 @@ class PmakeManager(Manager):
         for name in self.sub_processing:
             self.subs[name].proc.terminate()
 
+        for name in self.sub_processing:
+            self.subs[name].proc.join()
+
         for name in self.sub_available:
             self.subs[name].terminate()
 
