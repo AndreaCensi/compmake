@@ -32,6 +32,11 @@ async def test_plugin_graph(env: Env):
 
 
 @run_with_env
+async def test_plugin_graph(env: Env):
+    await env.assert_cmd_success("commands_html")
+
+
+@run_with_env
 async def test_plugin_why(env: Env):
     await mockup2_fails(env)
     await env.assert_cmd_success("why fail1")

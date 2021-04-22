@@ -1,4 +1,6 @@
+import unittest
 from multiprocessing import active_children
+
 
 from .utils import Env, run_with_env
 
@@ -39,14 +41,45 @@ def mockup(context):
 
 
 @run_with_env
-async def test_dynamic9(env: Env):
+async def test_dynamic9_red_rmake(env: Env):
     mockup(env)
-    await env.assert_cmd_success("parmake recurse=1")
+    env.sti.logger.info("part 1")
+    await env.assert_cmd_success("rmake")
+    await env.assert_cmd_success("ls")
     # ac =  active_children()
     # print('active children: %s' % ac)
     # showtree()
     # for a in ac:
     #     Process
+    env.sti.logger.info("part 2")
+    assert not active_children()
+    env.assert_equal(len(await env.get_jobs("g()")), 32)
+    env.assert_equal(len(await env.get_jobs("f()")), 63)
+
+    await env.assert_cmd_success("clean")
+    await env.assert_jobs_equal("all", ["f"])
+
+    # await env.assert_cmd_success("parmake recurse=1")
+    await env.assert_cmd_success("rmake")
+    assert not active_children()
+
+    env.assert_equal(len(await env.get_jobs("g()")), 32)
+    env.assert_equal(len(await env.get_jobs("f()")), 63)
+
+
+@unittest.skip
+@run_with_env
+async def test_dynamic9_red_rparmake(env: Env):
+    mockup(env)
+    env.sti.logger.info("part 1")
+    await env.assert_cmd_success("parmake recurse=1")
+    await env.assert_cmd_success("ls")
+    # ac =  active_children()
+    # print('active children: %s' % ac)
+    # showtree()
+    # for a in ac:
+    #     Process
+    env.sti.logger.info("part 2")
     assert not active_children()
     env.assert_equal(len(await env.get_jobs("g()")), 32)
     env.assert_equal(len(await env.get_jobs("f()")), 63)

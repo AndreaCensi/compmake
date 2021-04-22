@@ -37,12 +37,12 @@ class TestDynamic9:
 async def test_dynamic9(env: Env):
     """ Re-execution creates more jobs.  """
     mockup9(env)
-
     await env.assert_cmd_success("config echo 1")
     await env.assert_cmd_success("config echo_stdout 1")
     await env.assert_cmd_success("config echo_stderr 1")
     # self.assert_cmd_success('config console_status 1')
     # run it
+
     TestDynamic9.define_other = True  # returned by dep
     await env.assert_cmd_success("make recurse=1")
     await env.assert_cmd_success("stats")
@@ -53,7 +53,6 @@ async def test_dynamic9(env: Env):
     # clean dep
     await env.assert_cmd_success("remake dep")
     await env.assert_cmd_success("stats")
-
     # now all jobs are done
     await env.assert_jobs_equal("done", ["fd", "fd-always", "fd-other", "dep"])
     # but fd is not up to date
