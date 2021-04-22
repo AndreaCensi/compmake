@@ -101,7 +101,10 @@ jobs:
       #     name: Notebooks
       #     command: |
       #       make -C notebooks cleanup all
-
+    - run:
+        name: Run simple tests
+        command: |
+          nosetests compmake_tests
     - run:
         name: Run tests
         command: |
