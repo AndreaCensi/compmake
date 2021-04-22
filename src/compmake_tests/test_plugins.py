@@ -1,4 +1,3 @@
-from zuper_commons.test_utils import known_failure
 from .mockup import mockup2_fails, mockup2_nofail
 from .utils import Env, run_with_env
 
