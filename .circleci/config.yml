@@ -102,6 +102,7 @@ jobs:
           # --cover-packages=${COVER_PACKAGES} \
           nosetests \
             --rednose --immediate \
+            --processes=2 --process-timeout=1000 --process-restartworker \
             --cover-tests --with-coverage \
             --with-xunitmp --xunitmp-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
