@@ -116,7 +116,6 @@ jobs:
           nosetests \
             --rednose --immediate \
             --cover-tests --with-coverage \
-            --with-xunitmp --xunitmp-file=${xunit_output} \
             --cover-package=${COVER_PACKAGES} \
             ${TEST_PACKAGES}
 
