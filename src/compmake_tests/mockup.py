@@ -47,9 +47,21 @@ async def mockup2_nofail(env: Env):
 
     env.comp(f, job_id="verylong" + "a" * 40)
 
-    await env.batch_command("make")
+    await env.batch_command("rmake")
     await env.batch_command("clean f2")
     await env.batch_command("clean f5")
+
+
+async def mockup3(env: Env):
+    env.comp(f, job_id="f1")
+    env.comp(f, job_id="f2")
+
+    r5 = env.comp(f, job_id="f5")
+    env.comp(f, r5, job_id="needs_redoing")
+
+    env.comp(f, job_id="verylong" + "a" * 40)
+
+    await env.batch_command("rmake")
 
 
 def mockup_recursive_5(context: Context):

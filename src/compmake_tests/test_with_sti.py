@@ -12,7 +12,6 @@ def f1(sti: SyncTaskInterface) -> int:
     return 10
 
 
-@known_failure
 @raises(Exception)
 @run_with_env
 async def test_with_sti_not_async(env: Env):

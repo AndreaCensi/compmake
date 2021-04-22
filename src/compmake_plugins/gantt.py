@@ -1,12 +1,15 @@
 from collections import namedtuple, OrderedDict
 
 from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_command
+from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-async def gantt(sti, job_list, context, filename="gantt.html"):
+async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"):
     """"""
     from networkx.algorithms.dag import topological_sort
+    import numpy as np
+    from networkx import DiGraph
 
     db = context.get_compmake_db()
     if not job_list:
@@ -15,8 +18,6 @@ async def gantt(sti, job_list, context, filename="gantt.html"):
     # plus all the jobs that were defined by them
     job_list = set(job_list)
     #    job_list.update(definition_closure(job_list, db))
-
-    from networkx import DiGraph
 
     G = DiGraph()
     cq = CacheQueryDB(db)
@@ -38,19 +39,26 @@ async def gantt(sti, job_list, context, filename="gantt.html"):
             G.add_edge(job_id, c)
 
     order = list(topological_sort(G))
+    print(f"topological order: {order}")
     for job_id in order:
+        print(f"considering: {job_id}")
+
         cache = cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:
-            continue
+
+            msg = f"The job {job_id} is not done."
+            raise Exception(msg)
         length = G.nodes[job_id]["length"]
         pre = list(G.predecessors(job_id))
-        #        print('%s pred %s' % (job_id, pre))
+
+        print("%s pred %s" % (job_id, pre))
         if not pre:
             T0 = 0
             G.nodes[job_id]["CP"] = None
         else:
             # find predecessor with highest T1
-            import numpy as np
+            for _ in pre:
+                print(f"predecessor {_} = {dict(G.nodes[_])}")
 
             T1s = list(G.nodes[_]["T1"] for _ in pre)
             i = int(np.argmax(T1s))
@@ -61,6 +69,8 @@ async def gantt(sti, job_list, context, filename="gantt.html"):
         G.nodes[job_id]["T1"] = T1
 
         G.nodes[job_id]["critical"] = False
+
+        print(f"concluded {job_id} = {G.nodes[job_id]}")
 
     sg_ideal = SimpleGantt()
 

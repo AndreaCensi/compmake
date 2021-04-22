@@ -1,4 +1,4 @@
-from .mockup import mockup2_fails, mockup2_nofail
+from .mockup import mockup2_fails, mockup2_nofail, mockup3
 from .utils import Env, run_with_env
 
 
@@ -39,7 +39,7 @@ async def test_plugin_why(env: Env):
 
 @run_with_env
 async def test_plugin_gantt(env: Env):
-    await mockup2_nofail(env)
+    await mockup3(env)
     await env.assert_cmd_success("gantt")
 
 
