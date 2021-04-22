@@ -32,7 +32,7 @@ async def test_plugin_graph(env: Env):
 
 
 @run_with_env
-async def test_plugin_graph(env: Env):
+async def test_plugin_commands_html(env: Env):
     await env.assert_cmd_success("commands_html")
 
 

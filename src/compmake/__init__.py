@@ -46,6 +46,7 @@ from .config_ui import *
 from .config_list import *
 from .readrcfiles import *
 from .job_execution import *
+from .commands_html import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
