@@ -8,6 +8,7 @@ include setup.json
 exclude project.pp1.yaml
 exclude Makefile
 prune .circleci
+prune docs
 exclude .gitignore
 exclude .bumpversion.cfg
 exclude .pre-commit-config.yaml
