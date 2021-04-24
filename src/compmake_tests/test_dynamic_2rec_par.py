@@ -2,7 +2,6 @@ from unittest import SkipTest
 
 from zuper_typing import PYTHON_37
 from .mockup import mockup_recursive_5
-
 from .utils import Env, run_with_env
 
 
