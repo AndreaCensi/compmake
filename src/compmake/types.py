@@ -1,6 +1,6 @@
-from typing import NewType
-from typing import List, TypedDict, Union
+from typing import List, NewType, Union
 
+from typing_extensions import TypedDict
 
 CMJobID = NewType("CMJobID", str)
 DBKey = NewType("DBKey", str)
