@@ -31,8 +31,8 @@
       "compmake = compmake:main"
     ]
   },
-  "zip_safe": false,
-  "include_package_data": false,
+  "zip_safe": true,
+  "include_package_data": true,
   "modules": [
     "compmake",
     "compmake.utils",
@@ -45,5 +45,6 @@
   "version": "7.1.2104231804",
   "author": "",
   "author_email": "info@zupermind.com",
-  "url": "https://github.com/AndreaCensi/compmake"
+  "url": "https://github.com/AndreaCensi/compmake",
+  "hey": 2
 }
