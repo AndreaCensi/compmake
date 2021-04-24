@@ -2,6 +2,8 @@ import traceback
 
 import os
 from contextlib import asynccontextmanager
+from unittest import SkipTest
+
 from nose.tools import assert_equal
 from tempfile import mkdtemp
 from typing import AsyncIterator, Awaitable, Callable, cast, TypeVar
@@ -185,6 +187,8 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
                     async with environment(sti) as env:
                         try:
                             res = await f(env)
+                        except SkipTest:
+                            raise
                         except BaseException:
 
                             sti.logger.error(traceback.format_exc())
