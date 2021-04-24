@@ -1,42 +1,41 @@
-package_name: compmake-z7
-srcdir: src
-version_file: '1'
-modules:
+---
+package_name         : compmake-z7
+srcdir               : src
+version_file         : '1'
+modules              :
 - compmake
 - compmake_plugins
 
-install_requires: [termcolor, setproctitle, PyYAML, psutil, dill, coverage, SystemCmd-z7,
-  future, zuper-zapp-interfaces-z7, zuper-utils-asyncio-z7, zuper-commons-z7, zuper-typing-z7,
-  zuper-commons-z7, zuper-utils-asyncio-z7, zuper-graphs-z7, numpy, pyreadline, aiofiles,
-  zuper-zapp-z7, networkx]
+install_requires     : [termcolor, setproctitle, PyYAML, psutil, dill, coverage, SystemCmd-z7, future, zuper-zapp-interfaces-z7, zuper-utils-asyncio-z7,
+  zuper-commons-z7, zuper-typing-z7, zuper-commons-z7, zuper-utils-asyncio-z7, zuper-graphs-z7, numpy, pyreadline, aiofiles, zuper-zapp-z7, networkx, typing-extensions]
 
-install_conflicts: [compmake-*]
-tests_require: [aiounittest]
+install_conflicts    : [compmake-*]
+tests_require        : [aiounittest]
 
-console_scripts:
+console_scripts      :
   compmake: compmake:main
 
-nose:
+nose                 :
   modules:
   - compmake_tests
   python_versions:
   - '3.7'
   - '3.8'
 
-pypi:
+pypi                 :
   upload: []
 
-circleci:
+circleci             :
   active: true
   test_python_versions: ['3.7', '3.8']
 
 python_syntax_version: '3.8'
 
-url: https://github.com/AndreaCensi/compmake
-author: ''
-author_email: info@zupermind.com
-short_description: ''
-full_description: ''
+url                  : https://github.com/AndreaCensi/compmake
+author               : ''
+author_email         : info@zupermind.com
+short_description    : ''
+full_description     : ''
 
 
 #setup(
