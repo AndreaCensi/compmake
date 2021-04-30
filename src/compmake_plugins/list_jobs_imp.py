@@ -24,15 +24,7 @@ from compmake import (
 )
 from compmake.utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import duration_compact
-
-# if False:
-#     format_utility_job = dict(color="white", attrs=["concealed"])
-#     format_separator = dict(color="white", attrs=["concealed"])
-#     format_when = dict(color="white", attrs=["concealed"])
-# else:
 from zuper_utils_asyncio import SyncTaskInterface
-
-# red, green, yellow, blue, magenta, cyan, white.
 
 format_utility_job = dict()
 format_separator = dict()

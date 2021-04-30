@@ -29,12 +29,6 @@ def track_time(x):
     return x
 
 
-#
-# else:
-#     from ..utils import TimeTrack
-#
-#     track_time = TimeTrack.decorator
-
 trace_queries = False
 
 StorageKey = NewType("StorageKey", str)
