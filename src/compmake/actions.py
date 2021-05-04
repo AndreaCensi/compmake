@@ -332,7 +332,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
         int_gc = result["int_gc"]
         int_gc.stop()
 
-    except (KeyboardInterrupt, CancelledError) as e:
+    except (KeyboardInterrupt, CancelledError) as e:  # FIXME: need to re-raise CancelledError
         bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
         mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
