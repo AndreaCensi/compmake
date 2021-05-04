@@ -30,23 +30,19 @@ jobs:
     steps:
     - checkout
     - run:
-        name: Build stats (1)
+        name: Build statistics
         command: |
-          mkdir -p  build-stats
-          env | tee  build-stats/env.txt
+          mkdir -p build-stats
+          env | sort | tee  build-stats/env.txt
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
         command: |
-          # pip3 install -U pip
-          # pip3 install pipdeptree coverage shyaml
-
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
           pip3 install  -r .requirements.txt
           rm .requirements.txt
-
 
     - run:
         name: Install testing deps
@@ -55,20 +51,17 @@ jobs:
           pip3 install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
-          #pip install 		pipdeptree==0.13.2		bump2version		nose==1.3.7		nose2==0.10		nose2-html-report==0.6.0		nose-parallel==0.4.0		nose_xunitmp==0.4.1		pre-commit==2.11.1		rednose==1.3.0		coverage	sphinx		sphinx-rtd-theme
-
-
     - run:
-        name: Build stats (2)
+        name: Python stats
         command: |
-          echo TERM = $TERM
-
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | tee  build-stats/pip-list.txt
-          pip freeze | tee  build-stats/pip-freeze.txt
+          pip list   | sort | tee  build-stats/pip-list.txt
+          pip freeze | sort | tee  build-stats/pip-freeze.txt
+
     - store_artifacts:
         path: build-stats
         destination: build-stats
+
     - run:
         name: setup.py develop
         command: |
@@ -87,26 +80,45 @@ jobs:
         when: always
         path: out/docs
         destination: docs
+
+    - run:
+        name: pre-circle-tests
+        command: |
+          TARGET=pre-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
       # - run:
       #     name: Notebooks
       #     command: |
       #       make -C notebooks cleanup all
 
+
     - run:
-        name: Run tests
-        command: |
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
           mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-xunit.xml
-
-          #              --processes=8 --process-timeout=1000 --process-restartworker \
-          # --cover-packages=${COVER_PACKAGES} \
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
           nosetests \
-            --rednose --immediate \
-            --cover-tests --with-coverage \
-            --with-xunit --xunit-file=${xunit_output} \
-            --cover-package=${COVER_PACKAGES} \
-            ${TEST_PACKAGES}
-
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: post-circle-tests
+        command: |
+          TARGET=post-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
 
     - store_test_results:
         when: always
@@ -153,23 +165,19 @@ jobs:
     steps:
     - checkout
     - run:
-        name: Build stats (1)
+        name: Build statistics
         command: |
-          mkdir -p  build-stats
-          env | tee  build-stats/env.txt
+          mkdir -p build-stats
+          env | sort | tee  build-stats/env.txt
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
         command: |
-          # pip3 install -U pip
-          # pip3 install pipdeptree coverage shyaml
-
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
           pip3 install  -r .requirements.txt
           rm .requirements.txt
-
 
     - run:
         name: Install testing deps
@@ -178,20 +186,17 @@ jobs:
           pip3 install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
-          #pip install 		pipdeptree==0.13.2		bump2version		nose==1.3.7		nose2==0.10		nose2-html-report==0.6.0		nose-parallel==0.4.0		nose_xunitmp==0.4.1		pre-commit==2.11.1		rednose==1.3.0		coverage	sphinx		sphinx-rtd-theme
-
-
     - run:
-        name: Build stats (2)
+        name: Python stats
         command: |
-          echo TERM = $TERM
-
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | tee  build-stats/pip-list.txt
-          pip freeze | tee  build-stats/pip-freeze.txt
+          pip list   | sort | tee  build-stats/pip-list.txt
+          pip freeze | sort | tee  build-stats/pip-freeze.txt
+
     - store_artifacts:
         path: build-stats
         destination: build-stats
+
     - run:
         name: setup.py develop
         command: |
@@ -210,26 +215,45 @@ jobs:
         when: always
         path: out/docs
         destination: docs
+
+    - run:
+        name: pre-circle-tests
+        command: |
+          TARGET=pre-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
       # - run:
       #     name: Notebooks
       #     command: |
       #       make -C notebooks cleanup all
 
+
     - run:
-        name: Run tests
-        command: |
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
           mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-xunit.xml
-
-          #              --processes=8 --process-timeout=1000 --process-restartworker \
-          # --cover-packages=${COVER_PACKAGES} \
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
           nosetests \
-            --rednose --immediate \
-            --cover-tests --with-coverage \
-            --with-xunit --xunit-file=${xunit_output} \
-            --cover-package=${COVER_PACKAGES} \
-            ${TEST_PACKAGES}
-
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: post-circle-tests
+        command: |
+          TARGET=post-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
 
     - store_test_results:
         when: always
@@ -261,4 +285,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 737a40bbf4a7d11bdfb337d0e0fa4354
+# sigil e709de604e5f58157e6265ad1948872a
