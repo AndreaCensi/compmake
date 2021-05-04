@@ -48,6 +48,12 @@ class Context(metaclass=ABCMeta):
     def comp(self, command_, *args, **kwargs):
         ...
 
+    #
+    # @abstractmethod
+    # async def comp_async(self, command_, *args, **kwargs):
+    #     ...
+    #
+
     @abstractmethod
     async def comp_store(self, x, job_id=None):
         ...
