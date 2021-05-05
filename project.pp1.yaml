@@ -50,6 +50,8 @@ circleci             :
   test_python_versions:
   - '3.8'
   resource_class: xlarge
+  environment:
+    Z_SERVICE_LOG: zuper_zapp.envs.log
 
 python_syntax_version: '3.8'
 
