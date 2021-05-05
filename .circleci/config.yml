@@ -21,6 +21,7 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
+      Z_SERVICE_LOG: zuper_zapp.envs.log
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -156,6 +157,7 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
+      Z_SERVICE_LOG: zuper_zapp.envs.log
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -285,4 +287,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil e709de604e5f58157e6265ad1948872a
+# sigil 99f6b0c4c5bab24d45e9241b52ef3d65
