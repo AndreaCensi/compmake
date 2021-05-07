@@ -53,7 +53,7 @@ circleci             :
   environment:
     Z_SERVICE_LOG: zuper_zapp.envs.log
     Z_SERVICE_PROC: zuper_abstract_subprocess.use_local_process
-    Z_SERVICE_FS: zuper_abstract_fs.use_local_fs
+    Z_SERVICE_FS: zuper_fs_local.use_local_fs
 python_syntax_version: '3.8'
 
 url                  : https://github.com/AndreaCensi/compmake
