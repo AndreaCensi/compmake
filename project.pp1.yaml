@@ -52,7 +52,7 @@ circleci             :
   resource_class: xlarge
   environment:
     Z_SERVICE_LOG: zuper_zapp.envs.log
-    Z_SERVICE_PROC: zuper_abstract_subprocess.use_local_process
+    Z_SERVICE_PROC: zuper_proc_local.proc
     Z_SERVICE_FS: zuper_fs_local.use_local_fs
 python_syntax_version: '3.8'
 

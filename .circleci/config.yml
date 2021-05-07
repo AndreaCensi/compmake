@@ -22,7 +22,7 @@ jobs:
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
-      Z_SERVICE_PROC: zuper_abstract_subprocess.use_local_process
+      Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
@@ -160,7 +160,7 @@ jobs:
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
-      Z_SERVICE_PROC: zuper_abstract_subprocess.use_local_process
+      Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
