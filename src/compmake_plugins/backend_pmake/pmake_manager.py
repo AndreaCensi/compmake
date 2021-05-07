@@ -176,7 +176,7 @@ class PmakeManager(Manager):
             args = (job_id, db.basepath)
         else:
             f = parmake_job2
-            logdir = os.path.join(self.context.get_compmake_db().basepath, "parmake_job2_logs")
+            logdir = os.path.join(db.basepath, "parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(f, args)
