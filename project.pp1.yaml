@@ -29,7 +29,7 @@ install_requires:
 - networkx
 - typing-extensions
 
-install_conflicts: [compmake-*]
+
 tests_require:
 - aiounittest
 - zuper-fs-local-z7
