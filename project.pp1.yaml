@@ -41,9 +41,6 @@ console_scripts      :
 nose                 :
   modules:
   - compmake_tests
-  python_versions:
-  - '3.7'
-  - '3.8'
 
 pypi                 :
   upload: []
@@ -57,6 +54,7 @@ circleci             :
     Z_SERVICE_LOG: zuper_zapp.envs.log
     Z_SERVICE_PROC: zuper_proc_local.proc
     Z_SERVICE_FS: zuper_fs_local.use_local_fs
+    Z_SERVICE_NOTE: zuper_zapp.envs.notes
 python_syntax_version: '3.8'
 
 url                  : https://github.com/AndreaCensi/compmake

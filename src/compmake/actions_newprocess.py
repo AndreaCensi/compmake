@@ -45,7 +45,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
     where = os.path.join(storage, "parmake_job2_new_process")
     mkdirs_thread_safe(where)
 
-    out_result = os.path.join(where, "%s.results.pickle" % job_id)
+    out_result = os.path.join(where, f"{job_id}.results.pickle")
     out_result = os.path.abspath(out_result)
     cmd = ["python3", "-m", "compmake", storage]
 
