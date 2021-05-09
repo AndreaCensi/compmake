@@ -23,7 +23,9 @@
     "zuper-zapp-z7"
   ],
   "tests_require": [
-    "aiounittest"
+    "aiounittest",
+    "zuper-fs-local-z7",
+    "zuper-proc-local-z7"
   ],
   "srcdir": "src",
   "package_name": "compmake-z7",
