@@ -30,7 +30,10 @@ install_requires     :
 - typing-extensions
 
 install_conflicts    : [compmake-*]
-tests_require        : [aiounittest]
+tests_require        :
+- aiounittest
+- zuper-fs-local-z7
+- zuper-proc-local-z7
 
 console_scripts      :
   compmake: compmake:main
