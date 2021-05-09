@@ -38,7 +38,7 @@ For example:
 # @async_main_sti(None)
 
 
-@zapp1(required=[SERVICE_LOG, SERVICE_FS, SERVICE_PROCESS, SERVICE_NOTE])
+@zapp1()
 async def main(zenv: ZappEnv) -> ExitCode:
     # async with setup_environment2(sti, os.getcwd()):
     return await compmake_main(zenv.sti, args=zenv.args)
