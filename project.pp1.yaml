@@ -1,12 +1,12 @@
 ---
-package_name         : compmake-z7
-srcdir               : src
-version_file         : '1'
-modules              :
+package_name: compmake-z7
+srcdir: src
+version_file: '1'
+modules:
 - compmake
 - compmake_plugins
 
-install_requires     :
+install_requires:
 - termcolor
 - setproctitle
 - PyYAML
@@ -29,23 +29,23 @@ install_requires     :
 - networkx
 - typing-extensions
 
-install_conflicts    : [compmake-*]
-tests_require        :
+install_conflicts: [compmake-*]
+tests_require:
 - aiounittest
 - zuper-fs-local-z7
 - zuper-proc-local-z7
 
-console_scripts      :
+console_scripts:
   compmake: compmake:main
 
-nose                 :
+nose:
   modules:
   - compmake_tests
 
-pypi                 :
+pypi:
   upload: []
 
-circleci             :
+circleci:
   active: true
   test_python_versions:
   - '3.8'
@@ -57,10 +57,10 @@ circleci             :
     Z_SERVICE_NOTE: zuper_zapp.envs.notes
 python_syntax_version: '3.8'
 
-url                  : https://github.com/AndreaCensi/compmake
-author               : ''
-author_email         : info@zupermind.com
-short_description    : ''
-full_description     : ''
+url: https://github.com/AndreaCensi/compmake
+author: ''
+author_email: info@zupermind.com
+short_description: ''
+full_description: ''
 
 
