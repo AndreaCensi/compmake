@@ -41,7 +41,7 @@ class StorageFilesystem:
     """ `pickle` or `dill` """
     file_extension: str
 
-    def __init__(self, basepath: DirPath, compress: bool = False):
+    def __init__(self, basepath: DirPath, compress: bool = True):
         if not compress:
             raise Exception()
         self.basepath = os.path.realpath(basepath)
