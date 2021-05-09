@@ -24,6 +24,7 @@ jobs:
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
+      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -162,6 +163,7 @@ jobs:
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
+      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -291,4 +293,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil a53ac7a91d9636ca5d6ccea52109d626
+# sigil 27109f09161160c85d366fa8d58355f2
