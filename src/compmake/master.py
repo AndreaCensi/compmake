@@ -34,9 +34,6 @@ For example:
 """
 
 
-# @async_main_sti(None)
-
-
 @zapp1()
 async def main(zenv: ZappEnv) -> ExitCode:
     # async with setup_environment2(sti, os.getcwd()):

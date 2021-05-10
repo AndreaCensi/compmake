@@ -63,7 +63,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
     db = StorageFilesystem(basepath, compress=True)
     context = ContextImp(db=db)
-    await context.init()
+    await context.init(sti)
 
     try:
 
