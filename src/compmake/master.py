@@ -8,7 +8,6 @@ from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import DirPath
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
-from zuper_zapp_interfaces import SERVICE_FS, SERVICE_LOG, SERVICE_NOTE, SERVICE_PROCESS
 from . import __version__, logger
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
@@ -105,7 +104,7 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         if os.path.exists(child):
             one_arg = child
 
-        context = await load_existing_db(one_arg)
+        context = await load_existing_db(sti, one_arg)
         # If the context was custom we load it
         # noinspection PyUnresolvedReferences
         if "context" in context.compmake_db:
@@ -195,7 +194,7 @@ def write_atomic(filename, contents):
     os.rename(tmpfile, filename)
 
 
-async def load_existing_db(dirname: DirPath) -> Context:
+async def load_existing_db(sti: SyncTaskInterface, dirname: DirPath) -> Context:
     assert os.path.isdir(dirname)
     logger.info(f"Loading existing jobs DB {dirname!r}.")
     # check if it is compressed
@@ -209,7 +208,7 @@ async def load_existing_db(dirname: DirPath) -> Context:
 
     db = StorageFilesystem(dirname, compress=compress)
     context = ContextImp(db=db)
-    await context.init()
+    await context.init(sti)
     jobs = list(all_jobs(db=db))
     # logger.info('Found %d existing jobs.' % len(jobs))
     await context.reset_jobs_defined_in_this_session(jobs)

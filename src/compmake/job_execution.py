@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 
 from zuper_commons.types import check_isinstance, ZValueError
@@ -74,6 +75,8 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context):
             if "sti" in sig.parameters:
                 kwargs["sti"] = sti
 
+            sti.logger.info("Now starting command")
+            await asyncio.sleep(0)
             user_object = await command(*args, **kwargs)
         else:
 

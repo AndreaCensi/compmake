@@ -10,7 +10,7 @@ import aiofiles
 
 from zuper_commons.text import indent
 from zuper_typing import value_liskov
-from zuper_utils_asyncio import async_errors, create_sync_task2, Splitter, SyncTaskInterface
+from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -109,7 +109,7 @@ class ContextImp(Context):
         self.splitter = None
         self.splitter_ui_console = None
 
-    async def init(self):
+    async def init(self, sti: SyncTaskInterface):
         self.splitter = await Splitter.make_init(Event)
         self.splitter_ui_console = await Splitter.make_init(Union[UIMessage, Prompt])
 
@@ -138,11 +138,11 @@ class ContextImp(Context):
 
         self.write_task = asyncio.create_task(go())
 
-        self.br = await create_sync_task2(None, self.broadcast)
+        self.br = await sti.create_child_task2(None, self.broadcast)
 
     @async_errors
     async def broadcast(self, sti: SyncTaskInterface):
-        sti.started()
+        await sti.started_and_yield()
         async for a, event in self.splitter.read():
             all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
