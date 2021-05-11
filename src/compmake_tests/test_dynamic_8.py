@@ -1,7 +1,5 @@
 from typing import cast
 
-from nose.tools import istest
-
 from compmake import (
     definition_closure,
     direct_uptodate_deps_inverse,
@@ -9,7 +7,6 @@ from compmake import (
     jobs_defined,
 )
 from compmake.types import CMJobID
-from .compmake_test import CompmakeTest
 from .utils import Env, run_with_env
 
 
@@ -32,8 +29,7 @@ def mockup8(context):
     context.comp_dynamic(fd)
 
 
-@istest
-class TestDynamic8(CompmakeTest):
+class TestDynamic8:
     define_other = True
 
 

@@ -1,8 +1,5 @@
 from typing import Callable
 
-from .compmake_test import CompmakeTest
-from nose.tools import istest
-
 from .utils import Env, run_with_env
 
 
@@ -35,8 +32,7 @@ def mockup8(context):
     context.comp_dynamic(fd)
 
 
-@istest
-class TestDynamicFailure(CompmakeTest):
+class TestDynamicFailure:
     do_fail: Callable = None
 
 

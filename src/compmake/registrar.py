@@ -80,17 +80,13 @@ def publish(context: Context, event_name: str, **kwargs):
 
     context = cast(ContextImp, context)
     if event_name not in compmake_registered_events:
-        msg = "Event %r not registered" % event_name
+        msg = f"Event {event_name!r} not registered"
         logger.error(msg)
         raise CompmakeException(msg)
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
         if key not in spec.attrs:
-            msg = "Passed attribute %r for event type %r but only found " "attributes %s." % (
-                key,
-                event_name,
-                spec.attrs,
-            )
+            msg = f"Passed attribute {key!r} for event type {event_name!r} but only found attributes {spec.attrs}."
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
