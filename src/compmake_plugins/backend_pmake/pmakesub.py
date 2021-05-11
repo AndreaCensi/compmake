@@ -120,7 +120,7 @@ async def pmake_worker(
                 log(f"got job: {job}")
 
                 function, arguments = job
-                logger.info(job=job)
+                # logger.info(job=job)
                 # print(job)
                 # print(inspect.signature(function))
                 try:
