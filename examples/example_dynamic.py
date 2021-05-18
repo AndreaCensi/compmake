@@ -2,7 +2,7 @@
 from typing import List
 
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp  import async_main_sti
+from zuper_zapp import async_main_sti, zapp1, ZappEnv
 
 
 def func1(param1):
@@ -25,13 +25,14 @@ def summary(results):
     print("I finished with this: %s" % results)
 
 
-@async_main_sti(None)
-async def main(sti: SyncTaskInterface, args: List[str]):
+@zapp1()
+async def main(ze: ZappEnv):
+    sti = ze.sti
     sti.started()
     from compmake import ContextImp
 
     c = ContextImp()
-    await c.init()
+    await c.init(sti)
     values = c.comp(cases)
     # comp_dynamic gives the function an extra argument
     # "context" to further define jobs

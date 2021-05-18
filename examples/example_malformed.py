@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-from typing import List
-
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp  import async_main_sti
 
 wait = 0.01
 
@@ -13,13 +9,17 @@ def func1():
     print("😁")
 
 
-@async_main_sti(None)
-async def main(sti: SyncTaskInterface, args: List[str]):
+from zuper_zapp import zapp1, ZappEnv
+
+
+@zapp1()
+async def main(ze: ZappEnv):
+    sti = ze.sti
     sti.started()
     from compmake import ContextImp
 
     c = ContextImp()
-    await c.init()
+    await c.init(sti)
     c.comp(func1)
 
     await c.batch_command(sti, "clean; make")

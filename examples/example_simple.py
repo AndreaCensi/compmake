@@ -30,11 +30,12 @@ def draw(result):
 @zapp1()
 async def main(ze: ZappEnv):
     sti = ze.sti
+    logger = sti.logger
 
     sti.started()
 
     c = ContextImp()
-    await c.init()
+    await c.init(sti)
     for param1 in [1, 2, 3]:
         for param2 in [10, 11, 12]:
             res1 = c.comp(func1, param1)
@@ -47,7 +48,7 @@ async def main(ze: ZappEnv):
     if cmds:
         await c.batch_command(sti, " ".join(cmds))
     else:
-        print('Use "make recurse=1" or "parmake recurse=1" to make all.')
+        logger.info('Use "make recurse=1" or "parmake recurse=1" to make all.')
 
         await c.compmake_console(sti)
 
