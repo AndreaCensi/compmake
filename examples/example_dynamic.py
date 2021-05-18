@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-from typing import List
 
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import async_main_sti, zapp1, ZappEnv
+from zuper_zapp import zapp1, ZappEnv
 
 
 def func1(param1):
