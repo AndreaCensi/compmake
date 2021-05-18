@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-
 import sys
 import time
 
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import async_main_sti
+from compmake import ContextImp
+from zuper_zapp import zapp1, ZappEnv
 
 wait = 0.01
 
@@ -28,10 +27,11 @@ def draw(result):
     print("Computing draw(%r)" % result)
 
 
-@async_main_sti(None)
-async def main(sti: SyncTaskInterface):
+@zapp1()
+async def main(ze: ZappEnv):
+    sti = ze.sti
+
     sti.started()
-    from compmake import ContextImp
 
     c = ContextImp()
     await c.init()
