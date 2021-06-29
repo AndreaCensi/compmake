@@ -1,7 +1,6 @@
 from nose.tools import raises
 
 from compmake import Context
-from zuper_commons.test_utils import known_failure
 from zuper_utils_asyncio import SyncTaskInterface
 from .utils import Env, run_with_env
 

@@ -7,14 +7,19 @@ from typing import Optional
 
 from future.moves.queue import Empty
 
-from compmake import logger, OKResult, ResultDict
-from compmake.exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from compmake.manager import AsyncResultInterface
-from compmake.result_dict import result_dict_raise_if_error
+from compmake import (
+    AsyncResultInterface,
+    CompmakeBug,
+    HostFailed,
+    JobFailed,
+    JobInterrupted,
+    OKResult,
+    result_dict_raise_if_error,
+    ResultDict,
+)
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import setup_environment2, async_run_simple1
-
+from zuper_zapp import async_run_simple1, setup_environment2
 
 __all__ = [
     "PmakeSub",
