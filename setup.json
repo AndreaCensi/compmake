@@ -45,7 +45,7 @@
     "compmake_plugins.backend_ssh_cluster",
     "compmake_plugins.execution_stats"
   ],
-  "version": "7.1.2106291918",
+  "version": "7.1.2106301835",
   "author": "",
   "author_email": "info@zupermind.com",
   "url": "https://github.com/AndreaCensi/compmake"
