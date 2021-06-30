@@ -1,3 +1,5 @@
+%YAML 1.1
+---
 version: '2'
 workflows:
   version: 2
@@ -81,7 +83,6 @@ jobs:
           fi
 
     - store_artifacts:
-        when: always
         path: out/docs
         destination: docs
     - run:
@@ -135,7 +136,6 @@ jobs:
           fi
 
     - store_test_results:
-        when: always
         path: out/test-results
 
     - run:
@@ -148,12 +148,10 @@ jobs:
 
 
     - store_artifacts:
-        when: always
         path: out/coverage
         destination: coverage
 
     - store_artifacts:
-        when: always
         path: out/tests
         destination: tests
 
@@ -230,7 +228,6 @@ jobs:
           fi
 
     - store_artifacts:
-        when: always
         path: out/docs
         destination: docs
     - run:
@@ -284,7 +281,6 @@ jobs:
           fi
 
     - store_test_results:
-        when: always
         path: out/test-results
 
     - run:
@@ -297,12 +293,10 @@ jobs:
 
 
     - store_artifacts:
-        when: always
         path: out/coverage
         destination: coverage
 
     - store_artifacts:
-        when: always
         path: out/tests
         destination: tests
 
@@ -313,4 +307,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 7e6dc0dad22d1da1d5d8ad95cb65e085
+# sigil 31ffc486a7a6bc4f622872edc09a809e
