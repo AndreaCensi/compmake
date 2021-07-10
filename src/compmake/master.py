@@ -195,15 +195,16 @@ async def load_existing_db(sti: SyncTaskInterface, dirname: DirPath) -> Context:
     assert os.path.isdir(dirname)
     logger.info(f"Loading existing jobs DB {dirname!r}.")
     # check if it is compressed
-    files = os.listdir(dirname)
-    for one in files:
-        if ".gz" in one:
-            compress = True
-            break
-    else:
-        compress = False
+    # files = os.listdir(dirname)
+    # for one in files:
+    #     if ".gz" in one:
+    #         compress = True
+    #         break
+    # else:
+    #     compress = False
+    #
 
-    db = StorageFilesystem(dirname, compress=compress)
+    db = StorageFilesystem(dirname, compress=True)
     context = ContextImp(db=db)
     await context.init(sti)
     jobs = list(all_jobs(db=db))
