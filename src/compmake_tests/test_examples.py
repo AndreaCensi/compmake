@@ -37,11 +37,11 @@ async def run_example(sti: SyncTaskInterface, name: str, command: str, expect_fa
     with create_tmp_dir() as cwd:
         cmd = [pyfile, command]
 
-        p = await pi.run2(*cmd, cwd=cwd, echo_stdout=True, echo_stderr=True)
+        async with pi.run3(*cmd, cwd=cwd, echo_stdout=True, echo_stderr=True) as p:
 
-        status = await p.wait()
-        stderr = await p.stderr_read()
-        stdout = await p.stdout_read()
+            status = await p.wait()
+            stderr = await p.stderr_read()
+            stdout = await p.stdout_read()
         if expect_fail:  # pragma: no cover
             msg = f"Expected failure of {name} but everything OK."
             raise ZException(msg, cmd=cmd, stderr=stderr, stdout=stdout)
