@@ -140,7 +140,7 @@ class ContextImp(Context):
 
         self.br = await sti.create_child_task2(None, self.broadcast)
 
-    @async_errors
+    # @async_errors
     async def broadcast(self, sti: SyncTaskInterface):
         await sti.started_and_yield()
         async for a, event in self.splitter.read():
