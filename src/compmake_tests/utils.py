@@ -1,12 +1,11 @@
-import traceback
-
 import os
+import traceback
 from contextlib import asynccontextmanager
+from tempfile import mkdtemp
+from typing import AsyncIterator, Awaitable, Callable, cast, TypeVar
 from unittest import SkipTest
 
 from nose.tools import assert_equal
-from tempfile import mkdtemp
-from typing import AsyncIterator, Awaitable, Callable, cast, TypeVar
 
 from compmake import (
     all_jobs,
