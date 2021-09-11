@@ -54,13 +54,14 @@ class CommandFailed(ZException):
 
 
 class MakeFailed(CommandFailed):
-    def __init__(self, failed: List[str], blocked: List[str] = None):
-        failed = failed or []
-        blocked = blocked or []
-        self.failed = set(failed)
-        self.blocked = set(blocked)
-        msg = f"Make failed ({len(self.failed)} failed, {len(self.blocked)} blocked)"
-        CommandFailed.__init__(self, msg, failed=failed, blocked=blocked)
+    pass
+    # def __init__(self, failed: List[str], blocked: List[str] = None):
+    #     failed = failed or []
+    #     blocked = blocked or []
+    #     self.failed = set(failed)
+    #     self.blocked = set(blocked)
+    #     msg = f"Make failed ({len(self.failed)} failed, {len(self.blocked)} blocked)"
+    #     CommandFailed.__init__(self, msg, failed=failed, blocked=blocked)
 
 
 class MakeHostFailed(CommandFailed):
