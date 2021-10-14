@@ -47,8 +47,7 @@ pypi:
 
 circleci:
   active: true
-  test_python_versions:
-  - '3.8'
+  test_python_versions: ['3.8']
   resource_class: xlarge
   environment:
     Z_SERVICE_LOG: zuper_zapp.envs.log
