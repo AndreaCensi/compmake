@@ -5,28 +5,28 @@ workflows:
   version: 2
   test:
     jobs:
-    - test-3.8-staging:
-        context: pip-staging
+    - test-3.8-stage:
+        context: z7-stage
         filters:
           branches:
             only: /z7-stage.*/
-    - test-3.8-production:
-        context: z7-production
+    - test-3.8-prod:
+        context: z7-prod
         filters:
           branches:
             ignore: /z7-stage.*/
-    - test-3.9-staging:
-        context: pip-staging
+    - test-3.9-stage:
+        context: z7-stage
         filters:
           branches:
             only: /z7-stage.*/
-    - test-3.9-production:
-        context: z7-production
+    - test-3.9-prod:
+        context: z7-prod
         filters:
           branches:
             ignore: /z7-stage.*/
 jobs:
-  test-3.8-staging:
+  test-3.8-stage:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -171,7 +171,7 @@ jobs:
         command: |
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
-  test-3.8-production:
+  test-3.8-prod:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -316,7 +316,7 @@ jobs:
         command: |
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
-  test-3.9-staging:
+  test-3.9-stage:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -461,7 +461,7 @@ jobs:
         command: |
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
-  test-3.9-production:
+  test-3.9-prod:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -607,4 +607,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 8f7312999d3012326585c6c644572b25
+# sigil e821b16c392475847a108429616de543
