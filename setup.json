@@ -1,0 +1,54 @@
+{
+  "install_requires": [
+    "PyContracts3",
+    "PyYaml",
+    "SystemCmd-z6",
+    "asciimatics",
+    "coverage",
+    "decorator",
+    "dill",
+    "future",
+    "networkx>=2,<3",
+    "psutil",
+    "setproctitle",
+    "six",
+    "termcolor",
+    "zuper-commons-z6>=6.1.7",
+    "zuper-typing-z6"
+  ],
+  "tests_require": [
+    "nose"
+  ],
+  "srcdir": "src",
+  "package_name": "compmake-z6",
+  "entry_points": {
+    "console_scripts": []
+  },
+  "zip_safe": true,
+  "include_package_data": true,
+  "modules": [
+    "compmake",
+    "compmake.config",
+    "compmake.events",
+    "compmake.jobs",
+    "compmake.jobs.syntax",
+    "compmake.plugins",
+    "compmake.plugins.backend_local",
+    "compmake.plugins.backend_multyvac",
+    "compmake.plugins.backend_pmake",
+    "compmake.plugins.backend_sge",
+    "compmake.plugins.backend_ssh_cluster",
+    "compmake.plugins.execution_stats",
+    "compmake.plugins.old_backend_multiprocessing",
+    "compmake.scripts",
+    "compmake.scripts.scripts_utils",
+    "compmake.storage",
+    "compmake.ui",
+    "compmake.unittests",
+    "compmake.utils"
+  ],
+  "version": "6.1.1",
+  "author": "",
+  "author_email": "",
+  "url": ""
+}
