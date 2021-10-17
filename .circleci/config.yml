@@ -14,6 +14,7 @@ workflows:
         context: z7-prod
         filters:
           branches:
+            only: /z7/
             ignore: /z7-stage.*/
     - test-3.8-daffy-stage:
         context: daffy-stage
@@ -488,4 +489,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: medium
 
-# sigil ad0ba7e6ab612c75c2855c82118cb47d
+# sigil d6a0476e0517c48ed6c23dd8988749fe
