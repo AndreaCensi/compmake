@@ -33,8 +33,8 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake
-      TEST_PACKAGES: ''
+      COVER_PACKAGES: compmake,compmake_tests
+      TEST_PACKAGES: compmake_tests
     docker:
     - image: $DOCKER_REGISTRY/circleci/python:3.8
       auth:
@@ -55,6 +55,7 @@ jobs:
     - run:
         name: Install testing deps
         command: |
+          python3 -m pip install -U pip
           python3 -m pip install nose coverage pipdeptree rednose
 
 
@@ -107,6 +108,19 @@ jobs:
           fi
 
 
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -148,8 +162,8 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake
-      TEST_PACKAGES: ''
+      COVER_PACKAGES: compmake,compmake_tests
+      TEST_PACKAGES: compmake_tests
     docker:
     - image: $DOCKER_REGISTRY/circleci/python:3.8
       auth:
@@ -170,6 +184,7 @@ jobs:
     - run:
         name: Install testing deps
         command: |
+          python3 -m pip install -U pip
           python3 -m pip install nose coverage pipdeptree rednose
 
 
@@ -222,6 +237,19 @@ jobs:
           fi
 
 
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -263,8 +291,8 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake
-      TEST_PACKAGES: ''
+      COVER_PACKAGES: compmake,compmake_tests
+      TEST_PACKAGES: compmake_tests
     docker:
     - image: $DOCKER_REGISTRY/circleci/python:3.8
       auth:
@@ -285,6 +313,7 @@ jobs:
     - run:
         name: Install testing deps
         command: |
+          python3 -m pip install -U pip
           python3 -m pip install nose coverage pipdeptree rednose
 
 
@@ -337,6 +366,19 @@ jobs:
           fi
 
 
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -378,8 +420,8 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake
-      TEST_PACKAGES: ''
+      COVER_PACKAGES: compmake,compmake_tests
+      TEST_PACKAGES: compmake_tests
     docker:
     - image: $DOCKER_REGISTRY/circleci/python:3.8
       auth:
@@ -400,6 +442,7 @@ jobs:
     - run:
         name: Install testing deps
         command: |
+          python3 -m pip install -U pip
           python3 -m pip install nose coverage pipdeptree rednose
 
 
@@ -453,6 +496,19 @@ jobs:
 
 
     - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
         name: post-circle-tests
         command: |
           TARGET=post-circle-tests
@@ -489,4 +545,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: medium
 
-# sigil f70a668ede96efb056be7dc00f086236
+# sigil eb03c2073fac63f711b9ef5132d97298
