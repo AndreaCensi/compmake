@@ -17,7 +17,7 @@ def fill_in(config, defaults):
 def parse_yaml_configuration(file):  # @ReservedAssignment
     import yaml
 
-    configuration = yaml.load(file)
+    configuration = yaml.load(file, Loader=yaml.Loader)
 
     pprint(configuration)
 
