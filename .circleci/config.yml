@@ -15,6 +15,17 @@ workflows:
         filters:
           branches:
             ignore: /z7-stage.*/
+    - test-3.8-daffy-stage:
+        context: daffy-stage
+        filters:
+          branches:
+            only: /z6-stage.*/
+    - test-3.8-daffy-prod:
+        context: daffy-prod
+        filters:
+          branches:
+            only: /z6/
+            ignore: /z6-stage.*/
 jobs:
   test-3.8-stage:
     environment:
@@ -246,5 +257,235 @@ jobs:
         command: |
           bash <(curl -s https://codecov.io/bash)
     resource_class: medium
+  test-3.8-daffy-stage:
+    environment:
+      COLUMNS: '160'
+      # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      COVER_PACKAGES: compmake
+      TEST_PACKAGES: ''
+    docker:
+    - image: $DOCKER_REGISTRY/circleci/python:3.8
+      auth:
+        username: $DOCKER_USERNAME
+        password: $DOCKER_PASSWORD
+    working_directory: ~/repo
+    steps:
+    - checkout
+    - run:
+        name: Build statistics
+        command: |
+          mkdir -p build-stats
+          env | sort | tee  build-stats/env.txt
+    - store_artifacts:
+        path: build-stats
+        destination: build-stats
 
-# sigil be8b142ee92793a0db7555a94da63b8c
+    - run:
+        name: Install testing deps
+        command: |
+          python3 -m pip install nose coverage pipdeptree rednose
+
+
+
+    - run:
+        name: install
+        command: |
+          python3 -m pip install -e . --user
+
+    - run:
+        name: Python stats
+        command: |
+          pipdeptree | tee  build-stats/pipdeptree.txt
+          pip list   | sort | tee  build-stats/pip-list.txt
+          pip freeze | sort | tee  build-stats/pip-freeze.txt
+
+    - store_artifacts:
+        path: build-stats
+        destination: build-stats
+#    - run:
+#        name: Make docs
+#        command: |
+#          FILE=src/conf.py
+#          mkdir -p out/docs
+#          if test -f "$FILE"; then
+#              sphinx-build src out/docs
+#          fi
+#
+#    - store_artifacts:
+#        path: out/docs
+#        destination: docs
+    - run:
+        background: true
+        name: services
+        command: |
+          TARGET=services
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+    - run:
+        name: pre-circle-tests
+        command: |
+          TARGET=pre-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
+
+    - run:
+        name: post-circle-tests
+        command: |
+          TARGET=post-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
+    - store_test_results:
+        path: out/test-results
+
+    - run:
+        name: Coverage report
+        when: always
+        command: |
+          coverage combine || true
+          coverage html -d out/coverage/${CIRCLE_NODE_INDEX}
+          coverage xml
+
+
+    - store_artifacts:
+        path: out/coverage
+        destination: coverage
+
+    - store_artifacts:
+        path: out/tests
+        destination: tests
+
+    - run:
+        name: CodeCov
+        when: always
+        command: |
+          bash <(curl -s https://codecov.io/bash)
+    resource_class: medium
+  test-3.8-daffy-prod:
+    environment:
+      COLUMNS: '160'
+      # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: /home/circleci/.local/bin:/root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      COVER_PACKAGES: compmake
+      TEST_PACKAGES: ''
+    docker:
+    - image: $DOCKER_REGISTRY/circleci/python:3.8
+      auth:
+        username: $DOCKER_USERNAME
+        password: $DOCKER_PASSWORD
+    working_directory: ~/repo
+    steps:
+    - checkout
+    - run:
+        name: Build statistics
+        command: |
+          mkdir -p build-stats
+          env | sort | tee  build-stats/env.txt
+    - store_artifacts:
+        path: build-stats
+        destination: build-stats
+
+    - run:
+        name: Install testing deps
+        command: |
+          python3 -m pip install nose coverage pipdeptree rednose
+
+
+
+    - run:
+        name: install
+        command: |
+          python3 -m pip install -e . --user
+
+    - run:
+        name: Python stats
+        command: |
+          pipdeptree | tee  build-stats/pipdeptree.txt
+          pip list   | sort | tee  build-stats/pip-list.txt
+          pip freeze | sort | tee  build-stats/pip-freeze.txt
+
+    - store_artifacts:
+        path: build-stats
+        destination: build-stats
+#    - run:
+#        name: Make docs
+#        command: |
+#          FILE=src/conf.py
+#          mkdir -p out/docs
+#          if test -f "$FILE"; then
+#              sphinx-build src out/docs
+#          fi
+#
+#    - store_artifacts:
+#        path: out/docs
+#        destination: docs
+    - run:
+        background: true
+        name: services
+        command: |
+          TARGET=services
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+    - run:
+        name: pre-circle-tests
+        command: |
+          TARGET=pre-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
+
+    - run:
+        name: post-circle-tests
+        command: |
+          TARGET=post-circle-tests
+          if make -n $TARGET ; then
+              make $TARGET
+          else
+              echo "Target $TARGET not defined"
+          fi
+
+    - store_test_results:
+        path: out/test-results
+
+    - run:
+        name: Coverage report
+        when: always
+        command: |
+          coverage combine || true
+          coverage html -d out/coverage/${CIRCLE_NODE_INDEX}
+          coverage xml
+
+
+    - store_artifacts:
+        path: out/coverage
+        destination: coverage
+
+    - store_artifacts:
+        path: out/tests
+        destination: tests
+
+    - run:
+        name: CodeCov
+        when: always
+        command: |
+          bash <(curl -s https://codecov.io/bash)
+    resource_class: medium
+
+# sigil ad0ba7e6ab612c75c2855c82118cb47d
