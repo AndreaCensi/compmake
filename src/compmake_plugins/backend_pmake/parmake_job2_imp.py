@@ -24,12 +24,18 @@ from compmake.utils import setproctitle
 from zuper_commons.fs import DirPath, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 
-
 __all__ = [
     "parmake_job2",
 ]
 
 from zuper_utils_asyncio import SyncTaskInterface
+
+
+def sanitize_for_filename(x0):
+    x = x0
+    x = x.replace(":", "_")
+    x = x.replace("/", "_")
+    return x
 
 
 async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, str]):
@@ -46,8 +52,9 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     job_id, basepath, event_queue_name, show_output, logdir = args
 
     mkdirs_thread_safe(logdir)
-    stdout_fn = os.path.join(logdir, f"{job_id}.stdout.log")
-    stderr_fn = os.path.join(logdir, f"{job_id}.stderr.log")
+    sanitized = sanitize_for_filename(job_id)
+    stdout_fn = os.path.join(logdir, f"{sanitized}.stdout.log")
+    stderr_fn = os.path.join(logdir, f"{sanitized}.stderr.log")
 
     sys.stdout = open(stdout_fn, "w")
     sys.stderr = open(stderr_fn, "w")
