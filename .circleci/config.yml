@@ -63,7 +63,7 @@ jobs:
     - run:
         name: install
         command: |
-          python3 -m pip install -e . --user
+          python3 -m pip install -e ".[test]" --user
 
     - run:
         name: Python stats
@@ -192,7 +192,7 @@ jobs:
     - run:
         name: install
         command: |
-          python3 -m pip install -e . --user
+          python3 -m pip install -e ".[test]" --user
 
     - run:
         name: Python stats
@@ -321,7 +321,7 @@ jobs:
     - run:
         name: install
         command: |
-          python3 -m pip install -e . --user
+          python3 -m pip install -e ".[test]" --user
 
     - run:
         name: Python stats
@@ -450,7 +450,7 @@ jobs:
     - run:
         name: install
         command: |
-          python3 -m pip install -e . --user
+          python3 -m pip install -e ".[test]" --user
 
     - run:
         name: Python stats
@@ -545,4 +545,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: medium
 
-# sigil eb03c2073fac63f711b9ef5132d97298
+# sigil 130a20ad1fc0a09893ebdd7b67fe1f73
