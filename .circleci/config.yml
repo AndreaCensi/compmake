@@ -69,8 +69,8 @@ jobs:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip list | sort | tee  build-stats/pip-list.txt
+          python3 -m pip freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -198,8 +198,8 @@ jobs:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip list | sort | tee  build-stats/pip-list.txt
+          python3 -m pip freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -327,8 +327,8 @@ jobs:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip list | sort | tee  build-stats/pip-list.txt
+          python3 -m pip freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -456,8 +456,8 @@ jobs:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip list | sort | tee  build-stats/pip-list.txt
+          python3 -m pip freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
