@@ -57,22 +57,23 @@ jobs:
         name: Install deps
         command: |
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
-          pip3 install  -r .requirements.txt
+          python3 -m pip install -U pip
+          python3 -m pip install  -r .requirements.txt
           rm .requirements.txt
 
     - run:
         name: Install testing deps
         command: |
           shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt
-          pip3 install -r .requirements_tests.txt
+          python3 -m pip  install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
     - run:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
+          python3 -m pip  freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -81,7 +82,7 @@ jobs:
     - run:
         name: setup.py develop
         command: |
-          python setup.py develop --prefix ~/.local --no-deps
+          pip install -e . --prefix ~/.local --no-deps
 
     - run:
         name: Make docs
@@ -202,22 +203,23 @@ jobs:
         name: Install deps
         command: |
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
-          pip3 install  -r .requirements.txt
+          python3 -m pip install -U pip
+          python3 -m pip install  -r .requirements.txt
           rm .requirements.txt
 
     - run:
         name: Install testing deps
         command: |
           shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt
-          pip3 install -r .requirements_tests.txt
+          python3 -m pip  install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
     - run:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
+          python3 -m pip  freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -226,7 +228,7 @@ jobs:
     - run:
         name: setup.py develop
         command: |
-          python setup.py develop --prefix ~/.local --no-deps
+          pip install -e . --prefix ~/.local --no-deps
 
     - run:
         name: Make docs
@@ -347,22 +349,23 @@ jobs:
         name: Install deps
         command: |
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
-          pip3 install  -r .requirements.txt
+          python3 -m pip install -U pip
+          python3 -m pip install  -r .requirements.txt
           rm .requirements.txt
 
     - run:
         name: Install testing deps
         command: |
           shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt
-          pip3 install -r .requirements_tests.txt
+          python3 -m pip  install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
     - run:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
+          python3 -m pip  freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -371,7 +374,7 @@ jobs:
     - run:
         name: setup.py develop
         command: |
-          python setup.py develop --prefix ~/.local --no-deps
+          pip install -e . --prefix ~/.local --no-deps
 
     - run:
         name: Make docs
@@ -492,22 +495,23 @@ jobs:
         name: Install deps
         command: |
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
-          pip3 install  -r .requirements.txt
+          python3 -m pip install -U pip
+          python3 -m pip install  -r .requirements.txt
           rm .requirements.txt
 
     - run:
         name: Install testing deps
         command: |
           shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt
-          pip3 install -r .requirements_tests.txt
+          python3 -m pip  install -r .requirements_tests.txt
           rm .requirements_tests.txt
 
     - run:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          pip list   | sort | tee  build-stats/pip-list.txt
-          pip freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
+          python3 -m pip  freeze | sort | tee  build-stats/pip-freeze.txt
 
     - store_artifacts:
         path: build-stats
@@ -516,7 +520,7 @@ jobs:
     - run:
         name: setup.py develop
         command: |
-          python setup.py develop --prefix ~/.local --no-deps
+          pip install -e . --prefix ~/.local --no-deps
 
     - run:
         name: Make docs
@@ -607,4 +611,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil e821b16c392475847a108429616de543
+# sigil 4023368d77cc42916f63c90c4eab7d26
