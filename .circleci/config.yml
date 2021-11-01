@@ -22,7 +22,7 @@ workflows:
           branches:
             only: /z6-stage.*/
     - test-3.8-daffy-prod:
-        context: daffy-prod
+        context: production
         filters:
           branches:
             only: /z6/
@@ -33,7 +33,7 @@ workflows:
           branches:
             only: /z6-stage.*/
     - test-3.8-z6-prod:
-        context: z6-prod
+        context: production
         filters:
           branches:
             only: /z6/
@@ -813,4 +813,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: medium
 
-# sigil 3b81b4fbeb4c7677ebeca3654271e525
+# sigil 4dfad64b9b8342fe52338123a49016d5
