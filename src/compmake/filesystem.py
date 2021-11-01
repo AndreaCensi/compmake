@@ -134,7 +134,7 @@ class StorageFilesystem:
         elif self.method == "dill":
             dill.settings["recurse"] = True
             dill.settings["byref"] = True
-            with safe_write(filename) as f:
+            with safe_write(filename, "wb") as f:
                 return dill.dump(value, f)
         else:
             raise NotImplementedError(self.method)
