@@ -8,22 +8,22 @@ from .utils import Env, run_with_env
 
 
 def f1(*arg, **kwargs):
-    """ Generic function """
+    """Generic function"""
     pass
 
 
 def f2(*arg, **kwargs):
-    """ Generic function """
+    """Generic function"""
     pass
 
 
 def failing():
-    """ A function that raises an exception """
+    """A function that raises an exception"""
     raise TypeError()
 
 
 def uses_id(a, b, job_id):
-    """ A function with a job_id arguement """
+    """A function with a job_id arguement"""
     pass
 
 
@@ -34,7 +34,7 @@ async def test_adding(env: Env):
 
 @run_with_env
 async def test_ID(env: Env):
-    """ Check that the job id is correctly parsed """
+    """Check that the job id is correctly parsed"""
     job_id = cast(CMJobID, "terminus")
     c = env.comp(f1, job_id=job_id)
     assert_equal(c.job_id, job_id)
@@ -51,7 +51,7 @@ async def test_ID2(env: Env):
 
 @run_with_env
 async def test_dep(env: Env):
-    """ Testing advanced dependencies discovery """
+    """Testing advanced dependencies discovery"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1)
     assert cf1.job_id in direct_children(cf2.job_id, db=env.db)
@@ -60,7 +60,7 @@ async def test_dep(env: Env):
 
 @run_with_env
 async def test_dep2(env: Env):
-    """ Testing advanced dependencies discovery (double) """
+    """Testing advanced dependencies discovery (double)"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1, cf1)
     assert cf1.job_id in direct_children(cf2.job_id, db=env.db)
@@ -70,7 +70,7 @@ async def test_dep2(env: Env):
 
 @run_with_env
 async def test_dep3(env: Env):
-    """ Testing advanced dependencies discovery in dicts"""
+    """Testing advanced dependencies discovery in dicts"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, [1, {"ciao": cf1}])
     assert cf1.job_id in direct_children(cf2.job_id, db=env.db)

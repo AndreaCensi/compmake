@@ -129,7 +129,7 @@ async def rparmake(
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
 ):
-    """ Shortcut to parmake with default recurse = True. """
+    """Shortcut to parmake with default recurse = True."""
     return await parmake(
         sti, job_list=job_list, context=context, cq=cq, n=n, new_process=new_process, echo=echo, recurse=True
     )

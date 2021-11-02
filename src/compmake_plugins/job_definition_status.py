@@ -10,7 +10,7 @@ counter = 0
 
 
 def console_write(s):
-    """ Writes a line that will be erased. """
+    """Writes a line that will be erased."""
     cols = get_screen_columns()
     s = s.ljust(cols)
     stream.write(s)

@@ -55,7 +55,7 @@ class Env:
         await read_rc_files(self.sti, context=self.cc)
 
     async def all_jobs(self):
-        """ Returns the list of jobs corresponding to the given expression. """
+        """Returns the list of jobs corresponding to the given expression."""
         # db = StorageFilesystem(self.env, compress=True)
         return sorted(list(all_jobs(self.db)))
 
@@ -66,7 +66,7 @@ class Env:
         assert_equal((await self.get_job(job_id)).defined_by, expected)
 
     async def get_jobs(self, expression: str):
-        """ Returns the list of jobs corresponding to the given expression. """
+        """Returns the list of jobs corresponding to the given expression."""
         return list(parse_job_list(expression, context=self.cc))
 
     async def assert_job_uptodate(self, job_id, status):
@@ -96,7 +96,7 @@ class Env:
             raise ZAssertionError("different sets", sa=sa, sb=sb, only_sa=sa - sb, only_sb=sb - sa)
 
     async def assert_cmd_fail(self, cmds):
-        """ Executes the (list of) commands and checks it was succesful. """
+        """Executes the (list of) commands and checks it was succesful."""
         print("@ %s     [supposed to fail]" % cmds)
         try:
             await self.batch_command(cmds)
@@ -110,7 +110,7 @@ class Env:
             raise ZAssertionError(msg, cmds=cmds)
 
     async def assert_cmd_success(self, cmds):
-        """ Executes the (list of) commands and checks it was succesful. """
+        """Executes the (list of) commands and checks it was succesful."""
         print("@ %s" % cmds)
         try:
             await self.batch_command(cmds)

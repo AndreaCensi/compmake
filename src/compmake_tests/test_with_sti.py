@@ -6,7 +6,7 @@ from .utils import Env, run_with_env
 
 
 def f1(sti: SyncTaskInterface) -> int:
-    """ This is not allowed """
+    """This is not allowed"""
     sti.logger.info("inside f")
     return 10
 

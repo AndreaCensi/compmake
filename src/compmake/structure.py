@@ -25,7 +25,7 @@ def add_config_switch(name, default_value, allowed=None, desc=None, section=None
 
 
 def set_config_from_strings(name, args):
-    """ Sets config from an array of arguments """
+    """Sets config from an array of arguments"""
     config_switches = CompmakeGlobalState.config_switches
     if not name in config_switches:
         raise UserError("I don't know config switch %r." % name)

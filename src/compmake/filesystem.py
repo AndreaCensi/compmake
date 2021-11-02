@@ -181,19 +181,19 @@ class StorageFilesystem:
     dangerous_chars = {"/": "CMSLASH", "..": "CMDOT", "~": "CMHOME"}
 
     def key2basename(self, key):
-        """ turns a key into a reasonable filename"""
+        """turns a key into a reasonable filename"""
         for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
     def basename2key(self, key):
-        """ Undoes key2basename """
+        """Undoes key2basename"""
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
         return key
 
     def filename_for_key(self, key, extension=None) -> FilePath:
-        """ Returns the pickle storage filename corresponding to the job id """
+        """Returns the pickle storage filename corresponding to the job id"""
         if extension is None:
             extension = self.file_extension
         f = self.key2basename(key) + extension

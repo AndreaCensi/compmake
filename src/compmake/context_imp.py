@@ -194,7 +194,7 @@ class ContextImp(Context):
         return set(self._jobs_defined_in_this_session)
 
     async def reset_jobs_defined_in_this_session(self, jobs):
-        """ Called only when initializing the context. """
+        """Called only when initializing the context."""
         self._jobs_defined_in_this_session = set(jobs)
 
     def get_compmake_db(self):

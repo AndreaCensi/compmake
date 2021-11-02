@@ -81,7 +81,7 @@ ui_section(
 
 
 def wrap(func, name, alias, section, dbchange):
-    """ Decorator for a UI command -- wrapper for register_command """
+    """Decorator for a UI command -- wrapper for register_command"""
     if name is None:
         name = func.__name__
     docs = func.__doc__

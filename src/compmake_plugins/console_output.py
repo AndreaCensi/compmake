@@ -100,7 +100,7 @@ def write_line_endl(x: str):
 
 
 def write_screen_line(s: str):
-    """ Writes and pads """
+    """Writes and pads"""
     # TODO: check that it is not too long
     s = pad_to_screen(s)
     write_line_endl(s)

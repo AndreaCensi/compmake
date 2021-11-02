@@ -6,7 +6,7 @@ from compmake.colored import compmake_colored
 
 @ui_command(section=VISUALIZATION)
 async def why(sti, non_empty_job_list, context, cq):
-    """ Shows the last line of the error """
+    """Shows the last line of the error"""
     lines = []
     for job_id in non_empty_job_list:
         details = details_why_one(job_id, context, cq)
@@ -19,7 +19,7 @@ async def why(sti, non_empty_job_list, context, cq):
 
 
 def format_table(lines, sep=" | "):
-    """ lines is a list of tuples """
+    """lines is a list of tuples"""
     if not lines:
         return ""
     ncols = len(lines[0])

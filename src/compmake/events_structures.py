@@ -8,7 +8,7 @@ __all__ = [
 
 
 class EventSpec:
-    """ This is a specification of the events that can be generated """
+    """This is a specification of the events that can be generated"""
 
     def __init__(self, name, attrs=None, desc=None):
         if attrs is None:
@@ -19,7 +19,7 @@ class EventSpec:
 
 
 class Event:
-    """ This, instead, is an event itself """
+    """This, instead, is an event itself"""
 
     def __init__(self, name, **kwargs):
         self.name = name

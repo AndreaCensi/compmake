@@ -43,7 +43,7 @@ async def config(sti, args, context: Context):
 
 @ui_command(section=COMMANDS_ADVANCED)
 async def config_html(sti, output_file=""):
-    """ Dumps the config description in html on the specified file. """
+    """Dumps the config description in html on the specified file."""
     if output_file:
         f = open(output_file, "w")
     else:

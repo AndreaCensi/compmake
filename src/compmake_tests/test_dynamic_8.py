@@ -80,7 +80,7 @@ async def test_dynamic8_clean(env: Env):
 
 @run_with_env
 async def test_dynamic8_inverse(env: Env):
-    """ Re-execution creates fewer jobs. """
+    """Re-execution creates fewer jobs."""
     mockup8(env)
     # run it
     TestDynamic8.define_other = False

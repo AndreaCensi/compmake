@@ -127,7 +127,7 @@ class Job:
 
 
 def same_computation(jobargs1, jobargs2):
-    """ Returns boolean, string tuple """
+    """Returns boolean, string tuple"""
     cmd1, args1, kwargs1 = jobargs1
     cmd2, args2, kwargs2 = jobargs2
 

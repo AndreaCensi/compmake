@@ -183,7 +183,7 @@ import os
 
 
 async def compmake_console_lines(context: Context) -> AsyncIterable[str]:
-    """ Returns lines with at least one character. """
+    """Returns lines with at least one character."""
     readline = get_readline()
     from .context_imp import ContextImp
 
@@ -263,7 +263,7 @@ async def compmake_console_lines(context: Context) -> AsyncIterable[str]:
 
 # noinspection PyUnresolvedReferences
 def ask_question(question, allowed=None):
-    """ Asks a yes/no question to the user """
+    """Asks a yes/no question to the user"""
     readline = get_readline()
     if allowed is None:
         allowed = {"y": True, "Y": True, "yes": True, "n": False, "N": False, "no": False}

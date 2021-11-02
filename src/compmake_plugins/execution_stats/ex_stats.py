@@ -64,7 +64,7 @@ def count_resources(context, the_job):
 
 
 def my_get_job_cache(context, the_job):
-    """ Gets the job cache, making sure it was done """
+    """Gets the job cache, making sure it was done"""
     db = context.get_compmake_db()
     cache = get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:

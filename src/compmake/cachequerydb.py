@@ -133,7 +133,7 @@ class CacheQueryDB:
 
     @memoized_reset
     def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
-        """ Returns true if all the dependencies are up to date """
+        """Returns true if all the dependencies are up to date"""
         for child in self.direct_children(job_id):
             child_up, _, _ = self.up_to_date(child)
             if not child_up:
@@ -257,7 +257,7 @@ def db_error_wrap(what, **args):
 
 
 def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
-    """ The result does not contain jobs (unless one job defines another) """
+    """The result does not contain jobs (unless one job defines another)"""
     # print('definition_closure(%s)' % jobs)
     check_isinstance(jobs, (list, set))
     jobs = set(jobs)

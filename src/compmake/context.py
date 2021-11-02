@@ -24,7 +24,7 @@ class Context(metaclass=ABCMeta):
 
     @abstractmethod
     async def reset_jobs_defined_in_this_session(self, jobs):
-        """ Called only when initializing the context. """
+        """Called only when initializing the context."""
         ...
 
     @abstractmethod

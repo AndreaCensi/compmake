@@ -19,7 +19,7 @@ __all__ = [
 
 
 def get_command_line(s: List[str]) -> str:
-    """ returns a command line from list of commands """
+    """returns a command line from list of commands"""
 
     def quote(x: str) -> str:
         if " " in x:
@@ -31,7 +31,7 @@ def get_command_line(s: List[str]) -> str:
 
 
 async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]):
-    """ Starts the job in a new compmake process. """
+    """Starts the job in a new compmake process."""
     (job_id, storage) = args
     # compmake_bin = which("compmake")
     # from .storage import all_jobs

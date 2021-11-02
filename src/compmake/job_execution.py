@@ -18,7 +18,7 @@ __all__ = [
 
 
 def get_cmd_args_kwargs(job_id: CMJobID, db):
-    """ Substitutes dependencies and gets actual cmd, args, kwargs. """
+    """Substitutes dependencies and gets actual cmd, args, kwargs."""
     command, args, kwargs = get_job_args(job_id, db=db)
     kwargs = dict(**kwargs)
     # Let's check that all dependencies have been computed
@@ -38,7 +38,7 @@ class JobCompute:
 
 
 async def job_compute(sti: SyncTaskInterface, job: Job, context):
-    """ Returns a dictionary with fields "user_object" and "new_jobs" """
+    """Returns a dictionary with fields "user_object" and "new_jobs" """
     check_isinstance(job, Job)
     job_id = job.job_id
     db = context.get_compmake_db()
@@ -97,7 +97,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context):
 
 
 async def execute_with_context(sti: SyncTaskInterface, db, context, job_id, command, args, kwargs):
-    """ Returns a dictionary with fields "user_object" and "new_jobs" """
+    """Returns a dictionary with fields "user_object" and "new_jobs" """
     assert isinstance(context, Context)
 
     cur_job = get_job(job_id=job_id, db=db)

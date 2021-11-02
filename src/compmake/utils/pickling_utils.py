@@ -6,6 +6,6 @@ __all__ = [
 
 
 def try_pickling(obj):
-    """ Serializes and deserializes an object. """
+    """Serializes and deserializes an object."""
     s = compmake_pickle.dumps(obj)
     compmake_pickle.loads(s)

@@ -56,7 +56,7 @@ def direct_parents(job_id: CMJobID, db) -> Set[CMJobID]:
 
 
 def direct_children(job_id: CMJobID, db) -> Set[CMJobID]:
-    """ Returns the direct children (dependencies) of the specified job """
+    """Returns the direct children (dependencies) of the specified job"""
     check_isinstance(job_id, str)
     with trace_bugs(f"direct_children({job_id!r})"):
         computation = get_job(job_id, db=db)
@@ -64,7 +64,7 @@ def direct_children(job_id: CMJobID, db) -> Set[CMJobID]:
 
 
 def children(job_id: CMJobID, db) -> Set[CMJobID]:
-    """ Returns children, children of children, etc. """
+    """Returns children, children of children, etc."""
     check_isinstance(job_id, str)
     with trace_bugs(f"children({job_id!r})"):
         t = set()
@@ -75,7 +75,7 @@ def children(job_id: CMJobID, db) -> Set[CMJobID]:
 
 
 def top_targets(db):
-    """ Returns a list of all jobs which are not needed by anybody """
+    """Returns a list of all jobs which are not needed by anybody"""
     return [x for x in all_jobs(db=db) if not direct_parents(x, db=db)]
 
 

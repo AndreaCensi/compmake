@@ -21,7 +21,7 @@ __all__ = [
 
 
 class ManagerLocal(Manager):
-    """ Specialization of manager for local execution """
+    """Specialization of manager for local execution"""
 
     # @contract(new_process="bool", echo="bool")
     def __init__(self, sti: SyncTaskInterface, new_process: bool, echo: bool, *args, **kwargs):

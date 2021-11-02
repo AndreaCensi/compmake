@@ -51,7 +51,7 @@ class Interruption(ZException):
 class AsyncResultInterface(ABC):
     @abstractmethod
     def ready(self) -> bool:
-        """ Returns True if it is ready (completed or failed). """
+        """Returns True if it is ready (completed or failed)."""
 
     @abstractmethod
     async def get(self, timeout: float = 0) -> OKResult:
@@ -156,21 +156,21 @@ class Manager(ManagerLog):
 
     # ## Derived class interface
     def process_init(self):
-        """ Called before processing """
+        """Called before processing"""
 
     def process_finished(self):
-        """ Called after successful processing (before cleanup) """
+        """Called after successful processing (before cleanup)"""
 
     @abstractmethod
     def can_accept_job(self, reasons: Dict[str, str]) -> bool:
-        """ Return true if a new job can be accepted right away"""
+        """Return true if a new job can be accepted right away"""
 
     @abstractmethod
     async def instance_job(self, job_id: CMJobID):
-        """ Instances a job. """
+        """Instances a job."""
 
     def cleanup(self):
-        """ free up any resource, called wheter succesfull or not."""
+        """free up any resource, called wheter succesfull or not."""
         pass
 
     def next_job(self) -> CMJobID:
@@ -677,7 +677,7 @@ class Manager(ManagerLog):
             self.check_invariants()
 
     async def process(self):
-        """ Start processing jobs. """
+        """Start processing jobs."""
         # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
 
@@ -804,7 +804,7 @@ class Manager(ManagerLog):
         )
 
     def _get_situation_string(self):
-        """ Returns a string summarizing the current situation """
+        """Returns a string summarizing the current situation"""
         lists = dict(
             done=self.done,
             all_targets=self.all_targets,
@@ -903,7 +903,7 @@ class Manager(ManagerLog):
 
 
 def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
-    """ Raises CompmakeBug if the job is not marked as done. """
+    """Raises CompmakeBug if the job is not marked as done."""
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
 
@@ -970,7 +970,7 @@ def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
 
 
 def check_job_cache_says_failed(job_id, db, e):
-    """ Raises CompmakeBug if the job is not marked as failed. """
+    """Raises CompmakeBug if the job is not marked as failed."""
     if not job_cache_exists(job_id, db):
         msg = f"The job {job_id!r} was reported as failed but no record of it was found."
         # msg += "\n" + "JobFailed exception:"

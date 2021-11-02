@@ -16,7 +16,7 @@ def ext_candidates(fpath):
 
 
 def which(program):
-    """ Returns string or raise ValueError. """
+    """Returns string or raise ValueError."""
     PATH = os.environ["PATH"]
     PATHs = PATH.split(os.pathsep)
 

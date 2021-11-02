@@ -9,7 +9,7 @@ def f(a):
 
 
 def g(context):
-    """ This function returns a Promise to another job. """
+    """This function returns a Promise to another job."""
     print("g()")
     return context.comp(g_delegated)
 

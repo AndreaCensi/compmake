@@ -31,7 +31,7 @@ __all__ = [
 # noinspection PyUnusedLocal,PyShadowingBuiltins
 @ui_command(alias=["exit"])
 async def quit(sti: SyncTaskInterface, context):
-    """ Exits Compmake's console. """
+    """Exits Compmake's console."""
     raise ShellExitRequested()
 
 
@@ -92,7 +92,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
-    """ Makes a single job -- not for users, but for slave mode. """
+    """Makes a single job -- not for users, but for slave mode."""
     print("amke_single", job_list, out_result)
 
     if len(job_list) > 1:
@@ -116,7 +116,7 @@ async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
 
 
 def ask_if_sure_remake(non_empty_job_list):
-    """ If interactive, ask the user yes or no. Otherwise returns True. """
+    """If interactive, ask the user yes or no. Otherwise returns True."""
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = f"Should I clean and remake {len(non_empty_job_list)} jobs? [y/n] "
         answer = ask_question(question)

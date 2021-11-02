@@ -4,7 +4,7 @@ from .utils import Env, run_with_env
 
 
 def cases():
-    """ Note this uses TestDynamic1.howmany """
+    """Note this uses TestDynamic1.howmany"""
     howmany = TestDynamic1.howmany
     assert isinstance(howmany, int)
     print(f"returned {howmany} cases")

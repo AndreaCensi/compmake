@@ -139,7 +139,7 @@ def clean_cache_relations(job_id: CMJobID, db):
 
 
 def mark_to_remake(job_id: CMJobID, db):
-    """ Delets and invalidates the cache for this object """
+    """Delets and invalidates the cache for this object"""
     # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
@@ -176,7 +176,7 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result):
 def mark_as_failed(
     job_id: CMJobID, db: StorageFilesystem, exception: str = None, backtrace: str = None
 ) -> None:
-    """ Marks job_id  as failed """
+    """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
     if isinstance(exception, str):
         pass
@@ -502,7 +502,7 @@ def generate_job_id(base, context):
 
 
 async def clean_other_jobs(sti: SyncTaskInterface, context):
-    """ Cleans jobs not defined in the session """
+    """Cleans jobs not defined in the session"""
     # print('cleaning other jobs. Defined: %r' %
     # context.get_jobs_defined_in_this_session())
     db = context.get_compmake_db()
@@ -925,7 +925,7 @@ async def interpret_commands(
 
 
 async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context, cq: CacheQueryDB):
-    """ Returns None or raises CommandFailed """
+    """Returns None or raises CommandFailed"""
     check_isinstance(commands_line, str)
 
     ui_commands = get_commands()

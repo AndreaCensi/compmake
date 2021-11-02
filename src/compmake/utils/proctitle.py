@@ -11,5 +11,5 @@ except:
     sys.stderr.write(msg)
 
     def setproctitle(x):
-        """ emulation of the setproctitle interface """
+        """emulation of the setproctitle interface"""
         pass

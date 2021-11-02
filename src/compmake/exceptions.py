@@ -31,7 +31,7 @@ class CompmakeException(ZException):
 
 
 class CompmakeDBError(CompmakeException):
-    """ Raised for inconsistencies in the DB. """
+    """Raised for inconsistencies in the DB."""
 
 
 class CompmakeBug(CompmakeException):
@@ -78,7 +78,7 @@ class UserError(CompmakeException):
 
 
 class SerializationError(UserError):
-    """ Something cannot be serialized (function or function result)."""
+    """Something cannot be serialized (function or function result)."""
 
     pass
 
@@ -88,7 +88,7 @@ class CompmakeSyntaxError(UserError):
 
 
 class JobFailed(CompmakeException):
-    """ This signals that some job has failed """
+    """This signals that some job has failed"""
 
     def __init__(self, job_id: str, reason: str, bt: str, deleted_jobs: List[str] = None):
         deleted_jobs = deleted_jobs or []
@@ -122,7 +122,7 @@ class JobFailed(CompmakeException):
 
 
 class JobInterrupted(CompmakeException):
-    """ User requested to interrupt job"""
+    """User requested to interrupt job"""
 
     def __init__(self, job_id, deleted_jobs: List[str] = None):
         deleted_jobs = deleted_jobs or []

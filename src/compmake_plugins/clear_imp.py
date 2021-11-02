@@ -3,7 +3,7 @@ from compmake import GENERAL, ui_command
 
 @ui_command(section=GENERAL)
 async def clear(sti):  # @ReservedAssignment
-    """ Clear the screen. """
+    """Clear the screen."""
     import sys
 
     sys.stderr.write("\x1b[2J\x1b[H")

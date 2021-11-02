@@ -35,7 +35,7 @@ class TestDynamic9:
 
 @run_with_env
 async def test_dynamic9(env: Env):
-    """ Re-execution creates more jobs.  """
+    """Re-execution creates more jobs."""
     mockup9(env)
     await env.assert_cmd_success("config echo 1")
     await env.assert_cmd_success("config echo_stdout 1")

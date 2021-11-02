@@ -7,7 +7,7 @@ __all__ = [
 
 
 def isodate_with_secs():
-    """ E.g., '2011-10-06-22:54:33' """
+    """E.g., '2011-10-06-22:54:33'"""
     now = datetime.datetime.now()
     date = now.isoformat("-")[:19]
     return date

@@ -18,7 +18,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 
 @ui_command(section=VISUALIZATION)
 async def stats(sti: SyncTaskInterface, args, context, cq):
-    """ Displays a coarse summary of the jobs state. """
+    """Displays a coarse summary of the jobs state."""
     if not args:
         job_list = cq.all_jobs()
     else:

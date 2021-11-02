@@ -51,7 +51,7 @@ class Tracker:
         self.nloops += 1
 
     async def event_job_progress(self, context, event):
-        """ Receive news from the job """
+        """Receive news from the job"""
         # attrs = ['job_id', 'host', 'done', 'progress', 'goal']
         stat = f"{event.progress}/{event.goal}"
         self.status[event.job_id] = stat
@@ -70,7 +70,7 @@ class Tracker:
         self.status[event.job_id] = stat
 
     async def event_manager_progress(self, context, event):
-        """ Receive progress message (updates processing) """
+        """Receive progress message (updates processing)"""
         # attrs=['targets', 'done', 'todo', 'failed', 'ready', 'processing']
         self.processing = event.processing
         self.targets = event.targets

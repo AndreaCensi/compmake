@@ -54,7 +54,7 @@ class TableFormatter:
             yield r
 
     def get_lines_multi(self, linewidth, sep="   "):
-        """ Gets lines, perhaps multiples on a line """
+        """Gets lines, perhaps multiples on a line"""
 
         # Get all lines
         lines = self.get_lines()

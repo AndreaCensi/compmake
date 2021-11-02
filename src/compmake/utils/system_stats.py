@@ -13,7 +13,7 @@ except ImportError:
 
 
 class AvgSystemStats:
-    """ Collects average statistics about the system using psutil. """
+    """Collects average statistics about the system using psutil."""
 
     # noinspection PyUnresolvedReferences
     def __init__(self, interval, history_len):
@@ -72,7 +72,7 @@ class AvgSystemStats:
         return self.swap_mem.get_cur()
 
     def available(self):
-        """ returns false if psutil is not installed """
+        """returns false if psutil is not installed"""
         return self._available
 
     def _check_available(self):
@@ -91,7 +91,7 @@ class Collect:
         self.values = []
 
     def get_cur(self):
-        """ Returns the last value. """
+        """Returns the last value."""
         self.update_if_necessary()
         return self.values[-1]
 

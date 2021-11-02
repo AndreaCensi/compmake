@@ -30,7 +30,7 @@ class LineSplitter:
                 self.current += char
 
     def lines(self):
-        """ Returns a list of line; empties the buffer """
+        """Returns a list of line; empties the buffer"""
         l = list(self.current_lines)
         self.current_lines = []
         return l
@@ -38,7 +38,7 @@ class LineSplitter:
 
 class StreamCapture:
     def __init__(self, transform=None, dest=None, after_lines=None):
-        """ dest has write() and flush() """
+        """dest has write() and flush()"""
         self.buffer = StringIO()
         self.dest = dest
         self.transform = transform

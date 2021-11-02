@@ -178,7 +178,7 @@ async def pmake_worker(
 
 
 class PmakeResult(AsyncResultInterface):
-    """ Wrapper for the async result object obtained by pool.apply_async """
+    """Wrapper for the async result object obtained by pool.apply_async"""
 
     result: Optional[ResultDict]
 

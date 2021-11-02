@@ -20,7 +20,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 async def check_consistency(
     sti: SyncTaskInterface, args, context, cq, raise_if_error=False
 ):  # @ReservedAssignment
-    """ Checks in the DB that the relations between jobs are consistent. """
+    """Checks in the DB that the relations between jobs are consistent."""
 
     db = context.get_compmake_db()
 

@@ -8,7 +8,7 @@ from typing import Dict
 
 
 def pickle_main_context_save() -> Dict:
-    """ Remember who was the __main__ module """
+    """Remember who was the __main__ module"""
     module = sys.modules["__main__"]
     filename = module.__file__
     name = os.path.splitext(os.path.basename(filename))[0]

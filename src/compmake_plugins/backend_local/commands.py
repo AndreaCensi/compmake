@@ -85,7 +85,7 @@ async def pretend(
 
 @ui_command(section=ACTIONS, dbchange=True)
 async def invalidate(sti, non_empty_job_list, context):
-    """ Invalidates the cache of a job so that it will be remade. """
+    """Invalidates the cache of a job so that it will be remade."""
     db = context.get_compmake_db()
     for job in non_empty_job_list:
         mark_to_remake(job, db=db)
@@ -139,7 +139,7 @@ async def rmake(
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
 ):
-    """ make with recurse = 1 """
+    """make with recurse = 1"""
     return await make(
         sti, job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True
     )
