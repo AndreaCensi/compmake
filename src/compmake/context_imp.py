@@ -109,7 +109,7 @@ class ContextImp(Context):
         self.splitter = None
         self.splitter_ui_console = None
 
-    async def init(self, sti: SyncTaskInterface):
+    async def init(self, sti: SyncTaskInterface) -> None:
         self.splitter = await Splitter.make_init(Event)
         self.splitter_ui_console = await Splitter.make_init(Union[UIMessage, Prompt])
 
