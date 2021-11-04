@@ -1,6 +1,6 @@
 import asyncio
 from future import builtins
-from typing import AsyncIterable, cast
+from typing import AsyncIterator, cast
 
 from zuper_utils_asyncio import SyncTaskInterface
 from .actions import clean_other_jobs
@@ -182,7 +182,7 @@ COMPMAKE_HISTORY_FILENAME = ".compmake_history.txt"
 import os
 
 
-async def compmake_console_lines(context: Context) -> AsyncIterable[str]:
+async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
     """Returns lines with at least one character."""
     readline = get_readline()
     from .context_imp import ContextImp
