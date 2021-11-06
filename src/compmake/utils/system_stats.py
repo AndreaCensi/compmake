@@ -4,6 +4,8 @@ __all__ = [
     "AvgSystemStats",
 ]
 
+from typing import Optional
+
 try:
     import psutil  # @UnusedImport
 except ImportError:
@@ -16,7 +18,7 @@ class AvgSystemStats:
     """Collects average statistics about the system using psutil."""
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, interval, history_len):
+    def __init__(self, interval: float, history_len: int):
         """
 
         :param interval: Collect statistics according to this interval.
@@ -51,38 +53,40 @@ class AvgSystemStats:
 
             self.swap_mem = Collect("swap", get_mem, interval, history_len)
 
-    def avg_cpu_percent(self):
+    def avg_cpu_percent(self) -> float:
         self._check_available()
         return self.cpu.get_avg()
 
-    def max_cpu_percent(self):
+    def max_cpu_percent(self) -> float:
         self._check_available()
         return self.cpu.get_max()
 
-    def avg_phymem_usage_percent(self):
+    def avg_phymem_usage_percent(self) -> float:
         self._check_available()
         return self.mem.get_avg()
 
-    def cur_phymem_usage_percent(self):
+    def cur_phymem_usage_percent(self) -> float:
         self._check_available()
         return self.mem.get_cur()
 
-    def cur_virtmem_usage_percent(self):
+    def cur_virtmem_usage_percent(self) -> float:
         self._check_available()
         return self.swap_mem.get_cur()
 
-    def available(self):
+    def available(self) -> bool:
         """returns false if psutil is not installed"""
         return self._available
 
-    def _check_available(self):
+    def _check_available(self) -> None:
         if not self._available:
             msg = "Sorry, psutil not available."
             raise ValueError(msg)
 
 
 class Collect:
-    def __init__(self, name, function, interval, history_len):
+    last_time: Optional[float]
+
+    def __init__(self, name: str, function, interval: float, history_len: int):
         self.name = name
         self.function = function
         self.interval = interval
@@ -90,24 +94,24 @@ class Collect:
         self.last_time = None
         self.values = []
 
-    def get_cur(self):
+    def get_cur(self) -> float:
         """Returns the last value."""
         self.update_if_necessary()
         return self.values[-1]
 
-    def get_min(self):
+    def get_min(self) -> float:
         self.update_if_necessary()
         return min(self.values)
 
-    def get_max(self):
+    def get_max(self) -> float:
         self.update_if_necessary()
         return max(self.values)
 
-    def get_avg(self):
+    def get_avg(self) -> float:
         self.update_if_necessary()
         return sum(self.values) * 1.0 / len(self.values)
 
-    def update_if_necessary(self):
+    def update_if_necessary(self) -> None:
         if self.values and self.time_from_last() < self.interval:
             return
 
@@ -118,7 +122,7 @@ class Collect:
             self.values.pop(0)
             # print('%s: %s' % (self.name, self.values))
 
-    def time_from_last(self):
+    def time_from_last(self) -> float:
         if self.last_time is None:
             return self.interval * self.history_len * 2
         else:
