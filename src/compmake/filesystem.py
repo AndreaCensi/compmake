@@ -3,10 +3,9 @@ import stat
 import traceback
 from glob import glob
 from os.path import basename
-from typing import Iterator, List, NewType
+from typing import Iterator, List, NewType, Optional
 
 import dill
-
 from zuper_commons.fs import (
     DirPath,
     FilePath,
@@ -15,6 +14,7 @@ from zuper_commons.fs import (
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import ZException
+
 from . import logger
 from .exceptions import CompmakeBug, SerializationError
 from .utils import safe_pickle_dump, safe_pickle_load
@@ -159,7 +159,7 @@ class StorageFilesystem:
         return ex
 
     @track_time
-    def keys0(self, extension: str = None) -> Iterator[StorageKey]:
+    def keys0(self, extension: Optional[str] = None) -> Iterator[StorageKey]:
         if extension is None:
             extension = self.file_extension
         filename = self.filename_for_key("*", extension)

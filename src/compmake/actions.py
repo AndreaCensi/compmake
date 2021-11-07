@@ -1,20 +1,21 @@
-from asyncio import CancelledError
-
 import inspect
 import logging
 import traceback
+from asyncio import CancelledError
 from logging import Formatter
 from time import time
-from typing import Callable, cast, Dict, List, Set
-from .filesystem import StorageFilesystem
+from typing import Callable, cast, Dict, List, Optional, Set
+
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from zuper_utils_asyncio import SyncTaskInterface
+
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
 from .exceptions import CommandFailed, CompmakeBug, JobFailed, JobInterrupted, UserError
+from .filesystem import StorageFilesystem
 from .helpers import get_commands, UIState
 from .job_execution import job_compute
 from .parsing import parse_job_list
@@ -174,7 +175,7 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result):
 
 
 def mark_as_failed(
-    job_id: CMJobID, db: StorageFilesystem, exception: str = None, backtrace: str = None
+    job_id: CMJobID, db: StorageFilesystem, exception: Optional[str] = None, backtrace: Optional[str] = None
 ) -> None:
     """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
