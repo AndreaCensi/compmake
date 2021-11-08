@@ -1,5 +1,5 @@
 __version__ = "7.2"
-__date__ = "2021-08-19T13:36:43.212043+00:00"
+__date__ = ""
 
 from zuper_commons.logs import ZLogger
 
@@ -57,3 +57,4 @@ if CompmakeConstants.debug_check_invariants:
 import compmake_plugins as a
 
 _ = a
+logger.hello_module_finished(__name__)
