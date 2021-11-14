@@ -1,7 +1,7 @@
 import sys
 
 from compmake import Context, MakeFailed
-from compmake_tests.utils import assert_raises_async, Env
+from .utils import assert_raises_async, Env
 
 
 def f(*args):

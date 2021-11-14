@@ -4,7 +4,7 @@ from typing import cast, List
 from compmake import (
     MakeFailed,
 )
-from compmake_tests.utils import Env
+from .utils import Env
 
 
 @asynccontextmanager

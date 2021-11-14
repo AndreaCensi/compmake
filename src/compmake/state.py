@@ -1,11 +1,10 @@
 import sys
-from typing import Awaitable, Callable, List
 from collections import namedtuple
-from typing import Dict
+from typing import Awaitable, Callable, Dict, List
 
 from zuper_commons.types import ZValueError
-from .context import Context
 from .constants import CompmakeConstants
+from .context import Context
 from .events_structures import Event
 from .utils import AvgSystemStats
 

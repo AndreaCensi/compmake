@@ -1,7 +1,7 @@
 from nose.tools import assert_equal
 
 from compmake import clean_other_jobs
-from compmake_tests.utils import Env, environment, run_with_env
+from .utils import Env, environment, run_with_env
 
 
 def g():

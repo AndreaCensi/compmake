@@ -2,7 +2,7 @@ from nose.tools import assert_equal
 
 from compmake import get_job
 from compmake.types import CMJobID
-from compmake_tests.utils import Env, environment, run_with_env
+from .utils import Env, environment, run_with_env
 
 
 def g():
