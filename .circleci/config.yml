@@ -31,8 +31,16 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
-      TEST_PACKAGES: compmake_tests
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      TEST_PACKAGES: compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
@@ -124,6 +132,526 @@ jobs:
     #       make -C notebooks cleanup all
 
 
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
     - run:
         name: compmake_tests
         command: |-
@@ -177,8 +705,16 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
-      TEST_PACKAGES: compmake_tests
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      TEST_PACKAGES: compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
@@ -284,6 +820,526 @@ jobs:
               compmake_tests
         when: always
     - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
         name: post-circle-tests
         command: |
           TARGET=post-circle-tests
@@ -323,8 +1379,16 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
-      TEST_PACKAGES: compmake_tests
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      TEST_PACKAGES: compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
@@ -416,6 +1480,526 @@ jobs:
     #       make -C notebooks cleanup all
 
 
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
     - run:
         name: compmake_tests
         command: |-
@@ -469,8 +2053,16 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
-      TEST_PACKAGES: compmake_tests
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      TEST_PACKAGES: compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests compmake_tests compmake_tests compmake_tests compmake_tests
+        compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
@@ -576,6 +2168,526 @@ jobs:
               compmake_tests
         when: always
     - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
+        name: compmake_tests
+        command: |-
+          set -euxo pipefail
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
+        when: always
+    - run:
         name: post-circle-tests
         command: |
           TARGET=post-circle-tests
@@ -611,4 +2723,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 5c19ec2934871998ecb511027d57fb00
+# sigil d3ae4e6530bdc461a2fa79a973428bd7

@@ -23,7 +23,7 @@
     "zuper-zapp-z7"
   ],
   "tests_require": [
-    "aiounittest",
+    "nose",
     "zuper-fs-local-z7",
     "zuper-proc-local-z7"
   ],
