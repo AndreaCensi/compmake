@@ -31,7 +31,7 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -175,7 +175,7 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -319,7 +319,7 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -463,7 +463,7 @@ jobs:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_tests.compmake_test,compmake_tests.expected_fail,compmake_tests.mockup,compmake_tests.mockup_dynamic_4,compmake_tests.test_assertions,compmake_tests.test_blocked,compmake_tests.test_coverage_errors,compmake_tests.test_delegation,compmake_tests.test_delegation_2,compmake_tests.test_delegation_3,compmake_tests.test_delegation_4,compmake_tests.test_delegation_5,compmake_tests.test_dynamic_1,compmake_tests.test_dynamic_2,compmake_tests.test_dynamic_2rec,compmake_tests.test_dynamic_2rec_par,compmake_tests.test_dynamic_3,compmake_tests.test_dynamic_4,compmake_tests.test_dynamic_5,compmake_tests.test_dynamic_6,compmake_tests.test_dynamic_7,compmake_tests.test_dynamic_8,compmake_tests.test_dynamic_9,compmake_tests.test_dynamic_9_redefinition,compmake_tests.test_dynamic_failure,compmake_tests.test_dynamic_new_process,compmake_tests.test_dynamic_re,compmake_tests.test_examples,compmake_tests.test_invalid_functions,compmake_tests.test_more,compmake_tests.test_old_jobs,compmake_tests.test_plugins,compmake_tests.test_priorities,compmake_tests.test_progress,compmake_tests.test_stats,compmake_tests.test_storage,compmake_tests.test_syntax,compmake_tests.test_unpickable_result,compmake_tests.test_with_sti,compmake_tests.utils
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_zapp.envs.log
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -603,4 +603,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 6fb08e7e4b23fb98a22d12da417d1b61
+# sigil 5a2529a0dacd3517beca71e0fe1ecf98
