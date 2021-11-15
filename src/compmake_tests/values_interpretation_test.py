@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from . import interpret_strings_like
+from compmake.utils import interpret_strings_like
 
 
 class InterpretTest(TestCase):
