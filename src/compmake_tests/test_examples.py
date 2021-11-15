@@ -38,10 +38,10 @@ async def run_example(sti: SyncTaskInterface, name: str, command: str, expect_fa
         cmd = [pyfile, command]
 
         async with pi.run3(*cmd, cwd=cwd, echo_stdout=True, echo_stderr=True) as p:
-
             status = await p.wait()
             stderr = await p.stderr_read()
             stdout = await p.stdout_read()
+
         if expect_fail:  # pragma: no cover
             msg = f"Expected failure of {name} but everything OK."
             raise ZException(msg, cmd=cmd, stderr=stderr, stdout=stdout)
