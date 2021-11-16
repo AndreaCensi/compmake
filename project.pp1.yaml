@@ -34,6 +34,8 @@ tests_require:
 - zuper-fs-local-z7
 - zuper-proc-local-z7
 - nose
+- zuper-notes-z7
+- zuper-loghandle-z7
 
 console_scripts:
   compmake: compmake:main
@@ -50,10 +52,10 @@ circleci:
   test_python_versions: ['3.8', '3.9']
   resource_class: xlarge
   environment:
-    Z_SERVICE_LOG: zuper_zapp.envs.log
+    Z_SERVICE_LOG: zuper_loghandle.log
+    Z_SERVICE_NOTE: zuper_notes.notes
     Z_SERVICE_PROC: zuper_proc_local.proc
     Z_SERVICE_FS: zuper_fs_local.use_local_fs
-    Z_SERVICE_NOTE: zuper_zapp.envs.notes
 python_syntax_version: '3.8'
 
 url: https://github.com/AndreaCensi/compmake
