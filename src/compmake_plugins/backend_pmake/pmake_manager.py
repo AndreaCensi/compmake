@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import platform
 import random
 import signal
 import time
@@ -84,8 +85,15 @@ class PmakeManager(Manager):
     ctx: BaseContext
 
     def process_init(self) -> None:
-
-        self.ctx = multiprocessing.get_context("fork")
+        # https://stackoverflow.com/questions/30669659/multiproccesing-and-error-the-process-has-forked-and-you-cannot-use-this-corefou
+        # https://github.com/rq/django-rq/issues/375
+        # https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
+        # if platform.system() == "Darwin":
+        #     use = 'spawn'
+        # else:
+        #     use = 'fork'
+        use = "fork"
+        self.ctx = multiprocessing.get_context(use)
 
         self.event_queue = self.ctx.Queue(1000)
         r = random.randint(0, 10000)
