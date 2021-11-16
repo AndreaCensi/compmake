@@ -33,10 +33,10 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
-      Z_SERVICE_LOG: zuper_zapp.envs.log
+      Z_SERVICE_LOG: zuper_loghandle.log
+      Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
-      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -177,10 +177,10 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
-      Z_SERVICE_LOG: zuper_zapp.envs.log
+      Z_SERVICE_LOG: zuper_loghandle.log
+      Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
-      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.8:z7
       auth:
@@ -321,10 +321,10 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
-      Z_SERVICE_LOG: zuper_zapp.envs.log
+      Z_SERVICE_LOG: zuper_loghandle.log
+      Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
-      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.9:z7
       auth:
@@ -465,10 +465,10 @@ jobs:
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
       TEST_PACKAGES: compmake_tests
-      Z_SERVICE_LOG: zuper_zapp.envs.log
+      Z_SERVICE_LOG: zuper_loghandle.log
+      Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
-      Z_SERVICE_NOTE: zuper_zapp.envs.notes
     docker:
     - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.9:z7
       auth:
@@ -603,4 +603,4 @@ jobs:
           bash <(curl -s https://codecov.io/bash)
     resource_class: xlarge
 
-# sigil 5a2529a0dacd3517beca71e0fe1ecf98
+# sigil 37f3a80f43393b12abef05490eb34fdb
