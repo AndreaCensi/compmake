@@ -1,3 +1,0 @@
-zuper-commons-z7
-zuper-typing-z7
-SystemCmd-z7
