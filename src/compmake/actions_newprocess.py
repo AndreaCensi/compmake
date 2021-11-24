@@ -1,7 +1,7 @@
 import os
 from typing import List, Tuple
 
-from zuper_commons.fs import DirPath, mkdirs_thread_safe
+from zuper_commons.fs import abspath, DirPath, join, mkdirs_thread_safe
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
@@ -42,11 +42,11 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
     # if not jobs:
     #     raise ZException()
     # storage = db.basepath  # XXX:
-    where = os.path.join(storage, "parmake_job2_new_process")
+    where = join(storage, "parmake_job2_new_process")
     mkdirs_thread_safe(where)
 
-    out_result = os.path.join(where, f"{job_id}.results.pickle")
-    out_result = os.path.abspath(out_result)
+    out_result = join(where, f"{job_id}.results.pickle")
+    out_result = abspath(out_result)
     cmd = ["python3", "-m", "compmake", storage]
 
     # from contracts import all_disabled, indent

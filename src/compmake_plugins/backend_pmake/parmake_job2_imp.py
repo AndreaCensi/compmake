@@ -21,7 +21,7 @@ from compmake.events_structures import Event
 from compmake.registered_events import JobProgressEvent
 from compmake.types import CMJobID
 from compmake.utils import setproctitle
-from zuper_commons.fs import DirPath, mkdirs_thread_safe
+from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 
 __all__ = [
@@ -53,8 +53,8 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
     mkdirs_thread_safe(logdir)
     sanitized = sanitize_for_filename(job_id)
-    stdout_fn = os.path.join(logdir, f"{sanitized}.stdout.log")
-    stderr_fn = os.path.join(logdir, f"{sanitized}.stderr.log")
+    stdout_fn = join(logdir, f"{sanitized}.stdout.log")
+    stderr_fn = join(logdir, f"{sanitized}.stderr.log")
 
     sys.stdout = open(stdout_fn, "w")
     sys.stderr = open(stderr_fn, "w")

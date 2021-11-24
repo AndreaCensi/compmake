@@ -9,6 +9,7 @@ import dill
 from zuper_commons.fs import (
     DirPath,
     FilePath,
+    join,
     safe_read,
     safe_write,
     write_ustring_to_utf8_file,
@@ -197,7 +198,7 @@ class StorageFilesystem:
         if extension is None:
             extension = self.file_extension
         f = self.key2basename(key) + extension
-        return os.path.join(self.basepath, f)
+        return join(self.basepath, f)
 
 
 def chmod_plus_x(filename: FilePath) -> None:
@@ -224,16 +225,16 @@ def create_scripts(basepath: DirPath) -> None:
     }
     for fn, cmd in filename2cmd.items():
         s = f'#!/bin/bash\ncompmake {basepath} -c "{cmd} $*"\n'
-        f = os.path.join(basepath, fn)
+        f = join(basepath, fn)
         write_ustring_to_utf8_file(s, f, quiet=True)
         chmod_plus_x(f)
 
     s = f"#!/bin/bash\ncompmake {basepath} \n"
-    f = os.path.join(basepath, "console")
+    f = join(basepath, "console")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
-    f = os.path.join(basepath, "run")
+    f = join(basepath, "run")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

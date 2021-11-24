@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import TimeoutError
 from typing import Any, Collection, Dict, List, Set
 
-from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.fs import abspath, join, make_sure_dir_exists
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
@@ -69,11 +69,11 @@ class AsyncResultInterface(ABC):
 
 class ManagerLog:
     def __init__(self, db):
-        storage = os.path.abspath(db.basepath)
-        logdir = os.path.join(storage, "logs")
+        storage = abspath(db.basepath)
+        logdir = join(storage, "logs")
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
-        log = os.path.join(logdir, "manager.log")
+        log = join(logdir, "manager.log")
         # log = 'manager-%s.log' % sys.version
         print("logging to %s" % log)
         make_sure_dir_exists(log)

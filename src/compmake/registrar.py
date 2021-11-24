@@ -1,6 +1,6 @@
 from typing import Any, Awaitable, Callable, cast
 
-from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.fs import abspath, join, make_sure_dir_exists
 from zuper_commons.types import ZException, ZValueError
 from . import logger
 from .context import Context
@@ -37,6 +37,7 @@ def register_fallback_handler(handler):
 
 
 import inspect
+
 
 # SubEvent = TypeVar('SubEvent', bound=Event)
 
@@ -86,7 +87,10 @@ def publish(context: Context, event_name: str, **kwargs):
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
         if key not in spec.attrs:
-            msg = f"Passed attribute {key!r} for event type {event_name!r} but only found attributes {spec.attrs}."
+            msg = (
+                f"Passed attribute {key!r} for event type {event_name!r} but only found attributes "
+                f"{spec.attrs}."
+            )
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
@@ -101,9 +105,9 @@ import os
 
 
 def get_events_log_file(db):
-    storage = os.path.abspath(db.basepath)
-    logdir = os.path.join(storage, "events")
-    lf = os.path.join(logdir, "events.log")
+    storage = abspath(db.basepath)
+    logdir = join(storage, "events")
+    lf = join(logdir, "events.log")
     make_sure_dir_exists(lf)
     if not os.path.exists(lf):
         with open(lf, "w") as f:

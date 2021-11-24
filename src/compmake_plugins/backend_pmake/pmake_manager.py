@@ -1,6 +1,5 @@
 import multiprocessing
 import os
-import platform
 import random
 import signal
 import time
@@ -18,7 +17,7 @@ from compmake.manager import Manager
 from compmake.registrar import publish
 from compmake.types import CMJobID
 from compmake.visualization import ui_warning
-from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from .parmake_job2_imp import parmake_job2
@@ -85,7 +84,8 @@ class PmakeManager(Manager):
     ctx: BaseContext
 
     def process_init(self) -> None:
-        # https://stackoverflow.com/questions/30669659/multiproccesing-and-error-the-process-has-forked-and-you-cannot-use-this-corefou
+        # https://stackoverflow.com/questions/30669659/multiproccesing-and-error-the-process-has-forked-and
+        # -you-cannot-use-this-corefou
         # https://github.com/rq/django-rq/issues/375
         # https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
         # if platform.system() == "Darwin":
@@ -111,13 +111,13 @@ class PmakeManager(Manager):
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = os.path.join(storage, "logs")
+        logs = join(storage, "logs")
 
         # self.signal_queue = Queue()
 
         for i in range(self.num_processes):
             name = SubName(f"parmake_sub_{i:02d}")
-            write_log = os.path.join(logs, f"{name}.log")
+            write_log = join(logs, f"{name}.log")
             make_sure_dir_exists(write_log)
             signal_token = name
             p = PmakeSub(
@@ -184,7 +184,7 @@ class PmakeManager(Manager):
             args = (job_id, db.basepath)
         else:
             f = parmake_job2
-            logdir = os.path.join(db.basepath, "parmake_job2_logs")
+            logdir = join(db.basepath, "parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(f, args)
