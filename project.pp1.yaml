@@ -27,7 +27,7 @@ install_requires:
 - aiofiles
 - zuper-zapp-z7
 - networkx
-- typing-extensions
+- typing_extensions
 
 
 tests_require:
