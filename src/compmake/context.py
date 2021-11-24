@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import List, Optional, Set
 
 from zuper_utils_asyncio import SyncTaskInterface
@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-class Context(metaclass=ABCMeta):
+class Context(ABC):
     @abstractmethod
     async def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:
         ...
