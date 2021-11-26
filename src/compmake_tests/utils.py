@@ -1,9 +1,10 @@
-import os
 import traceback
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
 from typing import AsyncIterator, Awaitable, Callable, cast, Optional, TypeVar
 from unittest import SkipTest
+
+from nose.tools import assert_equal
 
 from compmake import (
     all_jobs,
@@ -18,8 +19,8 @@ from compmake import (
     read_rc_files,
     StorageFilesystem,
 )
-from nose.tools import assert_equal
 from zuper_commons.cmds import ExitCode
+from zuper_commons.fs import getcwd
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2
@@ -176,7 +177,7 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
     async def test_main() -> ExitCode:
         async def task(sti: SyncTaskInterface):
             sti.started()
-            cwd = os.getcwd()
+            cwd = getcwd()
             # sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
 
             async with setup_environment2(sti, working_dir=cwd):

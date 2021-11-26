@@ -1,7 +1,7 @@
 import os
 from typing import List, Tuple
 
-from zuper_commons.fs import abspath, DirPath, join, mkdirs_thread_safe
+from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
@@ -65,7 +65,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
     logger.info(cmd=cmd, cmdline=get_command_line(cmd))
     pi = await get_pi(sti)
 
-    cwd = os.getcwd()
+    cwd = getcwd()
 
     async with pi.run3(*cmd, cwd=cwd) as p:
         ret = await p.wait()

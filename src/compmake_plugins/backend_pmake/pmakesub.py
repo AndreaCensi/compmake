@@ -1,4 +1,3 @@
-import os
 import signal
 import traceback
 from multiprocessing import TimeoutError
@@ -17,6 +16,7 @@ from compmake import (
     result_dict_raise_if_error,
     ResultDict,
 )
+from zuper_commons.fs import getcwd
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import async_run_simple1, setup_environment2
@@ -67,7 +67,7 @@ async def pmake_worker(
     signal_token,
     write_log=None,
 ):
-    async with setup_environment2(sti, os.getcwd()):
+    async with setup_environment2(sti, getcwd()):
         await sti.started_and_yield()
         # logger.info(f"pmake_worker forked at process {os.getpid()}")
         from coverage import process_startup
