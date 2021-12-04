@@ -2,10 +2,10 @@ import os
 import sys
 import traceback
 from optparse import OptionParser
-from typing import List
+from typing import cast, List
 
 from zuper_commons.cmds import ExitCode
-from zuper_commons.fs import DirPath, join
+from zuper_commons.fs import DirPath, join, RelDirPath
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
 from . import __version__, logger
@@ -94,10 +94,10 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         raise UserError(msg)
 
     # if the argument looks like a dirname
-    one_arg = args[0]
+    one_arg = cast(DirPath, args[0])
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
         # If there is a compmake/ folder inside, take it as the root
-        child = join(one_arg, "compmake")
+        child = join(one_arg, cast(RelDirPath, "compmake"))
         if os.path.exists(child):
             one_arg = child
 

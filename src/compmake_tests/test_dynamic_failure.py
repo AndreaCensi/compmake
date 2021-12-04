@@ -33,7 +33,7 @@ def mockup8(context):
 
 
 class TestDynamicFailure:
-    do_fail: Callable = None
+    do_fail: Optional[Callable] = None
 
 
 @run_with_env

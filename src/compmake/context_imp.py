@@ -245,7 +245,7 @@ class ContextImp(Context):
         return await compmake_console_text(sti, self)
 
 
-def comp_store_(x, context: Context, job_id: CMJobID = None):
+def comp_store_(x, context: Context, job_id: Optional[CMJobID] = None):
     """
 
     Stores the object as a job, keeping track of whether
