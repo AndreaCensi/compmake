@@ -17,6 +17,6 @@ def report(summary):
     print("The sum is: %r" % summary)
 
 
-def mockup_dyn4(context):
+def mockup_dyn4(context) -> None:
     summary = context.comp_dynamic(schedule, [42, 43, 44])
     context.comp(report, summary)

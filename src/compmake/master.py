@@ -5,7 +5,7 @@ from optparse import OptionParser
 from typing import cast, List
 
 from zuper_commons.cmds import ExitCode
-from zuper_commons.fs import DirPath, join, RelDirPath
+from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
 from . import __version__, logger
@@ -40,7 +40,7 @@ async def main(zenv: ZappEnv) -> ExitCode:
     return await compmake_main(zenv.sti, args=zenv.args)
 
 
-async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
+async def compmake_main(sti: SyncTaskInterface, args: List[str] = None) -> ExitCode:
     sti.started()
     if not "" in sys.path:
         sys.path.append("")
@@ -104,9 +104,9 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         context = await load_existing_db(sti, one_arg)
         # If the context was custom we load it
         # noinspection PyUnresolvedReferences
-        if "context" in context.compmake_db:
+        if "context" in context.compmake_db:  # type: ignore
             # noinspection PyTypeChecker,PyUnresolvedReferences
-            context = context.compmake_db["context"]
+            context = context.compmake_db["context"]  # type: ignore
 
             # TODO: check number of jobs is nonzero
     else:
@@ -115,7 +115,7 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
 
     args = args[1:]
 
-    async def go(context2: Context):
+    async def go(context2: Context) -> ExitCode:
         assert context2 is not None
 
         if options.command:
@@ -158,6 +158,7 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         else:
             logger.warning("temporarily always disabling sys.exit")
             # sys.exit(retcode)
+            return retcode
 
     if not options.profile:
         return await go(context2=context)
@@ -173,13 +174,15 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None):
         p.sort_stats("cumulative").print_stats(n)
         p.sort_stats("time").print_stats(n)
 
+        return ExitCode.OK
 
-def write_atomic(filename, contents):
-    dirname = os.path.dirname(filename)
-    if dirname:
-        if not os.path.exists(dirname):
+
+def write_atomic(filename: FilePath, contents: str):
+    d = dirname(filename)
+    if d:
+        if not os.path.exists(d):
             try:
-                os.makedirs(dirname)
+                os.makedirs(d)
             except:
                 pass
     tmpfile = filename + ".tmp"
@@ -191,9 +194,9 @@ def write_atomic(filename, contents):
     os.rename(tmpfile, filename)
 
 
-async def load_existing_db(sti: SyncTaskInterface, dirname: DirPath) -> Context:
-    assert os.path.isdir(dirname)
-    logger.info(f"Loading existing jobs DB {dirname!r}.")
+async def load_existing_db(sti: SyncTaskInterface, d: DirPath) -> Context:
+    assert os.path.isdir(d), d
+    logger.info(f"Loading existing jobs DB {d!r}.")
     # check if it is compressed
     # files = os.listdir(dirname)
     # for one in files:
@@ -204,7 +207,7 @@ async def load_existing_db(sti: SyncTaskInterface, dirname: DirPath) -> Context:
     #     compress = False
     #
 
-    db = StorageFilesystem(dirname, compress=True)
+    db = StorageFilesystem(d, compress=True)
     context = ContextImp(db=db)
     await context.init(sti)
     jobs = list(all_jobs(db=db))
