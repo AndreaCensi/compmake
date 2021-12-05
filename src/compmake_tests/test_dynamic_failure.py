@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 from .utils import Env, run_with_env
 
