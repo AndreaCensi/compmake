@@ -23,7 +23,7 @@ def check_job_states(db, **expected):
 
 
 @run_with_env
-async def test_blocked(env: Env):
+async def test_blocked(env: Env) -> None:
     A = env.comp(job_success, job_id="A")
     B = env.comp(job_failure, A, job_id="B")
     env.comp(job_success, B, job_id="C")

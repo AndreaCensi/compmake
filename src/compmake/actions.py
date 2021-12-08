@@ -8,7 +8,6 @@ from typing import Callable, cast, Dict, List, Optional, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from zuper_utils_asyncio import SyncTaskInterface
-
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
@@ -17,7 +16,7 @@ from .dependencies import collect_dependencies
 from .exceptions import CommandFailed, CompmakeBug, JobFailed, JobInterrupted, UserError
 from .filesystem import StorageFilesystem
 from .helpers import get_commands, UIState
-from .job_execution import job_compute
+from .job_execution import job_compute, JobComputeResult
 from .parsing import parse_job_list
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
@@ -38,7 +37,7 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
-from .structures import Cache, IntervalTimer, Job, Promise, same_computation
+from .structures import Cache, IntervalTimer, Job, MakeResult, Promise, same_computation
 from .types import CMJobID
 from .utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from .visualization import ui_info, ui_warning
@@ -191,7 +190,11 @@ def mark_as_failed(
     set_job_cache(job_id, cache, db=db)
 
 
-async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
+async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = False) -> MakeResult:
+    new_jobs: List[CMJobID]
+    delete_jobs: Set[CMJobID]
+    user_object_deps: Set[CMJobID]
+    user_object: object
     """
     Makes a single job.
 
@@ -323,14 +326,14 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
         return deleted_jobs_
 
     try:
-        result = await job_compute(sti, job=job, context=context)
+        result: JobComputeResult = await job_compute(sti, job=job, context=context)
 
         assert isinstance(result, dict) and len(result) == 5
-        user_object = result["user_object"]
-        new_jobs = result["new_jobs"]
-        int_load_results = result["int_load_results"]
-        int_compute = result["int_compute"]
-        int_gc = result["int_gc"]
+        user_object: object = result["user_object"]
+        new_jobs: List[CMJobID] = result["new_jobs"]
+        int_load_results: IntervalTimer = result["int_load_results"]
+        int_compute: IntervalTimer = result["int_compute"]
+        int_gc: IntervalTimer = result["int_gc"]
         int_gc.stop()
 
     except (KeyboardInterrupt, CancelledError) as e:  # FIXME: need to re-raise CancelledError
@@ -436,16 +439,17 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo=False):
     cache.host = host
     cache.jobs_defined = new_jobs
     set_job_cache(job_id, cache, db=db)
+    user_object_deps = collect_dependencies(user_object)
+    r: MakeResult = {
+        "user_object": user_object,
+        "user_object_deps": user_object_deps,
+        "new_jobs": new_jobs,
+        "deleted_jobs": deleted_jobs,
+    }
+    return r
 
-    return dict(
-        user_object=user_object,
-        user_object_deps=collect_dependencies(user_object),
-        new_jobs=new_jobs,
-        deleted_jobs=deleted_jobs,
-    )
 
-
-def generate_job_id(base, context):
+def generate_job_id(base, context) -> CMJobID:
     """
     Generates a unique job_id for the specified commmand.
     Takes into account job_prefix if that's defined.
@@ -502,7 +506,7 @@ def generate_job_id(base, context):
     raise CompmakeBug("Could not generate a job id")
 
 
-async def clean_other_jobs(sti: SyncTaskInterface, context):
+async def clean_other_jobs(sti: SyncTaskInterface, context) -> None:
     """Cleans jobs not defined in the session"""
     # print('cleaning other jobs. Defined: %r' %
     # context.get_jobs_defined_in_this_session())
@@ -563,20 +567,20 @@ async def clean_other_jobs(sti: SyncTaskInterface, context):
     delete_jobs_recurse_definition(todelete, db)
 
 
-def delete_jobs_recurse_definition(jobs, db) -> Set[str]:
+def delete_jobs_recurse_definition(jobs, db) -> Set[CMJobID]:
     """Deletes all jobs given and the jobs that they defined.
     Returns the set of jobs deleted."""
 
     closure = definition_closure(jobs, db)
 
-    all_jobs = jobs | closure
-    for job_id in all_jobs:
+    all_the_jobs = jobs | closure
+    for job_id in all_the_jobs:
         clean_cache_relations(job_id, db)
 
-    for job_id in all_jobs:
+    for job_id in all_the_jobs:
         delete_all_job_data(job_id, db)
 
-    return all_jobs
+    return all_the_jobs
 
 
 class WarningStorage:

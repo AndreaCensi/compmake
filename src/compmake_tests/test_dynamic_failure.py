@@ -37,7 +37,7 @@ class TestDynamicFailure:
 
 
 @run_with_env
-async def test_dynamic_failure1(env: Env):
+async def test_dynamic_failure1(env: Env) -> None:
     mockup8(env)
     # run it
     TestDynamicFailure.do_fail = ValueError
@@ -47,7 +47,7 @@ async def test_dynamic_failure1(env: Env):
 
 
 @run_with_env
-async def test_dynamic_failure2(env: Env):
+async def test_dynamic_failure2(env: Env) -> None:
     mockup8(env)
     # run it
     TestDynamicFailure.do_fail = None
@@ -64,7 +64,7 @@ async def test_dynamic_failure2(env: Env):
 
 
 @run_with_env
-async def test_dynamic_failure3(env: Env):
+async def test_dynamic_failure3(env: Env) -> None:
     mockup8(env)
     # run it
     TestDynamicFailure.do_fail = KeyboardInterrupt

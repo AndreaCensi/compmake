@@ -17,7 +17,7 @@ def f(x):
 
 
 @run_with_env
-async def test_delegation_2(env: Env):
+async def test_delegation_2(env: Env) -> None:
     res = env.comp_dynamic(rec, 5, job_id="rec-main")
     env.comp(f, res)
 

@@ -10,7 +10,7 @@ def f1() -> Callable:
 
 
 @run_with_env
-async def test_unpickable_result(env: Env):
+async def test_unpickable_result(env: Env) -> None:
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
     env.comp(f1)

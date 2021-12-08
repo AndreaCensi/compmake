@@ -34,7 +34,7 @@ class TestDynamic8:
 
 
 @run_with_env
-async def test_dynamic8(env: Env):
+async def test_dynamic8(env: Env) -> None:
     #         """ Re-execution creates more jobs.  """
     mockup8(env)
     # run it
@@ -50,7 +50,7 @@ async def test_dynamic8(env: Env):
 
 
 @run_with_env
-async def test_dynamic8_clean(env: Env):
+async def test_dynamic8_clean(env: Env) -> None:
     #         """ Re-execution creates more jobs.  """
     mockup8(env)
     # run it
@@ -79,7 +79,7 @@ async def test_dynamic8_clean(env: Env):
 
 
 @run_with_env
-async def test_dynamic8_inverse(env: Env):
+async def test_dynamic8_inverse(env: Env) -> None:
     """Re-execution creates fewer jobs."""
     mockup8(env)
     # run it

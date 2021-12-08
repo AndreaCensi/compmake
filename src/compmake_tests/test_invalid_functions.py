@@ -17,10 +17,10 @@ def uses_lambda(context):
 
 
 @run_with_env
-async def test_invalid_function_nested(env: Env):
+async def test_invalid_function_nested(env: Env) -> None:
     assert_raises(UserError, uses_nested, env.cc)
 
 
 @run_with_env
-async def test_invalid_function_lambda(env: Env):
+async def test_invalid_function_lambda(env: Env) -> None:
     assert_raises(UserError, uses_lambda, env.cc)

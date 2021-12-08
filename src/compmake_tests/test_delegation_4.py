@@ -17,7 +17,7 @@ def f(x):
 
 
 @run_with_env
-async def test_delegation_4(env: Env):
+async def test_delegation_4(env: Env) -> None:
     """Similar to TestDelegation2 and 3, but here the jobs are not named
     exclusively with job_id=..."""
 

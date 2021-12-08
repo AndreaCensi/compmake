@@ -9,13 +9,13 @@ from .utils import Env, run_with_env
 
 
 @run_with_env
-async def test_exists1(env: Env):
+async def test_exists1(env: Env) -> None:
     key = cast(StorageKey, "not-existent")
     assert not key in env.db
 
 
 @run_with_env
-async def test_exists2(env: Env):
+async def test_exists2(env: Env) -> None:
     k = cast(StorageKey, "ciao")
     v = {"complex": 123}
     db = env.db
@@ -32,7 +32,7 @@ async def test_exists2(env: Env):
 
 
 @run_with_env
-async def test_search(env: Env):
+async def test_search(env: Env) -> None:
     db = env.db
 
     def search(pattern):

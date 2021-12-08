@@ -3,7 +3,7 @@ from .utils import assert_raises_async, Env, run_with_env
 
 
 @run_with_env
-async def test_cov_errors1(env: Env):
+async def test_cov_errors1(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
 
@@ -12,7 +12,7 @@ async def test_cov_errors1(env: Env):
 
 
 @run_with_env
-async def test_cov_errors2(env: Env):
+async def test_cov_errors2(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     async with assert_raises_async(AssertionError):
@@ -20,7 +20,7 @@ async def test_cov_errors2(env: Env):
 
 
 @run_with_env
-async def test_cov_errors3(env: Env):
+async def test_cov_errors3(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     async with assert_raises_async(AssertionError):
@@ -28,7 +28,7 @@ async def test_cov_errors3(env: Env):
 
 
 @run_with_env
-async def test_cov_errors4(env: Env):
+async def test_cov_errors4(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     async with assert_raises_async(AssertionError):
@@ -37,7 +37,7 @@ async def test_cov_errors4(env: Env):
 
 
 @run_with_env
-async def test_cov_errors5(env: Env):
+async def test_cov_errors5(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     async with assert_raises_async(AssertionError):

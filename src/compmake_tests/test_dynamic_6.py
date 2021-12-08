@@ -57,7 +57,7 @@ from .utils import Env, environment, run_with_env
 
 
 @run_with_env
-async def test_dynamic6(env: Env):
+async def test_dynamic6(env: Env) -> None:
     # first define with job and run
     mockup6(env.cc, both=True)
     db = env.db

@@ -39,7 +39,7 @@ from .utils import Env, environment, run_with_env
 
 
 @run_with_env
-async def test_dynamic5(env: Env):
+async def test_dynamic5(env: Env) -> None:
     # first define with job and run
     mockup5(env, both=True)
     await env.assert_cmd_success("make recurse=1")

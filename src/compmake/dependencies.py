@@ -73,7 +73,7 @@ def substitute_dependencies(a, db):
         return a
 
 
-def collect_dependencies(ob) -> Set[CMJobID]:
+def collect_dependencies(ob: object) -> Set[CMJobID]:
     """Returns a set of dependencies (i.e., Promise objects that
     are mentioned somewhere in the structure"""
 

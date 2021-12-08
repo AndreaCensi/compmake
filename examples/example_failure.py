@@ -2,10 +2,10 @@
 
 
 import sys
-from zuper_zapp import zapp1, ZappEnv
-
-
 import time
+
+from zuper_commons.cmds import ExitCode
+from zuper_zapp import zapp1, ZappEnv
 
 wait = 0.01
 
@@ -30,10 +30,8 @@ def draw(result):
     print("Computing draw(%r)" % result)
 
 
-
-
 @zapp1()
-async def main(ze: ZappEnv):
+async def main(ze: ZappEnv) -> ExitCode:
     sti = ze.sti
     sti.started()
     from compmake import ContextImp
@@ -53,6 +51,8 @@ async def main(ze: ZappEnv):
     else:
         print('Use "make recurse=1" or "parmake recurse=1" to make all.')
         await c.compmake_console(sti)
+
+    return ExitCode.OK
 
 
 if __name__ == "__main__":

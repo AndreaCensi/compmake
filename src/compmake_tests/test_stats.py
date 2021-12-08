@@ -22,7 +22,7 @@ def hh(context):
 
 
 @run_with_env
-async def test_execution_stats(env: Env):
+async def test_execution_stats(env: Env) -> None:
     # schedule some commands
     res = env.comp_dynamic(gg)
 
@@ -41,7 +41,7 @@ async def test_execution_stats(env: Env):
 
 
 @run_with_env
-async def test_execution_stats2(env: Env):
+async def test_execution_stats2(env: Env) -> None:
     # schedule some commands
     res = env.comp_dynamic(hh)
 

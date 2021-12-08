@@ -13,7 +13,7 @@ def dummy():  # pragma: no cover
 
 
 @run_with_env
-async def test_syntax(env: Env):
+async def test_syntax(env: Env) -> None:
     jobs = [
         ("a", Cache.DONE),
         ("b", Cache.FAILED),

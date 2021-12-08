@@ -29,12 +29,12 @@ def uses_id(a, b, job_id):
 
 
 @run_with_env
-async def test_adding(env: Env):
+async def test_adding(env: Env) -> None:
     env.comp(f1)
 
 
 @run_with_env
-async def test_ID(env: Env):
+async def test_ID(env: Env) -> None:
     """Check that the job id is correctly parsed"""
     job_id = cast(CMJobID, "terminus")
     c = env.comp(f1, job_id=job_id)
@@ -43,7 +43,7 @@ async def test_ID(env: Env):
 
 
 @run_with_env
-async def test_ID2(env: Env):
+async def test_ID2(env: Env) -> None:
     """Make sure we set up a warning if the job_id key
     is already used"""
     assert env.comp(f1, job_id="ciao")
@@ -51,7 +51,7 @@ async def test_ID2(env: Env):
 
 
 @run_with_env
-async def test_dep(env: Env):
+async def test_dep(env: Env) -> None:
     """Testing advanced dependencies discovery"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1)
@@ -60,7 +60,7 @@ async def test_dep(env: Env):
 
 
 @run_with_env
-async def test_dep2(env: Env):
+async def test_dep2(env: Env) -> None:
     """Testing advanced dependencies discovery (double)"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1, cf1)
@@ -70,7 +70,7 @@ async def test_dep2(env: Env):
 
 
 @run_with_env
-async def test_dep3(env: Env):
+async def test_dep3(env: Env) -> None:
     """Testing advanced dependencies discovery in dicts"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, [1, {"ciao": cf1}])
@@ -82,7 +82,7 @@ from .utils import Env, run_with_env
 
 
 @run_with_env
-async def test_job_param(env: Env):
+async def test_job_param(env: Env) -> None:
     """We should issue a warning if job_id is used
     as a parameter in the function"""
     env.comp(uses_id)

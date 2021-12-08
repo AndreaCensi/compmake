@@ -38,7 +38,7 @@ class TestDynamic1:
 
 
 @run_with_env
-async def test_dynamic1_cleaning(env: Env):
+async def test_dynamic1_cleaning(env: Env) -> None:
     mockup_dynamic1(env.cc)
     # At this point we have generated only two jobs
     await env.assert_jobs_equal("all", ["generate", "values"])

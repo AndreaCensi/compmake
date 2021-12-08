@@ -81,52 +81,52 @@ cmd_make4 = "parmake recurse=1 new_process=1"
 
 
 @zapp1_test()
-async def test_example_dynamic_explicitcontext1(ze: ZappTestEnv):
+async def test_example_dynamic_explicitcontext1(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_dynamic_explicitcontext", cmd_make1)
 
 
 @zapp1_test()
-async def test_example_dynamic_explicitcontext2(ze: ZappTestEnv):
+async def test_example_dynamic_explicitcontext2(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_dynamic_explicitcontext", cmd_make2)
 
 
 @zapp1_test()
-async def test_example_progress1(ze: ZappTestEnv):
+async def test_example_progress1(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress", cmd_make1)
 
 
 @zapp1_test()
-async def test_example_progress2(ze: ZappTestEnv):
+async def test_example_progress2(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress", cmd_make2)
 
 
 @zapp1_test()
-async def test_example_progress_same1(ze: ZappTestEnv):
+async def test_example_progress_same1(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress_same", cmd_make1)
 
 
 @zapp1_test()
-async def test_example_progress_same2(ze: ZappTestEnv):
+async def test_example_progress_same2(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress_same", cmd_make2)
 
 
 @zapp1_test()
-async def test_example_progress_same3(ze: ZappTestEnv):
+async def test_example_progress_same3(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress_same", cmd_make3)
 
 
 @zapp1_test()
-async def test_example_progress_same4(ze: ZappTestEnv):
+async def test_example_progress_same4(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress_same", cmd_make4)
 
 
 @zapp1_test()
-async def test_example_simple1(ze: ZappTestEnv):
+async def test_example_simple1(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_simple", cmd_make1)
 
 
 @zapp1_test()
-async def test_example_simple2(ze: ZappTestEnv):
+async def test_example_simple2(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_simple", cmd_make2)
 
 
@@ -148,30 +148,30 @@ async def test_example_simple2(ze: ZappTestEnv):
 
 
 @zapp1_test()
-async def test_example_dynamic_explicitcontext3(ze: ZappTestEnv):
+async def test_example_dynamic_explicitcontext3(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_dynamic_explicitcontext", cmd_make3)
 
 
 @zapp1_test()
-async def test_example_dynamic_explicitcontext4(ze: ZappTestEnv):
+async def test_example_dynamic_explicitcontext4(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_dynamic_explicitcontext", cmd_make4)
 
 
 @zapp1_test()
-async def test_example_progress3(ze: ZappTestEnv):
+async def test_example_progress3(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress", cmd_make3)
 
 
 @zapp1_test()
-async def test_example_progress4(ze: ZappTestEnv):
+async def test_example_progress4(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_progress", cmd_make4)
 
 
 @zapp1_test()
-async def test_example_simple3(ze: ZappTestEnv):
+async def test_example_simple3(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_simple", cmd_make3)
 
 
 @zapp1_test()
-async def test_example_simple4(ze: ZappTestEnv):
+async def test_example_simple4(ze: ZappTestEnv) -> None:
     await run_example(ze.sti, "example_simple", cmd_make4)

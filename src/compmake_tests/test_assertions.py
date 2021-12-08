@@ -11,7 +11,7 @@ def job_failure(*args, **kwargs):
 
 
 @run_with_env
-async def test_assertion_make(env: Env):
+async def test_assertion_make(env: Env) -> None:
     for i in range(10):
         env.comp(job_failure, job_id=f"fail{i:02d}")
 
@@ -20,7 +20,7 @@ async def test_assertion_make(env: Env):
 
 
 @run_with_env
-async def test_assertion(env: Env):
+async def test_assertion(env: Env) -> None:
     for i in range(10):
         env.comp(job_failure, job_id=f"fail{i:02d}")
 

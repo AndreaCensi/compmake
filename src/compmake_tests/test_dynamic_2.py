@@ -3,7 +3,7 @@ from .utils import Env, run_with_env
 
 
 @run_with_env
-async def test_dynamic2_cleaning(env: Env):
+async def test_dynamic2_cleaning(env: Env) -> None:
     mockup_recursive_5(env.cc)
     for _ in range(5):
         await env.assert_cmd_success("ls;make;ls")

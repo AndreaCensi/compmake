@@ -20,7 +20,7 @@ def g_delegated():
 
 
 @run_with_env
-async def test_delegation_1a(env: Env):
+async def test_delegation_1a(env: Env) -> None:
     g_res = env.comp_dynamic(g)
     env.comp(f, g_res)
     await env.assert_cmd_success("ls")
@@ -31,7 +31,7 @@ async def test_delegation_1a(env: Env):
 
 
 @run_with_env
-async def test_delegation_1b(env: Env):
+async def test_delegation_1b(env: Env) -> None:
     g_res = env.comp_dynamic(g)
     env.comp(f, g_res)
     await env.assert_cmd_success("ls")

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-
+from zuper_commons.cmds import ExitCode
 from zuper_zapp import zapp1, ZappEnv
 
 
 @zapp1()
-async def main(ze: ZappEnv):
+async def main(ze: ZappEnv)-> ExitCode:
     sti = ze.sti
     sti.started()
     from compmake import ContextImp

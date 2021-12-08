@@ -13,7 +13,7 @@ def h():
 
 
 @run_with_env
-async def test_cleaning_other(env: Env):
+async def test_cleaning_other(env: Env) -> None:
     await cleaning_other_first(env)
     jobs1 = await env.all_jobs()
     assert_equal(jobs1, ["g", "h"])
@@ -46,7 +46,7 @@ def f2(context):
 
 
 @run_with_env
-async def test_cleaning2(env: Env):
+async def test_cleaning2(env: Env) -> None:
     await cleaning2_first(env)
     jobs1 = await env.all_jobs()
     assert_equal(jobs1, ["f", "f-g", "f-h"])
@@ -81,7 +81,7 @@ def e2(context):
 
 
 @run_with_env
-async def test_cleaning3(env: Env):
+async def test_cleaning3(env: Env) -> None:
     env.cc.set_compmake_config("check_params", True)
     await cleaning3_first(env)
     jobs1 = await env.all_jobs()

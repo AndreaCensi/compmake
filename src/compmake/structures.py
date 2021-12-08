@@ -60,7 +60,7 @@
 
 """
 from dataclasses import dataclass
-from typing import Dict, List, NewType, Optional, Set, Tuple, Union
+from typing import Dict, List, NewType, Optional, Set, Tuple, TypedDict, Union
 
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
@@ -83,6 +83,13 @@ __all__ = [
 @dataclass
 class Promise:
     job_id: CMJobID
+
+
+class MakeResult(TypedDict):
+    user_object: object
+    user_object_deps: Set[CMJobID]
+    new_jobs: List[CMJobID]
+    delete_jobs: Set[CMJobID]
 
 
 class Job:

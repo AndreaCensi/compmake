@@ -22,7 +22,7 @@ class TestOrder:
 
 
 @run_with_env
-async def test_order(env: Env):
+async def test_order(env: Env) -> None:
     TestOrder.order = []
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
     # add two copies
@@ -36,7 +36,7 @@ async def test_order(env: Env):
 
 
 @run_with_env
-async def test_order2(env: Env):
+async def test_order2(env: Env) -> None:
     TestOrder.order = []
     # choose wisely here
     env.comp(top, env.comp(bottom))
@@ -50,7 +50,7 @@ async def test_order2(env: Env):
 
 
 @run_with_env
-async def test_order3(env: Env):
+async def test_order3(env: Env) -> None:
     TestOrder.order = []
     # choose wisely here
     env.comp(top, env.comp(bottom2))

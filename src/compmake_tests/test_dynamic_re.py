@@ -4,7 +4,7 @@ from .utils import Env, run_with_env
 
 
 @run_with_env
-async def test_dynamic_re1(env: Env):
+async def test_dynamic_re1(env: Env) -> None:
     TestDynamic1.howmany = 3
     mockup_dynamic1(env.cc)
     # At this point we have generated only two jobs

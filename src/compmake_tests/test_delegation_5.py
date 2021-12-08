@@ -21,7 +21,7 @@ def h(i):
 
 
 @run_with_env
-async def test_delegation_5(env: Env):
+async def test_delegation_5(env: Env) -> None:
     """
     Here's the problem: when the master are overwritten then
     the additional dependencies are lost.

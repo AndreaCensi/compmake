@@ -13,7 +13,7 @@ def f1(sti: SyncTaskInterface) -> int:
 
 @raises(Exception)
 @run_with_env
-async def test_with_sti_not_async(env: Env):
+async def test_with_sti_not_async(env: Env) -> None:
     env.cc.comp(f1)
     await env.batch_command("make")
 
@@ -24,7 +24,7 @@ async def f2(sti: SyncTaskInterface) -> int:
 
 
 @run_with_env
-async def test_with_sti_not_async2(env: Env):
+async def test_with_sti_not_async2(env: Env) -> None:
     env.cc.comp(f2)
     await env.batch_command("make")
 
@@ -45,7 +45,7 @@ async def f3(
 
 
 @run_with_env
-async def test_with_sti_not_async3(env: Env):
+async def test_with_sti_not_async3(env: Env) -> None:
     env.cc.comp_dynamic(f3, job_id="f3")
     try:
         await env.batch_command("rmake")

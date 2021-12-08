@@ -20,7 +20,7 @@ def mockup7(context):
 
 
 @run_with_env
-async def test_dynamic7(env: Env):
+async def test_dynamic7(env: Env) -> None:
     # first define with job and run
     mockup7(env)
     await env.assert_cmd_success("make recurse=1; ls")
@@ -37,7 +37,7 @@ async def test_dynamic7(env: Env):
 
 
 @run_with_env
-async def test_dynamic7_invalidate(env: Env):
+async def test_dynamic7_invalidate(env: Env) -> None:
     # first define with job and run
     mockup7(env.cc)
     await env.assert_cmd_success("make recurse=1; ls")

@@ -1,9 +1,9 @@
 import asyncio
 import inspect
 
+from typeshed.stdlib.typing import List, TypedDict
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
-
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
@@ -37,7 +37,15 @@ class JobCompute:
     current_job_id = None
 
 
-async def job_compute(sti: SyncTaskInterface, job: Job, context):
+class JobComputeResult(TypedDict):
+    user_object: object
+    new_jobs: List[CMJobID]
+    int_load_results: IntervalTimer
+    int_compute: IntervalTimer
+    int_gc: IntervalTimer
+
+
+async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """
     check_isinstance(job, Job)
     job_id = job.job_id
@@ -54,20 +62,27 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context):
         args = tuple(list([context]) + list(args))
 
         int_compute = IntervalTimer()
-        res = await execute_with_context(
+        res: ExecuteWithContextResult = await execute_with_context(
             sti, db=db, context=context, job_id=job_id, command=command, args=args, kwargs=kwargs
         )
         int_compute.stop()
 
-        assert isinstance(res, dict)
-        assert len(res) == 2, list(res.keys())
+        # assert isinstance(res, dict)
+        # assert len(res) == 2, list(res.keys())
         assert "user_object" in res
         assert "new_jobs" in res
 
-        res["int_load_results"] = int_load_results
-        res["int_compute"] = int_compute
-        res["int_gc"] = IntervalTimer()
-        return res
+        new_jobs: List[CMJobID] = res["new_jobs"]
+        user_object: object = res["user_object"]
+        res1: JobComputeResult = {
+            "user_object": user_object,
+            "new_jobs": new_jobs,
+            "int_load_results": int_load_results,
+            "int_compute": int_compute,
+            "int_gc": IntervalTimer(),
+        }
+
+        return res1
     else:
         int_compute = IntervalTimer()
         is_async = inspect.iscoroutinefunction(command)
@@ -87,16 +102,24 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context):
             user_object = command(*args, **kwargs)
         int_compute.stop()
 
-        res = dict(user_object=user_object, new_jobs=[])
+        res2: JobComputeResult = {
+            "user_object": user_object,
+            "new_jobs": [],
+            "int_load_results": int_load_results,
+            "int_compute": int_compute,
+            "int_gc": int_gc,
+        }
+        return res2
 
-        res["int_load_results"] = int_load_results
-        res["int_compute"] = int_compute
-        res["int_gc"] = IntervalTimer()
 
-        return res
+class ExecuteWithContextResult(TypedDict):
+    user_object: object
+    new_jobs: List[CMJobID]
 
 
-async def execute_with_context(sti: SyncTaskInterface, db, context, job_id, command, args, kwargs):
+async def execute_with_context(
+    sti: SyncTaskInterface, db, context, job_id, command, args, kwargs
+) -> ExecuteWithContextResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """
     assert isinstance(context, Context)
 

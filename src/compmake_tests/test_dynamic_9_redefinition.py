@@ -41,7 +41,7 @@ def mockup(context):
 
 
 @run_with_env
-async def test_dynamic9_red_rmake(env: Env):
+async def test_dynamic9_red_rmake(env: Env) -> None:
     mockup(env)
     env.sti.logger.info("part 1")
     await env.assert_cmd_success("rmake")
@@ -69,7 +69,7 @@ async def test_dynamic9_red_rmake(env: Env):
 
 @unittest.skip
 @run_with_env
-async def test_dynamic9_red_rparmake(env: Env):
+async def test_dynamic9_red_rparmake(env: Env) -> None:
     mockup(env)
     env.sti.logger.info("part 1")
     await env.assert_cmd_success("parmake recurse=1")

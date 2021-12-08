@@ -2,11 +2,12 @@
 
 from compmake import ContextImp
 from example_big_support import failure_prob, first, second, third
+from zuper_commons.cmds import ExitCode
 from zuper_zapp import zapp1, ZappEnv
 
 
 @zapp1()
-async def main(ze: ZappEnv):
+async def main(ze: ZappEnv)-> ExitCode:
     sti = ze.sti
     sti.started()
 
