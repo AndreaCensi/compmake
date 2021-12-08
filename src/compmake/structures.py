@@ -61,7 +61,7 @@
 """
 from dataclasses import dataclass
 from typing import Dict, List, NewType, Optional, Set, Tuple, TypedDict, Union
-
+import time
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
@@ -179,8 +179,10 @@ def same_computation(jobargs1, jobargs2):
 
 
 class IntervalTimer:
+    c1: float
+    t1: float
+
     def __init__(self):
-        import time
 
         self.c0 = time.process_time()
         self.t0 = time.time()
@@ -188,7 +190,6 @@ class IntervalTimer:
 
     def stop(self):
         self.stopped = True
-        import time
 
         self.c1 = time.process_time()
         self.t1 = time.time()

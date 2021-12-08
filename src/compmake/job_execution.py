@@ -1,7 +1,7 @@
 import asyncio
 import inspect
-
 from typing import List, TypedDict
+
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from .context import Context
@@ -101,13 +101,13 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
 
             user_object = command(*args, **kwargs)
         int_compute.stop()
-
+        new_jobs: List[CMJobID] = []
         res2: JobComputeResult = {
             "user_object": user_object,
-            "new_jobs": [],
+            "new_jobs": new_jobs,
             "int_load_results": int_load_results,
             "int_compute": int_compute,
-            "int_gc": int_gc,
+            "int_gc": IntervalTimer(),
         }
         return res2
 
@@ -155,7 +155,8 @@ async def execute_with_context(
         res = command(*args, **kwargs)
     generated = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session(already)
-    return dict(user_object=res, new_jobs=generated)
+    final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
+    return final_res
 
 
 #    if generated:
