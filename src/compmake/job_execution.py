@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 
-from typeshed.stdlib.typing import List, TypedDict
+from typing import List, TypedDict
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from .context import Context
