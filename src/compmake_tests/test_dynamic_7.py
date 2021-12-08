@@ -1,6 +1,5 @@
-from nose.tools import assert_equal
-
 from compmake import CompmakeDBError
+from zuper_commons.test_utils import my_assert_equal
 from .utils import assert_raises_async, Env, run_with_env
 
 
@@ -27,7 +26,7 @@ async def test_dynamic7(env: Env):
     await env.assert_cmd_success("make recurse=1; ls")
 
     # check that g2 is up to date
-    assert_equal(await env.up_to_date("fd-gd-g2"), True)
+    my_assert_equal(await env.up_to_date("fd-gd-g2"), True)
 
     # now clean its parent
     await env.assert_cmd_success("clean fd")
@@ -44,10 +43,10 @@ async def test_dynamic7_invalidate(env: Env):
     await env.assert_cmd_success("make recurse=1; ls")
 
     # check that g2 is up to date
-    assert_equal(await env.up_to_date("fd-gd-g2"), True)
+    my_assert_equal(await env.up_to_date("fd-gd-g2"), True)
 
     # now invalidate the parent
     await env.assert_cmd_success("invalidate fd")
 
     # job exists but not up to date
-    assert_equal(await env.up_to_date("fd-gd-g2"), False)
+    my_assert_equal(await env.up_to_date("fd-gd-g2"), False)

@@ -1,6 +1,6 @@
 from typing import cast
 
-from nose.tools import assert_equal
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 
 from compmake import get_job_userobject_resolved
 from compmake.types import CMJobID

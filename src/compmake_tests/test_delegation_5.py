@@ -1,5 +1,4 @@
-from nose.tools import assert_equal
-
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 from compmake import get_job
 from compmake.types import CMJobID
 from .utils import Env, environment, run_with_env

@@ -2,6 +2,8 @@ from nose.tools import assert_raises
 
 from compmake import UserError
 
+from .utils import Env, run_with_env
+
 
 def uses_nested(context):
     def f1():
@@ -12,9 +14,6 @@ def uses_nested(context):
 
 def uses_lambda(context):
     context.comp(lambda x: x, 1)
-
-
-from .utils import Env, run_with_env
 
 
 @run_with_env

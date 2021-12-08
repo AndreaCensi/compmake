@@ -1,6 +1,6 @@
 from typing import cast
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from compmake import (
     Cache,
@@ -12,6 +12,7 @@ from compmake import (
     jobs_defined,
 )
 from compmake.types import CMJobID
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 
 
 def g2():

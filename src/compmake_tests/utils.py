@@ -4,8 +4,6 @@ from tempfile import mkdtemp
 from typing import AsyncIterator, Awaitable, Callable, cast, Optional, TypeVar
 from unittest import SkipTest
 
-from nose.tools import assert_equal
-
 from compmake import (
     all_jobs,
     CacheQueryDB,
@@ -21,6 +19,7 @@ from compmake import (
 )
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import getcwd
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2

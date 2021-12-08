@@ -1,6 +1,7 @@
 import sys
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 
 from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID

@@ -1,9 +1,9 @@
 import unittest
 
-from nose.tools import assert_equal, assert_raises, istest
+from nose.tools import assert_raises, istest
 
 from compmake import init_progress_tracking, progress
-from zuper_commons.test_utils import known_failure
+from zuper_commons.test_utils import known_failure, my_assert_equal as assert_equal
 
 
 @istest
