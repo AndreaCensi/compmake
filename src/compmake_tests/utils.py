@@ -206,7 +206,7 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
 
 
 @asynccontextmanager
-async def assert_raises_async(ExceptionType):
+async def assert_raises_async(ExceptionType) -> AsyncIterator[None]:
     try:
         yield
     except ExceptionType:

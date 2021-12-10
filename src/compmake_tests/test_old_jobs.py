@@ -24,13 +24,13 @@ async def test_cleaning_other(env: Env) -> None:
     assert_equal(jobs2, ["g"])
 
 
-async def cleaning_other_first(env: Env):
+async def cleaning_other_first(env: Env) -> None:
     env.comp(g, job_id="g")
     env.comp(h, job_id="h")
     await env.batch_command("make")
 
 
-async def cleaning_other_second(env: Env):
+async def cleaning_other_second(env: Env) -> None:
     env.comp(g, job_id="g")
     await clean_other_jobs(env.sti, context=env.cc)
     await env.batch_command("make")
@@ -56,7 +56,7 @@ async def test_cleaning2(env: Env) -> None:
     assert_equal(jobs2, ["f", "f-g"])
 
 
-async def cleaning2_first(env: Env):
+async def cleaning2_first(env: Env) -> None:
     env.sti.logger.info("run_first()")
 
     #
@@ -64,7 +64,7 @@ async def cleaning2_first(env: Env):
     await env.batch_command("make recurse=1")
 
 
-async def cleaning2_second(env: Env):
+async def cleaning2_second(env: Env) -> None:
     env.sti.logger.info("run_second()")
 
     #
@@ -100,7 +100,7 @@ async def cleaning3_first(env: Env):
     await env.batch_command("make recurse=1; ls")
 
 
-async def cleaning3_second(env: Env):
+async def cleaning3_second(env: Env) -> None:
     env.sti.logger.info("run_second()")
 
     #
