@@ -4,7 +4,7 @@ import traceback
 from asyncio import CancelledError
 from logging import Formatter
 from time import time
-from typing import Callable, cast, Dict, List, Optional, Set
+from typing import Any, Callable, cast, Dict, List, Optional, Set
 
 from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
 from zuper_utils_asyncio import SyncTaskInterface
@@ -190,8 +190,8 @@ def mark_as_failed(
     set_job_cache(job_id, cache, db=db)
 
 
-async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = False) -> MakeResult:
-    new_jobs: List[CMJobID]
+async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: bool = False) -> MakeResult:
+    new_jobs: Set[CMJobID]
     delete_jobs: Set[CMJobID]
     user_object_deps: Set[CMJobID]
     user_object: object
@@ -248,7 +248,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
 
     # TODO: delete previous user object
 
-    def progress_callback(stack):
+    def progress_callback(stack: Any) -> None:
         publish(context, "job-progress-plus", job_id=job_id, host=host, stack=stack)
 
     init_progress_tracking(progress_callback)
@@ -261,10 +261,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
     else:
         echo = False
 
-        def publish_stdout(lines):
+        def publish_stdout(lines: List[str]) -> None:
             publish(context, "job-stdout", job_id=job_id, lines=lines)
 
-        def publish_stderr(lines):
+        def publish_stderr(lines: List[str]) -> None:
             publish(context, "job-stderr", job_id=job_id, lines=lines)
 
         capture = OutputCapture(
@@ -288,7 +288,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
     class Store:
         nhidden = 0
 
-    def my_emit(_, log_record):
+    def my_emit(_: Any, log_record) -> None:
         # note that log_record.msg might be an exception
         # noinspection PyBroadException
         try:
@@ -305,11 +305,11 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
         except:
             Store.nhidden += 1
 
-    logging.StreamHandler.emit = my_emit
+    logging.StreamHandler.emit = my_emit  # type: ignore
 
     already = set(context.get_jobs_defined_in_this_session())
 
-    def get_deleted_jobs():
+    def get_deleted_jobs() -> Set[CMJobID]:
         generated = set(context.get_jobs_defined_in_this_session()) - already
         # print('failure: rolling back %s' % generated)
 
@@ -329,8 +329,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
         result: JobComputeResult = await job_compute(sti, job=job, context=context)
 
         assert isinstance(result, dict) and len(result) == 5
-        user_object: object = result["user_object"]
-        new_jobs: List[CMJobID] = result["new_jobs"]
+        user_object = result["user_object"]
+        new_jobs = result["new_jobs"]
         int_load_results: IntervalTimer = result["int_load_results"]
         int_compute: IntervalTimer = result["int_compute"]
         int_gc: IntervalTimer = result["int_gc"]
@@ -385,7 +385,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context, echo: bool = Fa
         if capture is not None:
             capture.deactivate()
         # even if we send an error, let's save the output of the process
-        logging.StreamHandler.emit = old_emit
+        logging.StreamHandler.emit = old_emit  # type: ignore
         if Store.nhidden > 0:
             msg = "compmake: There were %d messages hidden due to bugs in logging." % Store.nhidden
             print(msg)
@@ -584,10 +584,12 @@ def delete_jobs_recurse_definition(jobs, db) -> Set[CMJobID]:
 
 
 class WarningStorage:
-    warned = set()
+    warned: Set[Callable[..., Any]] = set()
 
 
-def comp_(context: Context, command_: Callable, *args, **kwargs):
+def comp_(
+    context: Context, command_: Callable[..., Any], *args: object, **kwargs: object
+) -> Optional[Promise]:
     """
     Main method to define a computation step.
 
@@ -674,7 +676,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
                 )
                 raise UserError(msg)
 
-        job_id = kwargs[CompmakeConstants.job_id_key]
+        job_id = cast(CMJobID, kwargs[CompmakeConstants.job_id_key])
         check_isinstance(job_id, str)
         if " " in job_id:
             msg = "Invalid job id: %r" % job_id
@@ -682,7 +684,7 @@ def comp_(context: Context, command_: Callable, *args, **kwargs):
 
         job_prefix = context.get_comp_prefix()
         if job_prefix:
-            job_id = "%s-%s" % (job_prefix, job_id)
+            job_id = cast(CMJobID, "%s-%s" % (job_prefix, job_id))
 
         del kwargs[CompmakeConstants.job_id_key]
 

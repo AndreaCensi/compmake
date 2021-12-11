@@ -19,11 +19,11 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    def get_jobs_defined_in_this_session(self) -> Set[str]:
+    def get_jobs_defined_in_this_session(self) -> Set[CMJobID]:
         ...
 
     @abstractmethod
-    async def reset_jobs_defined_in_this_session(self, jobs):
+    async def reset_jobs_defined_in_this_session(self, jobs) -> None:
         """Called only when initializing the context."""
         ...
 

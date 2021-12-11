@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import List, TypedDict
+from typing import Any, Callable, Mapping, Optional, Set, Tuple, TypedDict
 
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -14,10 +14,11 @@ from .types import CMJobID
 __all__ = [
     "job_compute",
     "JobCompute",
+    "JobComputeResult",
 ]
 
 
-def get_cmd_args_kwargs(job_id: CMJobID, db):
+def get_cmd_args_kwargs(job_id: CMJobID, db) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
     """Substitutes dependencies and gets actual cmd, args, kwargs."""
     command, args, kwargs = get_job_args(job_id, db=db)
     kwargs = dict(**kwargs)
@@ -34,12 +35,12 @@ def get_cmd_args_kwargs(job_id: CMJobID, db):
 
 class JobCompute:
     # currently executing job id
-    current_job_id = None
+    current_job_id: Optional[CMJobID] = None
 
 
 class JobComputeResult(TypedDict):
     user_object: object
-    new_jobs: List[CMJobID]
+    new_jobs: Set[CMJobID]
     int_load_results: IntervalTimer
     int_compute: IntervalTimer
     int_gc: IntervalTimer
@@ -56,6 +57,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
     command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
     sig = inspect.signature(command)
     int_load_results.stop()
+    user_object: object
 
     JobCompute.current_job_id = job_id
     if job.needs_context:
@@ -69,10 +71,10 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
 
         # assert isinstance(res, dict)
         # assert len(res) == 2, list(res.keys())
-        assert "user_object" in res
-        assert "new_jobs" in res
+        assert "user_object" in res, res
+        assert "new_jobs" in res, res
 
-        new_jobs: List[CMJobID] = res["new_jobs"]
+        new_jobs: Set[CMJobID] = res["new_jobs"]
         user_object: object = res["user_object"]
         res1: JobComputeResult = {
             "user_object": user_object,
@@ -87,12 +89,13 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
         int_compute = IntervalTimer()
         is_async = inspect.iscoroutinefunction(command)
         if is_async:
+            kwargs2 = dict(kwargs)
             if "sti" in sig.parameters:
-                kwargs["sti"] = sti
+                kwargs2["sti"] = sti
 
             sti.logger.info("Now starting command")
             await asyncio.sleep(0)
-            user_object = await command(*args, **kwargs)
+            user_object = await command(*args, **kwargs2)
         else:
 
             if "sti" in sig.parameters:
@@ -101,7 +104,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
 
             user_object = command(*args, **kwargs)
         int_compute.stop()
-        new_jobs: List[CMJobID] = []
+        new_jobs: Set[CMJobID] = set()
         res2: JobComputeResult = {
             "user_object": user_object,
             "new_jobs": new_jobs,
@@ -114,11 +117,17 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
 
 class ExecuteWithContextResult(TypedDict):
     user_object: object
-    new_jobs: List[CMJobID]
+    new_jobs: Set[CMJobID]
 
 
 async def execute_with_context(
-    sti: SyncTaskInterface, db, context, job_id, command, args, kwargs
+    sti: SyncTaskInterface,
+    db,
+    context: Context,
+    job_id: CMJobID,
+    command: Callable[..., Any],
+    args: Tuple[Any, ...],
+    kwargs: Mapping[str, Any],
 ) -> ExecuteWithContextResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """
     assert isinstance(context, Context)
@@ -127,33 +136,34 @@ async def execute_with_context(
     context.currently_executing = cur_job.defined_by + [job_id]
 
     sig = inspect.signature(command)
+    kwargs2 = dict(kwargs)
     if "sti" in sig.parameters:
-        kwargs["sti"] = sti
+        kwargs2["sti"] = sti
 
     already = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session([])
 
     if args:
         if isinstance(args[0], Context) and args[0] != context:
-            msg = "%s(%s, %s)" % (command, args, kwargs)
+            msg = "%s(%s, %s)" % (command, args, kwargs2)
             raise ValueError(msg)
 
     # context is one of the arguments
     assert context in args
 
     try:
-        bound = sig.bind(*args, **kwargs)
+        bound = sig.bind(*args, **kwargs2)
     except TypeError as e:
         msg = "Cannot bind"
-        raise ZValueError(msg, sig=sig, args=args, kwargs=kwargs) from e
+        raise ZValueError(msg, sig=sig, args=args, kwargs=kwargs2) from e
 
     is_async = inspect.iscoroutinefunction(command)
-
+    res: object
     if is_async:
-        res = await command(*args, **kwargs)
+        res = await command(*args, **kwargs2)
     else:
-        res = command(*args, **kwargs)
-    generated = set(context.get_jobs_defined_in_this_session())
+        res = command(*args, **kwargs2)
+    generated: Set[CMJobID] = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session(already)
     final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
     return final_res

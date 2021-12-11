@@ -88,8 +88,8 @@ class Promise:
 class MakeResult(TypedDict):
     user_object: object
     user_object_deps: Set[CMJobID]
-    new_jobs: List[CMJobID]
-    delete_jobs: Set[CMJobID]
+    new_jobs: Set[CMJobID]
+    deleted_jobs: Set[CMJobID]
 
 
 class Job:
