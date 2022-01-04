@@ -1,7 +1,7 @@
 import os
-from typing import List, Tuple
+from typing import cast, List, Tuple
 
-from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe
+from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe, RelDirPath
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
@@ -9,7 +9,7 @@ from . import logger
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
-from .types import CMJobID
+from .types import CMJobID, ResultDict
 from .utils import safe_pickle_load
 
 __all__ = [
@@ -30,7 +30,7 @@ def get_command_line(s: List[str]) -> str:
     return " ".join(map(quote, s))
 
 
-async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]):
+async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]) -> ResultDict:
     """Starts the job in a new compmake process."""
     (job_id, storage) = args
     # compmake_bin = which("compmake")
@@ -42,7 +42,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
     # if not jobs:
     #     raise ZException()
     # storage = db.basepath  # XXX:
-    where = join(storage, "parmake_job2_new_process")
+    where = join(storage, cast(RelDirPath, "parmake_job2_new_process"))
     mkdirs_thread_safe(where)
 
     out_result = join(where, f"{job_id}.results.pickle")
@@ -88,9 +88,9 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
         msg += indent(stdout, "stdout| ")
         msg += indent(stderr, "stderr| ")
 
-        res = safe_pickle_load(out_result)
-        os.unlink(out_result)
+        res = cast(ResultDict, safe_pickle_load(out_result))
         result_dict_check(res)
+        os.unlink(out_result)
 
         raise JobFailed.from_dict(res)
 
