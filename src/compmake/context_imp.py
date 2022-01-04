@@ -110,11 +110,13 @@ class ContextImp(Context):
         self.splitter_ui_console = None
 
     async def init(self, sti: SyncTaskInterface) -> None:
-        self.splitter = await Splitter.make_init(Event)
-        self.splitter_ui_console = await Splitter.make_init(Union[UIMessage, Prompt])
+        self.splitter = await Splitter.make_init(Event, "ContextImp-splitter")
+        self.splitter_ui_console = await Splitter.make_init(
+            Union[UIMessage, Prompt], "ContextImp-splitter_ui"
+        )
 
         @async_errors
-        async def go():
+        async def go() -> None:
             async with aiofiles.open("/dev/stdout", "w") as stdout:
                 # await stdout.write("Logging to stdout\n")
                 await stdout.flush()
