@@ -27,8 +27,8 @@ workflows:
             only: /.*z7-prod.*/
 jobs:
   test-3.8-stage:
-#    machine: true
-#    resource_class: zuper-ci-ns/my-resource-class
+    #    machine: true
+    #    resource_class: zuper-ci-ns/my-resource-class
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -72,7 +72,6 @@ jobs:
 
     - run:
         name: Python stats
-        when: always
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
           python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
@@ -136,7 +135,6 @@ jobs:
               --with-xunit --xunit-file=${xunit_output} \
               --cover-package=${COVER_PACKAGES} \
               compmake_tests
-        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -176,8 +174,8 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
   test-3.8-prod:
-#    machine: true
-#    resource_class: zuper-ci-ns/my-resource-class
+    #    machine: true
+    #    resource_class: zuper-ci-ns/my-resource-class
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -221,7 +219,6 @@ jobs:
 
     - run:
         name: Python stats
-        when: always
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
           python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
@@ -285,7 +282,6 @@ jobs:
               --with-xunit --xunit-file=${xunit_output} \
               --cover-package=${COVER_PACKAGES} \
               compmake_tests
-        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -325,8 +321,8 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
   test-3.9-stage:
-#    machine: true
-#    resource_class: zuper-ci-ns/my-resource-class
+    #    machine: true
+    #    resource_class: zuper-ci-ns/my-resource-class
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -370,7 +366,6 @@ jobs:
 
     - run:
         name: Python stats
-        when: always
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
           python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
@@ -434,7 +429,6 @@ jobs:
               --with-xunit --xunit-file=${xunit_output} \
               --cover-package=${COVER_PACKAGES} \
               compmake_tests
-        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -474,8 +468,8 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
   test-3.9-prod:
-#    machine: true
-#    resource_class: zuper-ci-ns/my-resource-class
+    #    machine: true
+    #    resource_class: zuper-ci-ns/my-resource-class
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -519,7 +513,6 @@ jobs:
 
     - run:
         name: Python stats
-        when: always
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
           python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
@@ -583,7 +576,6 @@ jobs:
               --with-xunit --xunit-file=${xunit_output} \
               --cover-package=${COVER_PACKAGES} \
               compmake_tests
-        when: always
     - run:
         name: post-circle-tests
         command: |
@@ -623,4 +615,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil 1396805d2b963b61f034332c8c2fb0ad
+# sigil fc9b8fae47423d3132ed2f6af1239278
