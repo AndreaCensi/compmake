@@ -69,7 +69,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
 
     async with pi.run3(*cmd, cwd=cwd) as p:
         ret = await p.wait()
-        stdout = await p.stdout_read()
+        stdout = cast(str, await p.stdout_read())
         stderr = await p.stderr_read()
     sti.logger.info(ret=ret, stdout=stdout, stderr=stderr)
     #
