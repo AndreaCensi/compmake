@@ -11,6 +11,7 @@ import aiofiles
 from zuper_commons.text import indent
 from zuper_typing import value_liskov
 from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
+from zuper_utils_asyncio import my_create_task
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -138,7 +139,7 @@ class ContextImp(Context):
                     else:
                         raise ValueError(x)
 
-        self.write_task = asyncio.create_task(go())
+        self.write_task = my_create_task(go(), "Context:go")
 
         self.br = await sti.create_child_task2(None, self.broadcast)
 

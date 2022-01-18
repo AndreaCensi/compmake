@@ -13,6 +13,7 @@ from zuper_commons.fs import abspath, join, make_sure_dir_exists
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import my_create_task
 from .actions import mark_as_blocked
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -749,7 +750,7 @@ class Manager(ManagerLog):
                     await self.loop_until_something_finishes()
                     self.check_invariants()
 
-            loop_task = asyncio.create_task(loopit())
+            loop_task = my_create_task(loopit(), "Manager-loopit")
             res = await loop_task
             self.log(indent(self._get_situation_string(), "ending: "))
 
