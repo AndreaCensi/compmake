@@ -49,7 +49,7 @@ pypi:
 
 circleci:
   active: true
-  test_python_versions: ['3.8', '3.9']
+  test_python_versions: ['3.8', '3.10']
   resource_class: xlarge
   environment:
     Z_SERVICE_LOG: zuper_loghandle.log

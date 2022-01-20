@@ -15,12 +15,12 @@ workflows:
         filters:
           branches:
             only: /.*z7-prod.*/
-    - test-3.9-stage:
+    - test-3.10-stage:
         context: z7-stage
         filters:
           branches:
             only: /.*z7-stage.*/
-    - test-3.9-prod:
+    - test-3.10-prod:
         context: z7-prod
         filters:
           branches:
@@ -127,14 +127,14 @@ jobs:
         name: compmake_tests
         command: |-
           set -euxo pipefail
-          mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-          nosetests \
-              --rednose --immediate \
-              --cover-tests --with-coverage \
-              --with-xunit --xunit-file=${xunit_output} \
-              --cover-package=${COVER_PACKAGES} \
-              compmake_tests
+              mkdir -p out/test-results
+              xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+              nosetests \
+                  --rednose --immediate \
+                  --cover-tests --with-coverage \
+                  --with-xunit --xunit-file=${xunit_output} \
+                  --cover-package=${COVER_PACKAGES} \
+                  compmake_tests
     - run:
         name: post-circle-tests
         command: |
@@ -274,14 +274,14 @@ jobs:
         name: compmake_tests
         command: |-
           set -euxo pipefail
-          mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-          nosetests \
-              --rednose --immediate \
-              --cover-tests --with-coverage \
-              --with-xunit --xunit-file=${xunit_output} \
-              --cover-package=${COVER_PACKAGES} \
-              compmake_tests
+              mkdir -p out/test-results
+              xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+              nosetests \
+                  --rednose --immediate \
+                  --cover-tests --with-coverage \
+                  --with-xunit --xunit-file=${xunit_output} \
+                  --cover-package=${COVER_PACKAGES} \
+                  compmake_tests
     - run:
         name: post-circle-tests
         command: |
@@ -320,7 +320,7 @@ jobs:
           chmod +x codecov
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
-  test-3.9-stage:
+  test-3.10-stage:
     #    machine: true
     #    resource_class: zuper-ci-ns/my-resource-class
     environment:
@@ -334,7 +334,7 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.9:z7
+    - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.10:z7
       auth:
         username: $DOCKER_USERNAME
         password: $DOCKER_PASSWORD
@@ -421,14 +421,10 @@ jobs:
         name: compmake_tests
         command: |-
           set -euxo pipefail
-          mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-          nosetests \
-              --rednose --immediate \
-              --cover-tests --with-coverage \
-              --with-xunit --xunit-file=${xunit_output} \
-              --cover-package=${COVER_PACKAGES} \
-              compmake_tests
+                          mkdir -p out/test-results
+                          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+                          nose2 --with-coverage --plugin nose2.plugins.junitxml  --junit-xml --junit-xml-path                     ${xunit_output} compmake_tests
+                          # TODO: cover packages
     - run:
         name: post-circle-tests
         command: |
@@ -467,7 +463,7 @@ jobs:
           chmod +x codecov
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
-  test-3.9-prod:
+  test-3.10-prod:
     #    machine: true
     #    resource_class: zuper-ci-ns/my-resource-class
     environment:
@@ -481,7 +477,7 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.9:z7
+    - image: ${DOCKER_REGISTRY}/zupermind/zuper-ci-3.10:z7
       auth:
         username: $DOCKER_USERNAME
         password: $DOCKER_PASSWORD
@@ -568,14 +564,10 @@ jobs:
         name: compmake_tests
         command: |-
           set -euxo pipefail
-          mkdir -p out/test-results
-          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-          nosetests \
-              --rednose --immediate \
-              --cover-tests --with-coverage \
-              --with-xunit --xunit-file=${xunit_output} \
-              --cover-package=${COVER_PACKAGES} \
-              compmake_tests
+                          mkdir -p out/test-results
+                          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+                          nose2 --with-coverage --plugin nose2.plugins.junitxml  --junit-xml --junit-xml-path                     ${xunit_output} compmake_tests
+                          # TODO: cover packages
     - run:
         name: post-circle-tests
         command: |
@@ -615,4 +607,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil fc9b8fae47423d3132ed2f6af1239278
+# sigil 62dc83f1e9783e85ef67701809693f6c
