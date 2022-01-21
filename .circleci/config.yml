@@ -113,14 +113,14 @@ jobs:
         name: compmake_tests
         command: |-
           set -euxo pipefail
-              mkdir -p out/test-results
-              xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-              nosetests \
-                  --rednose --immediate \
-                  --cover-tests --with-coverage \
-                  --with-xunit --xunit-file=${xunit_output} \
-                  --cover-package=${COVER_PACKAGES} \
-                  compmake_tests
+          mkdir -p out/test-results
+          xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
+          nosetests \
+              --rednose --immediate \
+              --cover-tests --with-coverage \
+              --with-xunit --xunit-file=${xunit_output} \
+              --cover-package=${COVER_PACKAGES} \
+              compmake_tests
     - run:
         name: post-circle-tests
         command: |
@@ -270,8 +270,11 @@ jobs:
           fi
           mkdir -p out/test-results
           xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-          nose2 --with-coverage --plugin nose2.plugins.junitxml --junit-xml --junit-xml-path ${xunit_output}
-          $TEST_MODULES
+          nose2 --with-coverage \
+              --plugin nose2.plugins.junitxml \
+              --junit-xml \
+              --junit-xml-path ${xunit_output} \
+              $TEST_MODULES
           # TODO: cover packages
     - run:
         name: post-circle-tests
@@ -312,4 +315,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil 3923d064556a15de9738fbc04a86776b
+# sigil d63a7944413c7f155a70072707bc2e1b
