@@ -115,15 +115,12 @@ jobs:
           set -euxo pipefail
               mkdir -p out/test-results
               xunit_output=$PWD/out/test-results/nose-${CIRCLE_NODE_INDEX}-compmake_tests-xunit.xml
-              NODE_TOTAL=${CIRCLE_NODE_TOTAL} NODE_INDEX=${CIRCLE_NODE_INDEX} \
-                  nosetests -x \
-                      --rednose --immediate \
-                      --cover-tests --with-coverage \
-                      --with-parallel --processes=1 --process-timeout=120 \
-                      --cover-package=${COVER_PACKAGES} \
-                      --with-xunitmp --xunitmp-file=${xunit_output} \
-                      -v \
-                      compmake_tests
+              nosetests \
+                  --rednose --immediate \
+                  --cover-tests --with-coverage \
+                  --with-xunit --xunit-file=${xunit_output} \
+                  --cover-package=${COVER_PACKAGES} \
+                  compmake_tests
     - run:
         name: post-circle-tests
         command: |
@@ -142,8 +139,8 @@ jobs:
         when: always
         command: |
           coverage combine || true
-          coverage html -d out/coverage/${CIRCLE_NODE_INDEX}
-          coverage xml
+          coverage html -d out/coverage/${CIRCLE_NODE_INDEX} || true
+          coverage xml || true
 
     - store_artifacts:
         path: out/coverage
@@ -293,8 +290,8 @@ jobs:
         when: always
         command: |
           coverage combine || true
-          coverage html -d out/coverage/${CIRCLE_NODE_INDEX}
-          coverage xml
+          coverage html -d out/coverage/${CIRCLE_NODE_INDEX} || true
+          coverage xml || true
 
     - store_artifacts:
         path: out/coverage
@@ -314,4 +311,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil fe8d9e9fc1a68f00f02c97abfe66d6ab
+# sigil 182e08c9ba5d9dca350c58c105fc34a5
