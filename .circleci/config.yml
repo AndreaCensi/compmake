@@ -25,7 +25,7 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/zupermind/z7-stage-zuper-ci-3.10:z7
+    - image: ${DOCKER_REGISTRY}/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.10:${Z_DISTRO}
       auth:
         username: $DOCKER_USERNAME
         password: $DOCKER_PASSWORD
@@ -168,4 +168,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil 6097a1c56b3a54989be2b8d469199457
+# sigil a8a79dc3290ac94b0932f8f905b51d3a
