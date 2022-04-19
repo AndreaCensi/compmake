@@ -122,7 +122,7 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
 
     def display_with_prefix(buffer, prefix="", transform=lambda x: x):  # @ReservedAssignment
         check_isinstance(buffer, str)
-        lines = buffer.split("\n")
+        lines = buffer.splitlines()
         if max_lines is not None:
             if len(lines) > max_lines:
                 warn = ".... Showing only last %d lines of %d ... " % (max_lines, len(lines))

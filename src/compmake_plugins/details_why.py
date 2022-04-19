@@ -44,7 +44,6 @@ def format_table(lines, sep=" | "):
 def details_why_one(job_id, context, cq):
     db = context.get_compmake_db()
 
-    lines = []
     if job_cache_exists(job_id, db):
         cache = get_job_cache(job_id, db)
 
@@ -52,7 +51,7 @@ def details_why_one(job_id, context, cq):
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:
             why = cache.exception
             why = why.strip()
-            lines = why.split("\n")
+            lines = why.splitlines()
             one = lines[0]
             if len(lines) > 1:
                 one += " [+%d lines] " % (len(lines) - 1)

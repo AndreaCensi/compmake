@@ -20,7 +20,7 @@ from zuper_commons.types import check_isinstance
 
 def termcolor_colored(s: str, color=None, on_color=None, attrs=None):
     check_isinstance(s, str)
-    return "\n".join(t_colored(x, color, on_color, attrs) for x in s.split("\n"))
+    return joinlines(t_colored(x, color, on_color, attrs) for x in s.splitlines())
 
 
 #

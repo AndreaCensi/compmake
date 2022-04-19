@@ -1,6 +1,7 @@
 import sys
 from typing import Callable
 
+from zuper_commons.text import joinlines
 from zuper_commons.ui import get_colorize_function
 from .context import Context
 from .registrar import publish, register_handler
@@ -94,11 +95,11 @@ register_handler("ui-status-summary", handle_ui_status_summary)
 
 
 def make_colored(s: str, f: Callable[[str], str]) -> str:
-    lines = s.rstrip().split("\n")
+    lines = s.splitlines()
     lines2 = []
     for l in lines:
         lines2.append(f(l))
-    res = "\n".join(lines2)
+    res = joinlines(lines2)
     return res
 
 

@@ -22,7 +22,7 @@ def create_commands_html(file=sys.stdout):  # @ReservedAssignment
 
         for name in section.commands:
             cmd = UIState.commands[name]
-            short_doc = cmd.doc.split("\n")[0]
+            short_doc = cmd.doc.splitlines()[0]
 
             # TODO
             params = ""

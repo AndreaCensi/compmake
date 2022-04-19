@@ -125,7 +125,7 @@ class ContextImp(Context):
                     # await stdout.write(str(x)+'\n')
                     if value_liskov(x, UIMessage):
                         s = x.s
-                        lines = s.rstrip().split("\n")
+                        lines = s.splitlines()
                         for l in lines:
                             p = pad_to_screen(l)
                             await stdout.write(p + "\n")

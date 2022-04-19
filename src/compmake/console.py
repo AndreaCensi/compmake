@@ -195,7 +195,7 @@ async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
             # TODO: use readline's support for history
             if os.path.exists(COMPMAKE_HISTORY_FILENAME):
                 with open(COMPMAKE_HISTORY_FILENAME) as f:
-                    lines = f.read().split("\n")
+                    lines = f.read().splitlines()
 
                 with open(COMPMAKE_HISTORY_FILENAME, "w") as f:
                     last_word = None
