@@ -60,8 +60,8 @@ async def job_failed(context: Context, event):
 
     msg = f"Job {job_id!r} failed:"
     # s = reason.strip
-    # if get_compmake_config('echo'):
-    #     s += '\n' + bt
+    if context.get_compmake_config("echo"):
+        msg += "\n" + bt
     msg += "\n" + indent(reason.strip(), "| ")
 
     # if get_compmake_config("echo"):
