@@ -42,7 +42,7 @@ def docstring_components(docstring):
     # first, remove whitespace
     docstring = docstring_trim(docstring)
     # split in newlines
-    lines = docstring.split("\n")
+    lines = docstring.splitlines()
     # trim each one
     lines = list(map(lambda x: x.strip(), lines))
     # remove initial empty ones
