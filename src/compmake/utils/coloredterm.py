@@ -15,6 +15,7 @@ __all__ = [
 
 from termcolor import colored as t_colored  # @UnresolvedImport
 
+from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 
 
