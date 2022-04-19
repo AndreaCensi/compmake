@@ -1,7 +1,7 @@
 from typing import cast, Dict
 
 from compmake import Cache, CMJobID, get_job_cache
-from .compmake_test import assert_MakeFailed
+from .test_compmake import assert_MakeFailed
 from .utils import Env, run_with_env
 
 

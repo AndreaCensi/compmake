@@ -12,6 +12,7 @@ __all__ = [
 #         bold, dark, underline, blink, reverse, concealed.
 #
 #
+from typing import List, Optional
 
 from termcolor import colored as t_colored  # @UnresolvedImport
 
@@ -19,7 +20,9 @@ from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 
 
-def termcolor_colored(s: str, color=None, on_color=None, attrs=None):
+def termcolor_colored(
+    s: str, color: Optional[str] = None, on_color: Optional[str] = None, attrs: Optional[List[str]] = None
+) -> str:
     check_isinstance(s, str)
     return joinlines(t_colored(x, color, on_color, attrs) for x in s.splitlines())
 
