@@ -77,6 +77,7 @@ __all__ = [
     "StateCode",
     "cache_has_large_overhead",
     "timing_summary",
+    "MakeResult",
 ]
 
 

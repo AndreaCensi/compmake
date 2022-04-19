@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Optional, TypedDict
 
 from zuper_commons.text import indent
 from zuper_commons.types import raise_wrapped, ZException
-from .types import AbortResult, FailResult, InterruptedResult
+from .types import AbortResult, CMJobID, FailResult, InterruptedResult
 
 __all__ = [
     "ShellExitRequested",
@@ -53,7 +53,13 @@ class CommandFailed(ZException):
     pass
 
 
+class MakeFailedExceptionDict(TypedDict):
+    failed: List[str]
+    blocked: List[str]
+
+
 class MakeFailed(CommandFailed):
+    info: MakeFailedExceptionDict  # Dict[str, object]
     pass
     # def __init__(self, failed: List[str], blocked: List[str] = None):
     #     failed = failed or []
@@ -90,22 +96,25 @@ class CompmakeSyntaxError(UserError):
 class JobFailed(CompmakeException):
     """This signals that some job has failed"""
 
-    def __init__(self, job_id: str, reason: str, bt: str, deleted_jobs: List[str] = None):
+    deleted_jobs: List[CMJobID]
+
+    def __init__(self, job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[List[CMJobID]] = None):
         deleted_jobs = deleted_jobs or []
         self.job_id = job_id
         self.reason = reason
         self.bt = bt
-        self.deleted_jobs = set(deleted_jobs)
+        self.deleted_jobs = sorted(set(deleted_jobs)) if deleted_jobs else []
 
         CompmakeException.__init__(self, job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
 
     def get_result_dict(self) -> FailResult:
-        res = dict(
+        res: FailResult = dict(
             fail=f"Job {self.job_id!r} failed.",
             job_id=self.job_id,
             reason=self.reason,
-            deleted_jobs=self.deleted_jobs,
+            deleted_jobs=sorted(self.deleted_jobs),
             bt=self.bt,
+            new_jobs=[],
         )
         return res
 
@@ -124,7 +133,7 @@ class JobFailed(CompmakeException):
 class JobInterrupted(CompmakeException):
     """User requested to interrupt job"""
 
-    def __init__(self, job_id, deleted_jobs: List[str] = None):
+    def __init__(self, job_id: CMJobID, deleted_jobs: List[CMJobID] = None):
         deleted_jobs = deleted_jobs or []
         self.job_id = job_id
         self.deleted_jobs = set(deleted_jobs)
@@ -145,7 +154,7 @@ class JobInterrupted(CompmakeException):
         return e
 
     def get_result_dict(self) -> InterruptedResult:
-        res = dict(
+        res: InterruptedResult = dict(
             interrupt=f"Job {self.job_id!r} interrupted.",
             job_id=self.job_id,
             deleted_jobs=sorted(self.deleted_jobs),

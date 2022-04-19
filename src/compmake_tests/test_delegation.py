@@ -1,4 +1,4 @@
-from .compmake_test import Env
+from .test_compmake import Env
 from .utils import run_with_env
 
 
