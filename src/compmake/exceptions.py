@@ -114,7 +114,6 @@ class JobFailed(CompmakeException):
             reason=self.reason,
             deleted_jobs=sorted(self.deleted_jobs),
             bt=self.bt,
-            new_jobs=[],
         )
         return res
 

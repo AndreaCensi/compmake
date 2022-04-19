@@ -16,7 +16,7 @@ class OKResult(TypedDict):
 class FailResult(TypedDict):
     job_id: CMJobID
     fail: str
-    new_jobs: List[CMJobID]
+    # new_jobs: List[CMJobID]
     deleted_jobs: List[CMJobID]
     bt: str
     reason: str
