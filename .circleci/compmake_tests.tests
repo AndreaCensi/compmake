@@ -1,6 +1,6 @@
-compmake_tests.compmake_test
 compmake_tests.test_assertions
 compmake_tests.test_blocked
+compmake_tests.test_compmake
 compmake_tests.test_coverage_errors
 compmake_tests.test_delegation
 compmake_tests.test_delegation_2
@@ -33,5 +33,5 @@ compmake_tests.test_stats
 compmake_tests.test_storage
 compmake_tests.test_syntax
 compmake_tests.test_unpickable_result
+compmake_tests.test_values_interpretation
 compmake_tests.test_with_sti
-compmake_tests.values_interpretation_test
