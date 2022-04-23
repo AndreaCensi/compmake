@@ -31,12 +31,7 @@ install_requires:
 
 
 tests_require:
-- zuper-fs-local-z7
-- zuper-proc-local-z7
 - nose
-- zuper-notes-z7
-- zuper-loghandle-z7
-
 console_scripts:
   compmake: compmake:main
 
@@ -51,6 +46,11 @@ circleci:
   active: true
   test_python_versions: ['3.10']
   resource_class: xlarge
+  more_packages:
+  - zuper-notes-z7
+  - zuper-loghandle-z7
+  - zuper-fs-local-z7
+  - zuper-proc-local-z7
   environment:
     Z_SERVICE_LOG: zuper_loghandle.log
     Z_SERVICE_NOTE: zuper_notes.notes

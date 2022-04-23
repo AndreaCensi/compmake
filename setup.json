@@ -23,11 +23,7 @@
     "zuper-zapp-z7"
   ],
   "tests_require": [
-    "nose",
-    "zuper-fs-local-z7",
-    "zuper-loghandle-z7",
-    "zuper-notes-z7",
-    "zuper-proc-local-z7"
+    "nose"
   ],
   "srcdir": "src",
   "package_name": "compmake-z7",

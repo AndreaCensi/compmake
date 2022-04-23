@@ -110,6 +110,10 @@ jobs:
 
 
     - run:
+        name: Add more packages
+        command: python3 -m pip install zuper-notes-z7 zuper-loghandle-z7 zuper-fs-local-z7
+          zuper-proc-local-z7
+    - run:
         name: compmake_tests
         command: |
           set -euxo pipefail
@@ -168,4 +172,4 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN}
     resource_class: xlarge
 
-# sigil 256e3b657f5b678b67e02342fe3c92b8
+# sigil a3a7fbbdd562f49b1a6c37a24170392c
