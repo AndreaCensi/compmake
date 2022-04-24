@@ -39,8 +39,8 @@ from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse
 from .visualization import ui_error
 
 __all__ = [
-    "Manager",
     "AsyncResultInterface",
+    "Manager",
     "check_job_cache_state",
 ]
 

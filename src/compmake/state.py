@@ -10,12 +10,12 @@ from .utils import AvgSystemStats
 
 __all__ = [
     "CompmakeGlobalState",
-    "get_compmake_config0",
-    "set_compmake_status",
-    "set_compmake_config0",
     "ConfigSection",
     "ConfigSwitch",
+    "get_compmake_config0",
     "get_compmake_status",
+    "set_compmake_config0",
+    "set_compmake_status",
 ]
 
 

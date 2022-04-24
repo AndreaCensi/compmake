@@ -10,14 +10,14 @@ from .exceptions import UserError
 from .utils import docstring_components, docstring_trim
 
 __all__ = [
-    "ui_command",
-    "get_commands",
     "ACTIONS",
-    "VISUALIZATION",
     "COMMANDS_ADVANCED",
     "GENERAL",
-    "ui_section",
     "UIState",
+    "VISUALIZATION",
+    "get_commands",
+    "ui_command",
+    "ui_section",
 ]
 
 # Storage for the commands

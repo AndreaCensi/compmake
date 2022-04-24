@@ -5,7 +5,7 @@ from .events_structures import Event, EventSpec
 
 compmake_registered_events = {}
 
-__all__ = ["compmake_registered_events", "JobProgressEvent"]
+__all__ = ["JobProgressEvent", "compmake_registered_events"]
 
 
 def add(e):

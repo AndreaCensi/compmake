@@ -38,8 +38,8 @@ from .cachequerydb import CacheQueryDB
 from .utils import expand_wildcard
 
 __all__ = [
-    "parse_job_list",
     "is_root_job",
+    "parse_job_list",
 ]
 
 CompmakeConstants.aliases["last"] = "*"

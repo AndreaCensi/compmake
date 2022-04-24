@@ -2,8 +2,8 @@ import time
 
 
 __all__ = [
-    "EventSpec",
     "Event",
+    "EventSpec",
 ]
 
 

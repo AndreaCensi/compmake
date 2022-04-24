@@ -21,10 +21,10 @@ from .visualization import ui_error, ui_info
 ui_section(GENERAL)
 
 __all__ = [
+    "ask_if_sure_remake",
     "make_single",
     "quit",
     "raise_error_if_manager_failed",
-    "ask_if_sure_remake",
 ]
 
 

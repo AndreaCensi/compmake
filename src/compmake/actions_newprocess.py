@@ -13,8 +13,8 @@ from .types import CMJobID, ResultDict
 from .utils import safe_pickle_load
 
 __all__ = [
-    "result_dict_check",
     "parmake_job2_new_process_1",
+    "result_dict_check",
 ]
 
 

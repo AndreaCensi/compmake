@@ -5,20 +5,20 @@ from zuper_commons.types import raise_wrapped, ZException
 from .types import AbortResult, CMJobID, FailResult, InterruptedResult
 
 __all__ = [
-    "ShellExitRequested",
+    "CommandFailed",
     "CompmakeBug",
     "CompmakeDBError",
-    "CommandFailed",
-    "MakeFailed",
-    "MakeHostFailed",
-    "KeyNotFound",
-    "UserError",
-    "SerializationError",
+    "CompmakeException",
     "CompmakeSyntaxError",
+    "HostFailed",
     "JobFailed",
     "JobInterrupted",
-    "HostFailed",
-    "CompmakeException",
+    "KeyNotFound",
+    "MakeFailed",
+    "MakeHostFailed",
+    "SerializationError",
+    "ShellExitRequested",
+    "UserError",
 ]
 
 

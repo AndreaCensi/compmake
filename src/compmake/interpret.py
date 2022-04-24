@@ -11,7 +11,7 @@ from .actions import clean_other_jobs, interpret_commands
 from .constants import CompmakeConstants
 from .state import set_compmake_status
 
-__all__ = ["interpret_commands_wrap", "batch_command"]
+__all__ = ["batch_command", "interpret_commands_wrap"]
 
 
 async def interpret_commands_wrap(

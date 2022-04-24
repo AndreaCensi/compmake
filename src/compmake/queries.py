@@ -10,13 +10,13 @@ from .structures import Cache
 from .types import CMJobID
 
 __all__ = [
-    "parents",
-    "direct_parents",
-    "direct_children",
     "children",
+    "direct_children",
+    "direct_parents",
+    "jobs_defined",
+    "parents",
     "top_targets",
     "tree",
-    "jobs_defined",
 ]
 
 

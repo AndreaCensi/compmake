@@ -4,8 +4,8 @@ from ..exceptions import UserError
 
 
 __all__ = [
-    "wildcard_to_regexp",
     "expand_wildcard",
+    "wildcard_to_regexp",
 ]
 
 

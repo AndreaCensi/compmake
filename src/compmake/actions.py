@@ -43,15 +43,15 @@ from .utils import interpret_strings_like, OutputCapture, setproctitle, try_pick
 from .visualization import ui_info, ui_warning
 
 __all__ = [
-    "clean_targets",
-    "mark_as_failed",
     "clean_cache_relations",
-    "mark_to_remake",
-    "mark_as_blocked",
-    "make",
-    "comp_",
     "clean_other_jobs",
+    "clean_targets",
+    "comp_",
     "interpret_commands",
+    "make",
+    "mark_as_blocked",
+    "mark_as_failed",
+    "mark_to_remake",
 ]
 
 

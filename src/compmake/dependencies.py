@@ -9,9 +9,9 @@ from .structures import Promise
 from .types import CMJobID
 
 __all__ = [
-    "substitute_dependencies",
     "collect_dependencies",
     "get_job_userobject_resolved",
+    "substitute_dependencies",
 ]
 
 

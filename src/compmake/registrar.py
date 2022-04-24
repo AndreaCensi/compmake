@@ -11,10 +11,10 @@ from .state import CompmakeGlobalState
 from .utils import wildcard_to_regexp
 
 __all__ = [
-    "remove_all_handlers",
+    "publish",
     "register_fallback_handler",
     "register_handler",
-    "publish",
+    "remove_all_handlers",
 ]
 
 

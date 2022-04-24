@@ -15,8 +15,8 @@ from zuper_utils_asyncio import SyncTaskInterface
 tr = None
 
 __all__ = [
-    "ManagerLocal",
     "FakeAsync",
+    "ManagerLocal",
 ]
 
 

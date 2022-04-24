@@ -3,10 +3,10 @@ from zuper_commons.text import get_length_on_screen, remove_escapes
 from .terminal_size import get_screen_columns
 
 __all__ = [
-    "remove_escapes",
     "get_length_on_screen",
     "pad_to_screen",
     "pad_to_screen_length",
+    "remove_escapes",
 ]
 
 debug_padding = False

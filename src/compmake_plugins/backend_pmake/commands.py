@@ -18,8 +18,8 @@ from .pmake_manager import PmakeManager
 
 __all__ = [
     "parmake",
-    "rparmake",
     "parremake",
+    "rparmake",
 ]
 
 

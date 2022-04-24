@@ -16,10 +16,9 @@ from .storage import all_jobs
 from .visualization import ui_error
 
 __all__ = [
-    "interactive_console",
-    "compmake_console_text",
-    # "compmake_console_gui",
     "ask_question",
+    "compmake_console_text",
+    "interactive_console",
 ]
 
 from . import logger

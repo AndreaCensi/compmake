@@ -4,8 +4,8 @@ from .structure import add_config_section, add_config_switch
 
 
 __all__ = [
-    "CONFIG_GENERAL",
     "CONFIG_APPEARANCE",
+    "CONFIG_GENERAL",
     "CONFIG_PARALLEL",
 ]
 

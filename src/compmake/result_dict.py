@@ -3,9 +3,9 @@ from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from .types import OKResult, ResultDict
 
 __all__ = [
+    "check_ok_result",
     "result_dict_check",
     "result_dict_raise_if_error",
-    "check_ok_result",
 ]
 
 

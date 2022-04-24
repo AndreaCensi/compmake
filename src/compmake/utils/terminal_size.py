@@ -1,8 +1,8 @@
 from .memoize_imp import memoized_reset
 
 __all__ = [
-    "get_screen_columns",
     "getTerminalSize",
+    "get_screen_columns",
 ]
 
 import os

@@ -12,9 +12,9 @@ from .structures import IntervalTimer, Job
 from .types import CMJobID
 
 __all__ = [
-    "job_compute",
     "JobCompute",
     "JobComputeResult",
+    "job_compute",
 ]
 
 

@@ -68,16 +68,16 @@ from .types import CMJobID
 from .utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
-    "Promise",
-    "Job",
     "Cache",
-    "same_computation",
-    "ProgressStage",
     "IntervalTimer",
+    "Job",
+    "MakeResult",
+    "ProgressStage",
+    "Promise",
     "StateCode",
     "cache_has_large_overhead",
+    "same_computation",
     "timing_summary",
-    "MakeResult",
 ]
 
 

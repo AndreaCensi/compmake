@@ -7,9 +7,9 @@ from .structures import Cache
 from .types import CMJobID
 
 __all__ = [
+    "direct_uptodate_deps_inverse",
     "direct_uptodate_deps_inverse_closure",
     "up_to_date",
-    "direct_uptodate_deps_inverse",
 ]
 
 

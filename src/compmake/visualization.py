@@ -8,13 +8,13 @@ from .registrar import publish, register_handler
 from .utils import get_screen_columns
 
 __all__ = [
+    "DefaultConsole",
+    "clean_console_line",
     "ui_debug",
     "ui_error",
     "ui_info",
     "ui_message",
     "ui_warning",
-    "clean_console_line",
-    "DefaultConsole",
 ]
 
 
