@@ -70,7 +70,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     db = StorageFilesystem(basepath, compress=True)
 
     async with MyAsyncExitStack(sti) as AES:
-        context = await AES.init(ContextImp())
+        context = await AES.init(ContextImp(db=db))
 
         try:
 
@@ -81,7 +81,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
             # We register a handler for the events to be passed back
             # to the main process
-            async def handler(context: Context, event: Event):
+            async def handler(c2: Context, event: Event):
                 try:
                     if not CompmakeConstants.disable_interproc_queue:
                         event_queue.put(event, block=False)
@@ -97,7 +97,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
             if show_output:
                 register_handler("*", handler)
 
-            async def proctitle(context: Context, event: JobProgressEvent):
+            async def proctitle(c2: Context, event: JobProgressEvent):
                 stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
                 setproctitle(stat)
 
