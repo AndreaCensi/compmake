@@ -5,6 +5,7 @@ import sys
 import time
 
 from zuper_commons.cmds import ExitCode
+from zuper_utils_asyncio import MyAsyncExitStack
 from zuper_zapp import zapp1, ZappEnv
 
 wait = 0.01

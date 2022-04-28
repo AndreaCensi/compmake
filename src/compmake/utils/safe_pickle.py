@@ -1,7 +1,3 @@
-import pickle
-
-from . import logger
-
 __all__ = [
     "safe_pickle_dump",
     "safe_pickle_load",

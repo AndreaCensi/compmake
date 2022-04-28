@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Callable, Mapping, Optional, Set, Tuple, TypedDict
+from typing import Any, Callable, Dict, Mapping, Optional, Set, Tuple, TypedDict
 
 from zuper_commons.types import check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -89,7 +89,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
         int_compute = IntervalTimer()
         is_async = inspect.iscoroutinefunction(command)
         if is_async:
-            kwargs2 = dict(kwargs)
+            kwargs2: Dict[str, Any] = dict(kwargs)
             if "sti" in sig.parameters:
                 kwargs2["sti"] = sti
 

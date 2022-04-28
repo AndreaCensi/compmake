@@ -3,6 +3,8 @@ import copy
 __all__ = [
     "frozendict2",
 ]
+
+
 #
 # if False:
 #     try:
@@ -60,6 +62,7 @@ class frozendict2(dict):
 
     def __hash__(self):
         try:
+            # noinspection PyUnresolvedReferences
             return self._cached_hash
         except AttributeError:
             h = self._cached_hash = hash(tuple(sorted(self.items())))
