@@ -36,21 +36,21 @@ async def main(ze: ZappEnv) -> ExitCode:
     sti.started()
     from compmake import ContextImp
 
-    c = ContextImp()
-    await c.init(sti)
-    for param1 in [1, 2, 3]:
-        for param2 in [10, 11, 12]:
-            res1 = c.comp(func1, param1)
-            res2 = c.comp(func2, res1, param2)
-            c.comp(draw, res2)
+    async with MyAsyncExitStack(sti) as AES:
+        c = await AES.init(ContextImp())
+        for param1 in [1, 2, 3]:
+            for param2 in [10, 11, 12]:
+                res1 = c.comp(func1, param1)
+                res2 = c.comp(func2, res1, param2)
+                c.comp(draw, res2)
 
-    # Run command passed on command line or otherwise run console.
-    cmds = sys.argv[1:]
-    if cmds:
-        await c.batch_command(sti, " ".join(cmds))
-    else:
-        print('Use "make recurse=1" or "parmake recurse=1" to make all.')
-        await c.compmake_console(sti)
+        # Run command passed on command line or otherwise run console.
+        cmds = sys.argv[1:]
+        if cmds:
+            await c.batch_command(sti, " ".join(cmds))
+        else:
+            print('Use "make recurse=1" or "parmake recurse=1" to make all.')
+            await c.compmake_console(sti)
 
     return ExitCode.OK
 

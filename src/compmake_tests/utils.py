@@ -53,6 +53,9 @@ class Env:
         self.cc.set_compmake_config("console_status", False)
         await read_rc_files(self.sti, context=self.cc)
 
+    async def aclose(self):
+        await self.cc.aclose()
+
     async def all_jobs(self):
         """Returns the list of jobs corresponding to the given expression."""
         # db = StorageFilesystem(self.env, compress=True)
@@ -154,6 +157,7 @@ async def environment(sti: SyncTaskInterface, rootd: Optional[str] = None) -> As
     try:
         yield env
     finally:
+        await env.aclose()
         pass
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from zuper_commons.cmds import ExitCode
+from zuper_utils_asyncio import MyAsyncExitStack
 
 wait = 0.01
 
@@ -19,12 +20,13 @@ async def main(ze: ZappEnv) -> ExitCode:
     sti.started()
     from compmake import ContextImp
 
-    c = ContextImp()
-    await c.init(sti)
-    c.comp(func1)
+    async with MyAsyncExitStack(sti) as AES:
+        c = await AES.init(ContextImp())
+        c.comp(func1)
 
-    await c.batch_command(sti, "clean; make")
-    return ExitCode.OK
+        await c.batch_command(sti, "clean; make")
+        return ExitCode.OK
+
 
 if __name__ == "__main__":
     main()

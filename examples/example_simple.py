@@ -5,6 +5,7 @@ import time
 
 from compmake import ContextImp
 from zuper_commons.cmds import ExitCode
+from zuper_utils_asyncio import MyAsyncExitStack
 from zuper_zapp import zapp1, ZappEnv
 
 wait = 0.01
@@ -35,23 +36,23 @@ async def main(ze: ZappEnv) -> ExitCode:
 
     sti.started()
 
-    c = ContextImp()
-    await c.init(sti)
-    for param1 in [1, 2, 3]:
-        for param2 in [10, 11, 12]:
-            res1 = c.comp(func1, param1)
-            res2 = c.comp(func2, res1, param2)
-            c.comp(draw, res2)
+    async with MyAsyncExitStack(sti) as AES:
+        c = await AES.init(ContextImp())
+        for param1 in [1, 2, 3]:
+            for param2 in [10, 11, 12]:
+                res1 = c.comp(func1, param1)
+                res2 = c.comp(func2, res1, param2)
+                c.comp(draw, res2)
 
-    await c.batch_command(sti, "config echo 1")
-    # Run command passed on command line or otherwise run console.
-    cmds = sys.argv[1:]
-    if cmds:
-        await c.batch_command(sti, " ".join(cmds))
-    else:
-        logger.info('Use "make recurse=1" or "parmake recurse=1" to make all.')
+        await c.batch_command(sti, "config echo 1")
+        # Run command passed on command line or otherwise run console.
+        cmds = sys.argv[1:]
+        if cmds:
+            await c.batch_command(sti, " ".join(cmds))
+        else:
+            logger.info('Use "make recurse=1" or "parmake recurse=1" to make all.')
 
-        await c.compmake_console(sti)
+            await c.compmake_console(sti)
     return ExitCode.OK
 
 

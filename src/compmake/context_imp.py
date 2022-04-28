@@ -3,11 +3,12 @@ import os
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import List, Optional, Set, Union
+from typing import Any, List, Optional, Set, Union
 
 import aiofiles
 
 from zuper_commons.text import indent
+from zuper_commons.types import ZValueError
 from zuper_typing import value_liskov
 from zuper_utils_asyncio import async_errors, my_create_task, Splitter, SyncTaskInterface
 from .actions import comp_
@@ -135,11 +136,22 @@ class ContextImp(Context):
                         await stdout.write(s)
                         await stdout.flush()
                     else:
-                        raise ValueError(x)
+                        raise ZValueError("Invalid value", x=x)
 
         self.write_task = my_create_task(go(), "Context:go")
 
         self.br = await sti.create_child_task2(None, self.broadcast)
+
+        async def on_shutdown(_: Any) -> None:
+            await self.splitter.finish()
+            await self.splitter_ui_console.finish()
+            await self.write_task
+
+        sti.add_shutdown_handler(on_shutdown)
+
+    async def aclose(self):
+        await self.splitter.aclose()
+        await self.splitter_ui_console.aclose()
 
     # @async_errors
     async def broadcast(self, sti: SyncTaskInterface):

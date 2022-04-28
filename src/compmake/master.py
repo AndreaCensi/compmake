@@ -161,7 +161,10 @@ async def compmake_main(sti: SyncTaskInterface, args: List[str] = None) -> ExitC
             return retcode
 
     if not options.profile:
-        return await go(context2=context)
+        try:
+            return await go(context2=context)
+        finally:
+            await context.aclose()
     else:
         # XXX: change variables
         import cProfile
@@ -206,7 +209,6 @@ async def load_existing_db(sti: SyncTaskInterface, d: DirPath) -> Context:
     # else:
     #     compress = False
     #
-
     db = StorageFilesystem(d, compress=True)
     context = ContextImp(db=db)
     await context.init(sti)

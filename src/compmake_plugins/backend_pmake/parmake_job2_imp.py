@@ -27,7 +27,7 @@ __all__ = [
     "parmake_job2",
 ]
 
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
 
 
 def sanitize_for_filename(x0):
@@ -68,71 +68,72 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     event_queue = PmakeManager.queues[event_queue_name]
 
     db = StorageFilesystem(basepath, compress=True)
-    context = ContextImp(db=db)
-    await context.init(sti)
 
-    try:
+    async with MyAsyncExitStack(sti) as AES:
+        context = await AES.init(ContextImp())
 
-        setproctitle(f"compmake:{job_id}")
-
-        class G:
-            nlostmessages = 0
-
-        # We register a handler for the events to be passed back
-        # to the main process
-        async def handler(context: Context, event: Event):
-            try:
-                if not CompmakeConstants.disable_interproc_queue:
-                    event_queue.put(event, block=False)
-            except Full:
-                G.nlostmessages += 1
-                # Do not write messages here, it might create a recursive
-                # problem.
-                # sys.stderr.write('job %s: Queue is full, message is lost.\n'
-                # % job_id)
-
-        remove_all_handlers()
-
-        if show_output:
-            register_handler("*", handler)
-
-        async def proctitle(context: Context, event: JobProgressEvent):
-            stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
-            setproctitle(stat)
-
-        register_handler("job-progress", proctitle)
-
-        publish(context, "worker-status", job_id=job_id, status="started")
-
-        # Note that this function is called after the fork.
-        # All data is conserved, but resources need to be reopened
         try:
-            db.reopen_after_fork()
+
+            setproctitle(f"compmake:{job_id}")
+
+            class G:
+                nlostmessages = 0
+
+            # We register a handler for the events to be passed back
+            # to the main process
+            async def handler(context: Context, event: Event):
+                try:
+                    if not CompmakeConstants.disable_interproc_queue:
+                        event_queue.put(event, block=False)
+                except Full:
+                    G.nlostmessages += 1
+                    # Do not write messages here, it might create a recursive
+                    # problem.
+                    # sys.stderr.write('job %s: Queue is full, message is lost.\n'
+                    # % job_id)
+
+            remove_all_handlers()
+
+            if show_output:
+                register_handler("*", handler)
+
+            async def proctitle(context: Context, event: JobProgressEvent):
+                stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
+                setproctitle(stat)
+
+            register_handler("job-progress", proctitle)
+
+            publish(context, "worker-status", job_id=job_id, status="started")
+
+            # Note that this function is called after the fork.
+            # All data is conserved, but resources need to be reopened
+            try:
+                db.reopen_after_fork()
+            except:
+                pass
+
+            publish(context, "worker-status", job_id=job_id, status="connected")
+
+            res = await make(sti, job_id, context=context)
+
+            publish(context, "worker-status", job_id=job_id, status="ended")
+
+            res["user_object"] = None
+            result_dict_check(res)
+            return res
+
+        except KeyboardInterrupt:
+            assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"
+        except JobInterrupted:
+            publish(context, "worker-status", job_id=job_id, status="interrupted")
+            raise
+        except JobFailed:
+            raise
+        except BaseException:
+            # XXX
+            raise
         except:
-            pass
-
-        publish(context, "worker-status", job_id=job_id, status="connected")
-
-        res = await make(sti, job_id, context=context)
-
-        publish(context, "worker-status", job_id=job_id, status="ended")
-
-        res["user_object"] = None
-        result_dict_check(res)
-        return res
-
-    except KeyboardInterrupt:
-        assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"
-    except JobInterrupted:
-        publish(context, "worker-status", job_id=job_id, status="interrupted")
-        raise
-    except JobFailed:
-        raise
-    except BaseException:
-        # XXX
-        raise
-    except:
-        raise
-    finally:
-        publish(context, "worker-status", job_id=job_id, status="cleanup")
-        setproctitle("compmake-worker-finished %s" % job_id)
+            raise
+        finally:
+            publish(context, "worker-status", job_id=job_id, status="cleanup")
+            setproctitle("compmake-worker-finished %s" % job_id)
