@@ -70,7 +70,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     db = StorageFilesystem(basepath, compress=True)
 
     async with MyAsyncExitStack(sti) as AES:
-        context = await AES.init(ContextImp(db=db))
+        context0 = await AES.init(ContextImp(db=db))
 
         try:
 
@@ -81,7 +81,8 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
             # We register a handler for the events to be passed back
             # to the main process
-            async def handler(c2: Context, event: Event):
+            async def handler(context: Context, event: Event):
+                _ = context
                 try:
                     if not CompmakeConstants.disable_interproc_queue:
                         event_queue.put(event, block=False)
@@ -97,26 +98,28 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
             if show_output:
                 register_handler("*", handler)
 
-            async def proctitle(c2: Context, event: JobProgressEvent):
+            async def proctitle(context: Context, event: JobProgressEvent):
+                _ = context
                 stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
                 setproctitle(stat)
 
             register_handler("job-progress", proctitle)
 
-            publish(context, "worker-status", job_id=job_id, status="started")
+            publish(context0, "worker-status", job_id=job_id, status="started")
 
             # Note that this function is called after the fork.
             # All data is conserved, but resources need to be reopened
+            # noinspection PyBroadException
             try:
                 db.reopen_after_fork()
             except:
                 pass
 
-            publish(context, "worker-status", job_id=job_id, status="connected")
+            publish(context0, "worker-status", job_id=job_id, status="connected")
 
-            res = await make(sti, job_id, context=context)
+            res = await make(sti, job_id, context=context0)
 
-            publish(context, "worker-status", job_id=job_id, status="ended")
+            publish(context0, "worker-status", job_id=job_id, status="ended")
 
             res["user_object"] = None
             result_dict_check(res)
@@ -125,7 +128,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
         except KeyboardInterrupt:
             assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"
         except JobInterrupted:
-            publish(context, "worker-status", job_id=job_id, status="interrupted")
+            publish(context0, "worker-status", job_id=job_id, status="interrupted")
             raise
         except JobFailed:
             raise
@@ -135,5 +138,5 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
         except:
             raise
         finally:
-            publish(context, "worker-status", job_id=job_id, status="cleanup")
+            publish(context0, "worker-status", job_id=job_id, status="cleanup")
             setproctitle("compmake-worker-finished %s" % job_id)
