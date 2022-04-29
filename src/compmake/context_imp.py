@@ -110,9 +110,11 @@ class ContextImp(Context):
         self.splitter_ui_console = None
 
     async def init(self, sti: SyncTaskInterface) -> None:
-        self.splitter = await Splitter.make_init(Event, "ContextImp-splitter")
+        self.sti = sti
+        my_name = f"ContextImp:{id(self)}"
+        self.splitter = await Splitter.make_init(Event, f"{my_name}-splitter")
         self.splitter_ui_console = await Splitter.make_init(
-            Union[UIMessage, Prompt], "ContextImp-splitter_ui"
+            Union[UIMessage, Prompt], f"{my_name}-splitter_ui"
         )
 
         @async_errors
@@ -138,24 +140,35 @@ class ContextImp(Context):
                     else:
                         raise ZValueError("Invalid value", x=x)
 
-        self.write_task = my_create_task(go(), "Context:go")
+        self.write_task = my_create_task(go(), f"{my_name}:go")
 
-        self.br = await sti.create_child_task2(None, self.broadcast)
+        # self.br = await sti.create_child_task2(f"{my_name}:broadcast", self.broadcast)
+        self.br = my_create_task(go(), f"{my_name}:br")
 
         async def on_shutdown(_: Any) -> None:
             await self.splitter.finish()
             await self.splitter_ui_console.finish()
-            await self.write_task
+            # await self.write_task
 
         sti.add_shutdown_handler(on_shutdown)
 
     async def aclose(self):
+        # self.sti.logger.debug("aclosing contextimp")
+        # self.sti.logger.debug("aclosing contextimp - splitter")
+
         await self.splitter.aclose()
+        # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         await self.splitter_ui_console.aclose()
+        # self.sti.logger.debug("aclosing contextimp - write task")
+        self.write_task.cancel()
+        # await self.write_task
+        # self.sti.logger.debug("aclosing br")
+        self.br.cancel()
+        # self.sti.logger.debug("aclosing contextimp done")
 
     # @async_errors
-    async def broadcast(self, sti: SyncTaskInterface):
-        await sti.started_and_yield()
+    async def broadcast(self):
+        # await sti.started_and_yield()
         async for a, event in self.splitter.read():
             all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
