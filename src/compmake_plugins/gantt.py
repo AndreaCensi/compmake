@@ -45,7 +45,6 @@ async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"
 
         cache = cq.get_job_cache(job_id)
         if cache.state != Cache.DONE:
-
             msg = f"The job {job_id} is not done."
             raise Exception(msg)
         length = G.nodes[job_id]["length"]

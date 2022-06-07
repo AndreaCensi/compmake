@@ -1,10 +1,8 @@
 """ This plugin dumps all events received. """
 import sys
 
-from compmake.registrar import register_fallback_handler
-
+from compmake import compmake_colored, register_fallback_handler
 from compmake.utils import pad_to_screen
-from compmake.colored import compmake_colored
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr

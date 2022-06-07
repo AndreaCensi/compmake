@@ -2,13 +2,13 @@ import traceback
 
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
-from .context import Context
+from .actions import clean_other_jobs, interpret_commands
 from .cachequerydb import CacheQueryDB
+from .constants import CompmakeConstants
+from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, ShellExitRequested, UserError
 from .readrcfiles import read_rc_files
 from .registrar import publish
-from .actions import clean_other_jobs, interpret_commands
-from .constants import CompmakeConstants
 from .state import set_compmake_status
 
 __all__ = ["batch_command", "interpret_commands_wrap"]

@@ -1,5 +1,4 @@
-from compmake import compute_priorities
-from compmake import COMMANDS_ADVANCED, ui_command
+from compmake import COMMANDS_ADVANCED, compute_priorities, ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED)

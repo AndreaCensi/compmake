@@ -2,15 +2,10 @@ import os
 from collections import defaultdict
 from typing import Collection
 
-from compmake import Context
+from compmake import Cache, CMJobID, Context, top_targets, ui_info
 from compmake.cachequerydb import CacheQueryDB, definition_closure
 from compmake.exceptions import UserError
 from compmake.helpers import COMMANDS_ADVANCED, ui_command
-from compmake.queries import top_targets
-from compmake.structures import Cache
-from compmake.types import CMJobID
-from compmake.visualization import ui_info
-
 from zuper_graphs_draw import GvGen
 
 
