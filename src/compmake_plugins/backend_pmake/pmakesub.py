@@ -1,6 +1,6 @@
+import multiprocessing
 import signal
 import traceback
-from multiprocessing import TimeoutError
 from multiprocessing.context import BaseContext
 from typing import Optional
 
@@ -199,10 +199,11 @@ class PmakeResult(AsyncResultInterface):
             return True
 
     async def get(self, timeout=0) -> OKResult:
+        """Raises multiprocessing.TimeoutError"""
         if self.result is None:
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
-                raise TimeoutError(e)
+                raise multiprocessing.TimeoutError(e)
         r: ResultDict = self.result
         return result_dict_raise_if_error(r)

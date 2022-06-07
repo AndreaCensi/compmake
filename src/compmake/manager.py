@@ -1,19 +1,18 @@
 import asyncio
 import itertools
+import multiprocessing
 import os
 import shutil
 import signal
 import traceback
 import warnings
 from abc import ABC, abstractmethod
-from multiprocessing import TimeoutError
 from typing import Any, Collection, Dict, List, Set
 
 from zuper_commons.fs import abspath, join, make_sure_dir_exists
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_utils_asyncio import my_create_task
+from zuper_utils_asyncio import my_create_task, SyncTaskInterface
 from .actions import mark_as_blocked
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -397,7 +396,7 @@ class Manager(ManagerLog):
 
             return True
 
-        except TimeoutError:
+        except multiprocessing.TimeoutError:
             if assume_ready:
                 msg = "Got Timeout while assume_ready for %r" % job_id
                 raise CompmakeBug(msg)
@@ -422,7 +421,7 @@ class Manager(ManagerLog):
             # (even though knowing where it was interrupted was good)
             # XXX
             self.sti.logger.error(traceback.format_exc())
-            raise JobInterrupted("Keyboard interrupt")
+            raise JobInterrupted(job_id)
 
     def job_is_deleted(self, job_id: CMJobID):
         if job_exists(job_id, self.db):
