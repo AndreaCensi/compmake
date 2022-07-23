@@ -22,7 +22,10 @@ from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_confi
 from .types import CMJobID
 from .utils import pad_to_screen
 
-__all__ = ["ContextImp", "load_static_storage"]
+__all__ = [
+    "ContextImp",
+    "load_static_storage",
+]
 
 
 @dataclass

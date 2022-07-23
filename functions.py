@@ -11,10 +11,9 @@ def get_poset():
 
 
 def get_primitivedp():
-    from mcdp_dp import Identity  # ok
+    from mcdp_dp import IdentityDP  # ok
     from mcdp_posets import Nat  # ok
 
-    return Identity(Nat())
-
+    return IdentityDP(Nat())
 
 # mcdp_primitive

@@ -4,7 +4,10 @@ from typing import Tuple, Union
 from zuper_commons.types import describe_type
 from .structures import ProgressStage
 
-__all__ = ["init_progress_tracking", "progress"]
+__all__ = [
+    "init_progress_tracking",
+    "progress",
+]
 
 
 class Globals:

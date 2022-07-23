@@ -11,7 +11,10 @@ from .readrcfiles import read_rc_files
 from .registrar import publish
 from .state import set_compmake_status
 
-__all__ = ["batch_command", "interpret_commands_wrap"]
+__all__ = [
+    "batch_command",
+    "interpret_commands_wrap",
+]
 
 
 async def interpret_commands_wrap(

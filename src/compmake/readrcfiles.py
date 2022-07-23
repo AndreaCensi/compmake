@@ -4,7 +4,9 @@ from zuper_utils_asyncio import SyncTaskInterface
 from .context import Context
 from .readcommands import read_commands_from_file
 
-__all__ = ["read_rc_files"]
+__all__ = [
+    "read_rc_files",
+]
 
 
 async def read_rc_files(sti: SyncTaskInterface, context: Context):

@@ -1,6 +1,9 @@
 # Code copied from PEP-0257
 
-__all__ = ["docstring_components", "docstring_trim"]
+__all__ = [
+    "docstring_components",
+    "docstring_trim",
+]
 
 
 def docstring_trim(docstring):

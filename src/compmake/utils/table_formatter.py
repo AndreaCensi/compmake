@@ -2,7 +2,9 @@ from typing import List
 
 from .strings_with_escapes import pad_to_screen_length, get_length_on_screen
 
-__all__ = ["TableFormatter"]
+__all__ = [
+    "TableFormatter",
+]
 
 
 class TableFormatter:

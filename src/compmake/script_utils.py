@@ -1,7 +1,9 @@
 import sys
 import traceback
 
-__all__ = ["wrap_script_entry_point"]
+__all__ = [
+    "wrap_script_entry_point",
+]
 
 
 def wrap_script_entry_point(function, exceptions_no_traceback):

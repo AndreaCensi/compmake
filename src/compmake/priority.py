@@ -1,6 +1,8 @@
 from .structures import Cache
 
-__all__ = ["compute_priorities"]
+__all__ = [
+    "compute_priorities",
+]
 
 
 def compute_priorities(all_targets, cq, priorities=None):

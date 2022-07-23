@@ -7,7 +7,9 @@ from .cachequerydb import CacheQueryDB
 from .context import Context
 from .visualization import ui_info
 
-__all__ = ["read_commands_from_file"]
+__all__ = [
+    "read_commands_from_file",
+]
 
 
 async def read_commands_from_file(sti: SyncTaskInterface, filename: str, context: Context):

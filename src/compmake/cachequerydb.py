@@ -12,7 +12,10 @@ from .structures import Cache, Job
 from .types import CMJobID
 from .utils import memoized_reset
 
-__all__ = ["CacheQueryDB", "definition_closure"]
+__all__ = [
+    "CacheQueryDB",
+    "definition_closure",
+]
 
 
 class CacheQueryDB:

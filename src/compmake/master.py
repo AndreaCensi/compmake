@@ -20,7 +20,10 @@ from .state import set_compmake_status
 from .storage import all_jobs
 from .utils import setproctitle
 
-__all__ = ["compmake_main", "main"]
+__all__ = [
+    "compmake_main",
+    "main",
+]
 
 usage = """
 The "compmake" script takes a DB directory as argument:

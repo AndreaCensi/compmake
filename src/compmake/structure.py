@@ -4,7 +4,12 @@ from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, set_compmake_config0
 from .utils import interpret_strings_like
 
-__all__ = ["add_config_section", "add_config_switch", "set_config_from_strings", "show_config"]
+__all__ = [
+    "add_config_section",
+    "add_config_switch",
+    "set_config_from_strings",
+    "show_config",
+]
 
 
 def add_config_switch(name, default_value, allowed=None, desc=None, section=None, order=0):
