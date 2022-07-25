@@ -1,6 +1,7 @@
 import sys
 from io import StringIO
 from typing import Callable, List
+
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
 

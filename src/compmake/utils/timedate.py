@@ -1,6 +1,5 @@
 import datetime
 
-
 __all__ = [
     "isodate_with_secs",
 ]

@@ -1,7 +1,6 @@
 from optparse import OptionGroup, OptionValueError
 
 from .state import CompmakeGlobalState
-
 from .structure import set_config_from_strings
 
 __all__ = [

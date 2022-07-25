@@ -1,6 +1,5 @@
 from .state import CompmakeGlobalState
 
-
 __all__ = [
     "create_config_html",
 ]

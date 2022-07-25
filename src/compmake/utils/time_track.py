@@ -1,8 +1,8 @@
-from contextlib import contextmanager
 import sys
-from . import logger
 import time
+from contextlib import contextmanager
 
+from . import logger
 
 __all__ = [
     "TimeTrack",

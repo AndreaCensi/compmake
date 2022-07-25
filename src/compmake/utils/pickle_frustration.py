@@ -1,7 +1,7 @@
 # from contracts import contract
-import os, sys
+import os
+import sys
 from contextlib import contextmanager
-
 
 # @contract(returns=dict)
 from typing import Dict

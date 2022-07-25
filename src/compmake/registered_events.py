@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from .types import CMJobID
 from .events_structures import Event, EventSpec
+from .types import CMJobID
 
 compmake_registered_events = {}
 

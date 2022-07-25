@@ -2,7 +2,6 @@ from multiprocessing import cpu_count
 
 from .structure import add_config_section, add_config_switch
 
-
 __all__ = [
     "CONFIG_APPEARANCE",
     "CONFIG_GENERAL",
@@ -71,7 +70,6 @@ add_config_switch(
     section=CONFIG_APPEARANCE,
 )
 
-
 add_config_switch(
     "details_failed_job",
     True,
@@ -90,7 +88,6 @@ add_config_switch(
     "console_status_style", "normal", desc="status line style (normal, compact)", section=CONFIG_APPEARANCE
 )
 
-
 add_config_switch("colorize", True, desc="Use colors in terminals if possible.", section=CONFIG_APPEARANCE)
 
 add_config_switch(
@@ -99,7 +96,6 @@ add_config_switch(
     desc="Assumes that this is an interactive console. (Uses " "\\r to repaint line.)",
     section=CONFIG_APPEARANCE,
 )
-
 
 add_config_switch("console_status_delta", 0.33, desc="Refresh interval (seconds)", section=CONFIG_APPEARANCE)
 

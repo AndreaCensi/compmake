@@ -8,7 +8,6 @@ version = __version__
 logger = ZLogger(__name__)
 logger.hello_module(name=__name__, filename=__file__, version=__version__, date=__date__)
 
-
 from .types import *
 from .constants import *
 from .state import *

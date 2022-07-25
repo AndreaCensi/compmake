@@ -10,7 +10,6 @@ __all__ = [
     "import_name",
 ]
 
-
 # @contract(name="unicode")
 from zuper_commons.text import indent
 

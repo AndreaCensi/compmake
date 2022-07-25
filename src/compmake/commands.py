@@ -6,15 +6,14 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 """
 from zuper_utils_asyncio import SyncTaskInterface
-from .state import get_compmake_status
-
 from .actions import clean_targets, make
+from .cachequerydb import CacheQueryDB
 from .console import ask_question
 from .constants import CompmakeConstants
 from .exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
+from .state import get_compmake_status
 from .storage import all_jobs, delete_all_job_data
-from .cachequerydb import CacheQueryDB
 from .utils import safe_pickle_dump
 from .visualization import ui_error, ui_info
 

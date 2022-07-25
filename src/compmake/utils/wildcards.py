@@ -2,7 +2,6 @@ import re
 
 from ..exceptions import UserError
 
-
 __all__ = [
     "expand_wildcard",
     "wildcard_to_regexp",

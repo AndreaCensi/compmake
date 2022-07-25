@@ -2,7 +2,6 @@ from copy import deepcopy
 from typing import Set
 
 from zuper_commons.types import raise_wrapped, ZException
-
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
 from .structures import Promise
@@ -28,7 +27,6 @@ def get_job_userobject_resolved(job_id: CMJobID, db):
 
 
 def substitute_dependencies(a, db):
-
     # XXX: this is a workaround
     if leave_it_alone(a):
         return deepcopy(a)

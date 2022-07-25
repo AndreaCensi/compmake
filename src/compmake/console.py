@@ -1,6 +1,7 @@
 import asyncio
-from future import builtins
 from typing import AsyncIterator, cast
+
+from future import builtins
 
 from zuper_utils_asyncio import SyncTaskInterface
 from .actions import clean_other_jobs

@@ -1,6 +1,6 @@
 from typing import List
 
-from .strings_with_escapes import pad_to_screen_length, get_length_on_screen
+from .strings_with_escapes import get_length_on_screen, pad_to_screen_length
 
 __all__ = [
     "TableFormatter",
