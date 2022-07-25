@@ -1,8 +1,9 @@
 import sys
-from typing import Callable
+from typing import Callable, ClassVar
 
 from zuper_commons.text import joinlines
 from zuper_commons.ui import get_colorize_function
+from . import logger
 from .context import Context
 from .registrar import publish, register_handler
 from .utils import get_screen_columns
@@ -23,19 +24,12 @@ def clean_console_line(stream):
     stream.write(s)
 
 
-#
-# def warning(s):
-#     write_message(s, lambda x: compmake_colored(x, "yellow"))
-
-
 def ui_message(context, s: str):
     publish(context, "ui-message", string=s)
 
 
 color_it_red = get_colorize_function("#ff0000")
-color_it_red("hello")
 color_it_green = get_colorize_function("#00ff00")
-# print(color_it_green("hello"))
 
 color_it_blue = get_colorize_function("#0000ff")
 color_it_pink = get_colorize_function("#ffaaaa")
@@ -60,14 +54,18 @@ def ui_warning(context, s: str):
 
 
 class DefaultConsole:
-    active = True
+    active: ClassVar[bool] = True
+    given_active_warning: ClassVar[bool] = False
 
 
 async def handle_ui_message_console(context, event):
     if not DefaultConsole.active:
+        if not DefaultConsole.given_active_warning:
+            DefaultConsole.given_active_warning = True
+            logger.info("XXX: DefaultConsole.active is False")
         return
     # write_message(event.kwargs["string"], lambda x: x)
-
+    # logger.debug("handle_ui_message_console", event=event)
     await context.write_message_console(event.kwargs["string"])
 
 

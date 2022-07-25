@@ -1,6 +1,5 @@
 import time
 
-
 __all__ = [
     "Event",
     "EventSpec",
@@ -29,3 +28,6 @@ class Event:
 
     def __str__(self):
         return f"Event({self.name}, {self.kwargs})"
+
+    def __repr__(self):
+        return str(self)

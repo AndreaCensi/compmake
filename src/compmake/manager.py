@@ -187,7 +187,7 @@ class Manager(ManagerLog):
         return best
 
     def add_targets(self, targets: Collection[CMJobID]):
-        self.log("add_targets()", targets=targets)
+        self.log("add_targets()", targets=L(targets))
         self.check_invariants()
         for t in targets:
             assert_job_exists(t, self.db)
@@ -218,13 +218,13 @@ class Manager(ManagerLog):
 
         self.log(
             "computed todo",
-            targets_todo_plus_deps=targets_todo_plus_deps,
-            targets_done=targets_done,
-            ready_todo=ready_todo,
-            not_ready=not_ready,
+            targets_todo_plus_deps=L(targets_todo_plus_deps),
+            targets_done=L(targets_done),
+            ready_todo=L(ready_todo),
+            not_ready=L(not_ready),
         )
 
-        self.log(f"targets_todo_plus_deps: {sorted(targets_todo_plus_deps)}")
+        self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
 
         # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
         # print('           targets_done: %s ' % targets_done)
@@ -248,9 +248,9 @@ class Manager(ManagerLog):
 
         todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
-        self.log("add_targets():adding to todo", todo_add=todo_add, todo=self.todo)
+        self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
         ready_add = ready_todo - self.processing
-        self.log("add_targets():adding to ready", ready=self.ready_todo, ready_add=ready_add)
+        self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
         self.ready_todo.update(ready_add)
         # this is a quick fix but I'm sure more thought is to be given
         for a in ready_add:
@@ -269,10 +269,10 @@ class Manager(ManagerLog):
 
         self.log(
             "after add_targets()",
-            processing=self.processing,
-            ready_todo=self.ready_todo,
-            todo=self.todo,
-            done=self.done,
+            processing=L(self.processing),
+            ready_todo=L(self.ready_todo),
+            todo=L(self.todo),
+            done=L(self.done),
         )
 
     async def instance_some_jobs(self):
@@ -440,9 +440,9 @@ class Manager(ManagerLog):
         self.log(
             "check_job_finished_handle_result",
             job_id=job_id,
-            new_jobs=result["new_jobs"],
-            user_object_deps=result["user_object_deps"],
-            deleted_jobs=result["deleted_jobs"],
+            new_jobs=L(result["new_jobs"]),
+            user_object_deps=L(result["user_object_deps"]),
+            deleted_jobs=L(result["deleted_jobs"]),
         )
 
         new_jobs = result["new_jobs"]
@@ -596,7 +596,7 @@ class Manager(ManagerLog):
         cq = CacheQueryDB(self.db)
 
         parents_todo = set(self.todo & parent_jobs)
-        self.log("considering parents", parents_todo=parents_todo)
+        self.log("considering parents", parents_todo=L(parents_todo))
         for opportunity in parents_todo:
             # print('parent %r in todo' % (opportunity))
             if opportunity in self.processing:
@@ -1011,3 +1011,14 @@ def check_job_cache_says_failed(job_id, db, e):
 #         # clean dependencies as well
 #         if recurse:
 #             clean_other_jobs_distributed(db, g, [])
+
+
+def L(l: Collection[str]) -> List[str]:
+    maxn = 15
+    l2 = list(l)
+    if len(l2) < maxn:
+        return l2
+    l2 = l2[:maxn]
+    remaining = len(l) - len(l2)
+    l2.append(f"... and {remaining} more")
+    return l2

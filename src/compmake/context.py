@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Set
+from typing import Callable, Collection, Concatenate, List, Optional, ParamSpec, Set, TypeVar
 
 from zuper_utils_asyncio import SyncTaskInterface
+from .structures import Promise
 from .types import CMJobID
 
 __all__ = [
     "Context",
 ]
+
+P = ParamSpec("P")
+X = TypeVar("X")
 
 
 class Context(ABC):
@@ -23,7 +27,7 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    async def reset_jobs_defined_in_this_session(self, jobs) -> None:
+    async def reset_jobs_defined_in_this_session(self, jobs: Collection[CMJobID]) -> None:
         """Called only when initializing the context."""
         ...
 
@@ -41,11 +45,13 @@ class Context(ABC):
 
     # setting up jobs
     @abstractmethod
-    def comp_dynamic(self, command_, *args, **kwargs):
+    def comp_dynamic(
+        self, f: "Callable[Concatenate[Context, P], X]", *args: P.args, **kwargs: P.kwargs
+    ) -> Promise:
         ...
 
     @abstractmethod
-    def comp(self, command_, *args, **kwargs):
+    def comp(self, command_: Callable[P, X], *args: P.args, **kwargs: P.kwargs) -> Promise:
         ...
 
     #
@@ -55,11 +61,11 @@ class Context(ABC):
     #
 
     @abstractmethod
-    async def comp_store(self, x, job_id=None):
+    async def comp_store(self, x: object, job_id: Optional[str] = None):
         ...
 
     @abstractmethod
-    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: List[str]):
+    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: List[str]) -> None:
         ...
 
     @abstractmethod
@@ -70,7 +76,7 @@ class Context(ABC):
     async def compmake_console(
         self,
         sti: SyncTaskInterface,
-    ):
+    ) -> None:
         ...
 
     @abstractmethod
@@ -78,9 +84,9 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    def get_compmake_config(self, c: str):
+    def get_compmake_config(self, c: str) -> object:
         pass
 
     @abstractmethod
-    async def write_message_console(self, s: str):
+    async def write_message_console(self, s: str) -> None:
         ...

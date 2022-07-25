@@ -1,6 +1,6 @@
 import sys
 from collections import namedtuple
-from typing import Awaitable, Callable, Dict, List
+from typing import Any, Awaitable, Callable, Dict, List
 
 from zuper_commons.types import ZValueError
 from .constants import CompmakeConstants
@@ -45,7 +45,7 @@ class CompmakeGlobalState:
     cached_completions = None
 
 
-def get_compmake_config0(key: str):
+def get_compmake_config0(key: str) -> Any:
     config = CompmakeGlobalState.compmake_config
 
     if not key in CompmakeGlobalState.config_switches:

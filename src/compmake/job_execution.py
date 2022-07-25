@@ -2,7 +2,7 @@ import asyncio
 import inspect
 from typing import Any, Callable, Dict, Mapping, Optional, Set, Tuple, TypedDict
 
-from zuper_commons.types import check_isinstance, ZValueError
+from zuper_commons.types import add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
@@ -102,7 +102,8 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
                 msg = "The function wants sti but it is not async"
                 raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
 
-            user_object = command(*args, **kwargs)
+            with add_context(command=command, args=args, kwargs=kwargs):
+                user_object = command(*args, **kwargs)
         int_compute.stop()
         new_jobs: Set[CMJobID] = set()
         res2: JobComputeResult = {

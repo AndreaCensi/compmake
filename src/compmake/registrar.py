@@ -94,6 +94,7 @@ def publish(context: Context, event_name: str, **kwargs):
             logger.error(msg)
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
+    # print('XXX: event', event)
     context.splitter.push(event)
     # broadcast_event(context, event)
 

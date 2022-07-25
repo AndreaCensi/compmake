@@ -59,9 +59,10 @@
 
 
 """
+import time
 from dataclasses import dataclass
 from typing import Dict, List, NewType, Optional, Set, Tuple, TypedDict, Union
-import time
+
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
