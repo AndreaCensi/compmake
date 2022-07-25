@@ -660,7 +660,7 @@ def comp_(
     args = list(args)  # args is a non iterable tuple
 
     # Get job id from arguments
-    if CompmakeConstants.job_id_key in kwargs:
+    if kwargs.get(CompmakeConstants.job_id_key, None) is not None:
         # make sure that command does not have itself a job_id key
         try:
             argspec = inspect.getfullargspec(command)

@@ -46,12 +46,18 @@ class Context(ABC):
     # setting up jobs
     @abstractmethod
     def comp_dynamic(
-        self, f: "Callable[Concatenate[Context, P], X]", *args: P.args, **kwargs: P.kwargs
+        self,
+        f: "Callable[Concatenate[Context, P], X]",
+        *args: P.args,
+        job_id: Optional[str] = None,
+        **kwargs: P.kwargs,
     ) -> Promise:
         ...
 
     @abstractmethod
-    def comp(self, command_: Callable[P, X], *args: P.args, **kwargs: P.kwargs) -> Promise:
+    def comp(
+        self, command_: Callable[P, X], *args: P.args, job_id: Optional[str] = None, **kwargs: P.kwargs
+    ) -> Promise:
         ...
 
     #
