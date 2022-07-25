@@ -660,7 +660,10 @@ def comp_(
     args = list(args)  # args is a non iterable tuple
 
     # Get job id from arguments
-    if kwargs.get(CompmakeConstants.job_id_key, None) is not None:
+    job_id_ = kwargs.pop(CompmakeConstants.job_id_key, None)
+    if job_id_ is not None:
+        job_id = cast(CMJobID, job_id_)
+
         # make sure that command does not have itself a job_id key
         try:
             argspec = inspect.getfullargspec(command)
@@ -676,7 +679,6 @@ def comp_(
                 )
                 raise UserError(msg)
 
-        job_id = cast(CMJobID, kwargs[CompmakeConstants.job_id_key])
         check_isinstance(job_id, str)
         if " " in job_id:
             msg = "Invalid job id: %r" % job_id
@@ -686,7 +688,7 @@ def comp_(
         if job_prefix:
             job_id = cast(CMJobID, "%s-%s" % (job_prefix, job_id))
 
-        del kwargs[CompmakeConstants.job_id_key]
+        # del kwargs[CompmakeConstants.job_id_key]
 
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated

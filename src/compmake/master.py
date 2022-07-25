@@ -2,7 +2,7 @@ import os
 import sys
 import traceback
 from optparse import OptionParser
-from typing import cast, List
+from typing import cast, List, Optional
 
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
@@ -43,7 +43,7 @@ async def main(zenv: ZappEnv) -> ExitCode:
     return await compmake_main(zenv.sti, args=zenv.args)
 
 
-async def compmake_main(sti: SyncTaskInterface, args: List[str] = None) -> ExitCode:
+async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None) -> ExitCode:
     sti.started()
     if not "" in sys.path:
         sys.path.append("")
