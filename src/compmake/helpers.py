@@ -1,7 +1,7 @@
 import sys
 import types
 from collections import namedtuple
-from typing import List, Optional, Union
+from typing import Any, Awaitable, Callable, List, Optional, TypeVar, Union
 
 from zuper_commons.types import ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -89,8 +89,16 @@ def wrap(func, name, alias, section, dbchange):
     return func
 
 
+FT = TypeVar("FT", bound=Callable[..., Awaitable[Any]])
+
+
 # @contract(alias="None|unicode|list(unicode)")
-def ui_command(name=None, alias: Optional[Union[str, List[str]]] = None, section=None, dbchange=False):
+def ui_command(
+    name: Optional[str] = None,
+    alias: Optional[Union[str, List[str]]] = None,
+    section: Optional[str] = None,
+    dbchange=False,
+) -> Callable[[FT], FT]:
     if alias is None:
         alias = []
     # noinspection PyTypeChecker

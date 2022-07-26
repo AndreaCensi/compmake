@@ -42,7 +42,7 @@ import inspect
 # SubEvent = TypeVar('SubEvent', bound=Event)
 
 # TODO: make decorator
-def register_handler(event_name: str, handler: Callable[[Context, Any], Awaitable[object]]):
+def register_handler(event_name: str, handler: Callable[[Context, Event], Awaitable[None]]) -> None:
     """
     Registers an handler with an event name.
     The event name might contain asterisks. "*" matches all.
@@ -116,7 +116,7 @@ def get_events_log_file(db):
     return lf
 
 
-async def handle_event_logs(context: Context, event):
+async def handle_event_logs(context: Context, event: Event):
     from .context_imp import ContextImp
 
     context = cast(ContextImp, context)

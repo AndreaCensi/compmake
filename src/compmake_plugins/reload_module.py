@@ -2,13 +2,13 @@ import imp
 import os
 import pwd
 
-from compmake import UserError
+from compmake import Context, UserError
 from compmake.helpers import COMMANDS_ADVANCED, ui_command
-from compmake.visualization import ui_info, ui_error
+from compmake.visualization import ui_error, ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def reload(module, context):  # @ReservedAssignment
+async def reload(module: str, context: Context) -> None:  # @ReservedAssignment
     """Reloads a module.
 
     Usage::
@@ -23,7 +23,7 @@ def reload(module, context):  # @ReservedAssignment
             dave = pwd.getpwuid(os.getuid())[0]
         except:
             dave = "Dave"
-        ui_error(context, f"I'm sorry, {dave}. I'm afraid I can't do that.")
+        await ui_error(context, f"I'm sorry, {dave}. I'm afraid I can't do that.")
         return
 
     try:
@@ -38,4 +38,4 @@ def reload(module, context):  # @ReservedAssignment
         msg = "Obtained this exception while reloading the module"
         raise UserError(msg) from e
 
-    ui_info(context, f'Reloaded module "{module}".')
+    await ui_info(context, f'Reloaded module "{module}".')

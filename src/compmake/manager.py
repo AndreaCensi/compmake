@@ -683,7 +683,8 @@ class Manager(ManagerLog):
 
         self.interrupted = False
         loop_task = None
-        self.sti.logger.user_info(pid=os.getpid())
+
+        # self.sti.logger.user_info(pid=os.getpid())
 
         def shutdown():
             self.sti.logger.user_error("CTRL-C", pid=os.getpid())
@@ -781,7 +782,7 @@ class Manager(ManagerLog):
 
         except JobInterrupted as e:
 
-            ui_error(self.context, f"Received JobInterrupted: {e}")
+            await ui_error(self.context, f"Received JobInterrupted: {e}")
             raise
         except KeyboardInterrupt:
             raise KeyboardInterrupt("Manager interrupted.") from None

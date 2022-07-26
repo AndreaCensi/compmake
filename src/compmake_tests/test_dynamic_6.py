@@ -67,7 +67,7 @@ async def test_dynamic6(env: Env) -> None:
     await env.assert_cmd_success("make recurse=1")
     j = cast(CMJobID, "hd")
     check_job_cache_state(job_id=j, states=[Cache.DONE], db=db)
-    assert_equal(jobs_defined(job_id=j, db=db), {"hd-id"})
+    assert_equal(jobs_defined(job_id=j, db=db), {CMJobID("hd-id")})
 
     # self.assert_cmd_success('graph compact=0 color=0 '
     #                         'cluster=1 filter=dot')

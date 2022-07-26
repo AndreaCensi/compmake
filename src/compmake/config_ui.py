@@ -1,5 +1,6 @@
 import sys
 
+from zuper_utils_asyncio import SyncTaskInterface
 from . import Context
 from .config_html import create_config_html
 from .exceptions import UserError
@@ -15,7 +16,7 @@ __all__ = [
 
 
 @ui_command(section=GENERAL)
-async def config(sti, args, context: Context):
+async def config(sti: SyncTaskInterface, args, context: Context):
     """Get/set configuration parameters.
 
     Usage:
@@ -27,7 +28,7 @@ async def config(sti, args, context: Context):
     if not args:
         # show
         b = show_config(context)
-        ui_message(context, b)
+        await ui_message(context, b)
         return
 
     name = args.pop(0)
@@ -35,7 +36,7 @@ async def config(sti, args, context: Context):
         if not name in CompmakeGlobalState.config_switches:
             raise UserError(f"I don't know the switch '{name}'.")
         value = context.get_compmake_config(name)
-        ui_info(context, f"config {name} {value}")
+        await ui_info(context, f"config {name} {value}")
         return
 
     set_config_from_strings(name, args)

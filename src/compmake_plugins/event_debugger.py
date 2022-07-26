@@ -1,7 +1,8 @@
 """ This plugin dumps all events received. """
 import sys
 
-from compmake import compmake_colored, register_fallback_handler
+from compmake import compmake_colored, Context, register_fallback_handler
+from compmake.events_structures import Event
 from compmake.utils import pad_to_screen
 
 # We save it, because it will be redirected during job execution
@@ -9,7 +10,7 @@ stream = sys.stderr
 other_stream = sys.stdout
 
 
-def print_event(context, event):
+def print_event(context: Context, event: Event):
     other_stream.flush()
 
     # age = time.time() - event.timestamp

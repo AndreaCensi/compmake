@@ -70,7 +70,8 @@ class ContextImp(Context):
 
             lines = s.splitlines()
             for l in lines:
-                p = pad_to_screen(l)
+                # p = pad_to_screen(l)
+                p = l
                 output += p + "\n"
         print(output, end="")
         # self.splitter_ui_console.push(uim)
@@ -201,8 +202,9 @@ class ContextImp(Context):
     @async_errors
     async def broadcast(self, sti: SyncTaskInterface) -> None:
         sti.started()
-
+        event: Event
         async for a, event in self.splitter.read():
+            # print(event.name)
             all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
             handlers = all_handlers.get(event.name, [])

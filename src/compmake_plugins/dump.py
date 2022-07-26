@@ -29,9 +29,9 @@ async def dump(sti, non_empty_job_list, context, directory="."):
             filename = os.path.join(directory, job_id + ".pickle")
             with open(filename, "wb") as f:
                 pickle.dump(user_object, f)
-            ui_info(context, f"Wrote {filename}")
+            await ui_info(context, f"Wrote {filename}")
         else:
-            ui_message(context, f"Job {job_id} is not ready yet.")
+            await ui_message(context, f"Job {job_id} is not ready yet.")
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -44,6 +44,6 @@ async def dump_stdout(sti, non_empty_job_list, context, resolve=False):
                 user_object = get_job_userobject_resolved(job_id, db)
             else:
                 user_object = get_job_userobject(job_id, db=db)
-            ui_message(context, debug_print(user_object))
+            await ui_message(context, debug_print(user_object))
         else:
-            ui_message(context, f"Job {job_id} is not ready yet.")
+            await ui_message(context, f"Job {job_id} is not ready yet.")

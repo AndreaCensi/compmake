@@ -232,14 +232,14 @@ def clip_up_to(line: str, max_len: int):
     return line[:max_len], line[max_len:]
 
 
-async def handle_event_stdout(context: Context, event):
+async def handle_event_stdout(context: Context, event: Event):
     echo = context.get_compmake_config("echo")
     echo_stdout = context.get_compmake_config("echo_stdout")
     if echo and echo_stdout:
         await handle_event_stdx(context, event, False)
 
 
-async def handle_event_stderr(context: Context, event):
+async def handle_event_stderr(context: Context, event: Event):
     echo = context.get_compmake_config("echo")
     echo_stderr = context.get_compmake_config("echo_stderr")
     if echo and echo_stderr:
@@ -274,21 +274,21 @@ async def handle_job_done(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.DONE]:>10}"
     glyph = Cache.glyphs[Cache.DONE]
-    ui_message(context, color_done(f"{glyph} {desc} {job_id}"))
+    await ui_message(context, color_done(f"{glyph} {desc} {job_id}"))
 
 
 async def handle_job_failed(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.FAILED]:>10}"
     glyph = Cache.glyphs[Cache.FAILED]
-    ui_message(context, color_failed(f"{glyph} {desc} {job_id}"))
+    await ui_message(context, color_failed(f"{glyph} {desc} {job_id}"))
 
 
 async def handle_job_processing(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.PROCESSING]:>10}"
     glyph = Cache.glyphs[Cache.PROCESSING]
-    ui_message(context, color_processing(f"{glyph} {desc} {job_id}"))
+    await ui_message(context, color_processing(f"{glyph} {desc} {job_id}"))
 
 
 #  9 ✔ 1 ⚙ 2 ▴‍
@@ -297,14 +297,14 @@ async def handle_job_blocked(context: Context, event: Event):
     blocking_job_id = event.kwargs["blocking_job_id"]
     desc = f"{Cache.state2desc[Cache.BLOCKED]:>10}"
     glyph = Cache.glyphs[Cache.BLOCKED]
-    ui_message(context, color_blocked(f"{glyph} {desc} {job_id}") + f" because of {blocking_job_id}")
+    await ui_message(context, color_blocked(f"{glyph} {desc} {job_id}") + f" because of {blocking_job_id}")
 
 
 async def handle_job_ready(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     glyph = Cache.glyphs["ready"]
     desc = f'{"ready":>10}'
-    ui_message(context, color_ready(f"{glyph} {desc} {job_id}"))
+    await ui_message(context, color_ready(f"{glyph} {desc} {job_id}"))
 
 
 register_handler("manager-job-done", handle_job_done)

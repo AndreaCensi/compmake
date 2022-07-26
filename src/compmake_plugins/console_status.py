@@ -311,7 +311,7 @@ async def manager_host_failed(context: Context, event: Event):
     s = f"Host failed for job {event.kwargs['job_id']}: {event.kwargs['reason']}"
     # noinspection PyUnresolvedReferences
     s += indent(event.bt.strip(), "| ")
-    ui_error(context, s)
+    await ui_error(context, s)
 
 
 register_handler("manager-loop", handle_event_period)

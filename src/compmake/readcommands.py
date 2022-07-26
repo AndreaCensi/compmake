@@ -25,7 +25,7 @@ async def read_commands_from_file(sti: SyncTaskInterface, filename: str, context
 
     cq = CacheQueryDB(context.get_compmake_db())
 
-    ui_info(context, f"Reading configuration from {friendly_path(filename)}.")
+    await ui_info(context, f"Reading configuration from {friendly_path(filename)}.")
     with open(filename, "r") as f:
         for line in f:
             line = line.strip()

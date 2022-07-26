@@ -2,25 +2,31 @@
 from typing import List, Tuple
 
 from compmake import (
+    all_jobs,
+    CacheQueryDB,
     children,
+    CMJobID,
     COMMANDS_ADVANCED,
+    CompmakeBug,
+    Context,
     direct_children,
     direct_parents,
+    get_job,
+    job_exists,
     parents,
     parse_job_list,
     ui_command,
     ui_error,
 )
-from compmake.exceptions import CompmakeBug
-from compmake.storage import all_jobs, get_job, job_exists
 from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
 async def check_consistency(
-    sti: SyncTaskInterface, args, context, cq, raise_if_error=False
-):  # @ReservedAssignment
+    sti: SyncTaskInterface, args: List[str], context: Context, cq: CacheQueryDB, raise_if_error: bool = False
+) -> None:
     """Checks in the DB that the relations between jobs are consistent."""
+    _ = cq
 
     db = context.get_compmake_db()
 
@@ -35,7 +41,7 @@ async def check_consistency(
     errors = {}
     for job_id in job_list:
         try:
-            ok, reasons = check_job(job_id, context)
+            ok, reasons = await check_job(job_id, context)
             if not ok:
                 errors[job_id] = reasons
         except CompmakeBug as e:
@@ -49,12 +55,12 @@ async def check_consistency(
         if raise_if_error:
             raise CompmakeBug(msg)
         else:
-            ui_error(context, msg)
+            await ui_error(context, msg)
 
     return 0
 
 
-def check_job(job_id, context) -> Tuple[bool, List[str]]:
+async def check_job(job_id: CMJobID, context: Context) -> Tuple[bool, List[str]]:
     db = context.get_compmake_db()
 
     job = get_job(job_id, db)
@@ -120,7 +126,7 @@ def check_job(job_id, context) -> Tuple[bool, List[str]]:
     if errors:
         s = f"Inconsistencies for {job_id}:\n"
         s += "\n".join(f"- {msg}" for msg in errors)
-        ui_error(context, s)
+        await ui_error(context, s)
         return False, errors
     else:
         return True, []

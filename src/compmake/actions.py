@@ -4,9 +4,9 @@ import traceback
 from asyncio import CancelledError
 from logging import Formatter
 from time import time
-from typing import Any, Callable, cast, Dict, List, Optional, Set
+from typing import Any, Callable, cast, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
 
-from zuper_commons.types import check_isinstance, describe_type, describe_value, raise_wrapped
+from zuper_commons.types import check_isinstance, describe_type, describe_value
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
@@ -40,7 +40,7 @@ from .storage import (
 from .structures import Cache, IntervalTimer, Job, MakeResult, Promise, same_computation
 from .types import CMJobID
 from .utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
-from .visualization import ui_info, ui_warning
+from .visualization import ui_info
 
 __all__ = [
     "clean_cache_relations",
@@ -542,7 +542,7 @@ async def clean_other_jobs(sti: SyncTaskInterface, context) -> None:
             else:
                 defined = ""
 
-            ui_info(context, f"Job {job_id!r} not defined in this session {defined}; cleaning.")
+            await ui_info(context, f"Job {job_id!r} not defined in this session {defined}; cleaning.")
             #
             #             if not clean_all:
             #                 # info('Job %s defined-by %s' % (job_id, job.defined_by))
@@ -587,8 +587,15 @@ class WarningStorage:
     warned: Set[Callable[..., Any]] = set()
 
 
+P = ParamSpec("P")
+X = TypeVar("X")
+
+
 def comp_(
-    context: Context, command_: Callable[..., Any], *args: object, **kwargs: object
+    context: Context,
+    command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
+    *args: P.args,
+    **kwargs: P.kwargs,
 ) -> Optional[Promise]:
     """
     Main method to define a computation step.
@@ -632,7 +639,7 @@ def comp_(
                     "http://stefaanlippens.net/pickleproblem "
                     "and the bug report http://bugs.python.org/issue5509."
                 )
-            ui_warning(context, msg)
+            logger.warning(context, msg)
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
@@ -647,7 +654,7 @@ def comp_(
             "function or a nested function. (This is a limitation of "
             "Python)"
         )
-        raise_wrapped(UserError, e, msg, command=command)
+        raise UserError(msg, command=command) from e
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
@@ -799,9 +806,11 @@ def comp_(
         old_job = get_job(job_id, db)
 
         if old_job.defined_by != c.defined_by:
-            ui_warning(context, "Redefinition of %s: " % job_id)
-            ui_warning(context, " cur defined_by: %s" % c.defined_by)
-            ui_warning(context, " old defined_by: %s" % old_job.defined_by)
+            logger.warning(
+                "Redefinition of %s: " % job_id
+            )  # XXX: ideally they use ui_warning, but that is async..
+            logger.warning(" cur defined_by: %s" % c.defined_by)
+            logger.warning(" old defined_by: %s" % old_job.defined_by)
 
         if old_job.children != c.children:
             # warning('Redefinition problem:')

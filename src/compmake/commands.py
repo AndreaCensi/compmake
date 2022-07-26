@@ -81,7 +81,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
         question = f"Should I clean {len(job_list)} jobs? [y/n] "
         answer = ask_question(question)
         if not answer:
-            ui_info(context, "Not cleaned.")
+            await ui_info(context, "Not cleaned.")
             return
 
     # ui_info(context, f'Going to clean {job_list}')
@@ -110,7 +110,7 @@ async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
         safe_pickle_dump(e.get_result_dict(), out_result)
         raise MakeFailed(failed=[job_id])
     except BaseException as e:
-        ui_error(context, f"warning: {e}")
+        await ui_error(context, f"warning: {e}")
         raise
 
 

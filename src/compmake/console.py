@@ -70,18 +70,20 @@ async def interactive_console(sti: SyncTaskInterface, context):
     while True:
         try:
             # context.splitter_ui_console.push(Prompt(prompt))
-            publish(context, "ui-message", string=prompt)
+            await context.write_message_console(prompt)
+            # publish(context, "ui-message", string=prompt)
 
             # event: asyncio.Event
             async for line, event in compmake_console_lines(context):
                 if line:
                     await interpret_commands_wrap(sti, line, context=context, cq=cq)
                 event.set()
-                publish(context, "ui-message", string=prompt)
+                # publish(context, "ui-message", string=prompt)
+                await context.write_message_console(prompt)
 
         except CommandFailed as e:
             if not isinstance(e, MakeFailed):
-                ui_error(context, str(e))
+                await ui_error(context, str(e))
             continue
         except CompmakeBug:
             raise
@@ -368,7 +370,7 @@ async def compmake_console_text(sti: SyncTaskInterface, context: Context):
 #
 #         H = 25
 #
-#         async def handle_ui_message(context, event: Event):
+#         async def handle_await ui_message(context, event: Event):
 #             string = event.kwargs["string"]
 #             string = remove_escapes(string)
 #             self.all_lines = self.all_lines + string.split("\n")

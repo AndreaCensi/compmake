@@ -1,11 +1,16 @@
-from compmake import get_job_cache, job_cache_exists
+from typing import Collection, List, Optional
+
+from compmake import CacheQueryDB, CMJobID, Context, get_job_cache, job_cache_exists
+from compmake.colored import compmake_colored
 from compmake.helpers import ui_command, VISUALIZATION
 from compmake.structures import Cache
-from compmake.colored import compmake_colored
+from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=VISUALIZATION)
-async def why(sti, non_empty_job_list, context, cq):
+async def why(
+    sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], context: Context, cq: CacheQueryDB
+) -> None:
     """Shows the last line of the error"""
     lines = []
     for job_id in non_empty_job_list:
@@ -15,10 +20,10 @@ async def why(sti, non_empty_job_list, context, cq):
             lines.append(details)
 
     s = format_table(lines)
-    print(s)
+    print(s, end="")  # XXX: should we use the console?
 
 
-def format_table(lines, sep=" | "):
+def format_table(lines: List[tuple[CMJobID, str, str]], sep: str = " | ") -> str:
     """lines is a list of tuples"""
     if not lines:
         return ""
@@ -30,7 +35,10 @@ def format_table(lines, sep=" | "):
     s = ""
     for line in lines:
         for i in range(ncols):
-            spec = "%%-%ds" % maxc[i]
+            if i == ncols - 1:
+                spec = "%s"
+            else:
+                spec = "%%-%ds" % maxc[i]
             cell = spec % line[i]
             if "NotImplementedError" in cell:
                 cell = compmake_colored(cell, color="blue", attrs=[])
@@ -41,7 +49,7 @@ def format_table(lines, sep=" | "):
     return s
 
 
-def details_why_one(job_id, context, cq):
+def details_why_one(job_id, context, cq: CacheQueryDB) -> Optional[tuple[CMJobID, str, str]]:
     db = context.get_compmake_db()
 
     if job_cache_exists(job_id, db):

@@ -16,10 +16,10 @@ from compmake.exceptions import MakeHostFailed
 from compmake.manager import Manager
 from compmake.registrar import publish
 from compmake.types import CMJobID
-from compmake.visualization import ui_warning
 from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
+from . import logger
 from .parmake_job2_imp import parmake_job2
 from .pmakesub import PmakeSub
 
@@ -78,7 +78,7 @@ class PmakeManager(Manager):
 
         if new_process and show_output:
             msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
-            ui_warning(context, msg)
+            logger.warning(context, msg)
         self.cleaned = False
 
     ctx: BaseContext

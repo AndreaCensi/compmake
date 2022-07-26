@@ -58,7 +58,9 @@ async def ls(
 
     job_list = list(job_list)
     CompmakeConstants.aliases["last"] = job_list
-    list_jobs(context, job_list, cq=cq, complete_names=complete_names, reason=reason, all_details=all_details)
+    await list_jobs(
+        context, job_list, cq=cq, complete_names=complete_names, reason=reason, all_details=all_details
+    )
     return 0
 
 
@@ -105,12 +107,19 @@ def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     return prefix, minimal, postfix
 
 
-def list_jobs(context, job_list, cq, complete_names=False, all_details=False, reason=False):
+async def list_jobs(
+    context: Context,
+    job_list,
+    cq: CacheQueryDB,
+    complete_names: bool = False,
+    all_details: bool = False,
+    reason: bool = False,
+):
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
         string = "No jobs found."
-        ui_message(context, string)
+        await ui_message(context, string)
         return
 
     # maximum job length
@@ -227,7 +236,7 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False, re
     if do_one_column:
         for line in tf.get_lines():
             string = ind + line
-            ui_message(context, string)
+            await ui_message(context, string)
     else:
         linewidth = get_screen_columns()
         # print('*'*linewidth)
@@ -236,13 +245,13 @@ def list_jobs(context, job_list, cq, complete_names=False, all_details=False, re
 
         for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
             string = ind + line
-            ui_message(context, string)
+            await ui_message(context, string)
     if cpu_total:
         cpu_time = duration_compact(sum(cpu_total))
         wall_time = duration_compact(sum(wall_total))
         string = f" total {len(job_list)} jobs   CPU time: {cpu_time}   wall: {wall_time}"
         # print(scpu)
-        ui_message(context, string)
+        await ui_message(context, string)
 
 
 def format_size(nbytes: int) -> str:

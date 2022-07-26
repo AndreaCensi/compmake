@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Callable, Collection, Concatenate, List, Optional, ParamSpec, Set, TypeVar
 
 from zuper_utils_asyncio import SyncTaskInterface
-from .structures import Promise
 from .types import CMJobID
 
 __all__ = [
@@ -40,7 +39,7 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    def comp_prefix(self, prefix: Optional[str]):
+    def comp_prefix(self, prefix: Optional[str]) -> None:
         ...
 
     # setting up jobs
@@ -51,13 +50,13 @@ class Context(ABC):
         *args: P.args,
         job_id: Optional[str] = None,
         **kwargs: P.kwargs,
-    ) -> Promise:
+    ) -> X:
         ...
 
     @abstractmethod
     def comp(
         self, command_: Callable[P, X], *args: P.args, job_id: Optional[str] = None, **kwargs: P.kwargs
-    ) -> Promise:
+    ) -> X:
         ...
 
     #

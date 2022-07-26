@@ -1,7 +1,7 @@
 import os
 
-from compmake import COMMANDS_ADVANCED, register_handler, ui_command
-from system_cmd.meat import system_cmd_result
+from compmake import COMMANDS_ADVANCED, Context, Event, register_handler, ui_command
+from system_cmd import system_cmd_result
 from zuper_commons.fs import make_sure_dir_exists
 from .graph import graph
 
@@ -17,7 +17,7 @@ class Global:
     processing = set()
 
 
-async def update_graph(context, event):
+async def update_graph(context: Context, event: Event):
     print("event: %s" % event)
 
     if event.name in ["manager-job-processing"]:
@@ -36,7 +36,7 @@ async def update_graph(context, event):
 
     make_sure_dir_exists(filename)
     #     print('step %d: jobs = %s' % (Global.step, Global.job_list))
-    graph(
+    await graph(
         job_list=list(Global.job_list),
         context=context,
         filename=filename,

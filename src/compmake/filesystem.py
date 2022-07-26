@@ -97,7 +97,7 @@ class StorageFilesystem:
                 msg += "\n" + traceback.format_exc()
                 raise CompmakeBug(msg)
         elif self.method == "dill":
-            with safe_read(filename) as f:
+            with safe_read(filename, "rb") as f:
                 return dill.load(f)
         else:
             raise NotImplementedError(self.method)

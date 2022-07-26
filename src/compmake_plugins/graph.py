@@ -7,10 +7,12 @@ from compmake.cachequerydb import CacheQueryDB, definition_closure
 from compmake.exceptions import UserError
 from compmake.helpers import COMMANDS_ADVANCED, ui_command
 from zuper_graphs_draw import GvGen
+from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-def graph(
+async def graph(
+    sti: SyncTaskInterface,
     job_list: Collection[CMJobID],
     context: Context,
     filename: str = "compmake-graph",
@@ -41,6 +43,8 @@ def graph(
                    (hierarchy top-bottom).
         format=[png,...]  The output file format.
     """
+    _ = sti
+
     processing = processing or []
     possible = ["none", "id", "function"]
     if not label in possible:
@@ -97,7 +101,7 @@ def graph(
         msg = "Could not run dot (cmdline={cmd_line!r}). Make sure graphviz is installed."
         raise UserError(msg)  # XXX maybe not UserError
 
-    ui_info(context, f"Written output on files {filename}, {output}.")
+    await ui_info(context, f"Written output on files {filename}, {output}.")
 
 
 def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):

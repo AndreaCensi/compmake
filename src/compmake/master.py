@@ -8,7 +8,7 @@ from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
-from . import __version__, logger
+from . import __version__
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
 from .context import Context
@@ -159,7 +159,7 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
         if options.nosysexit:
             return retcode
         else:
-            logger.warning("temporarily always disabling sys.exit")
+            # logger.warning("temporarily always disabling sys.exit")
             # sys.exit(retcode)
             return retcode
 
@@ -202,7 +202,7 @@ def write_atomic(filename: FilePath, contents: str):
 
 async def load_existing_db(sti: SyncTaskInterface, d: DirPath) -> Context:
     assert os.path.isdir(d), d
-    logger.info(f"Loading existing jobs DB {d!r}.")
+    # logger.info(f"Loading existing jobs DB {d!r}.")
     # check if it is compressed
     # files = os.listdir(dirname)
     # for one in files:
