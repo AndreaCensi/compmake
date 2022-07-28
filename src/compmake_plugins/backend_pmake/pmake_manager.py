@@ -78,7 +78,7 @@ class PmakeManager(Manager):
 
         if new_process and show_output:
             msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
-            logger.warning(context, msg)
+            logger.warning(msg)
         self.cleaned = False
 
     ctx: BaseContext

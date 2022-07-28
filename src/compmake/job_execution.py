@@ -160,15 +160,15 @@ async def execute_with_context(
 
     is_async = inspect.iscoroutinefunction(command)
     res: object
-    if is_async:
-        res = await command(*args, **kwargs2)
-    else:
-        res = command(*args, **kwargs2)
+    with add_context(command=command):
+        if is_async:
+            res = await command(*args, **kwargs2)
+        else:
+            res = command(*args, **kwargs2)
     generated: Set[CMJobID] = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session(already)
     final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
     return final_res
-
 
 #    if generated:
 #        if len(generated) < 4:
