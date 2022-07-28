@@ -102,7 +102,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
                 msg = "The function wants sti but it is not async"
                 raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
 
-            with add_context(command=command, args=args, kwargs=kwargs):
+            with add_context(command=command):
                 user_object = command(*args, **kwargs)
         int_compute.stop()
         new_jobs: Set[CMJobID] = set()
@@ -169,6 +169,7 @@ async def execute_with_context(
     await context.reset_jobs_defined_in_this_session(already)
     final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
     return final_res
+
 
 #    if generated:
 #        if len(generated) < 4:
