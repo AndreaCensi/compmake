@@ -639,7 +639,7 @@ def comp_(
                     "http://stefaanlippens.net/pickleproblem "
                     "and the bug report http://bugs.python.org/issue5509."
                 )
-            logger.warning(context, msg)
+            logger.warning(msg)
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:

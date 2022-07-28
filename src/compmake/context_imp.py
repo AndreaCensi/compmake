@@ -5,8 +5,6 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, List, Optional, Set, Union
 
-import aiofiles
-
 from zuper_commons.text import indent
 from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
 from .actions import comp_
@@ -18,7 +16,6 @@ from .filesystem import StorageFilesystem
 from .interpret import batch_command, interpret_commands_wrap
 from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_config0
 from .types import CMJobID
-from .utils import pad_to_screen
 
 __all__ = [
     "ContextImp",
@@ -44,8 +41,8 @@ class ContextImp(Context):
         state = self.__dict__.copy()
         if "splitter" in state:
             state.pop("splitter")
-        if "splitter_ui_console" in state:
-            state.pop("splitter_ui_console")
+        # if "splitter_ui_console" in state:
+        #     state.pop("splitter_ui_console")
         # # Remove the unpicklable entries.
         # for k, v in state.items():
         #     try:
@@ -121,29 +118,29 @@ class ContextImp(Context):
         self.generate_job_id_counters = {}
 
         self.splitter = None
-        self.splitter_ui_console = None
+        # self.splitter_ui_console = None
 
     splitter: Optional[Splitter[Event]]
-    splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
+    # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
     sti: SyncTaskInterface
 
     async def init(self, sti: SyncTaskInterface) -> None:
         self.sti = sti
         my_name = f"ContextImp:{id(self)}"
         self.splitter = await Splitter.make_init(Event, f"{my_name}-splitter")
-        self.splitter_ui_console = await Splitter.make_init(
-            Union[UIMessage, Prompt], f"{my_name}-splitter_ui"
-        )
+        # self.splitter_ui_console = await Splitter.make_init(
+        #     Union[UIMessage, Prompt], f"{my_name}-splitter_ui"
+        # )
 
         # self.write_task = my_create_task(go(), f"{my_name}:go")
-        self.write_task = await sti.create_child_task2(f"{my_name}:write_task", self.write_task_f)
+        # self.write_task = await sti.create_child_task2(f"{my_name}:write_task", self.write_task_f)
         # self.br = await sti.create_child_task2(f"{my_name}:broadcast", self.broadcast)
         # self.br = my_create_task(self.broadcast(), f"{my_name}:br")
         self.br = await sti.create_child_task2(f"{my_name}:br", self.broadcast)
 
         async def on_shutdown(_: Any) -> None:
             await self.splitter.finish()
-            await self.splitter_ui_console.finish()
+            # await self.splitter_ui_console.finish()
             # await self.write_task
 
         sti.add_shutdown_handler(on_shutdown)
@@ -154,50 +151,50 @@ class ContextImp(Context):
 
         await self.splitter.finish()
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
-        await self.splitter_ui_console.finish()
+        # await self.splitter_ui_console.finish()
         # self.sti.logger.debug("aclosing contextimp - write task")
         # self.write_task.cancel()
         # await self.write_task
         # self.sti.logger.debug("aclosing br")
         # self.br.cancel()
         await self.br.wait_for_outcome()
-        await self.write_task.wait_for_outcome()
+        # await self.write_task.wait_for_outcome()
         # self.sti.logger.debug("aclosing contextimp done")
 
         await self.splitter.aclose()
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
-        await self.splitter_ui_console.aclose()
+        # await self.splitter_ui_console.aclose()
 
-    @async_errors
-    async def write_task_f(self, sti: SyncTaskInterface) -> None:
-        sti.started()
-        async with aiofiles.open("/dev/stdout", "w") as stdout:
-            pass
-            # await stdout.write("Logging to stdout\n")
-            # await stdout.flush()
-            i = -1
-            # async for i, x in self.splitter_ui_console.read():
-            #     sti.logger.info("write_task_f", i=i, x=x)
-            #     output: str = ""
-            #     # await stdout.write(str(x)+'\n')
-            #     if value_liskov(x, UIMessage):
-            #         s = x.s
-            #         lines = s.splitlines()
-            #         for l in lines:
-            #             p = pad_to_screen(l)
-            #             output += p + "\n"
-            #     elif value_liskov(x, Prompt):
-            #         s = x.p
-            #         output += "\n\r"
-            #         output += s
-            #
-            #     else:
-            #         raise ZValueError("Invalid value", x=x)
-            #
-            #     await stdout.write(output)
-            #     await stdout.flush()
-            #     sti.logger.info(wrote=output)
-        # sti.logger.debug(f'write_task_f: done gracefully. nevents = {i + 1}')
+    # @async_errors
+    # async def write_task_f(self, sti: SyncTaskInterface) -> None:
+    #     sti.started()
+    #     async with aiofiles.open("/dev/stdout", "w") as stdout:
+    #         pass
+    #         # await stdout.write("Logging to stdout\n")
+    #         # await stdout.flush()
+    #         i = -1
+    #         # async for i, x in self.splitter_ui_console.read():
+    #         #     sti.logger.info("write_task_f", i=i, x=x)
+    #         #     output: str = ""
+    #         #     # await stdout.write(str(x)+'\n')
+    #         #     if value_liskov(x, UIMessage):
+    #         #         s = x.s
+    #         #         lines = s.splitlines()
+    #         #         for l in lines:
+    #         #             p = pad_to_screen(l)
+    #         #             output += p + "\n"
+    #         #     elif value_liskov(x, Prompt):
+    #         #         s = x.p
+    #         #         output += "\n\r"
+    #         #         output += s
+    #         #
+    #         #     else:
+    #         #         raise ZValueError("Invalid value", x=x)
+    #         #
+    #         #     await stdout.write(output)
+    #         #     await stdout.flush()
+    #         #     sti.logger.info(wrote=output)
+    #     # sti.logger.debug(f'write_task_f: done gracefully. nevents = {i + 1}')
 
     @async_errors
     async def broadcast(self, sti: SyncTaskInterface) -> None:
