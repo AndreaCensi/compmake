@@ -1,11 +1,14 @@
 """ The actual interface of some commands in commands.py """
 from collections import defaultdict
-from typing import Dict
+from typing import Collection, Dict
 
 from compmake import (
     Cache,
+    CacheQueryDB,
+    CMJobID,
     compmake_colored,
     CompmakeConstants,
+    Context,
     get_job,
     get_job_cache,
     parse_job_list,
@@ -17,7 +20,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=VISUALIZATION)
-async def stats(sti: SyncTaskInterface, args, context, cq):
+async def stats(sti: SyncTaskInterface, args: list[str], context: Context, cq: CacheQueryDB) -> None:
     """Displays a coarse summary of the jobs state."""
     if not args:
         job_list = cq.all_jobs()
@@ -29,7 +32,7 @@ async def stats(sti: SyncTaskInterface, args, context, cq):
     display_stats(job_list, context)
 
 
-def display_stats(job_list, context):
+def display_stats(job_list: Collection[CMJobID], context: Context) -> None:
     db = context.get_compmake_db()
     states_order = [
         Cache.NOT_STARTED,
@@ -55,8 +58,9 @@ def display_stats(job_list, context):
         if not function_id in function2state2count:
             function2state2count[function_id] = dict(list(map(lambda x: (x, 0), states_order)) + [("all", 0)])
         # update
-        function2state2count[function_id][cache.state] += 1
-        function2state2count[function_id]["all"] += 1
+        fss = function2state2count[function_id]
+        fss[cache.state] += 1
+        fss["all"] += 1
 
         if total == 100:  # XXX: use standard method
             print("Loading a large number of jobs...\r")

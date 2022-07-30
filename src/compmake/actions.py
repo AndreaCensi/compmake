@@ -7,7 +7,7 @@ from time import time
 from typing import Any, Callable, cast, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
-from zuper_commons.types import check_isinstance, describe_type, describe_value
+from zuper_commons.types import check_isinstance, describe_type
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
@@ -762,19 +762,15 @@ def comp_(
         del kwargs[CompmakeConstants.extra_dep_key]
 
         if not isinstance(extra_dep, (list, Promise)):
-            msg = 'The "extra_dep" argument must be a list of promises; ' "got: %s" % describe_value(
-                extra_dep
-            )
-            raise ValueError(msg)
+            msg = 'The "extra_dep" argument must be a list of promises.'
+            raise ZAssertionError(msg, extra_dep=extra_dep)
         if isinstance(extra_dep, Promise):
             extra_dep = [extra_dep]
         assert isinstance(extra_dep, list)
         for ed in extra_dep:
             if not isinstance(ed, Promise):
-                msg = 'The "extra_dep" argument must be a list of promises; ' "got: %s" % describe_value(
-                    extra_dep
-                )
-                raise ValueError(msg)
+                msg = 'The "extra_dep" argument must be a list of promises'
+                raise ZAssertionError(msg, extra_dep=extra_dep)
         extra_dep = collect_dependencies(extra_dep)
 
     else:
