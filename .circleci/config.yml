@@ -18,7 +18,7 @@ jobs:
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
-      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests
+      COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_loghandle.log
       Z_SERVICE_NOTE: zuper_notes.notes
@@ -172,4 +172,4 @@ jobs:
           ./codecov  
     resource_class: xlarge
 
-# sigil 4098ff7e69b8aad801cc6c1fce13a6d5
+# sigil 0267f0b149acd7a738ca587d15e1d0de

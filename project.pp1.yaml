@@ -5,7 +5,7 @@ version_file: '1'
 modules:
 - compmake
 - compmake_plugins
-
+- compmake_utils
 install_requires:
 - termcolor
 - setproctitle

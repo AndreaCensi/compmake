@@ -40,7 +40,8 @@
     "compmake_plugins.backend_local",
     "compmake_plugins.backend_pmake",
     "compmake_plugins.backend_ssh_cluster",
-    "compmake_plugins.execution_stats"
+    "compmake_plugins.execution_stats",
+    "compmake_utils"
   ],
   "version": "7.2",
   "author": "",
