@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Collection, Concatenate, List, Optional, ParamSpec, Set, TypeVar
+from typing import Any, Callable, Collection, Concatenate, List, Optional, ParamSpec, Set, TypeVar
 
 from zuper_utils_asyncio import SyncTaskInterface
 from .types import CMJobID
@@ -89,7 +89,7 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    def get_compmake_config(self, c: str) -> object:
+    def get_compmake_config(self, c: str) -> Any:
         pass
 
     @abstractmethod

@@ -13,11 +13,15 @@ import psutil
 from future.moves.queue import Empty
 from psutil import NoSuchProcess
 
-from compmake import parmake_job2_new_process_1
-from compmake import MakeHostFailed
-from compmake import Manager
-from compmake import publish
-from compmake import CMJobID
+from compmake import (
+    CacheQueryDB,
+    CMJobID,
+    Context,
+    MakeHostFailed,
+    Manager,
+    parmake_job2_new_process_1,
+    publish,
+)
 from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
@@ -65,8 +69,8 @@ class PmakeManager(Manager):
     def __init__(
         self,
         sti: SyncTaskInterface,
-        context,
-        cq,
+        context: Context,
+        cq: CacheQueryDB,
         num_processes: int,
         recurse: bool = False,
         new_process: bool = False,
@@ -148,9 +152,17 @@ class PmakeManager(Manager):
         else:
             resource_available["nproc"] = (True, "")
 
+        mem = psutil.virtual_memory()
+        max_mem_load: float = self.context.get_compmake_config("max_mem_load")
+        if mem.percent > max_mem_load:
+            msg = f"Memory load {mem.percent} > {max_mem_load}"
+            resource_available["memory"] = (False, msg)
+        else:
+            resource_available["memory"] = (True, "")
+
         return resource_available
 
-    def can_accept_job(self, reasons_why_not: Dict) -> bool:
+    def can_accept_job(self, reasons_why_not: dict[str, str]) -> bool:
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed
             msg = "All workers have aborted."
