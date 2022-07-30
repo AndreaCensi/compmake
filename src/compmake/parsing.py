@@ -24,10 +24,10 @@
 """
 import types
 from collections import namedtuple
-from typing import cast
+from typing import cast, Iterator
 
 from zuper_commons.text import expand_wildcard
-from zuper_commons.types import check_isinstance
+from zuper_commons.types import check_isinstance, ZValueError
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
@@ -110,14 +110,17 @@ def list_matching_functions(token: str, context: Context, cq: CacheQueryDB):
         raise UserError('Could not find matches for function "%s()".' % function_id)
 
 
-def expand_job_list_token(token, context: Context, cq: CacheQueryDB):
+def expand_job_list_token(token: str, context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Parses a token (string). Returns a generator of jobs.
     Raises UserError, CompmakeSyntaxError"""
 
     assert isinstance(token, str)
 
     if token.find("*") > -1:
-        return expand_wildcard(token, cq.all_jobs())
+        try:
+            return expand_wildcard(token, cq.all_jobs())
+        except ZValueError as e:
+            raise UserError(f"Could not find any match for {token}") from None
     elif is_alias(token):
         return eval_alias(token, context, cq)
     elif token.endswith("()"):

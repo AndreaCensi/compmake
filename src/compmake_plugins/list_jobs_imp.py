@@ -122,9 +122,12 @@ async def list_jobs(
         await ui_message(context, string)
         return
 
+    # other material to appear on screen
+    other = "  2   d   failed*    (23dde m   ago)"
+    columns = get_screen_columns()
     # maximum job length
 
-    max_len = 100
+    max_len = columns - len(other)
 
     def format_job_id(ajob_id):
         if complete_names or len(ajob_id) < max_len:
