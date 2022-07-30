@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncIterator, cast
+from typing import Any, AsyncIterator, cast
 
 from future import builtins
 
@@ -26,7 +26,7 @@ from . import logger
 
 
 #
-def get_readline():
+def get_readline() -> Any:
     """
     Returns a reference to the readline (or Pyreadline) module if they
     are available and the config "readline" is True, otherwise None.
@@ -55,7 +55,7 @@ def get_readline():
                 return None
 
 
-async def interactive_console(sti: SyncTaskInterface, context):
+async def interactive_console(sti: SyncTaskInterface, context: Context) -> None:
     """
     raises: CommandFailed, CompmakeBug
     """
@@ -101,7 +101,7 @@ async def interactive_console(sti: SyncTaskInterface, context):
     return None
 
 
-def get_completions(context):
+def get_completions(context: Context) -> list[str]:
     db = context.get_compmake_db()
     if CompmakeGlobalState.cached_completions is None:
         available = get_commands().keys()
@@ -112,7 +112,7 @@ def get_completions(context):
     return CompmakeGlobalState.cached_completions
 
 
-def tab_completion2(context, text, state):
+def tab_completion2(context: Context, text: str, state) -> list[str]:
     completions = get_completions(context=context)
     matches = sorted(x for x in completions if x.startswith(text))
     try:
@@ -264,7 +264,7 @@ async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
 
 
 # noinspection PyUnresolvedReferences
-def ask_question(question, allowed=None):
+def ask_question(question: str, allowed: Optional[Dict[str, bool]] = None) -> bool:
     """Asks a yes/no question to the user"""
     readline = get_readline()
     if allowed is None:
@@ -290,7 +290,7 @@ def ask_question(question, allowed=None):
 # to import other things.
 
 
-async def compmake_console_text(sti: SyncTaskInterface, context: Context):
+async def compmake_console_text(sti: SyncTaskInterface, context: Context) -> None:
     await clean_other_jobs(sti, context=context)
     await read_rc_files(sti, context=context)
     await interactive_console(sti, context=context)

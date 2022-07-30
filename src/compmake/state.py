@@ -1,12 +1,12 @@
 import sys
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, Dict, List
+from typing import Any, Awaitable, Callable, ClassVar, Dict, List, Optional
 
+from compmake_utils import AvgSystemStats
 from zuper_commons.types import ZValueError
 from .constants import CompmakeConstants
 from .context import Context
 from .events_structures import Event
-from compmake_utils import AvgSystemStats
 
 __all__ = [
     "CompmakeGlobalState",
@@ -42,7 +42,7 @@ class CompmakeGlobalState:
     config_sections: "Dict[str, ConfigSection]" = {}
 
     # Cached list of options for completions in console
-    cached_completions = None
+    cached_completions: ClassVar[Optional[List[str]]] = None
 
 
 def get_compmake_config0(key: str) -> Any:
@@ -57,7 +57,7 @@ def get_compmake_config0(key: str) -> Any:
     return config.get(key, c.default_value)
 
 
-def set_compmake_config0(key: str, value):
+def set_compmake_config0(key: str, value: object) -> None:
     # TODO: check exists
     CompmakeGlobalState.compmake_config[key] = value
 
