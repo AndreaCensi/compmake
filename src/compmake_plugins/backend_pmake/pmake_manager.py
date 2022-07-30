@@ -22,6 +22,7 @@ from compmake import (
     parmake_job2_new_process_1,
     publish,
 )
+from compmake_utils.get_memory_cgroup import get_memory_usage
 from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
@@ -136,7 +137,6 @@ class PmakeManager(Manager):
 
         self.max_num_processing = self.num_processes
 
-    # XXX: boiler plate
     def get_resources_status(self) -> Dict[str, Tuple[bool, str]]:
         resource_available = {}
 
@@ -152,14 +152,27 @@ class PmakeManager(Manager):
         else:
             resource_available["nproc"] = (True, "")
 
-        mem = psutil.virtual_memory()
+        mem = get_memory_usage()
         max_mem_load: float = self.context.get_compmake_config("max_mem_load")
-        if mem.percent > max_mem_load:
-            msg = f"Memory load {mem.percent} > {max_mem_load}"
+        if mem.usage_percent > max_mem_load:
+            msg = f"Memory load {mem.usage}% > {max_mem_load}% [{mem.method}]"
+            resource_available["memory%"] = (False, msg)
+        else:
+            resource_available["memory%"] = (True, "")
+        max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
+
+        if random.randint(0, 100) < 10:
+            logger.info(mem=mem)
+
+        usage_GB = mem.usage / 1024**3
+        if usage_GB > max_mem_GB:
+            msg = (
+                f"Memory used {usage_GB:.1f}GB > {max_mem_load:.1f}GB (usage {mem.usage_percent}%) ["
+                f"{mem.method}]"
+            )
             resource_available["memory"] = (False, msg)
         else:
             resource_available["memory"] = (True, "")
-
         return resource_available
 
     def can_accept_job(self, reasons_why_not: dict[str, str]) -> bool:

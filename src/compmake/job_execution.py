@@ -10,6 +10,7 @@ from .exceptions import CompmakeBug
 from .storage import get_job, get_job_args, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
+from . import logger
 
 __all__ = [
     "JobCompute",
@@ -160,7 +161,7 @@ async def execute_with_context(
 
     is_async = inspect.iscoroutinefunction(command)
     res: object
-    with add_context(command=command):
+    with add_context(command=command, is_async=is_async):
         if is_async:
             res = await command(*args, **kwargs2)
         else:

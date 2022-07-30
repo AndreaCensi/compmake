@@ -7,6 +7,7 @@ from .coloredterm import *
 from .docstring import *
 from .format_exceptions import *
 from .frozen import *
+from .get_memory_cgroup import *
 
 # from .instantiate_utils import *
 from .memoize_imp import *

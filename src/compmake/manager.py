@@ -153,6 +153,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
         self.interrupted = False
+        self.loop_task = None
 
     # ## Derived class interface
     def process_init(self):
@@ -682,14 +683,15 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         self.interrupted = False
-        loop_task = None
+        self.loop_task = None
 
         # self.sti.logger.user_info(pid=os.getpid())
 
         def shutdown():
             self.sti.logger.user_error("CTRL-C", pid=os.getpid())
             self.interrupted = True
-            loop_task.cancel()
+            if self.loop_task:
+                self.loop_task.cancel()
             # raise Interruption('shutdown')
 
         loop = asyncio.get_event_loop()
@@ -716,42 +718,43 @@ class Manager(ManagerLog):
         self.process_init()
 
         publish(self.context, "manager-phase", phase="loop")
+
+        async def loopit():
+            i = 0
+            while self.todo or self.ready_todo or self.processing:
+                self.log(indent(self._get_situation_string(), f"{i}: "))
+                i += 1
+                self.check_invariants()
+                # either something ready to do, or something doing
+                # otherwise, we are completely blocked
+                if (not self.ready_todo) and (not self.processing):
+                    msg = (
+                        "Nothing ready to do, and nothing cooking. "
+                        "This probably means that the Compmake job "
+                        "database was inconsistent. "
+                        "This might happen if the job creation is "
+                        'interrupted. Use the command "check-consistency" '
+                        "to check the database consistency.\n" + self._get_situation_string()
+                    )
+                    raise CompmakeBug(msg)
+
+                self.publish_progress()
+                waiting_on = await self.instance_some_jobs()
+                # self.publish_progress()
+
+                publish(self.context, "manager-wait", reasons=waiting_on)
+
+                if self.ready_todo and not self.processing:
+                    # We time out as there are no resources
+                    publish(self.context, "manager-phase", phase="wait")
+
+                await self.loop_until_something_finishes()
+                self.check_invariants()
+
         try:
 
-            async def loopit():
-                i = 0
-                while self.todo or self.ready_todo or self.processing:
-                    self.log(indent(self._get_situation_string(), f"{i}: "))
-                    i += 1
-                    self.check_invariants()
-                    # either something ready to do, or something doing
-                    # otherwise, we are completely blocked
-                    if (not self.ready_todo) and (not self.processing):
-                        msg = (
-                            "Nothing ready to do, and nothing cooking. "
-                            "This probably means that the Compmake job "
-                            "database was inconsistent. "
-                            "This might happen if the job creation is "
-                            'interrupted. Use the command "check-consistency" '
-                            "to check the database consistency.\n" + self._get_situation_string()
-                        )
-                        raise CompmakeBug(msg)
-
-                    self.publish_progress()
-                    waiting_on = await self.instance_some_jobs()
-                    # self.publish_progress()
-
-                    publish(self.context, "manager-wait", reasons=waiting_on)
-
-                    if self.ready_todo and not self.processing:
-                        # We time out as there are no resources
-                        publish(self.context, "manager-phase", phase="wait")
-
-                    await self.loop_until_something_finishes()
-                    self.check_invariants()
-
-            loop_task = my_create_task(loopit(), "Manager-loopit")
-            res = await loop_task
+            self.loop_task = my_create_task(loopit(), "Manager-loopit")
+            await self.loop_task
             self.log(indent(self._get_situation_string(), "ending: "))
 
             # end while
