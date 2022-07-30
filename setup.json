@@ -36,7 +36,6 @@
   "include_package_data": true,
   "modules": [
     "compmake",
-    "compmake.utils",
     "compmake_plugins",
     "compmake_plugins.backend_local",
     "compmake_plugins.backend_pmake",
