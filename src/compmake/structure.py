@@ -2,7 +2,7 @@ from .colored import compmake_colored
 from .context import Context
 from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, set_compmake_config0
-from .utils import interpret_strings_like
+from compmake_utils import interpret_strings_like
 
 __all__ = [
     "add_config_section",

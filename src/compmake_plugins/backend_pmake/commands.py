@@ -12,7 +12,7 @@ from compmake import (
     top_targets,
     ui_command,
 )
-from compmake.types import CMJobID
+from compmake import CMJobID
 from zuper_utils_asyncio import SyncTaskInterface
 from .pmake_manager import PmakeManager
 

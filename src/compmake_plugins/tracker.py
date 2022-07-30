@@ -20,6 +20,7 @@ class Tracker:
     blocked: Set[CMJobID]
     done: Set[CMJobID]
     wait_reasons: dict
+    status: dict[str, str]
 
     def __init__(self):
         register_handler("job-progress", self.event_job_progress)

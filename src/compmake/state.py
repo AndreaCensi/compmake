@@ -6,7 +6,7 @@ from zuper_commons.types import ZValueError
 from .constants import CompmakeConstants
 from .context import Context
 from .events_structures import Event
-from .utils import AvgSystemStats
+from compmake_utils import AvgSystemStats
 
 __all__ = [
     "CompmakeGlobalState",

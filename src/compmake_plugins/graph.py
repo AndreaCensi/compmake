@@ -2,10 +2,18 @@ import os
 from collections import defaultdict
 from typing import Collection
 
-from compmake import Cache, CMJobID, Context, top_targets, ui_info
-from compmake.cachequerydb import CacheQueryDB, definition_closure
-from compmake.exceptions import UserError
-from compmake.helpers import COMMANDS_ADVANCED, ui_command
+from compmake import (
+    Cache,
+    CacheQueryDB,
+    CMJobID,
+    COMMANDS_ADVANCED,
+    Context,
+    definition_closure,
+    top_targets,
+    ui_command,
+    ui_info,
+    UserError,
+)
 from zuper_graphs_draw import GvGen
 from zuper_utils_asyncio import SyncTaskInterface
 

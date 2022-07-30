@@ -10,7 +10,7 @@ from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
 from .types import CMJobID, ResultDict
-from .utils import safe_pickle_load
+from compmake_utils import safe_pickle_load
 
 __all__ = [
     "parmake_job2_new_process_1",

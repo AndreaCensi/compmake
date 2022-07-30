@@ -1,9 +1,6 @@
 """ Implements the initial and final banner """
-from compmake import all_jobs, Context, version
-from compmake.colored import compmake_colored
-from compmake.events_structures import Event
-from compmake.registrar import register_handler
-from compmake.utils import pad_to_screen
+from compmake import all_jobs, compmake_colored, Context, Event, register_handler, version
+from compmake_utils import pad_to_screen
 
 compmake_issues_url = "http://github.com/AndreaCensi/compmake/issues"
 name = "Compmake"

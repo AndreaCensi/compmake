@@ -1,7 +1,4 @@
-from compmake import Context
-from compmake.events_structures import Event
-from compmake.registrar import register_handler
-from compmake.visualization import ui_error, ui_info
+from compmake import Context, Event, register_handler, ui_error, ui_info
 from zuper_commons.text import indent
 
 

@@ -1,13 +1,12 @@
 from typing import cast, Optional, Union
 
 from compmake import Context, get_job_cache, Promise
-from compmake.structures import Cache
-from compmake.types import CMJobID
+from compmake import Cache
+from compmake import CMJobID
 
 __all__ = [
     "compmake_execution_stats",
 ]
-
 
 from compmake import CacheQueryDB
 from zuper_commons.types import check_isinstance

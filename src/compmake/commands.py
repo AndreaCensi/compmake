@@ -14,7 +14,7 @@ from .exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .state import get_compmake_status
 from .storage import all_jobs, delete_all_job_data
-from .utils import safe_pickle_dump
+from compmake_utils import safe_pickle_dump
 from .visualization import ui_error, ui_info
 
 ui_section(GENERAL)

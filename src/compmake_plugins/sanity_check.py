@@ -24,7 +24,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
 async def check_consistency(
     sti: SyncTaskInterface, args: List[str], context: Context, cq: CacheQueryDB, raise_if_error: bool = False
-) -> None:
+) -> int:
     """Checks in the DB that the relations between jobs are consistent."""
     _ = cq
 

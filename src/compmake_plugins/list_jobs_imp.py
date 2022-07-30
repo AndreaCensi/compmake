@@ -22,7 +22,7 @@ from compmake import (
     ui_message,
     VISUALIZATION,
 )
-from compmake.utils import get_screen_columns, TableFormatter
+from compmake_utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import duration_compact
 from zuper_utils_asyncio import SyncTaskInterface
 

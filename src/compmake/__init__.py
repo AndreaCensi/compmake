@@ -2,6 +2,7 @@ __version__ = "7.3"
 __date__ = ""
 
 from zuper_commons.logs import ZLogger
+from zuper_commons.types import import_name
 
 version = __version__
 
@@ -47,6 +48,7 @@ from .readrcfiles import *
 from .job_execution import *
 from .commands_html import *
 from .events_structures import *
+from .registered_events import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)
@@ -54,7 +56,8 @@ set_compmake_status(CompmakeConstants.compmake_status_embedded)
 if CompmakeConstants.debug_check_invariants:
     logger.warn("debug_check_invariants = True: this might slow down quite a bit")
 
-import compmake_plugins as a
+# import compmake_plugins as a
 
-_ = a
+import_name("compmake_plugins")
+# _ = a
 logger.hello_module_finished(__name__)

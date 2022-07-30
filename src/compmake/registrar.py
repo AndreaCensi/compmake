@@ -1,6 +1,7 @@
-from typing import Any, Awaitable, Callable, cast
+from typing import Awaitable, Callable, cast, TypeVar
 
 from zuper_commons.fs import abspath, join, make_sure_dir_exists
+from zuper_commons.text import wildcard_to_regexp
 from zuper_commons.types import ZException, ZValueError
 from . import logger
 from .context import Context
@@ -8,7 +9,6 @@ from .events_structures import Event
 from .exceptions import CompmakeException
 from .registered_events import compmake_registered_events
 from .state import CompmakeGlobalState
-from .utils import wildcard_to_regexp
 
 __all__ = [
     "publish",
@@ -38,11 +38,12 @@ def register_fallback_handler(handler):
 
 import inspect
 
-
 # SubEvent = TypeVar('SubEvent', bound=Event)
+EV = TypeVar("EV", bound=Event)
+
 
 # TODO: make decorator
-def register_handler(event_name: str, handler: Callable[[Context, Event], Awaitable[None]]) -> None:
+def register_handler(event_name: str, handler: Callable[[Context, EV], Awaitable[None]]) -> None:
     """
     Registers an handler with an event name.
     The event name might contain asterisks. "*" matches all.

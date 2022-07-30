@@ -1,12 +1,14 @@
-from .. import logger
+from zuper_commons import ZLogger
 
-_ = logger
+logger = ZLogger(__name__)
+
 from .capture import *
 from .coloredterm import *
 from .docstring import *
 from .format_exceptions import *
 from .frozen import *
-from .instantiate_utils import *
+
+# from .instantiate_utils import *
 from .memoize_imp import *
 from .pickling_utils import *
 from .proctitle import *
@@ -19,7 +21,6 @@ from .time_track import *
 from .timedate import *
 from .values_interpretation import *
 from .which_imp import *
-from .wildcards import *
 from .table_formatter import *
 
 # def find_print_statements():

@@ -1,9 +1,16 @@
 from typing import Collection, List, Optional
 
-from compmake import CacheQueryDB, CMJobID, Context, get_job_cache, job_cache_exists
-from compmake.colored import compmake_colored
-from compmake.helpers import ui_command, VISUALIZATION
-from compmake.structures import Cache
+from compmake import (
+    Cache,
+    CacheQueryDB,
+    CMJobID,
+    compmake_colored,
+    Context,
+    get_job_cache,
+    job_cache_exists,
+    ui_command,
+    VISUALIZATION,
+)
 from zuper_utils_asyncio import SyncTaskInterface
 
 

@@ -4,6 +4,8 @@ import random
 import signal
 import time
 from multiprocessing import Queue
+
+# noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from typing import Dict, NewType, Set, Tuple
 
@@ -11,11 +13,11 @@ import psutil
 from future.moves.queue import Empty
 from psutil import NoSuchProcess
 
-from compmake.actions_newprocess import parmake_job2_new_process_1
-from compmake.exceptions import MakeHostFailed
-from compmake.manager import Manager
-from compmake.registrar import publish
-from compmake.types import CMJobID
+from compmake import parmake_job2_new_process_1
+from compmake import MakeHostFailed
+from compmake import Manager
+from compmake import publish
+from compmake import CMJobID
 from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface

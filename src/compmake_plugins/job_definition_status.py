@@ -1,8 +1,8 @@
 import sys
 
 from compmake import compmake_colored, Context, register_handler
-from compmake.events_structures import Event
-from compmake.utils import get_screen_columns
+from compmake import Event
+from compmake_utils import get_screen_columns
 
 stream = sys.stderr
 

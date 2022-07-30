@@ -6,6 +6,7 @@ from logging import Formatter
 from time import time
 from typing import Any, Callable, cast, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
 
+from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, describe_value
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
@@ -39,7 +40,6 @@ from .storage import (
 )
 from .structures import Cache, IntervalTimer, Job, MakeResult, Promise, same_computation
 from .types import CMJobID
-from .utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from .visualization import ui_info
 
 __all__ = [
@@ -247,6 +247,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     # set_job_cache(job_id, cache, db=db)
 
     # TODO: delete previous user object
+    cache = Cache(Cache.PROCESSING)
+    cache.timestamp_started = time()
+    cache.jobs_defined = prev_defined_jobs
+    set_job_cache(job_id, cache, db=db)
 
     def progress_callback(stack: Any) -> None:
         publish(context, "job-progress-plus", job_id=job_id, host=host, stack=stack)
@@ -736,7 +740,7 @@ def comp_(
                             break
 
                     if False:
-                        print("The job_id %r was given explicitly but already " "defined." % job_id)
+                        print(f"The job_id {job_id!r} was given explicitly but already defined.")
                         print("current stack: %s" % stack)
                         print("    its stack: %s" % defined_by)
                         print("New job_id is %s" % job_id)

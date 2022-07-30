@@ -1,15 +1,15 @@
 """
     These are all wrappers around the raw methods in storage
 """
-from typing import cast, Iterator
+from typing import cast, Collection, Iterator
 
+from compmake_utils.pickle_frustration import pickle_main_context_load
+from zuper_commons.text import wildcard_to_regexp
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
-from .filesystem import StorageFilesystem
+from .filesystem import StorageFilesystem, StorageKey
 from .structures import Cache, Job
-from .types import CMJobID, DBKey
-from .utils import wildcard_to_regexp
-from .utils.pickle_frustration import pickle_main_context_load
+from .types import CMJobID
 
 __all__ = [
     "all_jobs",
@@ -47,11 +47,11 @@ __all__ = [
 KEY_JOB_PREFIX = "cm-job-"
 
 
-def job2key(job_id: CMJobID) -> DBKey:
-    return DBKey(f"{KEY_JOB_PREFIX}{job_id}")
+def job2key(job_id: CMJobID) -> StorageKey:
+    return cast(StorageKey, f"{KEY_JOB_PREFIX}{job_id}")
 
 
-def key2job(key: DBKey) -> CMJobID:
+def key2job(key: StorageKey) -> CMJobID:
     return CMJobID(key.replace(KEY_JOB_PREFIX, "", 1))
 
 
@@ -102,12 +102,12 @@ def delete_job(job_id: CMJobID, db: StorageFilesystem) -> None:
 #
 # Cache objects
 #
-def job2cachekey(job_id: CMJobID) -> DBKey:
+def job2cachekey(job_id: CMJobID) -> StorageKey:
     prefix = "cm-cache-"
-    return cast(DBKey, f"{prefix}{job_id}")
+    return cast(StorageKey, f"{prefix}{job_id}")
 
 
-def get_job_cache(job_id: CMJobID, db: StorageFilesystem):
+def get_job_cache(job_id: CMJobID, db: StorageFilesystem) -> Cache:
     assert isinstance(job_id, str)
     # assert isinstance(db, StorageFilesystem)
     cache_key = job2cachekey(job_id)
@@ -148,7 +148,7 @@ def job_cache_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     return db.sizeof(key)
 
 
-def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem):
+def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem) -> None:
     assert isinstance(cache, Cache)
     check_isinstance(cache.captured_stderr, (type(None), str))
     check_isinstance(cache.captured_stdout, (type(None), str))
@@ -158,7 +158,7 @@ def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem):
     db[key] = cache
 
 
-def delete_job_cache(job_id: CMJobID, db: StorageFilesystem):
+def delete_job_cache(job_id: CMJobID, db: StorageFilesystem) -> None:
     key = job2cachekey(job_id)
     del db[key]
 
@@ -166,9 +166,9 @@ def delete_job_cache(job_id: CMJobID, db: StorageFilesystem):
 #
 # User objects
 #
-def job2userobjectkey(job_id: CMJobID):
+def job2userobjectkey(job_id: CMJobID) -> StorageKey:
     prefix = "cm-res-"
-    return f"{prefix}{job_id}"
+    return cast(StorageKey, f"{prefix}{job_id}")
 
 
 def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
@@ -202,22 +202,22 @@ def is_job_userobject_available(job_id: CMJobID, db: StorageFilesystem) -> bool:
 job_userobject_exists = is_job_userobject_available
 
 
-def set_job_userobject(job_id: CMJobID, obj, db: StorageFilesystem):
+def set_job_userobject(job_id: CMJobID, obj, db: StorageFilesystem) -> None:
     key = job2userobjectkey(job_id)
     db[key] = obj
 
 
-def delete_job_userobject(job_id: CMJobID, db: StorageFilesystem):
+def delete_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> None:
     key = job2userobjectkey(job_id)
     del db[key]
 
 
-def job2jobargskey(job_id: CMJobID):
+def job2jobargskey(job_id: CMJobID) -> StorageKey:
     prefix = "cm-args-"
-    return f"{prefix}{job_id}"
+    return cast(StorageKey, f"{prefix}{job_id}")
 
 
-def get_job_args(job_id: CMJobID, db: StorageFilesystem):
+def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> object:
     key = job2jobargskey(job_id)
 
     # if False:
@@ -239,18 +239,18 @@ def job_args_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     return db.sizeof(key)
 
 
-def set_job_args(job_id: CMJobID, obj, db: StorageFilesystem):
+def set_job_args(job_id: CMJobID, obj, db: StorageFilesystem) -> None:
     key = job2jobargskey(job_id)
 
     db[key] = obj
 
 
-def delete_job_args(job_id: CMJobID, db: StorageFilesystem):
+def delete_job_args(job_id: CMJobID, db: StorageFilesystem) -> None:
     key = job2jobargskey(job_id)
     del db[key]
 
 
-def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem):
+def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem) -> None:
     # print('deleting_all_job_data(%r)' % job_id)
     args = dict(job_id=job_id, db=db)
     if job_exists(**args):
@@ -264,7 +264,9 @@ def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem):
 
 
 # These are delicate and should be implemented differently
-def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db: StorageFilesystem):
+def db_job_add_dynamic_children(
+    job_id: CMJobID, children: Collection[CMJobID], returned_by, db: StorageFilesystem
+) -> None:
     job = get_job(job_id, db)
     if not returned_by in job.children:
         msg = f"{job_id!r} does not know it has child  {returned_by!r}"
@@ -278,7 +280,7 @@ def db_job_add_dynamic_children(job_id: CMJobID, children, returned_by, db: Stor
     assert job2.dynamic_children == job.dynamic_children, "Race condition"
 
 
-def db_job_add_parent(db, job_id, parent):
+def db_job_add_parent(db: StorageFilesystem, job_id: CMJobID, parent: CMJobID) -> None:
     j = get_job(job_id, db)
     # print('%s old parents list: %s' % (d, j.parents))
     j.parents.add(parent)
@@ -287,7 +289,7 @@ def db_job_add_parent(db, job_id, parent):
     assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
-def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem):
+def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem) -> None:
     child_comp = get_job(child, db=db)
     orig = set(child_comp.parents)
     want = orig | {parent}

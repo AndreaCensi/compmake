@@ -2,18 +2,8 @@ import sys
 from io import StringIO
 from typing import List
 
-from compmake import Context
-from compmake.colored import compmake_colored
-from compmake.events_structures import Event
-from compmake.registrar import register_handler
-from compmake.structures import Cache
-from compmake.utils import (
-    get_length_on_screen,
-    get_screen_columns,
-    pad_to_screen,
-    pad_to_screen_length,
-)
-from compmake.visualization import ui_message
+from compmake import Cache, compmake_colored, Context, Event, register_handler, ui_message
+from compmake_utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
 
 # sys.stdout will be changed later
 stream = sys.stdout

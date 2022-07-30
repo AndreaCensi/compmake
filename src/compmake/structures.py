@@ -63,10 +63,10 @@ import time
 from dataclasses import dataclass
 from typing import Dict, List, NewType, Optional, Set, Tuple, TypedDict, Union
 
+from compmake_utils.pickle_frustration import pickle_main_context_save
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
-from .utils.pickle_frustration import pickle_main_context_save
 
 __all__ = [
     "Cache",
@@ -244,7 +244,7 @@ class Cache:
     stateupdate2color = {
         # (state, uptodate)
         (NOT_STARTED, False): {},
-        #     (Cache.NOT_STARTED, False): {'color': 'white', 'attrs': ['concealed']},
+        (PROCESSING): {"color": "yellow", "attrs": ["concealed"]},
         (FAILED, False): {"color": "red"},
         (BLOCKED, True): {"color": "brown"},
         (BLOCKED, False): {"color": "brown"},  # XXX
@@ -254,7 +254,7 @@ class Cache:
 
     state2color = {
         NOT_STARTED: {"color": "yellow"},  # {'attrs': ['dark']},
-        #     Cache.IN_PROGRESS: {'color': 'yellow'},
+        PROCESSING: {"color": "yellow"},
         BLOCKED: {"color": "brown"},
         FAILED: {"color": "red"},
         DONE: {"color": "green"},

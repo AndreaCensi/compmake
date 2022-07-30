@@ -26,6 +26,7 @@ import types
 from collections import namedtuple
 from typing import cast
 
+from zuper_commons.text import expand_wildcard
 from zuper_commons.types import check_isinstance
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -34,7 +35,6 @@ from .exceptions import CompmakeSyntaxError, UserError
 from .storage import get_job
 from .structures import Cache
 from .types import CMJobID
-from .utils import expand_wildcard
 
 __all__ = [
     "is_root_job",

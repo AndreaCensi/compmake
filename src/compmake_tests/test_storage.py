@@ -2,9 +2,8 @@ from typing import cast
 
 from zuper_commons.test_utils import my_assert_equal as assert_equal
 
-
 from compmake import StorageKey
-from compmake.utils import wildcard_to_regexp
+from zuper_commons.text import wildcard_to_regexp
 from .utils import Env, run_with_env
 
 

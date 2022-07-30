@@ -12,7 +12,7 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
-from compmake.utils import pad_to_screen
+from compmake_utils import pad_to_screen
 from zuper_utils_asyncio import SyncTaskInterface
 
 
@@ -33,7 +33,7 @@ def display_stats(job_list, context):
     db = context.get_compmake_db()
     states_order = [
         Cache.NOT_STARTED,
-        # Cache.IN_PROGRESS,
+        Cache.PROCESSING,
         Cache.FAILED,
         Cache.BLOCKED,
         Cache.DONE,
@@ -84,7 +84,7 @@ def display_stats(job_list, context):
         (Cache.DONE, "done"),
         (Cache.FAILED, "failed"),
         (Cache.BLOCKED, "blocked"),
-        #         (Cache.IN_PROGRESS, 'in progress'),
+        (Cache.PROCESSING, "processing"),
         (Cache.NOT_STARTED, "to do"),
     ]
 

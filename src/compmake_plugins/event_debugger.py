@@ -2,8 +2,8 @@
 import sys
 
 from compmake import compmake_colored, Context, register_fallback_handler
-from compmake.events_structures import Event
-from compmake.utils import pad_to_screen
+from compmake import Event
+from compmake_utils import pad_to_screen
 
 # We save it, because it will be redirected during job execution
 stream = sys.stderr

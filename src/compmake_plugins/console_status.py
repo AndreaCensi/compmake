@@ -2,13 +2,20 @@ import itertools
 import math
 import sys
 import time
-from collections import namedtuple
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict
+from typing import cast, ClassVar, Dict, List, Literal
 
-from compmake import compmake_colored, CompmakeGlobalState, Context, publish, register_handler, ui_error
-from compmake.events_structures import Event
-from compmake.utils import get_length_on_screen, getTerminalSize, pad_to_screen_length
+from compmake import (
+    compmake_colored,
+    CompmakeGlobalState,
+    Context,
+    Event,
+    publish,
+    register_handler,
+    ui_error,
+)
+from compmake_utils import get_length_on_screen, getTerminalSize
 from zuper_commons.text import indent
 from .tracker import Tracker
 
@@ -17,7 +24,7 @@ stream = sys.stderr
 tracker = Tracker()
 
 
-def system_status(context: Context):
+def system_status(context: Context) -> str:
     stats = CompmakeGlobalState.system_stats
     if not stats.available():  # psutil not installed
         # TODO: use os.load
@@ -51,12 +58,10 @@ def make_bar(percent: float, n: int) -> str:
     return f"[{ons}{offs}]"
 
 
-def get_spins():
+def get_spins() -> list[str]:
     # toutf = lambda x: [_.encode('utf8') for _ in x]
-    toutf = lambda x: [_ for _ in x]
-
+    # toutf = lambda x: [_ for _ in x]
     # from_sequence = lambda x: toutf(_ for _ in x)
-
     #     spins = toutf(_ for _ in u"▉▊▋▌▍▎▏▎▍▌▋▊▉")
 
     def get_spin_fish(n):
@@ -72,7 +77,7 @@ def get_spins():
 
         return [_.ljust(m) for _ in s]
 
-    options = []
+    options: list[list[str]] = []
     options.append(get_spin_fish(12))
     options.append(list("⣾⣽⣻⢿⡿⣟⣯⣷"))
     options.append(list("◐◓◑◒"))
@@ -94,17 +99,16 @@ def get_spins():
 spins = get_spins()
 
 
-def spinner(context: Context):
-    spin_interval = context.get_compmake_config("console_status_delta") * 0.8
+def spinner(context: Context) -> str:
+    delta = cast(float, context.get_compmake_config("console_status_delta"))
+    spin_interval = delta * 0.8
     t = time.time()
     i = t / spin_interval
     i = int(i) % len(spins)
     return spins[i]
 
 
-def job_counts(context: Context):
-    ss = []
-
+def job_counts(context: Context) -> str:
     console_status_style = context.get_compmake_config("console_status_style")
 
     styles = {
@@ -136,6 +140,7 @@ def job_counts(context: Context):
         "todo": len(tracker.todo),
     }
 
+    ss: List[str] = []
     for k, v in values.items():
         if k not in style:
             continue
@@ -149,7 +154,7 @@ def job_counts(context: Context):
     return " ".join(ss)
 
 
-def wait_reasons():
+def wait_reasons() -> str:
     if tracker.wait_reasons:
         s = "(wait: " + ",".join(tracker.wait_reasons.values()) + ")"
     else:
@@ -157,32 +162,60 @@ def wait_reasons():
     return s
 
 
-def current_slot(intervals):
-    period = sum(intervals)
-    index = int(time.time()) % period
-    csum = 0
-    for i, delta in enumerate(intervals):
-        if (index >= csum) and (index < csum + delta):
-            return i
-        csum += delta
-    return len(intervals) - 1
+#
+# def current_slot(intervals) -> int:
+#     period = sum(intervals)
+#     index = int(time.time()) % period
+#     csum = 0
+#     for i, delta in enumerate(intervals):
+#         if (index >= csum) and (index < csum + delta):
+#             return i
+#         csum += delta
+#     return len(intervals) - 1
+
+#
+# def display_rotating(strings: list[str], intervals, align_right: bool=False) -> str:
+#     """Rotates the display of the given strings.
+#     For now, we assume intervals to be round integers.
+#     """
+#     which = current_slot(intervals)
+#     L = max(get_length_on_screen(x) for x in strings)
+#     aligned = pad_to_screen_length(strings[which], L, align_right=align_right)
+#     return aligned
 
 
-def display_rotating(strings, intervals, align_right=False):
-    """Rotates the display of the given strings.
-    For now, we assume intervals to be round integers.
-    """
-    which = current_slot(intervals)
-    L = max(get_length_on_screen(x) for x in strings)
-    aligned = pad_to_screen_length(strings[which], L, align_right=align_right)
-    return aligned
+Levels = Literal[4, 3, 2, 1, 0, -1, -2, -3]
+LEVELS: List[Levels] = [4, 3, 2, 1, 0, -1, -2, -3]
 
 
-def get_string(level):
+class State:
+    i: ClassVar[int] = 0
+
+
+def truncate(s: str, n: int) -> str:
+    if len(s) <= n:
+        return s
+
+    cut = len(s) - n
+    return "…" + s[cut:]
+
+
+def get_string(level: Levels) -> str:
     if level == -3:
-        return ""
+        s = "  %d proc. " % len(tracker.status)
+        jobs = sorted(tracker.status)
+        if jobs:
+            job_name = jobs[State.i % len(jobs)]
+            job_name_truncated = truncate(job_name, 20)
+            s += job_name_truncated
+            State.i += 1
     if level == -2:
-        return "..."
+        s = "  %d proc. " % len(tracker.status)
+
+        jobs = sorted(tracker.status)
+        if jobs:
+            s += jobs[State.i % len(jobs)]
+            State.i += 1
     if level == -1:
         return "  %d proc." % len(tracker.status)
     X = []
@@ -223,8 +256,8 @@ class Tmp:
     last_manager_loop = time.time()
 
 
-def its_time(context: Context):
-    delta = float(context.get_compmake_config("console_status_delta"))
+def its_time(context: Context) -> bool:
+    delta = cast(float, context.get_compmake_config("console_status_delta"))
     t = time.time()
     dt = t - Tmp.last_manager_loop
     if dt > delta:
@@ -234,7 +267,7 @@ def its_time(context: Context):
         return False
 
 
-async def handle_event_period(context: Context, event: Event):
+async def handle_event_period(context: Context, event: Event) -> None:
     if not context.get_compmake_config("status_line_enabled"):
         return
 
@@ -242,10 +275,16 @@ async def handle_event_period(context: Context, event: Event):
         await handle_event(context, event)
 
 
-ShowOption = namedtuple("Option", "length left right weight")
+@dataclass
+class ShowOption:
+    length: int
+    left: str
+    right: str
+    weight: float
 
 
-async def handle_event(context: Context, event: Event):
+async def handle_event(context: Context, event: Event) -> None:
+    _ = event
     if not context.get_compmake_config("status_line_enabled"):
         return
 
@@ -262,14 +301,14 @@ async def handle_event(context: Context, event: Event):
     sp = spinner(context)
     options_left = [sp]
 
-    for level in [4, 3, 2, 1, 0, -1, -2, -3]:
+    for level in LEVELS:
         options_left.append(f" compmake {sp} {get_string(level)}")
     #         options_left.append(sp + '  ' + get_string(level))
 
     cols, _ = getTerminalSize()
 
     # Make all options together
-    options = []
+    options: List[ShowOption] = []
     for l, r in itertools.product(options_left, options_right):
         length = get_length_on_screen(l) + get_length_on_screen(r)
         weight = length

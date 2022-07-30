@@ -1,12 +1,11 @@
-import sys
 from typing import Callable, ClassVar
 
+from compmake_utils import get_screen_columns
 from zuper_commons.text import joinlines
 from zuper_commons.ui import get_colorize_function
 from .context import Context
 from .events_structures import Event
 from .registrar import register_handler
-from .utils import get_screen_columns
 
 __all__ = [
     "DefaultConsole",
@@ -78,22 +77,23 @@ class DefaultConsole:
 #
 # register_handler("ui-message", handle_ui_message_console)
 
-original_stderr = sys.stderr
+# original_stderr = sys.stderr
 
 
 async def handle_ui_status_summary(context: Context, event: Event) -> None:
     if not DefaultConsole.active:
         return
     line = event.kwargs["string"]
-    if context.get_compmake_config("console_status"):
-
-        original_stderr.write(line)
-
-        interactive = context.get_compmake_config("interactive")
-        if interactive:
-            original_stderr.write("\r")
-        else:
-            original_stderr.write("\n")
+    await context.set_status_line(line)
+    # if context.get_compmake_config("console_status"):
+    #
+    #     original_stderr.write(line)
+    #
+    #     interactive = context.get_compmake_config("interactive")
+    #     if interactive:
+    #         original_stderr.write("\r")
+    #     else:
+    #         original_stderr.write("\n")
 
 
 register_handler("ui-status-summary", handle_ui_status_summary)

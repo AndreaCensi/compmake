@@ -22,7 +22,7 @@
 # from .cluster_conf import Host
 # from .manager import Manager
 # from .manager_local import FakeAsync
-# from compmake.context import Context
+# from compmake import  Context
 # import warnings
 #
 #

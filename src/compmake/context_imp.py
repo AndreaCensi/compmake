@@ -70,8 +70,23 @@ class ContextImp(Context):
                 # p = pad_to_screen(l)
                 p = l
                 output += p + "\n"
-        print(output, end="")
+        # SEE: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#cursor-navigation
+        CLEAN_UNTIL_END_OF_LINE = "\u001b[0K"
+        CLEAR_ENTIRE_LINE = "\u001b[2K"
+        print(CLEAR_ENTIRE_LINE + output, end="", file=sys.stderr)
+        interactive = self.get_compmake_config("interactive")
+        if interactive:
+            if self.status_line:
+                print("\r" + self.status_line + "\r", end="", file=sys.stderr)
         # self.splitter_ui_console.push(uim)
+
+    async def set_status_line(self, s: str) -> None:
+        self.status_line = s
+        interactive = self.get_compmake_config("interactive")
+        if interactive:
+            print("\r" + s + "\r", end="", file=sys.stderr)
+        else:
+            print("\r" + s + "\n", end="", file=sys.stderr)
 
     def get_compmake_config(self, c: str) -> object:
         return get_compmake_config0(c)
@@ -119,7 +134,9 @@ class ContextImp(Context):
 
         self.splitter = None
         # self.splitter_ui_console = None
+        self.status_line = "the status line"
 
+    status_line: Optional[str]
     splitter: Optional[Splitter[Event]]
     # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
     sti: SyncTaskInterface

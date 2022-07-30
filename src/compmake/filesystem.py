@@ -18,7 +18,7 @@ from zuper_commons.fs import (
 from zuper_commons.types import ZException
 from . import logger
 from .exceptions import CompmakeBug, SerializationError
-from .utils import safe_pickle_dump, safe_pickle_load
+from compmake_utils import safe_pickle_dump, safe_pickle_load
 
 __all__ = [
     "StorageFilesystem",

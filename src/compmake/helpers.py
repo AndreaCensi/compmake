@@ -1,13 +1,13 @@
 import sys
 import types
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, List, Optional, TypeVar, Union
+from typing import Awaitable, Callable, List, Optional, TypeVar, Union
 
 from zuper_commons.types import ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from .colored import compmake_colored
 from .exceptions import UserError
-from .utils import docstring_components, docstring_trim
+from compmake_utils import docstring_components, docstring_trim
 
 __all__ = [
     "ACTIONS",
@@ -89,7 +89,8 @@ def wrap(func, name, alias, section, dbchange):
     return func
 
 
-FT = TypeVar("FT", bound=Callable[..., Awaitable[Any]])
+CommandShape = Callable[..., Awaitable[Optional[int]]]
+FT = TypeVar("FT", bound=CommandShape)
 
 
 # @contract(alias="None|unicode|list(unicode)")

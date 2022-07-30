@@ -95,3 +95,7 @@ class Context(ABC):
     @abstractmethod
     async def write_message_console(self, s: str) -> None:
         ...
+
+    @abstractmethod
+    async def set_status_line(self, s: str) -> None:
+        ...

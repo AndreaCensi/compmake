@@ -18,7 +18,7 @@ from .filesystem import StorageFilesystem
 from .readrcfiles import read_rc_files
 from .state import set_compmake_status
 from .storage import all_jobs
-from .utils import setproctitle
+from compmake_utils import setproctitle
 
 __all__ = [
     "compmake_main",

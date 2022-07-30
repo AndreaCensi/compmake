@@ -10,7 +10,7 @@ from .queries import direct_children, direct_parents, jobs_defined
 from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
-from .utils import memoized_reset
+from compmake_utils import memoized_reset
 
 __all__ = [
     "CacheQueryDB",

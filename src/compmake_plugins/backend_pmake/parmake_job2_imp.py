@@ -16,10 +16,10 @@ from compmake import (
     result_dict_check,
     StorageFilesystem,
 )
-from compmake.events_structures import Event
-from compmake.registered_events import JobProgressEvent
-from compmake.types import CMJobID
-from compmake.utils import setproctitle
+from compmake import Event
+from compmake import JobProgressEvent
+from compmake import CMJobID
+from compmake_utils import setproctitle
 from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 

@@ -2,9 +2,7 @@ import imp
 import os
 import pwd
 
-from compmake import Context, UserError
-from compmake.helpers import COMMANDS_ADVANCED, ui_command
-from compmake.visualization import ui_error, ui_info
+from compmake import COMMANDS_ADVANCED, Context, ui_command, ui_error, ui_info, UserError
 
 
 @ui_command(section=COMMANDS_ADVANCED)
