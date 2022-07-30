@@ -668,7 +668,7 @@ def comp_(
     else:
         command_desc = type(command).__name__
 
-    args = list(args)  # args is a non iterable tuple
+    args = list(args)  # args is a  tuple
 
     # Get job id from arguments
     job_id_ = kwargs.pop(CompmakeConstants.job_id_key, None)
@@ -697,14 +697,14 @@ def comp_(
 
         job_prefix = context.get_comp_prefix()
         if job_prefix:
-            job_id = cast(CMJobID, "%s-%s" % (job_prefix, job_id))
+            job_id = cast(CMJobID, f"{job_prefix}-{job_id}")
 
         # del kwargs[CompmakeConstants.job_id_key]
 
         if context.was_job_defined_in_this_session(job_id):
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
-                msg = "The job %r was defined but not found in DB. I will let it slide." % job_id
+                msg = f"The job {job_id!r} was defined but not found in DB. I will let it slide."
                 print(msg)
             else:
                 msg = "The job %r was already defined in this session." % job_id
@@ -720,8 +720,13 @@ def comp_(
                 #                 pass
                 #             else:
 
-                msg = "Job %r already defined." % job_id
-                raise UserError(msg)
+                msg = f"Job {job_id!r} already defined."
+                raise UserError(
+                    msg,
+                    old_job=old_job.__dict__,
+                    currently_executing=context.currently_executing,
+                    other_defined_in_this_session=context.get_jobs_defined_in_this_session(),
+                )
         else:
             if job_exists(job_id, db=db):
                 # ok, you gave us a job_id, but we still need to check whether

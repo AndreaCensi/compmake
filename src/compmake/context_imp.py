@@ -3,10 +3,11 @@ import os
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import Any, List, Optional, Set, Union
+from typing import Any, List, Optional, Set, TypeVar, Union
 
 from zuper_commons.text import indent
 from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
+from . import Promise
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -34,68 +35,8 @@ class UIMessage:
 
 
 class ContextImp(Context):
-    def __getstate__(self):
-        # Copy the object's state from self.__dict__ which contains
-        # all our instance attributes. Always use the dict.copy()
-        # method to avoid modifying the original state.
-        state = self.__dict__.copy()
-        if "splitter" in state:
-            state.pop("splitter")
-        # if "splitter_ui_console" in state:
-        #     state.pop("splitter_ui_console")
-        # # Remove the unpicklable entries.
-        # for k, v in state.items():
-        #     try:
-        #         pickle.dumps(v)
-        #     except BaseException as e:
-        #         msg = f'Cannot pickle member {k!r}'
-        #         raise ZValueError(msg, k=k, v=v) from e
-
-        return state
-
-    async def write_message_console(self, s: str) -> None:
-        output = ""
-
-        if s.startswith("prompt:"):
-            rest = s[len("prompt:") :]
-            # self.splitter_ui_console.push(Prompt(rest))
-            output += "\n\r"
-            output += rest
-        else:
-            # uim = UIMessage(s)
-            # logger.debug("write_message_console", uim=uim)
-
-            lines = s.splitlines()
-            for l in lines:
-                # p = pad_to_screen(l)
-                p = l
-                output += p + "\n"
-        # SEE: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#cursor-navigation
-        CLEAN_UNTIL_END_OF_LINE = "\u001b[0K"
-        CLEAR_ENTIRE_LINE = "\u001b[2K"
-        print(CLEAR_ENTIRE_LINE + output, end="", file=sys.stderr)
-        interactive = self.get_compmake_config("interactive")
-        if interactive:
-            if self.status_line:
-                print("\r" + self.status_line + "\r", end="", file=sys.stderr)
-        # self.splitter_ui_console.push(uim)
-
-    async def set_status_line(self, s: Optional[str]) -> None:
-        self.status_line = s
-        if s:
-            interactive = self.get_compmake_config("interactive")
-            if interactive:
-                print("\r" + s + "\r", end="", file=sys.stderr)
-            else:
-                print("\r" + s + "\n", end="", file=sys.stderr)
-
-    def get_compmake_config(self, c: str) -> object:
-        return get_compmake_config0(c)
-
-    def set_compmake_config(self, c: str, v: object) -> None:
-        return set_compmake_config0(c, v)
-
     currently_executing: List[CMJobID]
+    objectid2job: dict[int, Promise]
 
     def __init__(
         self,
@@ -136,6 +77,7 @@ class ContextImp(Context):
         self.splitter = None
         # self.splitter_ui_console = None
         self.status_line = None
+        self.objectid2job = {}
 
     status_line: Optional[str]
     splitter: Optional[Splitter[Event]]
@@ -323,8 +265,69 @@ class ContextImp(Context):
 
         return await compmake_console_text(sti, self)
 
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        if "splitter" in state:
+            state.pop("splitter")
+        # if "splitter_ui_console" in state:
+        #     state.pop("splitter_ui_console")
+        # # Remove the unpicklable entries.
+        # for k, v in state.items():
+        #     try:
+        #         pickle.dumps(v)
+        #     except BaseException as e:
+        #         msg = f'Cannot pickle member {k!r}'
+        #         raise ZValueError(msg, k=k, v=v) from e
 
-def comp_store_(x, context: Context, job_id: Optional[CMJobID] = None):
+        return state
+
+    async def write_message_console(self, s: str) -> None:
+        output = ""
+
+        if s.startswith("prompt:"):
+            rest = s[len("prompt:") :]
+            # self.splitter_ui_console.push(Prompt(rest))
+            output += "\n\r"
+            output += rest
+        else:
+            # uim = UIMessage(s)
+            # logger.debug("write_message_console", uim=uim)
+
+            lines = s.splitlines()
+            for l in lines:
+                # p = pad_to_screen(l)
+                p = l
+                output += p + "\n"
+        # SEE: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#cursor-navigation
+        CLEAN_UNTIL_END_OF_LINE = "\u001b[0K"
+        CLEAR_ENTIRE_LINE = "\u001b[2K"
+        print(CLEAR_ENTIRE_LINE + output, end="", file=sys.stderr)
+        interactive = self.get_compmake_config("interactive")
+        if interactive:
+            if self.status_line:
+                print("\r" + self.status_line + "\r", end="", file=sys.stderr)
+        # self.splitter_ui_console.push(uim)
+
+    async def set_status_line(self, s: Optional[str]) -> None:
+        self.status_line = s
+        if s:
+            interactive = self.get_compmake_config("interactive")
+            if interactive:
+                print("\r" + s + "\r", end="", file=sys.stderr)
+            else:
+                print("\r" + s + "\n", end="", file=sys.stderr)
+
+    def get_compmake_config(self, c: str) -> object:
+        return get_compmake_config0(c)
+
+    def set_compmake_config(self, c: str, v: object) -> None:
+        return set_compmake_config0(c, v)
+
+
+def comp_store_(x: Any, context: ContextImp, job_id: Optional[CMJobID] = None) -> Promise:
     """
 
     Stores the object as a job, keeping track of whether
@@ -333,8 +336,7 @@ def comp_store_(x, context: Context, job_id: Optional[CMJobID] = None):
 
     id_object = id(x)
 
-    # noinspection PyUnresolvedReferences
-    book = context.comp_store.objectid2job
+    book = context.objectid2job
     if id_object not in book:
         job_params = {}
         if job_id is not None:
@@ -345,5 +347,8 @@ def comp_store_(x, context: Context, job_id: Optional[CMJobID] = None):
     return book[id_object]
 
 
-def load_static_storage(x):  # XXX: this uses double the memory though
+X = TypeVar("X")
+
+
+def load_static_storage(x: X) -> X:  # XXX: this uses double the memory though
     return x

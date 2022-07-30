@@ -1,5 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Collection, Concatenate, List, Optional, ParamSpec, Set, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Concatenate,
+    List,
+    Optional,
+    ParamSpec,
+    Set,
+    TYPE_CHECKING,
+    TypeVar,
+)
 
 from zuper_utils_asyncio import SyncTaskInterface
 from .types import CMJobID
@@ -10,6 +21,9 @@ __all__ = [
 
 P = ParamSpec("P")
 X = TypeVar("X")
+
+if TYPE_CHECKING:
+    from .storage import StorageFilesystem
 
 
 class Context(ABC):
@@ -31,7 +45,7 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    def get_compmake_db(self):
+    def get_compmake_db(self) -> "StorageFilesystem":
         ...
 
     @abstractmethod

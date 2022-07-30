@@ -96,10 +96,10 @@ class MakeResult(TypedDict):
 
 class Job:
     job_id: CMJobID
-    children: Set
-    parents: Set
-    needs_conntext: bool
-    defined_by: List[CMJobID]
+    children: set[CMJobID]
+    parents: set[CMJobID]
+    needs_context: bool
+    defined_by: list[CMJobID]
     dynamic_children: dict
     pickle_main_context: object
     command_desc: str
@@ -107,10 +107,10 @@ class Job:
     def __init__(
         self,
         job_id: CMJobID,
-        children: Set[CMJobID],
+        children: set[CMJobID],
         command_desc: str,
         needs_context: bool = False,
-        defined_by: List[CMJobID] = None,
+        defined_by: list[CMJobID] = None,
     ):
         """
 
