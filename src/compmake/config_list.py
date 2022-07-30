@@ -124,14 +124,14 @@ add_config_switch(
     section=CONFIG_PARALLEL,
 )
 
-add_config_switch("max_mem_load", 75.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
+add_config_switch("max_mem_load", 100.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
 
 add_config_switch("max_swap", 100.0, desc="Maximum swap usage (%)", section=CONFIG_PARALLEL)
 
 add_config_switch(
     "max_cpu_load",
     100.0,
-    desc="Maximum CPU load (%). No jobs will be instantiated " "if over threshold.",
+    desc="Maximum CPU load (%). No jobs will be instantiated if over threshold.",
     section=CONFIG_PARALLEL,
 )
 

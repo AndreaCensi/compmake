@@ -912,6 +912,7 @@ async def interpret_commands(
         return None
 
     for cmd in commands:
+        await context.set_status_line(None)
         try:
             publish(context, "command-starting", command=cmd)
             # noinspection PyNoneFunctionAssignment

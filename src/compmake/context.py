@@ -97,5 +97,5 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    async def set_status_line(self, s: str) -> None:
+    async def set_status_line(self, s: Optional[str]) -> None:
         ...

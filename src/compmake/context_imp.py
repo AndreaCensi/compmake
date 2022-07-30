@@ -80,13 +80,14 @@ class ContextImp(Context):
                 print("\r" + self.status_line + "\r", end="", file=sys.stderr)
         # self.splitter_ui_console.push(uim)
 
-    async def set_status_line(self, s: str) -> None:
+    async def set_status_line(self, s: Optional[str]) -> None:
         self.status_line = s
-        interactive = self.get_compmake_config("interactive")
-        if interactive:
-            print("\r" + s + "\r", end="", file=sys.stderr)
-        else:
-            print("\r" + s + "\n", end="", file=sys.stderr)
+        if s:
+            interactive = self.get_compmake_config("interactive")
+            if interactive:
+                print("\r" + s + "\r", end="", file=sys.stderr)
+            else:
+                print("\r" + s + "\n", end="", file=sys.stderr)
 
     def get_compmake_config(self, c: str) -> object:
         return get_compmake_config0(c)
@@ -134,7 +135,7 @@ class ContextImp(Context):
 
         self.splitter = None
         # self.splitter_ui_console = None
-        self.status_line = "the status line"
+        self.status_line = None
 
     status_line: Optional[str]
     splitter: Optional[Splitter[Event]]
