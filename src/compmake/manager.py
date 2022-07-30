@@ -544,7 +544,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def job_failed(self, job_id: CMJobID, deleted_jobs):
+    def job_failed(self, job_id: CMJobID, deleted_jobs) -> None:
         """The specified job has failed. Update the structures,
         mark any parent as failed as well."""
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
@@ -643,7 +643,7 @@ class Manager(ManagerLog):
     def event_check(self):
         pass
 
-    async def check_any_finished(self):
+    async def check_any_finished(self) -> bool:
         """
         Checks that any of the jobs finished.
 
@@ -651,13 +651,15 @@ class Manager(ManagerLog):
         Returns False if something finished unseccesfully.
         """
         # We make a copy because processing is updated during the loop
-        received = False
+        # received = False
         for job_id in self.processing.copy():
-            received = received or await self.check_job_finished(job_id)
+            received = await self.check_job_finished(job_id)
+            if received:
+                return True
             self.check_invariants()
-        return received
+        return False
 
-    async def loop_until_something_finishes(self):
+    async def loop_until_something_finishes(self) -> None:
         self.check_invariants()
 
         manager_wait = self.context.get_compmake_config("manager_wait")
@@ -677,7 +679,7 @@ class Manager(ManagerLog):
             self.event_check()
             self.check_invariants()
 
-    async def process(self):
+    async def process(self) -> bool:
         """Start processing jobs."""
         # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
@@ -792,7 +794,7 @@ class Manager(ManagerLog):
         finally:
             self.cleanup()
 
-    def publish_progress(self):
+    def publish_progress(self) -> None:
         publish(
             self.context,
             "manager-progress",
@@ -835,7 +837,7 @@ class Manager(ManagerLog):
 
         return s
 
-    def check_invariants(self):
+    def check_invariants(self) -> None:
         if not CompmakeConstants.debug_check_invariants:
             return
         lists = dict(

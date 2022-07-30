@@ -1,3 +1,4 @@
+import gc
 import multiprocessing
 import os
 import random
@@ -155,24 +156,29 @@ class PmakeManager(Manager):
         mem = get_memory_usage()
         max_mem_load: float = self.context.get_compmake_config("max_mem_load")
         if mem.usage_percent > max_mem_load:
-            msg = f"Memory load {mem.usage}% > {max_mem_load}% [{mem.method}]"
+            msg = f"Memory load {mem.usage:1.f}% > {max_mem_load:1.f}% [{mem.method}]"
             resource_available["memory%"] = (False, msg)
         else:
             resource_available["memory%"] = (True, "")
-        max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
-
-        if random.randint(0, 100) < 10:
             logger.info(mem=mem)
 
-        usage_GB = mem.usage / 1024**3
+        max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
+
+        usage_GB = mem.usage / (1024**3)
         if usage_GB > max_mem_GB:
             msg = (
-                f"Memory used {usage_GB:.1f}GB > {max_mem_load:.1f}GB (usage {mem.usage_percent}%) ["
+                f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) ["
                 f"{mem.method}]"
             )
+            logger.info(mem=mem)
+            # run GC
+            gc.collect()
             resource_available["memory"] = (False, msg)
         else:
             resource_available["memory"] = (True, "")
+
+        if random.randint(0, 100) < 10:
+            logger.info(mem=mem)
         return resource_available
 
     def can_accept_job(self, reasons_why_not: dict[str, str]) -> bool:
@@ -273,15 +279,15 @@ class PmakeManager(Manager):
         # print('process_finished(): cleaned up')
 
     # Normal outcomes
-    def job_failed(self, job_id: CMJobID, deleted_jobs):
+    def job_failed(self, job_id: CMJobID, deleted_jobs) -> None:
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
 
-    def job_succeeded(self, job_id: CMJobID):
+    def job_succeeded(self, job_id: CMJobID) -> None:
         Manager.job_succeeded(self, job_id)
         self._clear(job_id)
 
-    def _clear(self, job_id: CMJobID):
+    def _clear(self, job_id: CMJobID) -> None:
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
@@ -290,7 +296,7 @@ class PmakeManager(Manager):
         self.sub_processing.remove(name)
         self.sub_available.add(name)
 
-    def host_failed(self, job_id: CMJobID):
+    def host_failed(self, job_id: CMJobID) -> None:
         Manager.host_failed(self, job_id)
 
         assert job_id in self.job2subname
