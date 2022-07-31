@@ -42,7 +42,8 @@ async def command_line_failed(context: Context, event: Event):
     command = event.kwargs["command"]
     if not ";" in command:
         return
-    await ui_error(context, my_prefix + f"Command sequence {command!r} failed.")
+    reason = event.kwargs["reason"]
+    await ui_error(context, my_prefix + f"Command sequence {command!r} failed: \n{reason}")
 
 
 register_handler("command-line-failed", command_line_failed)

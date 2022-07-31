@@ -1,3 +1,4 @@
+import gc
 import multiprocessing
 import signal
 import traceback
@@ -168,6 +169,7 @@ async def pmake_worker(
                     log(f"result: {result}")
                     put_result(result)
 
+                gc.collect()
                 log("...done.")
                 current_name = f"{name}:idle"
                 setproctitle(f"compmake:{current_name}")

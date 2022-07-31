@@ -7,14 +7,14 @@ from time import time
 from typing import Any, Callable, cast, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
-from zuper_commons.types import check_isinstance, describe_type
+from zuper_commons.types import check_isinstance, describe_type, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
-from .exceptions import CommandFailed, CompmakeBug, JobFailed, JobInterrupted, UserError
+from .exceptions import CommandFailed, CompmakeBug, CompmakeException, JobFailed, JobInterrupted, UserError
 from .filesystem import StorageFilesystem
 from .helpers import get_commands, UIState
 from .job_execution import job_compute, JobComputeResult
@@ -437,7 +437,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     cache.int_compute = int_compute
     cache.int_gc = int_gc
     cache.int_save_results = int_save_results
-    cache.result_type_qual = type(user_object).__qualname__
+    cache.result_type_qual = type(user_object).__module__ + type(user_object).__qualname__
     cache.timestamp = end_time
 
     cache.walltime_used = int_make.get_walltime_used()
@@ -904,8 +904,8 @@ async def interpret_commands(
     Returns None
     """
     if not isinstance(commands_str, str):
-        msg = "I expected a string, got %s." % describe_type(commands_str)
-        raise ValueError(msg)
+        msg = f"I expected a string, got {describe_type(commands_str)}."
+        raise ZValueError(msg)
 
     commands_str = commands_str.strip()
 
@@ -1082,6 +1082,12 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             else:
                 raise CommandFailed(msg)
         return None
+    except CompmakeException as e:
+        if ignore_error:
+            logger.warning(f"Command {commands_line!r} failed but ignoring: {e}")
+            return None
+        else:
+            raise
     finally:
         if dbchange:
             cq.invalidate()

@@ -40,6 +40,7 @@ async def ls(
     complete_names: bool = False,
     reason: bool = False,
     all_details: bool = False,
+    show_output_type: bool = False,
 ):  # @ReservedAssignment
     """
     Lists the status of the given jobs (or all jobs if none specified
@@ -59,7 +60,13 @@ async def ls(
     job_list = list(job_list)
     CompmakeConstants.aliases["last"] = job_list
     await list_jobs(
-        context, job_list, cq=cq, complete_names=complete_names, reason=reason, all_details=all_details
+        context,
+        job_list,
+        cq=cq,
+        complete_names=complete_names,
+        reason=reason,
+        all_details=all_details,
+        show_output_type=show_output_type,
     )
     return 0
 
@@ -114,6 +121,7 @@ async def list_jobs(
     complete_names: bool = False,
     all_details: bool = False,
     reason: bool = False,
+    show_output_type: bool = False,
 ):
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
@@ -203,6 +211,18 @@ async def list_jobs(
         sizes = get_sizes(job_id, db=db)
         size_s = format_size(sizes["total"])
         tf.cell(size_s)
+
+        if not show_output_type:
+            s = ""
+        else:
+            if (cache.state in [Cache.DONE]) and hasattr(cache, "result_type_qual"):
+                s = cache.result_type_qual
+                if "NoneType" in s:
+                    s = ""
+            else:
+                s = ""
+
+        tf.cell(s)
 
         if cache.state in [Cache.DONE]:
             wall_total.append(cache.walltime_used)
