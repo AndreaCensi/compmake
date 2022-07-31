@@ -160,7 +160,7 @@ class PmakeManager(Manager):
             resource_available["memory%"] = (False, msg)
         else:
             resource_available["memory%"] = (True, "")
-            logger.info(mem=mem)
+            # logger.info(mem=mem)
 
         max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
 
@@ -170,15 +170,15 @@ class PmakeManager(Manager):
                 f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) ["
                 f"{mem.method}]"
             )
-            logger.info(mem=mem)
+            # logger.info(mem=mem)
             # run GC
             gc.collect()
             resource_available["memory"] = (False, msg)
         else:
             resource_available["memory"] = (True, "")
 
-        if random.randint(0, 100) < 10:
-            logger.info(mem=mem)
+        # if random.randint(0, 100) < 10:
+        #     logger.info(mem=mem)
         return resource_available
 
     def can_accept_job(self, reasons_why_not: dict[str, str]) -> bool:
