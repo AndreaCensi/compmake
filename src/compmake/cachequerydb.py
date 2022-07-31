@@ -40,7 +40,6 @@ class CacheQueryDB:
 
     @memoized_reset
     def get_job_cache(self, job_id: CMJobID) -> Cache:
-
         return get_job_cache(job_id, db=self.db)
 
     @memoized_reset
@@ -49,19 +48,16 @@ class CacheQueryDB:
 
     @memoized_reset
     def get_job(self, job_id: CMJobID) -> Job:
-
         return get_job(job_id, db=self.db)
 
     @memoized_reset
     def all_jobs(self) -> List[CMJobID]:
-
         # NOTE: very important, do not memoize iterator
         res = list(all_jobs(db=self.db))
         return res
 
     @memoized_reset
     def job_exists(self, job_id: CMJobID) -> bool:
-
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
@@ -116,12 +112,10 @@ class CacheQueryDB:
 
     @memoized_reset
     def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
-
         return direct_children(job_id, db=self.db)
 
     @memoized_reset
     def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
-
         return direct_parents(job_id, db=self.db)
 
     @memoized_reset

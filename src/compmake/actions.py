@@ -905,6 +905,8 @@ async def interpret_commands(
         msg = "I expected a string, got %s." % describe_type(commands_str)
         raise ValueError(msg)
 
+    commands_str = commands_str.strip()
+
     # split with separator
     commands = commands_str.split(separator)
     # remove extra spaces
@@ -953,6 +955,12 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     check_isinstance(commands_line, str)
 
     ui_commands = get_commands()
+
+    if commands_line.startswith("-"):
+        commands_line = commands_line[1:]
+        ignore_error = True
+    else:
+        ignore_error = False
 
     commands = commands_line.split()
 
@@ -1067,7 +1075,10 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             res = function(**kwargs)
         if (res is not None) and (res != 0):
             msg = f"Command {commands_line!r} failed: {res}"
-            raise CommandFailed(msg)
+            if ignore_error:
+                logger.warning(msg)
+            else:
+                raise CommandFailed(msg)
         return None
     finally:
         if dbchange:

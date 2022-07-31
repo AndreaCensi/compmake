@@ -1,10 +1,11 @@
 import multiprocessing
 import signal
 import traceback
-from multiprocessing.context import BaseContext
-from typing import Optional
 
+# noinspection PyProtectedMember
+from multiprocessing.context import BaseContext
 from queue import Empty
+from typing import Optional
 
 from compmake import (
     AsyncResultInterface,
@@ -16,7 +17,7 @@ from compmake import (
     result_dict_raise_if_error,
     ResultDict,
 )
-from zuper_commons.fs import getcwd
+from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import async_run_simple1, setup_environment2
@@ -27,9 +28,19 @@ __all__ = [
 
 
 class PmakeSub:
+    last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
+    job_queue: "Optional[multiprocessing.Queue]"
+    result_queue: "Optional[multiprocessing.Queue]"
 
-    def __init__(self, name: str, signal_queue, signal_token, ctx: BaseContext, write_log=None):
+    def __init__(
+        self,
+        name: str,
+        signal_queue: "Optional[multiprocessing.Queue]",
+        signal_token: str,
+        ctx: BaseContext,
+        write_log: Optional[FilePath] = None,
+    ):
         self.name = name
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
@@ -43,15 +54,16 @@ class PmakeSub:
             name=name,
         )
         self.proc.start()
+        self.last = None
 
-    def terminate(self):
+    def terminate(self) -> None:
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
         self.job_queue.close()
         self.result_queue.close()
         self.job_queue = None
         self.result_queue = None
 
-    def apply_async(self, function, arguments):
+    def apply_async(self, function, arguments) -> "PmakeResult":
         self.job_queue.put((function, arguments))
         self.last = PmakeResult(self.result_queue)
         return self.last
@@ -61,11 +73,11 @@ class PmakeSub:
 async def pmake_worker(
     sti: SyncTaskInterface,
     name: str,
-    job_queue: BaseContext.Queue,
-    result_queue: BaseContext.Queue,
-    signal_queue: BaseContext.Queue,
-    signal_token,
-    write_log=None,
+    job_queue: "multiprocessing.Queue",
+    result_queue: "multiprocessing.Queue",
+    signal_queue: "Optional[multiprocessing.Queue]",
+    signal_token: str,
+    write_log: Optional[FilePath] = None,
 ):
     async with setup_environment2(sti, getcwd()):
         await sti.started_and_yield()
