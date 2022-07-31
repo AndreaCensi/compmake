@@ -191,10 +191,6 @@ def mark_as_failed(
 
 
 async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: bool = False) -> MakeResult:
-    new_jobs: Set[CMJobID]
-    delete_jobs: Set[CMJobID]
-    user_object_deps: Set[CMJobID]
-    user_object: object
     """
     Makes a single job.
 
@@ -208,6 +204,12 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
     captured.
     """
+
+    new_jobs: Set[CMJobID]
+    delete_jobs: Set[CMJobID]
+    user_object_deps: Set[CMJobID]
+    user_object: object
+
     db = context.get_compmake_db()
 
     int_make = IntervalTimer()
@@ -435,7 +437,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     cache.int_compute = int_compute
     cache.int_gc = int_gc
     cache.int_save_results = int_save_results
-
+    cache.result_type_qual = type(user_object).__qualname__
     cache.timestamp = end_time
 
     cache.walltime_used = int_make.get_walltime_used()
