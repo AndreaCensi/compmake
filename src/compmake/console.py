@@ -255,7 +255,11 @@ async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
         if line:
             if readline is not None:
                 # noinspection PyUnresolvedReferences
-                readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
+                try:
+                    # TODO: check before that the history can be written to
+                    readline.write_history_file(COMPMAKE_HISTORY_FILENAME)
+                except PermissionError:
+                    pass
         event = asyncio.Event()
         yield line, event
         await event.wait()

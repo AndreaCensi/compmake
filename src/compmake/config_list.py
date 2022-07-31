@@ -120,15 +120,17 @@ add_config_switch(
 add_config_switch(
     "max_parallel_jobs",
     cpu_count(),
-    desc="Maximum number of parallel jobs. Default is " "cpu_count().",
+    desc="Maximum number of parallel jobs. Default is cpu_count().",
     section=CONFIG_PARALLEL,
 )
 
 add_config_switch("max_mem_load", 100.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
 add_config_switch("max_mem_GB", 1024.0, desc="Maximum physical memory used (GB)", section=CONFIG_PARALLEL)
 
+# TODO: to reimplement
 add_config_switch("max_swap", 100.0, desc="Maximum swap usage (%)", section=CONFIG_PARALLEL)
 
+# TODO: to reimplement
 add_config_switch(
     "max_cpu_load",
     100.0,
