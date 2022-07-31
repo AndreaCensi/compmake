@@ -5,10 +5,11 @@ import traceback
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Optional
+from typing import Any, Callable, Optional
 
 from compmake import (
     AsyncResultInterface,
+    CMJobID,
     CompmakeBug,
     HostFailed,
     JobFailed,
@@ -17,6 +18,7 @@ from compmake import (
     result_dict_raise_if_error,
     ResultDict,
 )
+from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
@@ -30,8 +32,8 @@ __all__ = [
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
-    job_queue: "Optional[multiprocessing.Queue]"
-    result_queue: "Optional[multiprocessing.Queue]"
+    job_queue: "Optional[multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]]"
+    result_queue: "Optional[multiprocessing.Queue[ResultDict]]"
 
     def __init__(
         self,
@@ -63,8 +65,8 @@ class PmakeSub:
         self.job_queue = None
         self.result_queue = None
 
-    def apply_async(self, function, arguments) -> "PmakeResult":
-        self.job_queue.put((function, arguments))
+    def apply_async(self, job_id: CMJobID, function, arguments) -> "PmakeResult":
+        self.job_queue.put((job_id, function, arguments))
         self.last = PmakeResult(self.result_queue)
         return self.last
 
@@ -73,12 +75,14 @@ class PmakeSub:
 async def pmake_worker(
     sti: SyncTaskInterface,
     name: str,
-    job_queue: "multiprocessing.Queue",
-    result_queue: "multiprocessing.Queue",
+    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]",
+    result_queue: "multiprocessing.Queue[ResultDict]",
     signal_queue: "Optional[multiprocessing.Queue]",
     signal_token: str,
     write_log: Optional[FilePath] = None,
 ):
+    current_name = name
+    setproctitle(f"compmake:{current_name}")
     async with setup_environment2(sti, getcwd()):
         await sti.started_and_yield()
         # logger.info(f"pmake_worker forked at process {os.getpid()}")
@@ -101,20 +105,20 @@ async def pmake_worker(
         if write_log:
             f = open(write_log, "w")
 
-            def log(s):
-                f.write(f"{name}: {s}\n")
+            def log(s: str):
+                f.write(f"{current_name}: {s}\n")
                 f.flush()
 
         else:
 
-            def log(s):
-                print(f"{name}: {s}")
+            def log(s: str):
+                print(f"{current_name}: {s}")
                 pass
 
         log("started pmake_worker()")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        def put_result(x):
+        def put_result(x: ResultDict) -> None:
             log("putting result in result_queue..")
             result_queue.put(x, block=True)
             if signal_queue is not None:
@@ -136,7 +140,10 @@ async def pmake_worker(
 
                 log(f"got job: {job}")
 
-                function, arguments = job
+                job_id, function, arguments = job
+
+                current_name = f"{name}:{job_id}"
+                setproctitle(f"compmake:{current_name}")
                 # logger.info(job=job)
                 # print(job)
                 # print(inspect.signature(function))
@@ -162,6 +169,8 @@ async def pmake_worker(
                     put_result(result)
 
                 log("...done.")
+                current_name = f"{name}:idle"
+                setproctitle(f"compmake:{current_name}")
 
                 # except KeyboardInterrupt: pass
         except BaseException as e:

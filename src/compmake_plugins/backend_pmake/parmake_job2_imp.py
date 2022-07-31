@@ -99,7 +99,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
             async def proctitle(context: Context, event: JobProgressEvent):
                 _ = context
-                stat = f"[{event.progress}/{event.goal} {event.job_id}] (compmake)"
+                stat = f"compmake:{event.job_id}: [{event.progress}/{event.goal}]"
                 setproctitle(stat)
 
             register_handler("job-progress", proctitle)
@@ -138,4 +138,4 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
             raise
         finally:
             publish(context0, "worker-status", job_id=job_id, status="cleanup")
-            setproctitle("compmake-worker-finished %s" % job_id)
+            setproctitle(f"compmake:{job_id}:done")

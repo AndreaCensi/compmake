@@ -48,7 +48,7 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
     if not "" in sys.path:
         sys.path.append("")
 
-    setproctitle("compmake")
+    setproctitle("compmake-main")
 
     parser = OptionParser(version=__version__, usage=usage)
 

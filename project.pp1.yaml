@@ -7,6 +7,7 @@ modules:
 - compmake_plugins
 - compmake_utils
 install_requires:
+- pympler
 - termcolor
 - setproctitle
 - PyYAML

@@ -220,7 +220,7 @@ class PmakeManager(Manager):
             logdir = join(db.basepath, "parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
-        async_result = sub.apply_async(f, args)
+        async_result = sub.apply_async(job_id, f, args)
         return async_result
 
     def event_check(self) -> None:

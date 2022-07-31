@@ -215,7 +215,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     host = "hostname"  # XXX
 
     if context.get_compmake_config("set_proc_title"):
-        setproctitle(f"cm-{job_id}")
+        setproctitle(f"compmake:{job_id}")
 
     # TODO: should we make sure we are up to date???
     #     up, reason = up_to_date(job_id, db=db)
