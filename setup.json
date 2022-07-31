@@ -2,10 +2,8 @@
   "install_requires": [
     "PyYAML",
     "SystemCmd-z7",
-    "aiofiles",
     "coverage",
     "dill",
-    "future",
     "networkx",
     "numpy",
     "psutil",

@@ -14,7 +14,6 @@ install_requires:
 - dill
 - coverage
 - SystemCmd-z7
-- future
 - zuper-zapp-interfaces-z7
 - zuper-utils-asyncio-z7
 - zuper-commons-z7
@@ -24,7 +23,7 @@ install_requires:
 - zuper-graphs-z7
 - numpy
 - pyreadline
-- aiofiles
+#- aiofiles
 - zuper-zapp-z7
 - networkx
 - typing_extensions
@@ -63,5 +62,3 @@ author: ''
 author_email: info@zupermind.com
 short_description: ''
 full_description: ''
-
-
