@@ -328,18 +328,6 @@ async def handle_event(context: Context, event: Event) -> None:
     nspaces = cols - get_length_on_screen(choice.right) - get_length_on_screen(choice.left)
     line = choice.left + " " * nspaces + choice.right
 
-    # if get_compmake_config("console_status"):
-    #     # if six.PY2:
-    #     #     if isinstance(line, unicode):
-    #     #         line = line.encode('utf-8')
-    #     stream.write(line)
-    #
-    #     interactive = get_compmake_config("interactive")
-    #     if interactive:
-    #         stream.write("\r")
-    #     else:
-    #         stream.write("\n")
-
     publish(context, "ui-status-summary", string=line)
 
 

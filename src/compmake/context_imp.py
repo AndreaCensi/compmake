@@ -87,7 +87,13 @@ class ContextImp(Context):
     async def init(self, sti: SyncTaskInterface) -> None:
         self.sti = sti
         my_name = f"ContextImp:{id(self)}"
-        self.splitter = await Splitter.make_init(Event, f"{my_name}-splitter")
+        self.splitter = await Splitter.make_init(
+            Event,
+            f"{my_name}-splitter",
+            # prune_if_bigger=10,
+            # prune_age_s=30,
+        )
+
         # self.splitter_ui_console = await Splitter.make_init(
         #     Union[UIMessage, Prompt], f"{my_name}-splitter_ui"
         # )

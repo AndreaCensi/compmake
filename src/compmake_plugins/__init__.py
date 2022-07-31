@@ -23,10 +23,11 @@ from . import (
     graph_animation_imp,
     job_definition_status,
     list_jobs_imp,
+    memstats,
     reload_module,
     sanity_check,
-    stats,  # handle *before* console_status; handle *after*  console_output
-)
+    stats,
+)  # handle *before* console_status; handle *after*  console_output,
 
 _ = (
     backend_local,
@@ -52,29 +53,6 @@ _ = (
     sanity_check,
     stats,
 )
-#
-# from .backend_local import *
-# from .backend_pmake import *
-# from .backend_ssh_cluster import *
-# from .clear_imp import *
-# from .commands_status import *
-# from .console_banners import *
-# from .console_output import *
-# from .console_status import *
-# from .credits import *
-# from .debug_priority import *
-# from .details import *
-# from .details_why import *
-# from .dump import *
-# from .event_debugger import *
-# from .gantt import *
-# from .graph import *
-# from .graph_animation_imp import *
-# from .job_definition_status import *
-# from .list_jobs_imp import *
-# from .reload_module import *
-# from .sanity_check import *
-# from .stats import *
 
 # Useful for debugging events
 # TODO: mail, html_status
