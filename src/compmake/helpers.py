@@ -3,11 +3,12 @@ import types
 from collections import namedtuple
 from typing import Awaitable, Callable, List, Optional, TypeVar, Union
 
+from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
+from . import logger
 from .colored import compmake_colored
 from .exceptions import UserError
-from compmake_utils import docstring_components, docstring_trim
 
 __all__ = [
     "ACTIONS",
@@ -122,7 +123,7 @@ def register_command(name, func, docs, alias=None, section=None, dbchange=False)
         prev = UIState.commands[name]
 
         msg = "Command %r already defined " % name
-        # logger.debug(msg, c=c, prev=prev)
+        logger.debug(msg, c=c, prev=prev)
         return
         raise ZValueError(
             msg,

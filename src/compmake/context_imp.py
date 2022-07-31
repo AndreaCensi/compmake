@@ -90,8 +90,8 @@ class ContextImp(Context):
         self.splitter = await Splitter.make_init(
             Event,
             f"{my_name}-splitter",
-            # prune_if_bigger=10,
-            # prune_age_s=30,
+            prune_if_bigger=10,
+            prune_age_s=5,
         )
 
         # self.splitter_ui_console = await Splitter.make_init(
