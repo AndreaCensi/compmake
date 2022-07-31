@@ -8,10 +8,10 @@ from multiprocessing import Queue
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
+from queue import Empty
 from typing import Dict, NewType, Set, Tuple
 
 import psutil
-from future.moves.queue import Empty
 from psutil import NoSuchProcess
 
 from compmake import (

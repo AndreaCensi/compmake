@@ -1,14 +1,16 @@
 import sys
+from queue import Full
 from typing import Tuple
 
-from future.moves.queue import Full
-
 from compmake import (
+    CMJobID,
     CompmakeConstants,
     Context,
     ContextImp,
+    Event,
     JobFailed,
     JobInterrupted,
+    JobProgressEvent,
     make,
     publish,
     register_handler,
@@ -16,9 +18,6 @@ from compmake import (
     result_dict_check,
     StorageFilesystem,
 )
-from compmake import Event
-from compmake import JobProgressEvent
-from compmake import CMJobID
 from compmake_utils import setproctitle
 from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance

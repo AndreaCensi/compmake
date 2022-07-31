@@ -4,7 +4,7 @@ import traceback
 from multiprocessing.context import BaseContext
 from typing import Optional
 
-from future.moves.queue import Empty
+from queue import Empty
 
 from compmake import (
     AsyncResultInterface,

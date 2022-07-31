@@ -1,7 +1,7 @@
 import os
 
 import psutil
-from attr import dataclass
+from dataclasses import dataclass
 
 from zuper_commons.types import ZException
 
