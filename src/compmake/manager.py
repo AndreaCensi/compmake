@@ -18,7 +18,7 @@ from .actions import mark_as_blocked
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
-from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
+from .exceptions import CompmakeBug, HostFailed, job_interrupted_exc, JobFailed, JobInterrupted
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
@@ -420,7 +420,7 @@ class Manager(ManagerLog):
             # (even though knowing where it was interrupted was good)
             # XXX
             self.sti.logger.error(traceback.format_exc())
-            raise JobInterrupted(job_id)
+            raise job_interrupted_exc(job_id)
 
     def job_is_deleted(self, job_id: CMJobID):
         if job_exists(job_id, self.db):

@@ -55,7 +55,7 @@ def key2job(key: StorageKey) -> CMJobID:
     return CMJobID(key.replace(KEY_JOB_PREFIX, "", 1))
 
 
-def all_jobs(db, force_db: bool = False) -> Iterator[CMJobID]:
+def all_jobs(db: StorageFilesystem, force_db: bool = False) -> Iterator[CMJobID]:
     """Returns the list of all jobs.
     If force_db is True, read jobs from DB.
     Otherwise, use local cache.

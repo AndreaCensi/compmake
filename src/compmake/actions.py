@@ -19,6 +19,7 @@ from .exceptions import (
     CompmakeBug,
     CompmakeException,
     job_failed_exc,
+    job_interrupted_exc,
     JobInterrupted,
     UserError,
 )
@@ -366,7 +367,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobInterrupted(job_id=job_id, deleted_jobs=list(deleted_jobs))
+        raise job_interrupted_exc(job_id=job_id, deleted_jobs=list(deleted_jobs))
 
     except (
         BaseException,

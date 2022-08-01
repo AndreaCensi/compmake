@@ -144,19 +144,30 @@ class JobFailed(CompmakeException):
         return e
 
 
+class JobInterruptedExceptionDict(TypedDict):
+    job_id: CMJobID
+    deleted_jobs: Optional[List[CMJobID]]
+
+
+def job_interrupted_exc(job_id: CMJobID, deleted_jobs: List[CMJobID] = None):
+    return JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
+
+
 class JobInterrupted(CompmakeException):
     """User requested to interrupt job"""
 
-    def __init__(self, job_id: CMJobID, deleted_jobs: List[CMJobID] = None):
-        deleted_jobs = deleted_jobs or []
-        self.job_id = job_id
-        self.deleted_jobs = set(deleted_jobs)
+    info: JobInterruptedExceptionDict
 
-        self.msg = f"Job {self.job_id!r} received KeyboardInterrupt."
-        CompmakeException.__init__(self, self.msg, job_id=job_id, deleted_jobs=deleted_jobs)
-
-    def __str__(self):
-        return self.msg
+    # def __init__(self, job_id: CMJobID, deleted_jobs: List[CMJobID] = None):
+    #     deleted_jobs = deleted_jobs or []
+    #     self.job_id = job_id
+    #     self.deleted_jobs = set(deleted_jobs)
+    #
+    #     self.msg = f"Job {self.job_id!r} received KeyboardInterrupt."
+    #     CompmakeException.__init__(self, self.msg, job_id=job_id, deleted_jobs=deleted_jobs)
+    #
+    # def __str__(self):
+    #     return self.msg
 
     @staticmethod
     def from_dict(res: InterruptedResult):
@@ -164,14 +175,15 @@ class JobInterrupted(CompmakeException):
 
         result_dict_check(res)
         assert "interrupted" in res
-        e = JobInterrupted(job_id=res["job_id"], deleted_jobs=res["deleted_jobs"])
+        e = job_interrupted_exc(job_id=res["job_id"], deleted_jobs=res["deleted_jobs"])
         return e
 
     def get_result_dict(self) -> InterruptedResult:
+        info: JobInterruptedExceptionDict = self.info
         res: InterruptedResult = dict(
-            interrupt=f"Job {self.job_id!r} interrupted.",
-            job_id=self.job_id,
-            deleted_jobs=sorted(self.deleted_jobs),
+            interrupt=f"Job {info['job_id']!r} interrupted.",
+            job_id=info["job_id"],
+            deleted_jobs=sorted(info["deleted_jobs"]),
         )
         return res
 
@@ -215,6 +227,6 @@ class HostFailed(CompmakeException):
             _ = res["abort"]
             e = HostFailed(host=res["host"], job_id=res["job_id"], bt=res["bt"], reason=res["reason"])
         except KeyError as e:
-            raise_wrapped(CompmakeBug, e, "Incomplete dict", res=res, keys=list(res.keys()))
+            raise CompmakeBug("Incomplete dict", res=res, keys=list(res.keys())) from e
 
         return e

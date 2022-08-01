@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Set
 
-from zuper_commons.types import raise_wrapped, ZException
+from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
 from .structures import Promise
@@ -63,7 +63,7 @@ def substitute_dependencies(a, db):
             return ta(contents)
         except TypeError as e:
             msg = "Cannot reconstruct complex tuple."
-            raise_wrapped(ValueError, e, msg, ta=ta, contents=contents)
+            raise ZValueError(msg, ta=ta, contents=contents) from e
     elif isinstance(a, Promise):
         s = get_job_userobject(a.job_id, db=db)
         return substitute_dependencies(s, db=db)
