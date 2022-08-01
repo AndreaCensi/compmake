@@ -1,4 +1,4 @@
-from compmake import CompmakeDBError
+from compmake import CompmakeDBError, Context
 from zuper_commons.test_utils import my_assert_equal
 from .utils import assert_raises_async, Env, run_with_env
 
@@ -7,20 +7,20 @@ def g2():
     return "g2"
 
 
-def gd(context):
-    context.comp(g2)
+def gd(context: Context) -> str:
+    return context.comp(g2)
 
 
-def fd(context):
+def fd(context: Context) -> str:
     return context.comp_dynamic(gd)
 
 
-def mockup7(context):
-    context.comp_dynamic(fd)
+def mockup7(context: Env) -> str:
+    return context.comp_dynamic(fd)
 
 
 @run_with_env
-async def test_dynamic7(env: Env) -> None:
+async def test_dynamic7_f(env: Env) -> None:
     # first define with job and run
     mockup7(env)
     await env.assert_cmd_success("make recurse=1; ls")
@@ -37,9 +37,9 @@ async def test_dynamic7(env: Env) -> None:
 
 
 @run_with_env
-async def test_dynamic7_invalidate(env: Env) -> None:
+async def test_dynamic7_invalidate_f(env: Env) -> None:
     # first define with job and run
-    mockup7(env.cc)
+    mockup7(env)
     await env.assert_cmd_success("make recurse=1; ls")
 
     # check that g2 is up to date

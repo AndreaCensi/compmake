@@ -38,8 +38,8 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
-from .structures import Cache, IntervalTimer, Job, MakeResult, Promise, same_computation
-from .types import CMJobID
+from .structures import Cache, IntervalTimer, Job, Promise, same_computation
+from .types import CMJobID, MakeResult
 from .visualization import ui_info
 
 __all__ = [

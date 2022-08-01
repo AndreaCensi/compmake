@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Callable, Dict, Mapping, Optional, Set, Tuple, TypedDict
+from typing import Any, Callable, cast, Dict, Mapping, Optional, Set, Tuple, TypedDict
 
 from zuper_commons.types import add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -10,7 +10,6 @@ from .exceptions import CompmakeBug
 from .storage import get_job, get_job_args, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
-from . import logger
 
 __all__ = [
     "JobCompute",
@@ -47,7 +46,7 @@ class JobComputeResult(TypedDict):
     int_gc: IntervalTimer
 
 
-async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeResult:
+async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> JobComputeResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """
     check_isinstance(job, Job)
     job_id = job.job_id
@@ -90,13 +89,13 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
         int_compute = IntervalTimer()
         is_async = inspect.iscoroutinefunction(command)
         if is_async:
-            kwargs2: Dict[str, Any] = dict(kwargs)
+            kwargs3 = cast(Dict[str, Any], dict(kwargs))
             if "sti" in sig.parameters:
-                kwargs2["sti"] = sti
+                kwargs3["sti"] = sti
 
             # sti.logger.info("Now starting command")
             await asyncio.sleep(0)
-            user_object = await command(*args, **kwargs2)
+            user_object = await command(*args, **kwargs3)
         else:
 
             if "sti" in sig.parameters:

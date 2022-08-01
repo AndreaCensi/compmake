@@ -1,8 +1,25 @@
-from typing import List, NewType, Union
+from typing import List, NewType, Set, Union
 
 from typing_extensions import TypedDict
 
+__all__ = [
+    "AbortResult",
+    "BugResult",
+    "CMJobID",
+    "FailResult",
+    "InterruptedResult",
+    "MakeResult",
+    "OKResult",
+    "ResultDict",
+]
 CMJobID = NewType("CMJobID", str)
+
+
+class MakeResult(TypedDict):  # XXX
+    user_object: object
+    user_object_deps: Set[CMJobID]
+    new_jobs: Set[CMJobID]
+    deleted_jobs: Set[CMJobID]
 
 
 class OKResult(TypedDict):

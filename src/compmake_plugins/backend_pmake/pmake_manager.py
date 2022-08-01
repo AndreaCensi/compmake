@@ -72,13 +72,12 @@ class PmakeManager(Manager):
         self,
         sti: SyncTaskInterface,
         context: Context,
-        cq: CacheQueryDB,
         num_processes: int,
         recurse: bool = False,
         new_process: bool = False,
         show_output: bool = False,
     ):
-        Manager.__init__(self, sti, context=context, cq=cq, recurse=recurse)
+        Manager.__init__(self, sti, context=context, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process

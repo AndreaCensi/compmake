@@ -48,9 +48,7 @@ async def make(
     if not job_list:
         job_list = list(top_targets(db=db))
 
-    manager = ManagerLocal(
-        sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo
-    )
+    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
     manager.add_targets(job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)

@@ -54,11 +54,10 @@ class memoized_reset:
         is_key_error = is_type_error = False
         try:
             res = cache[args]
-            # print('using cache for %s' % self.func)
+            print(f"using cache for {self.func}({args} = {res}")
             return res
         except KeyError:
             is_key_error = True
-
         except TypeError:
             is_type_error = True
 

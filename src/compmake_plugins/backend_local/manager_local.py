@@ -24,8 +24,10 @@ class ManagerLocal(Manager):
     """Specialization of manager for local execution"""
 
     # @contract(new_process="bool", echo="bool")
-    def __init__(self, sti: SyncTaskInterface, new_process: bool, echo: bool, *args, **kwargs):
-        Manager.__init__(self, sti, *args, **kwargs)
+    def __init__(
+        self, sti: SyncTaskInterface, new_process: bool, echo: bool, context: Context, recurse: bool
+    ):
+        Manager.__init__(self, sti, context=context, recurse=recurse)
         self.new_process = new_process
         self.echo = echo
 

@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 import itertools
 import multiprocessing
 import os
@@ -8,10 +7,11 @@ import signal
 import traceback
 import warnings
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Any, Collection, Dict, List, Set
 
 from zuper_commons.fs import abspath, join, make_sure_dir_exists
-from zuper_commons.text import indent, joinlines, joinpars
+from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import my_create_task, SyncTaskInterface
 from .actions import mark_as_blocked
@@ -92,7 +92,7 @@ class ManagerLog:
 
 
 class Manager(ManagerLog):
-    cq: CacheQueryDB
+    # cq: CacheQueryDB
     context: Context
     db: StorageFilesystem
 
@@ -107,7 +107,7 @@ class Manager(ManagerLog):
     processing2result: Dict[CMJobID, AsyncResultInterface]
 
     # noinspection PyUnusedLocal
-    def __init__(self, sti: SyncTaskInterface, context, cq: CacheQueryDB, recurse: bool = False):
+    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
         self.context = context
         self.sti = sti
         # self.cq = cq
@@ -211,7 +211,6 @@ class Manager(ManagerLog):
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
         # Note this would not work for recursive jobs
-        # cq = self.cq
         targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
         not_ready = targets_todo_plus_deps - ready_todo
 

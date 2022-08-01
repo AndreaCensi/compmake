@@ -1,6 +1,7 @@
 import os
 from typing import cast, List, Tuple
 
+from compmake_utils import safe_pickle_load
 from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe, RelDirPath
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
@@ -10,7 +11,6 @@ from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
 from .types import CMJobID, ResultDict
-from compmake_utils import safe_pickle_load
 
 __all__ = [
     "parmake_job2_new_process_1",
@@ -101,7 +101,7 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID
         msg += "\n" + indent(stderr, "stderr| ")
         raise CompmakeBug(msg)  # XXX:
 
-    res = safe_pickle_load(out_result)
+    res = cast(ResultDict, safe_pickle_load(out_result))
     os.unlink(out_result)
     result_dict_check(res)
     return res

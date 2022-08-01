@@ -23,7 +23,7 @@ P = ParamSpec("P")
 X = TypeVar("X")
 
 if TYPE_CHECKING:
-    from .storage import StorageFilesystem
+    from .filesystem import StorageFilesystem
 
 
 class Context(ABC):

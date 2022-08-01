@@ -102,6 +102,8 @@ class Env:
         print("@ %s     [supposed to fail]" % cmds)
         try:
             await self.batch_command(cmds)
+            self.cq.invalidate()
+
         except CommandFailed:
             pass
         except Exception as e:
@@ -132,10 +134,12 @@ class Env:
         #     raise
 
         await self.cc.interpret_commands_wrap(self.sti, "check_consistency raise_if_error=1")
+        self.cq.invalidate()
 
     async def batch_command(self, s: str):
         await self.cc.interpret_commands_wrap(self.sti, s)
         # await self.cc.batch_command(self.sti, s)
+        self.cq.invalidate()
 
     async def up_to_date(self, job_id: str) -> bool:
         up, reason, timestamp = self.cq.up_to_date(cast(CMJobID, job_id))

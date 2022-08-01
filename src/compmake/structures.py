@@ -61,7 +61,7 @@
 """
 import time
 from dataclasses import dataclass
-from typing import Dict, List, NewType, Optional, Set, Tuple, TypedDict, Union
+from typing import Dict, List, NewType, Optional, Set, Tuple, Union
 
 from compmake_utils.pickle_frustration import pickle_main_context_save
 from zuper_commons.types import describe_value
@@ -72,7 +72,6 @@ __all__ = [
     "Cache",
     "IntervalTimer",
     "Job",
-    "MakeResult",
     "ProgressStage",
     "Promise",
     "StateCode",
@@ -85,13 +84,6 @@ __all__ = [
 @dataclass
 class Promise:
     job_id: CMJobID
-
-
-class MakeResult(TypedDict):
-    user_object: object
-    user_object_deps: Set[CMJobID]
-    new_jobs: Set[CMJobID]
-    deleted_jobs: Set[CMJobID]
 
 
 class Job:
