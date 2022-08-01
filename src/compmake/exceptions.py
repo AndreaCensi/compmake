@@ -93,27 +93,42 @@ class CompmakeSyntaxError(UserError):
     pass
 
 
+class JobFailedExceptionDict(TypedDict):
+    job_id: CMJobID
+    reason: str
+    bt: str
+    deleted_jobs: Optional[List[CMJobID]]
+
+
+def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[List[CMJobID]] = None):
+    raise JobFailed(job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
+
+
 class JobFailed(CompmakeException):
     """This signals that some job has failed"""
 
-    deleted_jobs: List[CMJobID]
+    info: JobFailedExceptionDict
 
-    def __init__(self, job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[List[CMJobID]] = None):
-        deleted_jobs = deleted_jobs or []
-        self.job_id = job_id
-        self.reason = reason
-        self.bt = bt
-        self.deleted_jobs = sorted(set(deleted_jobs)) if deleted_jobs else []
-
-        CompmakeException.__init__(self, job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
+    # deleted_jobs: List[CMJobID]
+    # #
+    # def __init__(self, *, job_id: CMJobID, reason: str, bt: str,
+    #              deleted_jobs: Optional[List[CMJobID]] = None):
+    #     # deleted_jobs = deleted_jobs or []
+    #     # self.job_id = job_id
+    #     # self.reason = reason
+    #     # self.bt = bt
+    #     # self.deleted_jobs = sorted(set(deleted_jobs)) if deleted_jobs else []
+    #
+    #     CompmakeException.__init__(self, job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
 
     def get_result_dict(self) -> FailResult:
+        info: JobFailedExceptionDict = self.info
         res: FailResult = dict(
-            fail=f"Job {self.job_id!r} failed.",
-            job_id=self.job_id,
-            reason=self.reason,
-            deleted_jobs=sorted(self.deleted_jobs),
-            bt=self.bt,
+            fail=f"Job {info['job_id']!r} failed.",
+            job_id=info["job_id"],
+            reason=info["reason"],
+            deleted_jobs=sorted(info["deleted_jobs"]),
+            bt=info["bt"],
         )
         return res
 

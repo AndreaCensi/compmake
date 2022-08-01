@@ -3,7 +3,6 @@ from typing import List, Tuple
 
 from compmake import (
     all_jobs,
-    CacheQueryDB,
     children,
     CMJobID,
     COMMANDS_ADVANCED,
@@ -23,10 +22,9 @@ from zuper_utils_asyncio import SyncTaskInterface
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
 async def check_consistency(
-    sti: SyncTaskInterface, args: List[str], context: Context, cq: CacheQueryDB, raise_if_error: bool = False
+    sti: SyncTaskInterface, args: List[str], context: Context, raise_if_error: bool = False
 ) -> int:
     """Checks in the DB that the relations between jobs are consistent."""
-    _ = cq
 
     db = context.get_compmake_db()
 
@@ -51,7 +49,7 @@ async def check_consistency(
         msg = f"Inconsistency with {len(errors)} jobs:"
         for job_id, es in errors.items():
             msg += "\n- job %r:\n%s" % (job_id, "\n".join(es))
-
+        msg += "\n"
         if raise_if_error:
             raise CompmakeBug(msg)
         else:

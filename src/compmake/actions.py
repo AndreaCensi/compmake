@@ -14,7 +14,14 @@ from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
-from .exceptions import CommandFailed, CompmakeBug, CompmakeException, JobFailed, JobInterrupted, UserError
+from .exceptions import (
+    CommandFailed,
+    CompmakeBug,
+    CompmakeException,
+    job_failed_exc,
+    JobInterrupted,
+    UserError,
+)
 from .filesystem import StorageFilesystem
 from .helpers import get_commands, UIState
 from .job_execution import job_compute, JobComputeResult
@@ -386,7 +393,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
 
         set_job_cache(job_id, cache, db=db)
 
-        raise JobFailed(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs)) from None
+        raise job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs)) from None
     finally:
         int_finally = IntervalTimer()
         if capture is not None:

@@ -404,9 +404,10 @@ class Manager(ManagerLog):
             # it is the responsibility of the executer to mark_job_as_failed,
             # so we can check that
             check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
-            self.job_failed(job_id, deleted_jobs=e.deleted_jobs)
+            rd = e.get_result_dict()
+            self.job_failed(job_id, deleted_jobs=rd["deleted_jobs"])
 
-            publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=e.reason, bt=e.bt)
+            publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=rd["reason"], bt=rd["bt"])
             return True
         except HostFailed as e:
             # the execution has been interrupted, but not failed
