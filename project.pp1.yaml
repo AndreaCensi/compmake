@@ -8,6 +8,7 @@ modules:
 - compmake_utils
 install_requires:
 - pympler
+- lxml # just for cleanup!
 - termcolor
 - setproctitle
 - PyYAML

@@ -4,6 +4,7 @@
     "SystemCmd-z7",
     "coverage",
     "dill",
+    "lxml",
     "networkx",
     "numpy",
     "psutil",
