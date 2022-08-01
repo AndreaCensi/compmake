@@ -190,7 +190,7 @@ def create_graph2_clusters(
 
     ggraph = GvGen()
 
-    cluster2jobs = defaultdict(lambda: set())
+    cluster2jobs = defaultdict(set)
     job2cluster = {}
     for job_id in job_list:
         job = cq.get_job(job_id)

@@ -94,7 +94,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context) -> JobComputeRe
             if "sti" in sig.parameters:
                 kwargs2["sti"] = sti
 
-            sti.logger.info("Now starting command")
+            # sti.logger.info("Now starting command")
             await asyncio.sleep(0)
             user_object = await command(*args, **kwargs2)
         else:

@@ -104,7 +104,7 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
         if os.path.exists(child):
             one_arg = child
 
-        context = await load_existing_db(sti, one_arg)
+        context = await load_existing_db(sti, one_arg, "initial")
         # If the context was custom we load it
         # noinspection PyUnresolvedReferences
         if "context" in context.compmake_db:  # type: ignore
@@ -200,7 +200,7 @@ def write_atomic(filename: FilePath, contents: str):
     os.rename(tmpfile, filename)
 
 
-async def load_existing_db(sti: SyncTaskInterface, d: DirPath) -> Context:
+async def load_existing_db(sti: SyncTaskInterface, d: DirPath, name: str) -> Context:
     assert os.path.isdir(d), d
     # logger.info(f"Loading existing jobs DB {d!r}.")
     # check if it is compressed
@@ -213,7 +213,7 @@ async def load_existing_db(sti: SyncTaskInterface, d: DirPath) -> Context:
     #     compress = False
     #
     db = StorageFilesystem(d, compress=True)
-    context = ContextImp(db=db)
+    context = ContextImp(db=db, name=name)
     await context.init(sti)
     jobs = list(all_jobs(db=db))
     # logger.info('Found %d existing jobs.' % len(jobs))

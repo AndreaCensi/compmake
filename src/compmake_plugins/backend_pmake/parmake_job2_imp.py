@@ -69,7 +69,7 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
     db = StorageFilesystem(basepath, compress=True)
 
     async with MyAsyncExitStack(sti) as AES:
-        context0 = await AES.init(ContextImp(db=db))
+        context0 = await AES.init(ContextImp(db=db, name=job_id))
 
         try:
 
@@ -139,3 +139,5 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
         finally:
             publish(context0, "worker-status", job_id=job_id, status="cleanup")
             setproctitle(f"compmake:{job_id}:done")
+            sys.stdout.close()
+            sys.stderr.close()

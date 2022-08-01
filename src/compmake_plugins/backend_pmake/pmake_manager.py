@@ -127,6 +127,7 @@ class PmakeManager(Manager):
             name = SubName(f"parmake_sub_{i:02d}")
             write_log = join(logs, f"{name}.log")
             make_sure_dir_exists(write_log)
+            logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
             signal_token = name
             p = PmakeSub(
                 name=name, signal_queue=None, signal_token=signal_token, write_log=write_log, ctx=self.ctx

@@ -118,6 +118,7 @@ def get_events_log_file(db):
 
 
 async def handle_event_logs(context: Context, event: Event):
+    return
     from .context_imp import ContextImp
 
     context = cast(ContextImp, context)

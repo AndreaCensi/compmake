@@ -47,7 +47,7 @@ class Env:
 
     async def init(self):
         self.db = StorageFilesystem(self.rootd, compress=True)
-        self.cc = ContextImp(self.db)
+        self.cc = ContextImp(self.db, name="FromEnv")
         await self.cc.init(self.sti)
         self.cq = CacheQueryDB(db=self.db)
         self.cc.set_compmake_config("console_status", False)

@@ -8,6 +8,11 @@ from multiprocessing.context import BaseContext
 from queue import Empty
 from typing import Any, Callable, Optional
 
+import lxml
+import lxml.etree
+from pympler import muppy, summary, tracker
+from pympler.summary import format_
+
 from compmake import (
     AsyncResultInterface,
     CMJobID,
@@ -21,8 +26,10 @@ from compmake import (
 )
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
-from zuper_commons.text import indent
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_commons.text import indent, joinlines
+from zuper_utils_asyncio import get_report_splitters_text, running_tasks, SyncTaskInterface
+from zuper_utils_asyncio.splitter_utils import get_report_splitters_text_referrers
+from zuper_utils_asyncio.sync_task_imp import Global
 from zuper_zapp import async_run_simple1, setup_environment2
 
 __all__ = [
@@ -113,7 +120,7 @@ async def pmake_worker(
         else:
 
             def log(s: str):
-                print(f"{current_name}: {s}")
+                # print(f"{current_name}: {s}")
                 pass
 
         log("started pmake_worker()")
@@ -128,7 +135,26 @@ async def pmake_worker(
             log("(done)")
 
         try:
+            memory_tracker = tracker.SummaryTracker()
+            job_id = "none yet"
             while True:
+                lxml.etree.clear_error_log()
+                gc.collect()
+
+                diff = memory_tracker.format_diff()
+                all_objects = muppy.get_objects()
+                sum1 = summary.summarize(all_objects)
+                res = joinlines(format_(sum1, limit=50))
+                log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
+                log(get_report_splitters_text())
+                log(get_report_splitters_text_referrers())
+                log(f"Diff after {job_id}: \n\n" + joinlines(diff))
+
+                active_tasks = ["-".join(k) for k in Global.active]
+
+                log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
+                log(f"{len(running_tasks)} active create_task: {running_tasks}")
+
                 log("Listening for job")
                 try:
                     job = job_queue.get(block=True, timeout=5)
@@ -150,7 +176,9 @@ async def pmake_worker(
                 # print(inspect.signature(function))
                 try:
                     # print('arguments: %s' % str(arguments))
-                    result = await function(sti=sti, args=arguments)
+                    child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
+                    result = await child.wait_for_outcome_success_result()
+                    # result = await function(sti=sti, args=arguments)
                     # result = function(args=arguments)
                 except JobFailed as e:
                     log("Job failed, putting notice.")
@@ -168,8 +196,8 @@ async def pmake_worker(
                 else:
                     log(f"result: {result}")
                     put_result(result)
+                    del result
 
-                gc.collect()
                 log("...done.")
                 current_name = f"{name}:idle"
                 setproctitle(f"compmake:{current_name}")
@@ -192,12 +220,23 @@ async def pmake_worker(
             signal_queue.close()
         result_queue.close()
         log("saving coverage")
+
+        all_objects = muppy.get_objects()
+        sum1 = summary.summarize(all_objects)
+        res = joinlines(format_(sum1, limit=50))
+        log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
+
         if cov:
             # noinspection PyProtectedMember
             cov._atexit()
         log("saved coverage")
 
         log("clean exit.")
+
+
+async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list) -> Any:
+    sti.started()
+    return await function(sti=sti, args=arguments)
 
 
 class PmakeResult(AsyncResultInterface):

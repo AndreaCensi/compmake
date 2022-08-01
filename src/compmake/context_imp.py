@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, List, Optional, Set, TypeVar, Union
 
 from zuper_commons.text import indent
-from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
+from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
 from . import Promise
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
@@ -37,11 +37,13 @@ class UIMessage:
 class ContextImp(Context):
     currently_executing: List[CMJobID]
     objectid2job: dict[int, Promise]
+    name: Optional[str]
 
     def __init__(
         self,
         db: "Optional[Union[str, StorageFilesystem]]" = None,
         currently_executing: Optional[List[CMJobID]] = None,
+        name: Optional[str] = None,
     ):
         """
         db: if a string, it is used as path for the DB
@@ -49,6 +51,9 @@ class ContextImp(Context):
         currently_executing: str, job currently executing
             defaults to ['root']
         """
+        if name is None:
+            raise Exception()
+        self.name = name
         if currently_executing is None:
             currently_executing = ["root"]
 
@@ -86,7 +91,7 @@ class ContextImp(Context):
 
     async def init(self, sti: SyncTaskInterface) -> None:
         self.sti = sti
-        my_name = f"ContextImp:{id(self)}"
+        my_name = f"ContextImp:{self.name}:{id(self)}"
         self.splitter = await Splitter.make_init(
             Event,
             f"{my_name}-splitter",
@@ -105,11 +110,14 @@ class ContextImp(Context):
         self.br = await sti.create_child_task2(f"{my_name}:br", self.broadcast)
 
         async def on_shutdown(_: Any) -> None:
-            await self.splitter.finish()
+            if self.splitter is not None:
+                await self.splitter.finish()
             # await self.splitter_ui_console.finish()
             # await self.write_task
 
         sti.add_shutdown_handler(on_shutdown)
+
+    br: "Optional[SyncTask[None]]"
 
     async def aclose(self):
         # self.sti.logger.debug("aclosing contextimp")
@@ -128,6 +136,10 @@ class ContextImp(Context):
         # self.sti.logger.debug("aclosing contextimp done")
 
         await self.splitter.aclose()
+
+        self.splitter = None
+        self.br = None
+        self.sti = None
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         # await self.splitter_ui_console.aclose()
 
