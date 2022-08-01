@@ -121,16 +121,16 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
             res: MakeResult = await make(sti, job_id, context=context0)
 
             publish(context0, "worker-status", job_id=job_id, status="ended")
-            r2: OKResult
-            r2 = {
-                "job_id": job_id,
-                "user_object_deps": [],  # FIXME: never used?
-                "new_jobs": list(res["new_jobs"]),
-                "deleted_jobs": list(res["deleted_jobs"]),
-            }
-            # res["user_object"] = None
-            result_dict_check(r2)
-            return r2
+            # r2: OKResult
+            # r2 = {
+            #     "job_id": job_id,
+            #     "user_object_deps": list(res["user_object_deps"]),  # FIXME: never used?
+            #     "new_jobs": list(res["new_jobs"]),
+            #     "deleted_jobs": list(res["deleted_jobs"]),
+            # }
+            res["user_object"] = None
+            result_dict_check(res)
+            return res
 
         except KeyboardInterrupt:
             assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"

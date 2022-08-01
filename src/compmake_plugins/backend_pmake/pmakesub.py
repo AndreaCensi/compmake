@@ -30,7 +30,7 @@ from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
 from zuper_utils_asyncio import get_report_splitters_text, running_tasks, SyncTaskInterface
-from zuper_utils_asyncio.splitter_utils import get_report_splitters_text_referrers
+from zuper_utils_asyncio import get_report_splitters_text_referrers
 from zuper_utils_asyncio.sync_task_imp import Global
 from zuper_zapp import async_run_simple1, setup_environment2
 
