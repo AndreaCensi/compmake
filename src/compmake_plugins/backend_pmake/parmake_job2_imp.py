@@ -13,7 +13,6 @@ from compmake import (
     JobProgressEvent,
     make,
     MakeResult,
-    OKResult,
     publish,
     register_handler,
     remove_all_handlers,

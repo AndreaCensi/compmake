@@ -15,13 +15,14 @@ import psutil
 from psutil import NoSuchProcess
 
 from compmake import (
+    AsyncResultInterface,
     CMJobID,
     Context,
     MakeHostFailed,
     Manager,
     publish,
 )
-from compmake_utils.get_memory_cgroup import get_memory_usage
+from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
@@ -199,9 +200,10 @@ class PmakeManager(Manager):
             return False
         return True
 
-    async def instance_job(self, job_id: CMJobID):
+    async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
+        # OK, we always use the first sub
         name = sorted(self.sub_available)[0]
         self.sub_available.remove(name)
         assert not name in self.sub_processing

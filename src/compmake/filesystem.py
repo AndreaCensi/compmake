@@ -1,12 +1,14 @@
 import os
 import stat
 import traceback
+from asyncio import CancelledError
 from glob import glob
 from os.path import basename
 from typing import Iterator, List, NewType, Optional
 
 import dill
 
+from compmake_utils import safe_pickle_dump, safe_pickle_load
 from zuper_commons.fs import (
     DirPath,
     FilePath,
@@ -18,7 +20,6 @@ from zuper_commons.fs import (
 from zuper_commons.types import ZException
 from . import logger
 from .exceptions import CompmakeBug, SerializationError
-from compmake_utils import safe_pickle_dump, safe_pickle_load
 
 __all__ = [
     "StorageFilesystem",
@@ -121,8 +122,11 @@ class StorageFilesystem:
         if self.method == "pickle":
             try:
                 safe_pickle_dump(value, filename)
+                os.sync()  # flush everything
                 assert os.path.exists(filename)
             except KeyboardInterrupt:
+                raise
+            except CancelledError:
                 raise
             except BaseException as e:
                 msg = f"Cannot set key {key!r}: cannot pickle object of class {value.__class__.__name__}"
