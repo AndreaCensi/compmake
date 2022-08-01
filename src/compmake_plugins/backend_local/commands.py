@@ -1,9 +1,12 @@
 import time
+from typing import Collection
 
 from compmake import (
     ACTIONS,
     ask_if_sure_remake,
     Cache,
+    CMJobID,
+    Context,
     DefaultsToConfig,
     IntervalTimer,
     mark_to_remake,
@@ -25,9 +28,8 @@ __all__ = [
 @ui_command(section=ACTIONS, dbchange=True)
 async def make(
     sti: SyncTaskInterface,
-    job_list,
-    context,
-    cq,
+    job_list: Collection[CMJobID],
+    context: Context,
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
     recurse: bool = DefaultsToConfig("recurse"),
@@ -56,14 +58,14 @@ async def make(
 
 @ui_command(section=ACTIONS, dbchange=True)
 async def pretend(
-    sti,
-    job_list,
-    context,
-    cq,
+    sti: SyncTaskInterface,
+    job_list: Collection[CMJobID],
+    context: Context,
 ):
     """
     Pretends that a target is done. The output is None.
     """
+    _ = sti
     db = context.get_compmake_db()
     if not job_list:
         job_list = list(top_targets(db=db))
@@ -82,7 +84,7 @@ async def pretend(
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-async def invalidate(sti, non_empty_job_list, context):
+async def invalidate(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], context: Context):
     """Invalidates the cache of a job so that it will be remade."""
     db = context.get_compmake_db()
     for job in non_empty_job_list:
@@ -92,9 +94,8 @@ async def invalidate(sti, non_empty_job_list, context):
 @ui_command(section=ACTIONS, dbchange=True)
 async def remake(
     sti: SyncTaskInterface,
-    non_empty_job_list,
-    context,
-    cq,
+    non_empty_job_list: Collection[CMJobID],
+    context: Context,
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
     recurse: bool = DefaultsToConfig("recurse"),
@@ -104,7 +105,6 @@ async def remake(
 
     :param non_empty_job_list:
     :param context:
-    :param cq:
     :param sti:
     :param echo:
     :param new_process:Run the jobs in a new Python process.
@@ -119,9 +119,7 @@ async def remake(
     for job in non_empty_job_list:
         mark_to_remake(job, db=db)
 
-    manager = ManagerLocal(
-        sti=sti, context=context, cq=cq, recurse=recurse, new_process=new_process, echo=echo
-    )
+    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
 
     manager.add_targets(non_empty_job_list)
     await manager.process()
@@ -131,13 +129,12 @@ async def remake(
 @ui_command(section=ACTIONS, dbchange=True)
 async def rmake(
     sti: SyncTaskInterface,
-    job_list,
-    context,
-    cq,
+    job_list: Collection[CMJobID],
+    context: Context,
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
 ):
     """make with recurse = 1"""
     return await make(
-        sti, job_list=job_list, context=context, cq=cq, echo=echo, new_process=new_process, recurse=True
+        sti, job_list=job_list, context=context, echo=echo, new_process=new_process, recurse=True
     )
