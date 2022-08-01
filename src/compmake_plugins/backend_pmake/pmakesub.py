@@ -49,14 +49,23 @@ class PmakeSub:
         signal_queue: "Optional[multiprocessing.Queue]",
         signal_token: str,
         ctx: BaseContext,
-        write_log: Optional[FilePath] = None,
+        write_log: Optional[FilePath],
+        detailed_python_mem_stats: bool,
     ):
         self.name = name
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
         # print('starting process %s ' % name)
 
-        args = (self.name, self.job_queue, self.result_queue, signal_queue, signal_token, write_log)
+        args = (
+            self.name,
+            self.job_queue,
+            self.result_queue,
+            signal_queue,
+            signal_token,
+            write_log,
+            detailed_python_mem_stats,
+        )
         # logger.info(args=args)
         self.proc = ctx.Process(
             target=pmake_worker,
@@ -87,7 +96,8 @@ async def pmake_worker(
     result_queue: "multiprocessing.Queue[ResultDict]",
     signal_queue: "Optional[multiprocessing.Queue]",
     signal_token: str,
-    write_log: Optional[FilePath] = None,
+    write_log: Optional[FilePath],
+    detailed_python_mem_stats: bool,
 ):
     current_name = name
     setproctitle(f"compmake:{current_name}")
@@ -135,26 +145,30 @@ async def pmake_worker(
             log("(done)")
 
         try:
-            memory_tracker = tracker.SummaryTracker()
+            if detailed_python_mem_stats:
+                memory_tracker = tracker.SummaryTracker()
+            else:
+                memory_tracker = None
             job_id = "none yet"
             while True:
                 lxml.etree.clear_error_log()
                 gc.collect()
 
-                diff = memory_tracker.format_diff()
-                all_objects = muppy.get_objects()
-                sum1 = summary.summarize(all_objects)
-                res = joinlines(format_(sum1, limit=50))
-                log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
-                log(get_report_splitters_text())
-                log(get_report_splitters_text_referrers())
-                log(f"Diff after {job_id}: \n\n" + joinlines(diff))
+                if detailed_python_mem_stats:
+                    diff = memory_tracker.format_diff()
+                    all_objects = muppy.get_objects()
+                    sum1 = summary.summarize(all_objects)
+                    res = joinlines(format_(sum1, limit=50))
+                    log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
+                    log(get_report_splitters_text())
+                    log(get_report_splitters_text_referrers())
+                    log(f"Diff after {job_id}: \n\n" + joinlines(diff))
 
-                active_tasks = ["-".join(k) for k in Global.active]
+                    active_tasks = ["-".join(k) for k in Global.active]
 
-                log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
-                running = [_.get_name() + f" done = {_.done()}" for _ in running_tasks]
-                log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
+                    log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
+                    running = [_.get_name() + f" done = {_.done()}" for _ in running_tasks]
+                    log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
 
                 log("Listening for job")
                 try:

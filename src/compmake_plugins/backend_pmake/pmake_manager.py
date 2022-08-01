@@ -121,7 +121,7 @@ class PmakeManager(Manager):
         storage = db.basepath  # XXX:
         logs = join(storage, "logs")
 
-        # self.signal_queue = Queue()
+        detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
             name = SubName(f"parmake_sub_{i:02d}")
@@ -130,7 +130,12 @@ class PmakeManager(Manager):
             logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
             signal_token = name
             p = PmakeSub(
-                name=name, signal_queue=None, signal_token=signal_token, write_log=write_log, ctx=self.ctx
+                name=name,
+                signal_queue=None,
+                signal_token=signal_token,
+                write_log=write_log,
+                ctx=self.ctx,
+                detailed_python_mem_stats=detailed_python_mem_stats,
             )
             self.subs[name] = p
         self.job2subname = {}

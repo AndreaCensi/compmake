@@ -124,6 +124,13 @@ add_config_switch(
     section=CONFIG_PARALLEL,
 )
 
+add_config_switch(
+    "detailed_python_mem_stats",
+    False,
+    desc="Compute and log detailed mem statistics (slow).",
+    section=CONFIG_GENERAL,
+)
+
 add_config_switch("max_mem_load", 100.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
 add_config_switch("max_mem_GB", 1024.0, desc="Maximum physical memory used (GB)", section=CONFIG_PARALLEL)
 
