@@ -51,8 +51,6 @@ class ContextImp(Context):
         currently_executing: str, job currently executing
             defaults to ['root']
         """
-        if name is None:
-            raise Exception()
         self.name = name
         if currently_executing is None:
             currently_executing = ["root"]
@@ -187,9 +185,10 @@ class ContextImp(Context):
 
             if handlers:
                 for handler in handlers:
-                    if not hasattr(handler, "__spec__"):
-                        setattr(handler, "__spec__", inspect.getfullargspec(handler))
-                    spec = getattr(handler, "__spec__")
+                    # if not hasattr(handler, "__spec__"):
+                    #     setattr(handler, "__spec__", inspect.getfullargspec(handler))
+                    # spec = getattr(handler, "__spec__")
+                    spec = inspect.getfullargspec(handler)
                     # noinspection PyBroadException
                     try:
                         kwargs = {}

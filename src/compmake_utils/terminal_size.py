@@ -8,7 +8,7 @@ __all__ = [
 import os
 
 
-@memoized_reset
+# @memoized_reset
 def get_screen_columns():
     ts = getTerminalSize()
     max_x, _ = ts

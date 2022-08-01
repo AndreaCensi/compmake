@@ -28,12 +28,32 @@ class memoized_reset:
 
     def __init__(self, func):
         self.func = func
-        self.cache = {}
 
-    def __call__(self, *args):
+    def _getcache_ob(self, the_ob):
+        if not hasattr(the_ob, "memoized_reset_cache"):
+            setattr(the_ob, "memoized_reset_cache", {})
+        cache_ob = getattr(the_ob, "memoized_reset_cache")
+        return cache_ob
+
+    def _deletefunccache(self, the_ob) -> None:
+        cache_ob = self._getcache_ob(the_ob)
+        funcname = self.func.__name__
+        cache_ob.pop(funcname, None)
+
+    def _getcache(self, the_ob) -> dict:
+        cache_ob = self._getcache_ob(the_ob)
+        funcname = self.func.__name__
+        if funcname not in cache_ob:
+            cache_ob[funcname] = {}
+        return cache_ob[funcname]
+
+    def __call__(self, the_ob, *args):
+
+        cache = self._getcache(the_ob)
+
         is_key_error = is_type_error = False
         try:
-            res = self.cache[args]
+            res = cache[args]
             # print('using cache for %s' % self.func)
             return res
         except KeyError:
@@ -43,8 +63,8 @@ class memoized_reset:
             is_type_error = True
 
         if is_key_error:
-            value = self.func(*args)
-            self.cache[args] = value
+            value = self.func(the_ob, *args)
+            cache[args] = value
             return value
         if is_type_error:
             # uncachable -- for instance, passing a list as an argument.
@@ -58,8 +78,5 @@ class memoized_reset:
     def __get__(self, obj, objtype):
         """Support instance methods."""
         fn = functools.partial(self.__call__, obj)
-        fn.reset = self._reset
+        fn.reset = functools.partial(self._deletefunccache, obj)
         return fn
-
-    def _reset(self):
-        self.cache = {}

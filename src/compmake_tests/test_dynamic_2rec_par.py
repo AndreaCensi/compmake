@@ -7,7 +7,7 @@ from .utils import Env, run_with_env
 
 @run_with_env
 async def test_dynamic2_recpar(env: Env) -> None:
-    raise SkipTest("Known weirdness in 3.7 multiprocessing")
+    raise SkipTest("Known weirdness in 3.7 multiprocessing")  # XXX: FIXME
     if PYTHON_37:
         raise SkipTest("Known weirdness in 3.7 multiprocessing")
     mockup_recursive_5(env.cc)

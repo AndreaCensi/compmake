@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 import itertools
 import multiprocessing
 import os
@@ -10,7 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Collection, Dict, List, Set
 
 from zuper_commons.fs import abspath, join, make_sure_dir_exists
-from zuper_commons.text import indent
+from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import my_create_task, SyncTaskInterface
 from .actions import mark_as_blocked
@@ -80,16 +81,13 @@ class ManagerLog:
         self.f = open(log, "w")
 
     def log(self, s: str, **kwargs: Any):
-
+        ss = [datetime.now().isoformat(), s]
         for k in sorted(kwargs):
             v = kwargs[k]
             if isinstance(v, set):
                 v = sorted(v)
-            s += f"\n - {k:>15}: {v}"
-        self.f.write(s)
-        # print(s)
-        self.f.write("\n")
-
+            ss.append(f"- {k:>15}: {v}")
+        self.f.write(joinpars(ss))
         self.f.flush()
 
 
@@ -690,7 +688,7 @@ class Manager(ManagerLog):
         # self.sti.logger.user_info(pid=os.getpid())
 
         def shutdown():
-            self.sti.logger.user_error("CTRL-C", pid=os.getpid())
+            self.sti.logger.user_error("interruption", pid=os.getpid())
             self.interrupted = True
             if self.loop_task:
                 self.loop_task.cancel()
@@ -698,7 +696,8 @@ class Manager(ManagerLog):
 
         loop = asyncio.get_event_loop()
 
-        loop.add_signal_handler(signal.SIGINT, shutdown)
+        loop.add_signal_handler(signal.SIGHUP, shutdown)
+        loop.add_signal_handler(signal.SIGTERM, shutdown)
 
         if not self.todo and not self.ready_todo:
             publish(

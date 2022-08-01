@@ -192,12 +192,12 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
                             res = await f(env)
                         except SkipTest:
                             raise
-                        except BaseException:
+                        except BaseException as e:
 
-                            sti.logger.error(traceback.format_exc())
-                            sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
+                            # sti.logger.error(traceback.format_exc())
+                            # sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
 
-                            raise ZException(traceback.format_exc())
+                            raise ZException(all_jobs=await env.all_jobs()) from e
 
         t = await create_sync_task2(None, task)
         return await t.wait_for_outcome_success_result()
