@@ -213,7 +213,6 @@ class CacheQueryDB:
 
             return todo, done, todo_and_ready
 
-    # @contract(returns=set, jobs="unicode|set(unicode)")
     def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
         """Closure of the relation children and dependencies of userobject."""
         stack = []

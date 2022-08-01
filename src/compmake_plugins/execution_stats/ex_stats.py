@@ -72,7 +72,6 @@ def my_get_job_cache(context, the_job):
     return cache
 
 
-# @contract(caches='list[>=1]')
 def finalize_result(res):
     def stats_from_cache(cache: Cache):
         check_isinstance(cache, Cache)

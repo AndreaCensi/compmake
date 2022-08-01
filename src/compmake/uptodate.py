@@ -13,7 +13,6 @@ __all__ = [
 ]
 
 
-# @contract(returns="tuple(bool, unicode)")
 def up_to_date(job_id: CMJobID, db) -> Tuple[bool, str]:
     """
 

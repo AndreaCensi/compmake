@@ -6,7 +6,7 @@ import traceback
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Literal, Optional, Tuple
 
 import lxml
 import lxml.etree
@@ -21,9 +21,11 @@ from compmake import (
     JobFailed,
     JobInterrupted,
     OKResult,
+    parmake_job2_new_process_1,
     result_dict_raise_if_error,
     ResultDict,
 )
+from compmake_plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
@@ -34,13 +36,16 @@ from zuper_zapp import async_run_simple1, setup_environment2
 
 __all__ = [
     "PmakeSub",
+    "PossibleFuncs",
 ]
+
+PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
 
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
-    job_queue: "Optional[multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]]"
+    job_queue: "Optional[multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, Tuple[Any, ...]]]]"
     result_queue: "Optional[multiprocessing.Queue[ResultDict]]"
 
     def __init__(
@@ -82,7 +87,9 @@ class PmakeSub:
         self.job_queue = None
         self.result_queue = None
 
-    def apply_async(self, job_id: CMJobID, function, arguments) -> "PmakeResult":
+    def apply_async(
+        self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]
+    ) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
         self.last = PmakeResult(self.result_queue)
         return self.last
@@ -151,24 +158,38 @@ async def pmake_worker(
                 memory_tracker = None
             job_id = "none yet"
             while True:
-                lxml.etree.clear_error_log()
-                gc.collect()
 
                 if detailed_python_mem_stats:
-                    diff = memory_tracker.format_diff()
-                    all_objects = muppy.get_objects()
-                    sum1 = summary.summarize(all_objects)
-                    res = joinlines(format_(sum1, limit=50))
-                    log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
+                    log("detailed_python_mem_stats... ")
+
+                    # log('all objects...')
+
+                    # all_objects = muppy.get_objects()
+                    # log('summarize...')
+                    # sum1 = summary.summarize(all_objects)
+                    # log('format...')
+                    # res = joinlines(format_(sum1, limit=50))
+                    # del all_objects
+                    # del sum1
+                    # sum1 = all_objects = None
+                    # log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
+                    log("splitter_...")
                     log(get_report_splitters_text())
                     log(get_report_splitters_text_referrers())
-                    log(f"Diff after {job_id}: \n\n" + joinlines(diff))
 
+                    log("tasks...")
                     active_tasks = ["-".join(k) for k in Global.active]
 
                     log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
-                    running = [_.get_name() + f" done = {_.done()}" for _ in running_tasks]
+                    running = [" - " + _.get_name() + f" done = {_.done()}" for _ in running_tasks]
                     log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
+                    del running, active_tasks
+
+                if detailed_python_mem_stats:
+                    diff = memory_tracker.format_diff()
+                    log(f"Before loading job: \n\n" + joinlines(diff))
+                    del diff
+                    diff = None
 
                 log("Listening for job")
                 try:
@@ -182,7 +203,18 @@ async def pmake_worker(
 
                 log(f"got job: {job}")
 
-                job_id, function, arguments = job
+                job_id, function_name, arguments = job
+
+                funcs = {
+                    "parmake_job2_new_process_1": parmake_job2_new_process_1,
+                    "parmake_job2": parmake_job2,
+                }
+                function = funcs[function_name]
+                if detailed_python_mem_stats:
+                    diff = memory_tracker.format_diff()
+                    log(f"Diff after loading params for {job_id}: \n\n" + joinlines(diff))
+                    del diff
+                    diff = None
 
                 current_name = f"{name}:{job_id}"
                 setproctitle(f"compmake:{current_name}")
@@ -191,27 +223,49 @@ async def pmake_worker(
                 # print(inspect.signature(function))
                 try:
                     # print('arguments: %s' % str(arguments))
+                    log(f"creating task...")
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
-                    result = await child.wait_for_outcome_success_result()
+                    log(f"waiting for task...")
+                    result: ResultDict = await child.wait_for_outcome_success_result()
                     # result = await function(sti=sti, args=arguments)
                     # result = function(args=arguments)
                 except JobFailed as e:
                     log("Job failed, putting notice.")
                     log(f"result: {e}")  # debug
                     put_result(e.get_result_dict())
+                    del e
                 except JobInterrupted as e:
                     log("Job interrupted, putting notice.")
                     put_result(dict(abort=str(e)))  # XXX
+                    del e
                 except CompmakeBug as e:  # XXX :to finish
                     log("CompmakeBug")
                     put_result(e.get_result_dict())
-                except BaseException as e:
+                    del e
+
+                except BaseException:
                     log(f"uncaught error: {job}")
                     raise
                 else:
                     log(f"result: {result}")
                     put_result(result)
                     del result
+                finally:
+                    child = None
+                    function = None
+                    arguments = None
+
+                del arguments, job
+                log("cleaning lxml error log...")
+                lxml.etree.clear_error_log()
+                log("gc.collect()...")
+                if detailed_python_mem_stats:
+                    gc.collect()
+                    log("detailed_python_mem_stats... ")
+
+                    log("memory tracker diff... ")
+                    diff = memory_tracker.format_diff()
+                    log(f"Diff after {job_id}: \n\n" + joinlines(diff))
 
                 log("...done.")
                 current_name = f"{name}:idle"

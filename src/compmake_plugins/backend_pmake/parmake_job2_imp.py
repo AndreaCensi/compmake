@@ -12,31 +12,33 @@ from compmake import (
     JobInterrupted,
     JobProgressEvent,
     make,
+    MakeResult,
+    OKResult,
     publish,
     register_handler,
     remove_all_handlers,
     result_dict_check,
+    ResultDict,
     StorageFilesystem,
 )
 from compmake_utils import setproctitle
 from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
+from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
 
 __all__ = [
     "parmake_job2",
 ]
 
-from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
 
-
-def sanitize_for_filename(x0):
+def sanitize_for_filename(x0: str) -> str:
     x = x0
     x = x.replace(":", "_")
     x = x.replace("/", "_")
     return x
 
 
-async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, str]):
+async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, str]) -> ResultDict:
     """
     args = tuple job_id, context, queue_name, show_events
 
@@ -116,13 +118,19 @@ async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str
 
             publish(context0, "worker-status", job_id=job_id, status="connected")
 
-            res = await make(sti, job_id, context=context0)
+            res: MakeResult = await make(sti, job_id, context=context0)
 
             publish(context0, "worker-status", job_id=job_id, status="ended")
-
-            res["user_object"] = None
-            result_dict_check(res)
-            return res
+            r2: OKResult
+            r2 = {
+                "job_id": job_id,
+                "user_object_deps": [],  # FIXME: never used?
+                "new_jobs": list(res["new_jobs"]),
+                "deleted_jobs": list(res["deleted_jobs"]),
+            }
+            # res["user_object"] = None
+            result_dict_check(r2)
+            return r2
 
         except KeyboardInterrupt:
             assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"

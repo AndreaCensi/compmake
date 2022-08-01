@@ -27,7 +27,6 @@ def init_progress_tracking(my_callback):
     progress_stack_updated()
 
 
-# @contract(taskname="unicode", iterations="tuple(int|float,int|float)")
 def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, float]], iteration_desc=None):
     """
      Function used by the user to describe the state of the computation.

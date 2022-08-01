@@ -92,7 +92,6 @@ class ManagerLog:
 
 
 class Manager(ManagerLog):
-    # cq: CacheQueryDB
     context: Context
     db: StorageFilesystem
 
@@ -110,7 +109,7 @@ class Manager(ManagerLog):
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
         self.context = context
         self.sti = sti
-        # self.cq = cq
+
         self.db = context.get_compmake_db()
         ManagerLog.__init__(self, db=self.db)
 

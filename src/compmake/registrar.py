@@ -100,9 +100,6 @@ def publish(context: Context, event_name: str, **kwargs):
     # broadcast_event(context, event)
 
 
-# @contract(context=Context, event=Event)
-
-
 import os
 
 

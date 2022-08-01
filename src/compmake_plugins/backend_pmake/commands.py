@@ -3,7 +3,7 @@ from typing import Collection
 from compmake import (
     ACTIONS,
     ask_if_sure_remake,
-    CacheQueryDB,
+    CMJobID,
     Context,
     DefaultsToConfig,
     mark_to_remake,
@@ -12,7 +12,6 @@ from compmake import (
     top_targets,
     ui_command,
 )
-from compmake import CMJobID
 from zuper_utils_asyncio import SyncTaskInterface
 from .pmake_manager import PmakeManager
 
@@ -28,7 +27,6 @@ async def parmake(
     sti: SyncTaskInterface,
     job_list,
     context: Context,
-    cq,
     n: int = DefaultsToConfig("max_parallel_jobs"),
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
@@ -85,7 +83,6 @@ async def parremake(
     sti: SyncTaskInterface,
     non_empty_job_list,
     context,
-    cq,
     n: int = DefaultsToConfig("max_parallel_jobs"),
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
@@ -122,12 +119,11 @@ async def rparmake(
     sti: SyncTaskInterface,
     job_list: Collection[CMJobID],
     context,
-    cq: CacheQueryDB,
     n: int = DefaultsToConfig("max_parallel_jobs"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
 ):
     """Shortcut to parmake with default recurse = True."""
     return await parmake(
-        sti, job_list=job_list, context=context, cq=cq, n=n, new_process=new_process, echo=echo, recurse=True
+        sti, job_list=job_list, context=context, n=n, new_process=new_process, echo=echo, recurse=True
     )

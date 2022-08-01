@@ -94,7 +94,6 @@ CommandShape = Callable[..., Awaitable[Optional[int]]]
 FT = TypeVar("FT", bound=CommandShape)
 
 
-# @contract(alias="None|unicode|list(unicode)")
 def ui_command(
     name: Optional[str] = None,
     alias: Optional[Union[str, List[str]]] = None,

@@ -29,7 +29,7 @@ def check_ok_result(res: ResultDict) -> OKResult:
     return res
 
 
-def result_dict_check(res: ResultDict):
+def result_dict_check(res: ResultDict) -> None:
     check_isinstance(res, dict)
     # print(res.__repr__().__repr__()) # XXX
     msg = "Invalid result dict"  # % res

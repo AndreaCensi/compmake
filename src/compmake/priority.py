@@ -1,14 +1,20 @@
+from typing import Collection, Dict, Optional
+
+from .cachequerydb import CacheQueryDB
 from .structures import Cache
+from .types import CMJobID
 
 __all__ = [
     "compute_priorities",
 ]
 
 
-def compute_priorities(all_targets, cq, priorities=None):
+def compute_priorities(
+    all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: Optional[Dict[CMJobID, float]] = None
+) -> Dict[CMJobID, float]:
     """Computes the priority for all_targets.
 
-    :param priorities: str->float: cache
+    priorities: str->float: cache
     """
     if priorities is None:
         priorities = {}
@@ -19,7 +25,9 @@ def compute_priorities(all_targets, cq, priorities=None):
     return priorities
 
 
-def compute_priority(job_id, priorities, targets, cq):
+def compute_priority(
+    job_id: CMJobID, priorities: Dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB
+) -> float:
     """Computes the priority for one job. It uses caching results in
     self.priorities if they are found."""
     if job_id in priorities:

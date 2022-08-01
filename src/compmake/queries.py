@@ -28,7 +28,6 @@ def trace_bugs(msg):
         raise CompmakeBug(msg) from e
 
 
-# @contract(returns="set(unicode)")
 def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
     """
     Gets the jobs defined by the given job.
@@ -41,9 +40,6 @@ def jobs_defined(job_id: CMJobID, db) -> Set[CMJobID]:
             msg = "Cannot get jobs_defined for job not done " + "(status: %s)" % Cache.state2desc[cache.state]
             raise CompmakeBug(msg)
         return set(cache.jobs_defined)
-
-
-# @contract(jobs="Iterable", returns="set(unicode)")
 
 
 def direct_parents(job_id: CMJobID, db) -> Set[CMJobID]:
@@ -84,7 +80,6 @@ def top_targets(db):
 # return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
-# @contract(jobs="list|set")
 def tree(jobs: Collection[CMJobID], db):
     """
     Returns the tree of all dependencies of the jobs.

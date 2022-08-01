@@ -34,7 +34,7 @@ format_when = dict()
 @ui_command(section=VISUALIZATION, alias="list")
 async def ls(
     sti: SyncTaskInterface,
-    args,
+    args: List[str],
     context: Context,
     cq: CacheQueryDB,
     complete_names: bool = False,
@@ -71,7 +71,6 @@ async def ls(
     return 0
 
 
-# @contract(objects="seq[N](unicode)", returns="tuple(unicode, list[N](unicode), unicode)")
 def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     """
     Converts a list of object IDs to a minimal non-ambiguous list of names.

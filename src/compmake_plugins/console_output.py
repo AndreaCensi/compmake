@@ -163,7 +163,6 @@ def break_lines(prefix: str, line: str, postfix: str, max_size: int):
     return lines
 
 
-# @contract(prefix='str', line='str', postfix='str', returns='list[>=1]x(str)')
 def break_lines_and_pad(prefix, line, postfix, max_size):
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)

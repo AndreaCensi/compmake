@@ -15,12 +15,10 @@ import psutil
 from psutil import NoSuchProcess
 
 from compmake import (
-    CacheQueryDB,
     CMJobID,
     Context,
     MakeHostFailed,
     Manager,
-    parmake_job2_new_process_1,
     publish,
 )
 from compmake_utils.get_memory_cgroup import get_memory_usage
@@ -28,8 +26,7 @@ from zuper_commons.fs import join, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
-from .parmake_job2_imp import parmake_job2
-from .pmakesub import PmakeSub
+from .pmakesub import PmakeSub, PossibleFuncs
 
 __all__ = [
     "PmakeManager",
@@ -215,13 +212,14 @@ class PmakeManager(Manager):
 
         db = self.context.get_compmake_db()
         check_isinstance(job_id, str)
+        f: PossibleFuncs
         if self.new_process:
-            f = parmake_job2_new_process_1
+            f = "parmake_job2_new_process_1"
             # args = (job_id, self.context)
 
             args = (job_id, db.basepath)
         else:
-            f = parmake_job2
+            f = "parmake_job2"
             logdir = join(db.basepath, "parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
