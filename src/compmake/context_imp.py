@@ -137,7 +137,7 @@ class ContextImp(Context):
 
         self.splitter = None
         self.br = None
-        self.sti = None
+        # self.sti = None
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         # await self.splitter_ui_console.aclose()
 

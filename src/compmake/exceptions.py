@@ -19,6 +19,8 @@ __all__ = [
     "SerializationError",
     "ShellExitRequested",
     "UserError",
+    "job_failed_exc",
+    "job_interrupted_exc",
 ]
 
 

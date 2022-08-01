@@ -227,6 +227,8 @@ async def pmake_worker(
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
                     log(f"waiting for task...")
                     result: ResultDict = await child.wait_for_outcome_success_result()
+                    sti.forget_child(child)
+                    del child
                     # result = await function(sti=sti, args=arguments)
                     # result = function(args=arguments)
                 except JobFailed as e:
@@ -256,10 +258,11 @@ async def pmake_worker(
                     arguments = None
 
                 del arguments, job
-                log("cleaning lxml error log...")
-                lxml.etree.clear_error_log()
-                log("gc.collect()...")
                 if detailed_python_mem_stats:
+                    log("cleaning lxml error log...")
+                    lxml.etree.clear_error_log()
+                    log("gc.collect()...")
+
                     gc.collect()
                     log("detailed_python_mem_stats... ")
 

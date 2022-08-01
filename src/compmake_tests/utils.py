@@ -1,4 +1,3 @@
-import traceback
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
 from typing import AsyncIterator, Awaitable, Callable, cast, Optional, TypeVar

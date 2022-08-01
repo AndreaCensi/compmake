@@ -292,7 +292,9 @@ class Cache:
     cputime_used: Optional[float]
 
     result_type_qual: Optional[str]
+
     """ name of result type """
+    host: Optional[str]
 
     def __init__(self, state: StateCode):
         assert state in Cache.allowed_states
@@ -326,6 +328,7 @@ class Cache:
         self.int_save_results = None
         self.int_gc = None
         self.result_type_qual = None
+        self.host = None
 
     def __repr__(self):
         return "Cache(%s;%s;cpu:%s;wall:%s)" % (

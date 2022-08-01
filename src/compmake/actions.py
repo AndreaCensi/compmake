@@ -20,7 +20,6 @@ from .exceptions import (
     CompmakeException,
     job_failed_exc,
     job_interrupted_exc,
-    JobInterrupted,
     UserError,
 )
 from .filesystem import StorageFilesystem

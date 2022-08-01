@@ -29,12 +29,15 @@ async def test_delegation_5(env: Env) -> None:
     J = CMJobID("h")
     env.comp(h, env.comp_dynamic(e))
     job0 = get_job(J, env.db)
-    assert_equal(job0.children, {"e"})
+    assert_equal({"e"}, job0.children)
 
     await env.batch_command("make; ls")
 
     job = get_job(J, env.db)
-    assert_equal(job.children, {"e", "e-f", "e-f-g"})
+    assert_equal(
+        {"e", "e-f", "e-f-g"},
+        job.children,
+    )
     env.sti.logger.info("parents: %s" % job.parents)
     env.sti.logger.info("children: %s" % job.children)
 
@@ -47,4 +50,7 @@ async def test_delegation_5(env: Env) -> None:
         job0 = get_job(J, env2.db)
         await env2.batch_command("check_consistency raise_if_error=1")
         job2 = get_job(J, env2.db)
-        assert_equal(job2.children, {"e", "e-f", "e-f-g"})
+        assert_equal(
+            {"e", "e-f", "e-f-g"},
+            job2.children,
+        )
