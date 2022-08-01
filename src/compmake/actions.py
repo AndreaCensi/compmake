@@ -190,6 +190,11 @@ def mark_as_failed(
     set_job_cache(job_id, cache, db=db)
 
 
+FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
+
+formatter = Formatter(FORMAT)
+
+
 async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: bool = False) -> MakeResult:
     """
     Makes a single job.
@@ -287,10 +292,6 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
 
-    FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
-
-    formatter = Formatter(FORMAT)
-
     class Store:
         nhidden = 0
 
@@ -311,9 +312,9 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
         except:
             Store.nhidden += 1
 
-    logging.StreamHandler.emit = my_emit  # type: ignore
-
     already = set(context.get_jobs_defined_in_this_session())
+
+    logging.StreamHandler.emit = my_emit  # type: ignore
 
     def get_deleted_jobs() -> Set[CMJobID]:
         generated = set(context.get_jobs_defined_in_this_session()) - already

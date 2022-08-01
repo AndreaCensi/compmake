@@ -153,7 +153,8 @@ async def pmake_worker(
                 active_tasks = ["-".join(k) for k in Global.active]
 
                 log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
-                log(f"{len(running_tasks)} active create_task: {running_tasks}")
+                running = [_.get_name() + f" done = {_.done()}" for _ in running_tasks]
+                log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
 
                 log("Listening for job")
                 try:

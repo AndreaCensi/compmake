@@ -5,7 +5,7 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, List, Optional, Set, TypeVar, Union
 
-from zuper_commons.text import indent
+from zuper_commons.text import indent, joinlines
 from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
 from . import Promise
 from .actions import comp_
@@ -187,7 +187,9 @@ class ContextImp(Context):
 
             if handlers:
                 for handler in handlers:
-                    spec = inspect.getfullargspec(handler)
+                    if not hasattr(handler, "__spec__"):
+                        setattr(handler, "__spec__", inspect.getfullargspec(handler))
+                    spec = getattr(handler, "__spec__")
                     # noinspection PyBroadException
                     try:
                         kwargs = {}
@@ -209,7 +211,7 @@ class ContextImp(Context):
                                 "     bt: ",
                                 indent(traceback.format_exc(), "| "),
                             ]
-                            msg = "\n".join(msg)
+                            msg = joinlines(msg)
                             CompmakeGlobalState.original_stderr.write(msg)
                         except:
                             pass
