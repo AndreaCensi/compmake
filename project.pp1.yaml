@@ -57,7 +57,7 @@ circleci:
     Z_SERVICE_NOTE: zuper_notes.notes
     Z_SERVICE_PROC: zuper_proc_local.proc
     Z_SERVICE_FS: zuper_fs_local.use_local_fs
-python_syntax_version: '3.8'
+python_syntax_version: '3.10'
 
 url: https://github.com/AndreaCensi/compmake
 author: ''
