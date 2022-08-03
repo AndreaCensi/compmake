@@ -25,14 +25,18 @@ from compmake import (
     result_dict_raise_if_error,
     ResultDict,
 )
-from compmake_plugins.backend_pmake.parmake_job2_imp import parmake_job2
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
-from zuper_utils_asyncio import get_report_splitters_text, running_tasks, SyncTaskInterface
-from zuper_utils_asyncio import get_report_splitters_text_referrers
+from zuper_utils_asyncio import (
+    get_report_splitters_text,
+    get_report_splitters_text_referrers,
+    running_tasks,
+    SyncTaskInterface,
+)
 from zuper_utils_asyncio.sync_task_imp import Global
 from zuper_zapp import async_run_simple1, setup_environment2
+from .parmake_job2_imp import parmake_job2
 
 __all__ = [
     "PmakeSub",
@@ -151,6 +155,7 @@ async def pmake_worker(
                 signal_queue.put(signal_token, block=True)
             log("(done)")
 
+        # noinspection PyBroadException
         try:
             if detailed_python_mem_stats:
                 memory_tracker = tracker.SummaryTracker()
@@ -275,12 +280,12 @@ async def pmake_worker(
                 setproctitle(f"compmake:{current_name}")
 
                 # except KeyboardInterrupt: pass
-        except BaseException as e:
+        except BaseException:
             reason = "aborted because of uncaptured:\n" + indent(traceback.format_exc(), "| ")
             mye = HostFailed(host="???", job_id="???", reason=reason, bt=traceback.format_exc())
             log(str(mye))
             put_result(mye.get_result_dict())
-        except:
+        except:  # XXX: can this happen?
             mye = HostFailed(
                 host="???", job_id="???", reason="Uknown exception (not BaseException)", bt="not available"
             )

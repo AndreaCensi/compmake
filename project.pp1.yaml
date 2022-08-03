@@ -7,7 +7,7 @@ modules:
 - compmake_plugins
 - compmake_utils
 install_requires:
-- pympler
+- Pympler
 - lxml # just for cleanup!
 - termcolor
 - setproctitle
