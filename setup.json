@@ -1,6 +1,7 @@
 {
   "install_requires": [
     "PyYAML",
+    "Pympler",
     "SystemCmd-z7",
     "coverage",
     "dill",
@@ -8,7 +9,6 @@
     "networkx",
     "numpy",
     "psutil",
-    "pympler",
     "pyreadline",
     "setproctitle",
     "termcolor",

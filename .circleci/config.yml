@@ -18,6 +18,7 @@ jobs:
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
+      DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
       TEST_PACKAGES: compmake_tests
       Z_SERVICE_LOG: zuper_loghandle.log
@@ -46,14 +47,14 @@ jobs:
         command: |
           shyaml get-values install_requires < project.pp1.yaml > .requirements.txt
           python3 -m pip install -U pip
-          python3 -m pip install  -r .requirements.txt
+          timeout ${DEPS_INSTALL_TIMEOUT} python3 -m pip install  -r .requirements.txt
           rm .requirements.txt
 
     - run:
         name: Install testing deps
         command: |
           shyaml get-values tests_require < project.pp1.yaml > .requirements_tests.txt
-          python3 -m pip install  -r .requirements_tests.txt
+          timeout ${DEPS_INSTALL_TIMEOUT} python3 -m pip install  -r .requirements_tests.txt
           rm .requirements_tests.txt
 
     - run:
@@ -172,4 +173,4 @@ jobs:
           ./codecov  
     resource_class: xlarge
 
-# sigil 0267f0b149acd7a738ca587d15e1d0de
+# sigil e6032710540783370c7e95c662bfd2ff
