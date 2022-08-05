@@ -32,7 +32,7 @@ class Context(ABC):
         ...
 
     @abstractmethod
-    async def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
+    def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
         ...
 
     @abstractmethod
