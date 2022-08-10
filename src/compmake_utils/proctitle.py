@@ -10,6 +10,6 @@ except:
     msg = 'compmake can make use of the package "setproctitle". ' "Please install it.\n"
     sys.stderr.write(msg)
 
-    def setproctitle(x):
+    def setproctitle(x: str) -> None:
         """emulation of the setproctitle interface"""
         pass

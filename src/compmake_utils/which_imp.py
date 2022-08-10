@@ -4,18 +4,20 @@ __all__ = [
     "which",
 ]
 
+from typing import Iterator
 
-def is_exe(fpath):
+
+def is_exe(fpath: str) -> bool:
     return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
 
-def ext_candidates(fpath):
+def ext_candidates(fpath: str) -> Iterator[str]:
     yield fpath
     for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
         yield fpath + ext
 
 
-def which(program):
+def which(program: str) -> str:
     """Returns string or raise ValueError."""
     PATH = os.environ["PATH"]
     PATHs = PATH.split(os.pathsep)

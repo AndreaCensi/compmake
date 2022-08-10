@@ -4,12 +4,12 @@ import traceback
 from asyncio import CancelledError
 from logging import Formatter
 from time import time
-from typing import Any, Callable, cast, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
+from typing import Any, Callable, cast, Collection, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
-from . import logger
+from . import ContextImp, logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
@@ -62,7 +62,7 @@ __all__ = [
 ]
 
 
-def clean_targets(job_list: List[CMJobID], db: StorageFilesystem, cq: CacheQueryDB):
+def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: CacheQueryDB) -> None:
     #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
 
@@ -463,7 +463,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     return r
 
 
-def generate_job_id(base, context) -> CMJobID:
+def generate_job_id(base: str, context: ContextImp) -> CMJobID:
     """
     Generates a unique job_id for the specified commmand.
     Takes into account job_prefix if that's defined.

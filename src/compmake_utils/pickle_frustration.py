@@ -1,15 +1,20 @@
-# from contracts import contract
 import os
 import sys
 from contextlib import contextmanager
+from typing import cast, Iterator
 
-from typing import Dict
+from typing_extensions import TypedDict
 
 
-def pickle_main_context_save() -> Dict:
+class PickleContextDesc(TypedDict):
+    main_module: str
+    main_path: str
+
+
+def pickle_main_context_save() -> PickleContextDesc:
     """Remember who was the __main__ module"""
     module = sys.modules["__main__"]
-    filename = module.__file__
+    filename = cast(str, module.__file__)
     name = os.path.splitext(os.path.basename(filename))[0]
     main_module = name
     main_path = os.path.realpath(os.path.dirname(filename))
@@ -17,7 +22,7 @@ def pickle_main_context_save() -> Dict:
 
 
 @contextmanager
-def pickle_main_context_load(c):
+def pickle_main_context_load(c: PickleContextDesc) -> Iterator[None]:
     main_path = c["main_path"]
     main_module = c["main_module"]
 

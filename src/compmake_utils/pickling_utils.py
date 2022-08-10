@@ -5,7 +5,7 @@ __all__ = [
 ]
 
 
-def try_pickling(obj):
+def try_pickling(obj: object) -> None:
     """Serializes and deserializes an object."""
     s = compmake_pickle.dumps(obj)
     compmake_pickle.loads(s)

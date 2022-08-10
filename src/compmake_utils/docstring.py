@@ -5,8 +5,10 @@ __all__ = [
     "docstring_trim",
 ]
 
+from typing import TypedDict
 
-def docstring_trim(docstring):
+
+def docstring_trim(docstring: str) -> str:
     if not docstring:
         return ""
     # Convert tabs to spaces (following the normal Python rules)
@@ -32,7 +34,12 @@ def docstring_trim(docstring):
     return "\n".join(trimmed)
 
 
-def docstring_components(docstring):
+class DocComp(TypedDict):
+    first: str
+    rest: str
+
+
+def docstring_components(docstring: str) -> DocComp:
     """
 
     Removes leading whitespace and returns a dict
@@ -65,7 +72,7 @@ def docstring_components(docstring):
     return res
 
 
-def docstring_components_test():
+def docstring_components_test() -> None:  # TODO: move this to the tests
     res = docstring_components(docstring_components.__doc__)
     print(res)
 
