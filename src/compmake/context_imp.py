@@ -7,7 +7,6 @@ from typing import Any, List, Optional, Set, TypeVar, Union
 
 from zuper_commons.text import indent, joinlines
 from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
-from . import Promise
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -16,6 +15,7 @@ from .exceptions import UserError
 from .filesystem import StorageFilesystem
 from .interpret import batch_command, interpret_commands_wrap
 from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_config0
+from .structures import Promise
 from .types import CMJobID
 
 __all__ = [

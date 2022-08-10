@@ -1,7 +1,7 @@
 import sys
 
 from zuper_utils_asyncio import SyncTaskInterface
-from . import Context
+from .context import Context
 from .config_html import create_config_html
 from .exceptions import UserError
 from .helpers import COMMANDS_ADVANCED, GENERAL, ui_command

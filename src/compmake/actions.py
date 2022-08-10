@@ -4,12 +4,25 @@ import traceback
 from asyncio import CancelledError
 from logging import Formatter
 from time import time
-from typing import Any, Callable, cast, Collection, Concatenate, Dict, List, Optional, ParamSpec, Set, TypeVar
+from typing import (
+    Any,
+    Callable,
+    cast,
+    Collection,
+    Concatenate,
+    Dict,
+    List,
+    Optional,
+    ParamSpec,
+    Set,
+    TYPE_CHECKING,
+    TypeVar,
+)
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
-from . import ContextImp, logger
+from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
@@ -60,6 +73,9 @@ __all__ = [
     "mark_as_failed",
     "mark_to_remake",
 ]
+
+if TYPE_CHECKING:
+    from .context_imp import ContextImp
 
 
 def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: CacheQueryDB) -> None:
@@ -463,7 +479,7 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     return r
 
 
-def generate_job_id(base: str, context: ContextImp) -> CMJobID:
+def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
     """
     Generates a unique job_id for the specified commmand.
     Takes into account job_prefix if that's defined.
