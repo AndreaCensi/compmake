@@ -11,6 +11,7 @@ from typing import (
     Collection,
     Concatenate,
     Dict,
+    Iterator,
     List,
     Optional,
     ParamSpec,
@@ -494,7 +495,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
 
     max_options = 1000 * 1000
 
-    def get_options():
+    def get_options() -> Iterator[CMJobID]:
         counters = context.generate_job_id_counters
         if not job_prefix in counters:
             counters[job_prefix] = 2
