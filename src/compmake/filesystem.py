@@ -51,7 +51,7 @@ class StorageFilesystem:
         self.checked_existence = False
         self.method = method = "pickle"
         # self.method = method= "dill"
-        check_format = True
+        check_format = False  # XXX: quadratic complexity!
         others = []
         if compress:
             self.file_extension = f".{method}.gz"
