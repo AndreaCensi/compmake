@@ -51,13 +51,16 @@ class StorageFilesystem:
         self.checked_existence = False
         self.method = method = "pickle"
         # self.method = method= "dill"
-
+        check_format = True
+        others = []
         if compress:
             self.file_extension = f".{method}.gz"
-            others = list(self.keys0(f".{method}"))
+            if check_format:
+                others = list(self.keys0(f".{method}"))
         else:
             self.file_extension = f".{method}"
-            others = list(self.keys0(f".{method}.gz"))
+            if check_format:
+                others = list(self.keys0(f".{method}.gz"))
         if others:
             msg = f"Extension is {self.file_extension} but found {len(others)} files with other extension."
             msg += f" Check that you did not use compress = {not compress} somewhere else."
