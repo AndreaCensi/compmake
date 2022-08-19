@@ -8,7 +8,7 @@ import traceback
 import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Collection, Dict, List, Set
+from typing import Any, Collection, Dict, List, NoReturn, Set
 
 from zuper_commons.fs import abspath, join, make_sure_dir_exists
 from zuper_commons.text import indent, joinpars
@@ -153,10 +153,10 @@ class Manager(ManagerLog):
         self.loop_task = None
 
     # ## Derived class interface
-    def process_init(self):
+    def process_init(self) -> None:
         """Called before processing"""
 
-    def process_finished(self):
+    def process_finished(self) -> None:
         """Called after successful processing (before cleanup)"""
 
     @abstractmethod
@@ -167,7 +167,7 @@ class Manager(ManagerLog):
     async def instance_job(self, job_id: CMJobID):
         """Instances a job."""
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """free up any resource, called wheter succesfull or not."""
         pass
 
@@ -272,7 +272,7 @@ class Manager(ManagerLog):
             done=L(self.done),
         )
 
-    async def instance_some_jobs(self):
+    async def instance_some_jobs(self) -> dict[str, str]:
         """
         Instances some of the jobs. Uses the
         functions can_accept_job(), next_job(), and ...
@@ -305,7 +305,7 @@ class Manager(ManagerLog):
         self.check_invariants()
         return reasons
 
-    def _raise_bug(self, func, job_id):
+    def _raise_bug(self, func: Any, job_id: CMJobID) -> NoReturn:
         msg = f"{func}: Assumptions violated with job {job_id!r}."
         # msg += '\n' + self._get_situation_string()
 
@@ -326,7 +326,7 @@ class Manager(ManagerLog):
 
         raise CompmakeBug(msg)
 
-    async def start_job(self, job_id: CMJobID):
+    async def start_job(self, job_id: CMJobID) -> None:
         self.log("start_job", job_id=job_id)
         self.check_invariants()
         if job_id not in self.ready_todo:
@@ -359,7 +359,7 @@ class Manager(ManagerLog):
         self.log("check_job_finished", job_id=job_id)
         self.check_invariants()
 
-        def bug():
+        def bug() -> None:
             self._raise_bug("check_job_finished", job_id)
 
         if job_id not in self.processing:
@@ -526,7 +526,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def host_failed(self, job_id):
+    def host_failed(self, job_id: CMJobID) -> None:
         self.log("host_failed", job_id=job_id)
         self.check_invariants()
 
@@ -541,7 +541,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def job_failed(self, job_id: CMJobID, deleted_jobs) -> None:
+    def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
         """The specified job has failed. Update the structures,
         mark any parent as failed as well."""
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
@@ -576,7 +576,7 @@ class Manager(ManagerLog):
         self.publish_progress()
         self.check_invariants()
 
-    def job_succeeded(self, job_id: CMJobID):
+    def job_succeeded(self, job_id: CMJobID) -> None:
         """Mark the specified job as succeeded. Update the structures,
         mark any parents which are ready as ready_todo."""
         self.log("job_succeeded", job_id=job_id)
@@ -637,7 +637,7 @@ class Manager(ManagerLog):
         self.check_invariants()
         self.publish_progress()
 
-    def event_check(self):
+    def event_check(self) -> None:
         pass
 
     async def check_any_finished(self) -> bool:
@@ -663,21 +663,41 @@ class Manager(ManagerLog):
 
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
+        # timeout = 5.0
+        #
+        # while True:
+        #     try:
+        #         job_id = await asyncio.wait_for(self.queue_ready.get(), timeout=timeout)
+        #         break
+        #     except asyncio.TimeoutError:
+        #         publish(self.context, "manager-loop", processing=list(self.processing))
+        #         self.event_check()
+        #         self.check_invariants()
+
         for _ in range(10):  # XXX
             received = await self.check_any_finished()
 
             if received:
                 break
-            else:
-                publish(self.context, "manager-loop", processing=list(self.processing))
-                await asyncio.sleep(manager_wait)  # TODO: make param
+
+            publish(self.context, "manager-loop", processing=list(self.processing))
+            # await asyncio.sleep(manager_wait)  # TODO: make param
+            try:
+                await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
+            except asyncio.TimeoutError:
+                pass
 
             # Process events
             self.event_check()
             self.check_invariants()
 
+    queue_ready: "asyncio.Queue[CMJobID]"
+
     async def process(self) -> bool:
         """Start processing jobs."""
+
+        self.queue_ready = asyncio.Queue()
+        # self.splitter_ready = await Splitter.make_init(CMJobID, 'splitter-jobs-done')
         # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
         self.check_invariants()
 
@@ -686,7 +706,7 @@ class Manager(ManagerLog):
 
         # self.sti.logger.user_info(pid=os.getpid())
 
-        def shutdown():
+        def shutdown() -> None:
             self.sti.logger.user_error("interruption", pid=os.getpid())
             self.interrupted = True
             if self.loop_task:
@@ -719,7 +739,7 @@ class Manager(ManagerLog):
 
         publish(self.context, "manager-phase", phase="loop")
 
-        async def loopit():
+        async def loopit() -> None:
             i = 0
             while self.todo or self.ready_todo or self.processing:
                 self.log(indent(self._get_situation_string(), f"{i}: "))

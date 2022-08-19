@@ -9,10 +9,9 @@ from compmake import (
 )
 from zuper_commons.text import joinlines
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio.splitter_utils import get_report_splitters_text
 
 __all__ = ["memstats"]
-
-from zuper_utils_asyncio.splitter_utils import get_report_splitters_text
 
 
 @ui_command(section=VISUALIZATION)

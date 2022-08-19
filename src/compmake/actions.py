@@ -23,6 +23,8 @@ from typing import (
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_timing import TimeInfo
+from zuper_utils_timing.timing import new_timeinfo
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
@@ -219,7 +221,13 @@ FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
 formatter = Formatter(FORMAT)
 
 
-async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: bool = False) -> MakeResult:
+async def make(
+    sti: SyncTaskInterface,
+    job_id: CMJobID,
+    context: Context,
+    echo: bool = False,
+    ti: Optional[TimeInfo] = None,
+) -> MakeResult:
     """
     Makes a single job.
 
@@ -233,6 +241,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
     captured.
     """
+    if ti is None:
+        ti = new_timeinfo()
 
     new_jobs: Set[CMJobID]
     delete_jobs: Set[CMJobID]
@@ -262,8 +272,10 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     #                     deleted_jobs=[],
     #                     new_jobs=[])
 
-    job = get_job(job_id, db=db)
-    cache = get_job_cache(job_id, db=db)
+    with ti.timeit("reading job"):
+        job = get_job(job_id, db=db)
+    with ti.timeit("reading cache"):
+        cache = get_job_cache(job_id, db=db)
 
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
@@ -281,7 +293,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     cache = Cache(Cache.PROCESSING)
     cache.timestamp_started = time()
     cache.jobs_defined = prev_defined_jobs
-    set_job_cache(job_id, cache, db=db)
+    with ti.timeit("set cache"):
+        set_job_cache(job_id, cache, db=db)
 
     def progress_callback(stack: Any) -> None:
         publish(context, "job-progress-plus", job_id=job_id, host=host, stack=stack)
@@ -357,7 +370,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
         return deleted_jobs_
 
     try:
-        result: JobComputeResult = await job_compute(sti, job=job, context=context)
+        with ti.timeit("job_compute") as tisub:
+            result: JobComputeResult = await job_compute(sti, job=job, context=context, ti=tisub)
 
         assert isinstance(result, dict) and len(result) == 5
         user_object = result["user_object"]
@@ -440,7 +454,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
 
     # print('Now %s has deleted %s' % (job_id, deleted_jobs))
 
-    set_job_userobject(job_id, user_object, db=db)
+    with ti.timeit("set_job_userobject"):
+        set_job_userobject(job_id, user_object, db=db)
     int_save_results.stop()
 
     #    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
@@ -469,7 +484,8 @@ async def make(sti: SyncTaskInterface, job_id: CMJobID, context: Context, echo: 
     cache.cputime_used = int_make.get_cputime_used()
     cache.host = host
     cache.jobs_defined = new_jobs
-    set_job_cache(job_id, cache, db=db)
+    with ti.timeit("set_job_cache"):
+        set_job_cache(job_id, cache, db=db)
     user_object_deps = collect_dependencies(user_object)
     r: MakeResult = {
         "user_object": user_object,

@@ -1,6 +1,8 @@
 import gc
 import multiprocessing
 import signal
+import sys
+import time
 import traceback
 
 # noinspection PyProtectedMember
@@ -132,7 +134,7 @@ async def pmake_worker(
             cov = None
 
         if write_log:
-            f = open(write_log, "w")
+            sys.stderr = sys.stdout = f = open(write_log, "w")
 
             def log(s: str):
                 f.write(f"{current_name}: {s}\n")
@@ -147,13 +149,18 @@ async def pmake_worker(
         log("started pmake_worker()")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        def put_result(x: ResultDict) -> None:
+        def put_result(x: ResultDict) -> float:
             log("putting result in result_queue..")
+            t01 = time.time()
             result_queue.put(x, block=True)
+            log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
             if signal_queue is not None:
                 log("putting result in signal_queue..")
+                t01 = time.time()
                 signal_queue.put(signal_token, block=True)
+                log(f"put result in signal_queue in {time.time() - t0:.2f} seconds")
             log("(done)")
+            return time.time() - t01
 
         # noinspection PyBroadException
         try:
@@ -197,16 +204,19 @@ async def pmake_worker(
                     diff = None
 
                 log("Listening for job")
+                t0 = time.time()
                 try:
                     job = job_queue.get(block=True, timeout=5)
                 except Empty:
                     log("Could not receive anything.")
                     continue
+                time_to_get_job = time.time() - t0
+
                 if job == PmakeSub.EXIT_TOKEN:
                     log("Received EXIT_TOKEN.")
                     break
 
-                log(f"got job: {job}")
+                log(f"got job: {job} in {time_to_get_job:.2f} seconds")
 
                 job_id, function_name, arguments = job
 
@@ -228,12 +238,21 @@ async def pmake_worker(
                 # print(inspect.signature(function))
                 try:
                     # print('arguments: %s' % str(arguments))
+                    t0 = time.time()
                     log(f"creating task...")
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
                     log(f"waiting for task...")
                     result: ResultDict = await child.wait_for_outcome_success_result()
+
+                    if "ti" in result:
+                        log(result["ti"].pretty())
+                        result.pop("ti")
+                    time_to_do_job = time.time() - t0
                     sti.forget_child(child)
                     del child
+
+                    log(f"timing: get job = {time_to_get_job:.3f} s, do job = {time_to_do_job:.3f} s")
+
                     # result = await function(sti=sti, args=arguments)
                     # result = function(args=arguments)
                 except JobFailed as e:
@@ -296,17 +315,18 @@ async def pmake_worker(
         if signal_queue is not None:
             signal_queue.close()
         result_queue.close()
-        log("saving coverage")
 
+        log("memory dump")
         all_objects = muppy.get_objects()
         sum1 = summary.summarize(all_objects)
         res = joinlines(format_(sum1, limit=50))
         log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
 
         if cov:
+            log("saving coverage")
             # noinspection PyProtectedMember
             cov._atexit()
-        log("saved coverage")
+            log("saved coverage")
 
         log("clean exit.")
 
@@ -320,14 +340,17 @@ class PmakeResult(AsyncResultInterface):
     """Wrapper for the async result object obtained by pool.apply_async"""
 
     result: Optional[ResultDict]
+    result_queue: "multiprocessing.Queue[ResultDict]"
 
-    def __init__(self, result_queue):
+    def __init__(self, result_queue: "multiprocessing.Queue[ResultDict]"):
         self.result_queue = result_queue
         self.result = None
         # self.count = 0
 
-    def ready(self):
+    def ready(self) -> bool:
         # self.count += 1
+        if self.result is not None:
+            return True
         try:
             self.result = self.result_queue.get(block=False)
         except Empty:
@@ -337,7 +360,7 @@ class PmakeResult(AsyncResultInterface):
         else:
             return True
 
-    async def get(self, timeout=0) -> OKResult:
+    async def get(self, timeout: float = 0) -> OKResult:
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
             try:

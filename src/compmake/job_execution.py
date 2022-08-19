@@ -4,6 +4,7 @@ from typing import Any, Callable, cast, Dict, Mapping, Optional, Set, Tuple, Typ
 
 from zuper_commons.types import add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_timing import TimeInfo
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
@@ -46,7 +47,7 @@ class JobComputeResult(TypedDict):
     int_gc: IntervalTimer
 
 
-async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> JobComputeResult:
+async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: TimeInfo) -> JobComputeResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """
     check_isinstance(job, Job)
     job_id = job.job_id
@@ -54,7 +55,8 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> Job
 
     int_load_results = IntervalTimer()
 
-    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
+    with ti.timeit("get_cmd_args_kwargs"):
+        command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
     sig = inspect.signature(command)
     int_load_results.stop()
     user_object: object
@@ -64,9 +66,10 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> Job
         args = tuple(list([context]) + list(args))
 
         int_compute = IntervalTimer()
-        res: ExecuteWithContextResult = await execute_with_context(
-            sti, db=db, context=context, job_id=job_id, command=command, args=args, kwargs=kwargs
-        )
+        with ti.timeit("execute_with_context"):
+            res: ExecuteWithContextResult = await execute_with_context(
+                sti, db=db, context=context, job_id=job_id, command=command, args=args, kwargs=kwargs
+            )
         int_compute.stop()
 
         # assert isinstance(res, dict)
@@ -95,7 +98,8 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> Job
 
             # sti.logger.info("Now starting command")
             await asyncio.sleep(0)
-            user_object = await command(*args, **kwargs3)
+            with ti.timeit("await command"):
+                user_object = await command(*args, **kwargs3)
         else:
 
             if "sti" in sig.parameters:
@@ -103,7 +107,8 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context) -> Job
                 raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
 
             with add_context(command=command):
-                user_object = command(*args, **kwargs)
+                with ti.timeit("run command (no async)"):
+                    user_object = command(*args, **kwargs)
         int_compute.stop()
         new_jobs: Set[CMJobID] = set()
         res2: JobComputeResult = {

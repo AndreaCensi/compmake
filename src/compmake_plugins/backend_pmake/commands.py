@@ -109,6 +109,7 @@ async def parremake(
         new_process=new_process,
         show_output=echo,
     )
+
     manager.add_targets(non_empty_job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)

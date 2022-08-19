@@ -18,6 +18,7 @@ from zuper_commons.fs import (
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import ZException
+from zuper_utils_timing.timing import new_timeinfo
 from . import logger
 from .exceptions import CompmakeBug, SerializationError
 
@@ -114,35 +115,45 @@ class StorageFilesystem:
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
         if trace_queries:
             logger.debug(f"W {str(key)}")
+        DOSYNC = False
+        ti = new_timeinfo()
+        try:
 
-        self.check_existence()
+            self.check_existence()
 
-        filename = self.filename_for_key(key)
+            filename = self.filename_for_key(key)
 
-        if self.method == "pickle":
-            try:
-                safe_pickle_dump(value, filename)
-                os.sync()  # flush everything
-                assert os.path.exists(filename)
-            except KeyboardInterrupt:
-                raise
-            except CancelledError:
-                raise
-            except BaseException as e:
-                msg = f"Cannot set key {key!r}: cannot pickle object of class {value.__class__.__name__}"
-                # raise SerializationError(msg, tb=traceback.format_exc(), ob=value) from e
-                # logger.error(msg, e=traceback.format_exc())
-                # logger.exception(e)
-                # emsg = find_pickling_error(value)
-                # logger.error(emsg)
-                raise SerializationError(msg, tb=traceback.format_exc(), value=value) from e
-        elif self.method == "dill":
-            dill.settings["recurse"] = True
-            dill.settings["byref"] = True
-            with safe_write(filename, "wb") as f:
-                return dill.dump(value, f)
-        else:
-            raise NotImplementedError(self.method)
+            if self.method == "pickle":
+                try:
+                    with ti.timeit("safe_pickle_dump"):
+                        safe_pickle_dump(value, filename)
+                    if DOSYNC:
+                        with ti.timeit("os.sync"):
+                            os.sync()  # flush everything
+
+                    assert os.path.exists(filename)
+                except KeyboardInterrupt:
+                    raise
+                except CancelledError:
+                    raise
+                except BaseException as e:
+                    msg = f"Cannot set key {key!r}: cannot pickle object of class {value.__class__.__name__}"
+                    # raise SerializationError(msg, tb=traceback.format_exc(), ob=value) from e
+                    # logger.error(msg, e=traceback.format_exc())
+                    # logger.exception(e)
+                    # emsg = find_pickling_error(value)
+                    # logger.error(emsg)
+                    raise SerializationError(msg, tb=traceback.format_exc(), value=value) from e
+            elif self.method == "dill":
+                dill.settings["recurse"] = True
+                dill.settings["byref"] = True
+                with safe_write(filename, "wb") as f:
+                    return dill.dump(value, f)
+            else:
+                raise NotImplementedError(self.method)
+        finally:
+            pass
+            # print(ti.pretty())
 
     @track_time
     def __delitem__(self, key: StorageKey) -> None:
