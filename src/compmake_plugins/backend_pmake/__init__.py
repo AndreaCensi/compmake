@@ -1,4 +1,4 @@
-from zuper_commons.logs import ZLogger
+from zuper_commons.logs import ZLogger, ZLoggerInterface
 
-logger = ZLogger(__name__)
+logger: ZLoggerInterface = ZLogger(__name__)
 from .commands import *
