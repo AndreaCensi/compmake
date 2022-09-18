@@ -9,7 +9,6 @@ modules:
 install_requires:
 - Pympler
 - lxml # just for cleanup!
-- termcolor
 - setproctitle
 - PyYAML
 - psutil
