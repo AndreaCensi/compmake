@@ -5,7 +5,7 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, List, Optional, Set, TypeVar, Union
 
-from zuper_commons.text import indent, joinlines
+from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
 from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
@@ -321,8 +321,7 @@ class ContextImp(Context):
                 p = l
                 output += p + "\n"
         # SEE: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#cursor-navigation
-        CLEAN_UNTIL_END_OF_LINE = "\u001b[0K"
-        CLEAR_ENTIRE_LINE = "\u001b[2K"
+
         print(CLEAR_ENTIRE_LINE + output, end="", file=sys.stderr)
         interactive = self.get_compmake_config("interactive")
         if interactive:
