@@ -30,7 +30,7 @@ class LineSplitter:
             else:
                 self.current += char
 
-    def lines(self):
+    def lines(self) -> list[str]:
         """Returns a list of line; empties the buffer"""
         l = list(self.current_lines)
         self.current_lines = []
@@ -71,7 +71,7 @@ class StreamCapture:
 
         return b
 
-    def flush(self):
+    def flush(self) -> None:
         pass
 
 
@@ -80,7 +80,7 @@ class OutputCapture:
     def __init__(
         self,
         context,
-        prefix,
+        prefix: str,
         echo_stdout: bool,
         echo_stderr: bool,
         publish_stdout: Callable[[List[str]], None],
@@ -92,7 +92,7 @@ class OutputCapture:
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
 
         # FIXME: perhaps we should use compmake_colored
-        t1 = lambda s: "%s|%s" % (termcolor_colored(prefix, attrs=["dark"]), s)
+        t1 = lambda s: "%s|%s" % (termcolor_colored(prefix, "white", attrs=["dark"]), s)
         t2 = lambda s: RESET + pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]
         self.stdout_replacement = StreamCapture(transform=t2, dest=dest, after_lines=publish_stdout)
@@ -105,12 +105,12 @@ class OutputCapture:
         self.stderr_replacement = StreamCapture(transform=t4, dest=dest, after_lines=publish_stderr)
         sys.stderr = self.stderr_replacement
 
-    def deactivate(self):
+    def deactivate(self) -> None:
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
 
-    def get_logged_stdout(self):
+    def get_logged_stdout(self) -> str:
         return self.stdout_replacement.get_value_text_type()  # buffer.getvalue()
 
-    def get_logged_stderr(self):
+    def get_logged_stderr(self) -> str:
         return self.stderr_replacement.get_value_text_type()  # buffer.getvalue()
