@@ -188,7 +188,7 @@ def write_atomic(filename: FilePath, contents: str):
     if d:
         if not os.path.exists(d):
             try:
-                os.makedirs(d)
+                os.makedirs(d, exist_ok=True)
             except:
                 pass
     tmpfile = filename + ".tmp"

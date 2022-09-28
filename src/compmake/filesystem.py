@@ -112,7 +112,7 @@ class StorageFilesystem:
             self.checked_existence = True
             if not os.path.exists(self.basepath):
                 # logger.info('Creating filesystem db %r' % self.basepath)
-                os.makedirs(self.basepath)
+                os.makedirs(self.basepath, exist_ok=True)
 
     @track_time
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
