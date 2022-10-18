@@ -1,7 +1,7 @@
 from typing import Callable, ClassVar
 
 from compmake_utils import get_screen_columns
-from zuper_commons.text import joinlines
+from zuper_commons.text import indent, joinlines
 from zuper_commons.ui import get_colorize_function
 from .context import Context
 from .events_structures import Event
@@ -35,15 +35,43 @@ async def ui_message(context: Context, s: str):
     # publish(context, "ui-message", string=s)
 
 
+def add_initial_final_empty(s: str) -> str:
+    lines = s.splitlines()
+    lines2 = [""] + lines + [""]
+    res = joinlines(lines2)
+    return res
+
+
+def fancy_frame(tag: str, colorf: Callable[[str], str], s: str) -> str:
+    lines = s.splitlines()
+    if len(lines) == 1:
+        return colorf(tag + " ┃") + " " + lines[0]
+
+    lines2 = [" " + colorf(tag)] + lines + [""]
+    s2 = joinlines(lines2)
+
+    #
+    # t0 = tag + ' '
+    # t1 = ' ' * len(tag) + ' '
+
+    prefix1 = colorf("┏")
+    prefix2 = colorf("┃")
+    prefix3 = colorf("┗")
+
+    return indent(s2, prefix=prefix2, last=prefix3, first=prefix1)
+
+
 async def ui_error(context: Context, s: str):
-    await context.write_message_console(make_colored(s, color_it_red))
+    s = fancy_frame("Error", color_it_red, s)
+    await context.write_message_console(s)
     # publish(context, "ui-message", string=make_colored(s, color_it_red))
 
 
 async def ui_info(context: Context, s: str):
+    s = fancy_frame("Info", color_it_green, s)
     # write_message(s, lambda x: compmake_colored(x, 'green'))
     # publish(context, "ui-message", string=make_colored(s, color_it_green))
-    await context.write_message_console(make_colored(s, color_it_green))
+    await context.write_message_console(s)
 
 
 #
@@ -54,7 +82,9 @@ async def ui_info(context: Context, s: str):
 
 
 async def ui_warning(context: Context, s: str):
-    await context.write_message_console(make_colored(s, color_it_yellow))
+    s = fancy_frame("Warning", color_it_yellow, s)
+
+    await context.write_message_console(s)
     # publish(context, "ui-message", string=make_colored(s, color_it_yellow))
 
 

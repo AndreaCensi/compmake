@@ -4,6 +4,7 @@ from typing import List
 
 from compmake import Cache, compmake_colored, Context, Event, register_handler, ui_message
 from compmake_utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
+from zuper_commons.text import indent
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -263,6 +264,7 @@ async def handle_job_done(context: Context, event: Event):
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.DONE]:>10}"
     glyph = Cache.glyphs[Cache.DONE]
+
     await ui_message(context, color_done(f"{glyph} {desc} {job_id}"))
 
 
