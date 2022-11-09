@@ -29,7 +29,8 @@
   "package_name": "compmake-z7",
   "entry_points": {
     "console_scripts": [
-      "compmake = compmake:main"
+      "compmake = compmake:main",
+      "compmake-profile = compmake:compmake_profile_main"
     ]
   },
   "zip_safe": true,

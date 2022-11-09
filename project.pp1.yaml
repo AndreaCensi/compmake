@@ -35,6 +35,7 @@ tests_require:
 - nose
 console_scripts:
   compmake: compmake:main
+  compmake-profile: compmake:compmake_profile_main
 
 nose:
   modules:
