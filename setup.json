@@ -1,7 +1,7 @@
 {
   "install_requires": [
     "PyContracts3",
-    "PyYaml",
+    "PyYAML",
     "SystemCmd-z6",
     "asciimatics",
     "coverage",

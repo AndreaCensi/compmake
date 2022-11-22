@@ -25,7 +25,7 @@ install_requires = [
     "PyContracts3",
     "termcolor",
     "setproctitle",
-    "PyYaml",
+    "PyYAML",
     "psutil",
     "dill",
     "coverage",
