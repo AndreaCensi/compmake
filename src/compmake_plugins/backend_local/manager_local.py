@@ -1,3 +1,5 @@
+import asyncio
+
 from compmake import (
     AsyncResultInterface,
     CMJobID,
@@ -44,7 +46,6 @@ class ManagerLocal(Manager):
             return True
 
     async def instance_job(self, job_id: CMJobID):
-
         return FakeAsync(self.sti, job_id, context=self.context, new_process=self.new_process, echo=self.echo)
 
 
@@ -88,4 +89,6 @@ class FakeAsync(AsyncResultInterface):
             # if use_pympler:
             #     tr.print_diff()
 
-            return await make(sti, self.job_id, context=self.context, echo=self.echo)
+            res = await make(sti, self.job_id, context=self.context, echo=self.echo)
+            await asyncio.sleep(0)
+            return res

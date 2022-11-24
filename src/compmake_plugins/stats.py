@@ -101,11 +101,13 @@ def display_stats(job_list: Collection[CMJobID], context: Context) -> None:
             s = f"{num:5d} {desc}"
             if num > 0:
                 s = compmake_colored(s, **Cache.state2color[state])
+            else:
+                s = " " * len(s)
             alls.append(s)
             totals[state] += num
-        s = ",".join(alls)
+        s = " ".join(alls)
         function_id_pad = (function_id + "()").ljust(flen)
-        print(f"    {function_id_pad}: {s}.")
+        print(f"    {function_id_pad}: {s}")
 
     final = []
     for state, desc in states:
@@ -113,5 +115,5 @@ def display_stats(job_list: Collection[CMJobID], context: Context) -> None:
         if totals[state] > 0:
             s = compmake_colored(s, **Cache.state2color[state])
         final.append(s)
-    final = ",".join(final)
+    final = " ".join(final)
     print(f"    {'total'.rjust(flen)}: {final}.")

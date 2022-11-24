@@ -6,7 +6,7 @@ import time
 import traceback
 
 # noinspection PyProtectedMember
-from multiprocessing.context import BaseContext
+from multiprocessing.context import BaseContext, Process
 from queue import Empty
 from typing import Any, Callable, Literal, Optional, Tuple
 
@@ -44,6 +44,8 @@ __all__ = [
     "PmakeSub",
     "PossibleFuncs",
 ]
+
+import atexit
 
 PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
@@ -83,6 +85,7 @@ class PmakeSub:
             args=args,
             name=name,
         )
+        atexit.register(at_exit_delete, proc=self.proc)
         self.proc.start()
         self.last = None
 
@@ -97,8 +100,15 @@ class PmakeSub:
         self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]
     ) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
-        self.last = PmakeResult(self.result_queue)
+        self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
+
+
+def at_exit_delete(proc: Process) -> None:
+    # print(f'terminating process {ps.name} ')
+    # ps.terminate()
+    # time.sleep(1)
+    proc.kill()
 
 
 @async_run_simple1
@@ -342,9 +352,11 @@ class PmakeResult(AsyncResultInterface):
     result: Optional[ResultDict]
     result_queue: "multiprocessing.Queue[ResultDict]"
 
-    def __init__(self, result_queue: "multiprocessing.Queue[ResultDict]"):
+    def __init__(self, result_queue: "multiprocessing.Queue[ResultDict]", psub: "PmakeSub", job_id: CMJobID):
         self.result_queue = result_queue
         self.result = None
+        self.psub = psub
+        self.job_id = job_id
         # self.count = 0
 
     def ready(self) -> bool:
@@ -363,6 +375,12 @@ class PmakeResult(AsyncResultInterface):
     async def get(self, timeout: float = 0) -> OKResult:
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
+            proc = self.psub.proc
+            # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
+            if not proc.is_alive():
+                msg = "Process died unexpectedly"
+                print(msg)
+                raise HostFailed("subname", job_id=self.job_id, reason=msg, bt="not available")
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:

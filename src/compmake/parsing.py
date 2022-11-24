@@ -293,6 +293,7 @@ def obtain_all(context: Context, cq: CacheQueryDB):
 add_alias("all", obtain_all)
 add_alias("failed", lambda context, cq: list_jobs_with_state(Cache.FAILED, context=context, cq=cq))
 add_alias("blocked", lambda context, cq: list_jobs_with_state(Cache.BLOCKED, context=context, cq=cq))
+add_alias("processing", lambda context, cq: list_jobs_with_state(Cache.PROCESSING, context=context, cq=cq))
 add_alias("ready", list_ready_jobs)
 add_alias("todo", list_todo_jobs)
 add_alias("top", list_top_jobs)

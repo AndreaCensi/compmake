@@ -61,8 +61,8 @@ jobs:
         name: Python stats
         command: |
           pipdeptree | tee  build-stats/pipdeptree.txt
-          python3 -m pip  list   | sort | tee  build-stats/pip-list.txt
-          python3 -m pip  freeze | sort | tee  build-stats/pip-freeze.txt
+          python3 -m pip list   | sort | tee  build-stats/pip-list.txt
+          python3 -m pip freeze | sort | tee  build-stats/pip-freeze.txt
           python3 -m pip cache list | tee  build-stats/pip-cache.txt
 
     - store_artifacts:
@@ -170,7 +170,7 @@ jobs:
         command: |
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
-          ./codecov  
+          ./codecov
     resource_class: xlarge
 
 # sigil 716181de48e730a16923f465a681818c

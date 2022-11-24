@@ -237,6 +237,7 @@ class Cache:
         # (state, uptodate)
         (NOT_STARTED, False): {},
         (PROCESSING): {"color": "yellow", "attrs": ["concealed"]},
+        (PROCESSING, False): {"color": "yellow", "attrs": ["concealed"]},
         (FAILED, False): {"color": "red"},
         (BLOCKED, True): {"color": "brown"},
         (BLOCKED, False): {"color": "brown"},  # XXX
@@ -246,7 +247,7 @@ class Cache:
 
     state2color = {
         NOT_STARTED: {"color": "yellow"},  # {'attrs': ['dark']},
-        PROCESSING: {"color": "yellow"},
+        PROCESSING: {"color": "blue"},
         BLOCKED: {"color": "brown"},
         FAILED: {"color": "red"},
         DONE: {"color": "green"},

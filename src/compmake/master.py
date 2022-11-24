@@ -1,27 +1,33 @@
+import cProfile
 import os
+import pstats
+import resource
 import sys
 import traceback
 from optparse import OptionParser
 from typing import cast, List, Optional
 
+from compmake_utils import setproctitle
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
+from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
-from . import __version__
+from . import __version__, CMJobID
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
 from .context import Context
 from .context_imp import ContextImp
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
 from .filesystem import StorageFilesystem
+from .job_execution import get_cmd_args_kwargs
 from .readrcfiles import read_rc_files
 from .state import set_compmake_status
-from .storage import all_jobs
-from compmake_utils import setproctitle
+from .storage import all_jobs, get_job
 
 __all__ = [
     "compmake_main",
+    "compmake_profile_main",
     "main",
 ]
 
@@ -43,7 +49,14 @@ async def main(zenv: ZappEnv) -> ExitCode:
     return await compmake_main(zenv.sti, args=zenv.args)
 
 
+def limit_memory(maxsize):
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    print(f"{soft=} {hard=} {maxsize=}")
+    # resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
+
+
 async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None) -> ExitCode:
+    limit_memory(2 * 1024 * 1024)
     sti.started()
     if not "" in sys.path:
         sys.path.append("")
@@ -220,3 +233,32 @@ async def load_existing_db(sti: SyncTaskInterface, d: DirPath, name: str) -> Con
     await context.reset_jobs_defined_in_this_session(jobs)
 
     return context
+
+
+from . import logger
+
+
+def compmake_profile_main() -> ExitCode:
+    args = sys.argv[1:]
+    logger.info("args: %s" % args)
+    storage = args[0]
+    job_id = cast(CMJobID, args[1])
+
+    db = StorageFilesystem(storage)
+    job = get_job(job_id, db)
+    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
+    logger.info(job=job)
+    if job.needs_context:
+        msg = "Cannot profile a job that needs context."
+        raise ZException(msg)
+
+    profiler = cProfile.Profile()
+    try:
+        with profiler:
+            user_object = command(*args, **kwargs)
+    finally:
+        p = pstats.Stats(profiler)
+        n = 50
+        p.sort_stats("cumulative").print_stats(n)
+        p.sort_stats("time").print_stats(n)
+    return ExitCode.OK

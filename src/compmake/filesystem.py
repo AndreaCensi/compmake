@@ -251,6 +251,10 @@ def create_scripts(basepath: DirPath) -> None:
     f = join(basepath, "console")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
+    # s = f"#!/bin/bash\ncompmake {basepath} \n"
+    # f = join(basepath, "compmake")
+    # write_ustring_to_utf8_file(s, f, quiet=True)
+    # chmod_plus_x(f)
 
     s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
     f = join(basepath, "run")

@@ -63,13 +63,19 @@ class Context(ABC):
         f: "Callable[Concatenate[Context, P], X]",
         *args: P.args,
         job_id: Optional[str] = None,
+        command_name: Optional[str] = None,
         **kwargs: P.kwargs,
     ) -> X:
         ...
 
     @abstractmethod
     def comp(
-        self, command_: Callable[P, X], *args: P.args, job_id: Optional[str] = None, **kwargs: P.kwargs
+        self,
+        command_: Callable[P, X],
+        *args: P.args,
+        command_name: Optional[str] = None,
+        job_id: Optional[str] = None,
+        **kwargs: P.kwargs,
     ) -> X:
         ...
 

@@ -106,7 +106,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
                 msg = "The function wants sti but it is not async"
                 raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
 
-            with add_context(command=command):
+            with add_context(command=job.command_desc):
                 with ti.timeit("run command (no async)"):
                     user_object = command(*args, **kwargs)
         int_compute.stop()

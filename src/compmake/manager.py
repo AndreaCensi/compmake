@@ -241,7 +241,9 @@ class Manager(ManagerLog):
         # already in processing
 
         # XXX: we should clean the Cache of a job before making it
-        self.done.update(targets_done - self.processing)
+        # XXX: This is where we get the additional counters 2022-11.
+        #  I removed hopefully nothing bad happens.
+        # self.done.update(targets_done - self.processing)
 
         todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
@@ -356,7 +358,7 @@ class Manager(ManagerLog):
 
         Handles update of various sets.
         """
-        self.log("check_job_finished", job_id=job_id)
+        # self.log("check_job_finished", job_id=job_id)
         self.check_invariants()
 
         def bug() -> None:
