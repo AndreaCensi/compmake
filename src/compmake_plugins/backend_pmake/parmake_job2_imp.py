@@ -1,3 +1,4 @@
+import os
 import sys
 from contextlib import contextmanager
 from queue import Full
@@ -174,3 +175,9 @@ def redirect_std(stdout_fn: str, stderr_fn: str) -> Iterator[None]:
         sys.stderr = old_stderr
         new_stdout.close()
         new_stderr.close()
+
+        # delete the files if they are empty
+        if os.path.getsize(stdout_fn) == 0:
+            os.remove(stdout_fn)
+        if os.path.getsize(stderr_fn) == 0:
+            os.remove(stderr_fn)

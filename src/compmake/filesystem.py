@@ -1,4 +1,5 @@
 import os
+import pickle
 import stat
 import traceback
 from asyncio import CancelledError
@@ -36,6 +37,8 @@ trace_queries = False
 
 StorageKey = NewType("StorageKey", str)
 
+import sqlite3
+
 
 class StorageFilesystem:
     basepath: DirPath
@@ -48,6 +51,21 @@ class StorageFilesystem:
         if not compress:
             raise Exception()
         self.basepath = os.path.realpath(basepath)
+        if not os.path.exists(self.basepath):
+            os.makedirs(self.basepath, exist_ok=True)
+        fn = os.path.join(self.basepath, "db.sqlite")
+        existed = os.path.exists(fn)
+        self.con = sqlite3.connect(fn)
+        if not existed:
+            sql = """
+            
+            create table fs_blobs(blob_key text unique, blob_value blob)
+            
+            """
+            cur = self.con.cursor()
+            cur.execute(sql)
+            self.con.commit()
+
         self.checked_existence = False
         self.method = method = "pickle"
         # self.method = method= "dill"
@@ -74,45 +92,61 @@ class StorageFilesystem:
 
     @track_time
     def sizeof(self, key: StorageKey) -> int:
-        filename = self.filename_for_key(key)
-        statinfo = os.stat(filename)
-        return statinfo.st_size
+        cur = self.con.cursor()
+        # filename = self.filename_for_key(key)
+        sql = """
+            select length(blob_value) from fs_blobs where blob_key = ?
+        """
+        cur.execute(sql, (key,))
+        (res,) = cur.fetchone()
+        return res
+        # statinfo = os.stat(filename)
+        # return statinfo.st_size
 
     @track_time
     def __getitem__(self, key: StorageKey) -> object:
         if trace_queries:
             logger.debug("R %s" % str(key))
 
-        self.check_existence()
+        # self.check_existence()
 
-        filename = self.filename_for_key(key)
+        cur = self.con.cursor()
+        sql = """
+            select blob_value from fs_blobs where blob_key = ?
+        """
+        cur.execute(sql, (key,))
+        (data,) = cur.fetchone()
 
-        if not os.path.exists(filename):
-            msg = f"Could not find key {key!r}."
-            msg += f"\n file: {filename}"
-            raise CompmakeBug(msg)
+        # filename = self.filename_for_key(key)
+        #
+        # if not os.path.exists(filename):
+        #     msg = f"Could not find key {key!r}."
+        #     msg += f"\n file: {filename}"
+        #     raise CompmakeBug(msg)
 
         if self.method == "pickle":
-            try:
-                return safe_pickle_load(filename)
-            except Exception as e:
-                msg = f"Could not unpickle data for key {key!r}. \n file: {filename}"
-                logger.error(msg)
-                # logger.exception(e)
-                msg += "\n" + traceback.format_exc()
-                raise CompmakeBug(msg)
+            return pickle.loads(data)
+            # try:
+            #     return safe_pickle_load(filename)
+            # except Exception as e:
+            #     msg = f"Could not unpickle data for key {key!r}. \n file: {filename}"
+            #     logger.error(msg)
+            #     # logger.exception(e)
+            #     msg += "\n" + traceback.format_exc()
+            #     raise CompmakeBug(msg)
         elif self.method == "dill":
-            with safe_read(filename, "rb") as f:
-                return dill.load(f)
+            return dill.loads(data)
+            # with safe_read(filename, "rb") as f:
+            #     return dill.load(f)
         else:
             raise NotImplementedError(self.method)
 
-    def check_existence(self) -> None:
-        if not self.checked_existence:
-            self.checked_existence = True
-            if not os.path.exists(self.basepath):
-                # logger.info('Creating filesystem db %r' % self.basepath)
-                os.makedirs(self.basepath, exist_ok=True)
+    # def check_existence(self) -> None:
+    #     if not self.checked_existence:
+    #         self.checked_existence = True
+    #         if not os.path.exists(self.basepath):
+    #             # logger.info('Creating filesystem db %r' % self.basepath)
+    #             os.makedirs(self.basepath, exist_ok=True)
 
     @track_time
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
@@ -122,19 +156,21 @@ class StorageFilesystem:
         ti = new_timeinfo()
         try:
 
-            self.check_existence()
+            # self.check_existence()
 
-            filename = self.filename_for_key(key)
+            # filename = self.filename_for_key(key)
 
             if self.method == "pickle":
                 try:
                     with ti.timeit("safe_pickle_dump"):
-                        safe_pickle_dump(value, filename)
-                    if DOSYNC:
-                        with ti.timeit("os.sync"):
-                            os.sync()  # flush everything
 
-                    assert os.path.exists(filename)
+                        data = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
+                    #     safe_pickle_dump(value, filename)
+                    # if DOSYNC:
+                    #     with ti.timeit("os.sync"):
+                    #         os.sync()  # flush everything
+
+                    # assert os.path.exists(filename)
                 except KeyboardInterrupt:
                     raise
                 except CancelledError:
@@ -150,43 +186,75 @@ class StorageFilesystem:
             elif self.method == "dill":
                 dill.settings["recurse"] = True
                 dill.settings["byref"] = True
-                with safe_write(filename, "wb") as f:
-                    return dill.dump(value, f)
+                data = dill.dumps(value)
+                # with safe_write(filename, "wb") as f:
+                #     return dill.dump(value, f)
             else:
                 raise NotImplementedError(self.method)
         finally:
             pass
             # print(ti.pretty())
 
+        sql = """
+        insert into fs_blobs(blob_key, blob_value) values (?, ?)
+        on conflict(blob_key) do update set blob_value = excluded.blob_value
+        """
+        cur = self.con.cursor()
+        cur.execute(sql, (key, data))
+        self.con.commit()
+
     @track_time
     def __delitem__(self, key: StorageKey) -> None:
-        filename = self.filename_for_key(key)
-        if not os.path.exists(filename):
-            msg = "I expected path %s to exist before deleting" % filename
-            raise ValueError(msg)
-        os.remove(filename)
+        sql = """
+        delete from fs_blobs where blob_key = ?
+        """
+        cur = self.con.cursor()
+        cur.execute(sql, (key,))
+        self.con.commit()
+
+        # filename = self.filename_for_key(key)
+        # if not os.path.exists(filename):
+        #     msg = "I expected path %s to exist before deleting" % filename
+        #     raise ValueError(msg)
+        # os.remove(filename)
 
     @track_time
     def __contains__(self, key: StorageKey) -> bool:
         if trace_queries:
             logger.debug(f"? {str(key)}")
+        #
+        # filename = self.filename_for_key(key)
+        # ex = os.path.exists(filename)
 
-        filename = self.filename_for_key(key)
-        ex = os.path.exists(filename)
-
+        cur = self.con.cursor()
+        sql = """
+            select count(*) from fs_blobs where blob_key = ?
+        """
+        cur.execute(sql, (key,))
+        (res,) = cur.fetchone()
+        return res > 0
         # logger.debug('? %s %s %s' % (str(key), filename, ex))
-        return ex
+        # return ex
 
     @track_time
     def keys0(self, extension: Optional[str] = None) -> Iterator[StorageKey]:
-        if extension is None:
-            extension = self.file_extension
-        filename = self.filename_for_key("*", extension)
-        for x in glob(filename):
-            # b = splitext(basename(x))[0]
-            b = basename(x.replace(extension, ""))
-            key = self.basename2key(b)
-            yield key
+        sql = """
+            select blob_key from fs_blobs
+        """
+        cur = self.con.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        for row in res:
+            yield row[0]
+
+        # if extension is None:
+        #     extension = self.file_extension
+        # filename = self.filename_for_key("*", extension)
+        # for x in glob(filename):
+        #     # b = splitext(basename(x))[0]
+        #     b = basename(x.replace(extension, ""))
+        #     key = self.basename2key(b)
+        #     yield key
 
     @track_time
     def keys(self) -> List[StorageKey]:
@@ -211,12 +279,12 @@ class StorageFilesystem:
             key = key.replace(replacement, char)
         return key
 
-    def filename_for_key(self, key, extension=None) -> FilePath:
-        """Returns the pickle storage filename corresponding to the job id"""
-        if extension is None:
-            extension = self.file_extension
-        f = self.key2basename(key) + extension
-        return join(self.basepath, f)
+    # def filename_for_key(self, key, extension=None) -> FilePath:
+    #     """Returns the pickle storage filename corresponding to the job id"""
+    #     if extension is None:
+    #         extension = self.file_extension
+    #     f = self.key2basename(key) + extension
+    #     return join(self.basepath, f)
 
 
 def chmod_plus_x(filename: FilePath) -> None:
@@ -231,7 +299,7 @@ def create_scripts(basepath: DirPath) -> None:
         "make_failed": "make failed",
         "remake": "remake",
         "why": "why",
-        "make": "make",
+        "cmake": "make",
         "parmake": "parmake",
         "rparmake": "rparmake",
         "rmake": "rmake",
@@ -257,6 +325,6 @@ def create_scripts(basepath: DirPath) -> None:
     # chmod_plus_x(f)
 
     s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
-    f = join(basepath, "run")
+    f = join(basepath, "cm")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
