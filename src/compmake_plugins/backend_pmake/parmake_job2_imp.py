@@ -26,12 +26,11 @@ from compmake_utils import setproctitle
 from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
+from zuper_utils_timing import TimeInfo, timeit_wall
 
 __all__ = [
     "parmake_job2",
 ]
-
-from zuper_utils_timing import TimeInfo, timeit_wall
 
 
 def sanitize_for_filename(x0: str) -> str:
@@ -177,7 +176,10 @@ def redirect_std(stdout_fn: str, stderr_fn: str) -> Iterator[None]:
         new_stderr.close()
 
         # delete the files if they are empty
-        if os.path.getsize(stdout_fn) == 0:
-            os.remove(stdout_fn)
-        if os.path.getsize(stderr_fn) == 0:
-            os.remove(stderr_fn)
+        try:
+            if os.path.getsize(stdout_fn) == 0:
+                os.remove(stdout_fn)
+            if os.path.getsize(stderr_fn) == 0:
+                os.remove(stderr_fn)
+        except:
+            pass

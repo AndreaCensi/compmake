@@ -3,25 +3,20 @@ import pickle
 import stat
 import traceback
 from asyncio import CancelledError
-from glob import glob
-from os.path import basename
 from typing import Iterator, List, NewType, Optional
 
 import dill
 
-from compmake_utils import safe_pickle_dump, safe_pickle_load
 from zuper_commons.fs import (
     DirPath,
     FilePath,
     join,
-    safe_read,
-    safe_write,
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import ZException
 from zuper_utils_timing.timing import new_timeinfo
 from . import logger
-from .exceptions import CompmakeBug, SerializationError
+from .exceptions import SerializationError
 
 __all__ = [
     "StorageFilesystem",
@@ -55,34 +50,38 @@ class StorageFilesystem:
             os.makedirs(self.basepath, exist_ok=True)
         fn = os.path.join(self.basepath, "db.sqlite")
         existed = os.path.exists(fn)
+        if not existed:
+            logger.info(f"The database {fn!r} did not exist: creating.")
         self.con = sqlite3.connect(fn)
         if not existed:
-            sql = """
-            
-            create table fs_blobs(blob_key text unique, blob_value blob)
-            
-            """
             cur = self.con.cursor()
+            sql = """
+            create table fs_blobs(blob_key text not null primary key , blob_value blob)
+            """
             cur.execute(sql)
+            # sql = """
+            # create index blob_keys on fs_blobs(blob_key);
+            # """
+            # cur.execute(sql)
             self.con.commit()
 
         self.checked_existence = False
         self.method = method = "pickle"
         # self.method = method= "dill"
-        check_format = False  # XXX: quadratic complexity!
-        others = []
-        if compress:
-            self.file_extension = f".{method}.gz"
-            if check_format:
-                others = list(self.keys0(f".{method}"))
-        else:
-            self.file_extension = f".{method}"
-            if check_format:
-                others = list(self.keys0(f".{method}.gz"))
-        if others:
-            msg = f"Extension is {self.file_extension} but found {len(others)} files with other extension."
-            msg += f" Check that you did not use compress = {not compress} somewhere else."
-            raise ZException(msg, others=others)
+        # check_format = False  # XXX: quadratic complexity!
+        # others = []
+        # if compress:
+        #     self.file_extension = f".{method}.gz"
+        #     if check_format:
+        #         others = list(self.keys0(f".{method}"))
+        # else:
+        #     self.file_extension = f".{method}"
+        #     if check_format:
+        #         others = list(self.keys0(f".{method}.gz"))
+        # if others:
+        #     msg = f"Extension is {self.file_extension} but found {len(others)} files with other extension."
+        #     msg += f" Check that you did not use compress = {not compress} somewhere else."
+        #     raise ZException(msg, others=others)
 
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
@@ -115,7 +114,10 @@ class StorageFilesystem:
             select blob_value from fs_blobs where blob_key = ?
         """
         cur.execute(sql, (key,))
-        (data,) = cur.fetchone()
+        one = cur.fetchone()
+        if one is None:
+            raise KeyError(key)
+        (data,) = one
 
         # filename = self.filename_for_key(key)
         #
@@ -152,7 +154,7 @@ class StorageFilesystem:
     def __setitem__(self, key: StorageKey, value: object) -> None:  # @ReservedAssignment
         if trace_queries:
             logger.debug(f"W {str(key)}")
-        DOSYNC = False
+        # DOSYNC = False
         ti = new_timeinfo()
         try:
 
@@ -326,5 +328,10 @@ def create_scripts(basepath: DirPath) -> None:
 
     s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
     f = join(basepath, "cm")
+    write_ustring_to_utf8_file(s, f, quiet=True)
+    chmod_plus_x(f)
+
+    s = f"#!/bin/bash\ncompmake-profile {basepath} $* \n"
+    f = join(basepath, "profile")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

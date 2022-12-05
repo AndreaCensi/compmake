@@ -10,11 +10,6 @@ from multiprocessing.context import BaseContext, Process
 from queue import Empty
 from typing import Any, Callable, Literal, Optional, Tuple
 
-import lxml
-import lxml.etree
-from pympler import muppy, summary, tracker
-from pympler.summary import format_
-
 from compmake import (
     AsyncResultInterface,
     CMJobID,
@@ -172,9 +167,15 @@ async def pmake_worker(
             log("(done)")
             return time.time() - t01
 
+        import lxml
+        import lxml.etree
+
         # noinspection PyBroadException
         try:
             if detailed_python_mem_stats:
+
+                from pympler import tracker
+
                 memory_tracker = tracker.SummaryTracker()
             else:
                 memory_tracker = None
@@ -293,6 +294,11 @@ async def pmake_worker(
 
                 del arguments, job
                 if detailed_python_mem_stats:
+                    import lxml
+                    import lxml.etree
+                    from pympler import muppy, summary, tracker
+                    from pympler.summary import format_
+
                     log("cleaning lxml error log...")
                     lxml.etree.clear_error_log()
                     log("gc.collect()...")
@@ -327,10 +333,15 @@ async def pmake_worker(
         result_queue.close()
 
         log("memory dump")
-        all_objects = muppy.get_objects()
-        sum1 = summary.summarize(all_objects)
-        res = joinlines(format_(sum1, limit=50))
-        log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
+
+        if memory_tracker is not None:
+            from pympler import muppy, summary, tracker
+            from pympler.summary import format_
+
+            all_objects = muppy.get_objects()
+            sum1 = summary.summarize(all_objects)
+            res = joinlines(format_(sum1, limit=50))
+            log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
 
         if cov:
             log("saving coverage")
@@ -342,7 +353,8 @@ async def pmake_worker(
 
 
 async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list) -> Any:
-    sti.started()
+    await sti.started_and_yield()
+    sti.logger.info("now_running", function=function, arguments=arguments)
     return await function(sti=sti, args=arguments)
 
 

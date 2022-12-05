@@ -1,5 +1,4 @@
 """ The actual interface of some commands in commands.py """
-from pympler.summary import format_
 
 from compmake import (
     CacheQueryDB,
@@ -20,7 +19,7 @@ async def memstats(sti: SyncTaskInterface, context: Context, cq: CacheQueryDB) -
 
     report = get_report_splitters_text()
     await context.write_message_console(report)
-
+    from pympler.summary import format_
     from pympler import muppy, summary
 
     await context.write_message_console("Collecting memory stats 1...")

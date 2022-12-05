@@ -4,7 +4,6 @@ from typing import List
 
 from compmake import Cache, compmake_colored, Context, Event, register_handler, ui_message
 from compmake_utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
-from zuper_commons.text import indent
 
 # sys.stdout will be changed later
 stream = sys.stdout

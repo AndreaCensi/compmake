@@ -1,6 +1,7 @@
 from zuper_commons import ZLogger
 
 logger = ZLogger(__name__)
+logger.hello_module(name=__name__, filename=__file__, version="n/a", date="n/a")
 
 from .capture import *
 from .coloredterm import *
@@ -37,3 +38,4 @@ from .table_formatter import *
 #             traceback.print_stack(file=self.stdout)
 #
 #     sys.stdout = TracePrints()
+logger.hello_module_finished(name=__name__)

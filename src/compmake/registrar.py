@@ -49,7 +49,7 @@ def register_handler(event_name: str, handler: Callable[[Context, EV], Awaitable
     The event name might contain asterisks. "*" matches all.
     """
     if not inspect.iscoroutinefunction(handler):
-        raise ZException("need all handlers to be couroutine", problem=handler)
+        raise ZException("need all handlers to be coroutines", problem=handler)
     # if not inspect.isawaitable(handler):
     #     logger.debug('not awaitable', handler=handler)
     spec = inspect.getfullargspec(handler)

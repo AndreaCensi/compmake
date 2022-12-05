@@ -1,7 +1,6 @@
 import os
 
 from compmake import COMMANDS_ADVANCED, Context, Event, register_handler, ui_command
-from system_cmd import system_cmd_result
 from zuper_commons.fs import make_sure_dir_exists
 from .graph import graph
 
@@ -62,6 +61,8 @@ async def update_graph(context: Context, event: Event):
         "-o" + png,
         filename,
     ]
+    from system_cmd import system_cmd_result
+
     system_cmd_result(".", cmd0, display_stdout=True, display_stderr=True, raise_on_error=True)
 
     cmd = [

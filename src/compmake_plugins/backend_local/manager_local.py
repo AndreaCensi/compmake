@@ -8,10 +8,10 @@ from compmake import (
     make,
     Manager,
     OKResult,
+    parmake_job2_new_process_1,
+    result_dict_raise_if_error,
     ui_warning,
 )
-from compmake import parmake_job2_new_process_1
-from compmake import result_dict_raise_if_error
 from zuper_utils_asyncio import SyncTaskInterface
 
 tr = None

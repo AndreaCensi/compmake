@@ -14,7 +14,6 @@ from compmake import (
     ui_info,
     UserError,
 )
-from zuper_graphs_draw import GvGen
 from zuper_utils_asyncio import SyncTaskInterface
 
 
@@ -155,6 +154,8 @@ def create_graph1(
     print("Creating graph")
     job_list = list(job_list)
     print(f"create_graph1({job_list})")
+    from zuper_graphs_draw import GvGen
+
     ggraph = GvGen()
 
     job2node = {}
@@ -187,6 +188,7 @@ def create_graph2_clusters(
     cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
 ):
     print("Creating graph")
+    from zuper_graphs_draw import GvGen
 
     ggraph = GvGen()
 

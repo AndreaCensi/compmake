@@ -3,6 +3,11 @@
     stuff is built in as a plugin.
 
 """
+from zuper_commons import ZLogger
+
+logger = ZLogger(__name__)
+logger.hello_module(name=__name__, filename=__file__, version="n/a", date="n/a")
+
 from . import (
     backend_local,
     backend_pmake,
@@ -53,6 +58,7 @@ _ = (
     sanity_check,
     stats,
 )
+logger.hello_module_finished(__name__)
 
 # Useful for debugging events
 # TODO: mail, html_status
