@@ -14,6 +14,6 @@ def get_primitivedp():
     from mcdp_dp import IdentityDP  # ok
     from mcdp_posets import Nat  # ok
 
-    return IdentityDP(Nat())
+    return IdentityDP(F=Nat(), R=Nat())
 
 # mcdp_primitive

@@ -93,6 +93,15 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
 
     (options, args) = parser.parse_args(args)
 
+    # This is not enforced on os x: https://issues.fast-downward.org/issue825
+    # # Set the maximum memory size for this process and its children
+    # # to 1 GB using the resoure module.
+    #
+    # current = resource.getrlimit(resource.RLIMIT_AS)
+    # print(f"Current limits: {current}")
+    # resource.setrlimit(resource.RLIMIT_DATA, current)
+    # resource.setrlimit(resource.RLIMIT_DATA, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+
     # if not options.contracts:
     #     # info('Disabling PyContracts; use --contracts to activate.')
     #     contracts.disable_all()
