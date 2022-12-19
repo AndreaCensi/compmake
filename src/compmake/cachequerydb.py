@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from typing import Collection, List, Set, Tuple, Union
 
+from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
 from . import logger
 from .constants import CompmakeConstants
@@ -10,7 +11,6 @@ from .queries import direct_children, direct_parents, jobs_defined
 from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
-from compmake_utils import memoized_reset
 
 __all__ = [
     "CacheQueryDB",

@@ -1,7 +1,7 @@
 from typing import List, Optional, TypedDict
 
 from zuper_commons.text import indent
-from zuper_commons.types import raise_wrapped, ZException
+from zuper_commons.types import ZException
 from .types import AbortResult, CMJobID, FailResult, InterruptedResult
 
 __all__ = [

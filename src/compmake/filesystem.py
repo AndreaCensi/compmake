@@ -13,7 +13,6 @@ from zuper_commons.fs import (
     join,
     write_ustring_to_utf8_file,
 )
-from zuper_commons.types import ZException
 from zuper_utils_timing.timing import new_timeinfo
 from . import logger
 from .exceptions import SerializationError

@@ -5,6 +5,7 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
+from compmake_utils import safe_pickle_dump
 from zuper_utils_asyncio import SyncTaskInterface
 from .actions import clean_targets, make
 from .cachequerydb import CacheQueryDB
@@ -14,7 +15,6 @@ from .exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
 from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
 from .state import get_compmake_status
 from .storage import all_jobs, delete_all_job_data
-from compmake_utils import safe_pickle_dump
 from .visualization import ui_error, ui_info
 
 ui_section(GENERAL)
