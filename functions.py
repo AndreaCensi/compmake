@@ -1,3 +1,6 @@
+from mcdp_dp import dp_identity
+
+
 def get_ndp():
     from mcdp_lang import parse_ndp  # ok
 
@@ -11,9 +14,8 @@ def get_poset():
 
 
 def get_primitivedp():
-    from mcdp_dp import IdentityDP  # ok
     from mcdp_posets import Nat  # ok
 
-    return IdentityDP(F=Nat(), R=Nat())
+    return dp_identity(Nat())
 
 # mcdp_primitive

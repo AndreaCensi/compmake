@@ -120,11 +120,11 @@ def plot_normally(job_id, lines, is_stderr):
         # if True:  # need to check unicode anyway
         # 3.5.10 -- most recent
 
-        sublines = break_lines(prefix, line, postfix, max_size)
-
+        # sublines = break_lines(prefix, line, postfix, max_size)
+        sublines = break_lines_simple(prefix, line, postfix)
         if sublines:
             for s in sublines:
-                s = pad_to_screen(s)
+                # s = pad_to_screen(s)
                 write_line(s)
             # write_line(sublines[-1]+'\n')
             write_line("\n")
@@ -138,7 +138,7 @@ def plot_normally(job_id, lines, is_stderr):
         #     write_screen_line(line)
 
 
-def break_lines(prefix: str, line: str, postfix: str, max_size: int):
+def break_lines(prefix: str, line: str, postfix: str, max_size: int) -> list[str]:
     # Now let's take lines that do not fit the length
     prefix_len = get_length_on_screen(prefix)
     postfix_len = get_length_on_screen(postfix)
@@ -152,6 +152,31 @@ def break_lines(prefix: str, line: str, postfix: str, max_size: int):
 
     # XXX: might have problems with colors
     sublines = clip_to_length(line, max_space)
+
+    lines = []
+    for _, subline in enumerate(sublines):
+        # pad = '+' if debug_padding else ' '
+        #         pad = ' '
+        #         subline = pad_to_screen_length(subline, max_space, pad=pad)
+        line = "%s%s%s" % (prefix, subline, postfix)
+        lines.append(line)
+    return lines
+
+
+def break_lines_simple(prefix: str, s: str, postfix: str) -> list[str]:
+    # Now let's take lines that do not fit the length
+    # prefix_len = get_length_on_screen(prefix)
+    # postfix_len = get_length_on_screen(postfix)
+    #
+    # max_space = max_size - postfix_len - prefix_len
+    #
+    # if max_space < 10:
+    #     msg = "Weird max space: %s" % max_space
+    #     msg += " max_size: %s prefix: %s postfix: %s" % (max_size, prefix_len, postfix_len)
+    #     raise ValueError(msg)
+
+    # XXX: might have problems with colors
+    sublines = s.splitlines()
 
     lines = []
     for _, subline in enumerate(sublines):

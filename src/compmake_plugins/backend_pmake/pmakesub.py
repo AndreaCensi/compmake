@@ -75,11 +75,7 @@ class PmakeSub:
             detailed_python_mem_stats,
         )
         # logger.info(args=args)
-        self.proc = ctx.Process(
-            target=pmake_worker,
-            args=args,
-            name=name,
-        )
+        self.proc = ctx.Process(target=pmake_worker, args=args, name=name)
         atexit.register(at_exit_delete, proc=self.proc)
         self.proc.start()
         self.last = None
@@ -167,8 +163,7 @@ async def pmake_worker(
             log("(done)")
             return time.time() - t01
 
-        import lxml
-        import lxml.etree
+        # import lxml.etree
 
         # noinspection PyBroadException
         try:
@@ -355,7 +350,11 @@ async def pmake_worker(
 async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list) -> Any:
     await sti.started_and_yield()
     sti.logger.info("now_running", function=function, arguments=arguments)
-    return await function(sti=sti, args=arguments)
+    try:
+        return await function(sti=sti, args=arguments)
+    except:
+        sti.logger.error("funcwrap", tb=traceback.format_exc())
+        raise
 
 
 class PmakeResult(AsyncResultInterface):

@@ -33,9 +33,19 @@ async def why(
     for r in entries:
         counter[r.first_line].append(r)
 
-    most_common = sorted(counter.items(), key=lambda x: (len(x[1]), x[0]))
+    def sorting_key(x: str):
+        isnotimplemented = 0 if "implemented" in x.lower() else 1
+        isskipped = 0 if "SkipTest" in x else 1
+        number_of_jobs = len(counter[x])
+        return (isskipped, isnotimplemented, number_of_jobs, x)
+
+        # lambda x: (len(x[1]), x[0]))
+        # return r.first_line
+
+    show_order_reason = sorted(counter, key=sorting_key)
     table2 = []
-    for reason, rows in most_common:
+    for reason in show_order_reason:
+        rows = counter[reason]
         jobs = [e.job_id for e in rows]
         long = len(jobs) > 1
         max_size = max(len(j) for j in jobs)

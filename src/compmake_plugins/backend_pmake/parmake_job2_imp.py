@@ -23,6 +23,7 @@ from compmake import (
     StorageFilesystem,
 )
 from compmake_utils import setproctitle
+from zuper_commons import ZLogger
 from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
@@ -60,8 +61,11 @@ async def parmake_job2(
     stdout_fn = join(logdir, f"{sanitized}.stdout.log")
     stderr_fn = join(logdir, f"{sanitized}.stderr.log")
 
-    with timeit_wall(job_id) as ti, redirect_std(stdout_fn, stderr_fn):
-
+    DEBUG_LOG = True
+    if DEBUG_LOG:
+        ZLogger.enable_simple = True
+    with timeit_wall(job_id) as ti, redirect_std(stdout_fn, stderr_fn, skip=DEBUG_LOG):
+        sys.stderr.write("parmake_job2 started\n")
         check_isinstance(job_id, str)
         check_isinstance(event_queue_name, str)
         from .pmake_manager import PmakeManager
@@ -96,10 +100,11 @@ async def parmake_job2(
                         # sys.stderr.write('job %s: Queue is full, message is lost.\n'
                         # % job_id)
 
-                remove_all_handlers()
+                if not DEBUG_LOG:
+                    remove_all_handlers()
 
-                if show_output:
-                    register_handler("*", handler)
+                    if show_output:
+                        register_handler("*", handler)
 
                 async def proctitle(context: Context, event: JobProgressEvent):
                     _ = context
@@ -121,7 +126,9 @@ async def parmake_job2(
                 publish(context0, "worker-status", job_id=job_id, status="connected")
 
                 with ti.timeit("make") as tisub:
+                    sys.stderr.write("make() started\n")
                     res: MakeResult = await make(sti, job_id, context=context0, ti=tisub)
+                    sys.stderr.write("make() finished\n")
 
                 publish(context0, "worker-status", job_id=job_id, status="ended")
                 # r2: OKResult
@@ -137,24 +144,32 @@ async def parmake_job2(
                 return res
 
             except KeyboardInterrupt:
-                assert False, "KeyboardInterrupt should be captured by make() (" "inside Job.compute())"
+                assert False, "KeyboardInterrupt should be captured by make() (inside Job.compute())"
             except JobInterrupted:
+                sys.stderr.write("job interrupted\n")
                 publish(context0, "worker-status", job_id=job_id, status="interrupted")
                 raise
             except JobFailed:
+                sys.stderr.write("job failed\n")
                 raise
             except BaseException:
+                sys.stderr.write("job exception\n")
                 # XXX
                 raise
             except:
+                sys.stderr.write("parmake_job2 another exception\n")
                 raise
             finally:
+                sys.stderr.write("parmake_job2 finished\n")
                 publish(context0, "worker-status", job_id=job_id, status="cleanup")
                 setproctitle(f"compmake:{job_id}:done")
 
 
 @contextmanager
-def redirect_std(stdout_fn: str, stderr_fn: str) -> Iterator[None]:
+def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
+    if skip:
+        yield
+        return
     sys.stdout.write(f"Activating stdout -> {stdout_fn}.\n")
     sys.stderr.write(f"Activating stderr -> {stderr_fn}.\n")
 

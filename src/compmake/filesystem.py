@@ -47,11 +47,11 @@ class StorageFilesystem:
         self.basepath = os.path.realpath(basepath)
         if not os.path.exists(self.basepath):
             os.makedirs(self.basepath, exist_ok=True)
-        fn = os.path.join(self.basepath, "db.sqlite")
-        existed = os.path.exists(fn)
+        self.fn = os.path.join(self.basepath, "db.sqlite")
+        existed = os.path.exists(self.fn)
         if not existed:
-            logger.info(f"The database {fn!r} did not exist: creating.")
-        self.con = sqlite3.connect(fn)
+            logger.info(f"The database {self.fn!r} did not exist: creating.")
+        self.con = sqlite3.connect(self.fn)
         if not existed:
             cur = self.con.cursor()
             sql = """
@@ -63,6 +63,7 @@ class StorageFilesystem:
             # """
             # cur.execute(sql)
             self.con.commit()
+            cur.close()
 
         self.checked_existence = False
         self.method = method = "pickle"
@@ -97,6 +98,7 @@ class StorageFilesystem:
         """
         cur.execute(sql, (key,))
         (res,) = cur.fetchone()
+        cur.close()
         return res
         # statinfo = os.stat(filename)
         # return statinfo.st_size
@@ -117,6 +119,7 @@ class StorageFilesystem:
         if one is None:
             raise KeyError(key)
         (data,) = one
+        cur.close()
 
         # filename = self.filename_for_key(key)
         #
@@ -203,6 +206,7 @@ class StorageFilesystem:
         cur = self.con.cursor()
         cur.execute(sql, (key, data))
         self.con.commit()
+        cur.close()
 
     @track_time
     def __delitem__(self, key: StorageKey) -> None:
@@ -212,6 +216,7 @@ class StorageFilesystem:
         cur = self.con.cursor()
         cur.execute(sql, (key,))
         self.con.commit()
+        cur.close()
 
         # filename = self.filename_for_key(key)
         # if not os.path.exists(filename):
@@ -233,6 +238,7 @@ class StorageFilesystem:
         """
         cur.execute(sql, (key,))
         (res,) = cur.fetchone()
+        cur.close()
         return res > 0
         # logger.debug('? %s %s %s' % (str(key), filename, ex))
         # return ex
@@ -247,7 +253,7 @@ class StorageFilesystem:
         res = cur.fetchall()
         for row in res:
             yield row[0]
-
+        cur.close()
         # if extension is None:
         #     extension = self.file_extension
         # filename = self.filename_for_key("*", extension)
@@ -264,7 +270,7 @@ class StorageFilesystem:
         return found
 
     def reopen_after_fork(self) -> None:
-        pass
+        self.con = sqlite3.connect(self.fn)
 
     dangerous_chars = {"/": "CMSLASH", "..": "CMDOT", "~": "CMHOME"}
 
