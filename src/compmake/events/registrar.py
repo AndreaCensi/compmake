@@ -149,4 +149,4 @@ def handle_event_logs(context: Context, event):
         f.write(str(event) + "\n")
 
 
-register_handler("*", handle_event_logs)
+# register_handler("*", handle_event_logs)
