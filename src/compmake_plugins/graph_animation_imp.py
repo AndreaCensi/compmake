@@ -1,6 +1,7 @@
 import os
 
 from compmake import COMMANDS_ADVANCED, Context, Event, register_handler, ui_command
+from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
 from zuper_commons.fs import make_sure_dir_exists
 from .graph import graph
 
@@ -105,7 +106,7 @@ def graph_animation(
         "manager-job-processing",
         "manager-job-failed",
         "manager-job-done",
-        "manager-succeeded",
+        EVENT_MANAGER_SUCCEEDED,
         "manager-phase",
     ]
 

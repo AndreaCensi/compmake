@@ -7,6 +7,7 @@ from compmake import (
     Cache,
     cache_has_large_overhead,
     CacheQueryDB,
+    CMJobID,
     compmake_colored,
     CompmakeConstants,
     Context,
@@ -23,7 +24,7 @@ from compmake import (
     VISUALIZATION,
 )
 from compmake_utils import get_screen_columns, TableFormatter
-from zuper_commons.ui import duration_compact
+from zuper_commons.ui import color_yellow, duration_compact
 from zuper_utils_asyncio import SyncTaskInterface
 
 format_utility_job = dict()
@@ -41,7 +42,8 @@ async def ls(
     reason: bool = False,
     all_details: bool = False,
     show_output_type: bool = False,
-):  # @ReservedAssignment
+    sorting: str = "duration",
+):
     """
     Lists the status of the given jobs (or all jobs if none specified
     specified).
@@ -67,6 +69,7 @@ async def ls(
         reason=reason,
         all_details=all_details,
         show_output_type=show_output_type,
+        sorting=sorting,
     )
     return 0
 
@@ -113,6 +116,9 @@ def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
     return prefix, minimal, postfix
 
 
+SORTING = ["name", "size", "duration", "date"]
+
+
 async def list_jobs(
     context: Context,
     job_list,
@@ -121,7 +127,13 @@ async def list_jobs(
     all_details: bool = False,
     reason: bool = False,
     show_output_type: bool = False,
+    sorting: str = "duration",
 ):
+    if sorting.startswith("-"):
+        reverse = True
+        sorting = sorting[1:]
+    else:
+        reverse = False
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
@@ -130,19 +142,33 @@ async def list_jobs(
         return
 
     # other material to appear on screen
-    other = "  2   d   failed*    (23dde m   ago)"
+    other = "  2   d   failed*    (23dde m  okdeo ago)"
     columns = get_screen_columns()
     # maximum job length
 
     max_len = columns - len(other)
 
-    def format_job_id(ajob_id):
+    def get_key(ji: CMJobID) -> object:
+        if sorting == "name":
+            return ji
+        elif sorting == "size":
+            return get_sizes(ji, cq.db)["total"]
+        elif sorting == "duration":
+            c = cq.get_job_cache(ji)
+            return c.cputime_used or -10
+        elif sorting == "date":
+            c = cq.get_job_cache(ji)
+            return c.timestamp
+        else:
+            raise ValueError(sorting)
+
+    def format_job_id(ajob_id: CMJobID) -> str:
         if complete_names or len(ajob_id) < max_len:
             return ajob_id
         else:
             b = 15
             r = max_len - b - len(" ... ")
-            return ajob_id[:15] + " ... " + ajob_id[-r:]
+            return ajob_id[:15] + color_yellow("*") + ajob_id[-r:]
 
     # abbreviates the names
     #     if not complete_names:
@@ -155,6 +181,7 @@ async def list_jobs(
     wall_total = []
 
     tf = TableFormatter(sep="  ")
+    job_list.sort(key=get_key, reverse=reverse)
 
     for job_id in job_list:
         tf.row()
@@ -206,6 +233,16 @@ async def list_jobs(
             tf.cell(up_reason)
             tf.cell(duration_compact(time() - up_ts))
 
+        if cache.state in [Cache.DONE, Cache.FAILED]:
+            when = duration_compact(time() - cache.timestamp)
+            when_s = f"({when} ago)"
+
+            when_s = compmake_colored(when_s, **format_when)
+
+            tf.cell(when_s)
+        else:
+            tf.cell("")  # when
+
         db = context.get_compmake_db()
         sizes = get_sizes(job_id, db=db)
         size_s = format_size(sizes["total"])
@@ -228,7 +265,9 @@ async def list_jobs(
             cpu = cache.cputime_used
             cpu_total.append(cpu)
 
-            if cpu > 5 or cache_has_large_overhead(cache) or all_details:  # TODO: add param
+            if (
+                cpu > 5 or cache_has_large_overhead(cache) or all_details or (sorting == "duration")
+            ):  # TODO: add param
                 # s_cpu = duration_compact(cpu)
                 s_cpu = timing_summary(cache)
             else:
@@ -238,16 +277,6 @@ async def list_jobs(
 
         else:
             tf.cell("")  # cpu
-
-        if cache.state in [Cache.DONE, Cache.FAILED]:
-            when = duration_compact(time() - cache.timestamp)
-            when_s = f"({when} ago)"
-
-            when_s = compmake_colored(when_s, **format_when)
-
-            tf.cell(when_s)
-        else:
-            tf.cell("")  # when
 
     tf.done()
 

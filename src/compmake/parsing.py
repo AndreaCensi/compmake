@@ -286,7 +286,7 @@ def list_bottom_jobs(context: Context, cq: CacheQueryDB):
 
 def obtain_all(context: Context, cq: CacheQueryDB):
     res = list(cq.all_jobs())
-    print("obtain all: %s" % res)
+    # print("obtain all: %s" % res)
     return res
 
 

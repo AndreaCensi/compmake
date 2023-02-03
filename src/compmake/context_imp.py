@@ -60,10 +60,14 @@ class ContextImp(Context):
 
             # logger.info('Context(): Using default storage dir %r.' % prog)
             dirname = f"out-{prog}"
-            db = StorageFilesystem(dirname, compress=True)
+            db = StorageFilesystem(dirname, compress=True)  # OK: inside context
+            self.db_inited = True
 
-        if isinstance(db, str):
-            db = StorageFilesystem(db, compress=True)
+        elif isinstance(db, str):
+            db = StorageFilesystem(db, compress=True)  # OK: inside context
+            self.db_inited = True
+        else:
+            self.db_inited = False
 
         assert db is not None
         self.compmake_db = db
@@ -137,6 +141,8 @@ class ContextImp(Context):
 
         self.splitter = None
         self.br = None
+        if self.db_inited:
+            self.compmake_db.close()
         # self.sti = None
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         # await self.splitter_ui_console.aclose()
@@ -185,10 +191,13 @@ class ContextImp(Context):
 
             if handlers:
                 for handler in handlers:
+                    if handler not in Tmp.handler_spec:
+                        Tmp.handler_spec[handler] = inspect.getfullargspec(handler)
+                    spec = Tmp.handler_spec[handler]
                     # if not hasattr(handler, "__spec__"):
                     #     setattr(handler, "__spec__", inspect.getfullargspec(handler))
                     # spec = getattr(handler, "__spec__")
-                    spec = inspect.getfullargspec(handler)
+                    # spec = inspect.getfullargspec(handler)
                     # noinspection PyBroadException
                     try:
                         kwargs = {}
@@ -363,6 +372,10 @@ def comp_store_(x: Any, context: ContextImp, job_id: Optional[CMJobID] = None) -
         job = context.comp(load_static_storage, x, **job_params)
         book[id_object] = job
     return book[id_object]
+
+
+class Tmp:
+    handler_spec = {}
 
 
 X = TypeVar("X")

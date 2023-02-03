@@ -15,6 +15,7 @@ from compmake import (
     register_handler,
     ui_error,
 )
+from compmake.registered_events import EVENT_MANAGER_PROGRESS
 from compmake_utils import get_length_on_screen, getTerminalSize
 from zuper_commons.text import indent
 from .tracker import Tracker
@@ -113,7 +114,8 @@ def job_counts(context: Context) -> str:
 
     styles = {
         "normal": {
-            "done": dict(color="green", text="NUM done"),
+            "done_already": dict(color="darkgreen", text="NUM ok"),
+            "done_by_me": dict(color="green", text="NUM done"),
             "failed": dict(color="red", text="NUM failed"),
             "blocked": dict(text="NUM blocked"),
             "ready": dict(color="yellow", text="NUM ready"),
@@ -121,7 +123,8 @@ def job_counts(context: Context) -> str:
             "todo": dict(color="cyan", text="NUM todo"),
         },
         "compact": {
-            "done": dict(color="green", text="NUM ✔"),
+            "done_already": dict(color="darkgreen", text="NUM ok"),
+            "done_by_me": dict(color="green", text="NUM ✔"),
             "failed": dict(color="red", text="NUM ✗"),
             "blocked": dict(text="NUM ⌘"),
             "ready": dict(color="yellow", text="NUM ▴‍"),
@@ -132,7 +135,8 @@ def job_counts(context: Context) -> str:
     style = styles[console_status_style]
 
     values: Dict[str, int] = {
-        "done": len(tracker.done),
+        "done_already": len(tracker.done - tracker.done_by_me),
+        "done_by_me": len(tracker.done_by_me),
         "processing": len(tracker.processing),
         "failed": len(tracker.failed),
         "blocked": len(tracker.blocked),
@@ -342,7 +346,7 @@ async def manager_host_failed(context: Context, event: Event):
 
 
 register_handler("manager-loop", handle_event_period)
-register_handler("manager-progress", handle_event_period)
+register_handler(EVENT_MANAGER_PROGRESS, handle_event_period)
 register_handler("job-progress", handle_event)
 register_handler("job-progress-plus", handle_event)
 register_handler("job-stdout", handle_event)

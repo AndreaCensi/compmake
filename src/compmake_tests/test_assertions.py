@@ -7,7 +7,7 @@ def job_success(*args, **kwargs):
 
 
 def job_failure(*args, **kwargs):
-    assert False, "asserting false"
+    raise AssertionError("asserting false")
 
 
 @run_with_env

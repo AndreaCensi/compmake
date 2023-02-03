@@ -22,6 +22,7 @@ from .exceptions import CompmakeBug, HostFailed, job_interrupted_exc, JobFailed,
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
+from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED
 from .registrar import publish
 from .result_dict import check_ok_result, result_dict_check
 from .storage import (
@@ -105,7 +106,8 @@ class Manager(ManagerLog):
     processing: Set[CMJobID]
     processing2result: Dict[CMJobID, AsyncResultInterface]
 
-    # noinspection PyUnusedLocal
+    done_by_me: Set[CMJobID]
+
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
         self.context = context
         self.sti = sti
@@ -144,6 +146,9 @@ class Manager(ManagerLog):
         self.failed = set()
         self.blocked = set()
 
+        # these are done by me (not previously done)
+        self.done_by_me = set()
+
         # contains job_id -> priority
         # computed by ``precompute_priorities()`` called by process()
         self.priorities = {}
@@ -181,7 +186,7 @@ class Manager(ManagerLog):
         ordered = sorted(self.ready_todo, key=lambda job: self.priorities[job])
         best = ordered[-1]
 
-        # print('choosing %s job %r' % (self.priorities[best], best))
+        # logger.debug(f'choosing {self.priorities[best]} job {best!r}')
         return best
 
     def add_targets(self, targets: Collection[CMJobID]):
@@ -243,7 +248,9 @@ class Manager(ManagerLog):
         # XXX: we should clean the Cache of a job before making it
         # XXX: This is where we get the additional counters 2022-11.
         #  I removed hopefully nothing bad happens.
-        # self.done.update(targets_done - self.processing)
+        # XXX: 2023-01: I put it back. The invariants will not hold anymore.
+        # now we have .done_by_me
+        self.done.update(targets_done - self.processing)
 
         todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
@@ -589,6 +596,7 @@ class Manager(ManagerLog):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
+        self.done_by_me.add(job_id)
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
@@ -723,7 +731,7 @@ class Manager(ManagerLog):
         if not self.todo and not self.ready_todo:
             publish(
                 self.context,
-                "manager-succeeded",
+                EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=True,
                 targets=self.targets,
                 done=self.done,
@@ -791,7 +799,7 @@ class Manager(ManagerLog):
 
             publish(
                 self.context,
-                "manager-succeeded",
+                EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=False,
                 targets=self.targets,
                 done=self.done,
@@ -817,7 +825,7 @@ class Manager(ManagerLog):
     def publish_progress(self) -> None:
         publish(
             self.context,
-            "manager-progress",
+            EVENT_MANAGER_PROGRESS,
             targets=self.targets,
             done=self.done,
             all_targets=self.all_targets,
@@ -827,6 +835,7 @@ class Manager(ManagerLog):
             ready=self.ready_todo,
             processing=self.processing,
             deleted=self.deleted,
+            done_by_me=self.done_by_me,
         )
 
     def _get_situation_string(self):

@@ -2,6 +2,7 @@ import cProfile
 import os
 import pstats
 import resource
+import subprocess
 import sys
 import traceback
 from optparse import OptionParser
@@ -13,7 +14,8 @@ from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
-from . import __version__, CMJobID
+from . import __version__
+from .types import CMJobID
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
 from .context import Context
@@ -234,10 +236,10 @@ async def load_existing_db(sti: SyncTaskInterface, d: DirPath, name: str) -> Con
     # else:
     #     compress = False
     #
-    db = StorageFilesystem(d, compress=True)
-    context = ContextImp(db=db, name=name)
+    # db = StorageFilesystem(d, compress=True)
+    context = ContextImp(db=d, name=name)
     await context.init(sti)
-    jobs = list(all_jobs(db=db))
+    jobs = list(all_jobs(db=context.compmake_db))
     # logger.info('Found %d existing jobs.' % len(jobs))
     await context.reset_jobs_defined_in_this_session(jobs)
 
@@ -253,7 +255,7 @@ def compmake_profile_main() -> ExitCode:
     storage = args[0]
     job_id = cast(CMJobID, args[1])
 
-    db = StorageFilesystem(storage)
+    db = StorageFilesystem(storage)  # OK: profile
     job = get_job(job_id, db)
     command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
     logger.info(job=job)
@@ -268,6 +270,19 @@ def compmake_profile_main() -> ExitCode:
     finally:
         p = pstats.Stats(profiler)
         n = 50
+
         p.sort_stats("cumulative").print_stats(n)
         p.sort_stats("time").print_stats(n)
+        fn = f"{job_id}.profile"
+        profiler.dump_stats(fn)
+        logger.info(f"Wrote profile to {fn}")
+        command = ["pyprof2calltree", "-i", fn, "-o", f"{job_id}.profile.calltree"]
+        subprocess.check_call(command)
+        fn = f"{job_id}.pstat"
+
+        p.dump_stats(fn)
+        logger.info(f"Wrote stats to {fn}")
+        command = ["pyprof2calltree", "-i", fn, "-o", f"{job_id}.pstat.calltree"]
+        subprocess.check_call(command)
+
     return ExitCode.OK

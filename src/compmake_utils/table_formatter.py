@@ -90,7 +90,7 @@ class TableFormatter:
             if wcol[j] > 0:
                 entry = self.padleft(cell, wcol[j])
                 ss.append(entry)
-        return self.sep.join(ss)
+        return self.sep.join(ss).rstrip()
 
 
 def groups_match(it, groupsize) -> List:

@@ -45,8 +45,9 @@ class Env:
         return self.cc.comp_dynamic(*args, **kwargs)
 
     async def init(self):
-        self.db = StorageFilesystem(self.rootd, compress=True)
-        self.cc = ContextImp(self.db, name="FromEnv")
+        # self.db = StorageFilesystem(self.rootd, compress=True)
+        self.cc = ContextImp(self.rootd, name="FromEnv")
+        self.db = self.cc.compmake_db
         await self.cc.init(self.sti)
         self.cq = CacheQueryDB(db=self.db)
         self.cc.set_compmake_config("console_status", False)
@@ -57,7 +58,6 @@ class Env:
 
     async def all_jobs(self):
         """Returns the list of jobs corresponding to the given expression."""
-        # db = StorageFilesystem(self.env, compress=True)
         return sorted(list(all_jobs(self.db)))
 
     async def get_job(self, job_id) -> Job:

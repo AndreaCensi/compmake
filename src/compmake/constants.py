@@ -3,6 +3,8 @@ __all__ = [
     "DefaultsToConfig",
 ]
 
+import warnings
+
 
 class CompmakeConstants:
     """Arbitrary constants used in the code."""
@@ -37,10 +39,21 @@ class CompmakeConstants:
 
     tolerate_db_inconsistencies = True
 
+    debug_parmake_log = True
+
     # Try to recover from anomalous situations
     try_recover = False
 
     aliases = {}
+
+
+if CompmakeConstants.debug_check_invariants:
+    msg = "CompmakeConstants.debug_check_invariants is True; much slower"
+    warnings.warn(msg)
+
+if CompmakeConstants.debug_parmake_log:
+    msg = "CompmakeConstants.debug_parmake_log is True"
+    warnings.warn(msg)
 
 
 class DefaultsToConfig:

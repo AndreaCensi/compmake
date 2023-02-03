@@ -36,8 +36,9 @@ async def why(
     def sorting_key(x: str):
         isnotimplemented = 0 if "implemented" in x.lower() else 1
         isskipped = 0 if "SkipTest" in x else 1
+        istimedout = 0 if "ZTimeoutError" in x else 1
         number_of_jobs = len(counter[x])
-        return (isskipped, isnotimplemented, number_of_jobs, x)
+        return (isskipped, isnotimplemented, istimedout, number_of_jobs, x)
 
         # lambda x: (len(x[1]), x[0]))
         # return r.first_line

@@ -6,6 +6,8 @@ __all__ = [
     "Tracker",
 ]
 
+from compmake.registered_events import EVENT_MANAGER_PROGRESS
+
 
 class Tracker:
     """This class keeps track of the status of the computation.
@@ -19,13 +21,14 @@ class Tracker:
     ready: Set[CMJobID]
     blocked: Set[CMJobID]
     done: Set[CMJobID]
+    done_by_me: Set[CMJobID]
     wait_reasons: dict
     status: dict[str, str]
 
     def __init__(self):
         register_handler("job-progress", self.event_job_progress)
         register_handler("job-progress-plus", self.event_job_progress_plus)
-        register_handler("manager-progress", self.event_manager_progress)
+        register_handler(EVENT_MANAGER_PROGRESS, self.event_manager_progress)
         register_handler("manager-loop", self.event_manager_loop)
         register_handler("manager-wait", self.event_manager_wait)
 
@@ -37,6 +40,7 @@ class Tracker:
         self.ready = set()
         self.blocked = set()
         self.done = set()
+        self.done_by_me = set()
         # Status of jobs in "processing" state
         self.status = {}
         self.status_plus = {}
@@ -70,7 +74,7 @@ class Tracker:
 
     async def event_manager_progress(self, context: Context, event: Event) -> None:
         """Receive progress message (updates processing)"""
-        # attrs=['targets', 'done', 'todo', 'failed', 'ready', 'processing']
+        # attrs=['targets', 'done', 'todo', 'failed', 'ready', 'processing', 'done_by_me']
         self.processing = event.processing
         self.targets = event.targets
         self.todo = event.todo
@@ -78,6 +82,7 @@ class Tracker:
         self.failed = event.failed
         self.ready = event.ready
         self.done = event.done
+        self.done_by_me = event.done_by_me
         self.blocked = event.blocked
 
         # Put unknown for new jobs

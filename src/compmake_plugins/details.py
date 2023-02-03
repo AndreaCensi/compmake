@@ -56,23 +56,23 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         return "\n- ".join([""] + sorted(x))
 
     job = get_job(job_id, db=db)
-
     # TODO: make it work in Python3K
-    print(bold("Job ID:") + "%s" % job_id)
-    print(bold("Defined by:") + "%s" % job.defined_by)
-
+    print(bold("Job ID:") + f"{job_id}")
+    print(bold("Defined by:") + f"{job.defined_by}")
+    # logger.info(job=job.__dict__)
+    print(bold("needs_context:") + f"{job.needs_context}")
     job_args = get_job_args(job_id, db=db)
     command, args, kwargs = job_args
-    print(bold("command:") + "%s" % command)
+    print(bold("command:") + f"{command}")
 
     dchildren = cq.direct_children(job_id)
-    print(bold("Dependencies: (direct)") + " (%d) " % len(dchildren) + format_list(dchildren))
+    print(bold("Dependencies: (direct)") + f" ({len(dchildren)}) " + format_list(dchildren))
 
     all_children = children(job_id, db=db)  # XXX
     other_children = set(all_children) - set(dchildren)
     print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_list(other_children))
 
-    print(bold("Dependencies: (dynamic)") + "%s" % job.dynamic_children)
+    print(bold("Dependencies: (dynamic)") + f"{job.dynamic_children}")
 
     print(bold("Depending on this (direct):") + format_list(dparents))
     print(bold("Depending on this (other):") + format_list(other_parents))

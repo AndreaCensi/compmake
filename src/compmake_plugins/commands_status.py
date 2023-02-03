@@ -1,4 +1,5 @@
 from compmake import Context, Event, register_handler, ui_error, ui_info
+from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
 from zuper_commons.text import indent
 
 
@@ -144,4 +145,4 @@ async def manager_succeeded(context: Context, event: Event):
                 await ui_info(context, s)
 
 
-register_handler("manager-succeeded", manager_succeeded)  # TODO: maybe write sth
+register_handler(EVENT_MANAGER_SUCCEEDED, manager_succeeded)  # TODO: maybe write sth

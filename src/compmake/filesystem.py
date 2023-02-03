@@ -86,6 +86,9 @@ class StorageFilesystem:
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
 
+    def close(self):
+        self.con.close()
+
     def __repr__(self) -> str:
         return f"FilesystemDB({self.basepath!r};{self.file_extension})"
 
@@ -269,8 +272,9 @@ class StorageFilesystem:
         found = sorted(list(self.keys0()))
         return found
 
-    def reopen_after_fork(self) -> None:
-        self.con = sqlite3.connect(self.fn)
+    #
+    # def reopen_after_fork(self) -> None:
+    #     self.con = sqlite3.connect(self.fn)
 
     dangerous_chars = {"/": "CMSLASH", "..": "CMDOT", "~": "CMHOME"}
 

@@ -8,6 +8,8 @@ __all__ = [
     "compute_priorities",
 ]
 
+from . import logger
+
 
 def compute_priorities(
     all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: Optional[Dict[CMJobID, float]] = None
@@ -21,8 +23,13 @@ def compute_priorities(
     all_targets = set(all_targets)
     for job_id in all_targets:
         p = compute_priority(job_id=job_id, priorities=priorities, targets=all_targets, cq=cq)
+        # if job_id not in priorities:
+        #     logger.debug(f'Priority {p} {job_id}')
         priorities[job_id] = p
     return priorities
+
+
+MAX_PRIORITY = 1000
 
 
 def compute_priority(
@@ -36,20 +43,25 @@ def compute_priority(
     parents = set(cq.direct_parents(job_id))
     parents_which_are_targets = [x for x in parents if x in targets]
 
+    cache = cq.get_job_cache(job_id)
+    # do not redo failed jobs
+    if cache.state == Cache.FAILED:
+        return 0.0
+
     # Dynamic jobs get bonus
     job = cq.get_job(job_id)
     if job.needs_context:
-        base_priority = 10
+
+        base_priority = MAX_PRIORITY
+        nlevel = len(job.defined_by)
+        return base_priority - nlevel
+        # base_priority = 10
     else:
-        base_priority = -1
+        base_priority = -1.0
 
     if not parents:
         # top level target
-        base_priority += 5
-
-    cache = cq.get_job_cache(job_id)
-    if cache.state == Cache.FAILED:
-        base_priority -= 100
+        base_priority += 5.0
 
     if not parents_which_are_targets:
         priority = base_priority
@@ -57,8 +69,8 @@ def compute_priority(
         pf = lambda p: compute_priority(p, priorities, targets, cq=cq)
         # it was -1
         parents_priority = list(map(pf, parents_which_are_targets))
-        # priority = base_priority + max(parents_priority)
-        priority = base_priority + sum(parents_priority)
+        priority = max(base_priority, max(parents_priority) / 2)
+        # priority = base_priority + sum(parents_priority)
 
     priorities[job_id] = priority
 

@@ -4,6 +4,7 @@ import signal
 import sys
 import time
 import traceback
+import warnings
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
@@ -134,7 +135,10 @@ async def pmake_worker(
             # logger.info("Not detected coverage need.")
             cov = None
 
+        # write_log = None
+        # warnings.warn('remove above')
         if write_log:
+
             sys.stderr = sys.stdout = f = open(write_log, "w")
 
             def log(s: str):
@@ -144,7 +148,7 @@ async def pmake_worker(
         else:
 
             def log(s: str):
-                # print(f"{current_name}: {s}")
+                print(f"{current_name}: {s}")
                 pass
 
         log("started pmake_worker()")
@@ -249,7 +253,7 @@ async def pmake_worker(
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
                     log(f"waiting for task...")
                     result: ResultDict = await child.wait_for_outcome_success_result()
-
+                    log(f"...task finished")
                     if "ti" in result:
                         log(result["ti"].pretty())
                         result.pop("ti")

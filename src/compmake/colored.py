@@ -2,6 +2,7 @@ from typing import Optional, Sequence
 
 from zuper_commons.ui import get_colorize_function
 from .state import get_compmake_config0
+from . import logger
 
 __all__ = [
     "compmake_colored",
@@ -18,19 +19,18 @@ def compmake_colored(
     colorize = get_compmake_config0("colorize")
     if not colorize:
         return x
+    if attrs is None:
+        attrs = ()
+    else:
+        attrs = tuple(attrs)
 
-    if color is None and on_color is None:
+    if color is None and on_color is None and not attrs:
         return x
-
-    key = (color, on_color, tuple(attrs or ()))
+    key = (color, on_color, attrs)
 
     if key not in ColoredCached.functions:
-        ColoredCached.functions[key] = get_colorize_function(rgb=color, bg_color=on_color)
+        ColoredCached.functions[key] = get_colorize_function(rgb=color, bg_color=on_color, attrs=attrs)
 
     f = ColoredCached.functions[key]
 
-    if colorize:
-        return f(x)
-        # return termcolor_colored(x, color, on_color, attrs)
-    else:
-        return x
+    return f(x)

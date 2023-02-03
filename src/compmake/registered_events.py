@@ -6,6 +6,7 @@ from .types import CMJobID
 compmake_registered_events = {}
 
 __all__ = [
+    "EVENT_MANAGER_SUCCEEDED",
     "JobProgressEvent",
     "compmake_registered_events",
 ]
@@ -43,7 +44,9 @@ add(EventSpec("job-failed", ["job_id", "host", "reason", "bt"]))
 # add(EventSpec("job-finished", ["job_id", "host"]))
 add(EventSpec("job-interrupted", ["job_id", "host", "bt"]))  # FIXME: nobody throws?
 # add(EventSpec("job-now-ready", ["job_id"]))
-add(EventSpec("manager-phase", ["phase"]))
+
+EVENT_MANAGER_PHASE = "manager-phase"
+add(EventSpec(EVENT_MANAGER_PHASE, ["phase"]))
 add(
     EventSpec(
         "manager-loop",
@@ -66,15 +69,28 @@ add(
         "manager-wait", ["reasons"], desc="Reasons why no jobs cannot be instantiated."  # dict str -> str
     )
 )
+EVENT_MANAGER_PROGRESS = "manager-progress"
 add(
     EventSpec(
-        "manager-progress",
-        ["targets", "all_targets", "done", "todo", "failed", "ready", "processing", "deleted", "blocked"],
+        EVENT_MANAGER_PROGRESS,
+        [
+            "targets",
+            "all_targets",
+            "done",
+            "todo",
+            "failed",
+            "ready",
+            "processing",
+            "deleted",
+            "blocked",
+            "done_by_me",
+        ],
     )
 )
+EVENT_MANAGER_SUCCEEDED = "manager-succeeded"
 add(
     EventSpec(
-        "manager-succeeded",
+        EVENT_MANAGER_SUCCEEDED,
         [
             "nothing_to_do",  # there was nothing to do (bool)
             "targets",

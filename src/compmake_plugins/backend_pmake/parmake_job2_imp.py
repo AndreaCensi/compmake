@@ -20,7 +20,6 @@ from compmake import (
     remove_all_handlers,
     result_dict_check,
     ResultDict,
-    StorageFilesystem,
 )
 from compmake_utils import setproctitle
 from zuper_commons import ZLogger
@@ -61,11 +60,11 @@ async def parmake_job2(
     stdout_fn = join(logdir, f"{sanitized}.stdout.log")
     stderr_fn = join(logdir, f"{sanitized}.stderr.log")
 
-    DEBUG_LOG = True
+    DEBUG_LOG = CompmakeConstants.debug_parmake_log
     if DEBUG_LOG:
         ZLogger.enable_simple = True
     with timeit_wall(job_id) as ti, redirect_std(stdout_fn, stderr_fn, skip=DEBUG_LOG):
-        sys.stderr.write("parmake_job2 started\n")
+        sys.stderr.write(f"parmake_job2 {job_id} started\n")
         check_isinstance(job_id, str)
         check_isinstance(event_queue_name, str)
         from .pmake_manager import PmakeManager
@@ -73,11 +72,9 @@ async def parmake_job2(
         # logger.info(f"queues: {PmakeManager.queues}")
         event_queue = PmakeManager.queues[event_queue_name]
 
-        with ti.timeit("open DB"):
-            db = StorageFilesystem(basepath, compress=True)
-
         async with MyAsyncExitStack(sti) as AES:
-            context0 = await AES.init(ContextImp(db=db, name=job_id))
+            with ti.timeit("contextinit"):
+                context0 = await AES.init(ContextImp(db=basepath, name=job_id))
 
             try:
 
@@ -118,10 +115,10 @@ async def parmake_job2(
                 # Note that this function is called after the fork.
                 # All data is conserved, but resources need to be reopened
                 # noinspection PyBroadException
-                try:
-                    db.reopen_after_fork()
-                except:
-                    pass
+                # try:
+                #     db.reopen_after_fork()
+                # except:
+                #     pass
 
                 publish(context0, "worker-status", job_id=job_id, status="connected")
 
@@ -157,10 +154,10 @@ async def parmake_job2(
                 # XXX
                 raise
             except:
-                sys.stderr.write("parmake_job2 another exception\n")
+                sys.stderr.write(f"parmake_job2 {job_id} another exception\n")
                 raise
             finally:
-                sys.stderr.write("parmake_job2 finished\n")
+                sys.stderr.write(f"parmake_job2 {job_id} finished\n")
                 publish(context0, "worker-status", job_id=job_id, status="cleanup")
                 setproctitle(f"compmake:{job_id}:done")
 
@@ -180,11 +177,16 @@ def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
     old_stderr = sys.stderr
     sys.stdout = new_stdout
     sys.stderr = new_stderr
+    resolution = "?"
     try:
         yield
-
+        resolution = "peaceful"
+    except:
+        resolution = "exception"
+        raise
     finally:
-
+        new_stderr.write(f"Closing stderr ({resolution=}).\n")
+        new_stdout.write(f"Closing stdout ({resolution=}).\n")
         sys.stdout = old_stdout
         sys.stderr = old_stderr
         new_stdout.close()
