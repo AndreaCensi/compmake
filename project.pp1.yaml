@@ -29,6 +29,7 @@ install_requires:
 - zuper-zapp-z7
 - networkx
 - typing_extensions
+- atexit
 
 
 tests_require:

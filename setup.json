@@ -3,6 +3,7 @@
     "PyYAML",
     "Pympler",
     "SystemCmd-z7",
+    "atexit",
     "coverage",
     "dill",
     "lxml",
