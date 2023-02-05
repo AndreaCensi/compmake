@@ -167,8 +167,6 @@ async def pmake_worker(
             log("(done)")
             return time.time() - t01
 
-        # import lxml.etree
-
         # noinspection PyBroadException
         try:
             if detailed_python_mem_stats:

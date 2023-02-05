@@ -1,5 +1,6 @@
 import os
 import pickle
+import sqlite3
 import stat
 import traceback
 from asyncio import CancelledError
@@ -31,12 +32,9 @@ trace_queries = False
 
 StorageKey = NewType("StorageKey", str)
 
-import sqlite3
-
 
 class StorageFilesystem:
     basepath: DirPath
-    checked_existence: bool
     method: str
     """ `pickle` or `dill` """
     file_extension: str
@@ -65,7 +63,6 @@ class StorageFilesystem:
             self.con.commit()
             cur.close()
 
-        self.checked_existence = False
         self.method = method = "pickle"
         # self.method = method= "dill"
         # check_format = False  # XXX: quadratic complexity!

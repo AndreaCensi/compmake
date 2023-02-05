@@ -39,10 +39,10 @@ class CompmakeConstants:
 
     tolerate_db_inconsistencies = True
 
-    debug_parmake_log = True
+    debug_parmake_log = False
 
     # Try to recover from anomalous situations
-    try_recover = False
+    try_recover = True
 
     aliases = {}
 
