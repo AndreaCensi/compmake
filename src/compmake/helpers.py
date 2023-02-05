@@ -1,7 +1,7 @@
 import sys
 import types
 from collections import namedtuple
-from typing import Awaitable, Callable, List, Optional, TypeVar, Union
+from typing import Any, Awaitable, Callable, ClassVar, List, Optional, TextIO, TypeVar, Union, cast
 
 from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
@@ -30,21 +30,23 @@ Section = namedtuple("Section", "name desc order commands experimental")
 # noinspection PyClassHasNoInit
 class UIState:
     # name (string) -> tuple (function, name, docs, alias, section)
-    commands = {}
+    commands: ClassVar[dict[str, Command]] = {}
     # holds alias -> name  (string->string) table
-    alias2name = {}
+    alias2name: ClassVar[dict[str, str]] = {}
 
     # section name
     # section name -> Section
-    sections = {}
+    sections: dict[str, Section] = {}
 
-    last_section_name = None  # XXX
+    last_section_name: Optional[str] = None  # XXX
 
 
 # ############ Definition of UI sections ##############
 
 
-def ui_section(section_name, desc=None, order=None, experimental=False):
+def ui_section(
+    section_name: str, desc: Optional[str] = None, order: Optional[int] = None, experimental: bool = False
+):
     if not section_name in UIState.sections:
         UIState.sections[section_name] = Section(
             name=section_name, desc=desc, order=order, commands=[], experimental=experimental
@@ -79,18 +81,22 @@ ui_section(
 # This is a decorator with arguments --
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
+CommandShape = Callable[..., Awaitable[Optional[int]]]
+
+Y = TypeVar("Y", bound=CommandShape)
 
 
-def wrap(func, name, alias, section, dbchange):
+def wrap(
+    func: Y, name: Optional[str], alias: Optional[str | list[str]], section: Optional[str], dbchange: bool
+) -> Y:
     """Decorator for a UI command -- wrapper for register_command"""
     if name is None:
-        name = func.__name__
+        name = getattr(func, "__name__", str(func))
     docs = func.__doc__
     register_command(name=name, func=func, docs=docs, alias=alias, section=section, dbchange=dbchange)
     return func
 
 
-CommandShape = Callable[..., Awaitable[Optional[int]]]
 FT = TypeVar("FT", bound=CommandShape)
 
 
@@ -110,14 +116,26 @@ def ui_command(
     return lambda x: wrap(x, name, alias, section, dbchange)
 
 
-def register_command(name, func, docs, alias=None, section=None, dbchange=False):
+def register_command(
+    name: str,
+    func: Callable[..., Any],
+    docs: Optional[str],
+    alias: Optional[list[str] | str],
+    section: str,
+    dbchange: bool,
+):
+    alias_: list[str]
     if alias is None:
-        alias = []
-    if isinstance(alias, str):
-        alias = [alias]
+        alias_ = []
+    elif isinstance(alias, str):
+        alias_ = [alias]
+    else:  # isinstance(alias, list):
+        alias_ = alias
     if not section:
+        if UIState.last_section_name is None:
+            raise UserError("No section defined for command %s" % name)
         section = UIState.last_section_name
-    c = Command(function=func, name=name, doc=docs, alias=alias, section=section, dbchange=dbchange)
+    c = Command(function=func, name=name, doc=docs, alias=alias_, section=section, dbchange=dbchange)
     if name in UIState.commands:
         prev = UIState.commands[name]
 
@@ -135,7 +153,7 @@ def register_command(name, func, docs, alias=None, section=None, dbchange=False)
     UIState.commands[name] = c
     assert section in UIState.sections, "Section %r not defined" % section
     UIState.sections[section].commands.append(name)
-    for a in alias:
+    for a in alias_:
         assert not a in UIState.alias2name, 'Alias "%s" already used' % a
         assert not a in UIState.commands, 'Alias "%s" is already a command' % a
         UIState.alias2name[a] = name
@@ -147,7 +165,7 @@ def get_commands():
 
 # noinspection PyShadowingBuiltins
 @ui_command(section=GENERAL)
-async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
+async def help(sti: SyncTaskInterface, args: list[str]) -> None:  # @ReservedAssignment
     """
     Prints help about the other commands. (try 'help help')
 
@@ -171,6 +189,7 @@ async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
 
         cmd = commands[c]
         # dbchange = cmd.dbchange
+        s: str
         s = "Command '%s'" % cmd.name
         s = s + "\n" + "-" * len(s)
         print(s)
@@ -178,7 +197,7 @@ async def help(sti: SyncTaskInterface, args):  # @ReservedAssignment
         print(doc)
 
 
-def list_commands_with_sections(file=sys.stdout):  # @ReservedAssignment
+def list_commands_with_sections(file: TextIO = sys.stdout):  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(), key=lambda _section: _section.order)
 
     max_len = 1 + max([len(cmd.name) for cmd in UIState.commands.values()])

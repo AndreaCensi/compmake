@@ -1,5 +1,5 @@
 import time
-from typing import Tuple, Union
+from typing import ClassVar, Optional, Protocol, Tuple, Union
 
 from zuper_commons.types import describe_type
 from .structures import ProgressStage
@@ -10,9 +10,14 @@ __all__ = [
 ]
 
 
+class CallbackType(Protocol):
+    def __call__(self, stack: list[ProgressStage]) -> None:
+        ...
+
+
 class Globals:
-    stack = []
-    callbacks = []
+    stack: list[ProgressStage] = []
+    callbacks: ClassVar[list[CallbackType]] = []
 
 
 def progress_stack_updated():
@@ -20,14 +25,18 @@ def progress_stack_updated():
         callback(Globals.stack)
 
 
-def init_progress_tracking(my_callback):
+def init_progress_tracking(my_callback: CallbackType):
     Globals.stack = []
     Globals.callbacks = []  # OK, otherwise old callbacks will update status
     Globals.callbacks.append(my_callback)
     progress_stack_updated()
 
 
-def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, float]], iteration_desc=None):
+def progress(
+    taskname: str,
+    iterations: Tuple[Union[int, float], Union[int, float]],
+    iteration_desc: Optional[str] = None,
+):
     """
      Function used by the user to describe the state of the computation.
 
@@ -48,13 +57,13 @@ def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, floa
                       'processing file %s' % file[i])
     """
 
-    if not isinstance(taskname, str):
+    if not isinstance(taskname, str):  # type: ignore
         raise ValueError(
             "The first argument to progress() is the task name "
             + "and must be a string; you passed a %s." % describe_type(taskname)
         )
 
-    if not isinstance(iterations, tuple):
+    if not isinstance(iterations, tuple):  # type: ignore
         raise ValueError(
             "The second argument to progress() must be a tuple,"
             + " you passed a %s." % describe_type(iterations)
@@ -65,13 +74,13 @@ def progress(taskname: str, iterations: Tuple[Union[int, float], Union[int, floa
             + " of length 2, not of length %s." % len(iterations)
         )
 
-    if not isinstance(iterations[0], (int, float)):
+    if not isinstance(iterations[0], (int, float)):  # type: ignore
         raise ValueError(
             "The first element of the tuple passed to progress "
             + "must be integer or float, not a %s." % describe_type(iterations[0])
         )
 
-    if not iterations[1] is None and not isinstance(iterations[1], (int, float)):
+    if not iterations[1] is None and not isinstance(iterations[1], (int, float)):  # type: ignore
         raise ValueError(
             "The second element of the tuple passed to progress "
             "must be either None or an integer, not a %s." % describe_type(iterations[1])

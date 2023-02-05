@@ -1,5 +1,7 @@
 from typing import Set, Tuple
 
+from compmake.filesystem import StorageFilesystem
+
 from .cachequerydb import CacheQueryDB, definition_closure
 from .queries import direct_children, direct_parents, jobs_defined, parents
 from .storage import get_job, get_job_cache
@@ -13,7 +15,7 @@ __all__ = [
 ]
 
 
-def up_to_date(job_id: CMJobID, db) -> Tuple[bool, str]:
+def up_to_date(job_id: CMJobID, db: StorageFilesystem) -> Tuple[bool, str]:
     """
 
     Check that the job is up to date.
@@ -42,7 +44,7 @@ def up_to_date(job_id: CMJobID, db) -> Tuple[bool, str]:
     return res, reason
 
 
-def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
+def direct_uptodate_deps(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
     """Returns all direct 'dependencies' of this job:
     the jobs that are children (arguemnts)
     plus the job that defined it (if not root).
@@ -58,7 +60,7 @@ def direct_uptodate_deps(job_id: CMJobID, db) -> Set[CMJobID]:
     return dependencies
 
 
-def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
+def direct_uptodate_deps_inverse(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
     """Returns all jobs that have this as
     a direct 'dependency'
     the jobs that are direct parents
@@ -75,7 +77,7 @@ def direct_uptodate_deps_inverse(job_id: CMJobID, db) -> Set[CMJobID]:
     return dep_inv
 
 
-def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db) -> Set[CMJobID]:
+def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
     """
     Closure of direct_uptodate_deps_inverse:
     all jobs that depend on this.

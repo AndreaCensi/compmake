@@ -3,9 +3,10 @@ import os
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import Any, List, Optional, Set, TypeVar, Union
+from typing import Any, Callable, Collection, List, Optional, Set, TypeVar, Union, cast
 
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
+from zuper_commons.fs import DirPath
 from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
@@ -38,6 +39,9 @@ class ContextImp(Context):
     currently_executing: List[CMJobID]
     objectid2job: dict[int, Promise]
     name: Optional[str]
+    _jobs_defined_in_this_session: Set[CMJobID]
+    _currently_executing: List[CMJobID]
+    generate_job_id_counters: dict[str, int]
 
     def __init__(
         self,
@@ -53,18 +57,18 @@ class ContextImp(Context):
         """
         self.name = name
         if currently_executing is None:
-            currently_executing = ["root"]
+            currently_executing = [cast(CMJobID, "root")]
 
         if db is None:
             prog, _ = os.path.splitext(os.path.basename(sys.argv[0]))
 
             # logger.info('Context(): Using default storage dir %r.' % prog)
-            dirname = f"out-{prog}"
+            dirname = cast(DirPath, f"out-{prog}")
             db = StorageFilesystem(dirname, compress=True)  # OK: inside context
             self.db_inited = True
 
         elif isinstance(db, str):
-            db = StorageFilesystem(db, compress=True)  # OK: inside context
+            db = StorageFilesystem(cast(DirPath, db), compress=True)  # OK: inside context
             self.db_inited = True
         else:
             self.db_inited = False
@@ -121,10 +125,10 @@ class ContextImp(Context):
 
     br: "Optional[SyncTask[None]]"
 
-    async def aclose(self):
+    async def aclose(self) -> None:
         # self.sti.logger.debug("aclosing contextimp")
         # self.sti.logger.debug("aclosing contextimp - splitter")
-
+        assert self.splitter is not None
         await self.splitter.finish()
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         # await self.splitter_ui_console.finish()
@@ -133,6 +137,7 @@ class ContextImp(Context):
         # await self.write_task
         # self.sti.logger.debug("aclosing br")
         # self.br.cancel()
+        assert self.br is not None
         await self.br.wait_for_outcome()
         # await self.write_task.wait_for_outcome()
         # self.sti.logger.debug("aclosing contextimp done")
@@ -182,7 +187,8 @@ class ContextImp(Context):
     async def broadcast(self, sti: SyncTaskInterface) -> None:
         sti.started()
         event: Event
-        async for a, event in self.splitter.read():
+        assert self.splitter is not None
+        async for _a, event in self.splitter.read():
             # print(event.name)
             all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
@@ -205,7 +211,7 @@ class ContextImp(Context):
                             kwargs["event"] = event
                         if "context" in spec.args:
                             kwargs["context"] = self
-                        await handler(**kwargs)
+                        await handler(**kwargs)  # type: ignore
                         # TODO: do not catch interrupted, etc.
                     except KeyboardInterrupt:
                         raise
@@ -225,7 +231,7 @@ class ContextImp(Context):
                             pass
             else:
                 for handler in CompmakeGlobalState.EventHandlers.fallback:
-                    await handler(self, event)
+                    await handler(context=self, event=event)
         # sti.logger.debug(f'broadcast: done gracefully (nevents = {a + 1})')
 
     def get_currently_executing(self) -> List[CMJobID]:
@@ -239,14 +245,14 @@ class ContextImp(Context):
     def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
         self._jobs_defined_in_this_session.add(job_id)
 
-    def get_jobs_defined_in_this_session(self) -> Set[str]:
+    def get_jobs_defined_in_this_session(self) -> Set[CMJobID]:
         return set(self._jobs_defined_in_this_session)
 
-    async def reset_jobs_defined_in_this_session(self, jobs):
+    async def reset_jobs_defined_in_this_session(self, jobs: Collection[CMJobID]) -> None:
         """Called only when initializing the context."""
         self._jobs_defined_in_this_session = set(jobs)
 
-    def get_compmake_db(self):
+    def get_compmake_db(self) -> StorageFilesystem:
         return self.compmake_db
 
     def get_comp_prefix(self) -> str:
@@ -261,13 +267,13 @@ class ContextImp(Context):
         self._job_prefix = prefix
 
     # setting up jobs
-    def comp_dynamic(self, command_, *args, **kwargs):
-        return comp_(self, command_, *args, needs_context=True, **kwargs)
+    def comp_dynamic(self, f: Callable[..., Any], *args: Any, **kwargs: Any) -> Promise:
+        return comp_(self, f, *args, needs_context=True, **kwargs)
 
-    def comp(self, command_, *args, **kwargs):
+    def comp(self, command_: Callable[..., Any], *args: Any, **kwargs: Any) -> Promise:
         return comp_(self, command_, *args, **kwargs)
 
-    def comp_store(self, x, job_id=None):
+    def comp_store(self, x: object, job_id: Optional[CMJobID] = None) -> Promise:
         return comp_store_(x=x, context=self, job_id=job_id)
 
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
@@ -375,7 +381,7 @@ def comp_store_(x: Any, context: ContextImp, job_id: Optional[CMJobID] = None) -
 
 
 class Tmp:
-    handler_spec = {}
+    handler_spec: dict[Any, Any] = {}
 
 
 X = TypeVar("X")

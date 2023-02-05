@@ -24,16 +24,16 @@
 """
 import types
 from collections import namedtuple
-from typing import cast, Iterator
+from typing import Any, Iterable, Optional, cast, Iterator
 
 from zuper_commons.text import expand_wildcard
 from zuper_commons.types import check_isinstance, ZValueError
 from .cachequerydb import CacheQueryDB
-from .constants import CompmakeConstants
+from .constants import AliasT, CompmakeConstants
 from .context import Context
 from .exceptions import CompmakeSyntaxError, UserError
 from .storage import get_job
-from .structures import Cache
+from .structures import Cache, Job, StateCode
 from .types import CMJobID
 
 __all__ = [
@@ -44,21 +44,21 @@ __all__ = [
 CompmakeConstants.aliases["last"] = "*"
 
 
-def add_alias(alias, value):
+def add_alias(alias: str, value: AliasT) -> None:
     """Sets the given alias to value. See eval_alias() for a discussion
     of the meaning of value."""
     CompmakeConstants.aliases[alias] = value
 
 
-def assert_list_of_strings(l):
+def assert_list_of_strings(l: Any) -> None:
     assert all([isinstance(x, str) for x in l]), "Expected list of strings: %s." % str(l)
 
 
-def is_alias(alias):
+def is_alias(alias: str) -> bool:
     return alias.lower() in CompmakeConstants.aliases
 
 
-def eval_alias(alias, context: Context, cq: CacheQueryDB):
+def eval_alias(alias: str, context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """
     Evaluates the given alias.
     Returns a list of job_id strings.
@@ -77,20 +77,21 @@ def eval_alias(alias, context: Context, cq: CacheQueryDB):
 
     # noinspection PyTypeChecker
     if isinstance(value, str):
-        return list([value])
+        yield cast(CMJobID, value)
     elif isinstance(value, list):
         assert_list_of_strings(value)
-        return value
+        for _ in value:
+            yield cast(CMJobID, _)
     elif isinstance(value, types.FunctionType):
         result = value(context=context, cq=cq)
         # can be generator; no assert_list_of_strings(result)
-        return result
+        yield from result
     else:
         msg = 'I cannot interpret alias "%s" -> "%s".' % (alias, value)
         raise ValueError(msg)
 
 
-def list_matching_functions(token: str, context: Context, cq: CacheQueryDB):
+def list_matching_functions(token: str, context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     db = context.get_compmake_db()
     assert token.endswith("()")
     if len(token) < 3:
@@ -118,29 +119,30 @@ def expand_job_list_token(token: str, context: Context, cq: CacheQueryDB) -> Ite
 
     if token.find("*") > -1:
         try:
-            return expand_wildcard(token, cq.all_jobs())
+            for _ in expand_wildcard(token, cq.all_jobs()):
+                yield _
         except ZValueError as e:
-            raise UserError(f"Could not find any match for {token}") from None
+            raise UserError(f"Could not find any match for {token}") from e
     elif is_alias(token):
-        return eval_alias(token, context, cq)
+        yield from eval_alias(token, context, cq)
     elif token.endswith("()"):
-        return list_matching_functions(token, context, cq)
+        yield from list_matching_functions(token, context, cq)
     else:
         # interpret as a job id
         job_id = cast(CMJobID, token)
         if not cq.job_exists(job_id):
             msg = f'Job or expression "{job_id}" not found.'
             raise UserError(msg)
-        return [job_id]
+        yield job_id
 
 
-def expand_job_list_tokens(tokens, context: Context, cq: CacheQueryDB):
+def expand_job_list_tokens(tokens: list[str], context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Expands a list of tokens using expand_job_list_token().
     yields job_id"""
     for token in tokens:
-        if not isinstance(token, str):
-            # print tokens XXX
-            pass
+        # if not isinstance(token, str):
+        #     # print tokens XXX
+        #     pass
         for job in expand_job_list_token(token, context, cq):
             yield job
 
@@ -162,11 +164,11 @@ class Operators:
     }
 
     @staticmethod
-    def parse(tokens):
+    def parse(tokens: list[str]):
         """Parses a list of tokens for known operators.
         Returns a list where the operators are replaced by their codes."""
 
-        def token2op(token):
+        def token2op(token: str):
             """Translates one token, or returns the same"""
             tokenl = token.lower()
             return Operators.translation.get(tokenl, token)
@@ -174,14 +176,14 @@ class Operators:
         return list(map(token2op, tokens))
 
 
-def list_jobs_with_state(state, context: Context, cq: CacheQueryDB):
+def list_jobs_with_state(state: StateCode, context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Returns a list of jobs in the given state."""
     for job_id in cq.all_jobs():
         if cq.get_job_cache(job_id).state == state:  # TODO
             yield job_id
 
 
-def list_ready_jobs(context: Context, cq: CacheQueryDB):
+def list_ready_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Returns a list of jobs that can be done now,
     as their dependencies are up-to-date."""
     for job_id in cq.all_jobs():
@@ -189,7 +191,7 @@ def list_ready_jobs(context: Context, cq: CacheQueryDB):
             yield job_id
 
 
-def list_uptodate_jobs(context: Context, cq: CacheQueryDB):
+def list_uptodate_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Returns a list of jobs that are uptodate
     (DONE, and all depednencies DONE)."""
     for job_id in cq.all_jobs():
@@ -198,7 +200,7 @@ def list_uptodate_jobs(context: Context, cq: CacheQueryDB):
             yield job_id
 
 
-def list_todo_jobs(context: Context, cq: CacheQueryDB):
+def list_todo_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """
     Returns a list of jobs that haven't been DONE.
     Note that it could be DONE but not up-to-date.
@@ -208,7 +210,7 @@ def list_todo_jobs(context: Context, cq: CacheQueryDB):
             yield job_id
 
 
-def list_root_jobs(context: Context, cq: CacheQueryDB):
+def list_root_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Returns a list of jobs that were defined by the original process."""
     for job_id in cq.all_jobs():
         job = cq.get_job(job_id)
@@ -224,7 +226,7 @@ def list_generated_jobs(context: Context, cq: CacheQueryDB):
             yield job_id
 
 
-def list_levelX_jobs(context, cq, X):
+def list_levelX_jobs(context: Context, cq: CacheQueryDB, X: int) -> Iterator[CMJobID]:
     """Returns a list of jobs that are at level X"""
     for job_id in cq.all_jobs():
         job = cq.get_job(job_id)
@@ -253,11 +255,11 @@ def list_level4_jobs(context: Context, cq: CacheQueryDB):
         yield x
 
 
-def is_root_job(job):
+def is_root_job(job: Job) -> bool:
     return job.defined_by == ["root"]
 
 
-def is_dynamic_job(job):
+def is_dynamic_job(job: Job) -> bool:
     return bool(job.needs_context)
 
 
@@ -306,14 +308,26 @@ add_alias("level3", list_level3_jobs)
 add_alias("level4", list_level4_jobs)
 add_alias("dynamic", list_dynamic_jobs)
 add_alias("bottom", list_bottom_jobs)
-add_alias("done", lambda context, cq: list_jobs_with_state(Cache.DONE, context=context, cq=cq))
+
+
+def a_done(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
+    return list_jobs_with_state(Cache.DONE, context=context, cq=cq)
+
+
+add_alias("done", a_done)
 # add_alias('in_progress',
 #           lambda context, cq:
 #           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))
-add_alias("not_started", lambda context, cq: list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq))
 
 
-def parse_job_list(tokens, context, cq=None):
+def a_not_started(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
+    yield from list_jobs_with_state(Cache.NOT_STARTED, context=context, cq=cq)
+
+
+add_alias("not_started", a_not_started)
+
+
+def parse_job_list(tokens: list[str], context: Context, cq: Optional[CacheQueryDB] = None) -> list[CMJobID]:
     """
     Parses a job list. tokens can be:
 
@@ -348,12 +362,14 @@ def parse_job_list(tokens, context, cq=None):
     return result
 
 
-def eval_ops(ops, context: Context, cq: CacheQueryDB):
+def eval_ops(ops: list[str | Operators.Op], context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     """Evaluates an expression.
     ops: list of strings and int representing operators"""
     check_isinstance(ops, list)
 
-    def list_split(l, index):
+    def list_split(
+        l: list[str | Operators.Op], index: int
+    ) -> tuple[list[str | Operators.Op], list[str | Operators.Op]]:
         """Splits a list in two"""
         return l[0:index], l[index + 1 :]
 
@@ -367,8 +383,8 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
         if not left or not right:
             msg = """ INTERSECTION requires only a right argument.
             Interpreting "%s" INTERSECTION "%s". """ % (
-                " ".join(left),
-                " ".join(right),
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
             )
             raise CompmakeSyntaxError(msg)
         left = eval_ops(ops=left, context=context, cq=cq)
@@ -382,8 +398,8 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
         if not left or not right:
             msg = """ EXCEPT requires a left and right argument.
             Interpreting "%s" EXCEPT "%s". """ % (
-                " ".join(left),
-                " ".join(right),
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
             )
             raise CompmakeSyntaxError(msg)
 
@@ -398,8 +414,8 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
         if left or not right:  # forbid left, require right
             msg = """ NOT requires only a right argument. Interpreting "%s" NOT
                     "%s". """ % (
-                " ".join(left),
-                " ".join(right),
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
             )
             raise CompmakeSyntaxError(msg)
 
@@ -427,5 +443,5 @@ def eval_ops(ops, context: Context, cq: CacheQueryDB):
         # no operators: simple list
         # cannot do this anymore, now it's a generator.
         # assert_list_of_strings(ops)
-        for x in expand_job_list_tokens(ops, context=context, cq=cq):
+        for x in expand_job_list_tokens(cast(list[str], ops), context=context, cq=cq):
             yield x

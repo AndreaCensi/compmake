@@ -61,9 +61,9 @@
 """
 import time
 from dataclasses import dataclass
-from typing import Dict, List, NewType, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, Union
 
-from compmake_utils.pickle_frustration import pickle_main_context_save
+from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
@@ -92,8 +92,8 @@ class Job:
     parents: set[CMJobID]
     needs_context: bool
     defined_by: list[CMJobID]
-    dynamic_children: dict
-    pickle_main_context: object
+    dynamic_children: dict[CMJobID, set[CMJobID]]
+    pickle_main_context: PickleContextDesc
     command_desc: str
 
     def __init__(
@@ -101,8 +101,8 @@ class Job:
         job_id: CMJobID,
         children: set[CMJobID],
         command_desc: str,
-        needs_context: bool = False,
-        defined_by: list[CMJobID] = None,
+        needs_context: bool,
+        defined_by: list[CMJobID],
     ):
         """
 
@@ -127,7 +127,10 @@ class Job:
         self.pickle_main_context = pickle_main_context_save()
 
 
-def same_computation(jobargs1, jobargs2):
+JA = tuple[str, tuple[Any, ...], dict[str, Any]]
+
+
+def same_computation(jobargs1: JA, jobargs2: JA) -> tuple[Literal[True], None] | tuple[Literal[False], str]:
     """Returns boolean, string tuple"""
     cmd1, args1, kwargs1 = jobargs1
     cmd2, args2, kwargs2 = jobargs2
@@ -283,8 +286,8 @@ class Cache:
     int_compute: Optional[IntervalTimer]
     int_save_results: Optional[IntervalTimer]
     int_gc: Optional[IntervalTimer]
-    jobs_defined: Set[CMJobID]
-    hashes_dependencies: Dict[str, object]
+    jobs_defined: set[CMJobID]
+    hashes_dependencies: dict[str, object]
     exception: Optional[str]
     backtrace: Optional[str]
     captured_stdout: Optional[str]
@@ -341,6 +344,12 @@ class Cache:
 
 
 def cache_has_large_overhead(cache: Cache) -> bool:
+
+    assert cache.int_make is not None
+    assert cache.int_load_results is not None
+    assert cache.int_compute is not None
+    assert cache.int_gc is not None
+    assert cache.int_save_results is not None
     overhead = (
         cache.int_load_results.get_walltime_used()
         + cache.int_save_results.get_walltime_used()
@@ -351,6 +360,11 @@ def cache_has_large_overhead(cache: Cache) -> bool:
 
 def timing_summary(cache: Cache) -> str:
     dc = duration_compact
+    assert cache.int_make is not None
+    assert cache.int_load_results is not None
+    assert cache.int_compute is not None
+    assert cache.int_gc is not None
+    assert cache.int_save_results is not None
     s = "%7s (L %s C %s GC %s S %s)" % (
         dc(cache.int_make.get_walltime_used()),
         dc(cache.int_load_results.get_walltime_used()),
@@ -362,17 +376,27 @@ def timing_summary(cache: Cache) -> str:
 
 
 class ProgressStage:
-    def __init__(self, name: str, iterations: Tuple[Union[float, int], Union[float, int]], iteration_desc):
+    name: str
+    iterations: Tuple[Union[float, int], Union[float, int]]
+    iteration_desc: Optional[str]
+    last_broadcast: Optional[float]
+
+    def __init__(
+        self,
+        name: str,
+        iterations: Tuple[Union[float, int], Union[float, int]],
+        iteration_desc: Optional[str],
+    ):
         self.name = name
         self.iterations = iterations
         self.iteration_desc = iteration_desc
         # We keep track of when to send the event
         self.last_broadcast = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"[{self.name} {self.iterations} {self.iteration_desc}]"
 
-    def was_finished(self):
+    def was_finished(self) -> bool:
         # allow off-by-one conventions
         if isinstance(self.iterations[1], int):
             return self.iterations[0] >= self.iterations[1] - 1

@@ -5,6 +5,8 @@ from typing import Any, Callable, cast, Dict, Mapping, Optional, Set, Tuple, Typ
 from zuper_commons.types import add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
+
+from compmake.filesystem import StorageFilesystem
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
@@ -19,10 +21,12 @@ __all__ = [
 ]
 
 
-def get_cmd_args_kwargs(job_id: CMJobID, db) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
+def get_cmd_args_kwargs(
+    job_id: CMJobID, db: StorageFilesystem
+) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
     """Substitutes dependencies and gets actual cmd, args, kwargs."""
-    command, args, kwargs = get_job_args(job_id, db=db)
-    kwargs = dict(**kwargs)
+    command, args, kwargs0 = get_job_args(job_id, db=db)
+    kwargs: dict[str, Any] = dict(**kwargs0)
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
@@ -92,7 +96,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         int_compute = IntervalTimer()
         is_async = inspect.iscoroutinefunction(command)
         if is_async:
-            kwargs3 = cast(Dict[str, Any], dict(kwargs))
+            kwargs3 = dict(kwargs)
             if "sti" in sig.parameters:
                 kwargs3["sti"] = sti
 
@@ -128,7 +132,7 @@ class ExecuteWithContextResult(TypedDict):
 
 async def execute_with_context(
     sti: SyncTaskInterface,
-    db,
+    db: StorageFilesystem,
     context: Context,
     job_id: CMJobID,
     command: Callable[..., Any],
@@ -139,6 +143,7 @@ async def execute_with_context(
     assert isinstance(context, Context)
 
     cur_job = get_job(job_id=job_id, db=db)
+    # FIXME: make it a function set_currently_executing
     context.currently_executing = cur_job.defined_by + [job_id]
 
     sig = inspect.signature(command)
@@ -158,7 +163,7 @@ async def execute_with_context(
     assert context in args
 
     try:
-        bound = sig.bind(*args, **kwargs2)
+        _bound = sig.bind(*args, **kwargs2)
     except TypeError as e:
         msg = "Cannot bind"
         raise ZValueError(msg, sig=sig, args=args, kwargs=kwargs2) from e

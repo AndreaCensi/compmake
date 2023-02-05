@@ -1,5 +1,6 @@
 from contextlib import contextmanager
-from typing import Collection, List, Set, Tuple, Union
+from typing import Collection, Iterator, List, Set, Tuple, Union
+from compmake.filesystem import StorageFilesystem
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
@@ -24,19 +25,21 @@ class CacheQueryDB:
     between calls.
     """
 
-    def __init__(self, db):
+    db: StorageFilesystem
+
+    def __init__(self, db: StorageFilesystem):
         self.db = db
 
-    def invalidate(self):
-        self.get_job_cache.reset()
-        self.get_job.reset()
-        self.all_jobs.reset()
-        self.job_exists.reset()
-        self.up_to_date.reset()
-        self.direct_children.reset()
-        self.direct_parents.reset()
-        self.dependencies_up_to_date.reset()
-        self.jobs_defined.reset()
+    def invalidate(self) -> None:
+        self.get_job_cache.reset()  # type: ignore
+        self.get_job.reset()  # type: ignore
+        self.all_jobs.reset()  # type: ignore
+        self.job_exists.reset()  # type: ignore
+        self.up_to_date.reset()  # type: ignore
+        self.direct_children.reset()  # type: ignore
+        self.direct_parents.reset()  # type: ignore
+        self.dependencies_up_to_date.reset()  # type: ignore
+        self.jobs_defined.reset()  # type: ignore
 
     @memoized_reset
     def get_job_cache(self, job_id: CMJobID) -> Cache:
@@ -121,7 +124,7 @@ class CacheQueryDB:
     @memoized_reset
     def parents(self, job_id: CMJobID) -> Set[CMJobID]:
 
-        t = set()
+        t: set[CMJobID] = set()
         parents_jobs = self.direct_parents(job_id)
         for p in parents_jobs:
             t.add(p)
@@ -140,11 +143,11 @@ class CacheQueryDB:
     def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
         """More efficient version of tree()
         which is direct_children() recursively."""
-        stack = []
+        stack: list[CMJobID] = []
 
         stack.extend(jobs)
 
-        result = set()
+        result: set[CMJobID] = set()
 
         while stack:
             job_id = stack.pop()
@@ -168,10 +171,10 @@ class CacheQueryDB:
                 if not self.job_exists(j):
                     raise CompmakeBug("Job does not exist", job_id=j)
 
-            todo = set()
-            done = set()
-            seen = set()
-            stack = list()
+            todo: set[CMJobID] = set()
+            done: set[CMJobID] = set()
+            seen: set[CMJobID] = set()
+            stack: list[CMJobID] = list()
             stack.extend(jobs)
 
             class A:
@@ -215,15 +218,15 @@ class CacheQueryDB:
 
     def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
         """Closure of the relation children and dependencies of userobject."""
-        stack = []
+        stack: list[CMJobID] = []
         if isinstance(jobs, str):
-            jobs = [jobs]
+            stack.append(jobs)
+        else:
+            stack.extend(jobs)
 
-        stack.extend(jobs)
+        result: Set[CMJobID] = set()
 
-        result = set()
-
-        def descendants(a_job_id):
+        def descendants(a_job_id: CMJobID) -> set[CMJobID]:
             deps = collect_dependencies(get_job_userobject(a_job_id, self.db))
             children = self.direct_children(a_job_id)
             check_isinstance(children, set)
@@ -245,22 +248,22 @@ class CacheQueryDB:
 
 
 @contextmanager
-def db_error_wrap(what, **args):
+def db_error_wrap(what: str, **args: object) -> Iterator[None]:
     try:
         yield
     except CompmakeDBError as e:
         raise CompmakeDBError(what, **args) from e
 
 
-def definition_closure(jobs: Collection[CMJobID], db) -> Set[CMJobID]:
+def definition_closure(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
     """The result does not contain jobs (unless one job defines another)"""
     # print('definition_closure(%s)' % jobs)
-    check_isinstance(jobs, (list, set))
+    assert isinstance(jobs, (list, set))
     jobs = set(jobs)
 
     cq = CacheQueryDB(db)
     stack = set(jobs)
-    result = set()
+    result: set[CMJobID] = set()
     while stack:
         # print('stack: %s' % stack)
         a = stack.pop()

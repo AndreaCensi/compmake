@@ -13,6 +13,8 @@ from typing import (
 )
 
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake.structures import Promise
 from .types import CMJobID
 
 __all__ = [
@@ -27,8 +29,10 @@ if TYPE_CHECKING:
 
 
 class Context(ABC):
+    currently_executing: list[CMJobID]
+
     @abstractmethod
-    async def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:
+    def was_job_defined_in_this_session(self, job_id: CMJobID) -> bool:
         ...
 
     @abstractmethod
@@ -86,7 +90,7 @@ class Context(ABC):
     #
 
     @abstractmethod
-    async def comp_store(self, x: object, job_id: Optional[str] = None):
+    async def comp_store(self, x: object, job_id: Optional[str] = None) -> Promise:
         ...
 
     @abstractmethod
@@ -118,4 +122,8 @@ class Context(ABC):
 
     @abstractmethod
     async def set_status_line(self, s: Optional[str]) -> None:
+        ...
+
+    @abstractmethod
+    async def aclose(self) -> None:
         ...

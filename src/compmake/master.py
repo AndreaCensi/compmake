@@ -51,7 +51,7 @@ async def main(zenv: ZappEnv) -> ExitCode:
     return await compmake_main(zenv.sti, args=zenv.args)
 
 
-def limit_memory(maxsize):
+def limit_memory(maxsize: int) -> None:
     soft, hard = resource.getrlimit(resource.RLIMIT_AS)
     print(f"{soft=} {hard=} {maxsize=}")
     # resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
@@ -122,6 +122,7 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
 
     # if the argument looks like a dirname
     one_arg = cast(DirPath, args[0])
+    context: Context
     if os.path.exists(one_arg) and os.path.isdir(one_arg):
         # If there is a compmake/ folder inside, take it as the root
         child = join(one_arg, cast(RelDirPath, "compmake"))
@@ -181,11 +182,11 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
             write_atomic(options.retcodefile, str(retcode))
 
         if options.nosysexit:
-            return retcode
+            return cast(ExitCode, retcode)
         else:
             # logger.warning("temporarily always disabling sys.exit")
             # sys.exit(retcode)
-            return retcode
+            return cast(ExitCode, retcode)
 
     if not options.profile:
         try:
@@ -252,7 +253,7 @@ from . import logger
 def compmake_profile_main() -> ExitCode:
     args = sys.argv[1:]
     logger.info("args: %s" % args)
-    storage = args[0]
+    storage = cast(DirPath, args[0])
     job_id = cast(CMJobID, args[1])
 
     db = StorageFilesystem(storage)  # OK: profile
@@ -266,7 +267,7 @@ def compmake_profile_main() -> ExitCode:
     profiler = cProfile.Profile()
     try:
         with profiler:
-            user_object = command(*args, **kwargs)
+            _user_object = command(*args, **kwargs)
     finally:
         p = pstats.Stats(profiler)
         n = 50

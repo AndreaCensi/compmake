@@ -3,7 +3,22 @@ __all__ = [
     "DefaultsToConfig",
 ]
 
+from typing import TYPE_CHECKING, ClassVar, Collection, Iterator, Protocol
 import warnings
+
+from .types import CMJobID
+
+if TYPE_CHECKING:
+    from .context import Context
+    from .cachequerydb import CacheQueryDB
+
+
+class JobIterator(Protocol):
+    def __call__(self, context: "Context", cq: "CacheQueryDB") -> Iterator[CMJobID]:
+        ...
+
+
+AliasT = str | JobIterator
 
 
 class CompmakeConstants:
@@ -44,7 +59,7 @@ class CompmakeConstants:
     # Try to recover from anomalous situations
     try_recover = True
 
-    aliases = {}
+    aliases: ClassVar[dict[str, AliasT | str | Collection[str]]] = {}
 
 
 if CompmakeConstants.debug_check_invariants:

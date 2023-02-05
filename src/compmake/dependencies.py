@@ -1,7 +1,9 @@
 from copy import deepcopy
-from typing import Set
+from typing import Any, Set, TypeVar
 
 from zuper_commons.types import ZException, ZValueError
+
+from compmake.filesystem import StorageFilesystem
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
 from .structures import Promise
@@ -14,7 +16,7 @@ __all__ = [
 ]
 
 
-def get_job_userobject_resolved(job_id: CMJobID, db):
+def get_job_userobject_resolved(job_id: CMJobID, db: StorageFilesystem) -> object:
     """This gets the job's result, and recursively substitute all
     dependencies."""
     ob = get_job_userobject(job_id, db)
@@ -26,7 +28,10 @@ def get_job_userobject_resolved(job_id: CMJobID, db):
     return substitute_dependencies(ob, db)
 
 
-def substitute_dependencies(a, db):
+X = TypeVar("X")
+
+
+def substitute_dependencies(a: X, db: StorageFilesystem) -> X:
     # XXX: this is a workaround
     if leave_it_alone(a):
         return deepcopy(a)
@@ -71,7 +76,7 @@ def substitute_dependencies(a, db):
         return a
 
 
-def collect_dependencies(ob: object) -> Set[CMJobID]:
+def collect_dependencies(ob: Any) -> Set[CMJobID]:
     """Returns a set of dependencies (i.e., Promise objects that
     are mentioned somewhere in the structure"""
 
@@ -81,8 +86,10 @@ def collect_dependencies(ob: object) -> Set[CMJobID]:
         if leave_it_alone(ob):
             return set()
 
-        depends = set()
+        depends: set[CMJobID] = set()
+        child: object
         if isinstance(ob, (list, tuple)):
+
             for child in ob:
                 depends.update(collect_dependencies(child))
         if isinstance(ob, dict):
@@ -91,7 +98,7 @@ def collect_dependencies(ob: object) -> Set[CMJobID]:
         return depends
 
 
-def leave_it_alone(x):
+def leave_it_alone(x: object) -> bool:
     """Returns True for those objects that have trouble with factory methods
     like namedtuples."""
     if isnamedtupleinstance(x):
@@ -104,7 +111,7 @@ def leave_it_alone(x):
     return False
 
 
-def isnamedtupleinstance(x):
+def isnamedtupleinstance(x: Any) -> bool:
     t = type(x)
     b = t.__bases__
     if len(b) != 1 or b[0] != tuple:
@@ -112,4 +119,5 @@ def isnamedtupleinstance(x):
     f = getattr(t, "_fields", None)
     if not isinstance(f, tuple):
         return False
+
     return all(type(n) == str for n in f)

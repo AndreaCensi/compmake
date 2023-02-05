@@ -1,14 +1,16 @@
-from typing import Awaitable, Callable, cast, TypeVar
+from typing import cast, TypeVar
 
-from zuper_commons.fs import abspath, join, make_sure_dir_exists
+from zuper_commons.fs import abspath, make_sure_dir_exists, joinf, joind
 from zuper_commons.text import wildcard_to_regexp
 from zuper_commons.types import ZException, ZValueError
+
+from compmake.filesystem import StorageFilesystem
 from . import logger
 from .context import Context
 from .events_structures import Event
 from .exceptions import CompmakeException
 from .registered_events import compmake_registered_events
-from .state import CompmakeGlobalState
+from .state import CompmakeGlobalState, EventHandlerInterface
 
 __all__ = [
     "publish",
@@ -18,7 +20,7 @@ __all__ = [
 ]
 
 
-def remove_all_handlers():
+def remove_all_handlers() -> None:
     """
     Removes all event handlers. Useful when
     events must not be processed locally but routed
@@ -28,7 +30,7 @@ def remove_all_handlers():
     CompmakeGlobalState.EventHandlers.fallback = []
 
 
-def register_fallback_handler(handler):
+def register_fallback_handler(handler: EventHandlerInterface) -> None:
     """
     Registers an handler who is going to be called when no other handler
     can deal with an event. Useful to see if we are ignoring some event.
@@ -43,7 +45,7 @@ EV = TypeVar("EV", bound=Event)
 
 
 # TODO: make decorator
-def register_handler(event_name: str, handler: Callable[[Context, EV], Awaitable[None]]) -> None:
+def register_handler(event_name: str, handler: EventHandlerInterface) -> None:
     """
     Registers an handler with an event name.
     The event name might contain asterisks. "*" matches all.
@@ -75,7 +77,7 @@ def register_handler(event_name: str, handler: Callable[[Context, EV], Awaitable
         handlers[event_name].append(handler)
 
 
-def publish(context: Context, event_name: str, **kwargs):
+def publish(context: Context, event_name: str, **kwargs: object) -> None:
     """Publishes an event. Checks that it is registered and with the right
     attributes. Then it is passed to broadcast_event()."""
     from .context_imp import ContextImp
@@ -96,6 +98,7 @@ def publish(context: Context, event_name: str, **kwargs):
             raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
     # print('XXX: event', event)
+    assert context.splitter is not None
     context.splitter.push(event)
     # broadcast_event(context, event)
 
@@ -103,10 +106,10 @@ def publish(context: Context, event_name: str, **kwargs):
 import os
 
 
-def get_events_log_file(db):
+def get_events_log_file(db: StorageFilesystem) -> str:
     storage = abspath(db.basepath)
-    logdir = join(storage, "events")
-    lf = join(logdir, "events.log")
+    logdir = joind(storage, "events")
+    lf = joinf(logdir, "events.log")
     make_sure_dir_exists(lf)
     if not os.path.exists(lf):
         with open(lf, "w") as f:

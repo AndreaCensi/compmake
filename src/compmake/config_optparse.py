@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 
-def config_populate_optparser(parser):
+def config_populate_optparser(parser) -> None:
     config_switches = CompmakeGlobalState.config_switches
     config_sections = CompmakeGlobalState.config_sections
 

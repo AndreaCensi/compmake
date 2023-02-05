@@ -9,7 +9,7 @@ import warnings
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
-from typing import Any, Callable, Literal, Optional, Tuple
+from typing import Any, Callable, Literal, Optional, Tuple, cast
 
 from compmake import (
     AsyncResultInterface,
@@ -49,13 +49,14 @@ PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
-    job_queue: "Optional[multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, Tuple[Any, ...]]]]"
-    result_queue: "Optional[multiprocessing.Queue[ResultDict]]"
+    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, Tuple[Any, ...]]]"
+    result_queue: "multiprocessing.Queue[ResultDict]"
+    proc: Process
 
     def __init__(
         self,
         name: str,
-        signal_queue: "Optional[multiprocessing.Queue]",
+        signal_queue: "Optional[multiprocessing.Queue[Any]]",
         signal_token: str,
         ctx: BaseContext,
         write_log: Optional[FilePath],
@@ -76,7 +77,7 @@ class PmakeSub:
             detailed_python_mem_stats,
         )
         # logger.info(args=args)
-        self.proc = ctx.Process(target=pmake_worker, args=args, name=name)
+        self.proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name))  # type: ignore
         atexit.register(at_exit_delete, proc=self.proc)
         self.proc.start()
         self.last = None
@@ -85,8 +86,8 @@ class PmakeSub:
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
         self.job_queue.close()
         self.result_queue.close()
-        self.job_queue = None
-        self.result_queue = None
+        # self.job_queue = None
+        # self.result_queue = None
 
     def apply_async(
         self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]
@@ -109,7 +110,7 @@ async def pmake_worker(
     name: str,
     job_queue: "multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]",
     result_queue: "multiprocessing.Queue[ResultDict]",
-    signal_queue: "Optional[multiprocessing.Queue]",
+    signal_queue: "Optional[multiprocessing.Queue[Any]]",
     signal_token: str,
     write_log: Optional[FilePath],
     detailed_python_mem_stats: bool,
@@ -119,7 +120,7 @@ async def pmake_worker(
     async with setup_environment2(sti, getcwd()):
         await sti.started_and_yield()
         # logger.info(f"pmake_worker forked at process {os.getpid()}")
-        from coverage import process_startup
+        from coverage import process_startup  # type: ignore
 
         if hasattr(process_startup, "coverage"):
             # logger.info("Detected coverage wanted.")
@@ -168,14 +169,14 @@ async def pmake_worker(
             return time.time() - t01
 
         # noinspection PyBroadException
+        memory_tracker = None
         try:
             if detailed_python_mem_stats:
 
-                from pympler import tracker
+                from pympler import tracker  # type: ignore
 
                 memory_tracker = tracker.SummaryTracker()
-            else:
-                memory_tracker = None
+
             job_id = "none yet"
             while True:
 
@@ -343,13 +344,13 @@ async def pmake_worker(
         if cov:
             log("saving coverage")
             # noinspection PyProtectedMember
-            cov._atexit()
+            cov._atexit()  # type: ignore
             log("saved coverage")
 
         log("clean exit.")
 
 
-async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list) -> Any:
+async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list[Any]) -> Any:
     await sti.started_and_yield()
     sti.logger.info("now_running", function=function, arguments=arguments)
     try:

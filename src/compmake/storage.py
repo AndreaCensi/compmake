@@ -1,7 +1,7 @@
 """
     These are all wrappers around the raw methods in storage
 """
-from typing import cast, Collection, Iterator
+from typing import Any, Callable, Mapping, cast, Collection, Iterator
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
 from zuper_commons.text import wildcard_to_regexp
@@ -202,7 +202,7 @@ def is_job_userobject_available(job_id: CMJobID, db: StorageFilesystem) -> bool:
 job_userobject_exists = is_job_userobject_available
 
 
-def set_job_userobject(job_id: CMJobID, obj, db: StorageFilesystem) -> None:
+def set_job_userobject(job_id: CMJobID, obj: object, db: StorageFilesystem) -> None:
     key = job2userobjectkey(job_id)
     db[key] = obj
 
@@ -217,7 +217,9 @@ def job2jobargskey(job_id: CMJobID) -> StorageKey:
     return cast(StorageKey, f"{prefix}{job_id}")
 
 
-def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> object:
+def get_job_args(
+    job_id: CMJobID, db: StorageFilesystem
+) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
     key = job2jobargskey(job_id)
 
     # if False:
@@ -226,7 +228,8 @@ def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> object:
     job = get_job(job_id, db)
     pickle_main_context = job.pickle_main_context
     with pickle_main_context_load(pickle_main_context):
-        return db[key]
+        return db[key]  # type: ignore
+        # TODO: check?
 
 
 def job_args_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
@@ -239,7 +242,7 @@ def job_args_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
     return db.sizeof(key)
 
 
-def set_job_args(job_id: CMJobID, obj, db: StorageFilesystem) -> None:
+def set_job_args(job_id: CMJobID, obj: object, db: StorageFilesystem) -> None:
     key = job2jobargskey(job_id)
 
     db[key] = obj
@@ -252,20 +255,19 @@ def delete_job_args(job_id: CMJobID, db: StorageFilesystem) -> None:
 
 def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem) -> None:
     # print('deleting_all_job_data(%r)' % job_id)
-    args = dict(job_id=job_id, db=db)
-    if job_exists(**args):
-        delete_job(**args)
-    if job_args_exists(**args):
-        delete_job_args(**args)
-    if job_userobject_exists(**args):
-        delete_job_userobject(**args)
-    if job_cache_exists(**args):
-        delete_job_cache(**args)
+    if job_exists(job_id=job_id, db=db):
+        delete_job(job_id=job_id, db=db)
+    if job_args_exists(job_id=job_id, db=db):
+        delete_job_args(job_id=job_id, db=db)
+    if job_userobject_exists(job_id=job_id, db=db):
+        delete_job_userobject(job_id=job_id, db=db)
+    if job_cache_exists(job_id=job_id, db=db):
+        delete_job_cache(job_id=job_id, db=db)
 
 
 # These are delicate and should be implemented differently
 def db_job_add_dynamic_children(
-    job_id: CMJobID, children: Collection[CMJobID], returned_by, db: StorageFilesystem
+    job_id: CMJobID, children: Collection[CMJobID], returned_by: CMJobID, db: StorageFilesystem
 ) -> None:
     job = get_job(job_id, db)
     if not returned_by in job.children:
@@ -273,7 +275,7 @@ def db_job_add_dynamic_children(
         raise CompmakeBug(msg)
 
     job.children.update(children)
-    job.dynamic_children[returned_by] = children
+    job.dynamic_children[returned_by] = set(children)
     set_job(job_id, job, db)
     job2 = get_job(job_id, db)
     assert job2.children == job.children, "Race condition"

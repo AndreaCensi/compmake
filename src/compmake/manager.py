@@ -4,13 +4,15 @@ import multiprocessing
 import os
 import shutil
 import signal
+import time
 import traceback
 import warnings
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Collection, Dict, List, NoReturn, Set
 
-from zuper_commons.fs import abspath, join, make_sure_dir_exists
+from zuper_commons.fs import abspath, joinf, joind, make_sure_dir_exists, AbsDirPath
 from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import my_create_task, SyncTaskInterface
@@ -70,26 +72,32 @@ class AsyncResultInterface(ABC):
 
 
 class ManagerLog:
-    def __init__(self, db):
-        storage = abspath(db.basepath)
-        logdir = join(storage, "logs")
+    def __init__(self, *, storage: AbsDirPath):
+        # storage = abspath(db.basepath)
+        logdir = joind(storage, "logs")
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
-        log = join(logdir, "manager.log")
+        log = joinf(logdir, "manager.log")
         # log = 'manager-%s.log' % sys.version
         print("logging to %s" % log)
         make_sure_dir_exists(log)
         self.f = open(log, "w")
 
-    def log(self, s: str, **kwargs: Any):
+    def log(self, s: str, **kwargs: Any) -> None:
         ss = [datetime.now().isoformat(), s]
         for k in sorted(kwargs):
             v = kwargs[k]
             if isinstance(v, set):
-                v = sorted(v)
+                v = sorted(v)  # type: ignore
             ss.append(f"- {k:>15}: {v}")
         self.f.write(joinpars(ss))
         self.f.flush()
+
+
+@dataclass
+class ProcessingDetails:
+    started: float
+    interface: AsyncResultInterface
 
 
 class Manager(ManagerLog):
@@ -102,10 +110,13 @@ class Manager(ManagerLog):
     all_targets: Set[CMJobID]
     deleted: Set[CMJobID]
     todo: Set[CMJobID]
+    done: Set[CMJobID]
+    failed: Set[CMJobID]
+    blocked: Set[CMJobID]
     ready_todo: Set[CMJobID]
     processing: Set[CMJobID]
-    processing2result: Dict[CMJobID, AsyncResultInterface]
-
+    processing2result: Dict[CMJobID, ProcessingDetails]
+    priorities: Dict[CMJobID, float]
     done_by_me: Set[CMJobID]
 
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
@@ -113,7 +124,7 @@ class Manager(ManagerLog):
         self.sti = sti
 
         self.db = context.get_compmake_db()
-        ManagerLog.__init__(self, db=self.db)
+        ManagerLog.__init__(self, storage=abspath(self.db.basepath))
 
         self.recurse = recurse
 
@@ -169,7 +180,7 @@ class Manager(ManagerLog):
         """Return true if a new job can be accepted right away"""
 
     @abstractmethod
-    async def instance_job(self, job_id: CMJobID):
+    async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         """Instances a job."""
 
     def cleanup(self) -> None:
@@ -291,7 +302,7 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         n = 0
-        reasons = {}
+        reasons: Dict[str, str] = {}
         while True:
             if not self.ready_todo:
                 reasons["jobs"] = "no jobs ready"
@@ -344,7 +355,8 @@ class Manager(ManagerLog):
         publish(self.context, "manager-job-processing", job_id=job_id)
         self.ready_todo.remove(job_id)
         self.processing.add(job_id)
-        self.processing2result[job_id] = await self.instance_job(job_id)
+        interface = await self.instance_job(job_id)
+        self.processing2result[job_id] = ProcessingDetails(time.time(), interface)
 
         # This is for the simple case of local processing, where
         # the next line actually does something now
@@ -374,7 +386,7 @@ class Manager(ManagerLog):
         if job_id not in self.processing:
             bug()
 
-        async_result = self.processing2result[job_id]
+        async_result = self.processing2result[job_id].interface
 
         try:
             if not assume_ready and not async_result.ready():
@@ -519,7 +531,7 @@ class Manager(ManagerLog):
 
         if self.recurse:
             # print('adding targets %s' % new_jobs)
-            cocher = set()
+            cocher: Set[CMJobID] = set()
             for j in new_jobs:
                 if j in self.all_targets:
                     # msg = ('Warning, job %r generated %r which was '
@@ -869,7 +881,7 @@ class Manager(ManagerLog):
     def check_invariants(self) -> None:
         if not CompmakeConstants.debug_check_invariants:
             return
-        lists = dict(
+        lists: Dict[str, Set[CMJobID]] = dict(
             done=self.done,
             all_targets=self.all_targets,
             todo=self.todo,
@@ -880,7 +892,7 @@ class Manager(ManagerLog):
             deleted=self.deleted,
         )
 
-        def empty_intersection(a, b):
+        def empty_intersection(a: str, b: str) -> None:
             inter = lists[a] & lists[b]
             if inter:
                 msg = f"There should be empty intersection in {a!r} and {b!r}"
@@ -892,18 +904,18 @@ class Manager(ManagerLog):
 
                 raise CompmakeBug(msg)
 
-        def partition(sets, result):
-            S = set()
+        def partition(sets: List[str], result: str) -> None:
+            ss: Set[CMJobID] = set()
             for s in sets:
-                S |= lists[s]
+                ss.update(lists[s])
 
-            if S != lists[result]:
+            if ss != lists[result]:
                 msg = "These two sets should be the same:\n"
                 msg += " %s = %s\n" % (" + ".join(list(sets)), result)
-                msg += f" first = {S}\n"
+                msg += f" first = {ss}\n"
                 msg += f" second = {lists[result]}\n"
-                msg += f" first-second = {S - lists[result]}\n"
-                msg += f" second-first = {lists[result] - S}\n"
+                msg += f" first-second = {ss - lists[result]}\n"
+                msg += f" second-first = {lists[result] - ss}\n"
 
                 st = self._get_situation_string()
                 if len(st) < 500:
@@ -937,7 +949,7 @@ class Manager(ManagerLog):
                     raise CompmakeBug("job %r in blocked does not exist" % job_id)
 
 
-def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
+def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db: StorageFilesystem) -> None:
     """Raises CompmakeBug if the job is not marked as done."""
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
@@ -1004,7 +1016,7 @@ def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db):
 #             self.clean_other_jobs(g, [])
 
 
-def check_job_cache_says_failed(job_id, db, e):
+def check_job_cache_says_failed(job_id: CMJobID, db: StorageFilesystem, e: Any) -> None:
     """Raises CompmakeBug if the job is not marked as failed."""
     if not job_cache_exists(job_id, db):
         msg = f"The job {job_id!r} was reported as failed but no record of it was found."

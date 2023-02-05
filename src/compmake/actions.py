@@ -20,6 +20,8 @@ from typing import (
     TypeVar,
 )
 
+from mcdp_docs_tests import ZAssertionError
+
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -173,7 +175,9 @@ def mark_to_remake(job_id: CMJobID, db):
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency=None) -> None:  # XXX
+def mark_as_blocked(
+    job_id: CMJobID, db: StorageFilesystem, dependency: Optional[CMJobID] = None
+) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
@@ -186,7 +190,7 @@ def mark_as_notstarted(job_id: CMJobID, db: StorageFilesystem) -> None:  # XXX
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result):
+def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result: object) -> None:
     i = IntervalTimer()
     i.stop()
     cache = Cache(Cache.DONE)
@@ -276,13 +280,13 @@ async def make(
         job = get_job(job_id, db=db)
     with ti.timeit("reading cache"):
         cache = get_job_cache(job_id, db=db)
-
+    prev_defined_jobs: Optional[Set[CMJobID]]
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
         # print('%s had previously defined %s' % (job_id, prev_defined_jobs))
     else:
         # print('%s was not DONE' % job_id)
-        prev_defined_jobs = None
+        prev_defined_jobs = set()
 
     # Note that at this point we save important information in the Cache
     # so if we set this then it's going to destroy it
@@ -357,7 +361,7 @@ async def make(
         generated = set(context.get_jobs_defined_in_this_session()) - already
         # print('failure: rolling back %s' % generated)
 
-        todelete_ = set()
+        todelete_: set[CMJobID] = set()
         # delete the jobs that were previously defined
         if prev_defined_jobs:
             todelete_.update(prev_defined_jobs)
@@ -424,7 +428,7 @@ async def make(
 
         set_job_cache(job_id, cache, db=db)
 
-        raise job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs)) from None
+        job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
     finally:
         int_finally = IntervalTimer()
         if capture is not None:
@@ -440,10 +444,11 @@ async def make(
     int_save_results = IntervalTimer()
 
     # print('Now %s has defined %s' % (job_id, new_jobs))
+    deleted_jobs: Set[CMJobID]
     if prev_defined_jobs is not None:
         # did we defined fewer jobs this time around?
         # then we need to delete them
-        todelete = set()
+        todelete: set[CMJobID] = set()
         for x in prev_defined_jobs:
             if x not in new_jobs:
                 todelete.add(x)
@@ -511,7 +516,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
 
     max_options = 1000 * 1000
 
-    def get_options() -> Iterator[CMJobID]:
+    def get_options() -> Iterator[str]:
         counters = context.generate_job_id_counters
         if not job_prefix in counters:
             counters[job_prefix] = 2
@@ -522,14 +527,15 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
                 yield "%s-%s-%d" % (job_prefix, base, counters[job_prefix])
                 counters[job_prefix] += 1
         else:
-            yield base
+            yield cast(CMJobID, base)
             while counters[job_prefix] <= max_options:
                 yield "%s-%d" % (base, counters[job_prefix])
                 counters[job_prefix] += 1
 
     db = context.get_compmake_db()
     cq = CacheQueryDB(db)
-    for x in get_options():
+    for x0 in get_options():
+        x = cast(CMJobID, x0)
         check_isinstance(x, str)
         defined = context.was_job_defined_in_this_session(x)
         if defined:
@@ -553,7 +559,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
     raise CompmakeBug("Could not generate a job id")
 
 
-async def clean_other_jobs(sti: SyncTaskInterface, context) -> None:
+async def clean_other_jobs(sti: SyncTaskInterface, context: Context) -> None:
     """Cleans jobs not defined in the session"""
     # print('cleaning other jobs. Defined: %r' %
     # context.get_jobs_defined_in_this_session())
@@ -572,7 +578,7 @@ async def clean_other_jobs(sti: SyncTaskInterface, context) -> None:
     # logger.info('Cleaning all jobs not defined in this session.'
     #                ' Previous: %d' % len(defined_now))
 
-    todelete = set()
+    todelete: set[CMJobID] = set()
 
     for job_id in all_jobs(force_db=True, db=db):
         if not context.was_job_defined_in_this_session(job_id):
@@ -614,10 +620,10 @@ async def clean_other_jobs(sti: SyncTaskInterface, context) -> None:
     delete_jobs_recurse_definition(todelete, db)
 
 
-def delete_jobs_recurse_definition(jobs, db) -> Set[CMJobID]:
+def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
     """Deletes all jobs given and the jobs that they defined.
     Returns the set of jobs deleted."""
-
+    jobs = set(jobs)
     closure = definition_closure(jobs, db)
 
     all_the_jobs = jobs | closure
@@ -641,9 +647,9 @@ X = TypeVar("X")
 def comp_(
     context: Context,
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
-    *args: P.args,
+    *args0: P.args,
     **kwargs: P.kwargs,
-) -> Optional[Promise]:
+) -> Promise:
     """
     Main method to define a computation step.
 
@@ -705,13 +711,15 @@ def comp_(
 
     if CompmakeConstants.command_name_key in kwargs:
         command_desc = kwargs.pop(CompmakeConstants.command_name_key)
+        if not isinstance(command_desc, str):
+            raise ValueError("Expected a string for command_name, got %s" % type(command_desc))
     elif hasattr(command, "__name__"):
         command_desc = command.__name__
 
     else:
         command_desc = type(command).__name__
 
-    args = list(args)  # args is a  tuple
+    args: list[object] = list(args0)  # args is a  tuple
 
     # Get job id from arguments
     job_id_ = kwargs.pop(CompmakeConstants.job_id_key, None)
@@ -805,6 +813,7 @@ def comp_(
     else:
         needs_context = False
 
+    extra_dep: Set[CMJobID]
     if CompmakeConstants.extra_dep_key in kwargs:
         extra_dep = kwargs[CompmakeConstants.extra_dep_key]
         del kwargs[CompmakeConstants.extra_dep_key]
@@ -944,7 +953,7 @@ async def interpret_commands(
 
     Returns None
     """
-    if not isinstance(commands_str, str):
+    if not isinstance(commands_str, str):  # type: ignore
         msg = f"I expected a string, got {describe_type(commands_str)}."
         raise ZValueError(msg)
 
@@ -993,7 +1002,9 @@ async def interpret_commands(
                 raise CommandFailed(f"ret code {retcode}")
 
 
-async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context, cq: CacheQueryDB):
+async def interpret_single_command(
+    sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB
+):
     """Returns None or raises CommandFailed"""
     check_isinstance(commands_line, str)
 
@@ -1111,6 +1122,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
     is_async = inspect.iscoroutinefunction(function)
 
+    res: object
     try:
         if is_async:
             res = await function(**kwargs)
@@ -1135,7 +1147,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
 
 def get_defaults(signature: inspect.Signature) -> Dict[str, object]:
-    defaults = {}
+    defaults: dict[str, object] = {}
     for k, v in signature.parameters.items():
         if v.default != inspect.Parameter.empty:
             defaults[k] = v.default
@@ -1144,7 +1156,7 @@ def get_defaults(signature: inspect.Signature) -> Dict[str, object]:
 
 
 def get_args_without_defaults(signature: inspect.Signature) -> List[str]:
-    args_without_default = []
+    args_without_default: list[str] = []
     for k, v in signature.parameters.items():
         if v.default == inspect.Parameter.empty:
             args_without_default.append(k)

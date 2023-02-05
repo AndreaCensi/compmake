@@ -9,7 +9,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Dict, NewType, Set, Tuple
+from typing import Any, ClassVar, Dict, NewType, Set, Tuple
 
 import psutil
 from psutil import NoSuchProcess
@@ -23,7 +23,7 @@ from compmake import (
     publish,
 )
 from compmake_utils import get_memory_usage
-from zuper_commons.fs import join, make_sure_dir_exists
+from zuper_commons.fs import join, make_sure_dir_exists, joinf, joind
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
@@ -55,9 +55,9 @@ class PmakeManager(Manager):
     Python 2.7 implementation of pool multiprocessing.
     """
 
-    queues = {}
+    queues: "ClassVar[dict[str, Queue[Any]]]" = {}
 
-    event_queue: Queue
+    event_queue: "Queue[Any]"  # XXX
     event_queue_name: str
     subs: Dict[SubName, PmakeSub]
     sub_available: Set[SubName]
@@ -116,13 +116,13 @@ class PmakeManager(Manager):
 
         db = self.context.get_compmake_db()
         storage = db.basepath  # XXX:
-        logs = join(storage, "logs")
+        logs = joind(storage, "logs")
 
         detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
             name = SubName(f"parmake_sub_{i:02d}")
-            write_log = join(logs, f"{name}.log")
+            write_log = joinf(logs, f"{name}.log")
             make_sure_dir_exists(write_log)
             logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
             signal_token = name
@@ -141,8 +141,8 @@ class PmakeManager(Manager):
 
         self.max_num_processing = self.num_processes
 
-    def get_resources_status(self) -> Dict[str, Tuple[bool, str]]:
-        resource_available = {}
+    def get_resources_status(self) -> Dict[str, tuple[bool, str]]:
+        resource_available: dict[str, tuple[bool, str]] = {}
 
         assert len(self.sub_processing) == len(self.processing)
 
@@ -184,7 +184,7 @@ class PmakeManager(Manager):
         #     logger.info(mem=mem)
         return resource_available
 
-    def can_accept_job(self, reasons_why_not: dict[str, str]) -> bool:
+    def can_accept_job(self, reasons: dict[str, str]) -> bool:
         if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
             # all have failed
             msg = "All workers have aborted."
@@ -195,7 +195,7 @@ class PmakeManager(Manager):
         for k, v in resources.items():
             if not v[0]:
                 some_missing = True
-                reasons_why_not[k] = v[1]
+                reasons[k] = v[1]
         if some_missing:
             return False
         return True

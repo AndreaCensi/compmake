@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-
+from typing import Dict
 from .events_structures import Event, EventSpec
 from .types import CMJobID
 
-compmake_registered_events = {}
+compmake_registered_events: Dict[str, EventSpec] = {}
 
 __all__ = [
     "EVENT_MANAGER_SUCCEEDED",
@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-def add(e):
+def add(e: EventSpec) -> None:
     compmake_registered_events[e.name] = e
 
 

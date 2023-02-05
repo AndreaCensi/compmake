@@ -1,8 +1,8 @@
-from typing import List, Optional, TypedDict
+from typing import TYPE_CHECKING, List, Optional, TypedDict
 
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
-from .types import AbortResult, CMJobID, FailResult, InterruptedResult
+from .types import AbortResult, CMJobID, FailResult, InterruptedResult, BugResult
 
 __all__ = [
     "CommandFailed",
@@ -42,12 +42,12 @@ class CompmakeBug(CompmakeException):
         return res
 
     @staticmethod
-    def from_dict(res):
+    def from_dict(res: BugResult) -> "CompmakeBug":
         # from .result_dict import result_dict_check
         #
         # result_dict_check(res)
         assert "bug" in res
-        e = CompmakeBug(res["bug"])
+        e = CompmakeBug(str(res["bug"]))
         return e
 
 
@@ -103,7 +103,7 @@ class JobFailedExceptionDict(TypedDict):
 
 
 def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[List[CMJobID]] = None):
-    raise JobFailed(job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs)
+    raise JobFailed(job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs) from None
 
 
 class JobFailed(CompmakeException):
@@ -125,20 +125,26 @@ class JobFailed(CompmakeException):
 
     def get_result_dict(self) -> FailResult:
         info: JobFailedExceptionDict = self.info
-        res: FailResult = dict(
-            fail=f"Job {info['job_id']!r} failed.",
-            job_id=info["job_id"],
-            reason=info["reason"],
-            deleted_jobs=sorted(info["deleted_jobs"]),
-            bt=info["bt"],
-        )
+        job_id: CMJobID = info["job_id"]
+        reason: str = info["reason"]
+        fail: str = f"Job {job_id!r} failed."
+        deleted_jobs: list[CMJobID] = info["deleted_jobs"] or []
+        bt: str = info["bt"]
+        res: FailResult = {
+            "fail": fail,
+            "job_id": job_id,
+            "reason": reason,
+            "deleted_jobs": deleted_jobs,
+            "bt": bt,
+        }
         return res
 
     @staticmethod
-    def from_dict(res: FailResult):
-        from .result_dict import result_dict_check
+    def from_dict(res: FailResult) -> "JobFailed":
+        if not TYPE_CHECKING:
+            from .result_dict import result_dict_check
 
-        result_dict_check(res)
+            result_dict_check(res)
         assert "fail" in res
         e = JobFailed(
             job_id=res["job_id"], bt=res["bt"], reason=res["reason"], deleted_jobs=res["deleted_jobs"]
@@ -151,7 +157,7 @@ class JobInterruptedExceptionDict(TypedDict):
     deleted_jobs: Optional[List[CMJobID]]
 
 
-def job_interrupted_exc(job_id: CMJobID, deleted_jobs: List[CMJobID] = None):
+def job_interrupted_exc(job_id: CMJobID, deleted_jobs: Optional[List[CMJobID]] = None):
     return JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
 
@@ -173,20 +179,21 @@ class JobInterrupted(CompmakeException):
 
     @staticmethod
     def from_dict(res: InterruptedResult):
-        from .result_dict import result_dict_check
+        if not TYPE_CHECKING:
+            from .result_dict import result_dict_check
 
-        result_dict_check(res)
+            result_dict_check(res)
         assert "interrupted" in res
         e = job_interrupted_exc(job_id=res["job_id"], deleted_jobs=res["deleted_jobs"])
         return e
 
     def get_result_dict(self) -> InterruptedResult:
         info: JobInterruptedExceptionDict = self.info
-        res: InterruptedResult = dict(
-            interrupt=f"Job {info['job_id']!r} interrupted.",
-            job_id=info["job_id"],
-            deleted_jobs=sorted(info["deleted_jobs"]),
-        )
+        res: InterruptedResult = {
+            "interrupt": f"Job {info['job_id']!r} interrupted.",
+            "job_id": info["job_id"],
+            "deleted_jobs": sorted(info["deleted_jobs"] or []),
+        }
         return res
 
 
@@ -194,7 +201,13 @@ class HostFailed(CompmakeException):
     """The job has been interrupted and must
     be redone (it has not failed, though)"""
 
-    def __init__(self, host, job_id, reason, bt):
+    msg: str
+    host: str
+    job_id: CMJobID
+    reason: str
+    bt: str
+
+    def __init__(self, host: str, job_id: CMJobID, reason: str, bt: str):
         self.host = host
         self.job_id = job_id
         self.reason = reason
@@ -207,24 +220,25 @@ class HostFailed(CompmakeException):
         )
         CompmakeException.__init__(self, self.msg, host=host, reason=reason, bt=bt)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.msg
 
     def get_result_dict(self) -> AbortResult:
-        res = dict(
-            abort=f"Host failed for {self.job_id!r}.",
-            host=self.host,
-            job_id=self.job_id,
-            reason=self.reason,
-            bt=self.bt,
-        )
+        res: AbortResult = {
+            "abort": f"Host failed for {self.job_id!r}.",
+            "host": self.host,
+            "job_id": self.job_id,
+            "reason": self.reason,
+            "bt": self.bt,
+        }
         return res
 
     @staticmethod
     def from_dict(res: AbortResult):
-        from .result_dict import result_dict_check
+        if not TYPE_CHECKING:
+            from .result_dict import result_dict_check
 
-        result_dict_check(res)
+            result_dict_check(res)
         try:
             _ = res["abort"]
             e = HostFailed(host=res["host"], job_id=res["job_id"], bt=res["bt"], reason=res["reason"])
