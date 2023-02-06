@@ -1,6 +1,6 @@
 import sys
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, ClassVar, Dict, List, Optional, Protocol
+from typing import Any, Awaitable, ClassVar, Dict, List, Optional, Protocol
 
 from compmake_utils import AvgSystemStats
 from zuper_commons.types import ZValueError

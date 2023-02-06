@@ -2,7 +2,7 @@ import os
 import sys
 from contextlib import contextmanager
 from queue import Full
-from typing import Iterator, Tuple
+from typing import cast, Iterator, Tuple
 
 from compmake import (
     CMJobID,
@@ -85,7 +85,7 @@ async def parmake_job2(
 
                 # We register a handler for the events to be passed back
                 # to the main process
-                async def handler(context: Context, event: Event):
+                async def handler(*, context: Context, event: Event) -> None:
                     _ = context
                     try:
                         if not CompmakeConstants.disable_interproc_queue:
@@ -103,7 +103,8 @@ async def parmake_job2(
                     if show_output:
                         register_handler("*", handler)
 
-                async def proctitle(context: Context, event: JobProgressEvent):
+                async def proctitle(*, context: Context, event: Event) -> None:
+                    event = cast(JobProgressEvent, event)
                     _ = context
                     stat = f"compmake:{event.job_id}: [{event.progress}/{event.goal}]"
                     setproctitle(stat)
