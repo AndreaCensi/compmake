@@ -16,6 +16,7 @@ from compmake import (
     parse_job_list,
     ui_command,
     ui_error,
+    ui_info,
 )
 from zuper_utils_asyncio import SyncTaskInterface
 
@@ -54,7 +55,9 @@ async def check_consistency(
             raise CompmakeBug(msg)
         else:
             await ui_error(context, msg)
-
+    else:
+        msg = "No inconsistencies found."
+        await ui_info(context, msg)
     return 0
 
 

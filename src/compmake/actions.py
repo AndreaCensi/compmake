@@ -61,7 +61,7 @@ from .storage import (
     set_job_cache,
     set_job_userobject,
 )
-from .structures import Cache, IntervalTimer, Job, Promise, same_computation
+from .structures import Cache, IntervalTimer, Promise, same_computation
 from .types import CMJobID, MakeResult
 from .visualization import ui_info
 
@@ -151,7 +151,7 @@ def clean_cache_relations(job_id: CMJobID, db):
                 continue
             parent_job = get_job(parent, db)
             # print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
-            if not job_id in parent_job.dynamic_children:
+            if job_id not in parent_job.dynamic_children:
                 # print('    skipping parent %r ' % parent)
                 continue
             else:
@@ -836,8 +836,9 @@ def comp_(
 
     assert len(context.currently_executing) >= 1
     assert context.currently_executing[0] == "root"
+    from .structures import make_job
 
-    c = Job(
+    c = make_job(
         job_id=job_id,
         children=children,
         command_desc=command_desc,

@@ -28,6 +28,7 @@ from .storage import (
     assert_job_exists,
     db_job_add_dynamic_children,
     db_job_add_parent,
+    get_job,
     get_job_cache,
     job_cache_exists,
     job_exists,
@@ -695,6 +696,32 @@ class Manager(ManagerLog):
 
     queue_ready: "asyncio.Queue[CMJobID]"
 
+    async def repair_todo(self) -> set[CMJobID]:
+        db = self.context.get_compmake_db()
+        changes = set()
+        for job_id in list(self.todo):
+            job = get_job(job_id, db)
+            cache = get_job_cache(job_id, db)
+            res = {}
+            waiting_on = set()
+            for dependency in job.children:
+                dependency_status = get_job_cache(dependency, db)
+
+                res[dependency] = Cache.state2desc[dependency_status.state]
+                if dependency_status.state != Cache.DONE:
+                    waiting_on.add(dependency)
+
+            self.sti.logger.error(
+                "todo: %s" % job_id, job=job, cache=cache, dependencies=res, waiting_on=waiting_on
+            )
+            if not waiting_on:
+                msg = f"Actually job {job_id} is ready"
+                self.sti.logger.warn(msg)
+                self.todo.remove(job_id)
+                self.ready_todo.add(job_id)
+                changes.add(job_id)
+        return changes
+
     async def process(self) -> bool:
         """Start processing jobs."""
 
@@ -758,7 +785,14 @@ class Manager(ManagerLog):
                         'interrupted. Use the command "check-consistency" '
                         "to check the database consistency.\n" + self._get_situation_string()
                     )
-                    raise CompmakeBug(msg)
+                    self.sti.logger.error(msg)
+                    changed = await self.repair_todo()
+                    if not changed:
+                        from compmake_plugins.sanity_check import check_consistency
+
+                        await check_consistency(self.sti, args=[], context=self.context, raise_if_error=True)
+
+                        raise CompmakeBug(msg)
 
                 self.publish_progress()
                 waiting_on = await self.instance_some_jobs()
