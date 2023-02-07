@@ -61,7 +61,7 @@ async def test_syntax(env: Env) -> None:
             elif isinstance(X, str):
                 return set(parse_job_list(X, context=env.cc))
             else:
-                assert False, "Wrong type %s" % type(X)
+                raise AssertionError("Wrong type %s" % type(X))
 
         a = expand_to_set(A)
         b = expand_to_set(B)

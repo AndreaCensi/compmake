@@ -143,7 +143,7 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     if label == "function":
         job = cq.get_job(job_id)
         return f"{job.command_desc}()"
-    assert False
+    raise AssertionError
     #
     #
     #

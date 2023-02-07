@@ -27,7 +27,7 @@ def compmake_execution_stats(
         job_id = cast(CMJobID, promise)
         promise = Promise(job_id)
     else:
-        assert False
+        raise AssertionError
 
     p2 = context.comp(dummy, promise)
     if use_job_id is not None:
