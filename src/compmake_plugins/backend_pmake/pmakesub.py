@@ -86,7 +86,7 @@ class PmakeSub:
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
         self.job_queue.close()
         self.result_queue.close()
-        self.proc.terminate()
+        # self.proc.terminate()
         # self.job_queue = None
         # self.result_queue = None
 
