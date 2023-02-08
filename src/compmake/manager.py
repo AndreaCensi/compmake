@@ -395,10 +395,12 @@ class Manager(ManagerLog):
         if job_timeout is not None:
             time_passed = time.time() - proc_details.started
             if time_passed > job_timeout:
-                s = f"Job {job_id} marked timed out after {time_passed:.1f} seconds"
-                mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
+                s = f"Timed out (> {job_timeout:.1f} s)"
 
+                mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
+                await self.cancel_job(job_id)
                 self.job_failed(job_id, deleted_jobs=())
+                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason="time out", bt="")
                 return True
 
         try:
@@ -574,6 +576,9 @@ class Manager(ManagerLog):
         self.publish_progress()
 
         self.check_invariants()
+
+    async def cancel_job(self, job_id: CMJobID) -> None:
+        pass
 
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
         """The specified job has failed. Update the structures,

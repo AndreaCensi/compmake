@@ -86,6 +86,7 @@ class PmakeSub:
         self.job_queue.put(PmakeSub.EXIT_TOKEN)
         self.job_queue.close()
         self.result_queue.close()
+        self.proc.terminate()
         # self.job_queue = None
         # self.result_queue = None
 
@@ -172,7 +173,6 @@ async def pmake_worker(
         memory_tracker = None
         try:
             if detailed_python_mem_stats:
-
                 from pympler import tracker  # type: ignore
 
                 memory_tracker = tracker.SummaryTracker()

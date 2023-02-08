@@ -9,7 +9,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, ClassVar, Dict, NewType, Set, Tuple
+from typing import Any, ClassVar, Dict, NewType, Set
 
 import psutil
 from psutil import NoSuchProcess
@@ -23,7 +23,7 @@ from compmake import (
     publish,
 )
 from compmake_utils import get_memory_usage
-from zuper_commons.fs import join, make_sure_dir_exists, joinf, joind
+from zuper_commons.fs import join, joind, joinf, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
@@ -50,9 +50,7 @@ SubName = NewType("SubName", str)
 
 class PmakeManager(Manager):
     """
-    Specialization of Manager for local multiprocessing, using
-    an adhoc implementation of "pool" because of bugs of the
-    Python 2.7 implementation of pool multiprocessing.
+    Specialization of Manager for local multiprocessing
     """
 
     queues: "ClassVar[dict[str, Queue[Any]]]" = {}
@@ -114,32 +112,56 @@ class PmakeManager(Manager):
         self.sub_processing = set()
         self.sub_aborted = set()
 
-        db = self.context.get_compmake_db()
-        storage = db.basepath  # XXX:
-        logs = joind(storage, "logs")
-
-        detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
+        # db = self.context.get_compmake_db()
+        # storage = db.basepath  # XXX:
+        # logs = joind(storage, "logs")
+        #
+        # detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
             name = SubName(f"parmake_sub_{i:02d}")
-            write_log = joinf(logs, f"{name}.log")
-            make_sure_dir_exists(write_log)
-            logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
-            signal_token = name
-            p = PmakeSub(
-                name=name,
-                signal_queue=None,
-                signal_token=signal_token,
-                write_log=write_log,
-                ctx=self.ctx,
-                detailed_python_mem_stats=detailed_python_mem_stats,
-            )
-            self.subs[name] = p
+            self.create_sub(name)
+            #
+            # write_log = joinf(logs, f"{name}.log")
+            # make_sure_dir_exists(write_log)
+            # logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
+            # signal_token = name
+            # p = PmakeSub(
+            #     name=name,
+            #     signal_queue=None,
+            #     signal_token=signal_token,
+            #     write_log=write_log,
+            #     ctx=self.ctx,
+            #     detailed_python_mem_stats=detailed_python_mem_stats,
+            # )
+            # self.subs[name] = p
         self.job2subname = {}
         # all are available
         self.sub_available.update(self.subs)
 
         self.max_num_processing = self.num_processes
+
+    def create_sub(self, name: SubName) -> PmakeSub:
+        detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
+
+        db = self.context.get_compmake_db()
+        storage = db.basepath  # XXX:
+        logs = joind(storage, "logs")
+
+        write_log = joinf(logs, f"{name}.log")
+        make_sure_dir_exists(write_log)
+        logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
+        signal_token = name
+        p = PmakeSub(
+            name=name,
+            signal_queue=None,
+            signal_token=signal_token,
+            write_log=write_log,
+            ctx=self.ctx,
+            detailed_python_mem_stats=detailed_python_mem_stats,
+        )
+        self.subs[name] = p
+        return p
 
     def get_resources_status(self) -> Dict[str, tuple[bool, str]]:
         resource_available: dict[str, tuple[bool, str]] = {}
@@ -228,6 +250,15 @@ class PmakeManager(Manager):
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
+    async def cancel_job(self, job_id: CMJobID) -> None:
+        subname = self.job2subname[job_id]
+        sub = self.subs[subname]
+        # sub.terminate()
+        self.create_sub(subname)
+        if subname in self.sub_processing:
+            self.sub_processing.remove(subname)
+        self.sub_available.add(subname)
+
     def event_check(self) -> None:
         if not self.show_output:
             return
@@ -270,7 +301,10 @@ class PmakeManager(Manager):
             #  print('killing')
             for name in self.sub_processing:
                 pid = self.subs[name].proc.pid
-                os.kill(pid, signal.SIGKILL)
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 # print('killed pid %s for %s' % (name, pid))
                 # print('process_finished() finished')
 
@@ -296,9 +330,10 @@ class PmakeManager(Manager):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
-        assert name in self.sub_processing
-        assert name not in self.sub_available
-        self.sub_processing.remove(name)
+        # assert name in self.sub_processing
+        # assert name not in self.sub_available
+        if name in self.sub_processing:
+            self.sub_processing.remove(name)
         self.sub_available.add(name)
 
     def host_failed(self, job_id: CMJobID) -> None:
@@ -307,8 +342,8 @@ class PmakeManager(Manager):
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
-        assert name in self.sub_processing
-        assert name not in self.sub_available
+        # assert name in self.sub_processing
+        # assert name not in self.sub_available
         self.sub_processing.remove(name)
 
         # put in sub_aborted

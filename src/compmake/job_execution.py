@@ -7,6 +7,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 
 from compmake.filesystem import StorageFilesystem
+from . import get_job_cache
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
@@ -30,9 +31,13 @@ def get_cmd_args_kwargs(
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
-        if not job_userobject_exists(dep, db):
+        cache = get_job_cache(dep, db=db)
+        if cache.state != cache.DONE:
             msg = f"Dependency {dep!r} was not done."
-            raise CompmakeBug(msg)
+            raise CompmakeBug(msg, cache=cache)
+        if not job_userobject_exists(dep, db):
+            msg = f"Dependency {dep!r} was marked as done but not job_userobject exists."
+            raise CompmakeBug(msg, cache=cache)
     args2 = substitute_dependencies(args, db=db)
     kwargs2 = substitute_dependencies(kwargs, db=db)
     return command, args2, kwargs2
