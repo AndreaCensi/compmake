@@ -86,45 +86,103 @@ class Promise:
     job_id: CMJobID
 
 
+@dataclass
 class Job:
     job_id: CMJobID
-    children: set[CMJobID]
+    children: set[CMJobID]  # these are the dependencies
+    # These are created when the job is created
+
     parents: set[CMJobID]
+    # These are the jobs that depend on this job
+    # This field is updated later
+
     needs_context: bool
     defined_by: list[CMJobID]
     dynamic_children: dict[CMJobID, set[CMJobID]]
     pickle_main_context: PickleContextDesc
     command_desc: str
 
-    def __init__(
-        self,
-        job_id: CMJobID,
-        children: set[CMJobID],
-        command_desc: str,
-        needs_context: bool,
-        defined_by: list[CMJobID],
-    ):
-        """
 
-        needs_context: new facility for dynamic jobs
-        defined_by: name of jobs defining this job dynamically
-                    This is the stack of jobs. 'root' is the first.
+def make_job(
+    job_id: CMJobID,
+    children: set[CMJobID],
+    command_desc: str,
+    needs_context: bool = False,
+    defined_by: list[CMJobID] = None,
+):
+    """
 
-        children: the direct dependencies
-        """
-        self.job_id = job_id
-        self.children = set(children)
-        self.command_desc = command_desc
-        self.parents = set()
-        self.needs_context = needs_context
-        self.defined_by = defined_by
-        assert len(defined_by) >= 1, defined_by
-        assert defined_by[0] == "root", defined_by
-        # str -> set(str), where the key is one
-        # of the direct children
-        self.dynamic_children = {}
+    needs_context: new facility for dynamic jobs
+    defined_by: name of jobs defining this job dynamically
+                This is the stack of jobs. 'root' is the first.
 
-        self.pickle_main_context = pickle_main_context_save()
+    children: the direct dependencies
+    """
+    children = set(children)
+
+    parents = set()
+
+    assert len(defined_by) >= 1, defined_by
+    assert defined_by[0] == "root", defined_by
+    # str -> set(str), where the key is one
+    # of the direct children
+    dynamic_children = {}
+
+    pickle_main_context = pickle_main_context_save()
+
+    return Job(
+        job_id,
+        children,
+        parents,
+        needs_context,
+        defined_by,
+        dynamic_children,
+        pickle_main_context,
+        command_desc,
+    )
+
+
+#
+# class Job:
+#     job_id: CMJobID
+#     children: set[CMJobID]
+#     parents: set[CMJobID]
+#     needs_context: bool
+#     defined_by: list[CMJobID]
+#     dynamic_children: dict
+#     pickle_main_context: object
+#     command_desc: str
+#
+#     def __init__(
+#         self,
+#         job_id: CMJobID,
+#         children: set[CMJobID],
+#         command_desc: str,
+#         needs_context: bool = False,
+#         defined_by: list[CMJobID] = None,
+#     ):
+#         """
+#
+#         needs_context: new facility for dynamic jobs
+#         defined_by: name of jobs defining this job dynamically
+#                     This is the stack of jobs. 'root' is the first.
+#
+#         children: the direct dependencies
+#         """
+#         self.job_id = job_id
+#         self.children = set(children)
+#         self.command_desc = command_desc
+#         self.parents = set()
+#         self.needs_context = needs_context
+#         self.defined_by = defined_by
+#         assert len(defined_by) >= 1, defined_by
+#         assert defined_by[0] == "root", defined_by
+#         # str -> set(str), where the key is one
+#         # of the direct children
+#         self.dynamic_children = {}
+#
+#         self.pickle_main_context = pickle_main_context_save()
+#
 
 
 JA = tuple[str, tuple[Any, ...], dict[str, Any]]

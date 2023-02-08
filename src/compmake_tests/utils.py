@@ -150,6 +150,7 @@ class Env:
 async def make_environment(sti: SyncTaskInterface, rootd: Optional[str] = None) -> Env:
     if rootd is None:
         rootd = mkdtemp()
+    sti.logger.info(f"Using rootd={rootd!r}")
     env = Env(rootd, sti)
     await env.init()
     return env

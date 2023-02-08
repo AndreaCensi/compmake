@@ -142,7 +142,8 @@ async def parmake_job2(
                 return res
 
             except KeyboardInterrupt:
-                assert False, "KeyboardInterrupt should be captured by make() (inside Job.compute())"
+                msg = "KeyboardInterrupt should be captured by make() (inside Job.compute())"
+                raise AssertionError(msg)
             except JobInterrupted:
                 sys.stderr.write("job interrupted\n")
                 publish(context0, "worker-status", job_id=job_id, status="interrupted")
