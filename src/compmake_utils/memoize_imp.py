@@ -4,7 +4,6 @@ __all__ = [
     "memoized_reset",
 ]
 
-
 # def memoize_simple(obj):
 # # TODO: make sure it's not iterator
 #     cache = obj.cache = {}
@@ -18,6 +17,7 @@ __all__ = [
 #         return cache[key]
 #
 #     return decorator(memoizer, obj)
+DISABLE_CACHE = False
 
 
 class memoized_reset:
@@ -52,15 +52,17 @@ class memoized_reset:
         cache = self._getcache(the_ob)
 
         is_key_error = is_type_error = False
-        try:
-            res = cache[args]
-            # print(f"using cache for {self.func}({args} = {res}")
-            return res
-        except KeyError:
+        if not DISABLE_CACHE:
+            try:
+                res = cache[args]
+                # print(f"using cache for {self.func}({args} = {res}")
+                return res
+            except KeyError:
+                is_key_error = True
+            except TypeError:
+                is_type_error = True
+        else:
             is_key_error = True
-        except TypeError:
-            is_type_error = True
-
         if is_key_error:
             value = self.func(the_ob, *args)
             cache[args] = value
@@ -69,6 +71,7 @@ class memoized_reset:
             # uncachable -- for instance, passing a list as an argument.
             # Better to not cache than to blow up entirely.
             return self.func(*args)
+        raise AssertionError
 
     def __repr__(self):
         """Return the function's docstring."""

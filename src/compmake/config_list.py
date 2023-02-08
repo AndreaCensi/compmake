@@ -145,6 +145,13 @@ add_config_switch(
     section=CONFIG_PARALLEL,
 )
 
+add_config_switch(
+    "job_timeout",
+    3600,
+    desc="Maximum job timeout (seconds).",
+    section=CONFIG_GENERAL,
+)
+
 if False:  # To re-implement
 
     add_config_switch(

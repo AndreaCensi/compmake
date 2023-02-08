@@ -648,7 +648,7 @@ class Manager(ManagerLog):
         Checks that any of the jobs finished.
 
         Returns True if something finished (either success or failure).
-        Returns False if something finished unseccesfully.
+        Returns False if something finished unsuccesfully.
         """
         # We make a copy because processing is updated during the loop
         # received = False
