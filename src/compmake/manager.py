@@ -16,7 +16,7 @@ from zuper_commons.fs import abspath, joinf, joind, make_sure_dir_exists, AbsDir
 from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import my_create_task, SyncTaskInterface
-from .actions import mark_as_blocked
+from .actions import mark_as_blocked, mark_as_failed
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
@@ -387,7 +387,19 @@ class Manager(ManagerLog):
         if job_id not in self.processing:
             bug()
 
-        async_result = self.processing2result[job_id].interface
+        proc_details = self.processing2result[job_id]
+
+        async_result = proc_details.interface
+
+        job_timeout = self.context.get_compmake_config("job_timeout")
+        if job_timeout is not None:
+            time_passed = time.time() - proc_details.started
+            if time_passed > job_timeout:
+                s = f"Job {job_id} marked timed out after {time_passed:.1f} seconds"
+                mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
+
+                self.job_failed(job_id, deleted_jobs=())
+                return True
 
         try:
             if not assume_ready and not async_result.ready():

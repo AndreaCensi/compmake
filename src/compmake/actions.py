@@ -20,10 +20,8 @@ from typing import (
     TypeVar,
 )
 
-from mcdp_docs_tests import ZAssertionError
-
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
-from zuper_commons.types import check_isinstance, describe_type, ZValueError
+from zuper_commons.types import check_isinstance, describe_type, ZValueError, ZAssertionError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 from zuper_utils_timing.timing import new_timeinfo
@@ -373,6 +371,7 @@ async def make(
         # to the db
         return deleted_jobs_
 
+    new_jobs = set()
     try:
         with ti.timeit("job_compute") as tisub:
             result: JobComputeResult = await job_compute(sti, job=job, context=context, ti=tisub)
