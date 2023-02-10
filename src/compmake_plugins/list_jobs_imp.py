@@ -149,12 +149,14 @@ async def list_jobs(
     max_len = columns - len(other)
 
     def get_key(ji: CMJobID) -> object:
+
         if sorting == "name":
             return ji
         elif sorting == "size":
             return get_sizes(ji, cq.db)["total"]
         elif sorting == "duration":
             c = cq.get_job_cache(ji)
+            return c.int_compute.get_cputime_used() if c.int_compute else -10
             return c.cputime_used or -10
         elif sorting == "date":
             c = cq.get_job_cache(ji)
@@ -217,7 +219,8 @@ async def list_jobs(
         if is_utility:
             job_name_formatted = compmake_colored(job_name_formatted, **format_utility_job)
 
-        tf.cell(format_job_id(job_id))
+        # tf.cell(format_job_id(job_id))
+        tf.cell(job_name_formatted)
 
         tag = Cache.state2desc[cache.state]
 

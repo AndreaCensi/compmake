@@ -422,9 +422,11 @@ def timing_summary(cache: Cache) -> str:
     assert cache.int_compute is not None
     assert cache.int_gc is not None
     assert cache.int_save_results is not None
-    s = "%7s (L %s C %s GC %s S %s)" % (
-        dc(cache.int_make.get_walltime_used()),
+    s = "%7s (L %s C %s (w %s) GC %s S %s)" % (
+        # dc(cache.int_make.get_walltime_used()),
+        dc(cache.int_compute.get_cputime_used()),
         dc(cache.int_load_results.get_walltime_used()),
+        dc(cache.int_compute.get_cputime_used()),
         dc(cache.int_compute.get_walltime_used()),
         dc(cache.int_gc.get_walltime_used()),
         dc(cache.int_save_results.get_walltime_used()),
