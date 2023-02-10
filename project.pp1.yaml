@@ -46,8 +46,8 @@ pypi:
 
 circleci:
   active: true
-  test_python_versions: ['3.10']
-  resource_class: xlarge
+  test_python_versions: ['3.10', '3.11']
+  resource_class: medium
   more_packages:
   - zuper-notes-z7
   - zuper-loghandle-z7
