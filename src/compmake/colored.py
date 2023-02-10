@@ -2,7 +2,6 @@ from typing import Optional, Sequence
 
 from zuper_commons.ui import get_colorize_function
 from .state import get_compmake_config0
-from . import logger
 
 __all__ = [
     "compmake_colored",

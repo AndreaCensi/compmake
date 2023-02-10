@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict
+
 from .events_structures import Event, EventSpec
 from .types import CMJobID
 

@@ -21,7 +21,7 @@ from typing import (
 )
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
-from zuper_commons.types import check_isinstance, describe_type, ZValueError, ZAssertionError
+from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 from zuper_utils_timing.timing import new_timeinfo
@@ -92,7 +92,7 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
     basic = job_list - closure
 
     # logger.info(job_list=job_list, closure=closure, basic=basic)
-    other_clean = set()
+    other_clean: set[CMJobID] = set()
     for job_id in job_list:
         other_clean.update(cq.parents(job_id))
 
@@ -132,7 +132,7 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
 
 
-def clean_cache_relations(job_id: CMJobID, db):
+def clean_cache_relations(job_id: CMJobID, db: StorageFilesystem) -> None:
     # print('cleaning cache relations for %r ' % job_id)
     if not job_exists(job_id, db):
         logger.warning("Cleaning cache for job %r which does not exist anymore; ignoring" % job_id)
@@ -164,7 +164,7 @@ def clean_cache_relations(job_id: CMJobID, db):
                 # print('     changed in %s' % parent_job.children)
 
 
-def mark_to_remake(job_id: CMJobID, db):
+def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
     """Delets and invalidates the cache for this object"""
     # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id, db)
@@ -247,7 +247,6 @@ async def make(
         ti = new_timeinfo()
 
     new_jobs: Set[CMJobID]
-    delete_jobs: Set[CMJobID]
     user_object_deps: Set[CMJobID]
     user_object: object
 
@@ -334,16 +333,17 @@ async def make(
     class Store:
         nhidden = 0
 
-    def my_emit(_: Any, log_record) -> None:
+    def my_emit(_: Any, log_record: Any) -> None:
         # note that log_record.msg might be an exception
         # noinspection PyBroadException
         try:
             # noinspection PyBroadException
             try:
-                s_ = str(log_record.msg)
+                ss = str(log_record.msg)
 
             except:
-                s_ = f"Could not print log_record {id(log_record)}"
+                ss = f"Could not print log_record {id(log_record)}"
+            _ = ss
             # log_record.msg = colorize_loglevel(log_record.levelno, s_)
             res = formatter.format(log_record)
             print(res)
@@ -372,6 +372,12 @@ async def make(
         return deleted_jobs_
 
     new_jobs = set()
+
+    # Note: we create these here because otherwise they might be not defined
+    int_gc = IntervalTimer()
+    int_load_results = IntervalTimer()
+    int_compute = IntervalTimer()
+    user_object = None
     try:
         with ti.timeit("job_compute") as tisub:
             result: JobComputeResult = await job_compute(sti, job=job, context=context, ti=tisub)
@@ -379,9 +385,9 @@ async def make(
         assert isinstance(result, dict) and len(result) == 5
         user_object = result["user_object"]
         new_jobs = result["new_jobs"]
-        int_load_results: IntervalTimer = result["int_load_results"]
-        int_compute: IntervalTimer = result["int_compute"]
-        int_gc: IntervalTimer = result["int_gc"]
+        int_load_results = result["int_load_results"]
+        int_compute = result["int_compute"]
+        int_gc = result["int_gc"]
         int_gc.stop()
 
     except (KeyboardInterrupt, CancelledError) as e:  # FIXME: need to re-raise CancelledError
@@ -402,15 +408,7 @@ async def make(
 
         raise job_interrupted_exc(job_id=job_id, deleted_jobs=list(deleted_jobs))
 
-    except (
-        BaseException,
-        ArithmeticError,
-        BufferError,
-        LookupError,
-        Exception,
-        SystemExit,
-        MemoryError,
-    ) as e:
+    except BaseException as e:
         bt = traceback.format_exc()
         s = "%s: %s" % (type(e).__name__, e)
         mark_as_failed(job_id, db, s, backtrace=bt)
@@ -695,7 +693,7 @@ def comp_(
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
-        return None
+        return None  # XXX # type: ignore
 
     # Check that this is a pickable function
     try:
@@ -814,20 +812,20 @@ def comp_(
 
     extra_dep: Set[CMJobID]
     if CompmakeConstants.extra_dep_key in kwargs:
-        extra_dep = kwargs[CompmakeConstants.extra_dep_key]
+        extra_dep0 = cast(Set[CMJobID], kwargs[CompmakeConstants.extra_dep_key])
         del kwargs[CompmakeConstants.extra_dep_key]
 
-        if not isinstance(extra_dep, (list, Promise)):
+        if not isinstance(extra_dep0, (list, Promise)):
             msg = 'The "extra_dep" argument must be a list of promises.'
-            raise ZAssertionError(msg, extra_dep=extra_dep)
-        if isinstance(extra_dep, Promise):
-            extra_dep = [extra_dep]
-        assert isinstance(extra_dep, list)
-        for ed in extra_dep:
+            raise ZAssertionError(msg, extra_dep=extra_dep0)
+        if isinstance(extra_dep0, Promise):
+            extra_dep0 = [extra_dep0]
+        assert isinstance(extra_dep0, list)
+        for ed in extra_dep0:
             if not isinstance(ed, Promise):
                 msg = 'The "extra_dep" argument must be a list of promises'
-                raise ZAssertionError(msg, extra_dep=extra_dep)
-        extra_dep = collect_dependencies(extra_dep)
+                raise ZAssertionError(msg, extra_dep=extra_dep0)
+        extra_dep = collect_dependencies(extra_dep0)
 
     else:
         extra_dep = set()

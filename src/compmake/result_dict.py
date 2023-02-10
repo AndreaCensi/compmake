@@ -1,4 +1,5 @@
 from typing import cast
+
 from zuper_commons.types import check_isinstance, ZAssertionError
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from .types import OKResult, ResultDict
@@ -11,7 +12,6 @@ __all__ = [
 
 
 def check_ok_result(res: ResultDict) -> OKResult:
-
     ok = True
     ok &= "new_jobs" in res
     ok &= "deleted_jobs" in res

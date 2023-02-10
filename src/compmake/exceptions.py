@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, List, Optional, TypedDict
+from typing import List, Optional, TYPE_CHECKING, TypedDict
 
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
-from .types import AbortResult, CMJobID, FailResult, InterruptedResult, BugResult
+from .types import AbortResult, BugResult, CMJobID, FailResult, InterruptedResult
 
 __all__ = [
     "CommandFailed",

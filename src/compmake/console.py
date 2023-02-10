@@ -24,7 +24,6 @@ __all__ = [
 from . import logger
 
 
-#
 def get_readline() -> Any:
     """
     Returns a reference to the readline (or Pyreadline) module if they

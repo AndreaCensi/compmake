@@ -1,10 +1,10 @@
 from typing import cast
-from zuper_commons.test_utils import my_assert_equal as assert_equal
 
 from nose.tools import assert_raises
 
 from compmake import direct_children, direct_parents, make, UserError
 from compmake.types import CMJobID
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 from .utils import Env, run_with_env
 
 

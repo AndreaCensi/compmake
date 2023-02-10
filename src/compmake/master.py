@@ -15,7 +15,6 @@ from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp import zapp1, ZappEnv
 from . import __version__
-from .types import CMJobID
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
 from .context import Context
@@ -26,6 +25,7 @@ from .job_execution import get_cmd_args_kwargs
 from .readrcfiles import read_rc_files
 from .state import set_compmake_status
 from .storage import all_jobs, get_job
+from .types import CMJobID
 
 __all__ = [
     "compmake_main",

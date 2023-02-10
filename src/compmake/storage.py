@@ -1,7 +1,7 @@
 """
     These are all wrappers around the raw methods in storage
 """
-from typing import Any, Callable, Mapping, cast, Collection, Iterator
+from typing import Any, Callable, cast, Collection, Iterator, Mapping
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
 from zuper_commons.text import wildcard_to_regexp

@@ -1,6 +1,5 @@
-from zuper_commons.test_utils import my_assert_equal as assert_equal
-
 from compmake import clean_other_jobs
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 from .utils import Env, environment, run_with_env
 
 
@@ -18,7 +17,6 @@ async def test_cleaning_other(env: Env) -> None:
     jobs1 = await env.all_jobs()
     assert_equal(jobs1, ["g", "h"])
     async with environment(env.sti, env.rootd) as env2:
-
         await cleaning_other_second(env2)
     jobs2 = await env.all_jobs()
     assert_equal(jobs2, ["g"])

@@ -33,7 +33,6 @@ def mockup_dynamic1(context: Context):
 
 
 class TestDynamic1:
-
     howmany = None  # used by cases()
 
 

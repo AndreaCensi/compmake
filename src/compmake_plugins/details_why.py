@@ -1,7 +1,6 @@
 from collections import defaultdict
-from typing import Collection, Dict, List, Optional
-
 from dataclasses import dataclass
+from typing import Collection, Dict, List, Optional
 
 from compmake import (
     Cache,

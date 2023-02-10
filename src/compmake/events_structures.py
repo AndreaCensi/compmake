@@ -1,5 +1,5 @@
 import time
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
 __all__ = [
     "Event",

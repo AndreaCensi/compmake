@@ -12,9 +12,8 @@ from typing import (
     TypeVar,
 )
 
-from zuper_utils_asyncio import SyncTaskInterface
-
 from compmake.structures import Promise
+from zuper_utils_asyncio import SyncTaskInterface
 from .types import CMJobID
 
 __all__ = [

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from typing import Collection, Iterator, List, Set, Tuple, Union
-from compmake.filesystem import StorageFilesystem
 
+from compmake.filesystem import StorageFilesystem
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
 from . import logger

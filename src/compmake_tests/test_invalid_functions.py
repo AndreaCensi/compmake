@@ -1,7 +1,6 @@
 from nose.tools import assert_raises
 
 from compmake import UserError
-
 from .utils import Env, run_with_env
 
 

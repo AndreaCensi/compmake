@@ -1,7 +1,7 @@
 import sys
 import types
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, ClassVar, List, Optional, TextIO, TypeVar, Union, cast
+from typing import Any, Awaitable, Callable, ClassVar, List, Optional, TextIO, TypeVar, Union
 
 from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
@@ -73,7 +73,6 @@ ui_section(ACTIONS, order=2)
 ui_section(
     COMMANDS_ADVANCED, order=4, desc="These are advanced commands not for general use.", experimental=True
 )
-
 
 ############# Helpers for defining commands ##############
 

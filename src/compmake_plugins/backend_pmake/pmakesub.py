@@ -4,12 +4,11 @@ import signal
 import sys
 import time
 import traceback
-import warnings
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
-from typing import Any, Callable, Literal, Optional, Tuple, cast
+from typing import Any, Callable, cast, Literal, Optional, Tuple
 
 from compmake import (
     AsyncResultInterface,

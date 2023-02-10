@@ -12,10 +12,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Collection, Dict, List, NoReturn, Set
 
-from zuper_commons.fs import abspath, joinf, joind, make_sure_dir_exists, AbsDirPath
-from zuper_commons.text import indent, joinpars
+from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
+from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
-from zuper_utils_asyncio import my_create_task, SyncTaskInterface
+from zuper_commons.ui import duration_compact
+from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from .actions import mark_as_blocked, mark_as_failed
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -168,6 +169,8 @@ class Manager(ManagerLog):
         self.check_invariants()
         self.interrupted = False
         self.loop_task = None
+
+        self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
 
     # ## Derived class interface
     def process_init(self) -> None:
@@ -689,6 +692,14 @@ class Manager(ManagerLog):
         """
         # We make a copy because processing is updated during the loop
         # received = False
+
+        if self.once_in_a_while_show_procs.now():
+            lines = []
+            for job_id, x in self.processing2result.items():
+                s = duration_compact(time.time() - x.started)
+                lines.append(f"{s:12} {job_id}")
+            self.sti.logger.debug("s", processing=sorted(self.processing), p2r=joinlines(lines))
+
         for job_id in self.processing.copy():
             received = await self.check_job_finished(job_id)
             if received:

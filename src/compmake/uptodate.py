@@ -1,7 +1,6 @@
 from typing import Set, Tuple
 
 from compmake.filesystem import StorageFilesystem
-
 from .cachequerydb import CacheQueryDB, definition_closure
 from .queries import direct_children, direct_parents, jobs_defined, parents
 from .storage import get_job, get_job_cache

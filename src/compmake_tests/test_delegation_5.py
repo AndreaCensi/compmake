@@ -1,6 +1,6 @@
-from zuper_commons.test_utils import my_assert_equal as assert_equal
 from compmake import get_job
 from compmake.types import CMJobID
+from zuper_commons.test_utils import my_assert_equal as assert_equal
 from .utils import Env, environment, run_with_env
 
 

@@ -1,10 +1,9 @@
 # ssh -R 12000:localhost:6379 nessa.cds.caltech.edu
 # "compmake --db=redis --host localhost:12000 --slave make
 # v_rangefinder_nonunif-random_pose_simulation "
+import sys
 from collections import namedtuple
 from pprint import pprint
-import sys
-
 
 Host = namedtuple("Host", "name host username processors init test instance")
 

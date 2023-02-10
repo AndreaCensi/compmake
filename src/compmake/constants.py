@@ -3,8 +3,8 @@ __all__ = [
     "DefaultsToConfig",
 ]
 
-from typing import TYPE_CHECKING, ClassVar, Collection, Iterator, Protocol
 import warnings
+from typing import ClassVar, Collection, Iterator, Protocol, TYPE_CHECKING
 
 from .types import CMJobID
 

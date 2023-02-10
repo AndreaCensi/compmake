@@ -5,7 +5,6 @@ __all__ = [
     "memoized_reset",
 ]
 
-
 # def memoize_simple(obj):
 # # TODO: make sure it's not iterator
 #     cache = obj.cache = {}

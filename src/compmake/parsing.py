@@ -24,7 +24,7 @@
 """
 import types
 from collections import namedtuple
-from typing import Any, Iterable, Optional, cast, Iterator
+from typing import Any, cast, Iterator, Optional
 
 from zuper_commons.text import expand_wildcard
 from zuper_commons.types import check_isinstance, ZValueError
@@ -315,6 +315,8 @@ def a_done(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 
 
 add_alias("done", a_done)
+
+
 # add_alias('in_progress',
 #           lambda context, cq:
 #           list_jobs_with_state(Cache.IN_PROGRESS, context=context, cq=cq))

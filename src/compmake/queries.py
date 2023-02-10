@@ -5,10 +5,10 @@ from typing import Collection, Iterator, Set
 
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug
+from .filesystem import StorageFilesystem
 from .storage import all_jobs, get_job, get_job_cache
 from .structures import Cache
 from .types import CMJobID
-from .filesystem import StorageFilesystem
 
 __all__ = [
     "children",

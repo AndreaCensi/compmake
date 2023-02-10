@@ -1,9 +1,8 @@
 from copy import deepcopy
 from typing import Any, Set, TypeVar
 
-from zuper_commons.types import ZException, ZValueError
-
 from compmake.filesystem import StorageFilesystem
+from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
 from .storage import get_job_userobject, job_userobject_exists
 from .structures import Promise

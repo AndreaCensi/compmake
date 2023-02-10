@@ -63,7 +63,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, Union
 
-from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
+from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
 from zuper_commons.types import describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
@@ -402,7 +402,6 @@ class Cache:
 
 
 def cache_has_large_overhead(cache: Cache) -> bool:
-
     assert cache.int_make is not None
     assert cache.int_load_results is not None
     assert cache.int_compute is not None

@@ -8,8 +8,6 @@ __all__ = [
     "compute_priorities",
 ]
 
-from . import logger
-
 
 def compute_priorities(
     all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: Optional[Dict[CMJobID, float]] = None
