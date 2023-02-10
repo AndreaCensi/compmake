@@ -35,7 +35,16 @@
   },
   "zip_safe": true,
   "include_package_data": true,
-  "modules": [
+  "packages": [
+    "compmake",
+    "compmake_plugins",
+    "compmake_plugins.backend_local",
+    "compmake_plugins.backend_pmake",
+    "compmake_plugins.backend_ssh_cluster",
+    "compmake_plugins.execution_stats",
+    "compmake_utils"
+  ],
+  "py_modules": [
     "compmake",
     "compmake.__main__",
     "compmake.actions",
