@@ -329,7 +329,9 @@ def a_not_started(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 add_alias("not_started", a_not_started)
 
 
-def parse_job_list(tokens: list[str], context: Context, cq: Optional[CacheQueryDB] = None) -> list[CMJobID]:
+def parse_job_list(
+    tokens: list[str] | str, context: Context, cq: Optional[CacheQueryDB] = None
+) -> list[CMJobID]:
     """
     Parses a job list. tokens can be:
 

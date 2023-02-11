@@ -97,7 +97,7 @@ class Env:
         if sa != sb:
             raise ZAssertionError("different sets", sa=sa, sb=sb, only_sa=sa - sb, only_sb=sb - sa)
 
-    async def assert_cmd_fail(self, cmds):
+    async def assert_cmd_fail(self, cmds: str) -> None:
         """Executes the (list of) commands and checks it was succesful."""
         print("@ %s     [supposed to fail]" % cmds)
         try:
@@ -113,7 +113,7 @@ class Env:
             msg = "Command did not fail."
             raise ZAssertionError(msg, cmds=cmds)
 
-    async def assert_cmd_success(self, cmds):
+    async def assert_cmd_success(self, cmds: str) -> None:
         """Executes the (list of) commands and checks it was succesful."""
         print("@ %s" % cmds)
         try:
