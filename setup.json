@@ -35,7 +35,7 @@
   },
   "zip_safe": true,
   "include_package_data": true,
-  "packages": [
+  "modules": [
     "compmake",
     "compmake_plugins",
     "compmake_plugins.backend_local",
