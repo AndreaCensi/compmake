@@ -23,6 +23,7 @@ jobs:
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
       TEST_PACKAGES: compmake_tests
+      PIP_INDEX_URL: ${PIP_INDEX_URL_SRC}
       Z_SERVICE_LOG: zuper_loghandle.log
       Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -185,6 +186,7 @@ jobs:
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
       TEST_PACKAGES: compmake_tests
+      PIP_INDEX_URL: ${PIP_INDEX_URL_SRC}
       Z_SERVICE_LOG: zuper_loghandle.log
       Z_SERVICE_NOTE: zuper_notes.notes
       Z_SERVICE_PROC: zuper_proc_local.proc
@@ -337,4 +339,4 @@ jobs:
           ./codecov  
     resource_class: medium
 
-# sigil aacd619ffa3ecfbbc6209ec3991d3ce3
+# sigil b1599861f4ffe455fab44bc6d3db7c6c
