@@ -2,7 +2,29 @@
 name = "compmake-z7"
 version = "7.2"
 authors = [{name = "", email = "info@zupermind.com"}]
-dependencies = ["Pympler", "lxml", "setproctitle", "PyYAML", "psutil", "dill", "coverage", "SystemCmd-z7", "zuper-zapp-interfaces-z7", "zuper-utils-asyncio-z7", "zuper-commons-z7", "zuper-typing-z7", "zuper-commons-z7", "zuper-utils-asyncio-z7", "zuper-utils-timing-z7", "zuper-graphs-z7", "numpy", "pyreadline", "zuper-zapp-z7", "networkx", "typing_extensions"]
+dependencies = [
+    "PyYAML",
+    "Pympler",
+    "SystemCmd-z7",
+    "coverage",
+    "dill",
+    "lxml",
+    "networkx",
+    "numpy",
+    "psutil",
+    "pyreadline",
+    "setproctitle",
+    "typing_extensions",
+    "zuper-commons-z7",
+    "zuper-commons-z7",
+    "zuper-graphs-z7",
+    "zuper-typing-z7",
+    "zuper-utils-asyncio-z7",
+    "zuper-utils-asyncio-z7",
+    "zuper-utils-timing-z7",
+    "zuper-zapp-interfaces-z7",
+    "zuper-zapp-z7",
+    ]
 
 [project.scripts]
 compmake = "compmake:main"
@@ -14,8 +36,24 @@ name = "compmake-z7"
 version = "7.2"
 description = ""
 authors = [" <info@zupermind.com>"]
-packages = [{include = "compmake", from = "src"}, {include = "compmake_plugins", from = "src"}, {include = "compmake_plugins/backend_local", from = "src"}, {include = "compmake_plugins/backend_pmake", from = "src"}, {include = "compmake_plugins/backend_ssh_cluster", from = "src"}, {include = "compmake_plugins/execution_stats", from = "src"}, {include = "compmake_utils", from = "src"}]
+packages = [
+    {from = "src", include = "compmake"},
+    {from = "src", include = "compmake_plugins"},
+    {from = "src", include = "compmake_plugins/backend_local"},
+    {from = "src", include = "compmake_plugins/backend_pmake"},
+    {from = "src", include = "compmake_plugins/backend_ssh_cluster"},
+    {from = "src", include = "compmake_plugins/execution_stats"},
+    {from = "src", include = "compmake_utils"},
+    ]
 
 [tool.setuptools]
-packages = ["compmake", "compmake_plugins", "compmake_plugins.backend_local", "compmake_plugins.backend_pmake", "compmake_plugins.backend_ssh_cluster", "compmake_plugins.execution_stats", "compmake_utils"]
+packages = [
+    "compmake",
+    "compmake_plugins",
+    "compmake_plugins.backend_local",
+    "compmake_plugins.backend_pmake",
+    "compmake_plugins.backend_ssh_cluster",
+    "compmake_plugins.execution_stats",
+    "compmake_utils",
+    ]
 package-dir = {"" = "src"}
