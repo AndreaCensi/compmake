@@ -30,6 +30,11 @@ dependencies = [
 compmake = "compmake:main"
 compmake-profile = "compmake:compmake_profile_main"
 
+[project.optional-dependencies]
+test = [
+    "nose",
+    ]
+
 [tool]
 [tool.poetry]
 name = "compmake-z7"
