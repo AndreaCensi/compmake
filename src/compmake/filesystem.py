@@ -14,6 +14,7 @@ from zuper_commons.fs import (
     join,
     write_ustring_to_utf8_file,
 )
+from zuper_commons.types import contextmanager
 from zuper_utils_timing.timing import new_timeinfo
 from . import logger
 from .exceptions import SerializationError
@@ -49,19 +50,18 @@ class StorageFilesystem:
         existed = os.path.exists(self.fn)
         if not existed:
             logger.info(f"The database {self.fn!r} did not exist: creating.")
-        self.con = sqlite3.connect(self.fn)
+        self.con = sqlite3.connect(self.fn, timeout=15)
         if not existed:
-            cur = self.con.cursor()
-            sql = """
-            create table fs_blobs(blob_key text not null primary key , blob_value blob)
-            """
-            cur.execute(sql)
-            # sql = """
-            # create index blob_keys on fs_blobs(blob_key);
-            # """
-            # cur.execute(sql)
-            self.con.commit()
-            cur.close()
+            with self.cursor() as cur:
+                sql = """
+                create table fs_blobs(blob_key text not null primary key , blob_value blob)
+                """
+                cur.execute(sql)
+                # sql = """
+                # create index blob_keys on fs_blobs(blob_key);
+                # """
+                # cur.execute(sql)
+                self.con.commit()
 
         self.method = method = "pickle"
         # self.method = method= "dill"
@@ -83,6 +83,14 @@ class StorageFilesystem:
         # create a bunch of files that contain shortcuts
         create_scripts(self.basepath)
 
+    @contextmanager
+    def cursor(self) -> Iterator[sqlite3.Cursor]:
+        cur = self.con.cursor()
+        try:
+            yield cur
+        finally:
+            cur.close()
+
     def close(self):
         self.con.close()
 
@@ -91,15 +99,14 @@ class StorageFilesystem:
 
     @track_time
     def sizeof(self, key: StorageKey) -> int:
-        cur = self.con.cursor()
-        # filename = self.filename_for_key(key)
-        sql = """
-            select length(blob_value) from fs_blobs where blob_key = ?
-        """
-        cur.execute(sql, (key,))
-        (res,) = cur.fetchone()
-        cur.close()
-        return res
+        with self.cursor() as cur:
+            # filename = self.filename_for_key(key)
+            sql = """
+                select length(blob_value) from fs_blobs where blob_key = ?
+            """
+            cur.execute(sql, (key,))
+            (res,) = cur.fetchone()
+            return res
         # statinfo = os.stat(filename)
         # return statinfo.st_size
 
@@ -110,16 +117,16 @@ class StorageFilesystem:
 
         # self.check_existence()
 
-        cur = self.con.cursor()
-        sql = """
-            select blob_value from fs_blobs where blob_key = ?
-        """
-        cur.execute(sql, (key,))
-        one = cur.fetchone()
-        if one is None:
-            raise KeyError(key)
-        (data,) = one
-        cur.close()
+        with self.cursor() as cur:
+
+            sql = """
+                select blob_value from fs_blobs where blob_key = ?
+            """
+            cur.execute(sql, (key,))
+            one = cur.fetchone()
+            if one is None:
+                raise KeyError(key)
+            (data,) = one
 
         # filename = self.filename_for_key(key)
         #
@@ -203,20 +210,18 @@ class StorageFilesystem:
         insert into fs_blobs(blob_key, blob_value) values (?, ?)
         on conflict(blob_key) do update set blob_value = excluded.blob_value
         """
-        cur = self.con.cursor()
-        cur.execute(sql, (key, data))
-        self.con.commit()
-        cur.close()
+        with self.cursor() as cur:
+            cur.execute(sql, (key, data))
+            self.con.commit()
 
     @track_time
     def __delitem__(self, key: StorageKey) -> None:
         sql = """
         delete from fs_blobs where blob_key = ?
         """
-        cur = self.con.cursor()
-        cur.execute(sql, (key,))
-        self.con.commit()
-        cur.close()
+        with self.cursor() as cur:
+            cur.execute(sql, (key,))
+            self.con.commit()
 
         # filename = self.filename_for_key(key)
         # if not os.path.exists(filename):
@@ -232,14 +237,13 @@ class StorageFilesystem:
         # filename = self.filename_for_key(key)
         # ex = os.path.exists(filename)
 
-        cur = self.con.cursor()
         sql = """
             select count(*) from fs_blobs where blob_key = ?
         """
-        cur.execute(sql, (key,))
-        (res,) = cur.fetchone()
-        cur.close()
-        return res > 0
+        with self.cursor() as cur:
+            cur.execute(sql, (key,))
+            (res,) = cur.fetchone()
+            return res > 0
         # logger.debug('? %s %s %s' % (str(key), filename, ex))
         # return ex
 
@@ -248,12 +252,11 @@ class StorageFilesystem:
         sql = """
             select blob_key from fs_blobs
         """
-        cur = self.con.cursor()
-        cur.execute(sql)
-        res = cur.fetchall()
-        for row in res:
-            yield row[0]
-        cur.close()
+        with self.cursor() as cur:
+            cur.execute(sql)
+            res = cur.fetchall()
+            for row in res:
+                yield row[0]
         # if extension is None:
         #     extension = self.file_extension
         # filename = self.filename_for_key("*", extension)
