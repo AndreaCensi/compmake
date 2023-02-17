@@ -1,13 +1,13 @@
 from contextlib import contextmanager
 from typing import Collection, Iterator, List, Set, Tuple, Union
 
-from compmake.filesystem import StorageFilesystem
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
 from . import logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
+from .filesystem import StorageFilesystem
 from .queries import direct_children, direct_parents, jobs_defined
 from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
@@ -123,7 +123,6 @@ class CacheQueryDB:
 
     @memoized_reset
     def parents(self, job_id: CMJobID) -> Set[CMJobID]:
-
         t: set[CMJobID] = set()
         parents_jobs = self.direct_parents(job_id)
         for p in parents_jobs:

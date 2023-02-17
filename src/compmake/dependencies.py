@@ -1,9 +1,9 @@
 from copy import deepcopy
 from typing import Any, Set, TypeVar
 
-from compmake.filesystem import StorageFilesystem
 from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
+from .filesystem import StorageFilesystem
 from .storage import get_job_userobject, job_userobject_exists
 from .structures import Promise
 from .types import CMJobID
@@ -88,7 +88,6 @@ def collect_dependencies(ob: Any) -> Set[CMJobID]:
         depends: set[CMJobID] = set()
         child: object
         if isinstance(ob, (list, tuple)):
-
             for child in ob:
                 depends.update(collect_dependencies(child))
         if isinstance(ob, dict):

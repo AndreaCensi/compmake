@@ -1,6 +1,6 @@
 from typing import cast, TypeVar
 
-from compmake.filesystem import StorageFilesystem
+from .filesystem import StorageFilesystem
 from zuper_commons.fs import abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import wildcard_to_regexp
 from zuper_commons.types import ZException, ZValueError

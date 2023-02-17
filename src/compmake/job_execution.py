@@ -2,7 +2,6 @@ import asyncio
 import inspect
 from typing import Any, Callable, Mapping, Optional, Set, Tuple, TypedDict
 
-from compmake.filesystem import StorageFilesystem
 from zuper_commons.types import add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
@@ -10,6 +9,7 @@ from . import get_job_cache
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
+from .filesystem import StorageFilesystem
 from .storage import get_job, get_job_args, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
@@ -109,7 +109,6 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
             with ti.timeit("await command"):
                 user_object = await command(*args, **kwargs3)
         else:
-
             if "sti" in sig.parameters:
                 msg = "The function wants sti but it is not async"
                 raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
