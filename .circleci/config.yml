@@ -32,10 +32,10 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.10:${Z_DISTRO}
-      auth:
-        username: $DOCKER_USERNAME
-        password: $DOCKER_PASSWORD
+    - image: docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.10:${Z_DISTRO}
+      # auth:
+      #   username: $DOCKER_USERNAME
+      #   password: $DOCKER_PASSWORD
     working_directory: ~/repo
     steps:
     - checkout
@@ -206,10 +206,10 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.10:${Z_DISTRO}
-      auth:
-        username: $DOCKER_USERNAME
-        password: $DOCKER_PASSWORD
+    - image: docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.10:${Z_DISTRO}
+      # auth:
+      #   username: $DOCKER_USERNAME
+      #   password: $DOCKER_PASSWORD
     working_directory: ~/repo
     steps:
     - checkout
@@ -380,10 +380,10 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.11:${Z_DISTRO}
-      auth:
-        username: $DOCKER_USERNAME
-        password: $DOCKER_PASSWORD
+    - image: docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.11:${Z_DISTRO}
+      # auth:
+      #   username: $DOCKER_USERNAME
+      #   password: $DOCKER_PASSWORD
     working_directory: ~/repo
     steps:
     - checkout
@@ -554,10 +554,10 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: ${DOCKER_REGISTRY}/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.11:${Z_DISTRO}
-      auth:
-        username: $DOCKER_USERNAME
-        password: $DOCKER_PASSWORD
+    - image: docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.11:${Z_DISTRO}
+      # auth:
+      #   username: $DOCKER_USERNAME
+      #   password: $DOCKER_PASSWORD
     working_directory: ~/repo
     steps:
     - checkout
@@ -713,4 +713,4 @@ jobs:
           ./codecov  
     resource_class: medium
 
-# sigil c7d27e5ea08ae87eb624293c33075bda
+# sigil 04258dd7c541dbc0a30ae5f26b2eff1b
