@@ -690,16 +690,22 @@ class Manager(ManagerLog):
         Returns True if something finished (either success or failure).
         Returns False if something finished unsuccesfully.
         """
-        # We make a copy because processing is updated during the loop
-        # received = False
 
+        threshold = 30
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
+                dt = time.time() - x.started
+                if dt < threshold:
+                    continue
                 s = duration_compact(time.time() - x.started)
                 lines.append(f"{s:12} {job_id}")
-            self.sti.logger.debug("s", processing=sorted(self.processing), p2r=joinlines(lines))
 
+            if lines:
+                self.sti.logger.debug("running jobs",  # processing=sorted(self.processing),
+                                      p2r=joinlines(lines))
+
+        # We make a copy because processing is updated during the loop
         for job_id in self.processing.copy():
             received = await self.check_job_finished(job_id)
             if received:

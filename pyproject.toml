@@ -1,7 +1,7 @@
 [project]
 name = "compmake-z7"
 version = "7.2"
-authors = [{name = "", email = "info@zupermind.com"}]
+authors = [{name = "", email = "AndreaCensi@users.noreply.github.com"}]
 dependencies = [
     "PyYAML",
     "Pympler",
@@ -40,7 +40,7 @@ test = [
 name = "compmake-z7"
 version = "7.2"
 description = ""
-authors = [" <info@zupermind.com>"]
+authors = [" <AndreaCensi@users.noreply.github.com>"]
 packages = [
     {from = "src", include = "compmake"},
     {from = "src", include = "compmake_plugins"},
