@@ -702,8 +702,9 @@ class Manager(ManagerLog):
                 lines.append(f"{s:12} {job_id}")
 
             if lines:
-                self.sti.logger.debug("running jobs",  # processing=sorted(self.processing),
-                                      p2r=joinlines(lines))
+                self.sti.logger.debug(
+                    "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
+                )
 
         # We make a copy because processing is updated during the loop
         for job_id in self.processing.copy():
@@ -862,7 +863,6 @@ class Manager(ManagerLog):
                 self.check_invariants()
 
         try:
-
             self.loop_task = my_create_task(loopit(), "Manager-loopit")
             await self.loop_task
             self.log(indent(self._get_situation_string(), "ending: "))
@@ -894,7 +894,6 @@ class Manager(ManagerLog):
             return True
 
         except JobInterrupted as e:
-
             await ui_error(self.context, f"Received JobInterrupted: {e}")
             raise
         except KeyboardInterrupt:
@@ -999,7 +998,6 @@ class Manager(ManagerLog):
         partition(["done", "failed", "blocked", "todo", "ready_todo", "processing", "deleted"], "all_targets")
 
         if False:
-
             for job_id in self.done:
                 if not job_exists(job_id, self.db):
                     raise CompmakeBug("job %r in done does not exist" % job_id)

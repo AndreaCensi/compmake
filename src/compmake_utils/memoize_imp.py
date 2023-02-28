@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, TypeVar
 __all__ = [
     "memoized_reset",
 ]
- 
+
 X = TypeVar("X")
 if TYPE_CHECKING:
 
@@ -41,7 +41,6 @@ else:
             return cache_ob[funcname]
 
         def __call__(self, the_ob, *args):
-
             cache = self._getcache(the_ob)
 
             is_key_error = is_type_error = False

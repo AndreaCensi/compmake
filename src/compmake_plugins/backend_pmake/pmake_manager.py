@@ -291,7 +291,7 @@ class PmakeManager(Manager):
         cps = os.environ.get("COVERAGE_PROCESS_START")
         if cps:
             self.log("Now waiting 5 seconds for coverage")
-            time.sleep(10)
+            time.sleep(5)
             self.log("Waited 5 seconds, now killing")
         else:
             self.log("Coverage not detected")
