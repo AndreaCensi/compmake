@@ -4,7 +4,7 @@ import sqlite3
 import stat
 import traceback
 from asyncio import CancelledError
-from typing import Iterator, List, NewType, Optional
+from typing import Iterator, List, NewType, Optional, TypeVar
 
 import dill
 
@@ -24,8 +24,10 @@ __all__ = [
     "StorageKey",
 ]
 
+X = TypeVar("X")
 
-def track_time(x):
+
+def track_time(x: X) -> X:
     return x
 
 
@@ -91,7 +93,7 @@ class StorageFilesystem:
         finally:
             cur.close()
 
-    def close(self):
+    def close(self) -> None:
         self.con.close()
 
     def __repr__(self) -> str:
@@ -118,7 +120,6 @@ class StorageFilesystem:
         # self.check_existence()
 
         with self.cursor() as cur:
-
             sql = """
                 select blob_value from fs_blobs where blob_key = ?
             """
@@ -166,7 +167,6 @@ class StorageFilesystem:
         # DOSYNC = False
         ti = new_timeinfo()
         try:
-
             # self.check_existence()
 
             # filename = self.filename_for_key(key)
@@ -174,7 +174,6 @@ class StorageFilesystem:
             if self.method == "pickle":
                 try:
                     with ti.timeit("safe_pickle_dump"):
-
                         data = pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL)
                     #     safe_pickle_dump(value, filename)
                     # if DOSYNC:
@@ -278,13 +277,13 @@ class StorageFilesystem:
 
     dangerous_chars = {"/": "CMSLASH", "..": "CMDOT", "~": "CMHOME"}
 
-    def key2basename(self, key):
+    def key2basename(self, key: str) -> str:
         """turns a key into a reasonable filename"""
         for char, replacement in self.dangerous_chars.items():
             key = key.replace(char, replacement)
         return key
 
-    def basename2key(self, key):
+    def basename2key(self, key: str) -> str:
         """Undoes key2basename"""
         for char, replacement in StorageFilesystem.dangerous_chars.items():
             key = key.replace(replacement, char)
