@@ -691,7 +691,7 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 30
+        threshold = 1
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
@@ -917,7 +917,7 @@ class Manager(ManagerLog):
             done_by_me=self.done_by_me,
         )
 
-    def _get_situation_string(self):
+    def _get_situation_string(self) -> str:
         """Returns a string summarizing the current situation"""
         lists = dict(
             done=self.done,
