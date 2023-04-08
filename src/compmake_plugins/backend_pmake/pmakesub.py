@@ -139,7 +139,6 @@ async def pmake_worker(
         # write_log = None
         # warnings.warn('remove above')
         if write_log:
-
             sys.stderr = sys.stdout = f = open(write_log, "w")
 
             def log(s: str):
@@ -178,6 +177,7 @@ async def pmake_worker(
 
             job_id = "none yet"
             while True:
+                gc.collect()
 
                 if detailed_python_mem_stats:
                     log("detailed_python_mem_stats... ")

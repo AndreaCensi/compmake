@@ -7,6 +7,8 @@ from .types import CMJobID
 compmake_registered_events: Dict[str, EventSpec] = {}
 
 __all__ = [
+    "EVENT_MANAGER_PHASE",
+    "EVENT_MANAGER_PROGRESS",
     "EVENT_MANAGER_SUCCEEDED",
     "JobProgressEvent",
     "compmake_registered_events",
