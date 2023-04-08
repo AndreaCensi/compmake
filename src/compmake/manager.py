@@ -702,6 +702,10 @@ class Manager(ManagerLog):
                 lines.append(f"{s:12} {job_id}")
 
             if lines:
+                msg = f"Jobs running for more than {threshold} seconds:"
+                msg += "\n".join(lines)
+
+                await self.context.write_message_console(msg)
                 self.sti.logger.debug(
                     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
                 )
