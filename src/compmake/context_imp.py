@@ -338,6 +338,7 @@ class ContextImp(Context):
         # SEE: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html#cursor-navigation
 
         print(CLEAR_ENTIRE_LINE + output, end="", file=sys.stderr)
+        sys.stderr.flush()
         interactive = self.get_compmake_config("interactive")
         if interactive:
             if self.status_line:
@@ -352,6 +353,8 @@ class ContextImp(Context):
                 print("\r" + s + "\r", end="", file=sys.stderr)
             else:
                 print("\r" + s + "\n", end="", file=sys.stderr)
+
+            sys.stderr.flush()
 
     def get_compmake_config(self, c: str) -> object:
         return get_compmake_config0(c)

@@ -250,11 +250,13 @@ class PmakeManager(Manager):
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
+    # noinspection PyBroadException
     async def cancel_job(self, job_id: CMJobID) -> None:
         subname = self.job2subname[job_id]
         msg = f"Aborting job {job_id} on sub {subname}"
         await self.context.write_message_console(msg)
         sub = self.subs[subname]
+
         try:
             sub.proc.terminate()
             sub.terminate()
@@ -323,12 +325,12 @@ class PmakeManager(Manager):
                     pass
                 # print('killed pid %s for %s' % (name, pid))
                 # print('process_finished() finished')
-
-        if False:
-            timeout = 100
-            for name in self.sub_available:
-                print("joining %s" % name)
-                self.subs[name].proc.join(timeout)
+        #
+        # if False:
+        #     timeout = 100
+        #     for name in self.sub_available:
+        #         print("joining %s" % name)
+        #         self.subs[name].proc.join(timeout)
 
         killtree()
         # print('process_finished(): cleaned up')
