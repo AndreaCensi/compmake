@@ -133,6 +133,7 @@ class PmakeManager(Manager):
         name = self.get_new_sub_name()
         self._create_sub(name)
         self.sub_available.add(name)
+
         return name
 
     def get_new_sub_name(self) -> SubName:
@@ -169,7 +170,11 @@ class PmakeManager(Manager):
         assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            msg = f"already {len(self.sub_processing)} processing"
+            all_subs = ", ".join(self.subs.keys())
+            procs = ", ".join(self.sub_processing)
+
+            msg = f"already {len(self.sub_processing)} processing (max {self.max_num_processing})"
+
             if self.sub_aborted:
                 msg += f" ({len(self.sub_aborted)} workers aborted)"
             resource_available["nproc"] = (False, msg)
@@ -352,7 +357,8 @@ class PmakeManager(Manager):
         # assert name not in self.sub_available
         if name in self.sub_processing:
             self.sub_processing.remove(name)
-        self.sub_available.add(name)
+        if (name not in self.sub_aborted) and (name in self.subs):
+            self.sub_available.add(name)
 
     def host_failed(self, job_id: CMJobID) -> None:
         Manager.host_failed(self, job_id)
