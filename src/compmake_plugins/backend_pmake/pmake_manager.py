@@ -304,10 +304,12 @@ class PmakeManager(Manager):
         del PmakeManager.queues[self.event_queue_name]
 
         for name in self.sub_processing:
-            self.subs[name].proc.terminate()
+            if name in self.subs:
+                self.subs[name].proc.terminate()
 
         for name in self.sub_available:
-            self.subs[name].terminate()
+            if name in self.subs:
+                self.subs[name].terminate()
 
         # XXX: in practice this never works well
         # if False:
@@ -323,11 +325,12 @@ class PmakeManager(Manager):
         if True:
             #  print('killing')
             for name in self.sub_processing:
-                pid = self.subs[name].proc.pid
-                try:
-                    os.kill(pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
+                if name in self.subs:
+                    pid = self.subs[name].proc.pid
+                    try:
+                        os.kill(pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
                 # print('killed pid %s for %s' % (name, pid))
                 # print('process_finished() finished')
         #
