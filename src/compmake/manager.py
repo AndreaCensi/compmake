@@ -399,6 +399,8 @@ class Manager(ManagerLog):
             time_passed = time.time() - proc_details.started
             if time_passed > job_timeout:
                 s = f"Timed out (> {job_timeout:.1f} s)"
+                msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
+                await self.context.write_message_console(msg)
 
                 mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
                 await self.cancel_job(job_id)
@@ -691,7 +693,7 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 1
+        threshold = 5
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
@@ -702,8 +704,8 @@ class Manager(ManagerLog):
                 lines.append(f"{s:12} {job_id}")
 
             if lines:
-                msg = f"Jobs running for more than {threshold} seconds:"
-                msg += "\n".join(lines)
+                msg = f"Jobs running for more than {threshold} seconds:\n"
+                msg += "".join(f"- {l}\n" for l in lines)
 
                 await self.context.write_message_console(msg)
                 self.sti.logger.debug(

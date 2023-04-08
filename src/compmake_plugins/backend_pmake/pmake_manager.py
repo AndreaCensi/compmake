@@ -9,7 +9,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, ClassVar, Dict, NewType, Set
+from typing import Any, cast, ClassVar, Dict, NewType, Set
 
 import psutil
 from psutil import NoSuchProcess
@@ -85,6 +85,7 @@ class PmakeManager(Manager):
         self.cleaned = False
 
     ctx: BaseContext
+    _nsubs_created: int = 0
 
     def process_init(self) -> None:
         # https://stackoverflow.com/questions/30669659/multiproccesing-and-error-the-process-has-forked-and
@@ -111,6 +112,7 @@ class PmakeManager(Manager):
         self.sub_available = set()
         self.sub_processing = set()
         self.sub_aborted = set()
+        self._nsubs_created = 0
 
         # db = self.context.get_compmake_db()
         # storage = db.basepath  # XXX:
@@ -119,7 +121,7 @@ class PmakeManager(Manager):
         # detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
-            name = SubName(f"parmake_sub_{i:02d}")
+            name = self.get_new_sub_name()
             self.create_sub(name)
             #
             # write_log = joinf(logs, f"{name}.log")
@@ -137,9 +139,21 @@ class PmakeManager(Manager):
             # self.subs[name] = p
         self.job2subname = {}
         # all are available
-        self.sub_available.update(self.subs)
+        # self.sub_available.update(self.subs)
 
         self.max_num_processing = self.num_processes
+
+    def create_new_sub(self) -> SubName:
+        name = self.get_new_sub_name()
+        self.create_sub(name)
+        self.sub_available.add(name)
+        return name
+
+    def get_new_sub_name(self) -> SubName:
+        n = self.num_processes
+        name = cast(SubName, f"parmake_sub_{self._nsubs_created:03d}_{n}")
+        self._nsubs_created += 1
+        return name
 
     def create_sub(self, name: SubName) -> PmakeSub:
         detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
@@ -252,12 +266,28 @@ class PmakeManager(Manager):
 
     async def cancel_job(self, job_id: CMJobID) -> None:
         subname = self.job2subname[job_id]
+        msg = f"Aborting job {job_id} on sub {subname}"
+        await self.context.write_message_console(msg)
         sub = self.subs[subname]
+        sub.proc.terminate()
+        sub.terminate()
         # sub.terminate()
-        self.create_sub(subname)
-        if subname in self.sub_processing:
-            self.sub_processing.remove(subname)
-        self.sub_available.add(subname)
+        # self.create_sub(subname)
+        self.sub_processing.remove(subname)
+        self.sub_available.remove(subname)
+        self.sub_aborted.add(subname)
+
+        msg = f"Creating new sub."
+        await self.context.write_message_console(msg)
+
+        name = self.create_new_sub()
+        msg = f"Created new sub {name}."
+        await self.context.write_message_console(msg)
+
+        #
+        # if subname in self.sub_processing:
+        #     self.sub_processing.remove(subname)
+        # self.sub_available.add(subname)
 
     def event_check(self) -> None:
         if not self.show_output:

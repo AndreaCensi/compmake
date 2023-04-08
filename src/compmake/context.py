@@ -113,7 +113,7 @@ class Context(ABC):
 
     @abstractmethod
     def get_compmake_config(self, c: str) -> Any:
-        pass
+        ...
 
     @abstractmethod
     async def write_message_console(self, s: str) -> None:
