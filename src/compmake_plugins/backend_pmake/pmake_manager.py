@@ -121,22 +121,8 @@ class PmakeManager(Manager):
         # detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
-            name = self.get_new_sub_name()
-            self.create_sub(name)
-            #
-            # write_log = joinf(logs, f"{name}.log")
-            # make_sure_dir_exists(write_log)
-            # logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
-            # signal_token = name
-            # p = PmakeSub(
-            #     name=name,
-            #     signal_queue=None,
-            #     signal_token=signal_token,
-            #     write_log=write_log,
-            #     ctx=self.ctx,
-            #     detailed_python_mem_stats=detailed_python_mem_stats,
-            # )
-            # self.subs[name] = p
+            self.create_new_sub()
+
         self.job2subname = {}
         # all are available
         # self.sub_available.update(self.subs)
@@ -145,7 +131,7 @@ class PmakeManager(Manager):
 
     def create_new_sub(self) -> SubName:
         name = self.get_new_sub_name()
-        self.create_sub(name)
+        self._create_sub(name)
         self.sub_available.add(name)
         return name
 
@@ -155,7 +141,7 @@ class PmakeManager(Manager):
         self._nsubs_created += 1
         return name
 
-    def create_sub(self, name: SubName) -> PmakeSub:
+    def _create_sub(self, name: SubName) -> PmakeSub:
         detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         db = self.context.get_compmake_db()
@@ -269,13 +255,18 @@ class PmakeManager(Manager):
         msg = f"Aborting job {job_id} on sub {subname}"
         await self.context.write_message_console(msg)
         sub = self.subs[subname]
-        sub.proc.terminate()
-        sub.terminate()
-        # sub.terminate()
-        # self.create_sub(subname)
-        self.sub_processing.remove(subname)
-        self.sub_available.remove(subname)
+        try:
+            sub.proc.terminate()
+            sub.terminate()
+        except:
+            pass
+        if subname in self.sub_processing:
+            self.sub_processing.remove(subname)
+        if subname in self.sub_available:
+            self.sub_available.remove(subname)
+
         self.sub_aborted.add(subname)
+        self.subs.pop(subname, None)
 
         msg = f"Creating new sub."
         await self.context.write_message_console(msg)
@@ -283,11 +274,6 @@ class PmakeManager(Manager):
         name = self.create_new_sub()
         msg = f"Created new sub {name}."
         await self.context.write_message_console(msg)
-
-        #
-        # if subname in self.sub_processing:
-        #     self.sub_processing.remove(subname)
-        # self.sub_available.add(subname)
 
     def event_check(self) -> None:
         if not self.show_output:

@@ -82,9 +82,12 @@ class PmakeSub:
         self.last = None
 
     def terminate(self) -> None:
-        self.job_queue.put(PmakeSub.EXIT_TOKEN)
-        self.job_queue.close()
-        self.result_queue.close()
+        try:
+            self.job_queue.put(PmakeSub.EXIT_TOKEN)
+            self.job_queue.close()
+            self.result_queue.close()
+        except:
+            pass
         # self.proc.terminate()
         # self.job_queue = None
         # self.result_queue = None
