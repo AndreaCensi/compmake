@@ -282,7 +282,6 @@ class PmakeManager(Manager):
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
-    # noinspection PyBroadException
     async def cancel_job(self, job_id: CMJobID) -> None:
         subname = self.job2subname[job_id]
         sub = self.subs[subname]
@@ -296,7 +295,7 @@ class PmakeManager(Manager):
             "reason": f"Job canceled",
             "bt": "",
         }
-        last.res = res
+        last.result = res
 
         msg = f"Aborting job {job_id} on sub {subname}"
         await self.context.write_message_console(msg)
@@ -304,6 +303,7 @@ class PmakeManager(Manager):
 
     async def _cancel_and_replace_sub(self, subname: SubName) -> SubName:
         sub = self.subs[subname]
+        sub.killed_by_me = True
 
         try:
             sub.terminate()
