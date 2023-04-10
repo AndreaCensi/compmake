@@ -129,6 +129,15 @@ class PmakeManager(Manager):
 
         self.max_num_processing = self.num_processes
 
+    def show_other_stats(self) -> None:
+        logger.info(
+            subs=self.subs,
+            sub_available=self.sub_available,
+            sub_processing=self.sub_processing,
+            sub_aborted=self.sub_aborted,
+            job2subname=self.job2subname,
+        )
+
     def create_new_sub(self) -> SubName:
         name = self.get_new_sub_name()
         self._create_sub(name)
@@ -227,14 +236,31 @@ class PmakeManager(Manager):
             return False
         return True
 
+    async def get_available_sub(self) -> SubName:
+        assert len(self.sub_available) > 0
+        # OK, we always use the first sub
+        while True:
+            name = sorted(self.sub_available)[0]
+            sub = self.subs[name]
+            if not sub.proc.is_alive():
+                # msg = f"Sub {name} is not alive."
+                await self._cancel_and_replace_sub(name)
+                continue
+
+            self.sub_available.remove(name)
+            assert not name in self.sub_processing
+            self.sub_processing.add(name)
+            return name
+
     async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
         assert len(self.sub_available) > 0
-        # OK, we always use the first sub
-        name = sorted(self.sub_available)[0]
-        self.sub_available.remove(name)
-        assert not name in self.sub_processing
-        self.sub_processing.add(name)
+        # # OK, we always use the first sub
+        # name = sorted(self.sub_available)[0]
+        # self.sub_available.remove(name)
+        # assert not name in self.sub_processing
+        # self.sub_processing.add(name)
+        name = await self.get_available_sub()
         sub = self.subs[name]
 
         self.job2subname[job_id] = name
@@ -260,11 +286,15 @@ class PmakeManager(Manager):
         subname = self.job2subname[job_id]
         msg = f"Aborting job {job_id} on sub {subname}"
         await self.context.write_message_console(msg)
+        await self._cancel_and_replace_sub(subname)
+
+    async def _cancel_and_replace_sub(self, subname: SubName) -> SubName:
         sub = self.subs[subname]
 
         try:
-            sub.proc.terminate()
             sub.terminate()
+
+            sub.proc.terminate()
         except:
             pass
         if subname in self.sub_processing:
@@ -275,12 +305,13 @@ class PmakeManager(Manager):
         self.sub_aborted.add(subname)
         self.subs.pop(subname, None)
 
-        msg = f"Creating new sub."
-        await self.context.write_message_console(msg)
+        # msg = f"Creating new sub."
+        # await self.context.write_message_console(msg)
 
         name = self.create_new_sub()
         msg = f"Created new sub {name}."
         await self.context.write_message_console(msg)
+        return name
 
     def event_check(self) -> None:
         if not self.show_output:
@@ -363,18 +394,19 @@ class PmakeManager(Manager):
         if (name not in self.sub_aborted) and (name in self.subs):
             self.sub_available.add(name)
 
-    def host_failed(self, job_id: CMJobID) -> None:
-        Manager.host_failed(self, job_id)
+    async def host_failed(self, job_id: CMJobID) -> None:
+        await Manager.host_failed(self, job_id)
 
         assert job_id in self.job2subname
         name = self.job2subname[job_id]
         del self.job2subname[job_id]
         # assert name in self.sub_processing
         # assert name not in self.sub_available
-        self.sub_processing.remove(name)
-
-        # put in sub_aborted
-        self.sub_aborted.add(name)
+        # self.sub_processing.remove(name)
+        #
+        # # put in sub_aborted
+        # self.sub_aborted.add(name)
+        await self._cancel_and_replace_sub(name)
 
     def cleanup(self) -> None:
         self.process_finished()

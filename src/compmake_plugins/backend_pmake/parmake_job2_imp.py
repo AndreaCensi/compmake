@@ -77,7 +77,6 @@ async def parmake_job2(
                 context0 = await AES.init(ContextImp(db=basepath, name=job_id))
 
             try:
-
                 setproctitle(f"compmake:{job_id}")
 
                 class G:
@@ -172,8 +171,8 @@ def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
     sys.stdout.write(f"Activating stdout -> {stdout_fn}.\n")
     sys.stderr.write(f"Activating stderr -> {stderr_fn}.\n")
 
-    new_stdout = open(stdout_fn, "w")
-    new_stderr = open(stderr_fn, "w")
+    new_stdout = open(stdout_fn, "w", buffering=1)  # 1 = line buffered
+    new_stderr = open(stderr_fn, "w", buffering=1)  # 1 = line buffered
 
     old_stdout = sys.stdout
     old_stderr = sys.stderr
@@ -191,8 +190,12 @@ def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
         new_stdout.write(f"Closing stdout ({resolution=}).\n")
         sys.stdout = old_stdout
         sys.stderr = old_stderr
+        new_stdout.flush()
         new_stdout.close()
+        new_stderr.flush()
         new_stderr.close()
+        sys.stdout.write(f"Recovering from {stdout_fn}.\n")
+        sys.stderr.write(f"Recovering from {stderr_fn}.\n")
 
         # delete the files if they are empty
         try:

@@ -26,12 +26,14 @@ from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
 from zuper_utils_asyncio import (
+    EveryOnceInAWhile,
     get_report_splitters_text,
     get_report_splitters_text_referrers,
     running_tasks,
     SyncTaskInterface,
 )
 from zuper_utils_asyncio.sync_task_imp import Global
+from zuper_utils_timing import TimeInfo
 from zuper_zapp import async_run_simple1, setup_environment2
 from .parmake_job2_imp import parmake_job2
 
@@ -52,6 +54,9 @@ class PmakeSub:
     result_queue: "multiprocessing.Queue[ResultDict]"
     proc: Process
 
+    def __repr__(self) -> str:
+        return f"PmakeSub({self.name}, {self.write_log}, proc={self.proc.pid}, alive={self.proc.is_alive()})"
+
     def __init__(
         self,
         name: str,
@@ -65,7 +70,7 @@ class PmakeSub:
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
         # print('starting process %s ' % name)
-
+        self.write_log = write_log
         args = (
             self.name,
             self.job_queue,
@@ -119,6 +124,21 @@ async def pmake_worker(
     detailed_python_mem_stats: bool,
 ):
     current_name = name
+
+    if write_log:
+        sys.stderr = sys.stdout = f = open(write_log, "w", buffering=1)  # 1 = line buffered
+
+        def log(s: str):
+            f.write(f"{current_name}: {s}\n")
+            f.flush()
+
+    else:
+
+        def log(s: str):
+            print(f"{current_name}: {s}")
+            pass
+
+    log("started pmake_worker()")
     setproctitle(f"compmake:{current_name}")
     async with setup_environment2(sti, getcwd()):
         await sti.started_and_yield()
@@ -141,18 +161,6 @@ async def pmake_worker(
 
         # write_log = None
         # warnings.warn('remove above')
-        if write_log:
-            sys.stderr = sys.stdout = f = open(write_log, "w")
-
-            def log(s: str):
-                f.write(f"{current_name}: {s}\n")
-                f.flush()
-
-        else:
-
-            def log(s: str):
-                print(f"{current_name}: {s}")
-                pass
 
         log("started pmake_worker()")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -170,6 +178,7 @@ async def pmake_worker(
             log("(done)")
             return time.time() - t01
 
+        time_to_gc = EveryOnceInAWhile(120)
         # noinspection PyBroadException
         memory_tracker = None
         try:
@@ -180,7 +189,10 @@ async def pmake_worker(
 
             job_id = "none yet"
             while True:
-                gc.collect()
+                if time_to_gc.now():
+                    log("gc start")
+                    gc.collect()
+                    log("gc end")
 
                 if detailed_python_mem_stats:
                     log("detailed_python_mem_stats... ")
@@ -253,10 +265,12 @@ async def pmake_worker(
                     log(f"creating task...")
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
                     log(f"waiting for task...")
+
                     result: ResultDict = await child.wait_for_outcome_success_result()
                     log(f"...task finished")
                     if "ti" in result:
-                        log(result["ti"].pretty())
+                        ti = cast(TimeInfo, result["ti"])
+                        log(ti.pretty())
                         result.pop("ti")
                     time_to_do_job = time.time() - t0
                     sti.forget_child(child)
@@ -317,12 +331,12 @@ async def pmake_worker(
                 # except KeyboardInterrupt: pass
         except BaseException:
             reason = "aborted because of uncaptured:\n" + indent(traceback.format_exc(), "| ")
-            mye = HostFailed(host="???", job_id="???", reason=reason, bt=traceback.format_exc())
+            mye = HostFailed(host="???", job_id=job_id, reason=reason, bt=traceback.format_exc())
             log(str(mye))
             put_result(mye.get_result_dict())
         except:  # XXX: can this happen?
             mye = HostFailed(
-                host="???", job_id="???", reason="Uknown exception (not BaseException)", bt="not available"
+                host="???", job_id=job_id, reason="Uknown exception (not BaseException)", bt="not available"
             )
             log(str(mye))
             put_result(mye.get_result_dict())
@@ -377,8 +391,17 @@ class PmakeResult(AsyncResultInterface):
 
     def ready(self) -> bool:
         # self.count += 1
+
         if self.result is not None:
             return True
+
+        proc = self.psub.proc
+        if not proc.is_alive():
+            return True  # in get() we do the handling
+            # msg = f"Process exited unexpectedly with code {proc.exitcode}"
+            # msg += f'\n log at {self.psub.write_log}'
+            # raise HostFailed(self.psub.name, job_id=self.job_id, reason=msg, bt="not available")
+
         try:
             self.result = self.result_queue.get(block=False)
         except Empty:
@@ -393,13 +416,18 @@ class PmakeResult(AsyncResultInterface):
         if self.result is None:
             proc = self.psub.proc
             # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
-            if not proc.is_alive():
-                msg = "Process died unexpectedly"
-                print(msg)
-                raise HostFailed("subname", job_id=self.job_id, reason=msg, bt="not available")
+
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
+                if not proc.is_alive():
+                    msg = f"Process died unexpectedly with code {proc.exitcode}"
+                    msg += f"\n log at {self.psub.write_log}"
+                    raise HostFailed(
+                        self.psub.name, job_id=self.job_id, reason=msg, bt="not available"
+                    ) from None
+
                 raise multiprocessing.TimeoutError(e)
+
         r: ResultDict = self.result
         return result_dict_raise_if_error(r)

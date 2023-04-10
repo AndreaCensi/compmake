@@ -315,7 +315,6 @@ class Manager(ManagerLog):
             if not self.can_accept_job(reasons):
                 break
 
-            # todo: add task priority
             job_id = self.next_job()
             assert job_id in self.ready_todo
 
@@ -409,8 +408,9 @@ class Manager(ManagerLog):
                 return True
 
         try:
-            if not assume_ready and not async_result.ready():
-                return False
+            if not assume_ready:
+                if not async_result.ready():
+                    return False
 
             if assume_ready:
                 timeout = 10
@@ -451,7 +451,7 @@ class Manager(ManagerLog):
             return True
         except HostFailed as e:
             # the execution has been interrupted, but not failed
-            self.host_failed(job_id)
+            await self.host_failed(job_id)
             publish(self.context, "manager-host-failed", host=e.host, job_id=job_id, reason=e.reason, bt=e.bt)
             return True
         except KeyboardInterrupt as e:
@@ -567,7 +567,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    def host_failed(self, job_id: CMJobID) -> None:
+    async def host_failed(self, job_id: CMJobID) -> None:
         self.log("host_failed", job_id=job_id)
         self.check_invariants()
 
@@ -693,7 +693,7 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 0
+        threshold = 5.0
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
@@ -708,17 +708,22 @@ class Manager(ManagerLog):
                 msg += "".join(f"- {l}\n" for l in lines)
 
                 await self.context.write_message_console(msg)
-                self.sti.logger.debug(
-                    "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
-                )
+                # self.sti.logger.debug(
+                #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
+                #     ,
+                # )
+                self.show_other_stats()
 
         # We make a copy because processing is updated during the loop
+        result = False
         for job_id in self.processing.copy():
             received = await self.check_job_finished(job_id)
-            if received:
-                return True
+            result |= received
             self.check_invariants()
-        return False
+        return result
+
+    def show_other_stats(self) -> None:
+        pass
 
     async def loop_until_something_finishes(self) -> None:
         self.check_invariants()
