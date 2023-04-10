@@ -447,7 +447,7 @@ class PmakeResult(AsyncResultInterface):
             except Empty as e:
                 if not self.psub.killed_by_me:
                     if not self.psub.is_alive():
-                        msg = f"Process died unexpectedly with code {self.psub._proc.exitcode}"
+                        msg = f"Interrupt: Process died unexpectedly with code {self.psub._proc.exitcode}"
                         msg += f"\n log at {self.psub.write_log}"
                         msg += f"\n sub {self.psub!r}"
                         msg += f"\n sub {self.psub.__dict__!r}"

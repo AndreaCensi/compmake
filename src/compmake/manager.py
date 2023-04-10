@@ -693,7 +693,7 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 5.0
+        threshold = 0
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
@@ -712,7 +712,7 @@ class Manager(ManagerLog):
                 #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
                 #     ,
                 # )
-                self.show_other_stats()
+            self.show_other_stats()
 
         # We make a copy because processing is updated during the loop
         result = False
