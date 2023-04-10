@@ -52,10 +52,14 @@ class PmakeSub:
     EXIT_TOKEN = "please-exit"
     job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, Tuple[Any, ...]]]"
     result_queue: "multiprocessing.Queue[ResultDict]"
-    proc: Process
+    _proc: Process
+    killed_by_me: bool
 
     def __repr__(self) -> str:
-        return f"PmakeSub({self.name}, {self.write_log}, proc={self.proc.pid}, alive={self.proc.is_alive()})"
+        return (
+            f"PmakeSub({self.name}, {self.write_log}, proc={self._proc.pid}, alive="
+            f"{self._proc.is_alive()})"
+        )
 
     def __init__(
         self,
@@ -81,13 +85,32 @@ class PmakeSub:
             detailed_python_mem_stats,
         )
         # logger.info(args=args)
-        self.proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name))  # type: ignore
-        atexit.register(at_exit_delete, proc=self.proc)
-        self.proc.start()
+        self._proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name))  # type: ignore
+        atexit.register(at_exit_delete, proc=self._proc)
+        self._proc.start()
         self.last = None
         self.killed_by_me = False
 
+    def is_alive(self) -> bool:
+        return self._proc.is_alive()
+
+    def terminate_process(self) -> None:
+        self.killed_by_me = True
+        try:
+            self._proc.terminate()
+        except:
+            pass
+
+    def kill_process(self) -> None:
+        self.killed_by_me = True
+        # noinspection PyBroadException
+        try:
+            self._proc.kill()
+        except:
+            pass
+
     def terminate(self) -> None:
+        # noinspection PyBroadException
         try:
             self.job_queue.put(PmakeSub.EXIT_TOKEN)
             self.job_queue.close()
@@ -181,14 +204,17 @@ async def pmake_worker(
 
         time_to_gc = EveryOnceInAWhile(120)
         # noinspection PyBroadException
+        memory_tracker: Any
         memory_tracker = None
+
+        job_id: CMJobID = cast(CMJobID, "n/a")  # keep, possibly unbound
+
         try:
             if detailed_python_mem_stats:
                 from pympler import tracker  # type: ignore
 
                 memory_tracker = tracker.SummaryTracker()
 
-            job_id = "none yet"
             while True:
                 if time_to_gc.now():
                     log("gc start")
@@ -244,7 +270,7 @@ async def pmake_worker(
 
                 job_id, function_name, arguments = job
 
-                funcs = {
+                funcs: dict[str, Any] = {
                     "parmake_job2_new_process_1": parmake_job2_new_process_1,
                     "parmake_job2": parmake_job2,
                 }
@@ -396,8 +422,7 @@ class PmakeResult(AsyncResultInterface):
         if self.result is not None:
             return True
 
-        proc = self.psub.proc
-        if not proc.is_alive():
+        if not self.psub.is_alive():
             return True  # in get() we do the handling
             # msg = f"Process exited unexpectedly with code {proc.exitcode}"
             # msg += f'\n log at {self.psub.write_log}'
@@ -415,17 +440,18 @@ class PmakeResult(AsyncResultInterface):
     async def get(self, timeout: float = 0) -> OKResult:
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
-            proc = self.psub.proc
             # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
 
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
                 if not self.psub.killed_by_me:
-                    if not proc.is_alive():
-                        msg = f"Process died unexpectedly with code {proc.exitcode}"
+                    if not self.psub.is_alive():
+                        msg = f"Process died unexpectedly with code {self.psub._proc.exitcode}"
                         msg += f"\n log at {self.psub.write_log}"
-                        raise HostFailed(
+                        msg += f"\n sub {self.psub!r}"
+                        msg += f"\n sub {self.psub.__dict__!r}"
+                        raise JobInterrupted(
                             self.psub.name, job_id=self.job_id, reason=msg, bt="not available"
                         ) from None
 

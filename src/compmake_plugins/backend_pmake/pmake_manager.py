@@ -2,14 +2,13 @@ import gc
 import multiprocessing
 import os
 import random
-import signal
 import time
 from multiprocessing import Queue
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, cast, ClassVar, Dict, NewType, Set
+from typing import Any, cast, ClassVar, Collection, Dict, NewType, Set
 
 import psutil
 from psutil import NoSuchProcess
@@ -243,7 +242,7 @@ class PmakeManager(Manager):
         while True:
             name = sorted(self.sub_available)[0]
             sub = self.subs[name]
-            if not sub.proc.is_alive():
+            if not sub.is_alive():
                 # msg = f"Sub {name} is not alive."
                 await self._cancel_and_replace_sub(name)
                 continue
@@ -312,7 +311,7 @@ class PmakeManager(Manager):
         except:
             pass
         try:
-            sub.proc.kill()
+            sub.kill_process()
         except:
             pass
         if subname in self.sub_processing:
@@ -354,7 +353,7 @@ class PmakeManager(Manager):
 
         for name in self.sub_processing:
             if name in self.subs:
-                self.subs[name].proc.terminate()
+                self.subs[name].terminate_process()
 
         for name in self.sub_available:
             if name in self.subs:
@@ -375,11 +374,12 @@ class PmakeManager(Manager):
             #  print('killing')
             for name in self.sub_processing:
                 if name in self.subs:
-                    pid = self.subs[name].proc.pid
-                    try:
-                        os.kill(pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                    self.subs[name].kill_process()
+                    # if pid is not None:
+                    #     try:
+                    #         os.kill(pid, signal.SIGKILL)
+                    #     except ProcessLookupError:
+                    #         pass
                 # print('killed pid %s for %s' % (name, pid))
                 # print('process_finished() finished')
         #
@@ -393,7 +393,7 @@ class PmakeManager(Manager):
         # print('process_finished(): cleaned up')
 
     # Normal outcomes
-    def job_failed(self, job_id: CMJobID, deleted_jobs) -> None:
+    def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
 
