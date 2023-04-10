@@ -801,17 +801,22 @@ class Manager(ManagerLog):
 
         # self.sti.logger.user_info(pid=os.getpid())
 
-        def shutdown() -> None:
-            self.sti.logger.user_error("interruption", pid=os.getpid())
+        def on_sighup() -> None:
+            self.sti.logger.user_error("on_sighup", pid=os.getpid(), me=self)
             self.interrupted = True
             if self.loop_task:
                 self.loop_task.cancel()
-            # raise Interruption('shutdown')
+
+        def on_sigterm() -> None:
+            self.sti.logger.user_error("on_sigterm", pid=os.getpid(), me=self)
+            self.interrupted = True
+            if self.loop_task:
+                self.loop_task.cancel()
 
         loop = asyncio.get_event_loop()
 
-        loop.add_signal_handler(signal.SIGHUP, shutdown)
-        loop.add_signal_handler(signal.SIGTERM, shutdown)
+        loop.add_signal_handler(signal.SIGHUP, on_sighup)
+        loop.add_signal_handler(signal.SIGTERM, on_sigterm)
 
         if not self.todo and not self.ready_todo:
             publish(
