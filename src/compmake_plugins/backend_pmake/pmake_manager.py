@@ -283,6 +283,7 @@ class PmakeManager(Manager):
         return async_result
 
     async def cancel_job(self, job_id: CMJobID) -> None:
+        await Manager.cancel_job(self, job_id)
         subname = self.job2subname[job_id]
         sub = self.subs[subname]
         last = sub.last
@@ -301,6 +302,7 @@ class PmakeManager(Manager):
         await self.context.write_message_console(msg)
         await self._cancel_and_replace_sub(subname)
 
+    # noinspection PyBroadException
     async def _cancel_and_replace_sub(self, subname: SubName) -> SubName:
         sub = self.subs[subname]
         sub.killed_by_me = True

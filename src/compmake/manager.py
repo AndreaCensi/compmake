@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Any, Collection, Dict, List, NoReturn, Set
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
-from zuper_commons.text import indent, joinlines, joinpars
+from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import duration_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
@@ -402,8 +402,9 @@ class Manager(ManagerLog):
                 await self.context.write_message_console(msg)
 
                 mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
-                await self.cancel_job(job_id)
                 self.job_failed(job_id, deleted_jobs=())
+
+                await self.cancel_job(job_id)
                 publish(self.context, "job-failed", job_id=job_id, host="XXX", reason="time out", bt="")
                 return True
 
@@ -446,7 +447,6 @@ class Manager(ManagerLog):
             check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
             rd = e.get_result_dict()
             self.job_failed(job_id, deleted_jobs=rd["deleted_jobs"])
-
             publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=rd["reason"], bt=rd["bt"])
             return True
         except HostFailed as e:
