@@ -451,8 +451,12 @@ class PmakeResult(AsyncResultInterface):
                         msg += f"\n log at {self.psub.write_log}"
                         msg += f"\n sub {self.psub!r}"
                         msg += f"\n sub {self.psub.__dict__!r}"
-                        raise JobInterrupted(
-                            self.psub.name, job_id=self.job_id, reason=msg, bt="not available"
+                        raise JobFailed(
+                            self.psub.name,
+                            job_id=self.job_id,
+                            reason=msg,
+                            bt="not available",
+                            deleted_jobs=[],
                         ) from None
 
                 raise multiprocessing.TimeoutError(e)
