@@ -452,7 +452,6 @@ class PmakeResult(AsyncResultInterface):
                         msg += f"\n sub {self.psub!r}"
                         msg += f"\n sub {self.psub.__dict__!r}"
                         raise JobFailed(
-                            self.psub.name,
                             job_id=self.job_id,
                             reason=msg,
                             bt="not available",
