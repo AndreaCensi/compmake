@@ -85,6 +85,7 @@ class PmakeSub:
         atexit.register(at_exit_delete, proc=self.proc)
         self.proc.start()
         self.last = None
+        self.killed_by_me = False
 
     def terminate(self) -> None:
         try:
@@ -420,12 +421,13 @@ class PmakeResult(AsyncResultInterface):
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
-                if not proc.is_alive():
-                    msg = f"Process died unexpectedly with code {proc.exitcode}"
-                    msg += f"\n log at {self.psub.write_log}"
-                    raise HostFailed(
-                        self.psub.name, job_id=self.job_id, reason=msg, bt="not available"
-                    ) from None
+                if not self.psub.killed_by_me:
+                    if not proc.is_alive():
+                        msg = f"Process died unexpectedly with code {proc.exitcode}"
+                        msg += f"\n log at {self.psub.write_log}"
+                        raise HostFailed(
+                            self.psub.name, job_id=self.job_id, reason=msg, bt="not available"
+                        ) from None
 
                 raise multiprocessing.TimeoutError(e)
 

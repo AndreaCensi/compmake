@@ -18,6 +18,7 @@ from compmake import (
     AsyncResultInterface,
     CMJobID,
     Context,
+    FailResult,
     MakeHostFailed,
     Manager,
     publish,
@@ -284,6 +285,19 @@ class PmakeManager(Manager):
     # noinspection PyBroadException
     async def cancel_job(self, job_id: CMJobID) -> None:
         subname = self.job2subname[job_id]
+        sub = self.subs[subname]
+        last = sub.last
+        assert last is not None
+
+        res: FailResult = {
+            "fail": f"Job canceled",
+            "deleted_jobs": [],
+            "job_id": job_id,
+            "reason": f"Job canceled",
+            "bt": "",
+        }
+        last.res = res
+
         msg = f"Aborting job {job_id} on sub {subname}"
         await self.context.write_message_console(msg)
         await self._cancel_and_replace_sub(subname)
@@ -293,8 +307,10 @@ class PmakeManager(Manager):
 
         try:
             sub.terminate()
-
-            sub.proc.terminate()
+        except:
+            pass
+        try:
+            sub.proc.kill()
         except:
             pass
         if subname in self.sub_processing:
