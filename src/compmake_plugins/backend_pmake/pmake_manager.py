@@ -283,6 +283,9 @@ class PmakeManager(Manager):
 
     async def cancel_job(self, job_id: CMJobID) -> None:
         await Manager.cancel_job(self, job_id)
+        if job_id not in self.job2subname:
+            logger.warning(f"Job {job_id} not in job2subname")
+            return
         subname = self.job2subname[job_id]
         sub = self.subs[subname]
         last = sub.last
