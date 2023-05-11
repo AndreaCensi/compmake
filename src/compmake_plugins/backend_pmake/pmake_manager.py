@@ -96,7 +96,7 @@ class PmakeManager(Manager):
         #     use = 'spawn'
         # else:
         #     use = 'fork'
-        use = self.context.get_compmake_config("multiprocessing_context")
+        use = self.context.get_compmake_config("multiprocessing_strategy")
         self.ctx = multiprocessing.get_context(use)
 
         self.event_queue = self.ctx.Queue(1000)
