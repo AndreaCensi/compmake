@@ -416,6 +416,9 @@ class PmakeResult(AsyncResultInterface):
         self.job_id = job_id
         # self.count = 0
 
+    def __repr__(self) -> str:
+        return f"<PmakeResult {self.job_id!r} {self.psub!r}>"
+
     def ready(self) -> bool:
         # self.count += 1
 

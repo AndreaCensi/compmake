@@ -152,8 +152,14 @@ add_config_switch(
     section=CONFIG_GENERAL,
 )
 
-if False:  # To re-implement
+add_config_switch(
+    "multiprocessing_strategy",
+    "fork",
+    desc="Fork or spawn",
+    section=CONFIG_GENERAL,
+)
 
+if False:  # To re-implement
     add_config_switch(
         "autobal_after",
         cpu_count(),
