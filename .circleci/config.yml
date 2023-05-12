@@ -202,7 +202,7 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov  
-    resource_class: medium
+    resource_class: zuper-ci-ns/r2
   test-310-bin:
     environment:
       COLUMNS: '160'
@@ -389,7 +389,7 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov  
-    resource_class: medium
+    resource_class: zuper-ci-ns/r2
   test-311-src:
     environment:
       COLUMNS: '160'
@@ -576,7 +576,7 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov  
-    resource_class: medium
+    resource_class: zuper-ci-ns/r2
   test-311-bin:
     environment:
       COLUMNS: '160'
@@ -763,6 +763,6 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov  
-    resource_class: medium
+    resource_class: zuper-ci-ns/r2
 
-# sigil 014ae952accbb7872dd3f4787bbc2fc3
+# sigil 13dd56c07c804371b5a1e93f132ad0c7
