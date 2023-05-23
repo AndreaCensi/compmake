@@ -1,6 +1,4 @@
-from typing import List, NewType, Set, Union
-
-from typing_extensions import TypedDict
+from typing import List, NewType, Set, TypedDict, Union
 
 __all__ = [
     "AbortResult",
