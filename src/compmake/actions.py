@@ -73,7 +73,9 @@ __all__ = [
     "interpret_commands",
     "make",
     "mark_as_blocked",
+    "mark_as_done",
     "mark_as_failed",
+    "mark_as_notstarted",
     "mark_to_remake",
 ]
 
@@ -785,7 +787,6 @@ def comp_(
                     # this is the same job-redefining
                     pass
                 else:
-
                     for i in range(1000):  # XXX
                         n = cast(CMJobID, f"{job_id}-{i}")
                         if not job_exists(n, db=db):
