@@ -11,7 +11,7 @@ from compmake import (
     jobs_defined,
 )
 from compmake.types import CMJobID
-from zuper_commons.test_utils import assert_raises, my_assert_equal, my_assert_equal as assert_equal
+from zuper_commons.test_utils import assert_raises, my_assert_equal
 from . import logger
 
 
@@ -68,7 +68,7 @@ async def test_dynamic6(env: Env) -> None:
     await env.assert_cmd_success("make recurse=1")
 
     check_job_cache_state(job_id=j, states=[Cache.DONE], db=db)
-    assert_equal(jobs_defined(job_id=j, db=db), {CMJobID("hd-id")})
+    my_assert_equal(jobs_defined(job_id=j, db=db), {CMJobID("hd-id")})
 
     # self.assert_cmd_success('graph compact=0 color=0 '
     #                         'cluster=1 filter=dot')

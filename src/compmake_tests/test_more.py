@@ -6,7 +6,6 @@ from zuper_commons.test_utils import (
     assert_raises,
     my_assert,
     my_assert_equal,
-    my_assert_equal as assert_equal,
 )
 from .utils import Env, run_with_env
 
@@ -41,7 +40,7 @@ async def test_ID(env: Env) -> None:
     """Check that the job id is correctly parsed"""
     job_id = cast(CMJobID, "terminus")
     c = env.comp(f1, job_id=job_id)
-    assert_equal(c.job_id, job_id)
+    my_assert_equal(c.job_id, job_id)
     await make(env.sti, job_id, context=env.cc)
 
 

@@ -2,11 +2,11 @@ import sys
 
 from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID
-from zuper_commons.test_utils import assert_raises, my_assert_equal as assert_equal
+from zuper_commons.test_utils import assert_raises, my_assert_equal
 from .utils import Env, run_with_env
 
 
-def dummy():  # pragma: no cover
+def dummy() -> None:  # pragma: no cover
     pass
 
 
@@ -65,7 +65,7 @@ async def test_syntax(env: Env) -> None:
         b = expand_to_set(B)
 
         try:
-            assert_equal(set(a), set(b))
+            my_assert_equal(set(a), set(b))
         except:  # pragma: no cover
             sys.stdout.write("Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n" % (A, a, B, b))
             raise
