@@ -1,6 +1,11 @@
 _multiprocess_can_split_ = True  # Run parallel mcdp_lang_tests
 # from .compmake_test import *
 
+
+from zuper_commons import ZLogger
+
+logger = ZLogger(__name__)
+
 import compmake_plugins as a
 
 _ = a

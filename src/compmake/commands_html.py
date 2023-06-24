@@ -13,7 +13,6 @@ def create_commands_html(file=sys.stdout):  # @ReservedAssignment
 
     file.write("<table class='compmake-config'>\n")
     for section in ordered_sections:
-
         file.write("<tr><th colspan='3'>%s</th></tr/ \n" % section.name)
 
         if section.desc:

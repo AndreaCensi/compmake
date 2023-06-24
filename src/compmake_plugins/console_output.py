@@ -16,7 +16,6 @@ class Storage:
 
 def plot_with_prefix(job_id, lines, is_stderr):
     for line in lines:
-
         formats = "%%%ds" % Storage.max_len
 
         prefix = formats % job_id

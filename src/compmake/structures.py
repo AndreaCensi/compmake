@@ -238,7 +238,6 @@ class IntervalTimer:
     t1: float
 
     def __init__(self):
-
         self.c0 = time.process_time()
         self.t0 = time.time()
         self.stopped = False

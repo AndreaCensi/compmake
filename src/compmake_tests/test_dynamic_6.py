@@ -1,53 +1,52 @@
-from typing import cast
-
-from nose.tools import assert_raises
+from typing import Any, cast
 
 from compmake import (
     Cache,
     check_job_cache_state,
     clean_other_jobs,
     CompmakeBug,
+    Context,
     direct_children,
     get_job,
     jobs_defined,
 )
 from compmake.types import CMJobID
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import assert_raises, my_assert_equal, my_assert_equal as assert_equal
+from . import logger
 
 
-def g2():
+def g2() -> str:
     print("returning g2")
     return "fd-gd-g2"
 
 
-def gd(context):
+def gd(context: Context) -> None:
     context.comp(g2)
 
 
-def fd(context):
+def fd(context: Context):
     return context.comp_dynamic(gd)
 
 
-def i2():
+def i2() -> str:
     return "hd-id-i2"
 
 
 # noinspection PyShadowingBuiltins
-def id(context):
+def id(context: Context) -> None:
     context.comp(i2)
 
 
-def hd(context):
+def hd(context: Context):
     return context.comp_dynamic(id)
 
 
-def summary(res):
+def summary(_: Any) -> None:
     pass
 
 
-def mockup6(context, both):
-    res = []
-    res.append(context.comp_dynamic(fd))
+def mockup6(context: Context, both):
+    res = [context.comp_dynamic(fd)]
     if both:
         res.append(context.comp_dynamic(hd))
     context.comp(summary, res)
@@ -61,11 +60,13 @@ async def test_dynamic6(env: Env) -> None:
     # first define with job and run
     mockup6(env.cc, both=True)
     db = env.db
+    j = cast(CMJobID, "hd")
 
-    assert_raises(CompmakeBug, jobs_defined, job_id="hd", db=db)
+    with assert_raises(CompmakeBug):
+        jobs_defined(job_id=j, db=db)
 
     await env.assert_cmd_success("make recurse=1")
-    j = cast(CMJobID, "hd")
+
     check_job_cache_state(job_id=j, states=[Cache.DONE], db=db)
     assert_equal(jobs_defined(job_id=j, db=db), {CMJobID("hd-id")})
 
@@ -77,16 +78,19 @@ async def test_dynamic6(env: Env) -> None:
 
     # now redo it
     async with environment(env.sti, env.rootd) as env2:
-        print("running again with both=False")
+        logger.info("running again with both=False")
         mockup6(env2, both=False)
         await clean_other_jobs(env.sti, context=env2.cc)
 
         await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])
 
         job = get_job(cast(CMJobID, "summary"), env2.db)
-        print("job.children: %s" % job.children)
-        print("job.dynamic_children: %s" % job.dynamic_children)
-        assert_equal(job.dynamic_children, {"fd": {"fd-gd"}})
+        logger.info(f"job.children: {job.children}")
+        logger.info(f"job.dynamic_children: {job.dynamic_children}")
+        my_assert_equal(
+            {"fd": {"fd-gd"}},
+            job.dynamic_children,
+        )
         env.assert_equal_set(direct_children(cast(CMJobID, "summary"), env2.db), ["fd", "fd-gd"])
         await env.assert_cmd_success("ls")
 

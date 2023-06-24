@@ -1,6 +1,5 @@
-from nose.tools import raises
-
 from compmake import Context
+from zuper_commons.test_utils import assert_raises
 from zuper_utils_asyncio import SyncTaskInterface
 from .utils import Env, run_with_env
 
@@ -11,11 +10,11 @@ def f1(sti: SyncTaskInterface) -> int:
     return 10
 
 
-@raises(Exception)
 @run_with_env
 async def test_with_sti_not_async(env: Env) -> None:
     env.cc.comp(f1)
-    await env.batch_command("make")
+    with assert_raises(Exception):
+        await env.batch_command("make")
 
 
 async def f2(sti: SyncTaskInterface) -> int:

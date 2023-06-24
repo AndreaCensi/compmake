@@ -47,7 +47,6 @@ class StreamCapture:
         self.after_lines = after_lines
 
     def write(self, s: str):
-
         assert isinstance(s, str), s
         self.buffer.write(s)
         self.line_splitter.append_chars(s)

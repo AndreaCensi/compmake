@@ -216,7 +216,6 @@ class SimpleGantt:
             return L / (abs_t1 - abs_t0) * width_pixels
 
         for job_id, e in self.entries.items():
-
             classes = ["critical"] if e.critical else []
             c = " ".join(classes)
             s += '\n<tr class="%s"><td>%s</td><td style="display: block;">' % (c, job_id[:20])

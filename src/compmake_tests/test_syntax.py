@@ -1,10 +1,8 @@
 import sys
 
-from nose.tools import assert_raises
-
 from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import assert_raises, my_assert_equal as assert_equal
 from .utils import Env, run_with_env
 
 
@@ -41,7 +39,7 @@ async def test_syntax(env: Env) -> None:
     #         self.in_progress = selectf(Cache.IN_PROGRESS)
     not_started = selectf(Cache.NOT_STARTED)
 
-    def selection(crit):
+    def selection(crit) -> set:
         return set([nid_ for nid_, state_ in jobs if crit(nid_, state_)])
 
     def expandsTo(A, B):
@@ -73,10 +71,11 @@ async def test_syntax(env: Env) -> None:
             raise
 
     def syntaxError(s: str):
-        def f(x):  # it's a generator, you should try to read it
+        def f(x) -> list[str]:  # it's a generator, you should try to read it
             return list(parse_job_list(x, context=env.cc))
 
-        assert_raises(CompmakeSyntaxError, f, s)
+        with assert_raises(CompmakeSyntaxError):
+            f(s)
 
     # def userError(self, s):
     #     assert_raises(UserError, parse_job_list, s)

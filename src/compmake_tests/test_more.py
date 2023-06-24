@@ -1,31 +1,34 @@
-from typing import cast
-
-from nose.tools import assert_raises
+from typing import Any, cast
 
 from compmake import direct_children, direct_parents, make, UserError
 from compmake.types import CMJobID
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import (
+    assert_raises,
+    my_assert,
+    my_assert_equal,
+    my_assert_equal as assert_equal,
+)
 from .utils import Env, run_with_env
 
 
-def f1(*arg, **kwargs):
+def f1(*args: Any, **kwargs: Any) -> None:
     """Generic function"""
-    pass
+    _ = args, kwargs
 
 
-def f2(*arg, **kwargs):
+def f2(*args: Any, **kwargs: Any) -> None:
     """Generic function"""
-    pass
+    _ = args, kwargs
 
 
-def failing():
+def failing() -> None:
     """A function that raises an exception"""
     raise TypeError()
 
 
-def uses_id(a, b, job_id):
+def uses_id(a: Any, b: Any, job_id: str) -> None:
     """A function with a job_id arguement"""
-    pass
+    _ = a, b, job_id
 
 
 @run_with_env
@@ -46,8 +49,9 @@ async def test_ID(env: Env) -> None:
 async def test_ID2(env: Env) -> None:
     """Make sure we set up a warning if the job_id key
     is already used"""
-    assert env.comp(f1, job_id="ciao")
-    assert_raises(UserError, env.comp, f1, job_id="ciao")
+    _ = env.comp(f1, job_id="ciao")
+    with assert_raises(UserError):
+        env.comp(f1, job_id="ciao")
 
 
 @run_with_env
@@ -55,8 +59,8 @@ async def test_dep(env: Env) -> None:
     """Testing advanced dependencies discovery"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1)
-    assert cf1.job_id in direct_children(cf2.job_id, db=env.db)
-    assert cf2.job_id in direct_parents(cf1.job_id, db=env.db)
+    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
+    my_assert(cf2.job_id in direct_parents(cf1.job_id, db=env.db))
 
 
 @run_with_env
@@ -64,9 +68,9 @@ async def test_dep2(env: Env) -> None:
     """Testing advanced dependencies discovery (double)"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1, cf1)
-    assert cf1.job_id in direct_children(cf2.job_id, db=env.db)
-    assert_equal(1, len(direct_children(cf2.job_id, db=env.db)))
-    assert_equal(1, len(direct_parents(cf1.job_id, db=env.db)))
+    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
+    my_assert_equal(1, len(direct_children(cf2.job_id, db=env.db)))
+    my_assert_equal(1, len(direct_parents(cf1.job_id, db=env.db)))
 
 
 @run_with_env
@@ -74,11 +78,8 @@ async def test_dep3(env: Env) -> None:
     """Testing advanced dependencies discovery in dicts"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, [1, {"ciao": cf1}])
-    assert cf1.job_id in direct_children(cf2.job_id, db=env.db)
-    assert cf2.job_id in direct_parents(cf1.job_id, db=env.db)
-
-
-from .utils import Env, run_with_env
+    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
+    my_assert(cf2.job_id in direct_parents(cf1.job_id, db=env.db))
 
 
 @run_with_env
@@ -86,4 +87,5 @@ async def test_job_param(env: Env) -> None:
     """We should issue a warning if job_id is used
     as a parameter in the function"""
     env.comp(uses_id)
-    assert_raises(UserError, env.comp, uses_id, job_id="myjobid")
+    with assert_raises(UserError):
+        env.comp(uses_id, job_id="myjobid")

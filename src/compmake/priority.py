@@ -49,7 +49,6 @@ def compute_priority(
     # Dynamic jobs get bonus
     job = cq.get_job(job_id)
     if job.needs_context:
-
         base_priority = MAX_PRIORITY
         nlevel = len(job.defined_by)
         return base_priority - nlevel

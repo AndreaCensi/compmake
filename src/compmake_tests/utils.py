@@ -79,7 +79,6 @@ class Env:
         assert_equal(first, second, msg)
 
     async def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):
-
         # js = 'not-valid-yet'
         js = await self.get_jobs(expr)
         if ignore_dyn_reports:
@@ -190,7 +189,6 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
             # sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
 
             async with setup_environment2(sti, working_dir=cwd):
-
                 async with with_log_control(False):  # XXX
                     async with environment(sti) as env:
                         try:
@@ -198,7 +196,6 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
                         except SkipTest:
                             raise
                         except BaseException as e:
-
                             # sti.logger.error(traceback.format_exc())
                             # sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
 

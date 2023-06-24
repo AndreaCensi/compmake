@@ -14,7 +14,6 @@ dependencies = [
     "psutil",
     "pyreadline",
     "setproctitle",
-    "typing_extensions",
     "zuper-commons-z7",
     "zuper-commons-z7",
     "zuper-graphs-z7",

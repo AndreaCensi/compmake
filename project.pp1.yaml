@@ -25,10 +25,8 @@ install_requires:
 - zuper-graphs-z7
 - numpy
 - pyreadline
-#- aiofiles
 - zuper-zapp-z7
 - networkx
-- typing_extensions
 
 
 tests_require:

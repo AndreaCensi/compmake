@@ -37,7 +37,6 @@ def system_status(context: Context) -> str:
 
     console_status_style = context.get_compmake_config("console_status_style")
     if console_status_style == "normal":
-
         s_mem = f"mem {cur_mem:2.0f}%"
         if swap > 20:
             s_mem += f" swap {swap:2.0f}%"
@@ -45,7 +44,6 @@ def system_status(context: Context) -> str:
         return f"cpu {cpu:2.0f}% {s_mem}"
 
     else:
-
         return f"cpu {make_bar(cpu, 7)}"
 
 
