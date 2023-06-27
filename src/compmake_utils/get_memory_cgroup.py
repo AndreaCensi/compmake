@@ -5,7 +5,11 @@ import psutil
 
 from zuper_commons.types import ZException
 
-__all__ = ["CannotGetMemory", "MemoryUsageStats", "get_memory_usage"]
+__all__ = [
+    "CannotGetMemory",
+    "MemoryUsageStats",
+    "get_memory_usage",
+]
 
 
 class CannotGetMemory(ZException):
