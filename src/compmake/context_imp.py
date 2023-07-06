@@ -299,7 +299,7 @@ class ContextImp(Context):
 
         return await compmake_console_text(sti, self)
 
-    def __getstate__(self):
+    def __getstate__(self) -> object:
         # Copy the object's state from self.__dict__ which contains
         # all our instance attributes. Always use the dict.copy()
         # method to avoid modifying the original state.

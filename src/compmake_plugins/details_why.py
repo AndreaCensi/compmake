@@ -13,6 +13,7 @@ from compmake import (
     VISUALIZATION,
 )
 from zuper_commons.text import format_rows_as_table, joinlines
+from zuper_commons.ui import color_gray
 from zuper_utils_asyncio import SyncTaskInterface
 
 
@@ -53,6 +54,7 @@ async def why(
         complete0 = rows[0].complete
         lines = complete0.splitlines()
         lines = lines[: len(jobs)]
+        lines = [l if i == 0 else color_gray("│") + l for i, l in enumerate(lines)]
         complete = joinlines(lines)
 
         if long:
