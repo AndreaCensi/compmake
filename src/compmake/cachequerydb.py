@@ -83,7 +83,7 @@ class CacheQueryDB:
             for child in dependencies:
                 if not self.job_exists(child):
                     if CompmakeConstants.tolerate_db_inconsistencies:
-                        logger.warn(f"Skipping not exiting child {child} of {job_id}")
+                        logger.warn(f"Skipping not existing child {child} of {job_id}")
                         # TODO: find out why
                         continue
                 child_up, _, child_timestamp = self.up_to_date(child)
