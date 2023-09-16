@@ -145,9 +145,9 @@ def clean_cache_relations(job_id: CMJobID, db: StorageFilesystem) -> None:
     if cache.state == Cache.DONE:
         for parent in direct_parents(job_id, db):
             if not job_exists(parent, db):
-                msg = (
-                    "Could not find job %r (parent of %s) - ok if the job was deleted"
-                    " otherwise it is a bug" % (parent, job_id)
+                msg = "Could not find job %r (parent of %s) - ok if the job was deleted" " otherwise it is a bug" % (
+                    parent,
+                    job_id,
                 )
                 logger.warning(msg)
                 continue
@@ -175,9 +175,7 @@ def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(
-    job_id: CMJobID, db: StorageFilesystem, dependency: Optional[CMJobID] = None
-) -> None:  # XXX
+def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency: Optional[CMJobID] = None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
@@ -761,7 +759,7 @@ def comp_(
                 old_job = get_job(job_id, db=db)
                 msg += "\n  old_job.defined_by: %s " % old_job.defined_by
                 msg += "\n context.currently_executing: %s " % context.currently_executing
-                msg += " others defined in session: %s" % context.get_jobs_defined_in_this_session()
+                msg += " others defined in session: %s" % sorted(context.get_jobs_defined_in_this_session())
                 print(msg)
                 #                 warnings.warn('I know something is more complicated here')
                 #             if old_job.defined_by is not None and
@@ -862,9 +860,7 @@ def comp_(
         old_job = get_job(job_id, db)
 
         if old_job.defined_by != c.defined_by:
-            logger.warning(
-                "Redefinition of %s: " % job_id
-            )  # XXX: ideally they use ui_warning, but that is async..
+            logger.warning("Redefinition of %s: " % job_id)  # XXX: ideally they use ui_warning, but that is async..
             logger.warning(" cur defined_by: %s" % c.defined_by)
             logger.warning(" old defined_by: %s" % old_job.defined_by)
 
@@ -1001,9 +997,7 @@ async def interpret_commands(
                 raise CommandFailed(f"ret code {retcode}")
 
 
-async def interpret_single_command(
-    sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB
-):
+async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB):
     """Returns None or raises CommandFailed"""
     check_isinstance(commands_line, str)
 

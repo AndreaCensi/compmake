@@ -76,6 +76,7 @@ __all__ = [
     "Promise",
     "StateCode",
     "cache_has_large_overhead",
+    "make_job",
     "same_computation",
     "timing_summary",
 ]
@@ -407,9 +408,7 @@ def cache_has_large_overhead(cache: Cache) -> bool:
     assert cache.int_gc is not None
     assert cache.int_save_results is not None
     overhead = (
-        cache.int_load_results.get_walltime_used()
-        + cache.int_save_results.get_walltime_used()
-        + cache.int_gc.get_walltime_used()
+        cache.int_load_results.get_walltime_used() + cache.int_save_results.get_walltime_used() + cache.int_gc.get_walltime_used()
     )
     return overhead - cache.int_make.get_walltime_used() > 1.0
 
