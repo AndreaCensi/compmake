@@ -10,7 +10,9 @@ from zuper_commons.text import joinlines
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_asyncio.splitter_utils import get_report_splitters_text
 
-__all__ = ["memstats"]
+__all__ = [
+    "memstats",
+]
 
 
 @ui_command(section=VISUALIZATION)

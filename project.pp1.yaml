@@ -25,10 +25,8 @@ install_requires:
 - zuper-graphs-z7
 - numpy
 - pyreadline
-#- aiofiles
 - zuper-zapp-z7
 - networkx
-- typing_extensions
 
 
 tests_require:
@@ -61,7 +59,7 @@ circleci:
 python_syntax_version: '3.10'
 
 url: https://github.com/AndreaCensi/compmake
-author: ''
+author: 'Andrea Censi'
 author_email: AndreaCensi@users.noreply.github.com
 short_description: ''
 full_description: ''

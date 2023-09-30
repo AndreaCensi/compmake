@@ -11,7 +11,6 @@
     "psutil",
     "pyreadline",
     "setproctitle",
-    "typing_extensions",
     "zuper-commons-z7",
     "zuper-commons-z7",
     "zuper-graphs-z7",
@@ -149,7 +148,7 @@
     "compmake_utils.which_imp"
   ],
   "version": "7.2",
-  "author": "",
+  "author": "Andrea Censi",
   "author_email": "AndreaCensi@users.noreply.github.com",
   "url": "https://github.com/AndreaCensi/compmake"
 }

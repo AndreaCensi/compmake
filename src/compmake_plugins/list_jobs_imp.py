@@ -149,7 +149,6 @@ async def list_jobs(
     max_len = columns - len(other)
 
     def get_key(ji: CMJobID) -> object:
-
         if sorting == "name":
             return ji
         elif sorting == "size":

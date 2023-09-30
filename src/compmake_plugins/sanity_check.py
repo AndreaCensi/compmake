@@ -90,7 +90,6 @@ async def check_job(job_id: CMJobID, context: Context) -> Tuple[bool, List[str]]
             e(s)
 
     for dp in dparents:
-
         if not job_exists(dp, db=db):
             s = f"Direct parent {dp!r} of {job_id!r} does not exist."
             e(s)

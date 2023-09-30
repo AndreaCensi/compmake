@@ -2,19 +2,31 @@ version: 2.1
 parameters:
   context_name:
     type: string
-    default: << pipeline.git.branch >>
+    default: <<#pipeline.git.branch>><<pipeline.parameters.branch>><</pipeline.git.branch>><<^pipeline.git.branch>>default_context<</pipeline.git.branch>>
 workflows:
   version: 2
   test:
     jobs:
     - test-310-src:
-        context: << pipeline.parameters.context_name >>
+        context: <<pipeline.parameters.context_name>>
+        filters:
+          tags:
+            ignore: /.*/
     - test-310-bin:
-        context: << pipeline.parameters.context_name >>
+        context: <<pipeline.parameters.context_name>>
+        filters:
+          tags:
+            ignore: /.*/
     - test-311-src:
-        context: << pipeline.parameters.context_name >>
+        context: <<pipeline.parameters.context_name>>
+        filters:
+          tags:
+            ignore: /.*/
     - test-311-bin:
-        context: << pipeline.parameters.context_name >>
+        context: <<pipeline.parameters.context_name>>
+        filters:
+          tags:
+            ignore: /.*/
 jobs:
   test-310-src:
     environment:
@@ -39,11 +51,13 @@ jobs:
     - checkout
     - run:
         name: Avoid hosts unknown for Github
+        # language=bash
         command: |
           mkdir -p ~/.ssh
           echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
     - run:
         name: Build statistics
+        # language=bash
         command: |
           set -x 
           mkdir -p build-stats
@@ -61,12 +75,14 @@ jobs:
           echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
           echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
           echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
 
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -77,6 +93,7 @@ jobs:
 
     - run:
         name: Install testing deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -86,6 +103,7 @@ jobs:
 
     - run:
         name: Python stats
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -101,6 +119,7 @@ jobs:
 
     - run:
         name: setup.py develop
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -108,6 +127,7 @@ jobs:
 
     - run:
         name: Make docs
+        # language=bash
         command: |
           FILE=src/conf.py
           mkdir -p out/docs
@@ -231,11 +251,13 @@ jobs:
     - checkout
     - run:
         name: Avoid hosts unknown for Github
+        # language=bash
         command: |
           mkdir -p ~/.ssh
           echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
     - run:
         name: Build statistics
+        # language=bash
         command: |
           set -x 
           mkdir -p build-stats
@@ -253,12 +275,14 @@ jobs:
           echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
           echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
           echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
 
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -269,6 +293,7 @@ jobs:
 
     - run:
         name: Install testing deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -278,6 +303,7 @@ jobs:
 
     - run:
         name: Python stats
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -293,6 +319,7 @@ jobs:
 
     - run:
         name: setup.py develop
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -300,6 +327,7 @@ jobs:
 
     - run:
         name: Make docs
+        # language=bash
         command: |
           FILE=src/conf.py
           mkdir -p out/docs
@@ -423,11 +451,13 @@ jobs:
     - checkout
     - run:
         name: Avoid hosts unknown for Github
+        # language=bash
         command: |
           mkdir -p ~/.ssh
           echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
     - run:
         name: Build statistics
+        # language=bash
         command: |
           set -x 
           mkdir -p build-stats
@@ -445,12 +475,14 @@ jobs:
           echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
           echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
           echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
 
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -461,6 +493,7 @@ jobs:
 
     - run:
         name: Install testing deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -470,6 +503,7 @@ jobs:
 
     - run:
         name: Python stats
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -485,6 +519,7 @@ jobs:
 
     - run:
         name: setup.py develop
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -492,6 +527,7 @@ jobs:
 
     - run:
         name: Make docs
+        # language=bash
         command: |
           FILE=src/conf.py
           mkdir -p out/docs
@@ -615,11 +651,13 @@ jobs:
     - checkout
     - run:
         name: Avoid hosts unknown for Github
+        # language=bash
         command: |
           mkdir -p ~/.ssh
           echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
     - run:
         name: Build statistics
+        # language=bash
         command: |
           set -x 
           mkdir -p build-stats
@@ -637,12 +675,14 @@ jobs:
           echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
           echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
           echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
 
     - store_artifacts:
         path: build-stats
         destination: build-stats
     - run:
         name: Install deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -653,6 +693,7 @@ jobs:
 
     - run:
         name: Install testing deps
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -662,6 +703,7 @@ jobs:
 
     - run:
         name: Python stats
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -677,6 +719,7 @@ jobs:
 
     - run:
         name: setup.py develop
+        # language=bash
         command: |
           export PIP_INDEX_URL="${PIP_INDEX_URL_BIN}"
           echo PIP_INDEX_URL="${PIP_INDEX_URL}"
@@ -684,6 +727,7 @@ jobs:
 
     - run:
         name: Make docs
+        # language=bash
         command: |
           FILE=src/conf.py
           mkdir -p out/docs
@@ -785,4 +829,4 @@ jobs:
           ./codecov  
     resource_class: andreacensi/r2
 
-# sigil 67e9430870a17b310b05d36cda50128e
+# sigil 649663e7d6474acada93d09e769e542a

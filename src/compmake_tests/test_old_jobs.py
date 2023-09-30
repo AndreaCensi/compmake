@@ -1,5 +1,5 @@
 from compmake import clean_other_jobs
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import my_assert_equal
 from .utils import Env, environment, run_with_env
 
 
@@ -15,11 +15,11 @@ def h():
 async def test_cleaning_other(env: Env) -> None:
     await cleaning_other_first(env)
     jobs1 = await env.all_jobs()
-    assert_equal(jobs1, ["g", "h"])
+    my_assert_equal(jobs1, ["g", "h"])
     async with environment(env.sti, env.rootd) as env2:
         await cleaning_other_second(env2)
     jobs2 = await env.all_jobs()
-    assert_equal(jobs2, ["g"])
+    my_assert_equal(jobs2, ["g"])
 
 
 async def cleaning_other_first(env: Env) -> None:
@@ -34,12 +34,12 @@ async def cleaning_other_second(env: Env) -> None:
     await env.batch_command("make")
 
 
-def f1(context):
+def f1(context) -> None:
     context.comp(g)
     context.comp(h)
 
 
-def f2(context):
+def f2(context) -> None:
     context.comp(g)
 
 
@@ -47,11 +47,11 @@ def f2(context):
 async def test_cleaning2(env: Env) -> None:
     await cleaning2_first(env)
     jobs1 = await env.all_jobs()
-    assert_equal(jobs1, ["f", "f-g", "f-h"])
+    my_assert_equal(jobs1, ["f", "f-g", "f-h"])
     async with environment(env.sti, env.rootd) as env2:
         await cleaning2_second(env2)
     jobs2 = await env.all_jobs()
-    assert_equal(jobs2, ["f", "f-g"])
+    my_assert_equal(jobs2, ["f", "f-g"])
 
 
 async def cleaning2_first(env: Env) -> None:
@@ -83,11 +83,11 @@ async def test_cleaning3(env: Env) -> None:
     env.cc.set_compmake_config("check_params", True)
     await cleaning3_first(env)
     jobs1 = await env.all_jobs()
-    assert_equal(jobs1, ["e", "f", "f-g", "f-h"])
+    my_assert_equal(jobs1, ["e", "f", "f-g", "f-h"])
     async with environment(env.sti, env.rootd) as env2:
         await cleaning3_second(env2)
     jobs2 = await env.all_jobs()
-    assert_equal(jobs2, ["e", "f", "f-g"])
+    my_assert_equal(jobs2, ["e", "f", "f-g"])
 
 
 async def cleaning3_first(env: Env):

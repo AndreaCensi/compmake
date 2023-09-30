@@ -17,9 +17,7 @@ __all__ = [
 ]
 
 
-async def interpret_commands_wrap(
-    sti: SyncTaskInterface, commands: str, context: Context, cq: CacheQueryDB
-) -> None:
+async def interpret_commands_wrap(sti: SyncTaskInterface, commands: str, context: Context, cq: CacheQueryDB) -> None:
     """
     Returns None or raises CommandFailed, ShellExitRequested,
         CompmakeBug, KeyboardInterrupt.
@@ -53,7 +51,7 @@ async def interpret_commands_wrap(
             "Warning, I got this exception, while it should "
             "have been filtered out already. "
             "This is a compmake BUG that should be reported "
-            "at http://github.com/AndreaCensi/compmake/issues"
+            "at https://github.com/AndreaCensi/compmake/issues"
         )
         msg = msg0 + "\n" + indent(tb, "bug| ")
         publish(context, "compmake-bug", user_msg=msg, dev_msg="")  # XXX

@@ -48,7 +48,6 @@ def display_stats(job_list: Collection[CMJobID], context: Context) -> None:
     total = 0
 
     for job_id in job_list:
-
         cache = get_job_cache(job_id, db=db)
         states2count[cache.state] += 1
         total += 1

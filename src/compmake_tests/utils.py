@@ -18,7 +18,7 @@ from compmake import (
 )
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import getcwd
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import my_assert_equal
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2
@@ -65,21 +65,20 @@ class Env:
         return get_job(job_id=job_id, db=self.db)
 
     async def assert_defined_by(self, job_id, expected):
-        assert_equal((await self.get_job(job_id)).defined_by, expected)
+        my_assert_equal((await self.get_job(job_id)).defined_by, expected)
 
     async def get_jobs(self, expression: str):
         """Returns the list of jobs corresponding to the given expression."""
         return list(parse_job_list(expression, context=self.cc))
 
-    async def assert_job_uptodate(self, job_id, status):
+    async def assert_job_uptodate(self, job_id: CMJobID, status):
         res = await self.up_to_date(job_id)
         self.assert_equal(res, status, "Want %r uptodate? %s" % (job_id, status))
 
     def assert_equal(self, first: X, second: X, msg: Optional[str] = None):
-        assert_equal(first, second, msg)
+        my_assert_equal(first, second, msg)
 
     async def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):
-
         # js = 'not-valid-yet'
         js = await self.get_jobs(expr)
         if ignore_dyn_reports:
@@ -190,15 +189,13 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
             # sti.set_fs(LocalFS(cwd, allow_up=True, sti=sti))
 
             async with setup_environment2(sti, working_dir=cwd):
-
                 async with with_log_control(False):  # XXX
-                    async with environment(sti) as env:
+                    async with environment(sti, rootd=None) as env:
                         try:
                             res = await f(env)
                         except SkipTest:
                             raise
                         except BaseException as e:
-
                             # sti.logger.error(traceback.format_exc())
                             # sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
 

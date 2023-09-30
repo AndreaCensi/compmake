@@ -23,7 +23,6 @@ async def dump(sti, non_empty_job_list, context, directory="."):
     """
     db = context.get_compmake_db()
     for job_id in non_empty_job_list:
-
         if is_job_userobject_available(job_id, db=db):
             user_object = get_job_userobject(job_id, db=db)
             filename = os.path.join(directory, job_id + ".pickle")

@@ -1,17 +1,17 @@
 from compmake import CompmakeConstants, set_compmake_status
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import my_assert_equal
 from .utils import Env, run_with_env
 
 
-def bottom():
+def bottom() -> None:
     TestOrder.order.append("bottom")
 
 
-def bottom2():
+def bottom2() -> None:
     TestOrder.order.append("bottom2")
 
 
-def top(x):
+def top(x) -> None:
     TestOrder.order.append("top")
 
 
@@ -30,7 +30,7 @@ async def test_order(env: Env) -> None:
     await env.batch_command("clean")
     await env.batch_command("make")
 
-    assert_equal(["bottom", "top", "bottom", "top"], TestOrder.order)
+    my_assert_equal(["bottom", "top", "bottom", "top"], TestOrder.order)
 
 
 @run_with_env
@@ -44,7 +44,7 @@ async def test_order2(env: Env) -> None:
     await env.batch_command("clean")
     await env.batch_command("make")
 
-    assert_equal(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
+    my_assert_equal(["bottom2", "bottom", "top", "bottom", "top"], TestOrder.order)
 
 
 @run_with_env
@@ -58,4 +58,4 @@ async def test_order3(env: Env) -> None:
     await env.batch_command("clean")
     await env.batch_command("make")
 
-    assert_equal(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)
+    my_assert_equal(["bottom", "bottom2", "top", "bottom2", "top"], TestOrder.order)

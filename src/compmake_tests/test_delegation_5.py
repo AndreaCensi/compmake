@@ -1,6 +1,6 @@
 from compmake import get_job
 from compmake.types import CMJobID
-from zuper_commons.test_utils import my_assert_equal as assert_equal
+from zuper_commons.test_utils import my_assert_equal
 from .utils import Env, environment, run_with_env
 
 
@@ -29,12 +29,12 @@ async def test_delegation_5(env: Env) -> None:
     J = CMJobID("h")
     env.comp(h, env.comp_dynamic(e))
     job0 = get_job(J, env.db)
-    assert_equal({"e"}, job0.children)
+    my_assert_equal({"e"}, job0.children)
 
     await env.batch_command("make; ls")
 
     job = get_job(J, env.db)
-    assert_equal(
+    my_assert_equal(
         {"e", "e-f", "e-f-g"},
         job.children,
     )
@@ -50,7 +50,7 @@ async def test_delegation_5(env: Env) -> None:
         job0 = get_job(J, env2.db)
         await env2.batch_command("check_consistency raise_if_error=1")
         job2 = get_job(J, env2.db)
-        assert_equal(
+        my_assert_equal(
             {"e", "e-f", "e-f-g"},
             job2.children,
         )
