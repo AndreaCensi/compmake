@@ -7,6 +7,7 @@ There are 3 special variables:
 """
 from compmake_utils import safe_pickle_dump
 from zuper_utils_asyncio import SyncTaskInterface
+from .manager import Manager
 from .actions import clean_targets, make
 from .cachequerydb import CacheQueryDB
 from .console import ask_question
@@ -34,7 +35,7 @@ async def quit(sti: SyncTaskInterface, context):
     raise ShellExitRequested()
 
 
-def raise_error_if_manager_failed(manager):
+def raise_error_if_manager_failed(manager: Manager) -> None:
     """
     Raises MakeFailed if there are failed jobs in the manager.
 
