@@ -50,6 +50,10 @@ packages = [
     {from = "src", include = "compmake_utils"},
     ]
 
+[tool.poetry.scripts]
+compmake = "compmake:main"
+compmake-profile = "compmake:compmake_profile_main"
+
 [tool.setuptools]
 packages = [
     "compmake",
@@ -61,3 +65,8 @@ packages = [
     "compmake_utils",
     ]
 package-dir = {"" = "src"}
+
+[build-system]
+requires = [
+    "poetry-core>=1.0.0",]
+build-backend = "poetry.core.masonry.api"
