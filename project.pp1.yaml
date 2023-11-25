@@ -19,7 +19,6 @@ install_requires:
 - zuper-utils-asyncio-z7
 - zuper-commons-z7
 - zuper-typing-z7
-- zuper-commons-z7
 - zuper-utils-asyncio-z7
 - zuper-utils-timing-z7
 - zuper-graphs-z7

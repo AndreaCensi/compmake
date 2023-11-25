@@ -2,39 +2,7 @@
 name = "compmake-z7"
 version = "7.2"
 authors = [{name = "Andrea Censi", email = "AndreaCensi@users.noreply.github.com"}]
-dependencies = [
-    "PyYAML",
-    "Pympler",
-    "SystemCmd-z7",
-    "coverage",
-    "dill",
-    "lxml",
-    "networkx",
-    "numpy",
-    "psutil",
-    "pyreadline",
-    "setproctitle",
-    "zuper-commons-z7",
-    "zuper-commons-z7",
-    "zuper-graphs-z7",
-    "zuper-typing-z7",
-    "zuper-utils-asyncio-z7",
-    "zuper-utils-asyncio-z7",
-    "zuper-utils-timing-z7",
-    "zuper-zapp-interfaces-z7",
-    "zuper-zapp-z7",
-    ]
 
-[project.scripts]
-compmake = "compmake:main"
-compmake-profile = "compmake:compmake_profile_main"
-
-[project.optional-dependencies]
-test = [
-    "nose",
-    ]
-
-[tool]
 [tool.poetry]
 name = "compmake-z7"
 version = "7.2"
@@ -50,21 +18,32 @@ packages = [
     {from = "src", include = "compmake_utils"},
     ]
 
+[tool.poetry.dependencies]
+PyYAML = "*"
+Pympler = "*"
+SystemCmd-z7 = "*"
+coverage = "*"
+dill = "*"
+lxml = "*"
+networkx = "*"
+numpy = "*"
+psutil = "*"
+pyreadline = "*"
+setproctitle = "*"
+zuper-commons-z7 = "*"
+zuper-graphs-z7 = "*"
+zuper-typing-z7 = "*"
+zuper-utils-asyncio-z7 = "*"
+zuper-utils-timing-z7 = "*"
+zuper-zapp-interfaces-z7 = "*"
+zuper-zapp-z7 = "*"
+
+[tool.poetry.group.test.dependencies]
+nose = "*"
+
 [tool.poetry.scripts]
 compmake = "compmake:main"
 compmake-profile = "compmake:compmake_profile_main"
-
-[tool.setuptools]
-packages = [
-    "compmake",
-    "compmake_plugins",
-    "compmake_plugins.backend_local",
-    "compmake_plugins.backend_pmake",
-    "compmake_plugins.backend_ssh_cluster",
-    "compmake_plugins.execution_stats",
-    "compmake_utils",
-    ]
-package-dir = {"" = "src"}
 
 [build-system]
 requires = [
