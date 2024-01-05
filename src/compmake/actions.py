@@ -23,7 +23,7 @@ from typing import (
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling
 from zuper_utils_timing import TimeInfo
 from zuper_utils_timing.timing import new_timeinfo
 from . import logger
@@ -392,7 +392,7 @@ async def make(
         int_gc.stop()
 
     except (KeyboardInterrupt, CancelledError) as e:
-        if asyncio.current_task().cancelling() > 0:
+        if is_this_task_cancelling():
             # propagate the exception up normally
             raise
 
