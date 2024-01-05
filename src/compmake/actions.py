@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import logging
 import traceback
@@ -390,7 +391,11 @@ async def make(
         int_gc = result["int_gc"]
         int_gc.stop()
 
-    except (KeyboardInterrupt, CancelledError) as e:  # FIXME: need to re-raise CancelledError
+    except (KeyboardInterrupt, CancelledError) as e:
+        if asyncio.current_task().cancelling() > 0:
+            # propagate the exception up normally
+            raise
+
         bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
         mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
