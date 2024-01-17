@@ -78,15 +78,9 @@ add_config_switch(
 )
 
 # XXX: same
-add_config_switch(
-    "status_line_enabled", True, desc="Activate the plugin for status line", section=CONFIG_APPEARANCE
-)
-add_config_switch(
-    "console_status", True, desc="Enables the console_status plugin.", section=CONFIG_APPEARANCE
-)
-add_config_switch(
-    "console_status_style", "normal", desc="status line style (normal, compact)", section=CONFIG_APPEARANCE
-)
+add_config_switch("status_line_enabled", True, desc="Activate the plugin for status line", section=CONFIG_APPEARANCE)
+add_config_switch("console_status", True, desc="Enables the console_status plugin.", section=CONFIG_APPEARANCE)
+add_config_switch("console_status_style", "normal", desc="status line style (normal, compact)", section=CONFIG_APPEARANCE)
 
 add_config_switch("colorize", True, desc="Use colors in terminals if possible.", section=CONFIG_APPEARANCE)
 
@@ -99,9 +93,7 @@ add_config_switch(
 
 add_config_switch("console_status_delta", 0.33, desc="Refresh interval (seconds)", section=CONFIG_APPEARANCE)
 
-add_config_switch(
-    "readline", True, desc="Try to use readline or pyreadline module.", section=CONFIG_APPEARANCE
-)
+add_config_switch("readline", True, desc="Try to use readline or pyreadline module.", section=CONFIG_APPEARANCE)
 
 add_config_switch(
     "set_proc_title",

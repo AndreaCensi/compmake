@@ -10,9 +10,7 @@ from compmake import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
 
-def compmake_execution_stats(
-    context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None
-):
+def compmake_execution_stats(context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None):
     """
     Returns a promise for a the execution stats of a job
     and its dependencies.
@@ -53,9 +51,7 @@ def count_resources(context, the_job):
 
     res = {}
     for j in children:
-        res[j] = context.comp_dynamic(
-            my_get_job_cache, j, extra_dep=[Promise(j)], job_id="count-%s-%s" % (the_job, j)
-        )
+        res[j] = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)], job_id="count-%s-%s" % (the_job, j))
 
     return context.comp(finalize_result, res)
 

@@ -217,9 +217,7 @@ def job2jobargskey(job_id: CMJobID) -> StorageKey:
     return cast(StorageKey, f"{prefix}{job_id}")
 
 
-def get_job_args(
-    job_id: CMJobID, db: StorageFilesystem
-) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
+def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
     key = job2jobargskey(job_id)
 
     # if False:

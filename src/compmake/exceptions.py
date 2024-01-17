@@ -146,9 +146,7 @@ class JobFailed(CompmakeException):
 
             result_dict_check(res)
         assert "fail" in res
-        e = JobFailed(
-            job_id=res["job_id"], bt=res["bt"], reason=res["reason"], deleted_jobs=res["deleted_jobs"]
-        )
+        e = JobFailed(job_id=res["job_id"], bt=res["bt"], reason=res["reason"], deleted_jobs=res["deleted_jobs"])
         return e
 
 

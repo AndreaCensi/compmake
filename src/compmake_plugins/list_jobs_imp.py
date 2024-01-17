@@ -267,9 +267,7 @@ async def list_jobs(
             cpu = cache.cputime_used
             cpu_total.append(cpu)
 
-            if (
-                cpu > 5 or cache_has_large_overhead(cache) or all_details or (sorting == "duration")
-            ):  # TODO: add param
+            if cpu > 5 or cache_has_large_overhead(cache) or all_details or (sorting == "duration"):  # TODO: add param
                 # s_cpu = duration_compact(cpu)
                 s_cpu = timing_summary(cache)
             else:

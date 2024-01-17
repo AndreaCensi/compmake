@@ -67,11 +67,7 @@ add(EventSpec("manager-job-ready", ["job_id"]))
 add(EventSpec("manager-job-done", ["job_id"]))
 add(EventSpec("manager-host-failed", ["job_id", "host", "reason", "bt"]))
 add(EventSpec("manager-init", ["targets", "more"]))
-add(
-    EventSpec(
-        "manager-wait", ["reasons"], desc="Reasons why no jobs cannot be instantiated."  # dict str -> str
-    )
-)
+add(EventSpec("manager-wait", ["reasons"], desc="Reasons why no jobs cannot be instantiated."))  # dict str -> str
 EVENT_MANAGER_PROGRESS = "manager-progress"
 add(
     EventSpec(

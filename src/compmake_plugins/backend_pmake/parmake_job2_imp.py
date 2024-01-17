@@ -40,9 +40,7 @@ def sanitize_for_filename(x0: str) -> str:
     return x
 
 
-async def parmake_job2(
-    sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, DirPath]
-) -> ResultDict:
+async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, DirPath]) -> ResultDict:
     """
     args = tuple job_id, context, queue_name, show_events
 

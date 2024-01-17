@@ -82,9 +82,7 @@ async def update_graph(context: Context, event: Event):
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="graph-animation")
-def graph_animation(
-    job_list, context, dirname="compmake-graph-animation", dpi=150, width=900, height=900, label="function"
-):
+def graph_animation(job_list, context, dirname="compmake-graph-animation", dpi=150, width=900, height=900, label="function"):
     """
     Runs a step-by-step animation.
 
