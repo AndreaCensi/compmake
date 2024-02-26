@@ -64,14 +64,10 @@ def progress(
         )
 
     if not isinstance(iterations, tuple):  # type: ignore
-        raise ValueError(
-            "The second argument to progress() must be a tuple,"
-            + " you passed a %s." % describe_type(iterations)
-        )
+        raise ValueError("The second argument to progress() must be a tuple," + " you passed a %s." % describe_type(iterations))
     if not len(iterations) == 2:
         raise ValueError(
-            "The second argument to progress() must be a tuple "
-            + " of length 2, not of length %s." % len(iterations)
+            "The second argument to progress() must be a tuple " + " of length 2, not of length %s." % len(iterations)
         )
 
     if not isinstance(iterations[0], (int, float)):  # type: ignore

@@ -2,7 +2,8 @@ version: 2.1
 parameters:
   context_name:
     type: string
-    default: <<#pipeline.git.branch>><<pipeline.parameters.branch>><</pipeline.git.branch>><<^pipeline.git.branch>>default_context<</pipeline.git.branch>>
+    default: 
+      <<#pipeline.git.branch>><<pipeline.parameters.branch>><</pipeline.git.branch>><<^pipeline.git.branch>>default_context<</pipeline.git.branch>>
 workflows:
   version: 2
   test:
@@ -32,7 +33,8 @@ jobs:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: 
+        /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
@@ -232,7 +234,8 @@ jobs:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: 
+        /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
@@ -432,7 +435,8 @@ jobs:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: 
+        /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
@@ -632,7 +636,8 @@ jobs:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      PATH: /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PATH: 
+        /root/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       CONTEXT_NAME: << pipeline.parameters.context_name >>
       DEPS_INSTALL_TIMEOUT: 10m
       COVER_PACKAGES: compmake,compmake_plugins,compmake_tests,compmake_utils
@@ -829,4 +834,4 @@ jobs:
           ./codecov  
     resource_class: andreacensi/r2
 
-# sigil 649663e7d6474acada93d09e769e542a
+# sigil 0046056f0ad1c3ca5801e3b7a305e456

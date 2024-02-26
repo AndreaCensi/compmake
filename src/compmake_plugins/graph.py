@@ -148,9 +148,7 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     #
 
 
-def create_graph1(
-    cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
-):
+def create_graph1(cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]):
     print("Creating graph")
     job_list = list(job_list)
     print(f"create_graph1({job_list})")
@@ -184,9 +182,7 @@ def create_graph1(
     return ggraph
 
 
-def create_graph2_clusters(
-    cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
-):
+def create_graph2_clusters(cq, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]):
     print("Creating graph")
     from zuper_graphs_draw import GvGen
 

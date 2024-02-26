@@ -329,9 +329,7 @@ def a_not_started(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 add_alias("not_started", a_not_started)
 
 
-def parse_job_list(
-    tokens: list[str] | str, context: Context, cq: Optional[CacheQueryDB] = None
-) -> list[CMJobID]:
+def parse_job_list(tokens: list[str] | str, context: Context, cq: Optional[CacheQueryDB] = None) -> list[CMJobID]:
     """
     Parses a job list. tokens can be:
 
@@ -371,9 +369,7 @@ def eval_ops(ops: list[str | Operators.Op], context: Context, cq: CacheQueryDB) 
     ops: list of strings and int representing operators"""
     check_isinstance(ops, list)
 
-    def list_split(
-        l: list[str | Operators.Op], index: int
-    ) -> tuple[list[str | Operators.Op], list[str | Operators.Op]]:
+    def list_split(l: list[str | Operators.Op], index: int) -> tuple[list[str | Operators.Op], list[str | Operators.Op]]:
         """Splits a list in two"""
         return l[0:index], l[index + 1 :]
 

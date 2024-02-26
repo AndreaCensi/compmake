@@ -30,9 +30,7 @@ def compute_priorities(
 MAX_PRIORITY = 1000
 
 
-def compute_priority(
-    job_id: CMJobID, priorities: Dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB
-) -> float:
+def compute_priority(job_id: CMJobID, priorities: Dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB) -> float:
     """Computes the priority for one job. It uses caching results in
     self.priorities if they are found."""
     if job_id in priorities:

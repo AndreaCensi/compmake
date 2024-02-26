@@ -205,10 +205,7 @@ class PmakeManager(Manager):
 
         usage_GB = mem.usage / (1024**3)
         if usage_GB > max_mem_GB:
-            msg = (
-                f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) ["
-                f"{mem.method}]"
-            )
+            msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
             # logger.info(mem=mem)
             # run GC
             gc.collect()

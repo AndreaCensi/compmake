@@ -49,18 +49,14 @@ async def test_dynamic1_cleaning(env: Env) -> None:
     await env.assert_cmd_success("ls")
 
     # this will have created new jobs
-    await env.assert_jobs_equal(
-        "all", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
-    )
+    await env.assert_jobs_equal("all", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"])
     # ... still to do
     await env.assert_jobs_equal("todo", ["actual0", "actual1", "actual2", "generate-finish"])
 
     # we can make them
     await env.assert_cmd_success("make")
     await env.assert_cmd_success("ls")
-    await env.assert_jobs_equal(
-        "done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
-    )
+    await env.assert_jobs_equal("done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"])
 
     # Now let's suppose we re-run values and it generates different number of mcdp_lang_tests
 
@@ -70,13 +66,9 @@ async def test_dynamic1_cleaning(env: Env) -> None:
     await env.assert_cmd_success("clean values; make generate")
     await env.assert_cmd_success("ls reason=1")
 
-    await env.assert_jobs_equal(
-        "all", ["generate", "values", "actual0", "actual1", "actual2", "actual3", "generate-finish"]
-    )
+    await env.assert_jobs_equal("all", ["generate", "values", "actual0", "actual1", "actual2", "actual3", "generate-finish"])
     # some are done
-    await env.assert_jobs_equal(
-        "done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
-    )
+    await env.assert_jobs_equal("done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"])
     # but finish is not updtodate
     await env.assert_jobs_equal("uptodate", ["generate", "values", "actual0", "actual1", "actual2"])
     # some others are not

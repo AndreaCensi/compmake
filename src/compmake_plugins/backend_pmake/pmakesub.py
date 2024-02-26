@@ -56,10 +56,7 @@ class PmakeSub:
     killed_by_me: bool
 
     def __repr__(self) -> str:
-        return (
-            f"PmakeSub({self.name}, {self.write_log}, proc={self._proc.pid}, alive="
-            f"{self._proc.is_alive()})"
-        )
+        return f"PmakeSub({self.name}, {self.write_log}, proc={self._proc.pid}, alive=" f"{self._proc.is_alive()})"
 
     def __init__(
         self,
@@ -121,9 +118,7 @@ class PmakeSub:
         # self.job_queue = None
         # self.result_queue = None
 
-    def apply_async(
-        self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]
-    ) -> "PmakeResult":
+    def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
@@ -362,9 +357,7 @@ async def pmake_worker(
             log(str(mye))
             put_result(mye.get_result_dict())
         except:  # XXX: can this happen?
-            mye = HostFailed(
-                host="???", job_id=job_id, reason="Uknown exception (not BaseException)", bt="not available"
-            )
+            mye = HostFailed(host="???", job_id=job_id, reason="Uknown exception (not BaseException)", bt="not available")
             log(str(mye))
             put_result(mye.get_result_dict())
             log("(put)")

@@ -21,9 +21,7 @@ __all__ = [
 ]
 
 
-def get_cmd_args_kwargs(
-    job_id: CMJobID, db: StorageFilesystem
-) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
+def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
     """Substitutes dependencies and gets actual cmd, args, kwargs."""
     command, args, kwargs0 = get_job_args(job_id, db=db)
     kwargs: dict[str, Any] = dict(**kwargs0)

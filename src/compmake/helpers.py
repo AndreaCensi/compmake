@@ -44,9 +44,7 @@ class UIState:
 # ############ Definition of UI sections ##############
 
 
-def ui_section(
-    section_name: str, desc: Optional[str] = None, order: Optional[int] = None, experimental: bool = False
-):
+def ui_section(section_name: str, desc: Optional[str] = None, order: Optional[int] = None, experimental: bool = False):
     if not section_name in UIState.sections:
         UIState.sections[section_name] = Section(
             name=section_name, desc=desc, order=order, commands=[], experimental=experimental
@@ -70,9 +68,7 @@ ui_section(ACTIONS, order=2)
 # desc='Experimental: These assume that you have a cluster '
 # ' configuration file as explained in the documentation.',
 # experimental=True)
-ui_section(
-    COMMANDS_ADVANCED, order=4, desc="These are advanced commands not for general use.", experimental=True
-)
+ui_section(COMMANDS_ADVANCED, order=4, desc="These are advanced commands not for general use.", experimental=True)
 
 ############# Helpers for defining commands ##############
 
@@ -85,9 +81,7 @@ CommandShape = Callable[..., Awaitable[Optional[int]]]
 Y = TypeVar("Y", bound=CommandShape)
 
 
-def wrap(
-    func: Y, name: Optional[str], alias: Optional[str | list[str]], section: Optional[str], dbchange: bool
-) -> Y:
+def wrap(func: Y, name: Optional[str], alias: Optional[str | list[str]], section: Optional[str], dbchange: bool) -> Y:
     """Decorator for a UI command -- wrapper for register_command"""
     if name is None:
         name = getattr(func, "__name__", str(func))

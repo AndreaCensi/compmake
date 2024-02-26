@@ -135,6 +135,4 @@ async def rmake(
     new_process: bool = DefaultsToConfig("new_process"),
 ):
     """make with recurse = 1"""
-    return await make(
-        sti, job_list=job_list, context=context, echo=echo, new_process=new_process, recurse=True
-    )
+    return await make(sti, job_list=job_list, context=context, echo=echo, new_process=new_process, recurse=True)

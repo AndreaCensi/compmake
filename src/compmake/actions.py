@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import logging
 import traceback
@@ -22,7 +23,7 @@ from typing import (
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling
 from zuper_utils_timing import TimeInfo
 from zuper_utils_timing.timing import new_timeinfo
 from . import logger
@@ -390,7 +391,11 @@ async def make(
         int_gc = result["int_gc"]
         int_gc.stop()
 
-    except (KeyboardInterrupt, CancelledError) as e:  # FIXME: need to re-raise CancelledError
+    except (KeyboardInterrupt, CancelledError) as e:
+        if is_this_task_cancelling():
+            # propagate the exception up normally
+            raise
+
         bt = traceback.format_exc()
         deleted_jobs = get_deleted_jobs()
         mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)

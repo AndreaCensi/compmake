@@ -14,10 +14,6 @@ async def test_dynamic_re1(env: Env) -> None:
     await env.assert_cmd_success("make recurse=1")
 
     # this will have created new jobs
-    await env.assert_jobs_equal(
-        "all", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
-    )
+    await env.assert_jobs_equal("all", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"])
     # ... still to do
-    await env.assert_jobs_equal(
-        "done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"]
-    )
+    await env.assert_jobs_equal("done", ["generate", "values", "actual0", "actual1", "actual2", "generate-finish"])

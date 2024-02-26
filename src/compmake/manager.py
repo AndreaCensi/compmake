@@ -777,9 +777,7 @@ class Manager(ManagerLog):
                 if dependency_status.state != Cache.DONE:
                     waiting_on.add(dependency)
 
-            self.sti.logger.error(
-                "todo: %s" % job_id, job=job, cache=cache, dependencies=res, waiting_on=waiting_on
-            )
+            self.sti.logger.error("todo: %s" % job_id, job=job, cache=cache, dependencies=res, waiting_on=waiting_on)
             if not waiting_on:
                 msg = f"Actually job {job_id} is ready"
                 self.sti.logger.warn(msg)

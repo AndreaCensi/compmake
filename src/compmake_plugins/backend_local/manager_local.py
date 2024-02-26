@@ -25,9 +25,7 @@ __all__ = [
 class ManagerLocal(Manager):
     """Specialization of manager for local execution"""
 
-    def __init__(
-        self, sti: SyncTaskInterface, new_process: bool, echo: bool, context: Context, recurse: bool
-    ):
+    def __init__(self, sti: SyncTaskInterface, new_process: bool, echo: bool, context: Context, recurse: bool):
         Manager.__init__(self, sti, context=context, recurse=recurse)
         self.new_process = new_process
         self.echo = echo
@@ -52,9 +50,7 @@ class ManagerLocal(Manager):
 class FakeAsync(AsyncResultInterface):
     context: Context
 
-    def __init__(
-        self, sti: SyncTaskInterface, job_id: CMJobID, context: Context, new_process: bool, echo: bool
-    ):
+    def __init__(self, sti: SyncTaskInterface, job_id: CMJobID, context: Context, new_process: bool, echo: bool):
         self.sti = sti
         self.job_id = job_id
         self.context = context
