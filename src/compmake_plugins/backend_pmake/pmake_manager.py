@@ -20,11 +20,13 @@ from compmake import (
     FailResult,
     MakeHostFailed,
     Manager,
+    mark_as_failed,
     publish,
 )
 from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, joind, joinf, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
+from zuper_commons.ui import size_compact
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
 from .pmakesub import PmakeSub, PossibleFuncs
@@ -130,7 +132,32 @@ class PmakeManager(Manager):
         self.max_num_processing = self.num_processes
 
     def show_other_stats(self) -> None:
+        max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+
+        memory = {}
+        for k, v in self.subs.items():
+            try:
+                m = v.get_memory_info_bytes()
+            except psutil.NoSuchProcess:
+                memory[k] = "no such process"
+                continue
+
+            m_gb = m / (1024.0**3)
+
+            memory[k] = size_compact(m)
+
+            if m_gb > max_job_mem_GB:
+                msg = f"Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB; killing"
+
+                logger.error(msg, last=v.last)
+                v.kill_process("OOM")
+                if v.last is not None:
+                    current_job = v.last.job_id
+                    mark_as_failed(current_job, self.db, exception="OOM", backtrace="OOM")
+                    self.job_failed(current_job, [])
+
         logger.info(
+            memory=memory,
             subs=self.subs,
             sub_available=self.sub_available,
             sub_processing=self.sub_processing,
@@ -240,7 +267,15 @@ class PmakeManager(Manager):
             name = sorted(self.sub_available)[0]
             sub = self.subs[name]
             if not sub.is_alive():
-                # msg = f"Sub {name} is not alive."
+                msg = f"Sub {name} is not alive."
+                if sub.killed_by_me:
+                    msg += f" (killed by me because: {sub.killed_reason})"
+
+                if sub.killed_reason == "OOM":  # TODO: make constant
+                    pass
+                msg += "; now cancel and replace"
+                logger.warning(msg)
+
                 await self._cancel_and_replace_sub(name)
                 continue
 
@@ -311,7 +346,7 @@ class PmakeManager(Manager):
         except:
             pass
         try:
-            sub.kill_process()
+            sub.kill_process("cancel_and_replace")
         except:
             pass
         if subname in self.sub_processing:
@@ -353,7 +388,7 @@ class PmakeManager(Manager):
 
         for name in self.sub_processing:
             if name in self.subs:
-                self.subs[name].terminate_process()
+                self.subs[name].terminate_process("exiting")
 
         for name in self.sub_available:
             if name in self.subs:
@@ -374,7 +409,7 @@ class PmakeManager(Manager):
             #  print('killing')
             for name in self.sub_processing:
                 if name in self.subs:
-                    self.subs[name].kill_process()
+                    self.subs[name].kill_process("exiting")
                     # if pid is not None:
                     #     try:
                     #         os.kill(pid, signal.SIGKILL)

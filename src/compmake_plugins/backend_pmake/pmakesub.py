@@ -10,6 +10,8 @@ from multiprocessing.context import BaseContext, Process
 from queue import Empty
 from typing import Any, Callable, cast, Literal, Optional, Tuple
 
+import psutil
+
 from compmake import (
     AsyncResultInterface,
     CMJobID,
@@ -56,7 +58,7 @@ class PmakeSub:
     killed_by_me: bool
 
     def __repr__(self) -> str:
-        return f"PmakeSub({self.name}, {self.write_log}, proc={self._proc.pid}, alive=" f"{self._proc.is_alive()})"
+        return f"PmakeSub({self.name}, {self.write_log}, pid={self._proc.pid}, alive=" f"{self._proc.is_alive()})"
 
     def __init__(
         self,
@@ -82,24 +84,33 @@ class PmakeSub:
             detailed_python_mem_stats,
         )
         # logger.info(args=args)
-        self._proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name))  # type: ignore
+        self._proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name, daemon=True))  # type: ignore
         atexit.register(at_exit_delete, proc=self._proc)
         self._proc.start()
         self.last = None
         self.killed_by_me = False
+        self.killed_reason = "n/a"
+
+    def get_memory_info_bytes(self) -> int:
+        p = psutil.Process(self._proc.pid)
+        memory_info = p.memory_info()
+        rss = memory_info.rss
+        return rss
 
     def is_alive(self) -> bool:
         return self._proc.is_alive()
 
-    def terminate_process(self) -> None:
+    def terminate_process(self, reason: str) -> None:
         self.killed_by_me = True
+        self.killed_reason = reason
         try:
             self._proc.terminate()
         except:
             pass
 
-    def kill_process(self) -> None:
+    def kill_process(self, reason: str) -> None:
         self.killed_by_me = True
+        self.killed_reason = reason
         # noinspection PyBroadException
         try:
             self._proc.kill()
@@ -125,7 +136,7 @@ class PmakeSub:
 
 
 def at_exit_delete(proc: Process) -> None:
-    # print(f'terminating process {ps.name} ')
+    print(f"terminating process {proc.name} {proc.pid} ")
     # ps.terminate()
     # time.sleep(1)
     proc.kill()
@@ -441,7 +452,14 @@ class PmakeResult(AsyncResultInterface):
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
-                if not self.psub.killed_by_me:
+                if self.psub.killed_by_me:
+                    raise JobFailed(
+                        job_id=self.job_id,
+                        reason=self.psub.killed_reason,
+                        bt=self.psub.killed_reason,
+                        deleted_jobs=[],
+                    ) from None
+                else:
                     if not self.psub.is_alive():
                         msg = f"Interrupt: Process died unexpectedly with code {self.psub._proc.exitcode}"
                         msg += f"\n log at {self.psub.write_log}"
