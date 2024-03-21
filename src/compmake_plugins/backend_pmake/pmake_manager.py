@@ -147,7 +147,7 @@ class PmakeManager(Manager):
             memory[k] = size_compact(m)
 
             if m_gb > max_job_mem_GB:
-                msg = f"Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB"
+                msg = f"OOM: Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB"
 
                 logger.error(msg, last=v.last)
                 v.kill_process(msg)
