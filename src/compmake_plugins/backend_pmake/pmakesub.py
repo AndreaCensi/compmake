@@ -58,7 +58,7 @@ class PmakeSub:
     killed_by_me: bool
 
     def __repr__(self) -> str:
-        return f"PmakeSub({self.name}, {self.write_log}, pid={self._proc.pid}, alive=" f"{self._proc.is_alive()})"
+        return f"PmakeSub({self.name}, {self.write_log}, pid={self._proc.pid}, alive={self._proc.is_alive()})"
 
     def __init__(
         self,
@@ -90,6 +90,7 @@ class PmakeSub:
         self.last = None
         self.killed_by_me = False
         self.killed_reason = "n/a"
+        self.jobs_assigned = []
 
     def get_memory_info_bytes(self) -> int:
         p = psutil.Process(self._proc.pid)
@@ -131,6 +132,7 @@ class PmakeSub:
 
     def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
+        self.jobs_assigned.append(job_id)
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
 

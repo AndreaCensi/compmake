@@ -147,13 +147,16 @@ class PmakeManager(Manager):
             memory[k] = size_compact(m)
 
             if m_gb > max_job_mem_GB:
-                msg = f"Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB; killing"
+                msg = f"Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB"
 
                 logger.error(msg, last=v.last)
-                v.kill_process("OOM")
+                v.kill_process(msg)
                 if v.last is not None:
                     current_job = v.last.job_id
-                    mark_as_failed(current_job, self.db, exception="OOM", backtrace="OOM")
+                    jobs_assigned = "".join(f"- {_}\n" for _ in v.jobs_assigned)
+                    backtrace = msg + "\n" + "Jobs assigned:\n" + jobs_assigned
+
+                    mark_as_failed(current_job, self.db, exception=msg, backtrace=backtrace)  # XXX
                     self.job_failed(current_job, [])
 
         logger.info(
@@ -271,11 +274,10 @@ class PmakeManager(Manager):
                 if sub.killed_by_me:
                     msg += f" (killed by me because: {sub.killed_reason})"
 
-                if sub.killed_reason == "OOM":  # TODO: make constant
-                    pass
+                # if sub.killed_reason == "OOM":  # TODO: make constant
+                #     pass
                 msg += "; now cancel and replace"
-                logger.warning(msg)
-
+                await self.context.write_message_console(msg)
                 await self._cancel_and_replace_sub(name)
                 continue
 
@@ -339,7 +341,9 @@ class PmakeManager(Manager):
     # noinspection PyBroadException
     async def _cancel_and_replace_sub(self, subname: SubName) -> SubName:
         sub = self.subs[subname]
-        sub.killed_by_me = True
+        if not sub.killed_by_me:
+            sub.killed_by_me = True
+            sub.killed_reason = "cancel_and_replace"
 
         try:
             sub.terminate()
