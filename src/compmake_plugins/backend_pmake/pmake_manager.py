@@ -8,7 +8,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, cast, ClassVar, Collection, Dict, NewType, Set
+from typing import Any, ClassVar, Collection, Dict, NewType, Set, cast
 
 import psutil
 from psutil import NoSuchProcess
@@ -153,7 +153,9 @@ class PmakeManager(Manager):
                 v.kill_process(msg)
                 if v.last is not None:
                     current_job = v.last.job_id
-                    jobs_assigned = "".join(f"- {_}\n" for _ in v.jobs_assigned)
+                    jobs_assigned = "".join(
+                        f"- {ja.job_id} started with {size_compact(ja.starting_memory_bytes)}\n" for ja in v.jobs_assigned
+                    )
                     backtrace = msg + "\n" + "Jobs assigned:\n" + jobs_assigned
 
                     mark_as_failed(current_job, self.db, exception=msg, backtrace=backtrace)  # XXX

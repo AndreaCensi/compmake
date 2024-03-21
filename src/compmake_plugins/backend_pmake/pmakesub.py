@@ -4,6 +4,7 @@ import signal
 import sys
 import time
 import traceback
+from dataclasses import dataclass
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
@@ -49,6 +50,12 @@ import atexit
 PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
 
+@dataclass
+class JobAssigned:
+    job_id: CMJobID
+    starting_memory_bytes: int
+
+
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
@@ -56,6 +63,7 @@ class PmakeSub:
     result_queue: "multiprocessing.Queue[ResultDict]"
     _proc: Process
     killed_by_me: bool
+    jobs_assigned: list[JobAssigned]
 
     def __repr__(self) -> str:
         return f"PmakeSub({self.name}, {self.write_log}, pid={self._proc.pid}, alive={self._proc.is_alive()})"
@@ -132,7 +140,9 @@ class PmakeSub:
 
     def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
-        self.jobs_assigned.append(job_id)
+        current_mem = self.get_memory_info_bytes()
+        j = JobAssigned(job_id=job_id, starting_memory_bytes=current_mem)
+        self.jobs_assigned.append(j)
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
 
