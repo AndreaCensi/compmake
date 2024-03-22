@@ -52,7 +52,11 @@ class StorageFilesystem:
         existed = os.path.exists(self.fn)
         if not existed:
             logger.info(f"The database {self.fn!r} did not exist: creating.")
-        self.con = sqlite3.connect(self.fn, timeout=15)
+        # self.con = sqlite3.connect(self.fn, timeout=15)
+        # with self.cursor() as cur:
+        #     # set wal mode
+        #     cur.execute("pragma journal_mode=wal")
+
         if not existed:
             with self.cursor() as cur:
                 sql = """
@@ -63,7 +67,7 @@ class StorageFilesystem:
                 # create index blob_keys on fs_blobs(blob_key);
                 # """
                 # cur.execute(sql)
-                self.con.commit()
+                # self.con.commit()
 
         self.method = method = "pickle"
         # self.method = method= "dill"
@@ -87,14 +91,21 @@ class StorageFilesystem:
 
     @contextmanager
     def cursor(self) -> Iterator[sqlite3.Cursor]:
-        cur = self.con.cursor()
+        con = sqlite3.connect(self.fn, timeout=15)
         try:
-            yield cur
+            cur = con.cursor()
+            try:
+                cur.execute("pragma journal_mode=wal")
+                yield cur
+            finally:
+                cur.close()
+            con.commit()
         finally:
-            cur.close()
+            con.close()
 
     def close(self) -> None:
-        self.con.close()
+        pass
+        # self.con.close()
 
     def __repr__(self) -> str:
         return f"FilesystemDB({self.basepath!r};{self.file_extension})"
@@ -211,7 +222,8 @@ class StorageFilesystem:
         """
         with self.cursor() as cur:
             cur.execute(sql, (key, data))
-            self.con.commit()
+            # self.con.commit()
+        # os.sync()
 
     @track_time
     def __delitem__(self, key: StorageKey) -> None:
@@ -220,8 +232,8 @@ class StorageFilesystem:
         """
         with self.cursor() as cur:
             cur.execute(sql, (key,))
-            self.con.commit()
-
+            # self.con.commit()
+        # os.sync()
         # filename = self.filename_for_key(key)
         # if not os.path.exists(filename):
         #     msg = "I expected path %s to exist before deleting" % filename

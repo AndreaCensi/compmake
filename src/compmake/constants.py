@@ -50,7 +50,7 @@ class CompmakeConstants:
 
     disable_interproc_queue = False
 
-    extra_checks_job_states = False
+    extra_checks_job_states = True
 
     tolerate_db_inconsistencies = True
 

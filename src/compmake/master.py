@@ -168,10 +168,10 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
         except CommandFailed:
             retcode = CompmakeConstants.RET_CODE_COMMAND_FAILED
         except CompmakeBug:
-            sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
+            sys.stderr.write("unexpected CompmakeBug exception: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except BaseException:
-            sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
+            sys.stderr.write("unexpected exception out of batch_command/compmake_console: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
         except:
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG

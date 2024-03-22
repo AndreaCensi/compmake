@@ -466,29 +466,30 @@ class PmakeResult(AsyncResultInterface):
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
             # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
+            # if not self.psub.is_alive():
+            #     if self.psub.killed_by_me:
+            #         raise JobInterrupted(  # need to set the cache to get JobFailed
+            #             job_id=self.job_id,
+            #             reason=self.psub.killed_reason,
+            #             bt=self.psub.killed_reason,
+            #             deleted_jobs=[],
+            #         ) from None
+            #
+            #     msg = f"Interrupt: Process died unexpectedly with code {self.psub._proc.exitcode}"
+            #     msg += f"\n log at {self.psub.write_log}"
+            #     msg += f"\n sub {self.psub!r}"
+            #     # msg += f"\n sub {self.psub.__dict__!r}"
+            #     raise JobInterrupted(
+            #         job_id=self.job_id,
+            #         reason=msg,
+            #         bt="not available",
+            #         deleted_jobs=[],
+            #     ) from None
 
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except Empty as e:
-                if self.psub.killed_by_me:
-                    raise JobFailed(
-                        job_id=self.job_id,
-                        reason=self.psub.killed_reason,
-                        bt=self.psub.killed_reason,
-                        deleted_jobs=[],
-                    ) from None
-                else:
-                    if not self.psub.is_alive():
-                        msg = f"Interrupt: Process died unexpectedly with code {self.psub._proc.exitcode}"
-                        msg += f"\n log at {self.psub.write_log}"
-                        msg += f"\n sub {self.psub!r}"
-                        msg += f"\n sub {self.psub.__dict__!r}"
-                        raise JobFailed(
-                            job_id=self.job_id,
-                            reason=msg,
-                            bt="not available",
-                            deleted_jobs=[],
-                        ) from None
+                #
 
                 raise multiprocessing.TimeoutError(e)
 

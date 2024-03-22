@@ -14,9 +14,10 @@ from typing import Any, Collection, Dict, List, NoReturn, Set
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinpars
-from zuper_commons.types import ZException
+from zuper_commons.types import ZException, add_context
 from zuper_commons.ui import duration_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
+from . import get_job_userobject
 from .actions import mark_as_blocked, mark_as_failed
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
@@ -170,7 +171,7 @@ class Manager(ManagerLog):
         self.interrupted = False
         self.loop_task = None
 
-        self.once_in_a_while_show_procs = EveryOnceInAWhile(1)
+        self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
 
     # ## Derived class interface
     def process_init(self) -> None:
@@ -422,7 +423,7 @@ class Manager(ManagerLog):
             # print('here result: %s' % result)
             result_dict_check(result)
 
-            check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
+            check_job_cache_state(job_id, states=[Cache.DONE], db=self.db, result_given=result)
 
             self.job_succeeded(job_id)
             self.check_invariants()
@@ -444,7 +445,8 @@ class Manager(ManagerLog):
         except JobFailed as e:
             # it is the responsibility of the executer to mark_job_as_failed,
             # so we can check that
-            check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
+            with add_context(e=e):
+                check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db, exception_found=e)
             rd = e.get_result_dict()
             self.job_failed(job_id, deleted_jobs=rd["deleted_jobs"])
             publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=rd["reason"], bt=rd["bt"])
@@ -588,8 +590,18 @@ class Manager(ManagerLog):
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
         """The specified job has failed. Update the structures,
         mark any parent as failed as well."""
+
+        if not job_cache_exists(job_id, self.db):
+            msg = f"We were told job {job_id!r} failed but it does not have cache"
+            raise CompmakeBug(msg)
+        cache = get_job_cache(job_id, self.db)
+        if cache.state != Cache.FAILED:
+            msg = f"We were told job {job_id!r} failed but it is not in state FAILED"
+            raise CompmakeBug(msg, cache=cache)
+
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
+
         assert job_id in self.processing
 
         for _ in deleted_jobs:
@@ -627,6 +639,17 @@ class Manager(ManagerLog):
         self.check_invariants()
         publish(self.context, "manager-job-done", job_id=job_id)
         assert job_id in self.processing
+
+        if not job_cache_exists(job_id, self.db):
+            msg = f"We were told job {job_id!r} finished but it does not have cache"
+            raise CompmakeBug(msg)
+        cache = get_job_cache(job_id, self.db)
+        if cache.state != Cache.DONE:
+            msg = f"We were told job {job_id!r} finished but it is not in state DONE"
+            raise CompmakeBug(msg, cache=cache)
+        if not job_userobject_exists(job_id, self.db):
+            msg = f"We were told job {job_id!r} finished but it does not have userobject"
+            raise CompmakeBug(msg)
 
         self.processing.remove(job_id)
         del self.processing2result[job_id]
@@ -693,7 +716,7 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 1
+        threshold = 10
         if self.once_in_a_while_show_procs.now():
             lines = []
             for job_id, x in self.processing2result.items():
@@ -712,7 +735,7 @@ class Manager(ManagerLog):
                 #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
                 #     ,
                 # )
-            self.show_other_stats()
+        self.show_other_stats()
 
         # We make a copy because processing is updated during the loop
         result = False
@@ -1029,26 +1052,25 @@ class Manager(ManagerLog):
                     raise CompmakeBug("job %r in blocked does not exist" % job_id)
 
 
-def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db: StorageFilesystem) -> None:
+def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db: StorageFilesystem, **kwargs: Any) -> None:
     """Raises CompmakeBug if the job is not marked as done."""
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
 
     if not job_cache_exists(job_id, db):
         msg = f"The job {job_id!r} was reported as done/failed but no record of it was found."
-        raise CompmakeBug(msg)
-    else:
-        cache = get_job_cache(job_id, db)
-        if not cache.state in states:
-            possible = [Cache.state2desc[s] for s in states]
-            found = Cache.state2desc[cache.state]
-            msg = f"Wrong state for {job_id!r}: {found} instead of {possible!r} "
-            raise CompmakeBug(msg)
+        raise CompmakeBug(msg, **kwargs)
+    cache = get_job_cache(job_id, db)
+    if not cache.state in states:
+        possible = [Cache.state2desc[s] for s in states]
+        found = Cache.state2desc[cache.state]
+        msg = f"Wrong state for {job_id!r}: {found} instead of {possible!r} "
+        raise CompmakeBug(msg, cache=cache, **kwargs)
 
-        if cache.state == Cache.DONE:
-            if not job_userobject_exists(job_id, db):
-                msg = f"Job {job_id!r} marked as DONE but no userobject exists"
-                raise CompmakeBug(msg)
+    if cache.state == Cache.DONE:
+        if not job_userobject_exists(job_id, db):
+            msg = f"Job {job_id!r} marked as DONE but no userobject exists"
+            raise CompmakeBug(msg, cache=cache, **kwargs)
 
 
 #

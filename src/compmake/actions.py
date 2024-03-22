@@ -476,7 +476,7 @@ async def make(
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        logger.warning("Expensive garbage collection detected at the end of %s: %s" % (job_id, int_gc))
+        logger.warning(f"Expensive garbage collection detected at the end of {job_id}: {int_gc}")
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make

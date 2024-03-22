@@ -156,15 +156,49 @@ class PmakeManager(Manager):
 
                 # logger.error(msg, last=v.last)
                 v.kill_process(msg)
+                if last is not None:
+                    if last.result is None:
+                        current_job = last.job_id
+                        jobs_assigned = "".join(
+                            f"- {ja.job_id} started with {size_compact(ja.starting_memory_bytes)}\n" for ja in v.jobs_assigned
+                        )
+                        backtrace = msg + "\n" + "Jobs assigned:\n" + jobs_assigned
+
+                        mark_as_failed(current_job, self.db, exception=msg, backtrace=backtrace)  # XXX
+                        v.last.result = {
+                            "fail": msg,
+                            "deleted_jobs": [],
+                            "job_id": current_job,
+                            "reason": msg,
+                            "bt": backtrace,
+                        }
+            if not v.is_alive():
                 if v.last is not None:
                     current_job = last.job_id
-                    jobs_assigned = "".join(
-                        f"- {ja.job_id} started with {size_compact(ja.starting_memory_bytes)}\n" for ja in v.jobs_assigned
-                    )
-                    backtrace = msg + "\n" + "Jobs assigned:\n" + jobs_assigned
+                    if v.killed_by_me:
+                        msg = v.killed_reason
+                        mark_as_failed(current_job, self.db, exception=msg, backtrace="")  # XXX
+                        v.last.result = {
+                            "fail": msg,
+                            "deleted_jobs": [],
+                            "job_id": current_job,
+                            "reason": msg,
+                            "bt": "",
+                        }
+                    else:
+                        msg = f"Interrupt: Process died unexpectedly with code {v._proc.exitcode!r}"
+                        msg += f"\n log at {v.write_log}"
+                        msg += f"\n sub {v!r}"
+                        mark_as_failed(current_job, self.db, exception=msg, backtrace="")  # XXX
+                        v.last.result = {
+                            "fail": msg,
+                            "deleted_jobs": [],
+                            "job_id": current_job,
+                            "reason": msg,
+                            "bt": "",
+                        }
 
-                    mark_as_failed(current_job, self.db, exception=msg, backtrace=backtrace)  # XXX
-                    self.job_failed(current_job, [])
+                    # self.job_failed(current_job, [])
 
         if self.stats_interval.now():
             logger.info(

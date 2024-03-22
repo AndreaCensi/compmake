@@ -417,9 +417,13 @@ class Cache:
         self.result_type_qual = None
         self.host = None
         self.memory_stats = MemoryStats.empty()
+        self.cache_object_created = time.time()
 
     def __repr__(self):
-        return "Cache(%s;%s;cpu:%s;wall:%s)" % (
+        dt = time.time() - self.cache_object_created
+        c = duration_compact(dt)
+        return "Cache(created %s | %s;%s;cpu:%s;wall:%s)" % (
+            c,
             Cache.state2desc[self.state],
             self.timestamp,
             self.cputime_used,

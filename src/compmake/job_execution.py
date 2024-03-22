@@ -10,7 +10,7 @@ from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug
 from .filesystem import StorageFilesystem
-from .storage import get_job, get_job_args, job_userobject_exists
+from .storage import get_job, get_job_args, job_cache_exists, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
 
@@ -28,12 +28,15 @@ def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> Tuple[Callabl
     # Let's check that all dependencies have been computed
     all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
     for dep in all_deps:
+        if not job_cache_exists(dep, db=db):
+            msg = f"Dependency {dep!r} was not computed (no cache found)."
+            raise CompmakeBug(msg, job_id=job_id)
         cache = get_job_cache(dep, db=db)
         if cache.state != cache.DONE:
-            msg = f"Dependency {dep!r} was not done."
+            msg = f"Dependency {dep!r} was not in state DONE."
             raise CompmakeBug(msg, cache=cache)
         if not job_userobject_exists(dep, db):
-            msg = f"Dependency {dep!r} was marked as done but not job_userobject exists."
+            msg = f"Dependency {dep!r} was marked as done but no job_userobject exists."
             raise CompmakeBug(msg, cache=cache)
     args2 = substitute_dependencies(args, db=db)
     kwargs2 = substitute_dependencies(kwargs, db=db)
