@@ -27,7 +27,7 @@ from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, joind, joinf, make_sure_dir_exists
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface
 from . import logger
 from .pmakesub import PmakeResult, PmakeSub, PossibleFuncs
 
@@ -85,6 +85,8 @@ class PmakeManager(Manager):
             msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
             logger.warning(msg)
         self.cleaned = False
+
+        self.stats_interval = EveryOnceInAWhile(10)
 
     ctx: BaseContext
     _nsubs_created: int = 0
@@ -147,14 +149,15 @@ class PmakeManager(Manager):
             memory[k] = size_compact(m)
 
             last: PmakeResult = v.last
-            last.memory_stats.record_memory(m)
+            if last is not None:
+                last.memory_stats.record_memory(m)
             if m_gb > max_job_mem_GB:
                 msg = f"OOM: Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB"
 
-                logger.error(msg, last=v.last)
+                # logger.error(msg, last=v.last)
                 v.kill_process(msg)
                 if v.last is not None:
-                    current_job = v.last.job_id
+                    current_job = last.job_id
                     jobs_assigned = "".join(
                         f"- {ja.job_id} started with {size_compact(ja.starting_memory_bytes)}\n" for ja in v.jobs_assigned
                     )
@@ -163,14 +166,15 @@ class PmakeManager(Manager):
                     mark_as_failed(current_job, self.db, exception=msg, backtrace=backtrace)  # XXX
                     self.job_failed(current_job, [])
 
-        logger.info(
-            memory=memory,
-            subs=self.subs,
-            sub_available=self.sub_available,
-            sub_processing=self.sub_processing,
-            sub_aborted=self.sub_aborted,
-            job2subname=self.job2subname,
-        )
+        if self.stats_interval.now():
+            logger.info(
+                memory=memory,
+                subs=self.subs,
+                sub_available=self.sub_available,
+                sub_processing=self.sub_processing,
+                sub_aborted=self.sub_aborted,
+                job2subname=self.job2subname,
+            )
 
     def create_new_sub(self) -> SubName:
         name = self.get_new_sub_name()

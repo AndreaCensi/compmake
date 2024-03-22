@@ -103,9 +103,12 @@ class PmakeSub:
 
     def get_memory_info_bytes(self) -> int:
         p = psutil.Process(self._proc.pid)
-        memory_info = p.memory_info()
-        rss = memory_info.rss
-        return rss
+        try:
+            memory_info = p.memory_info()
+        except psutil.NoSuchProcess:
+            return 0
+        else:
+            return memory_info.rss
 
     def is_alive(self) -> bool:
         return self._proc.is_alive()

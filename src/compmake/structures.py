@@ -72,6 +72,7 @@ __all__ = [
     "Cache",
     "IntervalTimer",
     "Job",
+    "MemoryStats",
     "ProgressStage",
     "Promise",
     "StateCode",
