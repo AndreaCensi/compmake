@@ -25,6 +25,7 @@ from compmake import (
     result_dict_raise_if_error,
     ResultDict,
 )
+from compmake.structures import MemoryStats
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
@@ -112,6 +113,7 @@ class PmakeSub:
     def terminate_process(self, reason: str) -> None:
         self.killed_by_me = True
         self.killed_reason = reason
+        # noinspection PyBroadException
         try:
             self._proc.terminate()
         except:
@@ -430,6 +432,7 @@ class PmakeResult(AsyncResultInterface):
         self.result = None
         self.psub = psub
         self.job_id = job_id
+        self.memory_stats = MemoryStats.empty()
         # self.count = 0
 
     def __repr__(self) -> str:
@@ -485,6 +488,8 @@ class PmakeResult(AsyncResultInterface):
                         ) from None
 
                 raise multiprocessing.TimeoutError(e)
+
+            # now we should update the cache with the memory stats
 
         r: ResultDict = self.result
         return result_dict_raise_if_error(r)

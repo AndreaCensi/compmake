@@ -61,7 +61,7 @@
 """
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, TypedDict, Union
 
 from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
 from zuper_commons.types import describe_value
@@ -273,6 +273,30 @@ class IntervalTimer:
 StateCode = NewType("StateCode", int)
 
 
+class ColorAttrs(TypedDict):
+    color: str
+    attrs: List[str]
+
+
+@dataclass
+class MemoryStatsObservation:
+    observed: float  # timestamp
+    rss_bytes: int
+
+
+@dataclass
+class MemoryStats:
+    started: float  # timestamp
+    observations: list[MemoryStatsObservation]
+
+    @classmethod
+    def empty(cls):
+        return cls(time.time(), [])
+
+    def record_memory(self, rss: int) -> None:
+        self.observations.append(MemoryStatsObservation(time.time(), rss))
+
+
 class Cache:
     # TODO: add blocked
 
@@ -294,10 +318,10 @@ class Cache:
         PROCESSING: "processing",
     }
 
-    stateupdate2color = {
+    stateupdate2color: Dict[Tuple[StateCode, bool], ColorAttrs] = {
         # (state, uptodate)
         (NOT_STARTED, False): {},
-        (PROCESSING): {"color": "yellow", "attrs": ["concealed"]},
+        (PROCESSING, True): {"color": "yellow", "attrs": ["concealed"]},
         (PROCESSING, False): {"color": "yellow", "attrs": ["concealed"]},
         (FAILED, False): {"color": "red"},
         (BLOCKED, True): {"color": "brown"},
@@ -391,6 +415,7 @@ class Cache:
         self.int_gc = None
         self.result_type_qual = None
         self.host = None
+        self.memory_stats = MemoryStats.empty()
 
     def __repr__(self):
         return "Cache(%s;%s;cpu:%s;wall:%s)" % (

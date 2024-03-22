@@ -170,7 +170,7 @@ class Manager(ManagerLog):
         self.interrupted = False
         self.loop_task = None
 
-        self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
+        self.once_in_a_while_show_procs = EveryOnceInAWhile(1)
 
     # ## Derived class interface
     def process_init(self) -> None:

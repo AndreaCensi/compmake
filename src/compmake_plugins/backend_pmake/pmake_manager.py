@@ -29,7 +29,7 @@ from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
 from zuper_utils_asyncio import SyncTaskInterface
 from . import logger
-from .pmakesub import PmakeSub, PossibleFuncs
+from .pmakesub import PmakeResult, PmakeSub, PossibleFuncs
 
 __all__ = [
     "PmakeManager",
@@ -146,6 +146,8 @@ class PmakeManager(Manager):
 
             memory[k] = size_compact(m)
 
+            last: PmakeResult = v.last
+            last.memory_stats.record_memory(m)
             if m_gb > max_job_mem_GB:
                 msg = f"OOM: Sub {k} using {m_gb:.1f}GB > {max_job_mem_GB:.1f}GB"
 
