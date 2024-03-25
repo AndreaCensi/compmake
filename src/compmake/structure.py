@@ -3,6 +3,7 @@ from .colored import compmake_colored
 from .context import Context
 from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, set_compmake_config0
+from . import logger
 
 __all__ = [
     "add_config_section",
@@ -29,10 +30,13 @@ def add_config_switch(name, default_value, allowed=None, desc=None, section=None
     config_sections[section].switches.append(name)
 
 
-def set_config_from_strings(name, args):
+def set_config_from_strings(name: str, args) -> None:
     """Sets config from an array of arguments"""
     config_switches = CompmakeGlobalState.config_switches
     if not name in config_switches:
+        msg = f"Cannot find config switch {name!r}; ignoring."
+        logger.error(msg, name)
+        return
         raise UserError("I don't know config switch %r." % name)
 
     switch = config_switches[name]
