@@ -1,6 +1,6 @@
 import functools
 
-import nose
+import unittest
 
 
 def expected_failure(test):
@@ -9,7 +9,7 @@ def expected_failure(test):
         try:
             test(*args, **kwargs)
         except Exception:
-            raise nose.SkipTest
+            raise unittest.SkipTest
         else:
             raise AssertionError("Failure expected")
 
