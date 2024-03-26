@@ -1,4 +1,3 @@
-import imp
 import os
 import pwd
 
@@ -29,6 +28,8 @@ async def reload(module: str, context: Context) -> None:  # @ReservedAssignment
         m = __import__(module, fromlist=["dummy"])
     except Exception as e:
         raise UserError(f'Cannot find module "{module}".') from e
+
+    import imp  # FIXME: use importlib instead
 
     try:
         imp.reload(m)
