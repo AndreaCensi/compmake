@@ -20,8 +20,7 @@ __all__ = [
 
 
 class EventHandlerInterface(Protocol):
-    def __call__(self, *, context: Context, event: Event) -> Awaitable[object]:
-        ...
+    def __call__(self, *, context: Context, event: Event) -> Awaitable[object]: ...
 
 
 class CompmakeGlobalState:

@@ -1,4 +1,5 @@
 """ This plugin dumps all events received. """
+
 import sys
 
 from compmake import compmake_colored, Context, Event, register_fallback_handler

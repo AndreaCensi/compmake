@@ -5,6 +5,7 @@ There are 3 special variables:
 - 'job_list': the remaining argument parsed as a job list.
 - 'non_empty_job_list': same, but error if not specified.
 """
+
 from compmake_utils import safe_pickle_dump
 from zuper_utils_asyncio import SyncTaskInterface
 from .manager import Manager

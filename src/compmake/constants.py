@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 class JobIterator(Protocol):
-    def __call__(self, context: "Context", cq: "CacheQueryDB") -> Iterator[CMJobID]:
-        ...
+    def __call__(self, context: "Context", cq: "CacheQueryDB") -> Iterator[CMJobID]: ...
 
 
 AliasT = str | JobIterator

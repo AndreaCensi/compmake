@@ -1,4 +1,5 @@
 """ The actual interface of some commands in commands.py """
+
 from typing import List, Tuple
 
 from compmake import (

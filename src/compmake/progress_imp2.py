@@ -11,8 +11,7 @@ __all__ = [
 
 
 class CallbackType(Protocol):
-    def __call__(self, stack: list[ProgressStage]) -> None:
-        ...
+    def __call__(self, stack: list[ProgressStage]) -> None: ...
 
 
 class Globals:

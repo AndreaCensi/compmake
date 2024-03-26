@@ -1,4 +1,5 @@
 """ Contains queries of the job DB. """
+
 import warnings
 from contextlib import contextmanager
 from typing import Collection, Iterator, Set
