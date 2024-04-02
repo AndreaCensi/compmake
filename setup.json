@@ -15,14 +15,11 @@
     "zuper-graphs-z7",
     "zuper-typing-z7",
     "zuper-utils-asyncio-z7",
-    "zuper-utils-asyncio-z7",
     "zuper-utils-timing-z7",
     "zuper-zapp-interfaces-z7",
     "zuper-zapp-z7"
   ],
-  "tests_require": [
-    "nose"
-  ],
+  "tests_require": [],
   "srcdir": "src",
   "package_name": "compmake-z7",
   "entry_points": {

@@ -39,7 +39,6 @@ zuper-zapp-interfaces-z7 = "*"
 zuper-zapp-z7 = "*"
 
 [tool.poetry.group.test.dependencies]
-nose = "*"
 
 [tool.poetry.scripts]
 compmake = "compmake:main"

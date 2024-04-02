@@ -7,29 +7,27 @@ modules:
 - compmake_plugins
 - compmake_utils
 install_requires:
-- Pympler
-- lxml # just for cleanup!
-- setproctitle
 - PyYAML
-- psutil
-- dill
-- coverage
+- Pympler
 - SystemCmd-z7
-- zuper-zapp-interfaces-z7
-- zuper-utils-asyncio-z7
+- coverage
+- dill
+- lxml # just for cleanup!
+- networkx
+- numpy
+- psutil
+- pyreadline
+- setproctitle
 - zuper-commons-z7
+- zuper-graphs-z7
 - zuper-typing-z7
 - zuper-utils-asyncio-z7
 - zuper-utils-timing-z7
-- zuper-graphs-z7
-- numpy
-- pyreadline
+- zuper-zapp-interfaces-z7
 - zuper-zapp-z7
-- networkx
 
 
-tests_require:
-- nose
+tests_require: []
 console_scripts:
   compmake: compmake:main
   compmake-profile: compmake:compmake_profile_main
