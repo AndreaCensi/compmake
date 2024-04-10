@@ -5,6 +5,7 @@ import resource
 import subprocess
 import sys
 import traceback
+from asyncio import CancelledError
 from optparse import OptionParser
 from typing import cast, List, Optional
 
@@ -170,6 +171,8 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None
         except CompmakeBug:
             sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
+        except CancelledError:  # XXX: seen recently
+            raise
         except BaseException:
             sys.stderr.write("unexpected exception: %s\n" % traceback.format_exc())
             retcode = CompmakeConstants.RET_CODE_COMPMAKE_BUG
@@ -214,7 +217,7 @@ def write_atomic(filename: FilePath, contents: str):
         if not os.path.exists(d):
             try:
                 os.makedirs(d, exist_ok=True)
-            except:
+            except:  # OK
                 pass
     tmpfile = filename + ".tmp"
     f = open(tmpfile, "w")

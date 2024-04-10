@@ -227,7 +227,8 @@ class ContextImp(Context):
                             ]
                             msg = joinlines(msg)
                             CompmakeGlobalState.original_stderr.write(msg)
-                        except:
+
+                        except Exception:  # OK
                             pass
             else:
                 for handler in CompmakeGlobalState.EventHandlers.fallback:

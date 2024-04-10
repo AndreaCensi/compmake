@@ -40,5 +40,5 @@ def config_populate_optparser(parser) -> None:
 def option_callback(option, opt, value, par, switch):
     try:
         set_config_from_strings(switch.name, value)
-    except:
+    except:  # OK
         raise OptionValueError('Could not parse value "%s" passed to "%s".' % (value, opt))

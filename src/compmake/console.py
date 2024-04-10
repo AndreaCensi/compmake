@@ -212,7 +212,7 @@ async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
 
             # noinspection PyUnresolvedReferences
             readline.read_history_file(COMPMAKE_HISTORY_FILENAME)
-        except:
+        except:  # OK
             pass
 
         # noinspection PyUnresolvedReferences
@@ -281,7 +281,7 @@ def ask_question(question: str, allowed: Optional[Dict[str, bool]] = None) -> bo
                 l = readline.get_current_history_length()
                 if l:
                     readline.remove_history_item(l - 1)
-            except:
+            except:  # OK
                 pass
 
         if line in allowed:
