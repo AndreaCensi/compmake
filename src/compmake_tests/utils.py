@@ -54,7 +54,7 @@ class Env:
         self.cc.set_compmake_config("console_status", False)
         await read_rc_files(self.sti, context=self.cc)
 
-    async def aclose(self):
+    async def aclose(self) -> None:
         await self.cc.aclose()
 
     async def all_jobs(self):

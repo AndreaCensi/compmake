@@ -148,6 +148,7 @@ class ContextImp(Context):
         self.br = None
         if self.db_inited:
             self.compmake_db.close()
+        self.compmake_db = None
         # self.sti = None
         # self.sti.logger.debug("aclosing contextimp - splitter ui_console")
         # await self.splitter_ui_console.aclose()
