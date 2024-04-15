@@ -2,7 +2,7 @@ import asyncio
 import inspect
 from typing import Any, Callable, Mapping, Optional, Set, Tuple, TypedDict
 
-from zuper_commons.types import add_context, check_isinstance, ZValueError
+from zuper_commons.types import TM, add_context, check_isinstance, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 from . import get_job_cache
@@ -137,7 +137,7 @@ async def execute_with_context(
     context: Context,
     job_id: CMJobID,
     command: Callable[..., Any],
-    args: Tuple[Any, ...],
+    args: TM[Any],
     kwargs: Mapping[str, Any],
 ) -> ExecuteWithContextResult:
     """Returns a dictionary with fields "user_object" and "new_jobs" """

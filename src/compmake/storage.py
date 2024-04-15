@@ -6,7 +6,7 @@ from typing import Any, Callable, cast, Collection, Iterator, Mapping
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
 from zuper_commons.text import wildcard_to_regexp
-from zuper_commons.types import check_isinstance
+from zuper_commons.types import TM, check_isinstance
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
 from .filesystem import StorageFilesystem, StorageKey
 from .structures import Cache, Job
@@ -218,7 +218,7 @@ def job2jobargskey(job_id: CMJobID) -> StorageKey:
     return cast(StorageKey, f"{prefix}{job_id}")
 
 
-def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
+def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., Any], TM[Any], Mapping[str, Any]]:
     key = job2jobargskey(job_id)
 
     # if False:

@@ -65,7 +65,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, Union
 
 from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
-from zuper_commons.types import describe_value
+from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
 
@@ -187,7 +187,7 @@ def make_job(
 #
 
 
-JA = tuple[str, tuple[Any, ...], dict[str, Any]]
+JA = tuple[str, TM[Any], dict[str, Any]]
 
 
 def same_computation(jobargs1: JA, jobargs2: JA) -> tuple[Literal[True], None] | tuple[Literal[False], str]:

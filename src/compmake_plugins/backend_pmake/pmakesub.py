@@ -25,6 +25,7 @@ from compmake import (
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
+from zuper_commons.types import TM
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
     get_report_splitters_text,
@@ -118,7 +119,7 @@ class PmakeSub:
         # self.job_queue = None
         # self.result_queue = None
 
-    def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: Tuple[Any, ...]) -> "PmakeResult":
+    def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: TM[Any]) -> "PmakeResult":
         self.job_queue.put((job_id, function, arguments))
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
