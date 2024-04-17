@@ -1,5 +1,3 @@
-from typing import Set
-
 from compmake import CMJobID, Context, Event, register_handler
 
 __all__ = [
@@ -13,15 +11,15 @@ class Tracker:
     """This class keeps track of the status of the computation.
     It listens to progress events."""
 
-    processing: Set[CMJobID]
-    targets: Set[CMJobID]
-    all_targets: Set[CMJobID]
-    todo: Set[CMJobID]
-    failed: Set[CMJobID]
-    ready: Set[CMJobID]
-    blocked: Set[CMJobID]
-    done: Set[CMJobID]
-    done_by_me: Set[CMJobID]
+    processing: set[CMJobID]
+    targets: set[CMJobID]
+    all_targets: set[CMJobID]
+    todo: set[CMJobID]
+    failed: set[CMJobID]
+    ready: set[CMJobID]
+    blocked: set[CMJobID]
+    done: set[CMJobID]
+    done_by_me: set[CMJobID]
     wait_reasons: dict
     status: dict[str, str]
 

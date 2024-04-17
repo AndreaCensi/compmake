@@ -6,7 +6,7 @@ from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import DirPath
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import zapp1_test, ZappTestEnv
+from zuper_zapp import ZappTestEnv, zapp1_test
 from zuper_zapp_interfaces import get_pi
 
 

@@ -1,20 +1,20 @@
 """ The actual interface of some commands in commands.py """
 
 from collections import defaultdict
-from typing import Collection, Dict
+from typing import Collection
 
 from compmake import (
+    CMJobID,
     Cache,
     CacheQueryDB,
-    CMJobID,
-    compmake_colored,
     CompmakeConstants,
     Context,
+    VISUALIZATION,
+    compmake_colored,
     get_job,
     get_job_cache,
     parse_job_list,
     ui_command,
-    VISUALIZATION,
 )
 from compmake_utils import pad_to_screen
 from zuper_utils_asyncio import SyncTaskInterface
@@ -45,7 +45,7 @@ def display_stats(job_list: Collection[CMJobID], context: Context) -> None:
     # initialize counters to 0
     states2count = dict(list(map(lambda x: (x, 0), states_order)))
 
-    function2state2count: Dict[str, Dict[str, int]] = {}
+    function2state2count: dict[str, dict[str, int]] = {}
     total = 0
 
     for job_id in job_list:

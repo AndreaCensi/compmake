@@ -1,17 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Collection, Dict, List, Optional
+from typing import Collection, Optional
 
-from compmake import (
-    Cache,
-    CacheQueryDB,
-    CMJobID,
-    Context,
-    get_job_cache,
-    job_cache_exists,
-    ui_command,
-    VISUALIZATION,
-)
+from compmake import CMJobID, Cache, CacheQueryDB, Context, VISUALIZATION, get_job_cache, job_cache_exists, ui_command
 from zuper_commons.text import format_rows_as_table, joinlines
 from zuper_commons.ui import color_gray
 from zuper_utils_asyncio import SyncTaskInterface
@@ -27,7 +18,7 @@ async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], c
         if details is not None:
             entries.append(details)
 
-    counter: Dict[str, List[DetailWhyOne]] = defaultdict(list)
+    counter: dict[str, list[DetailWhyOne]] = defaultdict(list)
     for r in entries:
         counter[r.first_line].append(r)
 

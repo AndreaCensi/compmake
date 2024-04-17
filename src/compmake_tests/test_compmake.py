@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import cast, List
+from typing import cast
 
 from compmake import (
     MakeFailed,
@@ -12,8 +12,8 @@ async def assert_MakeFailed(env: Env, nfailed: int, nblocked: int):
     try:
         yield
     except MakeFailed as e:
-        found_failed = cast(List[str], e.info["failed"])
-        found_blocked = cast(List[str], e.info["blocked"])
+        found_failed = cast(list[str], e.info["failed"])
+        found_blocked = cast(list[str], e.info["blocked"])
         if len(found_failed) != nfailed:
             msg = f"Expected {nfailed} failed, got {len(found_failed)}: {found_failed}"
             raise Exception(msg)

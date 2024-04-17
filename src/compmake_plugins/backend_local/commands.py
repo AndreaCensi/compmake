@@ -3,12 +3,12 @@ from typing import Collection
 
 from compmake import (
     ACTIONS,
-    ask_if_sure_remake,
-    Cache,
     CMJobID,
+    Cache,
     Context,
     DefaultsToConfig,
     IntervalTimer,
+    ask_if_sure_remake,
     mark_to_remake,
     raise_error_if_manager_failed,
     set_job_cache,

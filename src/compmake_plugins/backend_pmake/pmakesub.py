@@ -8,7 +8,7 @@ import traceback
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
-from typing import Any, Callable, cast, Literal, Optional, Tuple
+from typing import Any, Callable, Literal, Optional, cast
 
 from compmake import (
     AsyncResultInterface,
@@ -18,9 +18,9 @@ from compmake import (
     JobFailed,
     JobInterrupted,
     OKResult,
+    ResultDict,
     parmake_job2_new_process_1,
     result_dict_raise_if_error,
-    ResultDict,
 )
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
@@ -28,10 +28,10 @@ from zuper_commons.text import indent, joinlines
 from zuper_commons.types import TM
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
+    SyncTaskInterface,
     get_report_splitters_text,
     get_report_splitters_text_referrers,
     running_tasks,
-    SyncTaskInterface,
 )
 from zuper_utils_asyncio.sync_task_imp import Global
 from zuper_utils_timing import TimeInfo
@@ -51,7 +51,7 @@ PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
-    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, Tuple[Any, ...]]]"
+    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, tuple[Any, ...]]]"
     result_queue: "multiprocessing.Queue[ResultDict]"
     _proc: Process
     killed_by_me: bool

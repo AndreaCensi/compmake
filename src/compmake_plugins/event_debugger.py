@@ -2,7 +2,7 @@
 
 import sys
 
-from compmake import compmake_colored, Context, Event, register_fallback_handler
+from compmake import Context, Event, compmake_colored, register_fallback_handler
 from compmake_utils import pad_to_screen
 
 # We save it, because it will be redirected during job execution

@@ -7,14 +7,14 @@ import sys
 import traceback
 from asyncio import CancelledError
 from optparse import OptionParser
-from typing import cast, List, Optional
+from typing import Optional, cast
 
 from compmake_utils import setproctitle
 from zuper_commons.cmds import ExitCode
-from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
+from zuper_commons.fs import DirPath, FilePath, RelDirPath, dirname, join
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import zapp1, ZappEnv
+from zuper_zapp import ZappEnv, zapp1
 from . import __version__
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
@@ -58,7 +58,7 @@ def limit_memory(maxsize: int) -> None:
     # resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
 
 
-async def compmake_main(sti: SyncTaskInterface, args: Optional[List[str]] = None) -> ExitCode:
+async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None) -> ExitCode:
     limit_memory(2 * 1024 * 1024)
     sti.started()
     if not "" in sys.path:

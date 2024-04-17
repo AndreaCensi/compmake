@@ -8,7 +8,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, cast, ClassVar, Collection, Dict, NewType, Set
+from typing import Any, ClassVar, Collection, NewType, cast
 
 import psutil
 from psutil import NoSuchProcess
@@ -57,11 +57,11 @@ class PmakeManager(Manager):
 
     event_queue: "Queue[Any]"  # XXX
     event_queue_name: str
-    subs: Dict[SubName, PmakeSub]
-    sub_available: Set[SubName]
-    sub_processing: Set[SubName]
-    sub_aborted: Set[SubName]
-    job2subname: Dict[CMJobID, SubName]
+    subs: dict[SubName, PmakeSub]
+    sub_available: set[SubName]
+    sub_processing: set[SubName]
+    sub_aborted: set[SubName]
+    job2subname: dict[CMJobID, SubName]
     max_num_processing: int
 
     def __init__(
@@ -173,7 +173,7 @@ class PmakeManager(Manager):
         self.subs[name] = p
         return p
 
-    def get_resources_status(self) -> Dict[str, tuple[bool, str]]:
+    def get_resources_status(self) -> dict[str, tuple[bool, str]]:
         resource_available: dict[str, tuple[bool, str]] = {}
 
         assert len(self.sub_processing) == len(self.processing)

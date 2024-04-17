@@ -2,16 +2,17 @@
 
 import os
 from time import time
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, Sequence
 
 from compmake import (
-    Cache,
-    cache_has_large_overhead,
-    CacheQueryDB,
     CMJobID,
-    compmake_colored,
+    Cache,
+    CacheQueryDB,
     CompmakeConstants,
     Context,
+    VISUALIZATION,
+    cache_has_large_overhead,
+    compmake_colored,
     is_root_job,
     job_args_sizeof,
     job_cache_exists,
@@ -22,9 +23,8 @@ from compmake import (
     timing_summary,
     ui_command,
     ui_message,
-    VISUALIZATION,
 )
-from compmake_utils import get_screen_columns, TableFormatter
+from compmake_utils import TableFormatter, get_screen_columns
 from zuper_commons.ui import color_yellow, duration_compact
 from zuper_utils_asyncio import SyncTaskInterface
 
@@ -36,7 +36,7 @@ format_when = dict()
 @ui_command(section=VISUALIZATION, alias="list")
 async def ls(
     sti: SyncTaskInterface,
-    args: List[str],
+    args: list[str],
     context: Context,
     cq: CacheQueryDB,
     complete_names: bool = False,
@@ -75,7 +75,7 @@ async def ls(
     return 0
 
 
-def minimal_names(objects: Sequence[str]) -> Tuple[str, List[str], str]:
+def minimal_names(objects: Sequence[str]) -> tuple[str, list[str], str]:
     """
     Converts a list of object IDs to a minimal non-ambiguous list of names.
 

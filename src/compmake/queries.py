@@ -2,7 +2,7 @@
 
 import warnings
 from contextlib import contextmanager
-from typing import Collection, Iterator, Set
+from typing import Collection, Iterator
 
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug
@@ -30,7 +30,7 @@ def trace_bugs(msg: str) -> Iterator[None]:
         raise CompmakeBug(msg) from e
 
 
-def jobs_defined(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
+def jobs_defined(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """
     Gets the jobs defined by the given job.
     The job must be DONE.
@@ -44,7 +44,7 @@ def jobs_defined(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
         return set(cache.jobs_defined)
 
 
-def direct_parents(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
+def direct_parents(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """Returns the direct parents of the specified job.
     (Jobs that depend directly on this one)"""
     check_isinstance(job_id, str)
@@ -53,7 +53,7 @@ def direct_parents(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
         return set(computation.parents)
 
 
-def direct_children(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
+def direct_children(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """Returns the direct children (dependencies) of the specified job"""
     check_isinstance(job_id, str)
     with trace_bugs(f"direct_children({job_id!r})"):
@@ -61,11 +61,11 @@ def direct_children(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
         return set(computation.children)
 
 
-def children(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
+def children(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """Returns children, children of children, etc."""
     check_isinstance(job_id, str)
     with trace_bugs(f"children({job_id!r})"):
-        t: Set[CMJobID] = set()
+        t: set[CMJobID] = set()
         for c in direct_children(job_id, db=db):
             t.add(c)
             t.update(children(c, db=db))
@@ -82,7 +82,7 @@ def top_targets(db: StorageFilesystem):
 # return [x for x in all_jobs(db=db) if not direct_children(x, db=db)]
 
 
-def tree(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
+def tree(jobs: Collection[CMJobID], db: StorageFilesystem) -> set[CMJobID]:
     """
     Returns the tree of all dependencies of the jobs.
     Note this is very inefficient because recursive.
@@ -95,13 +95,13 @@ def tree(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
     return t
 
 
-def parents(job_id: CMJobID, db: StorageFilesystem) -> Set[CMJobID]:
+def parents(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """Returns the set of all the parents, grandparents, etc.
     (does not include job_id)"""
     check_isinstance(job_id, str)
 
     with trace_bugs(f"parents({job_id!r})"):
-        t: Set[CMJobID] = set()
+        t: set[CMJobID] = set()
         parents_jobs = direct_parents(job_id, db=db)
         for p in parents_jobs:
             t.add(p)

@@ -1,8 +1,8 @@
 import asyncio
 import inspect
-from typing import Any, Callable, Mapping, Optional, Set, Tuple, TypedDict
+from typing import Any, Callable, Mapping, Optional, TypedDict
 
-from zuper_commons.types import TM, add_context, check_isinstance, ZValueError
+from zuper_commons.types import TM, ZValueError, add_context, check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 from . import get_job_cache
@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 
-def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> Tuple[Callable[..., Any], Tuple[Any, ...], Mapping[str, Any]]:
+def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
     """Substitutes dependencies and gets actual cmd, args, kwargs."""
     command, args, kwargs0 = get_job_args(job_id, db=db)
     kwargs: dict[str, Any] = dict(**kwargs0)
@@ -47,7 +47,7 @@ class JobCompute:
 
 class JobComputeResult(TypedDict):
     user_object: object
-    new_jobs: Set[CMJobID]
+    new_jobs: set[CMJobID]
     int_load_results: IntervalTimer
     int_compute: IntervalTimer
     int_gc: IntervalTimer
@@ -83,7 +83,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         assert "user_object" in res, res
         assert "new_jobs" in res, res
 
-        new_jobs: Set[CMJobID] = res["new_jobs"]
+        new_jobs: set[CMJobID] = res["new_jobs"]
         user_object: object = res["user_object"]
         res1: JobComputeResult = {
             "user_object": user_object,
@@ -115,7 +115,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
                 with ti.timeit("run command (no async)"):
                     user_object = command(*args, **kwargs)
         int_compute.stop()
-        new_jobs: Set[CMJobID] = set()
+        new_jobs: set[CMJobID] = set()
         res2: JobComputeResult = {
             "user_object": user_object,
             "new_jobs": new_jobs,
@@ -128,7 +128,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
 
 class ExecuteWithContextResult(TypedDict):
     user_object: object
-    new_jobs: Set[CMJobID]
+    new_jobs: set[CMJobID]
 
 
 async def execute_with_context(
@@ -176,7 +176,7 @@ async def execute_with_context(
             res = await command(*args, **kwargs2)
         else:
             res = command(*args, **kwargs2)
-    generated: Set[CMJobID] = set(context.get_jobs_defined_in_this_session())
+    generated: set[CMJobID] = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session(already)
     final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
     return final_res

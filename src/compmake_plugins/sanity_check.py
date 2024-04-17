@@ -1,14 +1,12 @@
 """ The actual interface of some commands in commands.py """
 
-from typing import List, Tuple
-
 from compmake import (
-    all_jobs,
-    children,
     CMJobID,
     COMMANDS_ADVANCED,
     CompmakeBug,
     Context,
+    all_jobs,
+    children,
     direct_children,
     direct_parents,
     get_job,
@@ -23,7 +21,7 @@ from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
-async def check_consistency(sti: SyncTaskInterface, args: List[str], context: Context, raise_if_error: bool = False) -> int:
+async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Context, raise_if_error: bool = False) -> int:
     """Checks in the DB that the relations between jobs are consistent."""
 
     db = context.get_compmake_db()
@@ -60,7 +58,7 @@ async def check_consistency(sti: SyncTaskInterface, args: List[str], context: Co
     return 0
 
 
-async def check_job(job_id: CMJobID, context: Context) -> Tuple[bool, List[str]]:
+async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]:
     db = context.get_compmake_db()
 
     job = get_job(job_id, db)

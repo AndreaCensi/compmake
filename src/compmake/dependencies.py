@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Any, Set, TypeVar
+from typing import Any, TypeVar
 
 from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
@@ -75,7 +75,7 @@ def substitute_dependencies(a: X, db: StorageFilesystem) -> X:
         return a
 
 
-def collect_dependencies(ob: Any) -> Set[CMJobID]:
+def collect_dependencies(ob: Any) -> set[CMJobID]:
     """Returns a set of dependencies (i.e., Promise objects that
     are mentioned somewhere in the structure"""
 

@@ -4,19 +4,11 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import cast, ClassVar, Dict, List, Literal
+from typing import ClassVar, Literal, cast
 
-from compmake import (
-    compmake_colored,
-    CompmakeGlobalState,
-    Context,
-    Event,
-    publish,
-    register_handler,
-    ui_error,
-)
+from compmake import CompmakeGlobalState, Context, Event, compmake_colored, publish, register_handler, ui_error
 from compmake.registered_events import EVENT_MANAGER_PROGRESS
-from compmake_utils import get_length_on_screen, getTerminalSize
+from compmake_utils import getTerminalSize, get_length_on_screen
 from zuper_commons.text import indent
 from .tracker import Tracker
 
@@ -132,7 +124,7 @@ def job_counts(context: Context) -> str:
     }
     style = styles[console_status_style]
 
-    values: Dict[str, int] = {
+    values: dict[str, int] = {
         "done_already": len(tracker.done - tracker.done_by_me),
         "done_by_me": len(tracker.done_by_me),
         "processing": len(tracker.processing),
@@ -142,7 +134,7 @@ def job_counts(context: Context) -> str:
         "todo": len(tracker.todo),
     }
 
-    ss: List[str] = []
+    ss: list[str] = []
     for k, v in values.items():
         if k not in style:
             continue
@@ -187,7 +179,7 @@ def wait_reasons() -> str:
 
 
 Levels = Literal[4, 3, 2, 1, 0, -1, -2, -3]
-LEVELS: List[Levels] = [4, 3, 2, 1, 0, -1, -2, -3]
+LEVELS: list[Levels] = [4, 3, 2, 1, 0, -1, -2, -3]
 
 
 class State:
@@ -310,7 +302,7 @@ async def handle_event(context: Context, event: Event) -> None:
     cols, _ = getTerminalSize()
 
     # Make all options together
-    options: List[ShowOption] = []
+    options: list[ShowOption] = []
     for l, r in itertools.product(options_left, options_right):
         length = get_length_on_screen(l) + get_length_on_screen(r)
         weight = length

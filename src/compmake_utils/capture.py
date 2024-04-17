@@ -1,6 +1,6 @@
 import sys
 from io import StringIO
-from typing import Callable, List
+from typing import Callable
 
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
@@ -82,8 +82,8 @@ class OutputCapture:
         prefix: str,
         echo_stdout: bool,
         echo_stderr: bool,
-        publish_stdout: Callable[[List[str]], None],
-        publish_stderr: Callable[[List[str]], None],
+        publish_stdout: Callable[[list[str]], None],
+        publish_stderr: Callable[[list[str]], None],
     ):
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr

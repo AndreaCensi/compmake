@@ -3,16 +3,16 @@ from collections import defaultdict
 from typing import Collection
 
 from compmake import (
-    Cache,
-    CacheQueryDB,
     CMJobID,
     COMMANDS_ADVANCED,
+    Cache,
+    CacheQueryDB,
     Context,
+    UserError,
     definition_closure,
     top_targets,
     ui_command,
     ui_info,
-    UserError,
 )
 from zuper_utils_asyncio import SyncTaskInterface
 

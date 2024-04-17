@@ -1,6 +1,6 @@
 from typing import Any, cast
 
-from compmake import direct_children, direct_parents, make, UserError
+from compmake import UserError, direct_children, direct_parents, make
 from compmake.types import CMJobID
 from zuper_commons.test_utils import (
     assert_raises,

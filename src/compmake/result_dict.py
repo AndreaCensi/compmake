@@ -1,6 +1,6 @@
 from typing import cast
 
-from zuper_commons.types import check_isinstance, ZAssertionError
+from zuper_commons.types import ZAssertionError, check_isinstance
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
 from .types import OKResult, ResultDict
 

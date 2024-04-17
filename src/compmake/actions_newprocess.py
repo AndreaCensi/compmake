@@ -1,8 +1,8 @@
 import os
-from typing import cast, List, Tuple
+from typing import cast
 
 from compmake_utils import safe_pickle_load
-from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe, RelDirPath
+from zuper_commons.fs import DirPath, RelDirPath, abspath, getcwd, join, mkdirs_thread_safe
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-def get_command_line(s: List[str]) -> str:
+def get_command_line(s: list[str]) -> str:
     """returns a command line from list of commands"""
 
     def quote(x: str) -> str:
@@ -30,7 +30,7 @@ def get_command_line(s: List[str]) -> str:
     return " ".join(map(quote, s))
 
 
-async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath]) -> ResultDict:
+async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath]) -> ResultDict:
     """Starts the job in a new compmake process."""
     (job_id, storage) = args
     # compmake_bin = which("compmake")

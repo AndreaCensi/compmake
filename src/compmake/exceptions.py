@@ -1,4 +1,4 @@
-from typing import List, Optional, TYPE_CHECKING, TypedDict
+from typing import Optional, TYPE_CHECKING, TypedDict
 
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
@@ -56,8 +56,8 @@ class CommandFailed(ZException):
 
 
 class MakeFailedExceptionDict(TypedDict):
-    failed: List[str]
-    blocked: List[str]
+    failed: list[str]
+    blocked: list[str]
 
 
 class MakeFailed(CommandFailed):
@@ -99,10 +99,10 @@ class JobFailedExceptionDict(TypedDict):
     job_id: CMJobID
     reason: str
     bt: str
-    deleted_jobs: Optional[List[CMJobID]]
+    deleted_jobs: Optional[list[CMJobID]]
 
 
-def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[List[CMJobID]] = None):
+def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[list[CMJobID]] = None):
     raise JobFailed(job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs) from None
 
 
@@ -152,10 +152,10 @@ class JobFailed(CompmakeException):
 
 class JobInterruptedExceptionDict(TypedDict):
     job_id: CMJobID
-    deleted_jobs: Optional[List[CMJobID]]
+    deleted_jobs: Optional[list[CMJobID]]
 
 
-def job_interrupted_exc(job_id: CMJobID, deleted_jobs: Optional[List[CMJobID]] = None):
+def job_interrupted_exc(job_id: CMJobID, deleted_jobs: Optional[list[CMJobID]] = None):
     return JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
 

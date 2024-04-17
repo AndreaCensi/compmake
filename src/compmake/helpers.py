@@ -1,7 +1,7 @@
 import sys
 import types
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, ClassVar, List, Optional, TextIO, TypeVar, Union
+from typing import Any, Awaitable, Callable, ClassVar, Optional, TextIO, TypeVar, Union
 
 from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
@@ -95,7 +95,7 @@ FT = TypeVar("FT", bound=CommandShape)
 
 def ui_command(
     name: Optional[str] = None,
-    alias: Optional[Union[str, List[str]]] = None,
+    alias: Optional[Union[str, list[str]]] = None,
     section: Optional[str] = None,
     dbchange=False,
 ) -> Callable[[FT], FT]:

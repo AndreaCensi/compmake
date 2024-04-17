@@ -1,6 +1,6 @@
-from typing import cast, Dict
+from typing import cast
 
-from compmake import Cache, CMJobID, get_job_cache
+from compmake import CMJobID, Cache, get_job_cache
 from .test_compmake import assert_MakeFailed
 from .utils import Env, run_with_env
 
@@ -14,7 +14,7 @@ def job_failure(*args, **kwargs):
 
 
 def check_job_states(db, **expected):
-    expected = cast(Dict[CMJobID, int], expected)
+    expected = cast(dict[CMJobID, int], expected)
     for job_id, expected_status in expected.items():
         status = get_job_cache(job_id, db=db).state
         if status != expected_status:

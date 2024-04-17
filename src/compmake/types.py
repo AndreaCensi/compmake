@@ -1,4 +1,4 @@
-from typing import List, NewType, Set, TypedDict, Union
+from typing import NewType, TypedDict, Union
 
 __all__ = [
     "AbortResult",
@@ -15,23 +15,23 @@ CMJobID = NewType("CMJobID", str)
 
 class MakeResult(TypedDict):  # XXX
     user_object: object
-    user_object_deps: Set[CMJobID]
-    new_jobs: Set[CMJobID]
-    deleted_jobs: Set[CMJobID]
+    user_object_deps: set[CMJobID]
+    new_jobs: set[CMJobID]
+    deleted_jobs: set[CMJobID]
 
 
 class OKResult(TypedDict):
     job_id: CMJobID
-    new_jobs: List[CMJobID]
-    deleted_jobs: List[CMJobID]
-    user_object_deps: List[CMJobID]
+    new_jobs: list[CMJobID]
+    deleted_jobs: list[CMJobID]
+    user_object_deps: list[CMJobID]
 
 
 class FailResult(TypedDict):
     job_id: CMJobID
     fail: str
     # new_jobs: List[CMJobID]
-    deleted_jobs: List[CMJobID]
+    deleted_jobs: list[CMJobID]
     bt: str
     reason: str
 
@@ -53,7 +53,7 @@ class AbortResult(TypedDict):
 class InterruptedResult(TypedDict):
     job_id: CMJobID
     interrupt: str
-    deleted_jobs: List[CMJobID]
+    deleted_jobs: list[CMJobID]
 
 
 ResultDict = Union[OKResult, FailResult, BugResult, InterruptedResult, AbortResult]

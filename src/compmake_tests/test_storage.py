@@ -1,4 +1,4 @@
-from typing import cast, Iterator
+from typing import Iterator, cast
 
 from compmake import StorageKey
 from zuper_commons.test_utils import my_assert, my_assert_equal

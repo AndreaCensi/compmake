@@ -4,7 +4,7 @@ import sqlite3
 import stat
 import traceback
 from asyncio import CancelledError
-from typing import Iterator, List, NewType, Optional, TypeVar
+from typing import Iterator, NewType, Optional, TypeVar
 
 import dill
 
@@ -266,7 +266,7 @@ class StorageFilesystem:
         #     yield key
 
     @track_time
-    def keys(self) -> List[StorageKey]:
+    def keys(self) -> list[StorageKey]:
         # slow process
         found = sorted(list(self.keys0()))
         return found

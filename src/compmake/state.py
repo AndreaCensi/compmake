@@ -1,6 +1,6 @@
 import sys
 from collections import namedtuple
-from typing import Any, Awaitable, ClassVar, Dict, List, Optional, Protocol
+from typing import Any, Awaitable, ClassVar, Optional, Protocol
 
 from compmake_utils import AvgSystemStats
 from zuper_commons.types import ZValueError
@@ -31,9 +31,9 @@ class CompmakeGlobalState:
 
     class EventHandlers:
         # event name -> list of functions
-        handlers: Dict[str, List[EventHandlerInterface]] = {}
+        handlers: dict[str, list[EventHandlerInterface]] = {}
         # list of handler, called when there is no other specialized handler
-        fallback: List[EventHandlerInterface] = []
+        fallback: list[EventHandlerInterface] = []
 
     # TODO: make configurable
     system_stats = AvgSystemStats(interval=0.1, history_len=10)
@@ -41,12 +41,12 @@ class CompmakeGlobalState:
     # Configuration vlues
     compmake_config: ClassVar[dict[str, Any]] = {}
     # config name -> ConfigSwitch
-    config_switches: "Dict[str, ConfigSwitch]" = {}
+    config_switches: "dict[str, ConfigSwitch]" = {}
     # section name -> ConfigSection
-    config_sections: "Dict[str, ConfigSection]" = {}
+    config_sections: "dict[str, ConfigSection]" = {}
 
     # Cached list of options for completions in console
-    cached_completions: ClassVar[Optional[List[str]]] = None
+    cached_completions: ClassVar[Optional[list[str]]] = None
 
 
 def get_compmake_config0(key: str) -> Any:

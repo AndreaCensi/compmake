@@ -9,12 +9,9 @@ from typing import (
     Callable,
     Collection,
     Concatenate,
-    Dict,
     Iterator,
-    List,
     Optional,
     ParamSpec,
-    Set,
     TYPE_CHECKING,
     TypeVar,
     cast,
@@ -239,8 +236,8 @@ async def make(
     if ti is None:
         ti = new_timeinfo()
 
-    new_jobs: Set[CMJobID]
-    user_object_deps: Set[CMJobID]
+    new_jobs: set[CMJobID]
+    user_object_deps: set[CMJobID]
     user_object: object
 
     db = context.get_compmake_db()
@@ -270,7 +267,7 @@ async def make(
         job = get_job(job_id, db=db)
     with ti.timeit("reading cache"):
         cache = get_job_cache(job_id, db=db)
-    prev_defined_jobs: Optional[Set[CMJobID]]
+    prev_defined_jobs: Optional[set[CMJobID]]
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
         # print('%s had previously defined %s' % (job_id, prev_defined_jobs))
@@ -303,10 +300,10 @@ async def make(
     else:
         echo = False
 
-        def publish_stdout(lines: List[str]) -> None:
+        def publish_stdout(lines: list[str]) -> None:
             publish(context, "job-stdout", job_id=job_id, lines=lines)
 
-        def publish_stderr(lines: List[str]) -> None:
+        def publish_stderr(lines: list[str]) -> None:
             publish(context, "job-stderr", job_id=job_id, lines=lines)
 
         capture = OutputCapture(
@@ -348,7 +345,7 @@ async def make(
 
     logging.StreamHandler.emit = my_emit  # type: ignore
 
-    def get_deleted_jobs() -> Set[CMJobID]:
+    def get_deleted_jobs() -> set[CMJobID]:
         generated = set(context.get_jobs_defined_in_this_session()) - already
         # print('failure: rolling back %s' % generated)
 
@@ -438,7 +435,7 @@ async def make(
     int_save_results = IntervalTimer()
 
     # print('Now %s has defined %s' % (job_id, new_jobs))
-    deleted_jobs: Set[CMJobID]
+    deleted_jobs: set[CMJobID]
     if prev_defined_jobs is not None:
         # did we defined fewer jobs this time around?
         # then we need to delete them
@@ -614,7 +611,7 @@ async def clean_other_jobs(sti: SyncTaskInterface, context: Context) -> None:
     delete_jobs_recurse_definition(todelete, db)
 
 
-def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
+def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesystem) -> set[CMJobID]:
     """Deletes all jobs given and the jobs that they defined.
     Returns the set of jobs deleted."""
     jobs = set(jobs)
@@ -631,7 +628,7 @@ def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesys
 
 
 class WarningStorage:
-    warned: Set[Callable[..., Any]] = set()
+    warned: set[Callable[..., Any]] = set()
 
 
 P = ParamSpec("P")
@@ -806,9 +803,9 @@ def comp_(
     else:
         needs_context = False
 
-    extra_dep: Set[CMJobID]
+    extra_dep: set[CMJobID]
     if CompmakeConstants.extra_dep_key in kwargs:
-        extra_dep0 = cast(Set[CMJobID], kwargs[CompmakeConstants.extra_dep_key])
+        extra_dep0 = cast(set[CMJobID], kwargs[CompmakeConstants.extra_dep_key])
         del kwargs[CompmakeConstants.extra_dep_key]
 
         if not isinstance(extra_dep0, (list, Promise)):
@@ -1136,7 +1133,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             cq.invalidate()
 
 
-def get_defaults(signature: inspect.Signature) -> Dict[str, object]:
+def get_defaults(signature: inspect.Signature) -> dict[str, object]:
     defaults: dict[str, object] = {}
     for k, v in signature.parameters.items():
         if v.default != inspect.Parameter.empty:
@@ -1145,7 +1142,7 @@ def get_defaults(signature: inspect.Signature) -> Dict[str, object]:
     return defaults
 
 
-def get_args_without_defaults(signature: inspect.Signature) -> List[str]:
+def get_args_without_defaults(signature: inspect.Signature) -> list[str]:
     args_without_default: list[str] = []
     for k, v in signature.parameters.items():
         if v.default == inspect.Parameter.empty:

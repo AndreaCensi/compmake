@@ -1,5 +1,4 @@
-from .test_dynamic_1 import mockup_dynamic1, TestDynamic1
-
+from .test_dynamic_1 import TestDynamic1, mockup_dynamic1
 from .utils import Env, run_with_env
 
 

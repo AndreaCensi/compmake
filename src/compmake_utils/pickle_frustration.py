@@ -1,7 +1,7 @@
 import os
 import sys
 from contextlib import contextmanager
-from typing import cast, Iterator, TypedDict
+from typing import Iterator, TypedDict, cast
 
 
 class PickleContextDesc(TypedDict):

@@ -1,6 +1,6 @@
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict, namedtuple
 
-from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_command
+from compmake import COMMANDS_ADVANCED, Cache, CacheQueryDB, all_jobs, ui_command
 from zuper_utils_asyncio import SyncTaskInterface
 
 

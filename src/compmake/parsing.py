@@ -25,10 +25,10 @@
 
 import types
 from collections import namedtuple
-from typing import Any, cast, Iterator, Optional
+from typing import Any, Iterator, Optional, cast
 
 from zuper_commons.text import expand_wildcard
-from zuper_commons.types import check_isinstance, ZValueError
+from zuper_commons.types import ZValueError, check_isinstance
 from .cachequerydb import CacheQueryDB
 from .constants import AliasT, CompmakeConstants
 from .context import Context

@@ -4,10 +4,8 @@ from typing import (
     Callable,
     Collection,
     Concatenate,
-    List,
     Optional,
     ParamSpec,
-    Set,
     TYPE_CHECKING,
     TypeVar,
 )
@@ -37,7 +35,7 @@ class Context(ABC):
     def add_job_defined_in_this_session(self, job_id: CMJobID) -> None: ...
 
     @abstractmethod
-    def get_jobs_defined_in_this_session(self) -> Set[CMJobID]: ...
+    def get_jobs_defined_in_this_session(self) -> set[CMJobID]: ...
 
     @abstractmethod
     async def reset_jobs_defined_in_this_session(self, jobs: Collection[CMJobID]) -> None:
@@ -84,7 +82,7 @@ class Context(ABC):
     async def comp_store(self, x: object, job_id: Optional[str] = None) -> Promise: ...
 
     @abstractmethod
-    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: List[str]) -> None: ...
+    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: list[str]) -> None: ...
 
     @abstractmethod
     async def batch_command(self, sti: SyncTaskInterface, s: str) -> None: ...
@@ -96,7 +94,7 @@ class Context(ABC):
     ) -> None: ...
 
     @abstractmethod
-    def get_currently_executing(self) -> List[CMJobID]: ...
+    def get_currently_executing(self) -> list[CMJobID]: ...
 
     @abstractmethod
     def get_compmake_config(self, c: str) -> Any: ...

@@ -1,5 +1,5 @@
 import time
-from typing import Dict, List, Optional
+from typing import Optional
 
 __all__ = [
     "Event",
@@ -12,9 +12,9 @@ class EventSpec:
 
     name: str
     desc: Optional[str]
-    attrs: List[str]
+    attrs: list[str]
 
-    def __init__(self, name: str, attrs: Optional[List[str]] = None, desc: Optional[str] = None):
+    def __init__(self, name: str, attrs: Optional[list[str]] = None, desc: Optional[str] = None):
         if attrs is None:
             attrs = []
         self.name = name
@@ -26,7 +26,7 @@ class Event:
     """This, instead, is an event itself"""
 
     name: str
-    kwargs: Dict[str, object]
+    kwargs: dict[str, object]
     timestamp: float
 
     def __init__(self, name: str, **kwargs: object):

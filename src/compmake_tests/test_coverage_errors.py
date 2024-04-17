@@ -1,5 +1,5 @@
-from .test_dynamic_1 import mockup_dynamic1, TestDynamic1
-from .utils import assert_raises_async, Env, run_with_env
+from .test_dynamic_1 import TestDynamic1, mockup_dynamic1
+from .utils import Env, assert_raises_async, run_with_env
 
 
 @run_with_env

@@ -2,10 +2,10 @@ from typing import Any, cast
 
 from compmake import (
     Cache,
-    check_job_cache_state,
-    clean_other_jobs,
     CompmakeBug,
     Context,
+    check_job_cache_state,
+    clean_other_jobs,
     direct_children,
     get_job,
     jobs_defined,

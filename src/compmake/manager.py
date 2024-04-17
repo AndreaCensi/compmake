@@ -10,18 +10,18 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Collection, Dict, List, NoReturn, Set
+from typing import Any, Collection, NoReturn
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import duration_compact
-from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
+from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
 from .actions import mark_as_blocked, mark_as_failed
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
-from .exceptions import CompmakeBug, HostFailed, job_interrupted_exc, JobFailed, JobInterrupted
+from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
@@ -106,20 +106,20 @@ class Manager(ManagerLog):
     context: Context
     db: StorageFilesystem
 
-    targets: Set[CMJobID]
+    targets: set[CMJobID]
     """ top level targets"""
 
-    all_targets: Set[CMJobID]
-    deleted: Set[CMJobID]
-    todo: Set[CMJobID]
-    done: Set[CMJobID]
-    failed: Set[CMJobID]
-    blocked: Set[CMJobID]
-    ready_todo: Set[CMJobID]
-    processing: Set[CMJobID]
-    processing2result: Dict[CMJobID, ProcessingDetails]
-    priorities: Dict[CMJobID, float]
-    done_by_me: Set[CMJobID]
+    all_targets: set[CMJobID]
+    deleted: set[CMJobID]
+    todo: set[CMJobID]
+    done: set[CMJobID]
+    failed: set[CMJobID]
+    blocked: set[CMJobID]
+    ready_todo: set[CMJobID]
+    processing: set[CMJobID]
+    processing2result: dict[CMJobID, ProcessingDetails]
+    priorities: dict[CMJobID, float]
+    done_by_me: set[CMJobID]
 
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
         self.context = context
@@ -180,7 +180,7 @@ class Manager(ManagerLog):
         """Called after successful processing (before cleanup)"""
 
     @abstractmethod
-    def can_accept_job(self, reasons: Dict[str, str]) -> bool:
+    def can_accept_job(self, reasons: dict[str, str]) -> bool:
         """Return true if a new job can be accepted right away"""
 
     @abstractmethod
@@ -306,7 +306,7 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         n = 0
-        reasons: Dict[str, str] = {}
+        reasons: dict[str, str] = {}
         while True:
             if not self.ready_todo:
                 reasons["jobs"] = "no jobs ready"
@@ -551,7 +551,7 @@ class Manager(ManagerLog):
 
         if self.recurse:
             # print('adding targets %s' % new_jobs)
-            cocher: Set[CMJobID] = set()
+            cocher: set[CMJobID] = set()
             for j in new_jobs:
                 if j in self.all_targets:
                     # msg = ('Warning, job %r generated %r which was '
@@ -962,7 +962,7 @@ class Manager(ManagerLog):
     def check_invariants(self) -> None:
         if not CompmakeConstants.debug_check_invariants:
             return
-        lists: Dict[str, Set[CMJobID]] = dict(
+        lists: dict[str, set[CMJobID]] = dict(
             done=self.done,
             all_targets=self.all_targets,
             todo=self.todo,
@@ -985,8 +985,8 @@ class Manager(ManagerLog):
 
                 raise CompmakeBug(msg)
 
-        def partition(sets: List[str], result: str) -> None:
-            ss: Set[CMJobID] = set()
+        def partition(sets: list[str], result: str) -> None:
+            ss: set[CMJobID] = set()
             for s in sets:
                 ss.update(lists[s])
 
@@ -1029,7 +1029,7 @@ class Manager(ManagerLog):
                     raise CompmakeBug("job %r in blocked does not exist" % job_id)
 
 
-def check_job_cache_state(job_id: CMJobID, states: List[StateCode], db: StorageFilesystem) -> None:
+def check_job_cache_state(job_id: CMJobID, states: list[StateCode], db: StorageFilesystem) -> None:
     """Raises CompmakeBug if the job is not marked as done."""
     if not CompmakeConstants.extra_checks_job_states:  # XXX: extra check
         return
@@ -1140,7 +1140,7 @@ def check_job_cache_says_failed(job_id: CMJobID, db: StorageFilesystem, e: Any) 
 #             clean_other_jobs_distributed(db, g, [])
 
 
-def L(l: Collection[str]) -> List[str]:
+def L(l: Collection[str]) -> list[str]:
     maxn = 15
     l2 = list(l)
     if len(l2) < maxn:

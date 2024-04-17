@@ -1,10 +1,11 @@
 """ The actual interface of some commands in commands.py """
 
 from compmake import (
+    CMJobID,
     Cache,
     CacheQueryDB,
+    VISUALIZATION,
     children,
-    CMJobID,
     compmake_colored,
     get_job,
     get_job_args,
@@ -15,7 +16,6 @@ from compmake import (
     job_userobject_exists,
     job_userobject_sizeof,
     ui_command,
-    VISUALIZATION,
 )
 from zuper_commons.types import check_isinstance
 from .console_output import write_line_endl

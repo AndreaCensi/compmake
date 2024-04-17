@@ -2,7 +2,7 @@ import os
 import sys
 from contextlib import contextmanager
 from queue import Full
-from typing import cast, Iterator, Tuple
+from typing import Iterator, cast
 
 from compmake import (
     CMJobID,
@@ -13,13 +13,13 @@ from compmake import (
     JobFailed,
     JobInterrupted,
     JobProgressEvent,
-    make,
     MakeResult,
+    ResultDict,
+    make,
     publish,
     register_handler,
     remove_all_handlers,
     result_dict_check,
-    ResultDict,
 )
 from compmake_utils import setproctitle
 from zuper_commons import ZLogger
@@ -40,7 +40,7 @@ def sanitize_for_filename(x0: str) -> str:
     return x
 
 
-async def parmake_job2(sti: SyncTaskInterface, args: Tuple[CMJobID, DirPath, str, bool, DirPath]) -> ResultDict:
+async def parmake_job2(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath, str, bool, DirPath]) -> ResultDict:
     """
     args = tuple job_id, context, queue_name, show_events
 

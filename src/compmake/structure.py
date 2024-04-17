@@ -1,9 +1,9 @@
 from compmake_utils import interpret_strings_like
+from . import logger
 from .colored import compmake_colored
 from .context import Context
 from .exceptions import UserError
 from .state import CompmakeGlobalState, ConfigSection, ConfigSwitch, set_compmake_config0
-from . import logger
 
 __all__ = [
     "add_config_section",

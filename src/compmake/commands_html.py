@@ -1,6 +1,6 @@
 import sys
 
-from .helpers import COMMANDS_ADVANCED, ui_command, UIState
+from .helpers import COMMANDS_ADVANCED, UIState, ui_command
 
 __all__ = [
     "commands_html",

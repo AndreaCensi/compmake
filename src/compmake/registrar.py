@@ -1,6 +1,5 @@
-from typing import cast, TypeVar
+from typing import TypeVar, cast
 
-from .filesystem import StorageFilesystem
 from zuper_commons.fs import abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import wildcard_to_regexp
 from zuper_commons.types import ZException, ZValueError
@@ -8,6 +7,7 @@ from . import logger
 from .context import Context
 from .events_structures import Event
 from .exceptions import CompmakeException
+from .filesystem import StorageFilesystem
 from .registered_events import compmake_registered_events
 from .state import CompmakeGlobalState, EventHandlerInterface
 

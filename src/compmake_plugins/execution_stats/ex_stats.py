@@ -1,6 +1,6 @@
-from typing import cast, Optional, Union
+from typing import Optional, Union, cast
 
-from compmake import Cache, CMJobID, Context, get_job_cache, Promise
+from compmake import CMJobID, Cache, Context, Promise, get_job_cache
 
 __all__ = [
     "compmake_execution_stats",

@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict
 
 from .events_structures import Event, EventSpec
 from .types import CMJobID
 
-compmake_registered_events: Dict[str, EventSpec] = {}
+compmake_registered_events: dict[str, EventSpec] = {}
 
 __all__ = [
     "EVENT_MANAGER_PHASE",

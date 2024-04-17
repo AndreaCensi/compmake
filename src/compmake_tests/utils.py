@@ -1,26 +1,26 @@
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import AsyncIterator, Awaitable, Callable, cast, Optional, TypeVar
+from typing import AsyncIterator, Awaitable, Callable, Optional, TypeVar, cast
 from unittest import SkipTest
 
 from compmake import (
-    all_jobs,
-    CacheQueryDB,
     CMJobID,
+    CacheQueryDB,
     CommandFailed,
     ContextImp,
-    get_job,
     Job,
     MakeFailed,
+    StorageFilesystem,
+    all_jobs,
+    get_job,
     parse_job_list,
     read_rc_files,
-    StorageFilesystem,
 )
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import getcwd
 from zuper_commons.test_utils import my_assert_equal
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
-from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface, create_sync_task2
 from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
 

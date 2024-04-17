@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Collection, Iterator, List, Set, Tuple, Union
+from typing import Collection, Iterator, Union
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
@@ -54,7 +54,7 @@ class CacheQueryDB:
         return get_job(job_id, db=self.db)
 
     @memoized_reset
-    def all_jobs(self) -> List[CMJobID]:
+    def all_jobs(self) -> list[CMJobID]:
         # NOTE: very important, do not memoize iterator
         res = list(all_jobs(db=self.db))
         return res
@@ -64,11 +64,11 @@ class CacheQueryDB:
         return job_exists(job_id=job_id, db=self.db)
 
     @memoized_reset
-    def up_to_date(self, job_id: CMJobID) -> Tuple[bool, str, float]:
+    def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
-    def _up_to_date_actual(self, job_id: CMJobID) -> Tuple[bool, str, float]:
+    def _up_to_date_actual(self, job_id: CMJobID) -> tuple[bool, str, float]:
         with db_error_wrap("_up_to_date_actual()", job_id=job_id):
             cache = self.get_job_cache(job_id)  # OK
 
@@ -114,15 +114,15 @@ class CacheQueryDB:
             return True, "", cache.timestamp
 
     @memoized_reset
-    def direct_children(self, job_id: CMJobID) -> Set[CMJobID]:
+    def direct_children(self, job_id: CMJobID) -> set[CMJobID]:
         return direct_children(job_id, db=self.db)
 
     @memoized_reset
-    def direct_parents(self, job_id: CMJobID) -> Set[CMJobID]:
+    def direct_parents(self, job_id: CMJobID) -> set[CMJobID]:
         return direct_parents(job_id, db=self.db)
 
     @memoized_reset
-    def parents(self, job_id: CMJobID) -> Set[CMJobID]:
+    def parents(self, job_id: CMJobID) -> set[CMJobID]:
         t: set[CMJobID] = set()
         parents_jobs = self.direct_parents(job_id)
         for p in parents_jobs:
@@ -139,7 +139,7 @@ class CacheQueryDB:
                 return False
         return True
 
-    def tree(self, jobs: Collection[CMJobID]) -> List[CMJobID]:
+    def tree(self, jobs: Collection[CMJobID]) -> list[CMJobID]:
         """More efficient version of tree()
         which is direct_children() recursively."""
         stack: list[CMJobID] = []
@@ -158,7 +158,7 @@ class CacheQueryDB:
 
         return list(result)
 
-    def list_todo_targets(self, jobs: Collection[CMJobID]) -> Tuple[Set[CMJobID], Set[CMJobID], Set[CMJobID]]:
+    def list_todo_targets(self, jobs: Collection[CMJobID]) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
         """
         Returns a tuple (todo, jobs_done, ready):
          todo:  set of job ids to do (children that are not up to date)
@@ -215,7 +215,7 @@ class CacheQueryDB:
 
             return todo, done, todo_and_ready
 
-    def tree_children_and_uodeps(self, jobs: Union[CMJobID, Set[CMJobID]]):
+    def tree_children_and_uodeps(self, jobs: Union[CMJobID, set[CMJobID]]):
         """Closure of the relation children and dependencies of userobject."""
         stack: list[CMJobID] = []
         if isinstance(jobs, str):
@@ -223,7 +223,7 @@ class CacheQueryDB:
         else:
             stack.extend(jobs)
 
-        result: Set[CMJobID] = set()
+        result: set[CMJobID] = set()
 
         def descendants(a_job_id: CMJobID) -> set[CMJobID]:
             deps = collect_dependencies(get_job_userobject(a_job_id, self.db))
@@ -254,7 +254,7 @@ def db_error_wrap(what: str, **args: object) -> Iterator[None]:
         raise CompmakeDBError(what, **args) from e
 
 
-def definition_closure(jobs: Collection[CMJobID], db: StorageFilesystem) -> Set[CMJobID]:
+def definition_closure(jobs: Collection[CMJobID], db: StorageFilesystem) -> set[CMJobID]:
     """The result does not contain jobs (unless one job defines another)"""
     # print('definition_closure(%s)' % jobs)
     assert isinstance(jobs, (list, set))

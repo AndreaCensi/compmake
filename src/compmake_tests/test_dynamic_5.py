@@ -1,4 +1,4 @@
-from typing import cast, List
+from typing import cast
 
 from compmake import clean_other_jobs, definition_closure
 from compmake.types import CMJobID
@@ -49,8 +49,8 @@ async def test_dynamic5(env: Env) -> None:
 
     await env.assert_cmd_success("details hd-id")
     await env.assert_cmd_success("details hd-id-i2")
-    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
-    env.assert_equal_set(definition_closure(cast(List[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
+    env.assert_equal_set(definition_closure(cast(list[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
+    env.assert_equal_set(definition_closure(cast(list[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
     # now redo it
 
     async with environment(env.sti, env.rootd) as env2:

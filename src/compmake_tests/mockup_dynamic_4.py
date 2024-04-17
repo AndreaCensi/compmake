@@ -1,4 +1,4 @@
-from typing import Collection, List
+from typing import Collection
 
 from compmake import Context
 
@@ -7,7 +7,7 @@ def f(x: int) -> int:
     return x * 2
 
 
-def statistics(res: List[int]) -> int:
+def statistics(res: list[int]) -> int:
     return sum(res)
 
 

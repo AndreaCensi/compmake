@@ -3,11 +3,11 @@ import os
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import Any, Callable, cast, Collection, List, Optional, Set, TypeVar, Union
+from typing import Any, Callable, Collection, Optional, TypeVar, Union, cast
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
-from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
+from zuper_utils_asyncio import Splitter, SyncTask, SyncTaskInterface, async_errors
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -36,17 +36,17 @@ class UIMessage:
 
 
 class ContextImp(Context):
-    currently_executing: List[CMJobID]
+    currently_executing: list[CMJobID]
     objectid2job: dict[int, Promise]
     name: Optional[str]
-    _jobs_defined_in_this_session: Set[CMJobID]
-    _currently_executing: List[CMJobID]
+    _jobs_defined_in_this_session: set[CMJobID]
+    _currently_executing: list[CMJobID]
     generate_job_id_counters: dict[str, int]
 
     def __init__(
         self,
         db: "Optional[Union[str, StorageFilesystem]]" = None,
-        currently_executing: Optional[List[CMJobID]] = None,
+        currently_executing: Optional[list[CMJobID]] = None,
         name: Optional[str] = None,
     ):
         """
@@ -236,7 +236,7 @@ class ContextImp(Context):
                     await handler(context=self, event=event)
         # sti.logger.debug(f'broadcast: done gracefully (nevents = {a + 1})')
 
-    def get_currently_executing(self) -> List[CMJobID]:
+    def get_currently_executing(self) -> list[CMJobID]:
         return list(self.currently_executing)
 
     # This is used to make sure that the user doesn't define the same job
@@ -247,7 +247,7 @@ class ContextImp(Context):
     def add_job_defined_in_this_session(self, job_id: CMJobID) -> None:
         self._jobs_defined_in_this_session.add(job_id)
 
-    def get_jobs_defined_in_this_session(self) -> Set[CMJobID]:
+    def get_jobs_defined_in_this_session(self) -> set[CMJobID]:
         return set(self._jobs_defined_in_this_session)
 
     async def reset_jobs_defined_in_this_session(self, jobs: Collection[CMJobID]) -> None:

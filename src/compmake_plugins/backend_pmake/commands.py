@@ -2,10 +2,10 @@ from typing import Collection
 
 from compmake import (
     ACTIONS,
-    ask_if_sure_remake,
     CMJobID,
     Context,
     DefaultsToConfig,
+    ask_if_sure_remake,
     mark_to_remake,
     publish,
     raise_error_if_manager_failed,

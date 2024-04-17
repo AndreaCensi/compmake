@@ -62,9 +62,9 @@
 
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, NewType, Optional, Tuple, Union
+from typing import Any, Literal, NewType, Optional, Union
 
-from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
+from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
 from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
 from .types import CMJobID
@@ -285,9 +285,9 @@ class Cache:
 
     TIMESTAMP_TO_REMAKE = 0.0
 
-    allowed_states: List[StateCode] = [NOT_STARTED, FAILED, DONE, BLOCKED, PROCESSING]
+    allowed_states: list[StateCode] = [NOT_STARTED, FAILED, DONE, BLOCKED, PROCESSING]
 
-    state2desc: Dict[StateCode, str] = {
+    state2desc: dict[StateCode, str] = {
         NOT_STARTED: "todo",
         BLOCKED: "blocked",
         FAILED: "failed",
@@ -435,14 +435,14 @@ def timing_summary(cache: Cache) -> str:
 
 class ProgressStage:
     name: str
-    iterations: Tuple[Union[float, int], Union[float, int]]
+    iterations: tuple[Union[float, int], Union[float, int]]
     iteration_desc: Optional[str]
     last_broadcast: Optional[float]
 
     def __init__(
         self,
         name: str,
-        iterations: Tuple[Union[float, int], Union[float, int]],
+        iterations: tuple[Union[float, int], Union[float, int]],
         iteration_desc: Optional[str],
     ):
         self.name = name
