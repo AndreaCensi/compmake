@@ -803,13 +803,13 @@ class Manager(ManagerLog):
             self.sti.logger.user_error("on_sighup", pid=os.getpid(), me=self)
             self.interrupted = True
             if self.loop_task:
-                self.loop_task.cancel()
+                self.loop_task.cancel("sighup")
 
         def on_sigterm() -> None:
             self.sti.logger.user_error("on_sigterm", pid=os.getpid(), me=self)
             self.interrupted = True
             if self.loop_task:
-                self.loop_task.cancel()
+                self.loop_task.cancel("sigterm")
 
         loop = asyncio.get_event_loop()
 
