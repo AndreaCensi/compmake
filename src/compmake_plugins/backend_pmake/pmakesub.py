@@ -28,12 +28,12 @@ from zuper_commons.text import indent, joinlines
 from zuper_commons.types import TM
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
+    Global,
     SyncTaskInterface,
     get_report_splitters_text,
     get_report_splitters_text_referrers,
     running_tasks,
 )
-from zuper_utils_asyncio.sync_task_imp import Global
 from zuper_utils_timing import TimeInfo
 from zuper_zapp import async_run_simple1, setup_environment2
 from .parmake_job2_imp import parmake_job2

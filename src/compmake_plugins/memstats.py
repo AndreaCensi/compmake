@@ -2,8 +2,7 @@
 
 from compmake import CacheQueryDB, Context, VISUALIZATION, ui_command
 from zuper_commons.text import joinlines
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_utils_asyncio.splitter_utils import get_report_splitters_text
+from zuper_utils_asyncio import SyncTaskInterface, get_report_splitters_text
 
 __all__ = [
     "memstats",

@@ -64,10 +64,11 @@ jobs:
           mkdir -p build-stats/envs
           mkdir -p build-stats/jobs/${CIRCLE_JOB}
           mkdir -p build-stats/jobs/${CIRCLE_JOB}/envs
-          echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
-          echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
-          echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
-          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
+          echo -n "${Z_REQS_SHA:-not-present}"     > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
+          echo -n "${IMAGE_VCS_SHA:-not-present}"  > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
+          echo -n "${IMAGE_NAME:-not-present}"     > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"   > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
+          echo -n "${PYTHONOPTIMIZE:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/PYTHONOPTIMIZE
 
     - store_artifacts:
         path: build-stats
@@ -265,10 +266,11 @@ jobs:
           mkdir -p build-stats/envs
           mkdir -p build-stats/jobs/${CIRCLE_JOB}
           mkdir -p build-stats/jobs/${CIRCLE_JOB}/envs
-          echo -n "${Z_REQS_SHA:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
-          echo -n "${IMAGE_VCS_SHA:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
-          echo -n "${IMAGE_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
-          echo -n "${CONTEXT_NAME:-not-present}"    > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
+          echo -n "${Z_REQS_SHA:-not-present}"     > build-stats/jobs/${CIRCLE_JOB}/envs/Z_REQS_SHA
+          echo -n "${IMAGE_VCS_SHA:-not-present}"  > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_VCS_SHA
+          echo -n "${IMAGE_NAME:-not-present}"     > build-stats/jobs/${CIRCLE_JOB}/envs/IMAGE_NAME
+          echo -n "${CONTEXT_NAME:-not-present}"   > build-stats/jobs/${CIRCLE_JOB}/envs/CONTEXT_NAME
+          echo -n "${PYTHONOPTIMIZE:-not-present}" > build-stats/jobs/${CIRCLE_JOB}/envs/PYTHONOPTIMIZE
 
     - store_artifacts:
         path: build-stats
@@ -422,4 +424,4 @@ jobs:
           timeout 1m ./codecov || true
     resource_class: andreacensi/r2
 
-# sigil 23aa8944e8991fe2df80d911693d0214
+# sigil 9a0c38213d0b844d2647891181145176

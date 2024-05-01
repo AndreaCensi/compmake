@@ -15,7 +15,7 @@ from zuper_commons.fs import (
     write_ustring_to_utf8_file,
 )
 from zuper_commons.types import contextmanager
-from zuper_utils_timing.timing import new_timeinfo
+from zuper_utils_timing import new_timeinfo
 from . import logger
 from .exceptions import SerializationError
 

@@ -20,8 +20,7 @@ from typing import (
 from compmake_utils import OutputCapture, interpret_strings_like, setproctitle, try_pickling
 from zuper_commons.types import ZAssertionError, ZValueError, check_isinstance, describe_type
 from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling
-from zuper_utils_timing import TimeInfo
-from zuper_utils_timing.timing import new_timeinfo
+from zuper_utils_timing import TimeInfo, new_timeinfo
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
