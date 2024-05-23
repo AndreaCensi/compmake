@@ -58,18 +58,30 @@ async def job_failed(context: Context, event: Event):
     reason = event.kwargs["reason"]
     bt = event.kwargs["bt"]
 
-    msg = f"Job {job_id!r} failed:"
     # s = reason.strip
+    content = ""
     if context.get_compmake_config("echo"):
-        msg += "\n" + bt
-    msg += "\n" + indent(reason.strip(), "| ")
+        content += bt
+
+    if reason not in bt:
+        content += indent(reason.strip(), "| ")
+
+    lines = content.splitlines()
+    MAX_LINES = 1000
+    if len(lines) > MAX_LINES * 2:
+        nskipped = len(lines) - 2 * MAX_LINES
+        lines = lines[:MAX_LINES] + [f"...\n {nskipped} lines\n...\n"] + lines[-MAX_LINES:]
+        content = "\n".join(lines)
+
+    msg = f"Job {job_id!r} failed:\n"
+    msg += content
+    msg += f'\nWrite "details {job_id}" to inspect the error.'
 
     # if get_compmake_config("echo"):
     #     s = bt.strip()
     #     msg += "\n" + indent(s, "> ")
     # else:
     #     msg += '\nUse "config echo 1" to have errors displayed.'
-    msg += f'\nWrite "details {job_id}" to inspect the error.'
     await ui_error(context, my_prefix + msg)
 
 

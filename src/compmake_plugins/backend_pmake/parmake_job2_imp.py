@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 from contextlib import contextmanager
 from queue import Full
 from typing import Iterator, cast
@@ -55,8 +56,15 @@ async def parmake_job2(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath, str
     ti: TimeInfo
     sanitized = sanitize_for_filename(job_id)
     mkdirs_thread_safe(logdir)
-    stdout_fn = join(logdir, f"{sanitized}.stdout.log")
-    stderr_fn = join(logdir, f"{sanitized}.stderr.log")
+    sanitized = sanitized.replace("-", "/")
+
+    mkdirs_thread_safe(join(logdir, sanitized))
+    stdout_fn = join(logdir, f"{sanitized}/stdout.txt")
+    if os.path.exists(stdout_fn):
+        os.remove(stdout_fn)
+    stderr_fn = join(logdir, f"{sanitized}/stderr.txt")
+    if os.path.exists(stderr_fn):
+        os.remove(stderr_fn)
 
     DEBUG_LOG = CompmakeConstants.debug_parmake_log
     if DEBUG_LOG:
@@ -182,18 +190,25 @@ def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
         resolution = "peaceful"
     except:
         resolution = "exception"
+        try:
+            s = traceback.format_exc()
+        except:
+            s = "Could not print traceback."
+        sys.stderr.write(s)
         raise
     finally:
-        new_stderr.write(f"Closing stderr ({resolution=}).\n")
-        new_stdout.write(f"Closing stdout ({resolution=}).\n")
+        # new_stderr.write(f"Closing stderr ({resolution=}).\n")
+        # new_stdout.write(f"Closing stdout ({resolution=}).\n")
         sys.stdout = old_stdout
         sys.stderr = old_stderr
         new_stdout.flush()
         new_stdout.close()
+
         new_stderr.flush()
         new_stderr.close()
-        sys.stdout.write(f"Recovering from {stdout_fn}.\n")
-        sys.stderr.write(f"Recovering from {stderr_fn}.\n")
+
+        # sys.stdout.write(f"Recovering from {stdout_fn}.\n")
+        # sys.stderr.write(f"Recovering from {stderr_fn}.\n")
 
         # delete the files if they are empty
         try:
