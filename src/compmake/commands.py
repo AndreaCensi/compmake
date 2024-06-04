@@ -94,7 +94,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
 async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
     """Makes a single job -- not for users, but for slave mode."""
-    print("amke_single", job_list, out_result)
+    # print("make_single", job_list, out_result)
 
     if len(job_list) > 1:
         raise UserError("I want only one job")

@@ -11,15 +11,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Collection, NoReturn
+from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
-from zuper_commons.ui import duration_compact
+from zuper_commons.ui import color_red, duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
-from .actions import mark_as_blocked, mark_as_failed
+from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
-from .constants import CompmakeConstants
+from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
 from .context import Context
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
 from .filesystem import StorageFilesystem
@@ -72,16 +73,21 @@ class AsyncResultInterface(ABC):
         - raises TimeoutError (not ready)
         """
 
+    @abstractmethod
+    async def get_memory_usage(self, max_delay: float) -> int: ...
+
 
 class ManagerLog:
     def __init__(self, *, storage: AbsDirPath):
         # storage = abspath(db.basepath)
-        logdir = joind(storage, "logs")
+        uuid = str(uuid4())
+        logdir = joind(storage, f"logs/manager-{uuid}")
         if os.path.exists(logdir):
             shutil.rmtree(logdir)
+        self.logdir = logdir
         log = joinf(logdir, "manager.log")
         # log = 'manager-%s.log' % sys.version
-        print("logging to %s" % log)
+        # print("logging to %s" % log)
         make_sure_dir_exists(log)
         self.f = open(log, "w")
 
@@ -126,6 +132,7 @@ class Manager(ManagerLog):
         self.sti = sti
 
         self.db = context.get_compmake_db()
+
         ManagerLog.__init__(self, storage=abspath(self.db.basepath))
 
         self.recurse = recurse
@@ -173,7 +180,7 @@ class Manager(ManagerLog):
         self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
 
     # ## Derived class interface
-    def process_init(self) -> None:
+    async def process_init(self) -> None:
         """Called before processing"""
 
     def process_finished(self) -> None:
@@ -394,19 +401,37 @@ class Manager(ManagerLog):
         async_result = proc_details.interface
 
         job_timeout = self.context.get_compmake_config("job_timeout")
+        GRACE_PERIOD = 0
         if job_timeout is not None:
             time_passed = time.time() - proc_details.started
-            if time_passed > job_timeout:
+            if time_passed > job_timeout + GRACE_PERIOD:
                 s = f"Timed out (> {job_timeout:.1f} s)"
                 msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
                 await self.context.write_message_console(msg)
 
-                mark_as_failed(job_id, self.context.get_compmake_db(), s, backtrace="")
+                await self.cancel_job(job_id, CANCEL_REASON_TIMEOUT)
+
+                mark_as_timed_out(job_id, self.context.get_compmake_db(), time_passed, s, backtrace="")
                 self.job_failed(job_id, deleted_jobs=())
 
-                await self.cancel_job(job_id)
-                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason="time out", bt="")
+                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_TIMEOUT, bt=s)
                 return True
+
+        max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+        max_job_mem = max_job_mem_GB * 1024**3
+        cur_mem = await async_result.get_memory_usage(max_delay=3.0)
+        if cur_mem > max_job_mem:
+            s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
+            msg = f"Job {job_id}: {s}"
+            await self.context.write_message_console(msg)
+
+            await self.cancel_job(job_id, CANCEL_REASON_OOM)
+
+            mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
+            self.job_failed(job_id, deleted_jobs=())
+
+            publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_OOM, bt=s)
+            return True
 
         try:
             if not assume_ready:
@@ -582,7 +607,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    async def cancel_job(self, job_id: CMJobID) -> None:
+    async def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
         pass
 
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
@@ -693,26 +718,34 @@ class Manager(ManagerLog):
         Returns False if something finished unsuccesfully.
         """
 
-        threshold = 1
-        if self.once_in_a_while_show_procs.now():
-            lines = []
-            for job_id, x in self.processing2result.items():
-                dt = time.time() - x.started
-                if dt < threshold:
-                    continue
-                s = duration_compact(time.time() - x.started)
-                lines.append(f"{s:12} {job_id}")
+        timeout_s = self.context.get_compmake_config("job_timeout")
 
-            if lines:
-                msg = f"Jobs running for more than {threshold} seconds:\n"
-                msg += "".join(f"- {l}\n" for l in lines)
+        if False:
 
-                await self.context.write_message_console(msg)
-                # self.sti.logger.debug(
-                #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
-                #     ,
-                # )
-            self.show_other_stats()
+            threshold = 5
+            if self.once_in_a_while_show_procs.now():
+                lines = []
+                for job_id, x in self.processing2result.items():
+                    dt = time.time() - x.started
+                    if dt < threshold:
+                        continue
+                    if timeout_s is not None and dt > timeout_s:
+                        warn = color_red(" TOO LONG ")
+                    else:
+                        warn = ""
+                    s = duration_compact(time.time() - x.started)
+                    lines.append(f"{s:12} {job_id} {warn}")
+
+                if lines:
+                    msg = f"Jobs running for more than {threshold} seconds:\n"
+                    msg += "".join(f"- {l}\n" for l in lines)
+
+                    await self.context.write_message_console(msg)
+                    # self.sti.logger.debug(
+                    #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
+                    #     ,
+                    # )
+                self.show_other_stats()
 
         # We make a copy because processing is updated during the loop
         result = False
@@ -833,7 +866,7 @@ class Manager(ManagerLog):
             return True
 
         publish(self.context, "manager-phase", phase="init")
-        self.process_init()
+        await self.process_init()
 
         publish(self.context, "manager-phase", phase="loop")
 

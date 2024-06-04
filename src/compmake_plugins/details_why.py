@@ -23,11 +23,13 @@ async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], c
         counter[r.first_line].append(r)
 
     def sorting_key(x: str):
+
         isnotimplemented = 0 if "implemented" in x.lower() else 1
         isskipped = 0 if "SkipTest" in x else 1
-        istimedout = 0 if "ZTimeoutError" in x else 1
+        istimedout = 0 if "Timed out" in x else 1
+        isoom = 0 if "Out of memory" in x else 1
         number_of_jobs = len(counter[x])
-        return (isskipped, isnotimplemented, istimedout, number_of_jobs, x)
+        return (istimedout, isoom, isskipped, isnotimplemented, number_of_jobs, x)
 
         # lambda x: (len(x[1]), x[0]))
         # return r.first_line
@@ -112,11 +114,28 @@ def details_why_one(job_id, context, cq: CacheQueryDB) -> Optional[DetailWhyOne]
             whys = cache.exception
             whys = whys.strip()
             lines = whys.splitlines()
-            one = lines[0]
-            if len(lines) > 1:
-                rest = " [+%d lines] " % (len(lines) - 1)
+            if lines:
+                one = lines[0]
+                if len(lines) > 1:
+                    rest = " [+%d lines] " % (len(lines) - 1)
+                else:
+                    rest = ""
             else:
+                one = ""
                 rest = ""
+            # if not one and cache.timed_out:
+            #     one = 'Timed out'
+            # if not rest and cache.timed_out:
+            #     rest = 'Timed out'
+
+            if cache.is_oom():
+                one = "Out of memory"
+                rest = ""
+                whys = one
+            if cache.is_timed_out():
+                one = "Timed out"
+                rest = ""
+                whys = one
 
             return DetailWhyOne(job_id=job_id, status=status, first_line=one, more=rest, complete=whys)
 

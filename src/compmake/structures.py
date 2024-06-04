@@ -67,6 +67,8 @@ from typing import Any, Literal, NewType, Optional, Union
 from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
 from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
+from zuper_utils_timing import TimeInfo
+from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
 from .types import CMJobID
 
 __all__ = [
@@ -99,6 +101,9 @@ class Job:
     # This field is updated later
 
     needs_context: bool
+    is_async: bool
+    needs_sti: bool  # (sti,
+    needs_ti: bool  # kwargs ti=TimeingInfo
     defined_by: list[CMJobID]
     dynamic_children: dict[CMJobID, set[CMJobID]]
     pickle_main_context: PickleContextDesc
@@ -109,8 +114,11 @@ def make_job(
     job_id: CMJobID,
     children: set[CMJobID],
     command_desc: str,
-    needs_context: bool = False,
-    defined_by: list[CMJobID] = None,
+    needs_context: bool,
+    defined_by: list[CMJobID],
+    is_async: bool,
+    needs_sti: bool,
+    needs_ti: bool,
 ):
     """
 
@@ -133,14 +141,17 @@ def make_job(
     pickle_main_context = pickle_main_context_save()
 
     return Job(
-        job_id,
-        children,
-        parents,
-        needs_context,
-        defined_by,
-        dynamic_children,
-        pickle_main_context,
-        command_desc,
+        job_id=job_id,
+        children=children,
+        parents=parents,
+        needs_context=needs_context,
+        defined_by=defined_by,
+        dynamic_children=dynamic_children,
+        pickle_main_context=pickle_main_context,
+        command_desc=command_desc,
+        is_async=is_async,
+        needs_sti=needs_sti,
+        needs_ti=needs_ti,
     )
 
 
@@ -280,6 +291,28 @@ class Cache:
     NOT_STARTED = StateCode(0)
     PROCESSING = StateCode(1)
     FAILED = StateCode(3)
+
+    # XXX: these are just notes
+    _FAILED_OUTCOMES = {
+        "failed:not-run",  # could not even run the code
+        "failed:not-run:unpickling",  # could not run because we could not unpickle
+        "failed:not-run:unpickling:code",  # could not unpickle the code (fault of the user)
+        "failed:not-run:unpickling:deps",  # could not unpickle the dependencies (fault of the other dependencies)
+        "failed:interrupted",  # started running but was interrupted
+        "failed:interrupted:oom",  # ... because of out of memory
+        "failed:interrupted:timeout",  # ... because of timeout
+        "failed:interrupted:user",  # ... because of user request (CTRL-C)
+        "failed:interrupted:os:killed",  # ... killed by the OS
+        "failed:exception",  # the code raised an exception
+        "failed:exception:EXC_NAME:EXC_NAME:...",  # a code exception
+        # 'failed:exception:skipped-test', # raised SkipTest
+        "failed:after-run",
+        "failed:after-run:pickling",
+        "failed:after-run:pickling:code",
+        "failed:after-run:pickling:out-of-space",
+        # 'failed:after-run:pickling:result',  # could not pickle the result
+    }
+
     BLOCKED = StateCode(5)
     DONE = StateCode(4)
 
@@ -313,6 +346,9 @@ class Cache:
         BLOCKED: {"color": "brown"},
         FAILED: {"color": "red"},
         DONE: {"color": "green"},
+        CANCEL_REASON_OOM: {"color": "brown"},
+        CANCEL_REASON_TIMEOUT: {"color": "brown"},
+        "exception": {"color": "orange"},
     }
 
     styles = {
@@ -356,6 +392,10 @@ class Cache:
 
     result_type_qual: Optional[str]
 
+    timed_out: Optional[float]
+
+    ti: Optional[TimeInfo]
+
     """ name of result type """
     host: Optional[str]
 
@@ -381,10 +421,10 @@ class Cache:
         # total
         self.cputime_used = None
         self.walltime_used = None
-
+        self.timed_out = None
+        self.oom_bytes = None
         # phases
         # make = load + compute + save
-
         self.int_make = None
         self.int_load_results = None
         self.int_compute = None
@@ -392,6 +432,13 @@ class Cache:
         self.int_gc = None
         self.result_type_qual = None
         self.host = None
+        self.ti = None
+
+    def is_timed_out(self) -> Optional[float]:
+        return getattr(self, "timed_out", None)  # XXX: TMP:
+
+    def is_oom(self) -> Optional[int]:
+        return getattr(self, "oom_bytes", None)  # XXX: TMP:
 
     def __repr__(self):
         return "Cache(%s;%s;cpu:%s;wall:%s)" % (
@@ -400,6 +447,16 @@ class Cache:
             self.cputime_used,
             self.walltime_used,
         )
+
+    def get_overhead(self) -> float:
+        if self.int_make is None:
+            return 0.0
+        else:
+            return (
+                self.int_load_results.get_walltime_used()
+                + self.int_save_results.get_walltime_used()
+                + self.int_gc.get_walltime_used()
+            )
 
 
 def cache_has_large_overhead(cache: Cache) -> bool:

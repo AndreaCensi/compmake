@@ -4,7 +4,7 @@ __all__ = [
 ]
 
 import warnings
-from typing import ClassVar, Collection, Iterator, Protocol, TYPE_CHECKING
+from typing import ClassVar, Collection, Iterator, Literal, Protocol, TYPE_CHECKING, cast
 
 from .types import CMJobID
 
@@ -18,6 +18,13 @@ class JobIterator(Protocol):
 
 
 AliasT = str | JobIterator
+
+CANCEL_REASONS = Literal["user", "timedout", "oom"]
+
+CANCEL_REASON_USER = cast(CANCEL_REASONS, "user")
+CANCEL_REASON_TIMEOUT = cast(CANCEL_REASONS, "timedout")
+CANCEL_REASON_OOM = cast(CANCEL_REASONS, "oom")
+CANCEL_REASON_HOST_FAILED = cast(CANCEL_REASONS, "host-failed")
 
 
 class CompmakeConstants:

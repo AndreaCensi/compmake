@@ -42,7 +42,12 @@ def compute_priority(job_id: CMJobID, priorities: dict[CMJobID, float], targets:
     cache = cq.get_job_cache(job_id)
     # do not redo failed jobs
     if cache.state == Cache.FAILED:
-        return 0.0
+        if cache.is_timed_out():
+            return 0.05
+        if cache.is_oom():
+            return 0.0
+        else:
+            return 0.1
 
     # Dynamic jobs get bonus
     job = cq.get_job(job_id)

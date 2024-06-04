@@ -19,6 +19,10 @@ class MakeResult(TypedDict):  # XXX
     new_jobs: set[CMJobID]
     deleted_jobs: set[CMJobID]
 
+    time_total: float
+    time_comp: float
+    time_other: float
+
 
 class OKResult(TypedDict):
     job_id: CMJobID

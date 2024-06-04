@@ -62,9 +62,6 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     print(bold("Defined by:") + f"{job.defined_by}")
     # logger.info(job=job.__dict__)
     print(bold("needs_context:") + f"{job.needs_context}")
-    job_args = get_job_args(job_id, db=db)
-    command, args, kwargs = job_args
-    print(bold("command:") + f"{command}")
 
     dchildren = cq.direct_children(job_id)
     print(bold("Dependencies: (direct)") + f" ({len(dchildren)}) " + format_list(dchildren))
@@ -99,6 +96,9 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
 
             if not job_userobject_exists(job_id, db):
                 print(red("inconsistent DB: user object does not exist."))
+
+            if cache2.ti is not None:
+                print(cache2.ti.pretty(show_wall=True, show_thread=True))
     else:
         print(bold("Status:") + "%s" % Cache.state2desc[Cache.NOT_STARTED])
         cache2 = None
@@ -150,3 +150,10 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         if cache2.state == Cache.FAILED:
             display_with_prefix(cache2.exception, prefix="exc |")
             display_with_prefix(cache2.backtrace, prefix="btr |")
+
+    if True:
+        job_args = get_job_args(job_id, db=db)
+        command, args, kwargs = job_args
+        print(bold("command:") + f"{command}")
+        print(bold("args:") + f"{args}")
+        print(bold("kwargs:") + f"{kwargs}")

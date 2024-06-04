@@ -1,6 +1,8 @@
+import asyncio
 import gc
 import multiprocessing
 import os
+import platform
 import random
 import time
 from multiprocessing import Queue
@@ -8,7 +10,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, ClassVar, Collection, NewType, cast
+from typing import Any, Callable, ClassVar, Collection, NewType, cast
 
 import psutil
 from psutil import NoSuchProcess
@@ -22,10 +24,13 @@ from compmake import (
     Manager,
     publish,
 )
+from compmake.constants import CANCEL_REASONS, CANCEL_REASON_HOST_FAILED
 from compmake_utils import get_memory_usage
-from zuper_commons.fs import join, joind, joinf, make_sure_dir_exists
-from zuper_commons.types import check_isinstance
-from zuper_utils_asyncio import SyncTaskInterface
+from zuper_commons.fs import join, joinf, make_sure_dir_exists
+from zuper_commons.text import format_rows_as_table
+from zuper_commons.types import ZAssertionError, check_isinstance
+from zuper_commons.ui import color_gray, color_orange, color_red, duration_compact, size_compact
+from zuper_utils_asyncio import SyncTaskInterface, async_errors
 from . import logger
 from .pmakesub import PmakeSub, PossibleFuncs
 
@@ -87,7 +92,7 @@ class PmakeManager(Manager):
     ctx: BaseContext
     _nsubs_created: int = 0
 
-    def process_init(self) -> None:
+    async def process_init(self) -> None:
         # https://stackoverflow.com/questions/30669659/multiproccesing-and-error-the-process-has-forked-and
         # -you-cannot-use-this-corefou
         # https://github.com/rq/django-rq/issues/375
@@ -97,6 +102,8 @@ class PmakeManager(Manager):
         # else:
         #     use = 'fork'
         use = self.context.get_compmake_config("multiprocessing_strategy")
+        if use == "fork" and platform.system() in ["Darwin", "Windows"]:
+            logger.warning(f"Using 'fork' on {platform.system()} is unsafe")
         self.ctx = multiprocessing.get_context(use)
 
         self.event_queue = self.ctx.Queue(1000)
@@ -121,13 +128,125 @@ class PmakeManager(Manager):
         # detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
         for i in range(self.num_processes):
-            self.create_new_sub()
+            self.create_new_sub(self.event_queue)
 
         self.job2subname = {}
         # all are available
         # self.sub_available.update(self.subs)
 
         self.max_num_processing = self.num_processes
+
+        # self.task_memory_usage = asyncio.create_task(self.check_memory_usage())
+        self.task_proc_status = asyncio.create_task(self.show_processing_status())
+
+    # @async_errors
+    # async def check_memory_usage(self, interval: float = 2) -> None:
+    #
+    #     try:
+    #         while True:
+    #
+    #             try:
+    #                 await self._check_one_cycle()
+    #             except Exception as e:
+    #                 logger.error("Error in check_memory_usage", traceback.format_exc())
+    #
+    #             await asyncio.sleep(interval)
+    #     except:
+    #         logger.error("Error in check_memory_usage")
+    #         raise
+    #
+    # async def _check_one_cycle(self):
+    #     max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+    #     max_job_mem = max_job_mem_GB * 1024 ** 3
+    #
+    #     nalives = 0
+    #     ndead = 0
+    #
+    #     for name, sub in list(self.subs.items()):
+    #         if not sub.is_alive():
+    #             ndead += 1
+    #             continue
+    #         else:
+    #             nalives += 1
+    #
+    #         current, peak = sub.get_mem_usage()
+    #
+    #         if current > max_job_mem:
+    #             msg = f"Memory used {size_compact(current)} > {size_compact(max_job_mem)} (peak {size_compact(peak)})"
+    #             await self.context.write_message_console(msg)
+    #
+    #             if sub.last is not None:
+    #                 await self.cancel_job(sub.last.job_id, CANCEL_REASON_OOM)
+    #
+    #             # await self._cancel_and_replace_sub(name)
+    #
+    #     # await self.context.write_message_console(f'ok {ndead=} {nalives=}')
+
+    @async_errors
+    async def show_processing_status(self, interval: float = 5) -> None:
+        max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+        max_job_mem = max_job_mem_GB * 1024**3
+        job_timeout = self.context.get_compmake_config("job_timeout")
+
+        def format_with_limit(value: int, limit: int, f: Callable[[int], str]) -> str:
+            s = f(value)
+            if value > limit:
+                return color_red(s)
+            if value > 0.75 * limit:
+                return color_orange(s)
+            return s
+
+        while True:
+
+            lines = []
+
+            header = ("sub", "alive", "n", "proc", "dt", "peak", "cur", "cpu", "job")
+            header = tuple(color_gray(_) for _ in header)
+            lines.append(header)
+            for subname, sub in list(self.subs.items()):
+                processing = "proc" if subname in self.sub_processing else "idle"
+                alive = "alive" if sub.is_alive() else "dead"
+
+                cpu = sub.get_cpu_usage(1)
+
+                peak_mem_, cur_mem_ = sub.get_mem_usage(max_delay=1)
+                peak_mem = format_with_limit(peak_mem_, max_job_mem, size_compact)
+                cur_mem = format_with_limit(cur_mem_, max_job_mem, size_compact)
+                if peak_mem_ == cur_mem_:
+                    peak_mem = ""
+
+                if sub.last is not None:
+                    job_processing = sub.last.job_id
+
+                    if sub.last.result is not None:
+                        duration = ""
+                        job_processing = ""
+                    else:
+                        dt = time.time() - sub.last.started
+
+                        duration = format_with_limit(dt, job_timeout, duration_compact)
+
+                else:
+                    job_processing = ""
+                    duration = ""
+
+                line = (
+                    subname,
+                    alive,
+                    sub.nstarted,
+                    processing,
+                    duration,
+                    peak_mem,
+                    cur_mem,
+                    cpu,
+                    job_processing,
+                )
+                lines.append(line)
+
+            table = format_rows_as_table(lines, style="lefts")
+            await self.context.write_message_console(table)
+
+            await asyncio.sleep(interval)
 
     def show_other_stats(self) -> None:
         logger.info(
@@ -138,9 +257,9 @@ class PmakeManager(Manager):
             job2subname=self.job2subname,
         )
 
-    def create_new_sub(self) -> SubName:
+    def create_new_sub(self, event_queue: "Queue[Any]") -> SubName:
         name = self.get_new_sub_name()
-        self._create_sub(name)
+        self._create_sub(name, event_queue)
         self.sub_available.add(name)
 
         return name
@@ -151,24 +270,22 @@ class PmakeManager(Manager):
         self._nsubs_created += 1
         return name
 
-    def _create_sub(self, name: SubName) -> PmakeSub:
+    def _create_sub(self, name: SubName, event_queue: "Queue[Any]") -> PmakeSub:
         detailed_python_mem_stats = self.context.get_compmake_config("detailed_python_mem_stats")
 
-        db = self.context.get_compmake_db()
-        storage = db.basepath  # XXX:
-        logs = joind(storage, "logs")
-
-        write_log = joinf(logs, f"{name}.log")
+        write_log = joinf(self.logdir, f"{name}.log")
         make_sure_dir_exists(write_log)
-        logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
+        # logger.info(f"Starting parmake sub {name} with writelog at {write_log}")
         signal_token = name
         p = PmakeSub(
             name=name,
+            event_queue=event_queue,
             signal_queue=None,
             signal_token=signal_token,
             write_log=write_log,
             ctx=self.ctx,
             detailed_python_mem_stats=detailed_python_mem_stats,
+            job_timeout=None,
         )
         self.subs[name] = p
         return p
@@ -176,11 +293,11 @@ class PmakeManager(Manager):
     def get_resources_status(self) -> dict[str, tuple[bool, str]]:
         resource_available: dict[str, tuple[bool, str]] = {}
 
-        assert len(self.sub_processing) == len(self.processing)
+        # assert len(self.sub_processing) == len(self.processing)
 
         if not self.sub_available:
-            all_subs = ", ".join(self.subs.keys())
-            procs = ", ".join(self.sub_processing)
+            # all_subs = ", ".join(self.subs.keys())
+            # procs = ", ".join(self.sub_processing)
 
             msg = f"already {len(self.sub_processing)} processing (max {self.max_num_processing})"
 
@@ -241,7 +358,7 @@ class PmakeManager(Manager):
             sub = self.subs[name]
             if not sub.is_alive():
                 # msg = f"Sub {name} is not alive."
-                await self._cancel_and_replace_sub(name)
+                await self._cancel_and_replace_sub(name, "unknown")
                 continue
 
             self.sub_available.remove(name)
@@ -272,15 +389,16 @@ class PmakeManager(Manager):
             args = (job_id, db.basepath)
         else:
             f = "parmake_job2"
-            logdir = join(db.basepath, "parmake_job2_logs")
+            logdir = join(db.basepath, f"parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
-    async def cancel_job(self, job_id: CMJobID) -> None:
-        await Manager.cancel_job(self, job_id)
+    async def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
+        await Manager.cancel_job(self, job_id, cancel_reason)
         if job_id not in self.job2subname:
+            raise ZAssertionError(f"Job {job_id} not in job2subname", job2subname=self.job2subname)
             logger.warning(f"Job {job_id} not in job2subname")
             return
         subname = self.job2subname[job_id]
@@ -289,22 +407,26 @@ class PmakeManager(Manager):
         assert last is not None
 
         res: FailResult = {
-            "fail": f"Job canceled",
+            "fail": f"Job canceled ({cancel_reason})",
             "deleted_jobs": [],
             "job_id": job_id,
-            "reason": f"Job canceled",
+            "reason": cancel_reason,
             "bt": "",
         }
         last.result = res
 
-        msg = f"Aborting job {job_id} on sub {subname}"
+        msg = f"Aborting job {job_id} on sub {subname} ({cancel_reason})"
         await self.context.write_message_console(msg)
-        await self._cancel_and_replace_sub(subname)
+        await self._cancel_and_replace_sub(subname, cancel_reason)
 
     # noinspection PyBroadException
-    async def _cancel_and_replace_sub(self, subname: SubName) -> SubName:
+    async def _cancel_and_replace_sub(self, subname: SubName, cancel_reason: CANCEL_REASONS) -> SubName:
+
         sub = self.subs[subname]
+        # if sub.is_alive():
+
         sub.killed_by_me = True
+        sub.killed_reason = cancel_reason
 
         try:
             sub.terminate()
@@ -325,7 +447,7 @@ class PmakeManager(Manager):
         # msg = f"Creating new sub."
         # await self.context.write_message_console(msg)
 
-        name = self.create_new_sub()
+        name = self.create_new_sub(event_queue=self.event_queue)
         msg = f"Created new sub {name}."
         await self.context.write_message_console(msg)
         return name
@@ -424,7 +546,7 @@ class PmakeManager(Manager):
         #
         # # put in sub_aborted
         # self.sub_aborted.add(name)
-        await self._cancel_and_replace_sub(name)
+        await self._cancel_and_replace_sub(name, CANCEL_REASON_HOST_FAILED)
 
     def cleanup(self) -> None:
         self.process_finished()

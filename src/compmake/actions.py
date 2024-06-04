@@ -1,9 +1,11 @@
 import inspect
 import logging
+import sys
+import time
 import traceback
 from asyncio import CancelledError
+from contextlib import contextmanager
 from logging import Formatter
-from time import time
 from typing import (
     Any,
     Callable,
@@ -73,8 +75,9 @@ if TYPE_CHECKING:
 
 
 def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: CacheQueryDB) -> None:
-    #     print('clean_targets (%r)' % job_list)
     job_list = set(job_list)
+
+    print("clean_targets (%r)" % job_list)
 
     # now we need to delete the definition closure
     # logger.info('getting closure')
@@ -82,35 +85,34 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
 
     basic = job_list - closure
 
-    # logger.info(job_list=job_list, closure=closure, basic=basic)
+    logger.info(job_list=job_list, closure=closure, basic=basic)
     other_clean: set[CMJobID] = set()
     for job_id in job_list:
         other_clean.update(cq.parents(job_id))
 
     other_clean -= closure
     #
-    #     print('deleting: %r' % closure)
-    #     print('only cleaning: %r' % basic)
-    #     print('other cleaning: %r' % other_clean)
-    #
+    print("deleting: %r" % closure)
+    print("only cleaning: %r" % basic)
+    print("other cleaning: %r" % other_clean)
 
     ccr = closure | basic | other_clean
 
-    # logger.info(job_list=job_list, closure=closure, ccr=ccr)
+    logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
-        # logger.info('clean_cache_relations', job_id=job_id)
+        logger.info("clean_cache_relations", job_id=job_id)
         clean_cache_relations(job_id, db)
 
     # delete all in closure
     for job_id in closure:
-        # logger.info('delete_all_job_data', job_id=job_id)
+        logger.info("delete_all_job_data", job_id=job_id)
         delete_all_job_data(job_id, db)
 
     # just remove cache in basic
     for job_id in basic:
         # Cleans associated objects
         if job_cache_exists(job_id, db):
-            # logger.info('delete_job_cache', job_id=job_id)
+            logger.info("delete_job_cache", job_id=job_id)
             delete_job_cache(job_id, db)
     # logger.info('done')
     # now we have to undo this one:
@@ -183,7 +185,7 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result: object) -> None
     cache = Cache(Cache.DONE)
     cache.cputime_used = 0
     cache.walltime_used = 0
-    cache.timestamp = time()
+    cache.timestamp = time.time()
     cache.int_compute = cache.int_gc = i
     cache.int_load_results = cache.int_make = cache.int_save_results = i
     set_job_cache(job_id, cache, db)
@@ -203,13 +205,85 @@ def mark_as_failed(
     check_isinstance(backtrace, (type(None), str))
     cache.exception = exception
     cache.backtrace = backtrace
-    cache.timestamp = time()
+    cache.timestamp = time.time()
+    set_job_cache(job_id, cache, db=db)
+
+
+def mark_as_timed_out(
+    job_id: CMJobID, db: StorageFilesystem, timed_out: float, exception: Optional[str] = None, backtrace: Optional[str] = None
+) -> None:
+    """Marks job_id  as failed"""
+    cache = Cache(Cache.FAILED)
+    exception = ""
+
+    if isinstance(exception, str):
+        pass
+    else:
+        exception = str(exception)
+
+    check_isinstance(backtrace, (type(None), str))
+    cache.exception = exception
+    cache.backtrace = backtrace
+    cache.timestamp = time.time()
+    cache.timed_out = timed_out
+    set_job_cache(job_id, cache, db=db)
+
+
+def mark_as_oom(
+    job_id: CMJobID, db: StorageFilesystem, oom_bytes: int, exception: Optional[str] = None, backtrace: Optional[str] = None
+) -> None:
+    """Marks job_id  as failed"""
+    cache = Cache(Cache.FAILED)
+    exception = ""
+
+    if isinstance(exception, str):
+        pass
+    else:
+        exception = str(exception)
+
+    check_isinstance(backtrace, (type(None), str))
+    cache.exception = exception
+    cache.backtrace = backtrace
+    cache.timestamp = time.time()
+    cache.oom_bytes = oom_bytes
     set_job_cache(job_id, cache, db=db)
 
 
 FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
 
 formatter = Formatter(FORMAT)
+
+
+@contextmanager
+def output_capture(
+    enabled: bool,
+    context,
+    job_id: CMJobID,
+    echo: bool,
+) -> Iterator[Optional[OutputCapture]]:
+    if not enabled:
+        yield None
+        return
+
+    def publish_stdout(lines: list[str]) -> None:
+        publish(context, "job-stdout", job_id=job_id, lines=lines)
+
+    def publish_stderr(lines: list[str]) -> None:
+        publish(context, "job-stderr", job_id=job_id, lines=lines)
+
+    capture = OutputCapture(
+        prefix=job_id,
+        # This is instantaneous echo and should be False
+        # They will generate events anyway.
+        echo_stdout=echo,
+        echo_stderr=echo,
+        publish_stdout=publish_stdout,
+        publish_stderr=publish_stderr,
+    )
+    try:
+        yield capture
+    finally:
+        capture.deactivate()
 
 
 async def make(
@@ -232,6 +306,7 @@ async def make(
     or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
     captured.
     """
+    make_started = time.time()
     if ti is None:
         ti = new_timeinfo()
 
@@ -281,7 +356,7 @@ async def make(
 
     # TODO: delete previous user object
     cache = Cache(Cache.PROCESSING)
-    cache.timestamp_started = time()
+    cache.timestamp_started = time.time()
     cache.jobs_defined = prev_defined_jobs
     with ti.timeit("set cache"):
         set_job_cache(job_id, cache, db=db)
@@ -291,33 +366,35 @@ async def make(
 
     init_progress_tracking(progress_callback)
 
-    disable_capture = False
-    if disable_capture:
-        logger.warning("Capture is disabled")
-    if disable_capture:
-        capture = None
-    else:
-        echo = False
+    disable_capture = True
 
-        def publish_stdout(lines: list[str]) -> None:
-            publish(context, "job-stdout", job_id=job_id, lines=lines)
-
-        def publish_stderr(lines: list[str]) -> None:
-            publish(context, "job-stderr", job_id=job_id, lines=lines)
-
-        capture = OutputCapture(
-            context=context,
-            prefix=job_id,
-            # This is instantaneous echo and should be False
-            # They will generate events anyway.
-            echo_stdout=echo,
-            echo_stderr=echo,
-            publish_stdout=publish_stdout,
-            publish_stderr=publish_stderr,
-        )
+    # if disable_capture:
+    #     logger.warning("Capture is disabled")
+    # if disable_capture:
+    #     capture = None
+    # else:
+    #     echo = False
+    #
+    #     def publish_stdout(lines: list[str]) -> None:
+    #         publish(context, "job-stdout", job_id=job_id, lines=lines)
+    #
+    #     def publish_stderr(lines: list[str]) -> None:
+    #         publish(context, "job-stderr", job_id=job_id, lines=lines)
+    #
+    #     capture = OutputCapture(
+    #         prefix=job_id,
+    #         # This is instantaneous echo and should be False
+    #         # They will generate events anyway.
+    #         echo_stdout=echo,
+    #         echo_stderr=echo,
+    #         publish_stdout=publish_stdout,
+    #         publish_stderr=publish_stderr,
+    #     )
 
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
+
+    TMP_DISABLE_CAPTURE = True
 
     class Store:
         nhidden = 0
@@ -335,14 +412,17 @@ async def make(
             _ = ss
             # log_record.msg = colorize_loglevel(log_record.levelno, s_)
             res = formatter.format(log_record)
-            print(res)
+            sys.stderr.write(res)
+            sys.stderr.flush()
             # this will be captured by OutputCapture anyway
         except:  # OK
             Store.nhidden += 1
 
     already = set(context.get_jobs_defined_in_this_session())
 
-    logging.StreamHandler.emit = my_emit  # type: ignore
+    if TMP_DISABLE_CAPTURE:
+
+        logging.StreamHandler.emit = my_emit  # type: ignore
 
     def get_deleted_jobs() -> set[CMJobID]:
         generated = set(context.get_jobs_defined_in_this_session()) - already
@@ -368,8 +448,9 @@ async def make(
     int_compute = IntervalTimer()
     user_object = None
     try:
-        with ti.timeit("job_compute") as tisub:
-            result: JobComputeResult = await job_compute(sti, job=job, context=context, ti=tisub)
+        with output_capture(not disable_capture, context, job_id, echo) as capture2:
+            with ti.timeit("job_compute") as tisub:
+                result: JobComputeResult = await job_compute(sti, job=job, context=context, ti=tisub)
 
         assert isinstance(result, dict) and len(result) == 5
         user_object = result["user_object"]
@@ -389,9 +470,9 @@ async def make(
         mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
 
         cache = get_job_cache(job_id, db=db)
-        if capture is not None:
-            cache.captured_stderr = capture.get_logged_stderr()
-            cache.captured_stdout = capture.get_logged_stdout()
+        if capture2 is not None:
+            cache.captured_stderr = capture2.get_logged_stderr()
+            cache.captured_stdout = capture2.get_logged_stdout()
         else:
             msg = "(Capture turned off.)"
             cache.captured_stderr = msg
@@ -408,9 +489,9 @@ async def make(
         deleted_jobs = get_deleted_jobs()
 
         cache = get_job_cache(job_id, db=db)
-        if capture is not None:
-            cache.captured_stderr = capture.get_logged_stderr()
-            cache.captured_stdout = capture.get_logged_stdout()
+        if capture2 is not None:
+            cache.captured_stderr = capture2.get_logged_stderr()
+            cache.captured_stdout = capture2.get_logged_stdout()
         else:
             msg = "(Capture turned off.)"
             cache.captured_stderr = msg
@@ -421,8 +502,6 @@ async def make(
         job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
     finally:
         int_finally = IntervalTimer()
-        if capture is not None:
-            capture.deactivate()
         # even if we send an error, let's save the output of the process
         logging.StreamHandler.emit = old_emit  # type: ignore
         if Store.nhidden > 0:
@@ -456,7 +535,7 @@ async def make(
     #    logger.debug('Save time for %s: %s s' % (job_id, walltime_save_result))
 
     int_make.stop()
-    end_time = time()
+    end_time = time.time()
 
     cache = Cache(Cache.DONE)
 
@@ -479,14 +558,21 @@ async def make(
     cache.cputime_used = int_make.get_cputime_used()
     cache.host = host
     cache.jobs_defined = new_jobs
+    cache.ti = ti
     with ti.timeit("set_job_cache"):
         set_job_cache(job_id, cache, db=db)
     user_object_deps = collect_dependencies(user_object)
+    time_total = time.time() - make_started
+    time_comp = int_compute.get_walltime_used()
+    time_other = time_total - time_comp
     r: MakeResult = {
         "user_object": user_object,
         "user_object_deps": user_object_deps,
         "new_jobs": new_jobs,
         "deleted_jobs": deleted_jobs,
+        "time_comp": time_comp,
+        "time_other": time_other,
+        "time_total": time_total,
     }
     return r
 
@@ -662,6 +748,8 @@ def comp_(
 
     command = command_
 
+    is_async = inspect.iscoroutinefunction(command)
+
     # noinspection PyUnresolvedReferences
     if hasattr(command, "__module__") and command.__module__ == "__main__":
         if not command in WarningStorage.warned:
@@ -689,25 +777,25 @@ def comp_(
         return None  # XXX # type: ignore
 
     # Check that this is a pickable function
-    try:
-        try_pickling(command)
-    except Exception as e:
-        msg = (
-            "Cannot pickle function. Make sure it is not a lambda "
-            "function or a nested function. (This is a limitation of "
-            "Python)"
-        )
-        raise UserError(msg, command=command) from e
+    if __debug__:
+        try:
+            try_pickling(command)
+        except Exception as e:
+            msg = (
+                "Cannot pickle function. Make sure it is not a lambda "
+                "function or a nested function. (This is a limitation of "
+                "Python)"
+            )
+            raise UserError(msg, command=command) from e
 
-    if CompmakeConstants.command_name_key in kwargs:
-        command_desc = kwargs.pop(CompmakeConstants.command_name_key)
-        if not isinstance(command_desc, str):
-            raise ValueError("Expected a string for command_name, got %s" % type(command_desc))
-    elif hasattr(command, "__name__"):
-        command_desc = command.__name__
+    command_desc = kwargs.pop(CompmakeConstants.command_name_key, None)
 
-    else:
-        command_desc = type(command).__name__
+    if command_desc is None:
+        if hasattr(command, "__name__"):
+            command_desc = command.__name__
+
+        else:
+            command_desc = type(command).__name__
 
     args: list[object] = list(args0)  # args is a  tuple
 
@@ -836,12 +924,18 @@ def comp_(
     assert context.currently_executing[0] == "root"
     from .structures import make_job
 
+    sig = inspect.signature(command)
+    needs_sti = "sti" in sig.parameters
+    needs_ti = "ti" in sig.parameters
     c = make_job(
         job_id=job_id,
         children=children,
         command_desc=command_desc,
         needs_context=needs_context,
         defined_by=context.currently_executing,
+        is_async=is_async,
+        needs_sti=needs_sti,
+        needs_ti=needs_ti,
     )
 
     # Need to inherit the pickle

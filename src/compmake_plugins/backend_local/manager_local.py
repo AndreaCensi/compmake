@@ -1,4 +1,8 @@
 import asyncio
+import os
+import time
+
+import psutil
 
 from compmake import (
     AsyncResultInterface,
@@ -48,6 +52,7 @@ class ManagerLocal(Manager):
 
 
 class FakeAsync(AsyncResultInterface):
+
     context: Context
 
     def __init__(self, sti: SyncTaskInterface, job_id: CMJobID, context: Context, new_process: bool, echo: bool):
@@ -58,6 +63,21 @@ class FakeAsync(AsyncResultInterface):
         self.echo = echo
 
         self.told_you_ready = False
+
+        self.pid = os.getpid()
+        self.last_memory_usage = 0
+        self.last_memory_usage_sampled = time.time()
+
+        self.ps = psutil.Process(self.pid)
+
+    async def get_memory_usage(self, max_delay: float) -> int:
+        now = time.time()
+        dt = now - self.last_memory_usage_sampled
+        if dt > max_delay:
+            memory = self.ps.memory_info().rss
+            self.last_memory_usage = memory
+            self.last_memory_usage_sampled = now
+        return self.last_memory_usage
 
     def ready(self):
         if self.told_you_ready:

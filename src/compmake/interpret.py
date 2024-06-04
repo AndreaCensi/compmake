@@ -68,7 +68,7 @@ async def batch_command(sti: SyncTaskInterface, s, context, cq):
     set_compmake_status(CompmakeConstants.compmake_status_embedded)
 
     # we assume that we are done with defining jobs
-    await clean_other_jobs(sti, context=context)
+    # await clean_other_jobs(sti, context=context)
 
     await read_rc_files(sti, context=context)
     return await interpret_commands_wrap(sti, s, context=context, cq=cq)

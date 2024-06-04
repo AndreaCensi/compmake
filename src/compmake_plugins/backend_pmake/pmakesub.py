@@ -10,6 +10,8 @@ from multiprocessing.context import BaseContext, Process
 from queue import Empty
 from typing import Any, Callable, Literal, Optional, cast
 
+import psutil
+
 from compmake import (
     AsyncResultInterface,
     CMJobID,
@@ -22,10 +24,12 @@ from compmake import (
     parmake_job2_new_process_1,
     result_dict_raise_if_error,
 )
+from compmake.constants import CANCEL_REASONS
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
 from zuper_commons.types import TM
+from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
     Global,
@@ -36,14 +40,12 @@ from zuper_utils_asyncio import (
 )
 from zuper_utils_timing import TimeInfo
 from zuper_zapp import async_run_simple1, setup_environment2
-from .parmake_job2_imp import parmake_job2
+from .parmake_job2_imp import ParmakeJobResult, parmake_job2
 
 __all__ = [
     "PmakeSub",
     "PossibleFuncs",
 ]
-
-import atexit
 
 PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
@@ -55,24 +57,39 @@ class PmakeSub:
     result_queue: "multiprocessing.Queue[ResultDict]"
     _proc: Process
     killed_by_me: bool
+    killed_reason: Optional[CANCEL_REASONS]
 
     def __repr__(self) -> str:
-        return f"PmakeSub({self.name}, {self.write_log}, proc={self._proc.pid}, alive=" f"{self._proc.is_alive()})"
+        if self.last is None:
+            lasts = ""
+        else:
+            lasts = f"last={self.last!r}"
+        memstats = self.get_mem_usage_pretty()
+        return (
+            f"PmakeSub({self.name}, nstarted={self.nstarted}, {self.write_log}, proc={self._proc.pid}, "
+            f"alive={self._proc.is_alive()}, {lasts}, {memstats})"
+        )
 
     def __init__(
         self,
+        *,
         name: str,
         signal_queue: "Optional[multiprocessing.Queue[Any]]",
+        event_queue: "Optional[multiprocessing.Queue[Any]]",
         signal_token: str,
         ctx: BaseContext,
         write_log: Optional[FilePath],
         detailed_python_mem_stats: bool,
+        job_timeout: Optional[float],
     ):
+        self.nstarted = 0
         self.name = name
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
+        self.event_queue = event_queue
         # print('starting process %s ' % name)
         self.write_log = write_log
+        self.job_timeout = job_timeout
         args = (
             self.name,
             self.job_queue,
@@ -81,13 +98,21 @@ class PmakeSub:
             signal_token,
             write_log,
             detailed_python_mem_stats,
+            job_timeout,
+            event_queue,
         )
         # logger.info(args=args)
-        self._proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name))  # type: ignore
-        atexit.register(at_exit_delete, proc=self._proc)
-        self._proc.start()
         self.last = None
         self.killed_by_me = False
+        self.killed_reason = None
+        self._proc = cast(Process, ctx.Process(target=pmake_worker, args=args, name=name, daemon=True))  # type: ignore
+        # atexit.register(at_exit_delete, proc=self._proc)
+        self._proc.start()
+        self.every_once_in_a_while = EveryOnceInAWhile(3)
+        self.last_mem_usage = 0
+        self.max_mem_usage = 0
+        self.last_mem_usage_sampled = 0
+        self.pr = psutil.Process(self._proc.pid)
 
     def is_alive(self) -> bool:
         return self._proc.is_alive()
@@ -96,6 +121,7 @@ class PmakeSub:
         self.killed_by_me = True
         try:
             self._proc.terminate()
+            self._proc.close()
         except:
             pass
 
@@ -104,8 +130,11 @@ class PmakeSub:
         # noinspection PyBroadException
         try:
             self._proc.kill()
+            self._proc.close()
         except:
             pass
+
+        self.pr = None
 
     def terminate(self) -> None:
         # noinspection PyBroadException
@@ -120,9 +149,38 @@ class PmakeSub:
         # self.result_queue = None
 
     def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: TM[Any]) -> "PmakeResult":
+        self.nstarted += 1
         self.job_queue.put((job_id, function, arguments))
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
+
+    def get_mem_usage(self, max_delay: float) -> tuple[int, int]:
+        now = time.time()
+        if now - self.last_mem_usage_sampled > max_delay:
+            if self._proc.is_alive():
+                pr = self.pr.memory_info().rss
+                self.last_mem_usage = pr
+                self.max_mem_usage = max(self.max_mem_usage, pr)
+                self.last_mem_usage_sampled = time.time()
+
+        return self.max_mem_usage, self.last_mem_usage
+
+    def get_cpu_usage(self, max_delay: float) -> float:
+        if self._proc.is_alive():
+            try:
+                return self.pr.cpu_percent(interval=0)
+            except:
+                return 0.0
+        else:
+            return 0.0
+
+    def get_mem_usage_pretty(self) -> str:
+        mem_stats = self.get_mem_usage(max_delay=3)
+        # mem_stats = self.max_mem_usage, self.last_mem_usage
+        maxs = size_compact(mem_stats[0])
+        curs = size_compact(mem_stats[1])
+        mem_stats_s = f"memory stats uss: max: {maxs} cur: {curs}"
+        return mem_stats_s
 
 
 def at_exit_delete(proc: Process) -> None:
@@ -130,6 +188,39 @@ def at_exit_delete(proc: Process) -> None:
     # ps.terminate()
     # time.sleep(1)
     proc.kill()
+    pass
+
+
+#
+#
+# def timeout_wrapper(f: Callable[PS, X], *args: PS.args, **kwargs: PS.kwargs) -> X:
+#     TIMEOUT = MCDPTestConstants.mcdp_tests_timeout
+#     if TIMEOUT is None:
+#         return f(*args, **kwargs)
+#
+#     cons = MCDPTestConstants.mcdp_tests_timeout_consequences
+#
+#     try:
+#         f2 = cast(Callable[PS, X], timeout(TIMEOUT)(f))
+#         return f2(*args, **kwargs)
+#     except TimeoutError as e:
+#         match (cons):
+#             case "mark_test_as_skipped":
+#                 raise SkipTest(f"Timeout after {TIMEOUT}") from e
+#             case "mark_test_as_error":
+#                 raise
+#             case _ as un:
+#                 DPInternalError.assert_never(un)
+
+
+def _format_dt(dt: float, reference: Optional[float] = None):
+
+    s = f"{duration_compact(dt):10}"
+    if reference is not None and reference > dt > 0:
+        perc = 100 * dt / reference
+        percentage = f"({perc:.1f}%)"
+        s += f" {percentage:5}"
+    return s
 
 
 @async_run_simple1
@@ -142,9 +233,16 @@ async def pmake_worker(
     signal_token: str,
     write_log: Optional[FilePath],
     detailed_python_mem_stats: bool,
+    job_timeout: Optional[float],
+    event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
     current_name = name
 
+    t_worker_start = time.time()
+    total_time_get = 0.0
+    total_time_put = 0.0
+    total_time_comp = 0.0
+    total_time_maintenance = 0.0
     if write_log:
         sys.stderr = sys.stdout = f = open(write_log, "w", buffering=1)  # 1 = line buffered
 
@@ -183,6 +281,8 @@ async def pmake_worker(
         # warnings.warn('remove above')
 
         log("started pmake_worker()")
+
+        # The idea is that the parent will receive it
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         def put_result(x: ResultDict) -> float:
@@ -196,9 +296,12 @@ async def pmake_worker(
                 signal_queue.put(signal_token, block=True)
                 log(f"put result in signal_queue in {time.time() - t0:.2f} seconds")
             log("(done)")
-            return time.time() - t01
+            dt0 = time.time() - t01
+            nonlocal total_time_put
+            total_time_put += dt0
+            return dt0
 
-        time_to_gc = EveryOnceInAWhile(120)
+        time_to_gc = EveryOnceInAWhile(30)
         # noinspection PyBroadException
         memory_tracker: Any
         memory_tracker = None
@@ -212,12 +315,31 @@ async def pmake_worker(
                 memory_tracker = tracker.SummaryTracker()
 
             while True:
+                total_time = time.time() - t_worker_start
+
+                sput = _format_dt(total_time_put, total_time)
+                sget = _format_dt(total_time_get, total_time)
+                scomp = _format_dt(total_time_comp, total_time)
+                smant = _format_dt(total_time_maintenance, total_time)
+                unaccounted = total_time - (total_time_comp + total_time_get + total_time_put)
+                sunaccounted = _format_dt(unaccounted, total_time)
+                log(
+                    f"worker: total {duration_compact(total_time):10} | comp {scomp}  | get {sget}    | put {sput} | mant "
+                    f"{smant}  "
+                    f"| unacc "
+                    f"{sunaccounted}"
+                )
+
                 if time_to_gc.now():
+                    t0 = time.time()
                     log("gc start")
                     gc.collect()
                     log("gc end")
+                    total_time_maintenance += time.time() - t0
 
                 if detailed_python_mem_stats:
+                    t0 = time.time()
+
                     log("detailed_python_mem_stats... ")
 
                     # log('all objects...')
@@ -242,12 +364,16 @@ async def pmake_worker(
                     running = [" - " + _.get_name() + f" done = {_.done()}" for _ in running_tasks]
                     log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
                     del running, active_tasks
+                    total_time_maintenance += time.time() - t0
 
                 if detailed_python_mem_stats:
+                    t0 = time.time()
+
                     diff = memory_tracker.format_diff()
                     log(f"Before loading job: \n\n" + joinlines(diff))
                     del diff
                     diff = None
+                    total_time_maintenance += time.time() - t0
 
                 log("Listening for job")
                 t0 = time.time()
@@ -256,8 +382,9 @@ async def pmake_worker(
                 except Empty:
                     log("Could not receive anything.")
                     continue
-                time_to_get_job = time.time() - t0
-
+                dt = time.time() - t0
+                time_to_get_job = dt
+                total_time_get += dt
                 if job == PmakeSub.EXIT_TOKEN:
                     log("Received EXIT_TOKEN.")
                     break
@@ -265,7 +392,7 @@ async def pmake_worker(
                 log(f"got job: {job} in {time_to_get_job:.2f} seconds")
 
                 job_id, function_name, arguments = job
-
+                arguments += (event_queue,)
                 funcs: dict[str, Any] = {
                     "parmake_job2_new_process_1": parmake_job2_new_process_1,
                     "parmake_job2": parmake_job2,
@@ -279,30 +406,29 @@ async def pmake_worker(
 
                 current_name = f"{name}:{job_id}"
                 setproctitle(f"compmake:{current_name}")
-                # logger.info(job=job)
-                # print(job)
-                # print(inspect.signature(function))
                 try:
-                    # print('arguments: %s' % str(arguments))
                     t0 = time.time()
                     log(f"creating task...")
                     child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
                     log(f"waiting for task...")
 
-                    result: ResultDict = await child.wait_for_outcome_success_result()
+                    pres: ParmakeJobResult = await child.wait_for_outcome_success_result()
+                    result = pres.rd
                     log(f"...task finished")
+
+                    # time_to_do_job = time.time() - t0
+                    total_time_comp += pres.time_comp
+
                     if "ti" in result:
                         ti = cast(TimeInfo, result["ti"])
                         log(ti.pretty())
                         result.pop("ti")
-                    time_to_do_job = time.time() - t0
+
                     sti.forget_child(child)
                     del child
 
-                    log(f"timing: get job = {time_to_get_job:.3f} s, do job = {time_to_do_job:.3f} s")
+                    # log(f"timing: get job = {time_to_get_job:.3f} s, do job = {pres.time_comp:.3f} s")
 
-                    # result = await function(sti=sti, args=arguments)
-                    # result = function(args=arguments)
                 except JobFailed as e:
                     log("Job failed, putting notice.")
                     log(f"result: {e}")  # debug
@@ -389,12 +515,14 @@ async def pmake_worker(
 
 async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list[Any]) -> Any:
     await sti.started_and_yield()
-    sti.logger.info("now_running", function=function, arguments=arguments)
+    # sti.logger.info("now_running", function=function, arguments=arguments)
     try:
         return await function(sti=sti, args=arguments)
     except:
-        sti.logger.error("funcwrap", tb=traceback.format_exc())
+        sti.logger.error("funcwrap exception")
         raise
+    finally:
+        sti.logger.info("done")
 
 
 class PmakeResult(AsyncResultInterface):
@@ -408,10 +536,17 @@ class PmakeResult(AsyncResultInterface):
         self.result = None
         self.psub = psub
         self.job_id = job_id
+        self.started = time.time()
+        self.every_once_in_a_while = EveryOnceInAWhile(5)
         # self.count = 0
 
+    async def get_memory_usage(self, max_delay: float) -> int:
+        peak, cur = self.psub.get_mem_usage(max_delay)
+        return peak
+
     def __repr__(self) -> str:
-        return f"<PmakeResult {self.job_id!r} {self.psub!r}>"
+        time_since_started = time.time() - self.started
+        return f"<PmakeResult {self.job_id!r} age {time_since_started:.1f}s >"
 
     def ready(self) -> bool:
         # self.count += 1
@@ -438,24 +573,44 @@ class PmakeResult(AsyncResultInterface):
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
             # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
-
+            # mem_stats = self.psub.get_mem_usage()
+            # maxs = size_compact(mem_stats[0])
+            # curs = size_compact(mem_stats[1])
+            # mem_stats_s = f'memory stats: max: {maxs} cur: {curs}'
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
+            except ValueError:
+                # This means that the process was killed
+                raise multiprocessing.TimeoutError() from None
             except Empty as e:
-                if not self.psub.killed_by_me:
-                    if not self.psub.is_alive():
-                        msg = f"Interrupt: Process died unexpectedly with code {self.psub._proc.exitcode}"
-                        msg += f"\n log at {self.psub.write_log}"
-                        msg += f"\n sub {self.psub!r}"
-                        msg += f"\n sub {self.psub.__dict__!r}"
-                        raise JobFailed(
-                            job_id=self.job_id,
-                            reason=msg,
-                            bt="not available",
-                            deleted_jobs=[],
-                        ) from None
+                if self.psub.is_alive():
+                    raise multiprocessing.TimeoutError() from None
 
-                raise multiprocessing.TimeoutError(e)
+                if self.psub.killed_by_me:
+                    msg = f"Process was killed by me.\n"
+                    # msg += f'{mem_stats_s}\n'
+                    raise multiprocessing.TimeoutError(msg) from None
+
+                exit_code = self.psub._proc.exitcode
+                if exit_code is not None:
+                    if exit_code == -9:
+                        msg = "Exit code -9: Guessing OOM\n"
+                    else:
+                        msg = f"Process died unexpectedly with code {exit_code}\n"
+                else:
+                    msg = f"Interrupt: Process died unexpectedly but no exit code is available\n"
+
+                # msg += f'{mem_stats_s}\n'
+
+                msg += f"\n log at {self.psub.write_log}"
+                msg += f"\n sub {self.psub!r}"
+                msg += f"\n sub {self.psub.__dict__!r}"
+                raise JobFailed(
+                    job_id=self.job_id,
+                    reason=msg,
+                    bt="not available",
+                    deleted_jobs=[],
+                ) from None
 
         r: ResultDict = self.result
         return result_dict_raise_if_error(r)

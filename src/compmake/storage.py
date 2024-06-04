@@ -2,12 +2,12 @@
     These are all wrappers around the raw methods in storage
 """
 
+import traceback
 from typing import Any, Callable, Collection, Iterator, Mapping, cast
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
-from zuper_commons.text import wildcard_to_regexp
-from zuper_commons.types import TM, check_isinstance
-from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException
+from zuper_commons.types import TM, add_context, check_isinstance
+from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException, SerializationError
 from .filesystem import StorageFilesystem, StorageKey
 from .structures import Cache, Job
 from .types import CMJobID
@@ -62,11 +62,16 @@ def all_jobs(db: StorageFilesystem, force_db: bool = False) -> Iterator[CMJobID]
     Otherwise, use local cache.
     """
     pattern = job2key(CMJobID("*"))
-    regexp = wildcard_to_regexp(pattern)
+    for raw in db.keys0_match(pattern):
+        key = cast(StorageKey, raw)
+        yield key2job(key)
 
-    for key in db.keys():
-        if regexp.match(key):
-            yield key2job(key)
+
+def all_jobs_pattern(db: StorageFilesystem, pattern: str) -> Iterator[CMJobID]:
+    pattern = job2key(CMJobID(pattern))
+    for raw in db.keys0_match(pattern):
+        key = cast(StorageKey, raw)
+        yield key2job(key)
 
 
 def get_job(job_id: CMJobID, db: StorageFilesystem) -> Job:
@@ -185,7 +190,16 @@ def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
     #         raise CompmakeBug(msg)
     # print('loading %r ' % job_id)
     key = job2userobjectkey(job_id)
-    res = db[key]
+
+    try:
+        with add_context(op="loading", job_id=job_id):
+            res = db[key]
+    except Exception as e:
+        msg = f"Could not load user object for job {job_id}"
+        from compmake import mark_as_failed
+
+        mark_as_failed(job_id, db, msg, traceback.format_exc())
+        raise SerializationError(msg) from e
     # print('... done')
     return res
 
@@ -226,9 +240,12 @@ def get_job_args(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., 
     # else:
     job = get_job(job_id, db)
     pickle_main_context = job.pickle_main_context
-    with pickle_main_context_load(pickle_main_context):
-        return db[key]  # type: ignore
-        # TODO: check?
+    try:
+        with pickle_main_context_load(pickle_main_context):
+            return db[key]  # type: ignore
+            # TODO: check?
+    except Exception as e:
+        raise SerializationError(f"Could not load job args for job {job_id}") from e
 
 
 def job_args_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:

@@ -58,6 +58,9 @@ async def job_failed(context: Context, event: Event):
     reason = event.kwargs["reason"]
     bt = event.kwargs["bt"]
 
+    if "SkipTest" in reason:
+        await ui_error(context, my_prefix + " SkipTest")
+        return
     # s = reason.strip
     content = ""
     if context.get_compmake_config("echo"):

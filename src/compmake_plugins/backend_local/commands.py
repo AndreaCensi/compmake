@@ -101,7 +101,7 @@ async def remake(
     recurse: bool = DefaultsToConfig("recurse"),
 ):
     """
-    Remake the selected targets (equivalent to clean and make).
+    Remake the selected targets (equivalent to invalidate and make).
 
     :param non_empty_job_list:
     :param context:

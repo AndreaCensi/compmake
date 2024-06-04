@@ -9,7 +9,7 @@ from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem
 from .queries import direct_children, direct_parents, jobs_defined
-from .storage import all_jobs, get_job, get_job_cache, get_job_userobject, job_exists
+from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
 
@@ -57,6 +57,11 @@ class CacheQueryDB:
     def all_jobs(self) -> list[CMJobID]:
         # NOTE: very important, do not memoize iterator
         res = list(all_jobs(db=self.db))
+        return res
+
+    @memoized_reset
+    def all_jobs_pattern(self, pattern: str) -> list[CMJobID]:
+        res = list(all_jobs_pattern(self.db, pattern))
         return res
 
     @memoized_reset
@@ -219,7 +224,7 @@ class CacheQueryDB:
         """Closure of the relation children and dependencies of userobject."""
         stack: list[CMJobID] = []
         if isinstance(jobs, str):
-            stack.append(jobs)
+            stack.append(jobs)  # type: ignore
         else:
             stack.extend(jobs)
 

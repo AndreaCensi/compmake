@@ -25,7 +25,7 @@ from compmake import (
     ui_message,
 )
 from compmake_utils import TableFormatter, get_screen_columns
-from zuper_commons.ui import color_yellow, duration_compact
+from zuper_commons.ui import color_yellow, duration_compact, size_compact
 from zuper_utils_asyncio import SyncTaskInterface
 
 format_utility_job = dict()
@@ -203,7 +203,7 @@ async def list_jobs(
 
             level = len(job.defined_by) - 1
             assert level >= 1
-            tf.cell("%d" % level)
+            tf.cell(f"{level}")
         else:
             tf.cell("")
 
@@ -223,9 +223,14 @@ async def list_jobs(
         tf.cell(job_name_formatted)
 
         tag = Cache.state2desc[cache.state]
+        if cache.state == Cache.FAILED:
+            if cache.is_timed_out():
+                tag = "timedout"
+            elif cache.is_oom():
+                tag = "OOM"
 
         k = (cache.state, up)
-        assert k in Cache.stateupdate2color, "I found strange state %s" % str(k)
+        assert k in Cache.stateupdate2color, f"I found strange state {str(k)}"
 
         tag_s = compmake_colored(tag, **Cache.stateupdate2color[k])
         if not up and cache.state in [Cache.DONE, Cache.FAILED]:
@@ -278,6 +283,16 @@ async def list_jobs(
 
         else:
             tf.cell("")  # cpu
+
+        if cache.state in [Cache.FAILED]:
+            if (to := cache.is_timed_out()) is not None:
+                tf.cell(f"timedout {duration_compact(to)}")
+            elif nbytes := cache.is_oom():
+                tf.cell(f"OOM      {size_compact(nbytes)}")
+            else:
+                tf.cell("")
+        else:
+            tf.cell("")
 
     tf.done()
 

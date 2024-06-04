@@ -256,6 +256,19 @@ class StorageFilesystem:
             res = cur.fetchall()
             for row in res:
                 yield row[0]
+
+    @track_time
+    def keys0_match(self, wildcard: str) -> list[StorageKey]:
+        sql = """
+                select blob_key from fs_blobs where blob_key like ?
+            """
+        wildcard = wildcard.replace("*", "%")
+
+        with self.cursor() as cur:
+            cur.execute(sql, (wildcard,))
+            res = cur.fetchall()
+            return [row[0] for row in res]
+
         # if extension is None:
         #     extension = self.file_extension
         # filename = self.filename_for_key("*", extension)
@@ -318,6 +331,7 @@ def create_scripts(basepath: DirPath) -> None:
         "stats": "stats",
         "gantt": "gantt",
         "details": "details",
+        "invalidate": "invalidate",
     }
     for fn, cmd in filename2cmd.items():
         s = f'#!/bin/bash\ncompmake {basepath} -c "{cmd} $*"\n'
@@ -341,5 +355,10 @@ def create_scripts(basepath: DirPath) -> None:
 
     s = f"#!/bin/bash\ncompmake-profile {basepath} $* \n"
     f = join(basepath, "profile")
+    write_ustring_to_utf8_file(s, f, quiet=True)
+    chmod_plus_x(f)
+
+    s = f"#!/bin/bash\nPYTHONOPTIMIZE=1 compmake-profile {basepath} $* \n"
+    f = join(basepath, "profile-optimize")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

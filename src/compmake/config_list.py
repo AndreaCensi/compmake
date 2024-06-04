@@ -1,3 +1,4 @@
+import platform
 from multiprocessing import cpu_count
 
 from .structure import add_config_section, add_config_switch
@@ -124,7 +125,9 @@ add_config_switch(
 )
 
 add_config_switch("max_mem_load", 100.0, desc="Maximum physical memory load (%)", section=CONFIG_PARALLEL)
-add_config_switch("max_mem_GB", 1024.0, desc="Maximum physical memory used (GB)", section=CONFIG_PARALLEL)
+add_config_switch("max_mem_GB", 1024.0, desc="Maximum physical memory used by system (GB)", section=CONFIG_PARALLEL)
+
+add_config_switch("max_job_mem_GB", 8.0, desc="Maximum physical memory usable by each job (GB)", section=CONFIG_PARALLEL)
 
 # TODO: to reimplement
 add_config_switch("max_swap", 100.0, desc="Maximum swap usage (%)", section=CONFIG_PARALLEL)
@@ -144,9 +147,16 @@ add_config_switch(
     section=CONFIG_GENERAL,
 )
 
+psystem = platform.system()
+defaults = {
+    "Linux": "spawn",  # spawn is the cleanest
+    "Darwin": "spawn",
+    "Windows": "spawn",
+}
+
 add_config_switch(
     "multiprocessing_strategy",
-    "fork",
+    defaults.get(psystem, "spawn"),
     desc="Fork or spawn",
     section=CONFIG_GENERAL,
 )

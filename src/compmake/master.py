@@ -54,12 +54,20 @@ async def main(zenv: ZappEnv) -> ExitCode:
 
 def limit_memory(maxsize: int) -> None:
     soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+
     print(f"{soft=} {hard=} {maxsize=}")
-    # resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
+    try:
+        resource.setrlimit(resource.RLIMIT_AS, (maxsize, hard))
+    except ValueError as e:
+        print(f"Could not set memory RLIMIT_AS: {e}")
+    try:
+        resource.setrlimit(resource.RLIMIT_RSS, (maxsize, hard))
+    except ValueError as e:
+        print(f"Could not set memory RLIMIT_RSS: {e}")
 
 
 async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None) -> ExitCode:
-    limit_memory(2 * 1024 * 1024)
+    # limit_memory(2 * 1024 * 1024 * 1024)
     sti.started()
     if not "" in sys.path:
         sys.path.append("")

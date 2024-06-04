@@ -293,7 +293,7 @@ def ask_question(question: str, allowed: Optional[dict[str, bool]] = None) -> bo
 
 
 async def compmake_console_text(sti: SyncTaskInterface, context: Context) -> None:
-    await clean_other_jobs(sti, context=context)
+    # await clean_other_jobs(sti, context=context) # XXX:
     await read_rc_files(sti, context=context)
     await interactive_console(sti, context=context)
 

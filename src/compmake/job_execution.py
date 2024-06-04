@@ -1,16 +1,16 @@
 import asyncio
 import inspect
+import traceback
 from typing import Any, Callable, Mapping, Optional, TypedDict
 
 from zuper_commons.types import TM, ZValueError, add_context, check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
-from . import get_job_cache
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
-from .exceptions import CompmakeBug
+from .exceptions import CompmakeBug, SerializationError
 from .filesystem import StorageFilesystem
-from .storage import get_job, get_job_args, job_userobject_exists
+from .storage import get_job, get_job_args, get_job_cache, job_userobject_exists
 from .structures import IntervalTimer, Job
 from .types import CMJobID
 
@@ -61,9 +61,22 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
 
     int_load_results = IntervalTimer()
 
-    with ti.timeit("get_cmd_args_kwargs"):
-        command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
-    sig = inspect.signature(command)
+    try:
+        with ti.timeit("get_cmd_args_kwargs"):
+            command, args, kwargs_ = get_cmd_args_kwargs(job_id, db=db)
+    except SerializationError:
+        parent = job.defined_by[-1]
+        await context.write_message_console(f"Error: could not deserialize job {job_id!r}, marking parent {parent} as to do")
+        from compmake import mark_as_failed
+
+        msg = f"Could not deserialize child job {job_id!r}"
+        mark_as_failed(parent, db, msg, traceback.format_exc())
+        raise
+
+    kwargs = dict(kwargs_)
+    if job.needs_ti:
+        kwargs["ti"] = ti
+
     int_load_results.stop()
     user_object: object
 
@@ -71,12 +84,12 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
     if job.needs_context:
         args = tuple(list([context]) + list(args))
 
-        int_compute = IntervalTimer()
+        # int_compute = IntervalTimer()
         with ti.timeit("execute_with_context"):
             res: ExecuteWithContextResult = await execute_with_context(
                 sti, db=db, context=context, job_id=job_id, command=command, args=args, kwargs=kwargs
             )
-        int_compute.stop()
+        # int_compute.stop()
 
         # assert isinstance(res, dict)
         # assert len(res) == 2, list(res.keys())
@@ -89,32 +102,32 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
             "user_object": user_object,
             "new_jobs": new_jobs,
             "int_load_results": int_load_results,
-            "int_compute": int_compute,
+            "int_compute": res["int_compute"],
             "int_gc": IntervalTimer(),
         }
 
         return res1
     else:
-        int_compute = IntervalTimer()
-        is_async = inspect.iscoroutinefunction(command)
-        if is_async:
-            kwargs3 = dict(kwargs)
-            if "sti" in sig.parameters:
-                kwargs3["sti"] = sti
+        if job.is_async:
+
+            if job.needs_sti:
+                kwargs["sti"] = sti
 
             # sti.logger.info("Now starting command")
             await asyncio.sleep(0)
             with ti.timeit("await command"):
-                user_object = await command(*args, **kwargs3)
+                int_compute = IntervalTimer()
+                user_object = await command(*args, **kwargs)
+                int_compute.stop()
         else:
-            if "sti" in sig.parameters:
+            if job.needs_sti:
                 msg = "The function wants sti but it is not async"
-                raise ZValueError(msg, job_id=job_id, function=command, sig=sig)
+                raise ZValueError(msg, job_id=job_id, function=command)
 
-            with add_context(command=job.command_desc):
-                with ti.timeit("run command (no async)"):
-                    user_object = command(*args, **kwargs)
-        int_compute.stop()
+            with ti.timeit("run command (no async)"):
+                int_compute = IntervalTimer()
+                user_object = command(*args, **kwargs)
+                int_compute.stop()
         new_jobs: set[CMJobID] = set()
         res2: JobComputeResult = {
             "user_object": user_object,
@@ -129,6 +142,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
 class ExecuteWithContextResult(TypedDict):
     user_object: object
     new_jobs: set[CMJobID]
+    int_compute: IntervalTimer
 
 
 async def execute_with_context(
@@ -163,22 +177,26 @@ async def execute_with_context(
     # context is one of the arguments
     assert context in args
 
-    try:
-        _bound = sig.bind(*args, **kwargs2)
-    except TypeError as e:
-        msg = "Cannot bind"
-        raise ZValueError(msg, sig=sig, args=args, kwargs=kwargs2) from e
+    if __debug__:
+
+        try:
+            _bound = sig.bind(*args, **kwargs2)
+        except TypeError as e:
+            msg = "Cannot bind"
+            raise ZValueError(msg, sig=sig, args=args, kwargs=kwargs2) from e
 
     is_async = inspect.iscoroutinefunction(command)
     res: object
     with add_context(command=command, is_async=is_async):
+        int_compute = IntervalTimer()
         if is_async:
             res = await command(*args, **kwargs2)
         else:
             res = command(*args, **kwargs2)
+        int_compute.stop()
     generated: set[CMJobID] = set(context.get_jobs_defined_in_this_session())
     await context.reset_jobs_defined_in_this_session(already)
-    final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated}
+    final_res: ExecuteWithContextResult = {"user_object": res, "new_jobs": generated, "int_compute": int_compute}
     return final_res
 
 
