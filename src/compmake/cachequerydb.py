@@ -2,13 +2,12 @@ from contextlib import contextmanager
 from typing import Collection, Iterator, Union
 
 from compmake_utils import memoized_reset
-from zuper_commons.types import check_isinstance
+from zuper_commons.types import add_context, check_isinstance
 from . import logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem
-from .queries import direct_children, direct_parents, jobs_defined
 from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
@@ -47,6 +46,8 @@ class CacheQueryDB:
 
     @memoized_reset
     def jobs_defined(self, job_id: CMJobID):
+        from .queries import jobs_defined
+
         return jobs_defined(job_id, db=self.db)
 
     @memoized_reset
@@ -120,11 +121,18 @@ class CacheQueryDB:
 
     @memoized_reset
     def direct_children(self, job_id: CMJobID) -> set[CMJobID]:
+        from .queries import direct_children
+
         return direct_children(job_id, db=self.db)
 
     @memoized_reset
     def direct_parents(self, job_id: CMJobID) -> set[CMJobID]:
-        return direct_parents(job_id, db=self.db)
+        res = set()
+        for j in self.all_jobs():
+            job = self.get_job(j)
+            if job_id in job.children:
+                res.add(j)
+        return res
 
     @memoized_reset
     def parents(self, job_id: CMJobID) -> set[CMJobID]:
@@ -163,9 +171,10 @@ class CacheQueryDB:
 
         return list(result)
 
-    def list_todo_targets(self, jobs: Collection[CMJobID]) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
+    def list_todo_targets(self, jobs: Collection[CMJobID]) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID], set[CMJobID]]:
         """
-        Returns a tuple (todo, jobs_done, ready):
+        Returns a tuple (closure, todo, jobs_done, ready):
+         closure
          todo:  set of job ids to do (children that are not up to date)
          done:  top level targets (in jobs) that are already done.
          ready: ready to do (dependencies_up_to_date)
@@ -178,7 +187,7 @@ class CacheQueryDB:
             todo: set[CMJobID] = set()
             done: set[CMJobID] = set()
             seen: set[CMJobID] = set()
-            stack: list[CMJobID] = list()
+            stack: list[CMJobID] = []
             stack.extend(jobs)
 
             class A:
@@ -201,6 +210,7 @@ class CacheQueryDB:
                     done.add(job_id)
                 else:
                     todo.add(job_id)
+
                     for child in self.direct_children(job_id):
                         if not self.job_exists(child):
                             msg = f"Job {job_id!r} references a not existing job {child!r}. "
@@ -218,7 +228,7 @@ class CacheQueryDB:
 
             todo_and_ready = set([job_id for job_id in todo if self.dependencies_up_to_date(job_id)])
 
-            return todo, done, todo_and_ready
+            return seen, todo, done, todo_and_ready
 
     def tree_children_and_uodeps(self, jobs: Union[CMJobID, set[CMJobID]]):
         """Closure of the relation children and dependencies of userobject."""
@@ -254,7 +264,8 @@ class CacheQueryDB:
 @contextmanager
 def db_error_wrap(what: str, **args: object) -> Iterator[None]:
     try:
-        yield
+        with add_context(what=what, **args):
+            yield
     except CompmakeDBError as e:
         raise CompmakeDBError(what, **args) from e
 

@@ -3,10 +3,10 @@
 """
 
 import traceback
-from typing import Any, Callable, Collection, Iterator, Mapping, cast
+from typing import Any, Callable, Iterator, Mapping, cast
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
-from zuper_commons.types import TM, add_context, check_isinstance
+from zuper_commons.types import TM, ZKeyError, add_context, check_isinstance
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException, SerializationError
 from .filesystem import StorageFilesystem, StorageKey
 from .structures import Cache, Job
@@ -15,9 +15,6 @@ from .types import CMJobID
 __all__ = [
     "all_jobs",
     "assert_job_exists",
-    "db_job_add_dynamic_children",
-    "db_job_add_parent",
-    "db_job_add_parent_relation",
     "delete_all_job_data",
     "delete_job",
     "delete_job_args",
@@ -193,15 +190,21 @@ def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
 
     try:
         with add_context(op="loading", job_id=job_id):
-            res = db[key]
+            return db[key]
+
+    except KeyError as e:
+        msg = f"Could not load job {job_id!r}"
+        raise CompmakeBug(msg) from e
+
     except Exception as e:
         msg = f"Could not load user object for job {job_id}"
-        from compmake import mark_as_failed
+        if False:  # TMP
+            from compmake import mark_as_failed
 
-        mark_as_failed(job_id, db, msg, traceback.format_exc())
-        raise SerializationError(msg) from e
+            mark_as_failed(job_id, db, msg, traceback.format_exc())
+            raise SerializationError(msg) from e
+        raise CompmakeBug(msg) from e
     # print('... done')
-    return res
 
 
 def job_userobject_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
@@ -282,48 +285,47 @@ def delete_all_job_data(job_id: CMJobID, db: StorageFilesystem) -> None:
 
 
 # These are delicate and should be implemented differently
-def db_job_add_dynamic_children(
-    job_id: CMJobID, children: Collection[CMJobID], returned_by: CMJobID, db: StorageFilesystem
-) -> None:
-    job = get_job(job_id, db)
-    if not returned_by in job.children:
-        msg = f"{job_id!r} does not know it has child  {returned_by!r}"
-        raise CompmakeBug(msg)
+# def db_job_add_dynamic_children(
+#     job_id: CMJobID, children: Collection[CMJobID], returned_by: CMJobID, db: StorageFilesystem
+# ) -> None:
+#     job = get_job(job_id, db)
+#     if not returned_by in job.children:
+#         msg = f"{job_id!r} does not know it has child  {returned_by!r}"
+#         raise CompmakeBug(msg)
+#
+#     job.children.update(children)
+#     job.dynamic_children[returned_by] = set(children)
+#     set_job(job_id, job, db)
+#     job2 = get_job(job_id, db)
+#     assert job2.children == job.children, "Race condition"
+#     assert job2.dynamic_children == job.dynamic_children, "Race condition"
 
-    job.children.update(children)
-    job.dynamic_children[returned_by] = set(children)
-    set_job(job_id, job, db)
-    job2 = get_job(job_id, db)
-    assert job2.children == job.children, "Race condition"
-    assert job2.dynamic_children == job.dynamic_children, "Race condition"
+# def db_job_add_parent(db: StorageFilesystem, job_id: CMJobID, parent: CMJobID) -> None:
+#     j = get_job(job_id, db)
+#     # print('%s old parents list: %s' % (d, j.parents))
+#     j.parents.add(parent)
+#     set_job(job_id, j, db)
+#     j2 = get_job(job_id, db)
+#     assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
-def db_job_add_parent(db: StorageFilesystem, job_id: CMJobID, parent: CMJobID) -> None:
-    j = get_job(job_id, db)
-    # print('%s old parents list: %s' % (d, j.parents))
-    j.parents.add(parent)
-    set_job(job_id, j, db)
-    j2 = get_job(job_id, db)
-    assert j2.parents == j.parents, "Race condition"  # FIXME
-
-
-def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem) -> None:
-    child_comp = get_job(child, db=db)
-    orig = set(child_comp.parents)
-    want = orig | {parent}
-    # alright, need to take care of race condition
-    while True:
-        # Try to write
-        child_comp.parents = want
-        set_job(child, child_comp, db=db)
-        # now read back
-        child_comp = get_job(child, db=db)
-        if child_comp.parents != want:
-            print(f"race condition for parents of {child}")
-            print(f"orig: {orig}")
-            print(f"want: {want}")
-            print(f"now: {child_comp.parents}")
-            # add the children of the other racers as well
-            want = want | child_comp.parents
-        else:
-            break
+# def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem) -> None:
+#     child_comp = get_job(child, db=db)
+#     orig = set(child_comp.parents)
+#     want = orig | {parent}
+#     # alright, need to take care of race condition
+#     while True:
+#         # Try to write
+#         child_comp.parents = want
+#         set_job(child, child_comp, db=db)
+#         # now read back
+#         child_comp = get_job(child, db=db)
+#         if child_comp.parents != want:
+#             print(f"race condition for parents of {child}")
+#             print(f"orig: {orig}")
+#             print(f"want: {want}")
+#             print(f"now: {child_comp.parents}")
+#             # add the children of the other racers as well
+#             want = want | child_comp.parents
+#         else:
+#             break

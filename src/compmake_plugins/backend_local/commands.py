@@ -16,6 +16,7 @@ from compmake import (
     top_targets,
     ui_command,
 )
+from zuper_commons.types import add_context
 from zuper_utils_asyncio import SyncTaskInterface
 from .manager_local import ManagerLocal
 
@@ -47,13 +48,16 @@ async def make(
         make new_process=1 echo=1   Not supported yet.
     """
     db = context.get_compmake_db()
-    if not job_list:
-        job_list = list(top_targets(db=db))
+    with add_context(op="make", job_list=job_list):
 
-    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
-    manager.add_targets(job_list)
-    await manager.process()
-    return raise_error_if_manager_failed(manager)
+        if not job_list:
+            job_list = list(top_targets(db=db))
+
+        manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
+
+        manager.add_user_targets(job_list)
+        await manager.process()
+        return raise_error_if_manager_failed(manager)
 
 
 @ui_command(section=ACTIONS, dbchange=True)
@@ -121,7 +125,7 @@ async def remake(
 
     manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
 
-    manager.add_targets(non_empty_job_list)
+    manager.add_user_targets(non_empty_job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 

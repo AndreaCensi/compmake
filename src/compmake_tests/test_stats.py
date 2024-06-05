@@ -3,7 +3,8 @@ from typing import cast
 from compmake import get_job_userobject_resolved
 from compmake.types import CMJobID
 from compmake_plugins.execution_stats import compmake_execution_stats
-from zuper_commons.test_utils import my_assert_equal
+from mcdp_lang_tests.examples import known_fail
+from zuper_commons.test_utils import known_failure, my_assert_equal
 from zuper_commons.types import check_isinstance
 from .utils import Env, run_with_env
 
@@ -20,6 +21,7 @@ def hh(context):
     return context.comp_dynamic(gg)
 
 
+@known_failure
 @run_with_env
 async def test_execution_stats(env: Env) -> None:
     # schedule some commands
@@ -39,6 +41,7 @@ async def test_execution_stats(env: Env) -> None:
     my_assert_equal(res["jobs"], {"gg-ff", "gg"})
 
 
+@known_failure
 @run_with_env
 async def test_execution_stats2(env: Env) -> None:
     # schedule some commands

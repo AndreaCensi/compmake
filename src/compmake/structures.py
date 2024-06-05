@@ -62,14 +62,17 @@
 
 import time
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Optional, Union
+from typing import Any, Generic, Literal, NewType, Optional, TypeVar, Union
 
 from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
+from zuper_commons.fs import DirPath
 from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
 from zuper_utils_timing import TimeInfo
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
-from .types import CMJobID
+from .types import CMJobID, ResultDict
+
+T = TypeVar("T")
 
 __all__ = [
     "Cache",
@@ -86,7 +89,7 @@ __all__ = [
 
 
 @dataclass
-class Promise:
+class Promise(Generic[T]):
     job_id: CMJobID
 
 
@@ -96,7 +99,7 @@ class Job:
     children: set[CMJobID]  # these are the dependencies
     # These are created when the job is created
 
-    parents: set[CMJobID]
+    # parents: set[CMJobID]
     # These are the jobs that depend on this job
     # This field is updated later
 
@@ -105,7 +108,7 @@ class Job:
     needs_sti: bool  # (sti,
     needs_ti: bool  # kwargs ti=TimeingInfo
     defined_by: list[CMJobID]
-    dynamic_children: dict[CMJobID, set[CMJobID]]
+    # dynamic_children: dict[CMJobID, set[CMJobID]]
     pickle_main_context: PickleContextDesc
     command_desc: str
 
@@ -130,72 +133,29 @@ def make_job(
     """
     children = set(children)
 
-    parents = set()
+    # parents = set()
 
     assert len(defined_by) >= 1, defined_by
     assert defined_by[0] == "root", defined_by
     # str -> set(str), where the key is one
     # of the direct children
-    dynamic_children = {}
+    # dynamic_children = {}
 
     pickle_main_context = pickle_main_context_save()
 
     return Job(
         job_id=job_id,
         children=children,
-        parents=parents,
+        # parents=parents,
         needs_context=needs_context,
         defined_by=defined_by,
-        dynamic_children=dynamic_children,
+        # dynamic_children=dynamic_children,
         pickle_main_context=pickle_main_context,
         command_desc=command_desc,
         is_async=is_async,
         needs_sti=needs_sti,
         needs_ti=needs_ti,
     )
-
-
-#
-# class Job:
-#     job_id: CMJobID
-#     children: set[CMJobID]
-#     parents: set[CMJobID]
-#     needs_context: bool
-#     defined_by: list[CMJobID]
-#     dynamic_children: dict
-#     pickle_main_context: object
-#     command_desc: str
-#
-#     def __init__(
-#         self,
-#         job_id: CMJobID,
-#         children: set[CMJobID],
-#         command_desc: str,
-#         needs_context: bool = False,
-#         defined_by: list[CMJobID] = None,
-#     ):
-#         """
-#
-#         needs_context: new facility for dynamic jobs
-#         defined_by: name of jobs defining this job dynamically
-#                     This is the stack of jobs. 'root' is the first.
-#
-#         children: the direct dependencies
-#         """
-#         self.job_id = job_id
-#         self.children = set(children)
-#         self.command_desc = command_desc
-#         self.parents = set()
-#         self.needs_context = needs_context
-#         self.defined_by = defined_by
-#         assert len(defined_by) >= 1, defined_by
-#         assert defined_by[0] == "root", defined_by
-#         # str -> set(str), where the key is one
-#         # of the direct children
-#         self.dynamic_children = {}
-#
-#         self.pickle_main_context = pickle_main_context_save()
-#
 
 
 JA = tuple[str, TM[Any], dict[str, Any]]
@@ -441,12 +401,17 @@ class Cache:
         return getattr(self, "oom_bytes", None)  # XXX: TMP:
 
     def __repr__(self):
-        return "Cache(%s;%s;cpu:%s;wall:%s)" % (
-            Cache.state2desc[self.state],
-            self.timestamp,
-            self.cputime_used,
-            self.walltime_used,
-        )
+        # color = Cache.state2color[self.state]
+        desc = Cache.state2desc[self.state]
+        from .colored import compmake_colored
+
+        s = compmake_colored(desc, **Cache.state2color.get(self.state, {}))
+
+        if self.exception:
+            ex = self.exception[:100]
+        else:
+            ex = None
+        return "Cache(%s;%s;cpu:%s;wall:%s:%s)" % (s, self.timestamp, self.cputime_used, self.walltime_used, ex)
 
     def get_overhead(self) -> float:
         if self.int_make is None:
@@ -517,3 +482,36 @@ class ProgressStage:
             return self.iterations[0] >= self.iterations[1] - 1
         else:
             return self.iterations[0] >= self.iterations[1]
+
+
+@dataclass
+class ExecutionArgs:
+    job_id: CMJobID
+    basepath: DirPath
+    # event_queue_name: str
+    show_output: bool
+    logdir: DirPath
+    event_queue_name: str
+    # event_queue: "Queue[Any]"
+
+
+PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
+
+
+@dataclass
+class SendToPMakeWorkerJob:
+    job_id: CMJobID
+    function: PossibleFuncs
+    args: ExecutionArgs
+    # tuple[CMJobID, Callable[..., Any], list[Any]]]"
+
+
+SendToPMakeWorker = SendToPMakeWorkerJob | Literal["please-exit"]
+
+
+@dataclass
+class ParmakeJobResult:
+    rd: ResultDict
+    time_total: float
+    time_comp: float
+    time_other: float

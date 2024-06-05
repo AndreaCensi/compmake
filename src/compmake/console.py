@@ -3,7 +3,6 @@ import builtins
 from typing import Any, AsyncIterator, Optional, cast
 
 from zuper_utils_asyncio import SyncTaskInterface
-from .actions import clean_other_jobs
 from .cachequerydb import CacheQueryDB
 from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, ShellExitRequested

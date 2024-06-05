@@ -13,6 +13,8 @@ from compmake import (
     StorageFilesystem,
     all_jobs,
     get_job,
+    get_job_args,
+    get_job_userobject,
     parse_job_list,
     read_rc_files,
 )
@@ -23,6 +25,7 @@ from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface, create_sync_task2
 from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
+from . import logger
 
 X = TypeVar("X")
 
@@ -98,7 +101,7 @@ class Env:
 
     async def assert_cmd_fail(self, cmds: str) -> None:
         """Executes the (list of) commands and checks it was succesful."""
-        print("@ %s     [supposed to fail]" % cmds)
+        logger.info("@ %s     [supposed to fail]" % cmds)
         try:
             await self.batch_command(cmds)
             self.cq.invalidate()
@@ -114,7 +117,7 @@ class Env:
 
     async def assert_cmd_success(self, cmds: str) -> None:
         """Executes the (list of) commands and checks it was succesful."""
-        print("@ %s" % cmds)
+        logger.info("@ %s" % cmds)
         try:
             await self.batch_command(cmds)
         except MakeFailed as e:
@@ -199,7 +202,8 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
                             # sti.logger.error(traceback.format_exc())
                             # sti.logger.error("these are some stats", all_jobs=await env.all_jobs())
 
-                            raise ZException(all_jobs=await env.all_jobs()) from e
+                            display = show_all_jobs(env.db)
+                            raise ZException(display=display) from e
 
         t = await create_sync_task2(None, task)
         return await t.wait_for_outcome_success_result()
@@ -210,6 +214,35 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
     test_main.__module__ = f.__module__
     # noinspection PyTypeChecker
     return test_main
+
+
+def show_all_jobs(db):
+
+    cq = CacheQueryDB(db)
+    all_db_jobs = cq.all_jobs()
+    jobs = {}
+    for job_id in all_db_jobs:
+        jobd = {}
+        try:
+            jobd["job"] = cq.get_job(job_id)
+        except KeyError:
+            jobd["job"] = None
+        try:
+            jobd["args"] = get_job_args(job_id, db=db)
+        except KeyError:
+            jobd["args"] = None
+
+        try:
+            jobd["cache"] = cq.get_job_cache(job_id)
+        except KeyError:
+            jobd["cache"] = "not existing"
+
+        try:
+            jobd["uo"] = get_job_userobject(job_id, db=db)
+        except KeyError:
+            jobd["uo"] = "not existing"
+        jobs[job_id] = jobd
+    return jobs
 
 
 @asynccontextmanager

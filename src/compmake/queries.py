@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from typing import Collection, Iterator
 
 from zuper_commons.types import check_isinstance
+from .cachequerydb import CacheQueryDB
 from .exceptions import CompmakeBug
 from .filesystem import StorageFilesystem
 from .storage import all_jobs, get_job, get_job_cache
@@ -14,7 +15,6 @@ from .types import CMJobID
 __all__ = [
     "children",
     "direct_children",
-    "direct_parents",
     "jobs_defined",
     "parents",
     "top_targets",
@@ -44,13 +44,13 @@ def jobs_defined(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
         return set(cache.jobs_defined)
 
 
-def direct_parents(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
-    """Returns the direct parents of the specified job.
-    (Jobs that depend directly on this one)"""
-    check_isinstance(job_id, str)
-    with trace_bugs(f"direct_parents({job_id!r})"):
-        computation = get_job(job_id, db=db)
-        return set(computation.parents)
+# def direct_parents(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
+#     """Returns the direct parents of the specified job.
+#     (Jobs that depend directly on this one)"""
+#     check_isinstance(job_id, str)
+#     with trace_bugs(f"direct_parents({job_id!r})"):
+#         computation = get_job(job_id, db=db)
+#         return set(computation.parents)
 
 
 def direct_children(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
@@ -74,7 +74,7 @@ def children(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
 
 def top_targets(db: StorageFilesystem):
     """Returns a list of all jobs which are not needed by anybody"""
-    return [x for x in all_jobs(db=db) if not direct_parents(x, db=db)]
+    return [x for x in all_jobs(db=db)]  # if not direct_parents(x, db=db)] # TMP:
 
 
 # def bottom_targets(db):
@@ -99,10 +99,11 @@ def parents(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
     """Returns the set of all the parents, grandparents, etc.
     (does not include job_id)"""
     check_isinstance(job_id, str)
+    cq = CacheQueryDB(db)
 
     with trace_bugs(f"parents({job_id!r})"):
         t: set[CMJobID] = set()
-        parents_jobs = direct_parents(job_id, db=db)
+        parents_jobs = cq.direct_parents(job_id)
         for p in parents_jobs:
             t.add(p)
             t.update(parents(p, db=db))

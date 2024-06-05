@@ -1,6 +1,6 @@
 from typing import Any, cast
 
-from compmake import UserError, direct_children, direct_parents, make
+from compmake import CacheQueryDB, UserError, make
 from compmake.types import CMJobID
 from zuper_commons.test_utils import (
     assert_raises,
@@ -58,8 +58,9 @@ async def test_dep(env: Env) -> None:
     """Testing advanced dependencies discovery"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1)
-    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
-    my_assert(cf2.job_id in direct_parents(cf1.job_id, db=env.db))
+    cq = CacheQueryDB(db=env.db)
+    my_assert(cf1.job_id in cq.direct_children(cf2.job_id))
+    my_assert(cf2.job_id in cq.direct_parents(cf1.job_id))
 
 
 @run_with_env
@@ -67,9 +68,11 @@ async def test_dep2(env: Env) -> None:
     """Testing advanced dependencies discovery (double)"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, cf1, cf1)
-    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
-    my_assert_equal(1, len(direct_children(cf2.job_id, db=env.db)))
-    my_assert_equal(1, len(direct_parents(cf1.job_id, db=env.db)))
+    cq = CacheQueryDB(db=env.db)
+
+    my_assert(cf1.job_id in cq.direct_children(cf2.job_id))
+    my_assert_equal(1, len(cq.direct_children(cf2.job_id)))
+    my_assert_equal(1, len(cq.direct_parents(cf1.job_id)))
 
 
 @run_with_env
@@ -77,8 +80,10 @@ async def test_dep3(env: Env) -> None:
     """Testing advanced dependencies discovery in dicts"""
     cf1 = env.comp(f1)
     cf2 = env.comp(f2, [1, {"ciao": cf1}])
-    my_assert(cf1.job_id in direct_children(cf2.job_id, db=env.db))
-    my_assert(cf2.job_id in direct_parents(cf1.job_id, db=env.db))
+    cq = CacheQueryDB(db=env.db)
+
+    my_assert(cf1.job_id in cq.direct_children(cf2.job_id))
+    my_assert(cf2.job_id in cq.direct_parents(cf1.job_id))
 
 
 @run_with_env

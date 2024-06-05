@@ -8,7 +8,7 @@ import traceback
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
-from typing import Any, Callable, Literal, Optional, cast
+from typing import Any, Awaitable, Callable, Optional, cast
 
 import psutil
 
@@ -25,10 +25,10 @@ from compmake import (
     result_dict_raise_if_error,
 )
 from compmake.constants import CANCEL_REASONS
+from compmake.structures import ExecutionArgs, ParmakeJobResult, PossibleFuncs, SendToPMakeWorker, SendToPMakeWorkerJob
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
-from zuper_commons.types import TM
 from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
@@ -40,20 +40,18 @@ from zuper_utils_asyncio import (
 )
 from zuper_utils_timing import TimeInfo
 from zuper_zapp import async_run_simple1, setup_environment2
-from .parmake_job2_imp import ParmakeJobResult, parmake_job2
+from .parmake_job2_imp import parmake_job2
 
 __all__ = [
     "PmakeSub",
-    "PossibleFuncs",
 ]
-
-PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
 
 class PmakeSub:
     last: "Optional[PmakeResult]"
     EXIT_TOKEN = "please-exit"
-    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, tuple[Any, ...]]]"
+    # job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, tuple[Any, ...]]]"
+    job_queue: "multiprocessing.Queue[SendToPMakeWorker]"
     result_queue: "multiprocessing.Queue[ResultDict]"
     _proc: Process
     killed_by_me: bool
@@ -87,7 +85,6 @@ class PmakeSub:
         self.job_queue = ctx.Queue()
         self.result_queue = ctx.Queue()
         self.event_queue = event_queue
-        # print('starting process %s ' % name)
         self.write_log = write_log
         self.job_timeout = job_timeout
         args = (
@@ -98,10 +95,9 @@ class PmakeSub:
             signal_token,
             write_log,
             detailed_python_mem_stats,
-            job_timeout,
-            event_queue,
+            # job_timeout,
+            # event_queue,
         )
-        # logger.info(args=args)
         self.last = None
         self.killed_by_me = False
         self.killed_reason = None
@@ -148,9 +144,11 @@ class PmakeSub:
         # self.job_queue = None
         # self.result_queue = None
 
-    def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: TM[Any]) -> "PmakeResult":
+    def apply_async(self, job_id: CMJobID, function: PossibleFuncs, args: ExecutionArgs) -> "PmakeResult":
         self.nstarted += 1
-        self.job_queue.put((job_id, function, arguments))
+        s = SendToPMakeWorkerJob(job_id, function, args)
+
+        self.job_queue.put(s)
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
 
@@ -158,10 +156,11 @@ class PmakeSub:
         now = time.time()
         if now - self.last_mem_usage_sampled > max_delay:
             if self._proc.is_alive():
-                pr = self.pr.memory_info().rss
-                self.last_mem_usage = pr
-                self.max_mem_usage = max(self.max_mem_usage, pr)
-                self.last_mem_usage_sampled = time.time()
+                if self.pr:
+                    pr = self.pr.memory_info().rss
+                    self.last_mem_usage = pr
+                    self.max_mem_usage = max(self.max_mem_usage, pr)
+                    self.last_mem_usage_sampled = time.time()
 
         return self.max_mem_usage, self.last_mem_usage
 
@@ -227,14 +226,12 @@ def _format_dt(dt: float, reference: Optional[float] = None):
 async def pmake_worker(
     sti: SyncTaskInterface,
     name: str,
-    job_queue: "multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]",
+    job_queue: "multiprocessing.Queue[SendToPMakeWorker]",
     result_queue: "multiprocessing.Queue[ResultDict]",
     signal_queue: "Optional[multiprocessing.Queue[Any]]",
     signal_token: str,
     write_log: Optional[FilePath],
     detailed_python_mem_stats: bool,
-    job_timeout: Optional[float],
-    event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
     current_name = name
 
@@ -377,6 +374,7 @@ async def pmake_worker(
 
                 log("Listening for job")
                 t0 = time.time()
+                job: SendToPMakeWorker
                 try:
                     job = job_queue.get(block=True, timeout=5)
                 except Empty:
@@ -390,13 +388,17 @@ async def pmake_worker(
                     break
 
                 log(f"got job: {job} in {time_to_get_job:.2f} seconds")
+                assert isinstance(job, SendToPMakeWorkerJob)
 
-                job_id, function_name, arguments = job
-                arguments += (event_queue,)
-                funcs: dict[str, Any] = {
-                    "parmake_job2_new_process_1": parmake_job2_new_process_1,
-                    "parmake_job2": parmake_job2,
-                }
+                function_name = job.function
+                job_id = job.job_id
+                args = job.args
+
+                funcs: dict[PossibleFuncs, Callable[[SyncTaskInterface, ExecutionArgs], Awaitable[ParmakeJobResult]]] = {}
+
+                funcs["parmake_job2_new_process_1"] = parmake_job2_new_process_1
+                funcs["parmake_job2"] = parmake_job2
+
                 function = funcs[function_name]
                 if detailed_python_mem_stats:
                     diff = memory_tracker.format_diff()
@@ -409,7 +411,7 @@ async def pmake_worker(
                 try:
                     t0 = time.time()
                     log(f"creating task...")
-                    child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
+                    child = await sti.create_child_task2(job_id, funcwrap, function, args)
                     log(f"waiting for task...")
 
                     pres: ParmakeJobResult = await child.wait_for_outcome_success_result()
@@ -457,10 +459,10 @@ async def pmake_worker(
 
                 del arguments, job
                 if detailed_python_mem_stats:
-                    import lxml
-                    import lxml.etree
-                    from pympler import muppy, summary, tracker
-                    from pympler.summary import format_
+                    import lxml  # type: ignore
+                    import lxml.etree  # type: ignore
+                    from pympler import muppy, summary, tracker  # type: ignore
+                    from pympler.summary import format_  # type: ignore
 
                     log("cleaning lxml error log...")
                     lxml.etree.clear_error_log()
@@ -496,11 +498,11 @@ async def pmake_worker(
         log("memory dump")
 
         if memory_tracker is not None:
-            from pympler import muppy, summary, tracker
-            from pympler.summary import format_
+            from pympler import muppy, summary, tracker  # type: ignore
+            from pympler.summary import format_  # type: ignore
 
             all_objects = muppy.get_objects()
-            sum1 = summary.summarize(all_objects)
+            sum1 = summary.summarize(all_objects)  # type: ignore
             res = joinlines(format_(sum1, limit=50))
             log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
 
@@ -513,11 +515,15 @@ async def pmake_worker(
         log("clean exit.")
 
 
-async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list[Any]) -> Any:
+async def funcwrap(
+    sti: SyncTaskInterface,
+    function: Callable[[SyncTaskInterface, ExecutionArgs], Awaitable[ParmakeJobResult]],
+    arguments: ExecutionArgs,
+) -> Any:
     await sti.started_and_yield()
     # sti.logger.info("now_running", function=function, arguments=arguments)
     try:
-        return await function(sti=sti, args=arguments)
+        return await function(sti, arguments)
     except:
         sti.logger.error("funcwrap exception")
         raise

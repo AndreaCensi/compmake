@@ -52,7 +52,7 @@ class CompmakeConstants:
     compmake_status_embedded = "embedded"
 
     # debug_origin_of_prints = True
-    debug_check_invariants = False  # TODO: make config
+    debug_check_invariants = __debug__  # TODO: make config
 
     disable_interproc_queue = False
 
@@ -63,7 +63,7 @@ class CompmakeConstants:
     debug_parmake_log = False
 
     # Try to recover from anomalous situations
-    try_recover = True
+    try_recover = False
 
     aliases: ClassVar[dict[str, AliasT | str | Collection[str]]] = {}
 

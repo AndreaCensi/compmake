@@ -6,18 +6,20 @@ import shutil
 import signal
 import time
 import traceback
-import warnings
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Collection, NoReturn
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinpars
-from zuper_commons.types import ZException
-from zuper_commons.ui import color_red, duration_compact, size_compact
+from zuper_commons.types import ZException, add_context
+from zuper_commons.ui import color_gray, color_red, duration_compact, size_compact
+from zuper_typing import debug_print
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
+from . import collect_dependencies, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
 from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
@@ -25,23 +27,20 @@ from .context import Context
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
-from .queries import direct_children, direct_parents
 from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED
 from .registrar import publish
 from .result_dict import check_ok_result, result_dict_check
 from .storage import (
     assert_job_exists,
-    db_job_add_dynamic_children,
-    db_job_add_parent,
-    get_job,
     get_job_cache,
+    get_job_userobject,
     job_cache_exists,
     job_exists,
     job_userobject_exists,
 )
 from .structures import Cache, StateCode
 from .types import CMJobID, OKResult
-from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
+from .uptodate import direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 
 __all__ = [
@@ -100,12 +99,40 @@ class ManagerLog:
             ss.append(f"- {k:>15}: {v}")
         self.f.write(joinpars(ss))
         self.f.flush()
+        if __debug__:
+            logger.info(joinpars(ss))
 
 
 @dataclass
 class ProcessingDetails:
     started: float
     interface: AsyncResultInterface
+
+
+@dataclass
+class DepFor:
+    natural: set[CMJobID] = field(default_factory=set)
+    _dynamic: dict[CMJobID, set[CMJobID]] = field(default_factory=dict)
+
+    @classmethod
+    def initial(cls, natural: set[CMJobID]) -> "DepFor":
+        return cls(natural=natural)
+
+    def all(self) -> frozenset[CMJobID]:
+
+        return self.natural_deps() | self.dynamic_deps()
+
+    def natural_deps(self) -> frozenset[CMJobID]:
+        return frozenset(self.natural)
+
+    def dynamic_deps(self) -> frozenset[CMJobID]:
+        res = set()
+        for d in self._dynamic.values():
+            res |= d
+        return frozenset(res)
+
+    def add_new_dynamic(self, because_created_by: CMJobID, new_targets: Collection[CMJobID]) -> None:
+        self._dynamic[because_created_by] = set(new_targets)
 
 
 class Manager(ManagerLog):
@@ -127,6 +154,10 @@ class Manager(ManagerLog):
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
 
+    #
+    dependencies_for: dict[CMJobID, DepFor]
+    is_dependency_of: dict[CMJobID, set[CMJobID]]
+
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
         self.context = context
         self.sti = sti
@@ -138,10 +169,11 @@ class Manager(ManagerLog):
         self.recurse = recurse
 
         # top-level targets added by users
-        self.targets = set()
+        self.user_targets = set()
 
         # top-level targets + all their dependencies
         self.all_targets = set()
+
         # some jobs might be deleted, they go here
         self.deleted = set()
 
@@ -173,11 +205,15 @@ class Manager(ManagerLog):
         # computed by ``precompute_priorities()`` called by process()
         self.priorities = {}
 
-        self.check_invariants()
         self.interrupted = False
         self.loop_task = None
 
         self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
+
+        self.dependencies_for = {}
+        self.is_dependency_of = defaultdict(set)
+
+        self.check_invariants()
 
     # ## Derived class interface
     async def process_init(self) -> None:
@@ -211,97 +247,277 @@ class Manager(ManagerLog):
         # logger.debug(f'choosing {self.priorities[best]} job {best!r}')
         return best
 
-    def add_targets(self, targets: Collection[CMJobID]):
-        self.log("add_targets()", targets=L(targets))
-        self.check_invariants()
-        for t in targets:
-            assert_job_exists(t, self.db)
+    def add_user_targets(self, targets: Collection[CMJobID]):
+        try:
+            with add_context(add_user_targets=targets):
+                self.user_targets.update(targets)
+                self.add_targets(targets)
+        except Exception as e:
+            raise CompmakeBug(f"Error adding user targets {targets!r}", st=self._get_situation_string()) from e
 
-            if t in self.processing:
-                msg = f"Adding a job already in processing: {t!r}"
-                raise CompmakeBug(msg)
+    def get_closure_natural_and_dynamic(self, job_ids: Collection[CMJobID], cq: CacheQueryDB) -> set[CMJobID]:
+        seen = set()
+        stack = list(job_ids)
+        while stack:
+            one = stack.pop()
+            if one in seen:
+                continue
+            seen.add(one)
 
-            if t in self.targets:
-                if t in self.ready_todo:
-                    self.ready_todo.remove(t)
-                if t in self.todo:
-                    self.todo.remove(t)
-                if t in self.all_targets:
-                    self.all_targets.remove(t)
+            deps = self.get_children_for_job_including_dynamic(one, cq)
+            for d in deps:
+                if d not in seen:
+                    stack.append(d)
+
+        return seen
+
+    def add_targets(self, targets0: Collection[CMJobID]):
+        with add_context(targets=targets0):
+            self.check_invariants()
+            self.add_targets_(targets0)
+            self.check_invariants()
+
+            self.log(
+                "after add_targets()",
+                processing=L(self.processing),
+                ready_todo=L(self.ready_todo),
+                todo=L(self.todo),
+                done=L(self.done),
+            )
+
+    def add_targets_(self, targets0: Collection[CMJobID]):
+        self.log("add_targets()", targets=L(targets0))
+        with add_context(add_targets=targets0):
+
+            targets = set(targets0) - set(self.all_targets)
+            if not targets:
+                return
+            for t in targets:
+
+                assert_job_exists(t, self.db)
+
+                if t in self.processing:
+                    msg = f"Adding a job already in processing: {t!r}"
+                    raise CompmakeBug(msg)
+                #
+                # if t in self.all_targets:
+                #     if t in self.ready_todo:
+                #         self.ready_todo.remove(t)
+                #     if t in self.todo:
+                #         self.todo.remove(t)
+                #     if t in self.all_targets:
+                #         self.all_targets.remove(t)
+                #     if t in self.done:
+                #         self.done.remove(t)
+
+            # self.targets contains all the top-level targets we were passed
+            cq = CacheQueryDB(self.db)
+
+            # logger.info('Checking dependencies...')
+            # Note this would not work for recursive jobs
+            # with add_context(add_target=targets):
+            closure_direct_children, targets_todo_plus_deps_, targets_done_, ready_todo_ = cq.list_todo_targets(targets)
+
+            more_targets = set()
+            for t in closure_direct_children:
+                t_deps = cq.direct_children(t)
+                more_targets |= self.add_natural_deps_(t, t_deps)
+            # XXX: more_targets
+            closure_direct_children |= more_targets
+            closure_direct_and_dynamic = self.get_closure_natural_and_dynamic(closure_direct_children, cq)
+
+            self.all_targets.update(closure_direct_and_dynamic)
+
+            new_blocked = set()
+            new_ready = set()
+            new_todo = set()
+
+            for t in closure_direct_and_dynamic:
+                if t in self.processing:
+                    continue
+                if t in self.blocked:
+                    continue
+                if t in self.failed:
+                    continue
                 if t in self.done:
-                    self.done.remove(t)
+                    continue
 
-        # self.targets contains all the top-level targets we were passed
-        self.targets.update(targets)
+                deps = self.get_children_for_job_including_dynamic(t, cq)
 
-        # logger.info('Checking dependencies...')
-        cq = CacheQueryDB(self.db)
-        # Note this would not work for recursive jobs
-        targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
-        not_ready = targets_todo_plus_deps - ready_todo
+                if any(d in self.failed or d in self.blocked for d in deps):
+                    new_blocked.add(t)
+                elif all(d in self.done for d in deps):
+                    new_ready.add(t)
+                else:
+                    new_todo.add(t)
 
-        self.log(
-            "computed todo",
-            targets_todo_plus_deps=L(targets_todo_plus_deps),
-            targets_done=L(targets_done),
-            ready_todo=L(ready_todo),
-            not_ready=L(not_ready),
-        )
+            # not_ready = targets_todo_plus_deps - ready_todo
+            #
+            # self.log(
+            #     "computed todo",
+            #     targets_todo_plus_deps=L(targets_todo_plus_deps),
+            #     targets_done=L(targets_done),
+            #     ready_todo=L(ready_todo),
+            #     not_ready=L(not_ready),
+            # )
+            #
+            # self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
 
-        self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
+            # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
+            # print('           targets_done: %s ' % targets_done)
+            # print('             ready_todo: %s ' % ready_todo)
+            # both done and todo jobs are added to self.all_targets
 
-        # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
-        # print('           targets_done: %s ' % targets_done)
-        # print('             ready_todo: %s ' % ready_todo)
-        # both done and todo jobs are added to self.all_targets
+            # let's check the additional jobs exist
+            # for d in targets_todo_plus_deps - set(targets):
+            #     if not job_exists(d, self.db):
+            #         msg = "Adding job that does not exist: %r." % d
+            #         raise CompmakeBug(msg)
+            #
+            # new_targets = targets_todo_plus_deps | targets_done
 
-        # let's check the additional jobs exist
-        for d in targets_todo_plus_deps - set(targets):
-            if not job_exists(d, self.db):
-                msg = "Adding job that does not exist: %r." % d
-                raise CompmakeBug(msg)
+            # ok, careful here, there might be jobs that are
+            # already in processing
 
-        self.all_targets.update(targets_todo_plus_deps)
-        self.all_targets.update(targets_done)
+            # XXX: we should clean the Cache of a job before making it
+            # XXX: This is where we get the additional counters 2022-11.
+            #  I removed hopefully nothing bad happens.
+            # XXX: 2023-01: I put it back. The invariants will not hold anymore.
+            # now we have .done_by_me
+            # self.done.update(targets_done - self.processing)
 
-        # ok, careful here, there might be jobs that are
-        # already in processing
+            # todo_add = not_ready - self.processing
+            # self.todo.update(not_ready - self.processing)
+            # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
+            # ready_add = ready_todo - self.processing
+            # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
+            for r in new_ready:
+                self.add_to_ready(r, cq)
+            self.todo.update(new_todo)
+            self.blocked.update(new_blocked)
 
-        # XXX: we should clean the Cache of a job before making it
-        # XXX: This is where we get the additional counters 2022-11.
-        #  I removed hopefully nothing bad happens.
-        # XXX: 2023-01: I put it back. The invariants will not hold anymore.
-        # now we have .done_by_me
-        self.done.update(targets_done - self.processing)
+            # # this is a quick fix but I'm sure more thought is to be given
+            # for a in ready_add:
+            #     if a in self.todo:
+            #         self.todo.remove(a)
+            # for a in todo_add:
+            #     if a in self.ready_todo:
+            #         self.ready_todo.remove(a)
 
-        todo_add = not_ready - self.processing
-        self.todo.update(not_ready - self.processing)
-        self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
-        ready_add = ready_todo - self.processing
-        self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
-        self.ready_todo.update(ready_add)
-        # this is a quick fix but I'm sure more thought is to be given
-        for a in ready_add:
-            if a in self.todo:
-                self.todo.remove(a)
-        for a in todo_add:
-            if a in self.ready_todo:
-                self.ready_todo.remove(a)
+            self.update_priorities(cq)
+
+    def update_priorities(self, cq):
 
         needs_priorities = self.todo | self.ready_todo
         misses_priorities = needs_priorities - set(self.priorities)
         new_priorities = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
         self.priorities.update(new_priorities)
 
-        self.check_invariants()
+    def add_to_ready(self, job_id: CMJobID, cq) -> None:
+        for d in self.get_children_for_job_including_dynamic(job_id, cq):
+            if d not in self.done:
+                msg = f"Job {job_id} is ready but depends on {d} which is not done."
+                raise CompmakeBug(msg)
+        self.ready_todo.add(job_id)
 
-        self.log(
-            "after add_targets()",
-            processing=L(self.processing),
-            ready_todo=L(self.ready_todo),
-            todo=L(self.todo),
-            done=L(self.done),
-        )
+    #
+    # def add_natural_deps(self, job_id: CMJobID, natural_deps: set[CMJobID]) -> None:
+    #     self.check_invariants()
+    #     all_added = self.add_natural_deps_(job_id, natural_deps)
+    #
+    #     self.check_invariants()
+    #     self.add_targets(all_added)
+    #     self.check_invariants()
+
+    def add_natural_deps_(self, job_id: CMJobID, natural_deps: set[CMJobID]) -> set[CMJobID]:
+        if job_id in natural_deps:
+            msg = f"Job {job_id} cannot be  a natural dependency of itself."
+            raise CompmakeBug(msg)
+        with add_context(op="add_natural_deps_", job_id=job_id, natural_deps=natural_deps):
+
+            all_added = set(natural_deps)
+            # assert t not in self.dependencies_for
+            if job_id not in self.dependencies_for:
+                self.dependencies_for[job_id] = DepFor.initial(natural_deps)
+
+            # dynamic_deps = {}
+            for n in natural_deps:
+                self.set_is_natural_dependency_of(n, job_id)
+
+                db = self.db
+                if job_userobject_exists(n, db):
+                    user_object = get_job_userobject(n, db)
+                    user_object_deps = collect_dependencies(user_object)
+
+                    all_added |= self.add_dynamic_targets_(job_id, n, user_object_deps)
+            return all_added
+
+    def set_is_natural_dependency_of(self, job1: CMJobID, job2: CMJobID) -> None:
+        if job1 == job2:
+            raise CompmakeBug(f"same job")
+        self.is_dependency_of[job1].add(job2)
+        if job1 in self.is_dependency_of[job2]:
+            raise CompmakeBug(f"Cycle detected: {job1} -> {job2} -> {job1}")
+
+    def set_is_dynamic_dependency_of(self, job1: CMJobID, job2: CMJobID) -> None:
+        if job1 == job2:
+            raise CompmakeBug(f"same job")
+        self.is_dependency_of[job1].add(job2)
+        if job1 in self.is_dependency_of[job2]:
+            raise CompmakeBug(f"Cycle detected: {job1} -> {job2} -> {job1}")
+
+    # def add_dynamic_targets(self, for_job: CMJobID, because_created_by: CMJobID, new_targets: Collection[CMJobID]):
+    #     self.check_invariants()
+    #     all_added = self.add_dynamic_targets_(for_job, because_created_by, new_targets)
+    #     self.check_invariants()
+    #
+    #     self.add_targets(all_added)
+    #     self.check_invariants()
+
+    def add_dynamic_targets_(
+        self, for_job: CMJobID, because_created_by: CMJobID, new_targets: Collection[CMJobID]
+    ) -> set[CMJobID]:
+        """Adds the new targets to the list of targets, and updates the dependencies."""
+        with add_context(
+            op="add_dynamic_targets_", for_job=for_job, because_created_by=because_created_by, new_targets=new_targets
+        ):
+
+            if for_job == because_created_by:
+                raise CompmakeBug(
+                    f"for_job  == because_created_by",
+                    for_job=for_job,
+                    because_created_by=because_created_by,
+                    new_targets=new_targets,
+                )
+            if for_job in new_targets:
+                raise CompmakeBug(
+                    f"for_job in new_targets", for_job=for_job, because_created_by=because_created_by, new_targets=new_targets
+                )
+            if because_created_by in new_targets:
+                raise CompmakeBug(
+                    f"because_created_by in new_targets",
+                    for_job=for_job,
+                    because_created_by=because_created_by,
+                    new_targets=new_targets,
+                )
+
+            self.log("add_dynamic_targets", for_job=for_job, because_created_by=because_created_by, new_targets=new_targets)
+            all_added = set(new_targets)
+
+            self.dependencies_for[for_job].add_new_dynamic(because_created_by, new_targets)
+            db = self.db
+
+            for n in new_targets:
+                if job_userobject_exists(n, db):
+                    user_object = get_job_userobject(n, db)
+                    user_object_deps = collect_dependencies(user_object)
+                    with add_context(op="recursing into result of {n}", n=n, user_object_deps=user_object_deps):
+
+                        all_added |= self.add_dynamic_targets_(for_job, n, user_object_deps)
+
+                self.set_is_dynamic_dependency_of(n, for_job)
+
+            return all_added
 
     async def instance_some_jobs(self) -> dict[str, str]:
         """
@@ -449,7 +665,9 @@ class Manager(ManagerLog):
 
             check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
 
-            self.job_succeeded(job_id)
+            user_object_deps = result["user_object_deps"]
+
+            self.job_succeeded(job_id, set(user_object_deps))
             self.check_invariants()
 
             self.check_job_finished_handle_result(job_id, result)
@@ -525,54 +743,56 @@ class Manager(ManagerLog):
         # print('job %r succeeded' % job_id)
         self.check_invariants()
 
+        cq = CacheQueryDB(self.db)
         # Check if the result of this job contains references
         # to other jobs
-        deps = result["user_object_deps"]
-        if deps:
-            # print('Job %r results contain references to jobs: %s'
-            # % (job_id, deps))
-
-            # We first add extra dependencies to all those jobs
-            jobs_depending_on_this = direct_parents(job_id, self.db)
-            # print('need to update %s' % jobs_depending_on_this)
-            for parent in jobs_depending_on_this:
-                db_job_add_dynamic_children(job_id=parent, children=deps, returned_by=job_id, db=self.db)
-
-                # also add inverse relation
-                for d in deps:
-                    self.log("updating dep", job_id=job_id, parent=parent, d=d)
-                    db_job_add_parent(job_id=d, parent=parent, db=self.db)
-
-            for parent in jobs_depending_on_this:
-                self.log("rescheduling parent", job_id=job_id, parent=parent)
-                # print(' its parent %r' % parent)
-                if parent in self.all_targets:
-                    # print('was also in targets')
-                    # Remove it from the "ready_todo_list"
-                    if parent in self.processing2result:
-                        msg = f"parent {job_id} of {parent} is already processing?"
-                        raise CompmakeBug(msg)
-
-                    if parent in self.done:
-                        msg = f" parent {job_id} of {parent} is already done?"
-                        warnings.warn("not sure of this...")
-                        # raise CompmakeBug(msg)#
-
-                    self.all_targets.remove(parent)
-                    if parent in self.failed:
-                        self.failed.remove(parent)
-                    if parent in self.blocked:
-                        self.blocked.remove(parent)
-                    if parent in self.done:
-                        self.done.remove(parent)
-                    if parent in self.ready_todo:
-                        self.ready_todo.remove(parent)
-                    if parent in self.todo:
-                        self.todo.remove(parent)
-                    self.check_invariants()
-
-                    self.add_targets([parent])
-                    self.check_invariants()
+        # deps = result["user_object_deps"]
+        # if deps:
+        #     # self.add_targets(deps)
+        #     # print('Job %r results contain references to jobs: %s'
+        #     # % (job_id, deps))
+        #
+        #     # # We first add extra dependencies to all those jobs
+        #     # jobs_depending_on_this = direct_parents(job_id, self.db)
+        #     # # print('need to update %s' % jobs_depending_on_this)
+        #     # for parent in jobs_depending_on_this:
+        #     #     db_job_add_dynamic_children(job_id=parent, children=deps, returned_by=job_id, db=self.db)
+        #     #
+        #     #     # also add inverse relation
+        #     #     for d in deps:
+        #     #         self.log("updating dep", job_id=job_id, parent=parent, d=d)
+        #     #         db_job_add_parent(job_id=d, parent=parent, db=self.db)
+        #
+        #     for parent in cq.direct_parents(job_id):
+        #         self.log("rescheduling parent", job_id=job_id, parent=parent)
+        #         # print(' its parent %r' % parent)
+        #         if parent in self.all_targets:
+        #             # print('was also in targets')
+        #             # Remove it from the "ready_todo_list"
+        #             if parent in self.processing2result:
+        #                 msg = f"parent {job_id} of {parent} is already processing?"
+        #                 raise CompmakeBug(msg)
+        #
+        #             if parent in self.done:
+        #                 msg = f" parent {job_id} of {parent} is already done?"
+        #                 warnings.warn("not sure of this...")
+        #                 # raise CompmakeBug(msg)#
+        #
+        #             self.all_targets.remove(parent)
+        #             if parent in self.failed:
+        #                 self.failed.remove(parent)
+        #             if parent in self.blocked:
+        #                 self.blocked.remove(parent)
+        #             if parent in self.done:
+        #                 self.done.remove(parent)
+        #             if parent in self.ready_todo:
+        #                 self.ready_todo.remove(parent)
+        #             if parent in self.todo:
+        #                 self.todo.remove(parent)
+        #             self.check_invariants()
+        #
+        #             self.add_targets([parent])
+        #             self.check_invariants()
 
         if self.recurse:
             # print('adding targets %s' % new_jobs)
@@ -588,7 +808,7 @@ class Manager(ManagerLog):
                 else:
                     cocher.add(j)
             if cocher:
-                self.add_targets(cocher)
+                self.add_targets_(cocher)
 
         self.check_invariants()
 
@@ -601,7 +821,9 @@ class Manager(ManagerLog):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
-        self.ready_todo.add(job_id)
+        cq = CacheQueryDB(self.db)
+        self.add_to_ready(job_id, cq)
+        # self.ready_todo.add(job_id)
 
         self.publish_progress()
 
@@ -645,7 +867,7 @@ class Manager(ManagerLog):
         self.publish_progress()
         self.check_invariants()
 
-    def job_succeeded(self, job_id: CMJobID) -> None:
+    def job_succeeded(self, job_id: CMJobID, user_object_deps: set[CMJobID]) -> None:
         """Mark the specified job as succeeded. Update the structures,
         mark any parents which are ready as ready_todo."""
         self.log("job_succeeded", job_id=job_id)
@@ -660,52 +882,75 @@ class Manager(ManagerLog):
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
-        parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
+        # parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
         cq = CacheQueryDB(self.db)
 
-        parents_todo = set(self.todo & parent_jobs)
+        waiting_for_this = self.is_dependency_of[job_id]
+
+        more_targets = set()
+        for parent_job in waiting_for_this:
+            # if parent_job in self.targets:
+            more_targets |= self.add_dynamic_targets_(parent_job, because_created_by=job_id, new_targets=user_object_deps)
+        self.add_targets_(more_targets)
+
+        parents_todo = set(self.todo & waiting_for_this)
         self.log("considering parents", parents_todo=L(parents_todo))
         for opportunity in parents_todo:
-            # print('parent %r in todo' % (opportunity))
-            if opportunity in self.processing:
-                msg = f"Parent {opportunity!r} of {job_id!r} already processing"
-                if CompmakeConstants.try_recover:
-                    print(msg)
-                    continue
-                else:
-                    raise CompmakeBug(msg)
-            assert opportunity not in self.processing
-
-            self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
-
-            its_children = direct_children(opportunity, db=self.db)
-            # print('its children: %r' % its_children)
-
-            for child in its_children:
-                # If child is part of all_targets, check that it is done
-                # otherwise check that it is done by the DB.
-                if child in self.all_targets:
-                    if not child in self.done:
-                        self.log("parent still waiting another child", opportunity=opportunity, child=child)
-                        # logger.info('parent %r still waiting on %r' %
-                        # (opportunity, child))
-                        # still some dependency left
-                        break
-                else:
-                    up, _, _ = cq.up_to_date(child)
-                    if not up:
-                        # print('The child %s is not up_to_date' % child)
-                        break
-
-            else:
-                # print('parent %r is now ready' % (opportunity))
-                self.log("parent is ready", opportunity=opportunity)
-                self.todo.remove(opportunity)
-                publish(self.context, "manager-job-ready", job_id=opportunity)
-                self.ready_todo.add(opportunity)
+            self.consider_opportunity(opportunity, cq)
 
         self.check_invariants()
         self.publish_progress()
+
+    def consider_opportunity(self, opportunity: CMJobID, cq: CacheQueryDB) -> None:
+
+        # print('parent %r in todo' % (opportunity))
+        if opportunity in self.processing:
+            msg = f"Parent {opportunity!r}  already processing"
+            if CompmakeConstants.try_recover:
+                print(msg)
+            else:
+                raise CompmakeBug(msg)
+        assert opportunity not in self.processing
+
+        self.log("considering opportuniny", opportunity=opportunity)
+
+        its_children = self.get_children_for_job_including_dynamic(opportunity, cq)
+        # print('its children: %r' % its_children)
+
+        still_depending_on = set()
+        for child in its_children:
+            # If child is part of all_targets, check that it is done
+            # otherwise check that it is done by the DB.
+            if child in self.all_targets:
+                if not child in self.done:
+                    self.log(f"parent {opportunity!r} still waiting for another child {child!r}")
+                    # logger.info('parent %r still waiting on %r' %
+                    # (opportunity, child))
+                    # still some dependency left
+                    still_depending_on.add(child)
+            else:
+                up, _, _ = cq.up_to_date(child)
+                if not up:
+                    # print('The child %s is not up_to_date' % child)
+                    still_depending_on.add(child)
+
+        if still_depending_on:
+            self.log(f"parent {opportunity!r} not ready because waiting for {still_depending_on}")
+        else:
+
+            # print('parent %r is now ready' % (opportunity))
+            self.log("parent is ready", opportunity=opportunity, its_children=its_children)
+            self.todo.remove(opportunity)
+            publish(self.context, "manager-job-ready", job_id=opportunity)
+            self.add_to_ready(opportunity, cq)
+
+    def get_children_for_job_including_dynamic(self, job_id: CMJobID, cq: CacheQueryDB) -> frozenset[CMJobID]:
+        if job_id not in self.dependencies_for:
+            t_deps = cq.direct_children(job_id)
+
+            self.dependencies_for[job_id] = DepFor.initial(t_deps)
+
+        return self.dependencies_for[job_id].all()
 
     def event_check(self) -> None:
         pass
@@ -795,29 +1040,29 @@ class Manager(ManagerLog):
 
     queue_ready: "asyncio.Queue[CMJobID]"
 
-    async def repair_todo(self) -> set[CMJobID]:
-        db = self.context.get_compmake_db()
-        changes = set()
-        for job_id in list(self.todo):
-            job = get_job(job_id, db)
-            cache = get_job_cache(job_id, db)
-            res = {}
-            waiting_on = set()
-            for dependency in job.children:
-                dependency_status = get_job_cache(dependency, db)
-
-                res[dependency] = Cache.state2desc[dependency_status.state]
-                if dependency_status.state != Cache.DONE:
-                    waiting_on.add(dependency)
-
-            self.sti.logger.error("todo: %s" % job_id, job=job, cache=cache, dependencies=res, waiting_on=waiting_on)
-            if not waiting_on:
-                msg = f"Actually job {job_id} is ready"
-                self.sti.logger.warn(msg)
-                self.todo.remove(job_id)
-                self.ready_todo.add(job_id)
-                changes.add(job_id)
-        return changes
+    # async def repair_todo(self) -> set[CMJobID]:
+    #     db = self.context.get_compmake_db()
+    #     changes = set()
+    #     for job_id in list(self.todo):
+    #         job = get_job(job_id, db)
+    #         cache = get_job_cache(job_id, db)
+    #         res = {}
+    #         waiting_on = set()
+    #         for dependency in job.children:
+    #             dependency_status = get_job_cache(dependency, db)
+    #
+    #             res[dependency] = Cache.state2desc[dependency_status.state]
+    #             if dependency_status.state != Cache.DONE:
+    #                 waiting_on.add(dependency)
+    #
+    #         self.sti.logger.error("todo: %s" % job_id, job=job, cache=cache, dependencies=res, waiting_on=waiting_on)
+    #         if not waiting_on:
+    #             msg = f"Actually job {job_id} is ready"
+    #             self.sti.logger.warn(msg)
+    #             self.todo.remove(job_id)
+    #             self.ready_todo.add(job_id)
+    #             changes.add(job_id)
+    #     return changes
 
     async def process(self) -> bool:
         """Start processing jobs."""
@@ -854,7 +1099,7 @@ class Manager(ManagerLog):
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=True,
-                targets=self.targets,
+                targets=self.user_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -873,7 +1118,8 @@ class Manager(ManagerLog):
         async def loopit() -> None:
             i = 0
             while self.todo or self.ready_todo or self.processing:
-                self.log(indent(self._get_situation_string(), f"{i}: "))
+                if __debug__:
+                    self.log(indent(self._get_situation_string(), f"{i}: "))
                 i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
@@ -887,14 +1133,15 @@ class Manager(ManagerLog):
                         'interrupted. Use the command "check-consistency" '
                         "to check the database consistency.\n" + self._get_situation_string()
                     )
-                    self.sti.logger.error(msg)
-                    changed = await self.repair_todo()
-                    if not changed:
-                        from compmake_plugins.sanity_check import check_consistency
-
-                        await check_consistency(self.sti, args=[], context=self.context, raise_if_error=True)
-
-                        raise CompmakeBug(msg)
+                    raise CompmakeBug(msg)
+                    # self.sti.logger.error(msg)
+                    # changed = await self.repair_todo()
+                    # if not changed:
+                    #     from compmake_plugins.sanity_check import check_consistency
+                    #
+                    #     await check_consistency(self.sti, args=[], context=self.context, raise_if_error=True)
+                    #
+                    #     raise CompmakeBug(msg)
 
                 self.publish_progress()
                 waiting_on = await self.instance_some_jobs()
@@ -928,7 +1175,7 @@ class Manager(ManagerLog):
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=False,
-                targets=self.targets,
+                targets=self.user_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -952,7 +1199,7 @@ class Manager(ManagerLog):
         publish(
             self.context,
             EVENT_MANAGER_PROGRESS,
-            targets=self.targets,
+            targets=self.user_targets,
             done=self.done,
             all_targets=self.all_targets,
             todo=self.todo,
@@ -967,29 +1214,36 @@ class Manager(ManagerLog):
     def _get_situation_string(self) -> str:
         """Returns a string summarizing the current situation"""
         lists = dict(
-            done=self.done,
-            all_targets=self.all_targets,
-            todo=self.todo,
-            blocked=self.blocked,
-            failed=self.failed,
-            ready=self.ready_todo,
-            deleted=self.deleted,
-            processing=self.processing,
+            targets=("user targets", self.user_targets),
+            all_targets=("user targets + deps", self.all_targets),
+            todo=("todo but not ready", self.todo),
+            ready=("ready to do", self.ready_todo),
+            processing=("processing", self.processing),
+            done=("final: done", self.done),
+            blocked=("final: blocked", self.blocked),
+            failed=("final: failed", self.failed),
+            deleted=("misc: deleted", self.deleted),
         )
         s = ""
-        for t in sorted(lists):
-            jobs = lists[t]
-            s += f"- {t:>12}: {len(jobs)}\n"
+        for k, (header, jobs) in lists.items():
+            s += f"- {k:>12}: {len(jobs):5} {color_gray(header)} \n"
 
         # if False:
-        s += "\n In more details:"
-        for t in sorted(lists):
-            jobs = lists[t]
-            if not jobs:
-                s += f"\n- {t:>12}: -"
-            elif len(jobs) < 20:
-                s += f"\n- {t:>12}: {len(jobs)} {sorted(jobs)}"
+        s += "In more details:\n"
+        for k, (header, jobs) in lists.items():
+            s += k + "(" + color_gray(header) + f") {len(jobs)}" + "\n"
+            # if not jobs:
+            #     s += f"-\n"
+            if jobs and len(jobs) < 20:
+                s += f"     {' '.join(sorted(jobs))}\n"
 
+        xs = {}
+        for t in self.todo:
+            xs[t] = self.dependencies_for[t]
+
+        s += "Dependencies:\n" + debug_print(self.dependencies_for) + "\n"
+
+        s += "Depends on:\n" + debug_print(self.is_dependency_of) + "\n"
         return s
 
     def check_invariants(self) -> None:
@@ -1044,6 +1298,49 @@ class Manager(ManagerLog):
 
         partition(["done", "failed", "blocked", "todo", "ready_todo", "processing", "deleted"], "all_targets")
 
+        # if not self.user_targets.issubset(self.all_targets):
+        #     msg = "user targets should be subset of all_targets"
+        #     raise CompmakeBug(msg, situation=self._get_situation_string())
+        for job_id in self.todo:
+            # check that its deps are targets
+            for d in self.dependencies_for[job_id].natural_deps():
+                if d not in self.all_targets:
+                    msg = f"Job {job_id!r} depends naturally on {d!r} which is not a target."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+            for d in self.dependencies_for[job_id].dynamic_deps():
+                if d not in self.all_targets:
+                    msg = f"Job {job_id!r} depends dynamically on {d!r} which is not a target."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+
+        for job_id in self.dependencies_for:
+            for d in self.dependencies_for[job_id].all():
+                if job_id not in self.is_dependency_of[d]:
+                    msg = f"Job {job_id!r} depends on {d!r} but not vice versa."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+        for job_id in self.is_dependency_of:
+            for d in self.is_dependency_of[job_id]:
+                if job_id not in self.dependencies_for[d].all():
+                    msg = f"Job {job_id!r} depends on {d!r} but not vice versa."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+
+        for job_id in self.ready_todo:
+            for d in self.dependencies_for[job_id].all():
+                if d not in self.done:
+                    msg = f"Job {job_id!r} is said to be ready but depends on {d!r} which is still not done."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+
+        cq = CacheQueryDB(self.db)
+        for job1, job1_deps in self.dependencies_for.items():
+            for job2 in job1_deps.all():
+                if job1 in self.get_children_for_job_including_dynamic(job2, cq):
+                    msg = f"Job {job1!r} depends on {job2!r} and vice versa."
+                    raise CompmakeBug(msg, situation=self._get_situation_string())
+        #
+        # for job1, job1_requires in self.depends_on.items():
+        #     for job2 in job1_requires:
+        #         if job2 in self.get_children_for_job_including_dynamic(job1):
+        #             msg = f"Job {job1!r} depends on {job2!r} and vice versa."
+        #             raise CompmakeBug(msg, situation=self._get_situation_string())
         if False:
             for job_id in self.done:
                 if not job_exists(job_id, self.db):

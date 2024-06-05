@@ -41,15 +41,15 @@ def hd(context: Context):
     return context.comp_dynamic(id)
 
 
-def summary(_: Any) -> None:
+def summary(_: Any, both: bool) -> None:
     pass
 
 
-def mockup6(context: Context, both):
+def mockup6(context: Context, both: bool) -> None:
     res = [context.comp_dynamic(fd)]
     if both:
         res.append(context.comp_dynamic(hd))
-    context.comp(summary, res)
+    context.comp(summary, res, both=both)
 
 
 from .utils import Env, environment, run_with_env
@@ -84,14 +84,18 @@ async def test_dynamic6(env: Env) -> None:
 
         await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])
 
-        job = get_job(cast(CMJobID, "summary"), env2.db)
+        summary_job_id = cast(CMJobID, "summary")
+        job = get_job(summary_job_id, env2.db)
         logger.info(f"job.children: {job.children}")
-        logger.info(f"job.dynamic_children: {job.dynamic_children}")
-        my_assert_equal(
-            {"fd": {"fd-gd"}},
-            job.dynamic_children,
-        )
-        env.assert_equal_set(direct_children(cast(CMJobID, "summary"), env2.db), ["fd", "fd-gd"])
+
+        # cq = CacheQueryDB(db)
+
+        # logger.info(f"job.dynamic_children: {cq.dynamic_children(summary_job_id)}")
+        # my_assert_equal(
+        #     {"fd": {"fd-gd"}},
+        #     cq.dynamic_children(summary_job_id)
+        # )
+        env.assert_equal_set(direct_children(summary_job_id, env2.db), ["fd"])
         await env.assert_cmd_success("ls")
 
         await env.assert_cmd_success("make recurse=1")

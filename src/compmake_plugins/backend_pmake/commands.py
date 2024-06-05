@@ -70,7 +70,7 @@ async def parmake(
     )
 
     publish(context, "parmake-status", status="Adding %d targets." % len(job_list))
-    manager.add_targets(job_list)
+    manager.add_user_targets(job_list)
 
     publish(context, "parmake-status", status="Processing")
     await manager.process()
@@ -110,7 +110,7 @@ async def parremake(
         show_output=echo,
     )
 
-    manager.add_targets(non_empty_job_list)
+    manager.add_user_targets(non_empty_job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 

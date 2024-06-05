@@ -17,6 +17,7 @@ from compmake import (
     job_userobject_sizeof,
     ui_command,
 )
+from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 from .console_output import write_line_endl
 
@@ -53,27 +54,32 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     red = lambda x: compmake_colored(x, "red")
     bold = lambda x: compmake_colored((x + " ").rjust(15), attrs=["bold"])
 
-    def format_list(x):
+    def format_set(x):
         return "\n- ".join([""] + sorted(x))
+
+    def format_seq(x):
+        return "\n- ".join([""] + list(x))
 
     job = get_job(job_id, db=db)
     # TODO: make it work in Python3K
     print(bold("Job ID:") + f"{job_id}")
-    print(bold("Defined by:") + f"{job.defined_by}")
+    print(bold("Defined by:") + f"{format_seq(job.defined_by)}")
     # logger.info(job=job.__dict__)
     print(bold("needs_context:") + f"{job.needs_context}")
-
+    print(bold("needs sti:") + f"{job.needs_sti}")
+    print(bold("needs ti:") + f"{job.needs_ti}")
+    print(bold("async:") + f"{job.is_async}")
     dchildren = cq.direct_children(job_id)
-    print(bold("Dependencies: (direct)") + f" ({len(dchildren)}) " + format_list(dchildren))
+    print(bold("Dependencies: (direct)") + f" ({len(dchildren)}) " + format_set(dchildren))
 
     all_children = children(job_id, db=db)  # XXX
     other_children = set(all_children) - set(dchildren)
-    print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_list(other_children))
+    print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_set(other_children))
 
-    print(bold("Dependencies: (dynamic)") + f"{job.dynamic_children}")
+    # print(bold("Dependencies: (dynamic)") + f"{format_set(job.dynamic_children)}")
 
-    print(bold("Depending on this (direct):") + format_list(dparents))
-    print(bold("Depending on this (other):") + format_list(other_parents))
+    print(bold("Depending on this (direct):") + format_set(dparents))
+    print(bold("Depending on this (other):") + format_set(other_parents))
 
     if job_cache_exists(job_id, db=db):
         cache2 = get_job_cache(job_id, db=db)

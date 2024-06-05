@@ -20,7 +20,8 @@ from typing import (
 )
 
 from compmake_utils import OutputCapture, interpret_strings_like, setproctitle, try_pickling
-from zuper_commons.types import ZAssertionError, ZValueError, check_isinstance, describe_type
+from zuper_commons.text import joinlines
+from zuper_commons.types import ZAssertionError, ZValueError, add_context, check_isinstance, describe_type
 from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling
 from zuper_utils_timing import TimeInfo, new_timeinfo
 from . import logger
@@ -34,12 +35,10 @@ from .helpers import UIState, get_commands
 from .job_execution import JobComputeResult, job_compute
 from .parsing import parse_job_list
 from .progress_imp2 import init_progress_tracking
-from .queries import direct_parents
 from .registrar import publish
 from .state import get_compmake_status
 from .storage import (
     all_jobs,
-    db_job_add_parent_relation,
     delete_all_job_data,
     delete_job_cache,
     get_job,
@@ -77,7 +76,7 @@ if TYPE_CHECKING:
 def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: CacheQueryDB) -> None:
     job_list = set(job_list)
 
-    print("clean_targets (%r)" % job_list)
+    # print(f"clean_targets ({job_list!r})")
 
     # now we need to delete the definition closure
     # logger.info('getting closure')
@@ -92,27 +91,31 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
 
     other_clean -= closure
     #
-    print("deleting: %r" % closure)
-    print("only cleaning: %r" % basic)
-    print("other cleaning: %r" % other_clean)
+    # closure_s = joinlines(closure)/
+    logger.info(
+        target=joinlines(sorted(job_list)),
+        target_closure=joinlines(sorted(closure)),
+        target_minuse_closure=joinlines(sorted(basic)),
+        other_clean=joinlines(sorted(other_clean)),
+    )
 
     ccr = closure | basic | other_clean
 
-    logger.info(job_list=job_list, closure=closure, ccr=ccr)
+    # logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
-        logger.info("clean_cache_relations", job_id=job_id)
+        # logger.info("clean_cache_relations", job_id=job_id)
         clean_cache_relations(job_id, db)
 
     # delete all in closure
     for job_id in closure:
-        logger.info("delete_all_job_data", job_id=job_id)
+        # logger.info("delete_all_job_data", job_id=job_id)
         delete_all_job_data(job_id, db)
 
     # just remove cache in basic
     for job_id in basic:
         # Cleans associated objects
         if job_cache_exists(job_id, db):
-            logger.info("delete_job_cache", job_id=job_id)
+            # logger.info("delete_job_cache", job_id=job_id)
             delete_job_cache(job_id, db)
     # logger.info('done')
     # now we have to undo this one:
@@ -133,9 +136,10 @@ def clean_cache_relations(job_id: CMJobID, db: StorageFilesystem) -> None:
 
     # for all jobs that were done
     cache = get_job_cache(job_id, db)
+    cq = CacheQueryDB(db=db)
     if cache.state == Cache.DONE:
-        for parent in direct_parents(job_id, db):
-            if not job_exists(parent, db):
+        for parent in cq.direct_parents(job_id):
+            if not cq.job_exists(parent):
                 msg = "Could not find job %r (parent of %s) - ok if the job was deleted" " otherwise it is a bug" % (
                     parent,
                     job_id,
@@ -144,17 +148,19 @@ def clean_cache_relations(job_id: CMJobID, db: StorageFilesystem) -> None:
                 continue
             parent_job = get_job(parent, db)
             # print('  parent %r has dynamic %s' % (parent, parent_job.dynamic_children))
-            if job_id not in parent_job.dynamic_children:
-                # print('    skipping parent %r ' % parent)
-                continue
-            else:
-                dynamic_children = parent_job.dynamic_children[job_id]
-                # print('    dynamic_children %s' % parent_job.dynamic_children)
-                # print('    children %s' % parent_job.children)
-                del parent_job.dynamic_children[job_id]
-                parent_job.children = parent_job.children - dynamic_children
-                set_job(parent, parent_job, db)
-                # print('     changed in %s' % parent_job.children)
+
+            if False:  # TMP: not sure what it does
+                if job_id not in parent_job.dynamic_children:
+                    # print('    skipping parent %r ' % parent)
+                    continue
+                else:
+                    dynamic_children = parent_job.dynamic_children[job_id]
+                    # print('    dynamic_children %s' % parent_job.dynamic_children)
+                    # print('    children %s' % parent_job.children)
+                    del parent_job.dynamic_children[job_id]
+                    parent_job.children = parent_job.children - dynamic_children
+                    set_job(parent, parent_job, db)
+                    # print('     changed in %s' % parent_job.children)
 
 
 def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
@@ -306,6 +312,7 @@ async def make(
     or JobInterrupted. Also SystemExit, KeyboardInterrupt, MemoryError are
     captured.
     """
+
     make_started = time.time()
     if ti is None:
         ti = new_timeinfo()
@@ -584,7 +591,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
     """
 
     stack = context.currently_executing
-    # print('generating an ID with base = %s and stack %s' % (base, stack))
+    # print('generating an ID with basoe = %s and stack %s' % (base, stack))
     job_prefix = context.get_comp_prefix()
     # Use the job id as prefix
     if job_prefix is None and len(stack) > 1:
@@ -821,7 +828,7 @@ def comp_(
 
         check_isinstance(job_id, str)
         if " " in job_id:
-            msg = "Invalid job id: %r" % job_id
+            msg = f"Invalid job id: {job_id!r}"
             raise UserError(msg)
 
         job_prefix = context.get_comp_prefix()
@@ -834,14 +841,15 @@ def comp_(
             # unless it is dynamically geneterated
             if not job_exists(job_id, db=db):
                 msg = f"The job {job_id!r} was defined but not found in DB. I will let it slide."
-                print(msg)
+                logger.warn(msg)
+                raise Exception(msg)  # TMP
             else:
                 msg = "The job %r was already defined in this session." % job_id
                 old_job = get_job(job_id, db=db)
                 msg += "\n  old_job.defined_by: %s " % old_job.defined_by
                 msg += "\n context.currently_executing: %s " % context.currently_executing
                 msg += " others defined in session: %s" % sorted(context.get_jobs_defined_in_this_session())
-                print(msg)
+                logger.warn(msg)
                 #                 warnings.warn('I know something is more complicated here')
                 #             if old_job.defined_by is not None and
                 # old_job.defined_by == context.currently_executing:
@@ -860,9 +868,10 @@ def comp_(
             if job_exists(job_id, db=db):
                 # ok, you gave us a job_id, but we still need to check whether
                 # it is the same job
+                old_job = get_job(job_id, db=db)
                 stack = context.currently_executing
-                defined_by = get_job(job_id, db=db).defined_by
-                if defined_by == stack:
+                defined_by = old_job.defined_by
+                if defined_by[-1] == stack[-1]:
                     # this is the same job-redefining
                     pass
                 else:
@@ -872,6 +881,12 @@ def comp_(
                             job_id = n
                             break
 
+                    logger.warning(
+                        f"Job {job_id!r} was already defined by something else",
+                        old_job=old_job,
+                        using_new_job_id=job_id,
+                        currently_executing=context.currently_executing,
+                    )
                     if False:
                         print(f"The job_id {job_id!r} was given explicitly but already defined.")
                         print("current stack: %s" % stack)
@@ -938,6 +953,8 @@ def comp_(
         needs_ti=needs_ti,
     )
 
+    logger.warning(f"defining job {job_id}")
+
     # Need to inherit the pickle
     if context.currently_executing[-1] != "root":
         parent_job = get_job(context.currently_executing[-1], db)
@@ -946,35 +963,40 @@ def comp_(
     if job_exists(job_id, db):
         old_job = get_job(job_id, db)
 
+        if old_job != c:
+            logger.warning(f"re-defining job {job_id}", old_job=old_job)
+
         if old_job.defined_by != c.defined_by:
             logger.warning("Redefinition of %s: " % job_id)  # XXX: ideally they use ui_warning, but that is async..
             logger.warning(" cur defined_by: %s" % c.defined_by)
             logger.warning(" old defined_by: %s" % old_job.defined_by)
 
         if old_job.children != c.children:
-            # warning('Redefinition problem:')
-            # warning(' old children: %s' % (old_job.children))
-            # warning(' old dyn children: %s' % old_job.dynamic_children)
-            # warning(' new children: %s' % (c.children))
+            logger.warning("Redefinition problem:")
+            logger.warning(" old children: %s" % (old_job.children))
+            # logger.warning(' old dyn children: %s' % old_job.dynamic_children)
+            logger.warning(" new children: %s" % (c.children))
 
-            # fixing this
-            for x, deps in old_job.dynamic_children.items():
-                if not x in c.children:
-                    # not a child any more
-                    # FIXME: ok but note it might be a dependence of a child
-                    # continue
-                    pass
-                c.dynamic_children[x] = deps
-                for j in deps:
-                    if not j in c.children:
-                        c.children.add(j)
+            # # fixing this
+            # for x, deps in old_job.dynamic_children.items():
+            #     if not x in c.children:
+            #         # not a child any more
+            #         # FIXME: ok but note it might be a dependence of a child
+            #         # continue
+            #         pass
+            #     c.dynamic_children[x] = deps
+            #     for j in deps:
+            #         if not j in c.children:
+            #             c.children.add(j)
 
-        if old_job.parents != c.parents:
-            # warning('Redefinition of %s: ' % job_id)
-            #  warning(' cur parents: %s' % (c.parents))
-            # warning(' old parents: %s' % old_job.parents)
-            for p in old_job.parents:
-                c.parents.add(p)
+        if False:
+            if old_job.parents != c.parents:
+                logger.warning("Redefinition of %s: " % job_id)
+                logger.warning(" cur parents: %s" % (c.parents))
+                logger.warning(" old parents: %s" % old_job.parents)
+                # XXX: TMP:
+                # for p in old_job.parents:
+                #     c.parents.add(p)
 
                 # TODO: preserve defines
                 #     from .ui.visualization import info
@@ -983,8 +1005,8 @@ def comp_(
 
                 #     if True or c.defined_by == ['root']:
 
-    for child in children:
-        db_job_add_parent_relation(child=child, parent=job_id, db=db)
+    # for child in children:
+    #     db_job_add_parent_relation(child=child, parent=job_id, db=db)
 
     if context.get_compmake_config("check_params") and job_exists(job_id, db):
         # OK, this is going to be black magic.
@@ -1005,11 +1027,11 @@ def comp_(
         same, reason = same_computation(all_args, all_args_old)
 
         if not same:
-            # print('different job, cleaning cache:\n%s  ' % reason)
-            cq = CacheQueryDB(db)  # FIXME was not needed before
-            clean_targets([job_id], db, cq=cq)
-            #             if job_cache_exists(job_id, db):
-            #                 delete_job_cache(job_id, db)
+            logger.warn(f"different job, cleaning cache:\n{reason}  ")
+            # cq = CacheQueryDB(db)  # FIXME was not needed before
+            # clean_targets([job_id], db, cq=cq)
+            if job_cache_exists(job_id, db):
+                delete_job_cache(job_id, db)
             publish(context, "job-redefined", job_id=job_id, reason=reason)
         else:
             # print('ok, same job')
@@ -1057,7 +1079,8 @@ async def interpret_commands(
         try:
             publish(context, "command-starting", command=cmd)
             # noinspection PyNoneFunctionAssignment
-            retcode = await interpret_single_command(sti, cmd, context=context, cq=cq)
+            with add_context(cmd=cmd):
+                retcode = await interpret_single_command(sti, cmd, context=context, cq=cq)
 
         except KeyboardInterrupt:
             publish(
@@ -1088,142 +1111,154 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     """Returns None or raises CommandFailed"""
     check_isinstance(commands_line, str)
 
-    ui_commands = get_commands()
+    with add_context(op="interpret_single_command") as c:
 
-    if commands_line.startswith("-"):
-        commands_line = commands_line[1:]
-        ignore_error = True
-    else:
-        ignore_error = False
+        ui_commands = get_commands()
 
-    commands = commands_line.split()
+        if commands_line.startswith("-"):
+            commands_line = commands_line[1:]
+            ignore_error = True
+        else:
+            ignore_error = False
 
-    command_name = commands[0]
+        commands = commands_line.split()
+        c["commands"] = commands
 
-    # Check if this is an alias
-    if command_name in UIState.alias2name:
-        command_name = UIState.alias2name[command_name]
+        command_name = commands[0]
 
-    if not command_name in ui_commands:
-        msg = f"Unknown command {command_name!r} (try 'help'). "
-        raise UserError(msg, known=sorted(ui_commands))
+        # Check if this is an alias
+        if command_name in UIState.alias2name:
+            command_name = UIState.alias2name[command_name]
 
-    # XXX: use more elegant method
-    cmd = ui_commands[command_name]
-    dbchange = cmd.dbchange
-    function = cmd.function
+        if not command_name in ui_commands:
+            msg = f"Unknown command {command_name!r} (try 'help'). "
+            raise UserError(msg, known=sorted(ui_commands))
 
-    args = commands[1:]
+        # XXX: use more elegant method
+        cmd = ui_commands[command_name]
+        dbchange = cmd.dbchange
+        function = cmd.function
 
-    # look for  key=value pairs
-    other = []
-    kwargs = {}
+        args = commands[1:]
 
-    signature = inspect.signature(function)
+        # look for  key=value pairs
+        other = []
+        kwargs = {}
 
-    defaults = get_defaults(signature)
-    args_without_default = get_args_without_defaults(signature)
-    if "sti" in args_without_default:
-        args_without_default.remove("sti")
+        signature = inspect.signature(function)
 
-    for a in args:
-        if a.find("=") > 0:
-            k, v = a.split("=")
+        defaults = get_defaults(signature)
+        args_without_default = get_args_without_defaults(signature)
+        if "sti" in args_without_default:
+            args_without_default.remove("sti")
 
-            if not k in signature.parameters:
-                msg = (
-                    f"You passed the argument {k!r} for command {cmd.name!r}, "
-                    f"but the only available arguments are {signature.parameters}."
-                )
+        for a in args:
+            if a.find("=") > 0:
+                k, v = a.split("=")
+
+                if not k in signature.parameters:
+                    msg = (
+                        f"You passed the argument {k!r} for command {cmd.name!r}, "
+                        f"but the only available arguments are {signature.parameters}."
+                    )
+                    raise UserError(msg)
+
+                # look if we have a default value
+                if not k in defaults:
+                    # no default, pass as string
+                    kwargs[k] = v
+                else:
+                    default_value = defaults[k]
+
+                    if isinstance(default_value, DefaultsToConfig):
+                        default_value = context.get_compmake_config(default_value.switch)
+                    try:
+                        kwargs[k] = interpret_strings_like(v, default_value)
+                    except ValueError:
+                        msg = "Could not parse %s=%s as %s." % (k, v, type(default_value))
+                        raise UserError(msg)
+            else:
+                other.append(a)
+
+        args = other
+
+        function_args = signature.parameters
+        # set default values
+        for argname, argdefault in defaults.items():
+            if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
+                v = context.get_compmake_config(argdefault.switch)
+                kwargs[argname] = v
+
+        if "args" in function_args:
+            kwargs["args"] = args
+
+        if "cq" in function_args:
+            kwargs["cq"] = cq
+
+        if "non_empty_job_list" in function_args:
+            if not args:
+                msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
                 raise UserError(msg)
 
-            # look if we have a default value
-            if not k in defaults:
-                # no default, pass as string
-                kwargs[k] = v
-            else:
-                default_value = defaults[k]
+            job_list = parse_job_list(args, context=context, cq=cq)
 
-                if isinstance(default_value, DefaultsToConfig):
-                    default_value = context.get_compmake_config(default_value.switch)
-                try:
-                    kwargs[k] = interpret_strings_like(v, default_value)
-                except ValueError:
-                    msg = "Could not parse %s=%s as %s." % (k, v, type(default_value))
+            # TODO: check non empty
+            job_list = list(job_list)
+            CompmakeConstants.aliases["last"] = job_list
+            kwargs["non_empty_job_list"] = job_list
+
+        if "job_list" in function_args:
+            if not args:
+                job_list = []
+            else:
+                job_list = parse_job_list(args, context=context, cq=cq)
+                c["job_list"] = job_list
+                job_list = list(job_list)
+
+                if not job_list:
+                    msg = f"Cannot find any job for spec {args!r}"
                     raise UserError(msg)
-        else:
-            other.append(a)
 
-    args = other
+            CompmakeConstants.aliases["last"] = job_list
+            # TODO: this does not survive reboots
+            # logger.info('setting alias "last"' )
+            kwargs["job_list"] = job_list
 
-    function_args = signature.parameters
-    # set default values
-    for argname, argdefault in defaults.items():
-        if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
-            v = context.get_compmake_config(argdefault.switch)
-            kwargs[argname] = v
+        if "context" in function_args:
+            kwargs["context"] = context
 
-    if "args" in function_args:
-        kwargs["args"] = args
+        for x in args_without_default:
+            if not x in kwargs:
+                msg = f"Required argument {x!r} not given."
+                raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
 
-    if "cq" in function_args:
-        kwargs["cq"] = cq
+        if "sti" in function_args:
+            kwargs["sti"] = sti
 
-    if "non_empty_job_list" in function_args:
-        if not args:
-            msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
-            raise UserError(msg)
+        is_async = inspect.iscoroutinefunction(function)
 
-        job_list = parse_job_list(args, context=context, cq=cq)
-
-        # TODO: check non empty
-        job_list = list(job_list)
-        CompmakeConstants.aliases["last"] = job_list
-        kwargs["non_empty_job_list"] = job_list
-
-    if "job_list" in function_args:
-        job_list = parse_job_list(args, context=context, cq=cq)
-        job_list = list(job_list)
-        CompmakeConstants.aliases["last"] = job_list
-        # TODO: this does not survive reboots
-        # logger.info('setting alias "last"' )
-        kwargs["job_list"] = job_list
-
-    if "context" in function_args:
-        kwargs["context"] = context
-
-    for x in args_without_default:
-        if not x in kwargs:
-            msg = f"Required argument {x!r} not given."
-            raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
-
-    if "sti" in function_args:
-        kwargs["sti"] = sti
-
-    is_async = inspect.iscoroutinefunction(function)
-
-    res: object
-    try:
-        if is_async:
-            res = await function(**kwargs)
-        else:
-            res = function(**kwargs)
-        if (res is not None) and (res != 0):
-            msg = f"Command {commands_line!r} failed: {res}"
-            if ignore_error:
-                logger.warning(msg)
+        res: object
+        try:
+            if is_async:
+                res = await function(**kwargs)
             else:
-                raise CommandFailed(msg)
-        return None
-    except CompmakeException as e:
-        if ignore_error:
-            logger.warning(f"Command {commands_line!r} failed but ignoring: {e}")
+                res = function(**kwargs)
+            if (res is not None) and (res != 0):
+                msg = f"Command {commands_line!r} failed: {res}"
+                if ignore_error:
+                    logger.warning(msg)
+                else:
+                    raise CommandFailed(msg)
             return None
-        else:
-            raise
-    finally:
-        if dbchange:
-            cq.invalidate()
+        except CompmakeException as e:
+            if ignore_error:
+                logger.warning(f"Command {commands_line!r} failed but ignoring: {e}")
+                return None
+            else:
+                raise
+        finally:
+            if dbchange:
+                cq.invalidate()
 
 
 def get_defaults(signature: inspect.Signature) -> dict[str, object]:

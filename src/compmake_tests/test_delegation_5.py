@@ -38,7 +38,7 @@ async def test_delegation_5(env: Env) -> None:
         {"e", "e-f", "e-f-g"},
         job.children,
     )
-    env.sti.logger.info("parents: %s" % job.parents)
+    # env.sti.logger.info("parents: %s" % job.parents)
     env.sti.logger.info("children: %s" % job.children)
 
     await env.batch_command("ls")

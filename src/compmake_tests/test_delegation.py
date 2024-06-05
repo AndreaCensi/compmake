@@ -1,21 +1,22 @@
+from . import logger
 from .test_compmake import Env
 from .utils import run_with_env
 
 
 def f(a):
-    print("f()")
+    logger.info("f()")
     if not a == 2:
         raise ValueError("Expected 2, not %s" % a)
 
 
 def g(context):
     """This function returns a Promise to another job."""
-    print("g()")
+    logger.info("g()")
     return context.comp(g_delegated)
 
 
 def g_delegated():
-    print("g_delegated()")
+    logger.info("g_delegated()")
     return 1 + 1
 
 

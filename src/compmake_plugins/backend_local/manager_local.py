@@ -1,6 +1,7 @@
 import asyncio
 import os
 import time
+from typing import Any, cast
 
 import psutil
 
@@ -16,6 +17,9 @@ from compmake import (
     result_dict_raise_if_error,
     ui_warning,
 )
+from compmake.structures import ExecutionArgs, ParmakeJobResult
+from compmake.types import ResultDict
+from zuper_commons.fs import DirPath
 from zuper_utils_asyncio import SyncTaskInterface
 
 tr = None
@@ -36,10 +40,10 @@ class ManagerLocal(Manager):
 
         self.sti = sti
         if new_process and echo:
-            msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
-            ui_warning(self.context, msg)
+            msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
+            ui_warning(self.context, msg)  # FIXME
 
-    def can_accept_job(self, reasons):
+    def can_accept_job(self, reasons: dict[str, Any]) -> bool:
         # only one job at a time
         if self.processing:
             reasons["cpu"] = "max 1 job"
@@ -87,7 +91,7 @@ class FakeAsync(AsyncResultInterface):
         self.told_you_ready = True
         return True
 
-    async def get(self, timeout=0) -> OKResult:
+    async def get(self, timeout: float = 0) -> OKResult:
         if not self.told_you_ready:
             msg = "Should call get() only after ready()."
             raise CompmakeBug(msg)
@@ -95,12 +99,20 @@ class FakeAsync(AsyncResultInterface):
         res = await self._execute(self.sti)
         return result_dict_raise_if_error(res)
 
-    async def _execute(self, sti: SyncTaskInterface) -> OKResult:
+    async def _execute(self, sti: SyncTaskInterface) -> ResultDict:
         if self.new_process:
             basepath = self.context.get_compmake_db().basepath
-            args = (self.job_id, basepath)
+            # args = (self.job_id, basepath)
+            args = ExecutionArgs(
+                job_id=self.job_id,
+                basepath=basepath,
+                show_output=True,  # ok not used,
+                logdir=cast(DirPath, ""),  # ok not used
+                event_queue_name="",  # ok not used
+            )
 
-            return await parmake_job2_new_process_1(sti, args)
+            res1: ParmakeJobResult = await parmake_job2_new_process_1(sti, args)
+            return cast(OKResult, res1.rd)
         else:
             # if use_pympler:
             #     tr.print_diff()

@@ -249,7 +249,7 @@ class AsyncResultWrap(AsyncResultInterface):
         else:
             return "(no status)"
 
-    def get(self, timeout=0):  # @UnusedVariable
+    def get(self, timeout:float=0): 
         res = self.async_result.get(timeout=timeout)
         return result_dict_raise_if_error(res)
 

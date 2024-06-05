@@ -3,27 +3,25 @@
 from compmake import (
     CMJobID,
     COMMANDS_ADVANCED,
+    CacheQueryDB,
     CompmakeBug,
     Context,
     all_jobs,
-    children,
-    direct_children,
-    direct_parents,
     get_job,
     job_exists,
-    parents,
     parse_job_list,
     ui_command,
     ui_error,
     ui_info,
 )
+from zuper_commons.types import ZAssertionError, add_context
 from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")
 async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Context, raise_if_error: bool = False) -> int:
     """Checks in the DB that the relations between jobs are consistent."""
-
+    _ = sti
     db = context.get_compmake_db()
 
     # Do not use cq
@@ -60,71 +58,86 @@ async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Co
 
 async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]:
     db = context.get_compmake_db()
+    cq = CacheQueryDB(db)
 
-    job = get_job(job_id, db)
-    defined_by = job.defined_by
-    assert "root" in defined_by
+    with add_context(op="check_job", job_id=job_id) as c:
 
-    dparents = direct_parents(job_id, db=db)
-    dchildren = direct_children(job_id, db=db)
+        job = get_job(job_id, db)
+        defined_by = job.defined_by
+        assert "root" in defined_by
 
-    # all_parents = parents(job_id, db=db)
-    # all_children = children(job_id, db=db)
+        c["job"] = job
 
-    # print(job_id)
-    # print('d children: %s' % dchildren)
-    # print('all children: %s' % all_children)
+        dparents = cq.direct_parents(job_id)
+        dchildren = cq.direct_children(job_id)
+        c["dparents"] = dparents
+        c["dchildren"] = dchildren
 
-    errors = []
+        # all_parents = parents(job_id, db=db)
+        # all_children = children(job_id, db=db)
 
-    def e(msg):
-        errors.append(msg)
+        # print(job_id)
+        # print('d children: %s' % dchildren)
+        # print('all children: %s' % all_children)
 
-    for defb in defined_by:
-        if defb == "root":
-            continue
-        if not job_exists(defb, db=db):
-            s = "%r defined by %r but %r not existing." % (job_id, defined_by, defb)
-            e(s)
+        errors = []
 
-    for dp in dparents:
-        if not job_exists(dp, db=db):
-            s = f"Direct parent {dp!r} of {job_id!r} does not exist."
-            e(s)
-        else:
-            if not job_id in direct_children(dp, db=db):
-                s = f"{job_id} thinks {dp} is its direct parent;"
-                s += f"but {dp} does not think {job_id} is its direct child"
+        def e(msg, **kwargs):
+            raise ZAssertionError(msg, **kwargs)
+            errors.append(msg)
+
+        for defb in defined_by:
+            if defb == "root":
+                continue
+            if not job_exists(defb, db=db):
+                s = f"{job_id!r} defined by {defined_by!r} but {defb!r} not existing."
                 e(s)
 
-    # for ap in all_parents:
-    #     if not job_exists(ap, db=db):
-    #         s = f"Parent {ap!r} of {job_id!r} does not exist."
-    #         e(s)
-    #     else:
-    #         if not job_id in children(ap, db=db):
-    #             e(f"{ap} is parent but no child relation")
+        for dp in dparents:
+            if not cq.job_exists(dp):
+                s = f"Direct parent {dp!r} of {job_id!r} does not exist."
+                e(s)
+            else:
+                if not job_id in cq.direct_children(dp):
+                    s = f"{job_id!r} thinks {dp!r} is its direct parent;"
+                    s += f"but {dp!r} does not think {job_id!r} is its direct child"
+                    e(s)
 
-    for dc in dchildren:
-        if not job_exists(dc, db=db):
-            s = f"Direct child {dc!r} of {job_id!r} does not exist."
-            e(s)
+        # for ap in all_parents:
+        #     if not job_exists(ap, db=db):
+        #         s = f"Parent {ap!r} of {job_id!r} does not exist."
+        #         e(s)
+        #     else:
+        #         if not job_id in children(ap, db=db):
+        #             e(f"{ap} is parent but no child relation")
+
+        for dc in dchildren:
+            if not cq.job_exists(dc):
+                s = f"Direct child {dc!r} of {job_id!r} does not exist."
+                e(s)
+            else:
+                dc_parents = cq.direct_parents(dc)
+                if not job_id in dc_parents:
+                    dc_job = cq.get_job(dc)
+                    e(
+                        f"{dc!r} is a direct child of {job_id!r} but no direct_parent relation",
+                        job=job,
+                        dc_job=dc_job,
+                        dc_parents=dc_parents,
+                    )
+
+        # for ac in all_children:
+        #     if not job_exists(ac, db=db):
+        #         s = f"A child {ac!r} of {job_id!r} does not exist."
+        #         e(s)
+        #     else:
+        #         if not job_id in parents(ac, db=db):
+        #             e(f"{ac} is direct child but no parent relation")
+
+        if errors:
+            s = f"Inconsistencies for {job_id}:\n"
+            s += "\n".join(f"- {msg}" for msg in errors)
+            await ui_error(context, s)
+            return False, errors
         else:
-            if not job_id in direct_parents(dc, db=db):
-                e(f"{dc} is direct child but no direct_parent relation")
-
-    # for ac in all_children:
-    #     if not job_exists(ac, db=db):
-    #         s = f"A child {ac!r} of {job_id!r} does not exist."
-    #         e(s)
-    #     else:
-    #         if not job_id in parents(ac, db=db):
-    #             e(f"{ac} is direct child but no parent relation")
-
-    if errors:
-        s = f"Inconsistencies for {job_id}:\n"
-        s += "\n".join(f"- {msg}" for msg in errors)
-        await ui_error(context, s)
-        return False, errors
-    else:
-        return True, []
+            return True, []

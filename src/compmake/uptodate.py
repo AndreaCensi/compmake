@@ -1,6 +1,6 @@
 from .cachequerydb import CacheQueryDB, definition_closure
 from .filesystem import StorageFilesystem
-from .queries import direct_children, direct_parents, jobs_defined, parents
+from .queries import direct_children, jobs_defined, parents
 from .storage import get_job, get_job_cache
 from .structures import Cache
 from .types import CMJobID
@@ -66,7 +66,8 @@ def direct_uptodate_deps_inverse(job_id: CMJobID, db: StorageFilesystem) -> set[
     Assumes that the job is DONE.
     """
 
-    dep_inv = direct_parents(job_id, db)
+    cq = CacheQueryDB(db)
+    dep_inv = cq.direct_parents(job_id)
 
     # Not sure if need to be here --- added when doing graph-animation for jobs in progress
     if get_job_cache(job_id, db).state == Cache.DONE:

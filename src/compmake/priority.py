@@ -36,7 +36,7 @@ def compute_priority(job_id: CMJobID, priorities: dict[CMJobID, float], targets:
     if job_id in priorities:
         return priorities[job_id]
 
-    parents = set(cq.direct_parents(job_id))
+    parents = cq.direct_parents(job_id)
     parents_which_are_targets = [x for x in parents if x in targets]
 
     cache = cq.get_job_cache(job_id)

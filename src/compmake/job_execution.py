@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-import traceback
 from typing import Any, Callable, Mapping, Optional, TypedDict
 
 from zuper_commons.types import TM, ZValueError, add_context, check_isinstance
@@ -23,21 +22,27 @@ __all__ = [
 
 def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callable[..., Any], tuple[Any, ...], Mapping[str, Any]]:
     """Substitutes dependencies and gets actual cmd, args, kwargs."""
-    command, args, kwargs0 = get_job_args(job_id, db=db)
-    kwargs: dict[str, Any] = dict(**kwargs0)
-    # Let's check that all dependencies have been computed
-    all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
-    for dep in all_deps:
-        cache = get_job_cache(dep, db=db)
-        if cache.state != cache.DONE:
-            msg = f"Dependency {dep!r} was not done."
-            raise CompmakeBug(msg, cache=cache)
-        if not job_userobject_exists(dep, db):
-            msg = f"Dependency {dep!r} was marked as done but not job_userobject exists."
-            raise CompmakeBug(msg, cache=cache)
-    args2 = substitute_dependencies(args, db=db)
-    kwargs2 = substitute_dependencies(kwargs, db=db)
-    return command, args2, kwargs2
+    with add_context(op="get_cmd_args_kwargs", job_id=job_id) as c:
+        command, args, kwargs0 = get_job_args(job_id, db=db)
+        kwargs: dict[str, Any] = dict(**kwargs0)
+        # Let's check that all dependencies have been computed
+        all_deps = collect_dependencies(args) | collect_dependencies(kwargs)
+        c["all_deps"] = all_deps
+        c["args"] = args
+        c["kwargs"] = kwargs
+
+        for dep in all_deps:
+            cache = get_job_cache(dep, db=db)
+            if cache.state != cache.DONE:
+                msg = f"Dependency {dep!r} was not done."
+                raise CompmakeBug(msg, cache=cache)
+            if not job_userobject_exists(dep, db):
+                msg = f"Dependency {dep!r} was marked as done but not job_userobject exists."
+                raise CompmakeBug(msg, cache=cache)
+
+        args2 = substitute_dependencies(args, db=db)
+        kwargs2 = substitute_dependencies(kwargs, db=db)
+        return command, args2, kwargs2
 
 
 class JobCompute:
@@ -65,12 +70,13 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         with ti.timeit("get_cmd_args_kwargs"):
             command, args, kwargs_ = get_cmd_args_kwargs(job_id, db=db)
     except SerializationError:
-        parent = job.defined_by[-1]
-        await context.write_message_console(f"Error: could not deserialize job {job_id!r}, marking parent {parent} as to do")
-        from compmake import mark_as_failed
-
-        msg = f"Could not deserialize child job {job_id!r}"
-        mark_as_failed(parent, db, msg, traceback.format_exc())
+        # TODO: TMP:
+        # parent = job.defined_by[-1]
+        # await context.write_message_console(f"Error: could not deserialize job {job_id!r}, marking parent {parent} as to do")
+        # from compmake import mark_as_failed
+        #
+        # msg = f"Could not deserialize child job {job_id!r}"
+        # mark_as_failed(parent, db, msg, traceback.format_exc())
         raise
 
     kwargs = dict(kwargs_)

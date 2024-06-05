@@ -65,7 +65,7 @@ class Context(ABC):
     @abstractmethod
     def comp(
         self,
-        command_: Callable[P, X],
+        command_: Callable[P, X] | Callable[P, Promise[X]],
         *args: P.args,
         command_name: Optional[str] = None,
         job_id: Optional[str] = None,

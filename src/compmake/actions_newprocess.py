@@ -2,7 +2,7 @@ import os
 from typing import cast
 
 from compmake_utils import safe_pickle_load
-from zuper_commons.fs import DirPath, RelDirPath, abspath, getcwd, join, mkdirs_thread_safe
+from zuper_commons.fs import abspath, getcwd, join
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
@@ -10,7 +10,8 @@ from . import logger
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
-from .types import CMJobID, ResultDict
+from .structures import ExecutionArgs, ParmakeJobResult
+from .types import ResultDict
 
 __all__ = [
     "parmake_job2_new_process_1",
@@ -30,9 +31,18 @@ def get_command_line(s: list[str]) -> str:
     return " ".join(map(quote, s))
 
 
-async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath]) -> ResultDict:
+async def parmake_job2_new_process_1(
+    sti: SyncTaskInterface,
+    args: ExecutionArgs,
+) -> ParmakeJobResult:
     """Starts the job in a new compmake process."""
-    (job_id, storage) = args
+    job_id = args.job_id
+    basepath = args.basepath
+    # event_queue_name = args.event_queue_name
+    # show_output = args.show_output
+    # logdir = args.logdir
+    # event_queue = args.event_queue
+    # job_id, basepath, event_queue_name, show_output, logdir, event_queue = args
     # compmake_bin = which("compmake")
     # from .storage import all_jobs
     # from .filesystem import StorageFilesystem
@@ -42,12 +52,12 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID
     # if not jobs:
     #     raise ZException()
     # storage = db.basepath  # XXX:
-    where = join(storage, cast(RelDirPath, "parmake_job2_new_process"))
-    mkdirs_thread_safe(where)
+    # where = join(storage, cast(RelDirPath, "parmake_job2_new_process"))
+    # mkdirs_thread_safe(where)
 
-    out_result = join(where, f"{job_id}.results.pickle")
+    out_result = join(basepath, f"{job_id}.results.pickle")
     out_result = abspath(out_result)
-    cmd = ["python3", "-m", "compmake", storage]
+    cmd = ["python3", "-m", "compmake", basepath]
 
     # from contracts import all_disabled, indent
     # if not all_disabled():
@@ -104,4 +114,6 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID
     res = cast(ResultDict, safe_pickle_load(out_result))
     os.unlink(out_result)
     result_dict_check(res)
-    return res
+
+    res_ = ParmakeJobResult(res, 0.0, 0.0, 0.0)
+    return res_

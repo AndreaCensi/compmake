@@ -20,7 +20,7 @@ async def test_assertion_make(env: Env) -> None:
 
 
 @run_with_env
-async def test_assertion(env: Env) -> None:
+async def test_assertion_parmake(env: Env) -> None:
     for i in range(10):
         env.comp(job_failure, job_id=f"fail{i:02d}")
 

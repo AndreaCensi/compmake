@@ -1,14 +1,12 @@
 import os
 import sys
 import time
+import warnings
 from contextlib import contextmanager
-from dataclasses import dataclass
-from multiprocessing import Queue
 from queue import Full
-from typing import Any, Iterator, cast
+from typing import Iterator, cast
 
 from compmake import (
-    CMJobID,
     CompmakeConstants,
     Context,
     ContextImp,
@@ -17,16 +15,16 @@ from compmake import (
     JobInterrupted,
     JobProgressEvent,
     MakeResult,
-    ResultDict,
     make,
     publish,
     register_handler,
     remove_all_handlers,
     result_dict_check,
 )
+from compmake.structures import ExecutionArgs, ParmakeJobResult
 from compmake_utils import setproctitle
 from zuper_commons import ZLogger
-from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
+from zuper_commons.fs import join, mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
 from zuper_utils_timing import TimeInfo, timeit_wall
@@ -43,17 +41,7 @@ def sanitize_for_filename(x0: str) -> str:
     return x
 
 
-@dataclass
-class ParmakeJobResult:
-    rd: ResultDict
-    time_total: float
-    time_comp: float
-    time_other: float
-
-
-async def parmake_job2(
-    sti: SyncTaskInterface, args: tuple[CMJobID, DirPath, str, bool, DirPath, "Queue[Any]"]
-) -> ParmakeJobResult:
+async def parmake_job2(sti: SyncTaskInterface, args: ExecutionArgs) -> ParmakeJobResult:
     """
     args = tuple job_id, context, queue_name, show_events
 
@@ -63,7 +51,11 @@ async def parmake_job2(
     because it might contain a Promise.
 
     """
-    job_id, basepath, event_queue_name, show_output, logdir, event_queue = args
+    job_id = args.job_id
+    basepath = args.basepath
+    event_queue_name = args.event_queue_name
+    show_output = args.show_output
+    logdir = args.logdir
 
     parmake_job2_started = time.time()
     ti: TimeInfo
@@ -87,11 +79,11 @@ async def parmake_job2(
         sys.stderr.write(f"parmake_job2 {job_id} started\n")
         sys.stderr.flush()
         check_isinstance(job_id, str)
-        check_isinstance(event_queue_name, str)
-        # from .pmake_manager import PmakeManager
+        # check_isinstance(event_queue_name, str)
+        from .pmake_manager import PmakeManager
 
         # logger.info(f"queues: {PmakeManager.queues}")
-        # event_queue = PmakeManager.queues[event_queue_name]
+        event_queue = PmakeManager.queues.get(event_queue_name, None)
 
         async with MyAsyncExitStack(sti) as AES:
             with ti.timeit("contextinit"):
@@ -107,11 +99,14 @@ async def parmake_job2(
                 # to the main process
                 async def handler(*, context: Context, event: Event) -> None:
                     _ = context
-                    try:
-                        if not CompmakeConstants.disable_interproc_queue:
-                            event_queue.put(event, block=False)
-                    except Full:
-                        G.nlostmessages += 1
+                    if event_queue is None:
+                        warnings.warn("no event queue")
+                    else:
+                        try:
+                            if not CompmakeConstants.disable_interproc_queue:
+                                event_queue.put(event, block=False)
+                        except Full:
+                            G.nlostmessages += 1
                         # Do not write messages here, it might create a recursive
                         # problem.
                         # sys.stderr.write('job %s: Queue is full, message is lost.\n'

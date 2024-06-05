@@ -25,6 +25,7 @@ from compmake import (
     publish,
 )
 from compmake.constants import CANCEL_REASONS, CANCEL_REASON_HOST_FAILED
+from compmake.structures import ExecutionArgs
 from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, joinf, make_sure_dir_exists
 from zuper_commons.text import format_rows_as_table
@@ -78,7 +79,7 @@ class PmakeManager(Manager):
         new_process: bool = False,
         show_output: bool = False,
     ):
-        Manager.__init__(self, sti, context=context, recurse=recurse)
+        super().__init__(sti, context=context, recurse=recurse)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process
@@ -382,16 +383,25 @@ class PmakeManager(Manager):
         db = self.context.get_compmake_db()
         check_isinstance(job_id, str)
         f: PossibleFuncs
+        logdir = join(db.basepath, f"parmake_job2_logs")
+
         if self.new_process:
             f = "parmake_job2_new_process_1"
             # args = (job_id, self.context)
 
-            args = (job_id, db.basepath)
+            # args = (job_id, db.basepath)
         else:
             f = "parmake_job2"
-            logdir = join(db.basepath, f"parmake_job2_logs")
-            args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
+            # args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
+        args = ExecutionArgs(
+            job_id=job_id,
+            basepath=db.basepath,
+            show_output=self.show_output,
+            logdir=logdir,
+            # event_queue=self.event_queue,
+            event_queue_name=self.event_queue_name,
+        )
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
@@ -519,8 +529,8 @@ class PmakeManager(Manager):
         Manager.job_failed(self, job_id, deleted_jobs)
         self._clear(job_id)
 
-    def job_succeeded(self, job_id: CMJobID) -> None:
-        Manager.job_succeeded(self, job_id)
+    def job_succeeded(self, job_id: CMJobID, user_object_deps) -> None:
+        Manager.job_succeeded(self, job_id, user_object_deps)
         self._clear(job_id)
 
     def _clear(self, job_id: CMJobID) -> None:

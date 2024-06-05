@@ -120,13 +120,14 @@ def expand_job_list_token(token: str, context: Context, cq: CacheQueryDB) -> Ite
 
     token = token.replace("%", "*")
     if token.find("*") > -1:
-        try:
-            jobs = cq.all_jobs_pattern(token)
-            for _ in jobs:
-                yield _
 
-        except ZValueError as e:
-            raise UserError(f"Could not find any match for {token}") from e
+        jobs = cq.all_jobs_pattern(token)
+        if not jobs:
+
+            raise UserError(f"Could not find any match for {token}")
+
+        for _ in jobs:
+            yield _
     elif is_alias(token):
         yield from eval_alias(token, context, cq)
     elif token.endswith("()"):
