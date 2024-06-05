@@ -569,7 +569,7 @@ class PmakeResult(AsyncResultInterface):
         else:
             return True
 
-    async def get(self, timeout: float = 0) -> OKResult:
+    async def get(self, timeout: float = 0) -> ParmakeJobResult:
         """Raises multiprocessing.TimeoutError"""
         if self.result is None:
             # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
@@ -613,4 +613,5 @@ class PmakeResult(AsyncResultInterface):
                 ) from None
 
         r: ResultDict = self.result
-        return result_dict_raise_if_error(r)
+        rd = result_dict_raise_if_error(r)
+        return ParmakeJobResult(rd, time_other=0, time_comp=0, time_total=0)

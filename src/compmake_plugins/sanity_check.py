@@ -66,10 +66,10 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
     assert "root" in defined_by
 
     dparents = direct_parents(job_id, db=db)
-    dchildren = direct_children(job_id, db=db)
+    all_parents = parents(job_id, db=db)
 
-    # all_parents = parents(job_id, db=db)
-    # all_children = children(job_id, db=db)
+    dchildren = direct_children(job_id, db=db)
+    all_children = children(job_id, db=db)
 
     # print(job_id)
     # print('d children: %s' % dchildren)
@@ -97,13 +97,13 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
                 s += f"but {dp} does not think {job_id} is its direct child"
                 e(s)
 
-    # for ap in all_parents:
-    #     if not job_exists(ap, db=db):
-    #         s = f"Parent {ap!r} of {job_id!r} does not exist."
-    #         e(s)
-    #     else:
-    #         if not job_id in children(ap, db=db):
-    #             e(f"{ap} is parent but no child relation")
+    for ap in all_parents:
+        if not job_exists(ap, db=db):
+            s = f"Parent {ap!r} of {job_id!r} does not exist."
+            e(s)
+        else:
+            if not job_id in children(ap, db=db):
+                e(f"{ap} is parent but no child relation")
 
     for dc in dchildren:
         if not job_exists(dc, db=db):
@@ -113,13 +113,13 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
             if not job_id in direct_parents(dc, db=db):
                 e(f"{dc} is direct child but no direct_parent relation")
 
-    # for ac in all_children:
-    #     if not job_exists(ac, db=db):
-    #         s = f"A child {ac!r} of {job_id!r} does not exist."
-    #         e(s)
-    #     else:
-    #         if not job_id in parents(ac, db=db):
-    #             e(f"{ac} is direct child but no parent relation")
+    for ac in all_children:
+        if not job_exists(ac, db=db):
+            s = f"A child {ac!r} of {job_id!r} does not exist."
+            e(s)
+        else:
+            if not job_id in parents(ac, db=db):
+                e(f"{ac} is direct child but no parent relation")
 
     if errors:
         s = f"Inconsistencies for {job_id}:\n"

@@ -10,7 +10,7 @@ from compmake import (
     CompmakeBug,
     Context,
     Manager,
-    OKResult,
+    ParmakeJobResult,
     make,
     parmake_job2_new_process_1,
     result_dict_raise_if_error,
@@ -87,15 +87,16 @@ class FakeAsync(AsyncResultInterface):
         self.told_you_ready = True
         return True
 
-    async def get(self, timeout=0) -> OKResult:
+    async def get(self, timeout=0) -> ParmakeJobResult:
         if not self.told_you_ready:
             msg = "Should call get() only after ready()."
             raise CompmakeBug(msg)
 
         res = await self._execute(self.sti)
-        return result_dict_raise_if_error(res)
+        result_dict_raise_if_error(res.rd)
+        return res
 
-    async def _execute(self, sti: SyncTaskInterface) -> OKResult:
+    async def _execute(self, sti: SyncTaskInterface) -> ParmakeJobResult:
         if self.new_process:
             basepath = self.context.get_compmake_db().basepath
             args = (self.job_id, basepath)
@@ -107,4 +108,4 @@ class FakeAsync(AsyncResultInterface):
 
             res = await make(sti, self.job_id, context=self.context, echo=self.echo)
             await asyncio.sleep(0)
-            return res
+            return ParmakeJobResult(rd=res, time_other=0, time_comp=0, time_total=0)

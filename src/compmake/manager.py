@@ -18,6 +18,7 @@ from zuper_commons.text import indent, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import color_red, duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
+from . import ParmakeJobResult
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
 from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
@@ -61,7 +62,7 @@ class AsyncResultInterface(ABC):
         """Returns True if it is ready (completed or failed)."""
 
     @abstractmethod
-    async def get(self, timeout: float = 0) -> OKResult:
+    async def get(self, timeout: float = 0) -> "ParmakeJobResult":
         """Either:
         - returns a dictionary with fields:
             new_jobs: list of jobs created
@@ -443,7 +444,8 @@ class Manager(ManagerLog):
             else:
                 timeout = 0
 
-            result = await async_result.get(timeout=timeout)
+            res = await async_result.get(timeout=timeout)
+            result = res.rd
             # print('here result: %s' % result)
             result_dict_check(result)
 

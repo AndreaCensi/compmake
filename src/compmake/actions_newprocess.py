@@ -6,7 +6,7 @@ from zuper_commons.fs import DirPath, RelDirPath, abspath, getcwd, join, mkdirs_
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
-from . import logger
+from . import ParmakeJobResult, logger
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check
@@ -30,9 +30,9 @@ def get_command_line(s: list[str]) -> str:
     return " ".join(map(quote, s))
 
 
-async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath]) -> ResultDict:
+async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID, DirPath]) -> "ParmakeJobResult":
     """Starts the job in a new compmake process."""
-    (job_id, storage) = args
+    job_id, storage, *extra = args
     # compmake_bin = which("compmake")
     # from .storage import all_jobs
     # from .filesystem import StorageFilesystem
@@ -103,5 +103,8 @@ async def parmake_job2_new_process_1(sti: SyncTaskInterface, args: tuple[CMJobID
 
     res = cast(ResultDict, safe_pickle_load(out_result))
     os.unlink(out_result)
+
     result_dict_check(res)
-    return res
+    from compmake_plugins.backend_pmake.parmake_job2_imp import ParmakeJobResult
+
+    return ParmakeJobResult(res, time_total=0, time_comp=0, time_other=0)

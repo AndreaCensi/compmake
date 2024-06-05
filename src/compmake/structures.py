@@ -69,12 +69,13 @@ from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
 from zuper_utils_timing import TimeInfo
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
-from .types import CMJobID
+from .types import CMJobID, ResultDict
 
 __all__ = [
     "Cache",
     "IntervalTimer",
     "Job",
+    "ParmakeJobResult",
     "ProgressStage",
     "Promise",
     "StateCode",
@@ -119,7 +120,7 @@ def make_job(
     is_async: bool,
     needs_sti: bool,
     needs_ti: bool,
-):
+) -> Job:
     """
 
     needs_context: new facility for dynamic jobs
@@ -517,3 +518,11 @@ class ProgressStage:
             return self.iterations[0] >= self.iterations[1] - 1
         else:
             return self.iterations[0] >= self.iterations[1]
+
+
+@dataclass
+class ParmakeJobResult:
+    rd: ResultDict
+    time_total: float
+    time_comp: float
+    time_other: float

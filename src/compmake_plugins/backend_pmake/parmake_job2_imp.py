@@ -17,6 +17,7 @@ from compmake import (
     JobInterrupted,
     JobProgressEvent,
     MakeResult,
+    ParmakeJobResult,
     ResultDict,
     make,
     publish,
@@ -41,14 +42,6 @@ def sanitize_for_filename(x0: str) -> str:
     x = x.replace(":", "_")
     x = x.replace("/", "_")
     return x
-
-
-@dataclass
-class ParmakeJobResult:
-    rd: ResultDict
-    time_total: float
-    time_comp: float
-    time_other: float
 
 
 async def parmake_job2(
