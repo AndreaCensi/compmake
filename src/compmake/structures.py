@@ -391,6 +391,8 @@ class Cache:
     walltime_used: Optional[float]
     cputime_used: Optional[float]
 
+    result_type: Optional[str]
+
     result_type_qual: Optional[str]
 
     timed_out: Optional[float]
@@ -434,6 +436,8 @@ class Cache:
         self.result_type_qual = None
         self.host = None
         self.ti = None
+
+        self.result_type = None
 
     def is_timed_out(self) -> Optional[float]:
         return getattr(self, "timed_out", None)  # XXX: TMP:
