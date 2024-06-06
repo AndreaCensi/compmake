@@ -62,7 +62,7 @@
 
 import time
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Optional, Union
+from typing import Any, Generic, Literal, NewType, Optional, TypeVar, Union
 
 from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
 from zuper_commons.types import TM, describe_value
@@ -85,9 +85,11 @@ __all__ = [
     "timing_summary",
 ]
 
+X = TypeVar("X")
+
 
 @dataclass
-class Promise:
+class Promise(Generic[X]):
     job_id: CMJobID
 
 
@@ -357,7 +359,7 @@ class Cache:
         DONE: dict(color="green"),
         PROCESSING: dict(color="blue"),
         FAILED: dict(color="red"),
-        BLOCKED: dict(color="brown"),
+        BLOCKED: dict(color="gray"),
         "ready": dict(color="yellow"),
     }
 
@@ -392,7 +394,6 @@ class Cache:
     cputime_used: Optional[float]
 
     result_type: Optional[str]
-
     result_type_qual: Optional[str]
 
     timed_out: Optional[float]
@@ -433,11 +434,12 @@ class Cache:
         self.int_compute = None
         self.int_save_results = None
         self.int_gc = None
+
         self.result_type_qual = None
+        self.result_type = None
+
         self.host = None
         self.ti = None
-
-        self.result_type = None
 
     def is_timed_out(self) -> Optional[float]:
         return getattr(self, "timed_out", None)  # XXX: TMP:

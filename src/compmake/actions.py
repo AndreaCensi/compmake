@@ -188,6 +188,7 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result: object) -> None
     cache.int_compute = cache.int_gc = i
     cache.int_load_results = cache.int_make = cache.int_save_results = i
     cache.result_type = getattr(type(result), "___name__", repr(type(result)))
+    cache.result_type_qual = type(result).__module__ + "." + type(result).__qualname__
     set_job_cache(job_id, cache, db)
     set_job_userobject(job_id, result, db)
 
@@ -551,7 +552,9 @@ async def make(
     cache.int_compute = int_compute
     cache.int_gc = int_gc
     cache.int_save_results = int_save_results
-    cache.result_type_qual = type(user_object).__module__ + type(user_object).__qualname__
+    cache.result_type_qual = type(user_object).__module__ + "." + type(user_object).__qualname__
+    cache.result_type = getattr(type(user_object), "___name__", repr(type(user_object)))
+
     cache.timestamp = end_time
 
     cache.walltime_used = int_make.get_walltime_used()
@@ -559,7 +562,6 @@ async def make(
     cache.host = host
     cache.jobs_defined = new_jobs
     cache.ti = ti
-    cache.result_type = getattr(type(user_object), "___name__", repr(type(user_object)))
 
     with ti.timeit("set_job_cache"):
         set_job_cache(job_id, cache, db=db)

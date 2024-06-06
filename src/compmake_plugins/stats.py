@@ -63,6 +63,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context) -> None
         Cache.FAILED,
         Cache.BLOCKED,
         Cache.DONE,
+        "skipped",
         CANCEL_REASON_OOM,
         CANCEL_REASON_TIMEOUT,
         "exception",
@@ -71,7 +72,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context) -> None
     # initialize counters to 0
     states2count = dict(list(map(lambda x: (x, 0), states_order)))
 
-    Outcomes = StateCode | Literal["all", "oom", "timedout", "exception"]
+    Outcomes = StateCode | Literal["all", "oom", "timedout", "exception", "skipped"]
 
     def empty_dict():
         return dict(list(map(lambda x: (x, Stats()), states_order)) + [("all", Stats())])
@@ -108,6 +109,10 @@ async def display_stats(job_list: Collection[CMJobID], context: Context) -> None
             else:
                 fsall["exception"].update(cache)
                 fss["exception"].update(cache)
+
+        if "Skipped" in (cache.result_type_qual or ""):
+            fsall["skipped"].update(cache)
+            fss["skipped"].update(cache)
         if total == 100:  # XXX: use standard method
             print("Loading a large number of jobs...\r")
 
@@ -132,14 +137,15 @@ async def display_stats(job_list: Collection[CMJobID], context: Context) -> None
     flen = max((len(x) + len("()")) for x in function2state2count)
     flen = max(flen, len("total"))
     states = [
-        (Cache.DONE, "OK"),
-        (Cache.FAILED, "F"),
-        ("exception", "ex"),
+        (Cache.DONE, "✓"),
+        ("skipped", "SK"),
+        (Cache.FAILED, "𐄂"),
+        ("exception", "!"),
         ("oom", "OOM"),
-        ("timedout", "TO"),
-        (Cache.BLOCKED, "block"),
-        (Cache.PROCESSING, "processing"),
-        (Cache.NOT_STARTED, "todo"),
+        ("timedout", "⏲"),
+        (Cache.BLOCKED, "⚠"),
+        (Cache.PROCESSING, "⛭"),
+        (Cache.NOT_STARTED, "🗉"),
     ]
 
     totals = defaultdict(lambda: 0)

@@ -25,7 +25,30 @@ if TYPE_CHECKING:
     from .filesystem import StorageFilesystem
 
 
-class Context(ABC):
+class JobInterface(ABC):
+    # setting up jobs
+    @abstractmethod
+    def comp_dynamic(
+        self,
+        f: "Callable[Concatenate[JobInterface, P], X]",
+        *args: P.args,
+        job_id: Optional[str] = None,
+        command_name: Optional[str] = None,
+        **kwargs: P.kwargs,
+    ) -> "Promise[X]": ...
+
+    @abstractmethod
+    def comp(
+        self,
+        command_: Callable[P, X],
+        *args: P.args,
+        command_name: Optional[str] = None,
+        job_id: Optional[str] = None,
+        **kwargs: P.kwargs,
+    ) -> "Promise[X]": ...
+
+
+class Context(JobInterface, ABC):
     currently_executing: list[CMJobID]
 
     @abstractmethod
@@ -50,27 +73,6 @@ class Context(ABC):
 
     @abstractmethod
     def comp_prefix(self, prefix: Optional[str]) -> None: ...
-
-    # setting up jobs
-    @abstractmethod
-    def comp_dynamic(
-        self,
-        f: "Callable[Concatenate[Context, P], X]",
-        *args: P.args,
-        job_id: Optional[str] = None,
-        command_name: Optional[str] = None,
-        **kwargs: P.kwargs,
-    ) -> X: ...
-
-    @abstractmethod
-    def comp(
-        self,
-        command_: Callable[P, X],
-        *args: P.args,
-        command_name: Optional[str] = None,
-        job_id: Optional[str] = None,
-        **kwargs: P.kwargs,
-    ) -> X: ...
 
     #
     # @abstractmethod
