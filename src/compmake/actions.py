@@ -85,7 +85,6 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
 
     basic = job_list - closure
 
-    logger.info(job_list=job_list, closure=closure, basic=basic)
     other_clean: set[CMJobID] = set()
     for job_id in job_list:
         other_clean.update(cq.parents(job_id))
