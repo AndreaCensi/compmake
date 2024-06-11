@@ -444,6 +444,9 @@ class Cache:
     def is_timed_out(self) -> Optional[float]:
         return getattr(self, "timed_out", None)  # XXX: TMP:
 
+    def is_skipped_test(self):
+        return "SkipTest" in self.exception
+
     def is_oom(self) -> Optional[int]:
         return getattr(self, "oom_bytes", None)  # XXX: TMP:
 
@@ -532,3 +535,19 @@ class ParmakeJobResult:
     time_total: float
     time_comp: float
     time_other: float
+
+
+@dataclass
+class PersistentStatsOne:
+    prob_success: float
+    prob_failure: float
+    prob_oom: float
+    average_compute_time: float
+    compute_time_percentile: float
+    prob_timedout: float
+
+
+@dataclass
+class PersistentStats:
+    by_command: dict[str, PersistentStatsOne]
+    by_job: dict[CMJobID, PersistentStatsOne]

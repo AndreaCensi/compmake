@@ -18,6 +18,7 @@ from compmake import (
     ui_command,
 )
 from zuper_commons.types import check_isinstance
+from zuper_commons.ui import size_compact
 from .console_output import write_line_endl
 
 
@@ -104,22 +105,22 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         cache2 = None
 
     jobargs_size = job_args_sizeof(job_id, db)
-    print(bold("      args size: ") + "%s" % jobargs_size)
+    print(bold("      args size: ") + size_compact(jobargs_size))
 
     if job_cache_exists(job_id, db):
         cache_size = job_cache_sizeof(job_id, db)
-        print(bold("     cache size: ") + "%s" % cache_size)
+        print(bold("     cache size: ") + size_compact(cache_size))
     else:
         cache_size = 0
 
     if job_userobject_exists(job_id, db):
         userobject_size = job_userobject_sizeof(job_id, db)
-        print(bold("userobject size: ") + "%s" % userobject_size)
+        print(bold("userobject size: ") + size_compact(userobject_size))
     else:
         userobject_size = 0
 
     total = jobargs_size + cache_size + userobject_size
-    print(bold("          Total: ") + "%s" % total)
+    print(bold("          Total: ") + "%s" % size_compact(total))
 
     def display_with_prefix(buffer, prefix="", transform=lambda x: x):  # @ReservedAssignment
         check_isinstance(buffer, str)

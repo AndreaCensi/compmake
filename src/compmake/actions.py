@@ -99,19 +99,19 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
 
     logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
-        logger.info("clean_cache_relations", job_id=job_id)
+        # logger.info("clean_cache_relations", job_id=job_id)
         clean_cache_relations(job_id, db)
 
     # delete all in closure
     for job_id in closure:
-        logger.info("delete_all_job_data", job_id=job_id)
+        # logger.info("delete_all_job_data", job_id=job_id)
         delete_all_job_data(job_id, db)
 
     # just remove cache in basic
     for job_id in basic:
         # Cleans associated objects
         if job_cache_exists(job_id, db):
-            logger.info("delete_job_cache", job_id=job_id)
+            # logger.info("delete_job_cache", job_id=job_id)
             delete_job_cache(job_id, db)
     # logger.info('done')
     # now we have to undo this one:
@@ -161,6 +161,7 @@ def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
     # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
+        logger.debug(f"Marking remaking {job_id}")
         cache.timestamp = Cache.TIMESTAMP_TO_REMAKE
     set_job_cache(job_id, cache, db=db)
 

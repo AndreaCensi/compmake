@@ -19,7 +19,6 @@ from compmake import (
     HostFailed,
     JobFailed,
     JobInterrupted,
-    OKResult,
     ResultDict,
     parmake_job2_new_process_1,
     result_dict_raise_if_error,
@@ -28,7 +27,7 @@ from compmake.constants import CANCEL_REASONS
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
-from zuper_commons.types import TM
+from zuper_commons.types import TM, ZAssertionError, ZValueError
 from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
@@ -49,6 +48,8 @@ __all__ = [
 
 PossibleFuncs = Literal["parmake_job2_new_process_1", "parmake_job2"]
 
+SubStates = Literal["available", "processing", "dead"]
+
 
 class PmakeSub:
     last: "Optional[PmakeResult]"
@@ -58,6 +59,7 @@ class PmakeSub:
     _proc: Process
     killed_by_me: bool
     killed_reason: Optional[CANCEL_REASONS]
+    state: SubStates
 
     def __repr__(self) -> str:
         if self.last is None:
@@ -113,6 +115,8 @@ class PmakeSub:
         self.max_mem_usage = 0
         self.last_mem_usage_sampled = 0
         self.pr = psutil.Process(self._proc.pid)
+        self.state = "available"
+        self.available_since = time.time()
 
     def is_alive(self) -> bool:
         return self._proc.is_alive()
@@ -148,11 +152,40 @@ class PmakeSub:
         # self.job_queue = None
         # self.result_queue = None
 
+    def is_running(self, job_id: CMJobID) -> bool:
+        return self.last is not None and self.last.job_id == job_id
+
     def apply_async(self, job_id: CMJobID, function: PossibleFuncs, arguments: TM[Any]) -> "PmakeResult":
+        if self.state != "available":
+            raise ZValueError(f"Cannot apply_async() to not available")
         self.nstarted += 1
         self.job_queue.put((job_id, function, arguments))
+        self.state = "processing"
+
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
+
+    def set_available(self):
+        if self.state != "processing":
+            raise ZValueError(f"Cannot set_available if not processing")
+        self.state = "available"
+        self.last.invalid = True
+        self.available_since = time.time()
+
+        self.last = None
+
+    def time_since_last(self) -> float:
+        now = time.time()
+        if self.last is not None:
+            return now - self.last.started
+        else:
+            return now - self.available_since
+
+    def is_available(self) -> bool:
+        return self.state == "available"
+
+    def is_processing(self) -> bool:
+        return self.state == "processing"
 
     def get_mem_usage(self, max_delay: float) -> tuple[int, int]:
         now = time.time()
@@ -538,6 +571,7 @@ class PmakeResult(AsyncResultInterface):
         self.job_id = job_id
         self.started = time.time()
         self.every_once_in_a_while = EveryOnceInAWhile(5)
+        self.invalid = False
         # self.count = 0
 
     async def get_memory_usage(self, max_delay: float) -> int:
@@ -550,6 +584,8 @@ class PmakeResult(AsyncResultInterface):
 
     def ready(self) -> bool:
         # self.count += 1
+        if self.invalid:
+            raise ZAssertionError("This result is invalid.")
 
         if self.result is not None:
             return True
@@ -571,12 +607,20 @@ class PmakeResult(AsyncResultInterface):
 
     async def get(self, timeout: float = 0) -> ParmakeJobResult:
         """Raises multiprocessing.TimeoutError"""
+        if self.invalid:
+            raise ZAssertionError("This result is invalid.")
+
         if self.result is None:
-            # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
+
+            if not self.psub.is_alive():
+                raise multiprocessing.TimeoutError()
+
+                # print(f'pid = {proc.pid}  alive = {proc.is_alive()}')
             # mem_stats = self.psub.get_mem_usage()
             # maxs = size_compact(mem_stats[0])
             # curs = size_compact(mem_stats[1])
             # mem_stats_s = f'memory stats: max: {maxs} cur: {curs}'
+            timeout = 3  # FIXME
             try:
                 self.result = self.result_queue.get(block=True, timeout=timeout)
             except ValueError:

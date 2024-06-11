@@ -20,7 +20,6 @@ from compmake import (
     CMJobID,
     Context,
     FailResult,
-    MakeHostFailed,
     Manager,
     publish,
 )
@@ -63,10 +62,7 @@ class PmakeManager(Manager):
     event_queue: "Queue[Any]"  # XXX
     event_queue_name: str
     subs: dict[SubName, PmakeSub]
-    sub_available: set[SubName]
-    sub_processing: set[SubName]
     sub_aborted: set[SubName]
-    job2subname: dict[CMJobID, SubName]
     max_num_processing: int
 
     def __init__(
@@ -116,8 +112,8 @@ class PmakeManager(Manager):
 
         self.subs = {}  # name -> sub
         # available + processing + aborted = subs.keys
-        self.sub_available = set()
-        self.sub_processing = set()
+        # self.sub_available = set()
+        # self.sub_processing = set()
         self.sub_aborted = set()
         self._nsubs_created = 0
 
@@ -130,7 +126,7 @@ class PmakeManager(Manager):
         for i in range(self.num_processes):
             self.create_new_sub(self.event_queue)
 
-        self.job2subname = {}
+        # self.job2subname = {}
         # all are available
         # self.sub_available.update(self.subs)
 
@@ -139,51 +135,25 @@ class PmakeManager(Manager):
         # self.task_memory_usage = asyncio.create_task(self.check_memory_usage())
         self.task_proc_status = asyncio.create_task(self.show_processing_status())
 
-    # @async_errors
-    # async def check_memory_usage(self, interval: float = 2) -> None:
-    #
-    #     try:
-    #         while True:
-    #
-    #             try:
-    #                 await self._check_one_cycle()
-    #             except Exception as e:
-    #                 logger.error("Error in check_memory_usage", traceback.format_exc())
-    #
-    #             await asyncio.sleep(interval)
-    #     except:
-    #         logger.error("Error in check_memory_usage")
-    #         raise
-    #
-    # async def _check_one_cycle(self):
-    #     max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-    #     max_job_mem = max_job_mem_GB * 1024 ** 3
-    #
-    #     nalives = 0
-    #     ndead = 0
-    #
-    #     for name, sub in list(self.subs.items()):
-    #         if not sub.is_alive():
-    #             ndead += 1
-    #             continue
-    #         else:
-    #             nalives += 1
-    #
-    #         current, peak = sub.get_mem_usage()
-    #
-    #         if current > max_job_mem:
-    #             msg = f"Memory used {size_compact(current)} > {size_compact(max_job_mem)} (peak {size_compact(peak)})"
-    #             await self.context.write_message_console(msg)
-    #
-    #             if sub.last is not None:
-    #                 await self.cancel_job(sub.last.job_id, CANCEL_REASON_OOM)
-    #
-    #             # await self._cancel_and_replace_sub(name)
-    #
-    #     # await self.context.write_message_console(f'ok {ndead=} {nalives=}')
+    task_proc_status: "asyncio.Task[None]"
+
+    def get_available_subs(self) -> set[SubName]:
+        return {k for k, v in self.subs.items() if v.is_available()}
+
+    def get_processing_subs(self) -> set[SubName]:
+        return {k for k, v in self.subs.items() if v.is_processing()}
 
     @async_errors
     async def show_processing_status(self, interval: float = 5) -> None:
+
+        while True:
+
+            table = self.get_status_str()
+            await self.context.write_message_console(table)
+
+            await asyncio.sleep(interval)
+
+    def get_status_str(self) -> str:
         max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
         max_job_mem = max_job_mem_GB * 1024**3
         job_timeout = self.context.get_compmake_config("job_timeout")
@@ -196,71 +166,75 @@ class PmakeManager(Manager):
                 return color_orange(s)
             return s
 
-        while True:
+        lines = []
 
-            lines = []
+        header = ("sub", "alive", "n", "state", "since", "has_r", "dt", "peak", "cur", "cpu", "job")
+        header = tuple(color_gray(_) for _ in header)
+        lines.append(header)
+        for subname, sub in list(self.subs.items()):
 
-            header = ("sub", "alive", "n", "proc", "dt", "peak", "cur", "cpu", "job")
-            header = tuple(color_gray(_) for _ in header)
-            lines.append(header)
-            for subname, sub in list(self.subs.items()):
-                processing = "proc" if subname in self.sub_processing else "idle"
-                alive = "alive" if sub.is_alive() else "dead"
+            # processing = "proc" if subname in self.sub_processing else "idle"
+            alive = "alive" if sub.is_alive() else "dead"
+            marked_available = sub.state
+            since = duration_compact(sub.time_since_last())
+            if sub.last is not None:
+                sub.last.ready()
+            has_result = sub.last is not None and sub.last.result is not None
 
-                cpu = sub.get_cpu_usage(1)
+            has_r = "yes" if has_result else "no"
+            cpu = sub.get_cpu_usage(1)
 
-                peak_mem_, cur_mem_ = sub.get_mem_usage(max_delay=1)
-                peak_mem = format_with_limit(peak_mem_, max_job_mem, size_compact)
-                cur_mem = format_with_limit(cur_mem_, max_job_mem, size_compact)
-                if peak_mem_ == cur_mem_:
-                    peak_mem = ""
+            peak_mem_, cur_mem_ = sub.get_mem_usage(max_delay=1)
+            peak_mem = format_with_limit(peak_mem_, max_job_mem, size_compact)
+            cur_mem = format_with_limit(cur_mem_, max_job_mem, size_compact)
+            if peak_mem_ == cur_mem_:
+                peak_mem = ""
 
-                if sub.last is not None:
-                    job_processing = sub.last.job_id
+            if sub.last is not None:
+                job_processing = sub.last.job_id
 
-                    if sub.last.result is not None:
-                        duration = ""
-                        job_processing = ""
-                    else:
-                        dt = time.time() - sub.last.started
-
-                        duration = format_with_limit(dt, job_timeout, duration_compact)
-
-                else:
-                    job_processing = ""
+                if sub.last.result is not None:
                     duration = ""
+                    job_processing = ""
+                else:
+                    dt = time.time() - sub.last.started
 
-                line = (
-                    subname,
-                    alive,
-                    sub.nstarted,
-                    processing,
-                    duration,
-                    peak_mem,
-                    cur_mem,
-                    cpu,
-                    job_processing,
-                )
-                lines.append(line)
+                    duration = format_with_limit(dt, job_timeout, duration_compact)
 
-            table = format_rows_as_table(lines, style="lefts")
-            await self.context.write_message_console(table)
+            else:
+                job_processing = ""
+                duration = ""
 
-            await asyncio.sleep(interval)
+            line = (
+                subname,
+                alive,
+                sub.nstarted,
+                marked_available,
+                since,
+                has_r,
+                duration,
+                peak_mem,
+                cur_mem,
+                cpu,
+                job_processing,
+            )
+            lines.append(line)
+
+        table = format_rows_as_table(lines, style="lefts")
+        return table
 
     def show_other_stats(self) -> None:
         logger.info(
             subs=self.subs,
-            sub_available=self.sub_available,
-            sub_processing=self.sub_processing,
+            sub_available=self.get_available_subs(),
+            sub_processing=self.get_processing_subs(),
             sub_aborted=self.sub_aborted,
-            job2subname=self.job2subname,
+            # job2subname=self.job2subname,
         )
 
     def create_new_sub(self, event_queue: "Queue[Any]") -> SubName:
         name = self.get_new_sub_name()
         self._create_sub(name, event_queue)
-        self.sub_available.add(name)
 
         return name
 
@@ -295,11 +269,11 @@ class PmakeManager(Manager):
 
         # assert len(self.sub_processing) == len(self.processing)
 
-        if not self.sub_available:
+        if not self.get_available_subs():
             # all_subs = ", ".join(self.subs.keys())
             # procs = ", ".join(self.sub_processing)
-
-            msg = f"already {len(self.sub_processing)} processing (max {self.max_num_processing})"
+            t = time.time()
+            msg = f"already {len(self.get_processing_subs())} {t} (max {self.max_num_processing})"
 
             if self.sub_aborted:
                 msg += f" ({len(self.sub_aborted)} workers aborted)"
@@ -335,10 +309,6 @@ class PmakeManager(Manager):
         return resource_available
 
     def can_accept_job(self, reasons: dict[str, str]) -> bool:
-        if len(self.sub_available) == 0 and len(self.sub_processing) == 0:
-            # all have failed
-            msg = "All workers have aborted."
-            raise MakeHostFailed(msg)
 
         resources = self.get_resources_status()
         some_missing = False
@@ -351,33 +321,27 @@ class PmakeManager(Manager):
         return True
 
     async def get_available_sub(self) -> SubName:
-        assert len(self.sub_available) > 0
-        # OK, we always use the first sub
         while True:
-            name = sorted(self.sub_available)[0]
+            name = sorted(self.get_available_subs())[0]
             sub = self.subs[name]
             if not sub.is_alive():
                 # msg = f"Sub {name} is not alive."
-                await self._cancel_and_replace_sub(name, "unknown")
+                await self._cancel_and_replace_sub(name, "unknown")  # type: ignore
                 continue
 
-            self.sub_available.remove(name)
-            assert not name in self.sub_processing
-            self.sub_processing.add(name)
+            # self.sub_available.remove(name)
+            # assert not name in self.sub_processing
+            # self.sub_processing.add(name)
             return name
 
+    @async_errors
     async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
-        assert len(self.sub_available) > 0
-        # # OK, we always use the first sub
-        # name = sorted(self.sub_available)[0]
-        # self.sub_available.remove(name)
-        # assert not name in self.sub_processing
-        # self.sub_processing.add(name)
+
         name = await self.get_available_sub()
         sub = self.subs[name]
 
-        self.job2subname[job_id] = name
+        # self.job2subname[job_id] = name
 
         db = self.context.get_compmake_db()
         check_isinstance(job_id, str)
@@ -395,13 +359,22 @@ class PmakeManager(Manager):
         async_result = sub.apply_async(job_id, f, args)
         return async_result
 
+    def _get_sub_for_job(self, job_id: CMJobID):
+        for name, sub in self.subs.items():
+            if sub.is_running(job_id):
+                return name
+        raise KeyError(job_id)
+
     async def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
         await Manager.cancel_job(self, job_id, cancel_reason)
-        if job_id not in self.job2subname:
-            raise ZAssertionError(f"Job {job_id} not in job2subname", job2subname=self.job2subname)
-            logger.warning(f"Job {job_id} not in job2subname")
-            return
-        subname = self.job2subname[job_id]
+
+        try:
+            subname = self._get_sub_for_job(job_id)
+        except KeyError:
+            logger.error(f"Job {job_id} not in job2subname")
+            # return
+            raise ZAssertionError(f"Job {job_id} not in job2subname")
+
         sub = self.subs[subname]
         last = sub.last
         assert last is not None
@@ -436,10 +409,10 @@ class PmakeManager(Manager):
             sub.kill_process()
         except:
             pass
-        if subname in self.sub_processing:
-            self.sub_processing.remove(subname)
-        if subname in self.sub_available:
-            self.sub_available.remove(subname)
+        # if subname in self.sub_processing:
+        #     self.sub_processing.remove(subname)
+        # if subname in self.sub_available:
+        #     self.sub_available.remove(subname)
 
         self.sub_aborted.add(subname)
         self.subs.pop(subname, None)
@@ -465,6 +438,9 @@ class PmakeManager(Manager):
                 break
 
     def process_finished(self) -> None:
+        status = self.get_status_str()
+        logger.debug("finished:\n" + status)
+
         if self.cleaned:
             return
         self.cleaned = True
@@ -473,11 +449,11 @@ class PmakeManager(Manager):
         self.event_queue.close()
         del PmakeManager.queues[self.event_queue_name]
 
-        for name in self.sub_processing:
+        for name in self.get_processing_subs():
             if name in self.subs:
                 self.subs[name].terminate_process()
 
-        for name in self.sub_available:
+        for name in self.get_available_subs():
             if name in self.subs:
                 self.subs[name].terminate()
 
@@ -494,7 +470,7 @@ class PmakeManager(Manager):
         # XXX: ... so we just kill them mercilessly
         if True:
             #  print('killing')
-            for name in self.sub_processing:
+            for name in self.get_processing_subs():
                 if name in self.subs:
                     self.subs[name].kill_process()
                     # if pid is not None:
@@ -524,28 +500,29 @@ class PmakeManager(Manager):
         self._clear(job_id)
 
     def _clear(self, job_id: CMJobID) -> None:
-        assert job_id in self.job2subname
-        name = self.job2subname[job_id]
-        del self.job2subname[job_id]
+        try:
+            name = self._get_sub_for_job(job_id)
+        except KeyError:
+            logger.error(f"Job {job_id} not in job2subname")
+            return
         # assert name in self.sub_processing
         # assert name not in self.sub_available
-        if name in self.sub_processing:
-            self.sub_processing.remove(name)
-        if (name not in self.sub_aborted) and (name in self.subs):
-            self.sub_available.add(name)
+        sub = self.subs[name]
+        sub.set_available()
+        # if name in self.sub_processing:
+        #     self.sub_processing.remove(name)
+        # if (name not in self.sub_aborted) and (name in self.subs):
+        #     self.sub_available.add(name)
 
     async def host_failed(self, job_id: CMJobID) -> None:
         await Manager.host_failed(self, job_id)
-
-        assert job_id in self.job2subname
-        name = self.job2subname[job_id]
-        del self.job2subname[job_id]
-        # assert name in self.sub_processing
-        # assert name not in self.sub_available
-        # self.sub_processing.remove(name)
-        #
-        # # put in sub_aborted
-        # self.sub_aborted.add(name)
+        try:
+            name = self._get_sub_for_job(job_id)
+        except KeyError:
+            logger.error(f"Job {job_id} not in job2subname")
+            return
+        sub = self.subs[name]
+        sub.set_available()
         await self._cancel_and_replace_sub(name, CANCEL_REASON_HOST_FAILED)
 
     def cleanup(self) -> None:

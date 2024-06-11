@@ -121,7 +121,7 @@
 #
 #     def event_check(self):
 #         pass
-#
+
 #
 # def compmake_slave():
 #     s = StreamCon(sys.stdin, sys.stdout)

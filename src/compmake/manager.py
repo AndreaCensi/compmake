@@ -14,7 +14,7 @@ from typing import Any, Collection, NoReturn
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
-from zuper_commons.text import indent, joinpars
+from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import color_red, duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
@@ -44,6 +44,7 @@ from .structures import Cache, StateCode
 from .types import CMJobID, OKResult
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
+from . import logger
 
 __all__ = [
     "AsyncResultInterface",
@@ -375,7 +376,7 @@ class Manager(ManagerLog):
 
         self.check_invariants()
 
-    async def check_job_finished(self, job_id: CMJobID, assume_ready: bool = False) -> bool:
+    async def check_job_finished(self, job_id: CMJobID) -> bool:
         """
         Checks that the job finished succesfully or unsuccesfully.
 
@@ -435,16 +436,21 @@ class Manager(ManagerLog):
             return True
 
         try:
-            if not assume_ready:
-                if not async_result.ready():
-                    return False
+            # if not assume_ready:
+            if not async_result.ready():
 
-            if assume_ready:
-                timeout = 10
-            else:
-                timeout = 0
+                return False
 
+            # if assume_ready:
+            #     timeout = 10
+            # else:
+            timeout = 0
+            t0 = time.time()
             res = await async_result.get(timeout=timeout)
+            dt = time.time() - t0
+
+            # if dt > 0.1:
+            #     logger.error("get() took a long time", dt=dt)
             result = res.rd
             # print('here result: %s' % result)
             result_dict_check(result)
@@ -463,9 +469,9 @@ class Manager(ManagerLog):
             return True
 
         except multiprocessing.TimeoutError:
-            if assume_ready:
-                msg = "Got Timeout while assume_ready for %r" % job_id
-                raise CompmakeBug(msg)
+            # if assume_ready:
+            #     msg = "Got Timeout while assume_ready for %r" % job_id
+            #     raise CompmakeBug(msg)
             # Result not ready yet
             return False
         except JobFailed as e:
@@ -709,58 +715,56 @@ class Manager(ManagerLog):
         self.check_invariants()
         self.publish_progress()
 
-    def event_check(self) -> None:
-        pass
-
-    async def check_any_finished(self) -> bool:
+    async def check_any_finished(self) -> set[CMJobID]:
         """
         Checks that any of the jobs finished.
 
         Returns True if something finished (either success or failure).
         Returns False if something finished unsuccesfully.
         """
-
-        timeout_s = self.context.get_compmake_config("job_timeout")
-
-        if False:
-
-            threshold = 5
-            if self.once_in_a_while_show_procs.now():
-                lines = []
-                for job_id, x in self.processing2result.items():
-                    dt = time.time() - x.started
-                    if dt < threshold:
-                        continue
-                    if timeout_s is not None and dt > timeout_s:
-                        warn = color_red(" TOO LONG ")
-                    else:
-                        warn = ""
-                    s = duration_compact(time.time() - x.started)
-                    lines.append(f"{s:12} {job_id} {warn}")
-
-                if lines:
-                    msg = f"Jobs running for more than {threshold} seconds:\n"
-                    msg += "".join(f"- {l}\n" for l in lines)
-
-                    await self.context.write_message_console(msg)
-                    # self.sti.logger.debug(
-                    #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
-                    #     ,
-                    # )
-                self.show_other_stats()
+        #
+        # timeout_s = self.context.get_compmake_config("job_timeout")
+        #
+        # if False:
+        #
+        #     threshold = 5
+        #     if self.once_in_a_while_show_procs.now():
+        #         lines = []
+        #         for job_id, x in self.processing2result.items():
+        #             dt = time.time() - x.started
+        #             if dt < threshold:
+        #                 continue
+        #             if timeout_s is not None and dt > timeout_s:
+        #                 warn = color_red(" TOO LONG ")
+        #             else:
+        #                 warn = ""
+        #             s = duration_compact(time.time() - x.started)
+        #             lines.append(f"{s:12} {job_id} {warn}")
+        #
+        #         if lines:
+        #             msg = f"Jobs running for more than {threshold} seconds:\n"
+        #             msg += "".join(f"- {l}\n" for l in lines)
+        #
+        #             await self.context.write_message_console(msg)
+        #             # self.sti.logger.debug(
+        #             #     "running jobs", p2r=joinlines(lines)  # processing=sorted(self.processing),
+        #             #     ,
+        #             # )
+        #         self.show_other_stats()
 
         # We make a copy because processing is updated during the loop
-        result = False
+        result = set()
         for job_id in self.processing.copy():
             received = await self.check_job_finished(job_id)
-            result |= received
+            if received:
+                result.add(job_id)
             self.check_invariants()
         return result
 
     def show_other_stats(self) -> None:
         pass
 
-    async def loop_until_something_finishes(self) -> None:
+    async def loop_until_something_finishes(self) -> set[CMJobID]:
         self.check_invariants()
 
         manager_wait = self.context.get_compmake_config("manager_wait")
@@ -777,11 +781,17 @@ class Manager(ManagerLog):
         #         publish(self.context, "manager-loop", processing=list(self.processing))
         #         self.event_check()
         #         self.check_invariants()
+        #
+        # for _ in range(1):  # XXX
 
-        for _ in range(10):  # XXX
+        for i in range(10):
             received = await self.check_any_finished()
 
             if received:
+                return received
+            await asyncio.sleep(0)
+
+            if self.ready_todo:
                 break
 
             publish(self.context, "manager-loop", processing=list(self.processing))
@@ -793,7 +803,10 @@ class Manager(ManagerLog):
 
             # Process events
             self.event_check()
-            self.check_invariants()
+            # self.check_invariants()
+
+    def event_check(self) -> None:
+        pass
 
     queue_ready: "asyncio.Queue[CMJobID]"
 
@@ -870,12 +883,18 @@ class Manager(ManagerLog):
         publish(self.context, "manager-phase", phase="init")
         await self.process_init()
 
+        ordered = sorted(self.ready_todo, key=lambda job: self.priorities[job])
+        show_priorities = joinlines([f"{self.priorities[job]:4.2f} {job}" for job in ordered])
+        logger.info(show_priorities=show_priorities)
+
         publish(self.context, "manager-phase", phase="loop")
 
         async def loopit() -> None:
             i = 0
             while self.todo or self.ready_todo or self.processing:
-                self.log(indent(self._get_situation_string(), f"{i}: "))
+                await asyncio.sleep(0)
+                if __debug__:
+                    self.log(indent(self._get_situation_string(), f"{i}: "))
                 i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
@@ -900,7 +919,8 @@ class Manager(ManagerLog):
 
                 self.publish_progress()
                 waiting_on = await self.instance_some_jobs()
-                # self.publish_progress()
+                self.publish_progress()
+                # logger.debug(waiting_on=waiting_on)
 
                 publish(self.context, "manager-wait", reasons=waiting_on)
 

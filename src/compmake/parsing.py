@@ -27,7 +27,6 @@ import types
 from collections import namedtuple
 from typing import Any, Iterator, Optional, cast
 
-from zuper_commons.text import expand_wildcard
 from zuper_commons.types import ZValueError, check_isinstance
 from .cachequerydb import CacheQueryDB
 from .constants import AliasT, CompmakeConstants
@@ -298,7 +297,7 @@ def obtain_all(context: Context, cq: CacheQueryDB):
 def jobs_timedout(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     for job_id in cq.all_jobs():
         cache = cq.get_job_cache(job_id)
-        if cq.get_job_cache(job_id).state == Cache.FAILED:
+        if cache.state == Cache.FAILED:
             if cache.is_timed_out() is not None:
                 yield job_id
 
@@ -306,7 +305,7 @@ def jobs_timedout(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 def jobs_oom(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     for job_id in cq.all_jobs():
         cache = cq.get_job_cache(job_id)
-        if cq.get_job_cache(job_id).state == Cache.FAILED:
+        if cache.state == Cache.FAILED:
             if cache.is_oom() is not None:
                 yield job_id
 
@@ -314,8 +313,9 @@ def jobs_oom(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 def jobs_exception(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
     for job_id in cq.all_jobs():
         cache = cq.get_job_cache(job_id)
-        if cq.get_job_cache(job_id).state == Cache.FAILED:
-            if cache.is_oom() is None and cache.is_timed_out() is None:
+        if cache.state == Cache.FAILED:
+            if cache.is_oom() is None and cache.is_timed_out() is None and not cache.is_skipped_test():
+
                 yield job_id
 
 

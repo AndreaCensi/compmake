@@ -66,11 +66,14 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
             command, args, kwargs_ = get_cmd_args_kwargs(job_id, db=db)
     except SerializationError:
         parent = job.defined_by[-1]
-        await context.write_message_console(f"Error: could not deserialize job {job_id!r}, marking parent {parent} as to do")
-        from compmake import mark_as_failed
+        await context.write_message_console(f"Error: could not deserialize job {job_id!r}, perhaps remake parent {parent}")
 
-        msg = f"Could not deserialize child job {job_id!r}"
-        mark_as_failed(parent, db, msg, traceback.format_exc())
+        if False:
+
+            from compmake import mark_as_failed
+
+            msg = f"Could not deserialize child job {job_id!r}"
+            mark_as_failed(parent, db, msg, traceback.format_exc())
         raise
 
     kwargs = dict(kwargs_)
