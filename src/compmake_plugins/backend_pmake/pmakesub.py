@@ -1,5 +1,6 @@
 import gc
 import multiprocessing
+import os
 import signal
 import sys
 import time
@@ -270,6 +271,10 @@ async def pmake_worker(
     event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
     current_name = name
+    prev = os.nice(0)
+
+    cur = os.nice(20)
+    sti.logger.info(f"nice: {prev} -> {cur}")
 
     t_worker_start = time.time()
     total_time_get = 0.0

@@ -272,11 +272,11 @@ class PmakeManager(Manager):
         if not self.get_available_subs():
             # all_subs = ", ".join(self.subs.keys())
             # procs = ", ".join(self.sub_processing)
-            t = time.time()
-            msg = f"already {len(self.get_processing_subs())} {t} (max {self.max_num_processing})"
+            # t = time.time()
+            msg = f"already {len(self.get_processing_subs())}"
 
-            if self.sub_aborted:
-                msg += f" ({len(self.sub_aborted)} workers aborted)"
+            # if self.sub_aborted:
+            #     msg += f" ({len(self.sub_aborted)} workers aborted)"
             resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available
