@@ -2,7 +2,6 @@ import os
 import sys
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass
 from multiprocessing import Queue
 from queue import Full
 from typing import Any, Iterator, cast
@@ -18,7 +17,6 @@ from compmake import (
     JobProgressEvent,
     MakeResult,
     ParmakeJobResult,
-    ResultDict,
     make,
     publish,
     register_handler,

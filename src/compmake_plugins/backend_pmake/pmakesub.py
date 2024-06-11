@@ -192,11 +192,13 @@ class PmakeSub:
         now = time.time()
         if now - self.last_mem_usage_sampled > max_delay:
             if self._proc.is_alive():
-                pr = self.pr.memory_info().rss
-                self.last_mem_usage = pr
-                self.max_mem_usage = max(self.max_mem_usage, pr)
-                self.last_mem_usage_sampled = time.time()
-
+                try:
+                    pr = self.pr.memory_info().rss
+                    self.last_mem_usage = pr
+                    self.max_mem_usage = max(self.max_mem_usage, pr)
+                    self.last_mem_usage_sampled = time.time()
+                except:
+                    pass
         return self.max_mem_usage, self.last_mem_usage
 
     def get_cpu_usage(self, max_delay: float) -> float:
@@ -271,10 +273,14 @@ async def pmake_worker(
     event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
     current_name = name
-    prev = os.nice(0)
+    try:
+        prev = os.nice(0)
 
-    cur = os.nice(20)
-    sti.logger.info(f"nice: {prev} -> {cur}")
+        cur = os.nice(20)
+    except Exception:
+        sti.logger.error("Could not set nice level.", t=traceback.format_exc())
+        pass
+    # sti.logger.info(f"nice: {prev} -> {cur}")
 
     t_worker_start = time.time()
     total_time_get = 0.0
