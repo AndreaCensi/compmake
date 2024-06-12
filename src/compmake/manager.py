@@ -1,4 +1,5 @@
 import asyncio
+import heapq
 import itertools
 import multiprocessing
 import os
@@ -16,9 +17,9 @@ from uuid import uuid4
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
-from zuper_commons.ui import color_red, duration_compact, size_compact
+from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
-from . import ParmakeJobResult
+from . import ParmakeJobResult, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
 from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
@@ -44,7 +45,6 @@ from .structures import Cache, StateCode
 from .types import CMJobID, OKResult
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
-from . import logger
 
 __all__ = [
     "AsyncResultInterface",
@@ -175,11 +175,12 @@ class Manager(ManagerLog):
         # computed by ``precompute_priorities()`` called by process()
         self.priorities = {}
 
-        self.check_invariants()
         self.interrupted = False
         self.loop_task = None
 
         self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
+        self.ready_to_do_heap = []
+        self.check_invariants()
 
     # ## Derived class interface
     async def process_init(self) -> None:
@@ -193,7 +194,7 @@ class Manager(ManagerLog):
         """Return true if a new job can be accepted right away"""
 
     @abstractmethod
-    async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
+    def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         """Instances a job."""
 
     def cleanup(self) -> None:
@@ -206,11 +207,11 @@ class Manager(ManagerLog):
         Uses self.priorities to decide which job to use.
         """
         self.check_invariants()
+        # for k in self.ready_todo:
+        #     pass
 
-        ordered = sorted(self.ready_todo, key=lambda job: self.priorities[job])
-        best = ordered[-1]
-
-        # logger.debug(f'choosing {self.priorities[best]} job {best!r}')
+        p, best = heapq.heappop(self.ready_to_do_heap)
+        # logger.info("next_job", best=best, p=p, prio=self.priority_queue[:2] + ['..'] + self.priority_queue[-2:])
         return best
 
     def add_targets(self, targets: Collection[CMJobID]):
@@ -225,7 +226,8 @@ class Manager(ManagerLog):
 
             if t in self.targets:
                 if t in self.ready_todo:
-                    self.ready_todo.remove(t)
+                    self.remove_from_ready(t)
+
                 if t in self.todo:
                     self.todo.remove(t)
                 if t in self.all_targets:
@@ -278,34 +280,42 @@ class Manager(ManagerLog):
 
         todo_add = not_ready - self.processing
         self.todo.update(not_ready - self.processing)
-        self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
+        # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
         ready_add = ready_todo - self.processing
-        self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
-        self.ready_todo.update(ready_add)
+        # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
+
+        self.add_to_ready_(ready_add)
         # this is a quick fix but I'm sure more thought is to be given
         for a in ready_add:
             if a in self.todo:
                 self.todo.remove(a)
         for a in todo_add:
             if a in self.ready_todo:
-                self.ready_todo.remove(a)
-
-        needs_priorities = self.todo | self.ready_todo
-        misses_priorities = needs_priorities - set(self.priorities)
-        new_priorities = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
-        self.priorities.update(new_priorities)
+                self.remove_from_ready(a)
+                # self.ready_todo.remove(a)
+        #
+        # needs_priorities = self.todo | self.ready_todo
+        # misses_priorities = needs_priorities - set(self.priorities)
+        # new_priorities = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
+        # self.priorities.update(new_priorities)
 
         self.check_invariants()
 
-        self.log(
-            "after add_targets()",
-            processing=L(self.processing),
-            ready_todo=L(self.ready_todo),
-            todo=L(self.todo),
-            done=L(self.done),
-        )
+        # self.log(
+        #     "after add_targets()",
+        #     processing=L(self.processing),
+        #     ready_todo=L(self.ready_todo),
+        #     todo=L(self.todo),
+        #     done=L(self.done),
+        # )
 
-    async def instance_some_jobs(self) -> dict[str, str]:
+    def compute_and_store_priorities(self, jobs: Collection[CMJobID]):
+        misses_priorities = set(jobs)
+        cq = CacheQueryDB(self.db)
+        res = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
+        self.priorities.update(res)
+
+    def instance_some_jobs(self) -> tuple[int, dict[str, str]]:
         """
         Instances some of the jobs. Uses the
         functions can_accept_job(), next_job(), and ...
@@ -327,15 +337,21 @@ class Manager(ManagerLog):
             job_id = self.next_job()
             assert job_id in self.ready_todo
 
-            self.log("chosen next_job", job_id=job_id)
+            # self.log("chosen next_job", job_id=job_id)
+            self.check_invariants()
 
-            await self.start_job(job_id)
-            n += 1
+            self.start_job_(job_id)
+            self.remove_from_ready(job_id)
+            self.check_invariants()
+
+            # This is for the simple case of local processing, where
+            # the next line actually does something now
+        n += 1
 
         #         print('cur %d Instanced %d, %s' % (len(self.processing2result), n, reasons))
 
         self.check_invariants()
-        return reasons
+        return n, reasons
 
     def _raise_bug(self, func: Any, job_id: CMJobID) -> NoReturn:
         msg = f"{func}: Assumptions violated with job {job_id!r}."
@@ -358,23 +374,17 @@ class Manager(ManagerLog):
 
         raise CompmakeBug(msg)
 
-    async def start_job(self, job_id: CMJobID) -> None:
-        self.log("start_job", job_id=job_id)
-        self.check_invariants()
+    def start_job_(self, job_id: CMJobID) -> None:
+        # self.log("start_job", job_id=job_id)
         if job_id not in self.ready_todo:
-            self._raise_bug("start_job", job_id)
+            self._raise_bug("start_job: job is not ready", job_id)
 
-        publish(self.context, "manager-job-processing", job_id=job_id)
-        self.ready_todo.remove(job_id)
+        interface = self.instance_job(job_id)
+
         self.processing.add(job_id)
-        interface = await self.instance_job(job_id)
+
         self.processing2result[job_id] = ProcessingDetails(time.time(), interface)
-
-        # This is for the simple case of local processing, where
-        # the next line actually does something now
-        self.publish_progress()
-
-        self.check_invariants()
+        publish(self.context, "manager-job-processing", job_id=job_id)
 
     async def check_job_finished(self, job_id: CMJobID) -> bool:
         """
@@ -402,38 +412,41 @@ class Manager(ManagerLog):
 
         async_result = proc_details.interface
 
-        job_timeout = self.context.get_compmake_config("job_timeout")
-        GRACE_PERIOD = 0
-        if job_timeout is not None:
-            time_passed = time.time() - proc_details.started
-            if time_passed > job_timeout + GRACE_PERIOD:
-                s = f"Timed out (> {job_timeout:.1f} s)"
-                msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
+        time_passed = time.time() - proc_details.started
+
+        if time_passed > 5:
+
+            job_timeout = self.context.get_compmake_config("job_timeout")
+            GRACE_PERIOD = 0
+            if job_timeout is not None:
+                if time_passed > job_timeout + GRACE_PERIOD:
+                    s = f"Timed out (> {job_timeout:.1f} s)"
+                    msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
+                    await self.context.write_message_console(msg)
+
+                    self.cancel_job(job_id, CANCEL_REASON_TIMEOUT)
+
+                    mark_as_timed_out(job_id, self.context.get_compmake_db(), time_passed, s, backtrace="")
+                    self.job_failed(job_id, deleted_jobs=())
+
+                    publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_TIMEOUT, bt=s)
+                    return True
+
+            max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+            max_job_mem = max_job_mem_GB * 1024**3
+            cur_mem = await async_result.get_memory_usage(max_delay=3.0)
+            if cur_mem > max_job_mem:
+                s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
+                msg = f"Job {job_id}: {s}"
                 await self.context.write_message_console(msg)
 
-                await self.cancel_job(job_id, CANCEL_REASON_TIMEOUT)
+                self.cancel_job(job_id, CANCEL_REASON_OOM)
 
-                mark_as_timed_out(job_id, self.context.get_compmake_db(), time_passed, s, backtrace="")
+                mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
                 self.job_failed(job_id, deleted_jobs=())
 
-                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_TIMEOUT, bt=s)
+                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_OOM, bt=s)
                 return True
-
-        max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-        max_job_mem = max_job_mem_GB * 1024**3
-        cur_mem = await async_result.get_memory_usage(max_delay=3.0)
-        if cur_mem > max_job_mem:
-            s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
-            msg = f"Job {job_id}: {s}"
-            await self.context.write_message_console(msg)
-
-            await self.cancel_job(job_id, CANCEL_REASON_OOM)
-
-            mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
-            self.job_failed(job_id, deleted_jobs=())
-
-            publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_OOM, bt=s)
-            return True
 
         try:
             # if not assume_ready:
@@ -445,9 +458,9 @@ class Manager(ManagerLog):
             #     timeout = 10
             # else:
             timeout = 0
-            t0 = time.time()
+            # t0 = time.time()
             res = await async_result.get(timeout=timeout)
-            dt = time.time() - t0
+            # dt = time.time() - t0
 
             # if dt > 0.1:
             #     logger.error("get() took a long time", dt=dt)
@@ -455,7 +468,8 @@ class Manager(ManagerLog):
             # print('here result: %s' % result)
             result_dict_check(result)
 
-            check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
+            if __debug__:
+                check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
 
             self.job_succeeded(job_id)
             self.check_invariants()
@@ -463,8 +477,6 @@ class Manager(ManagerLog):
             self.check_job_finished_handle_result(job_id, result)
             self.check_invariants()
             # this will schedule the parents, so let's do it later
-
-            self.check_invariants()
 
             return True
 
@@ -477,7 +489,8 @@ class Manager(ManagerLog):
         except JobFailed as e:
             # it is the responsibility of the executer to mark_job_as_failed,
             # so we can check that
-            check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
+            if __debug__:
+                check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
             rd = e.get_result_dict()
             self.job_failed(job_id, deleted_jobs=rd["deleted_jobs"])
             publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=rd["reason"], bt=rd["bt"])
@@ -503,19 +516,20 @@ class Manager(ManagerLog):
             if job_id in self.todo:
                 self.todo.remove(job_id)
             if job_id in self.ready_todo:
-                self.ready_todo.remove(job_id)
+                self.remove_from_ready(job_id)
+                # self.ready_todo.remove(job_id)
             self.deleted.add(job_id)
 
     def check_job_finished_handle_result(self, job_id: CMJobID, result: OKResult):
         self.check_invariants()
         result = check_ok_result(result)
-        self.log(
-            "check_job_finished_handle_result",
-            job_id=job_id,
-            new_jobs=L(result["new_jobs"]),
-            user_object_deps=L(result["user_object_deps"]),
-            deleted_jobs=L(result["deleted_jobs"]),
-        )
+        # self.log(
+        #     "check_job_finished_handle_result",
+        #     job_id=job_id,
+        #     new_jobs=L(result["new_jobs"]),
+        #     user_object_deps=L(result["user_object_deps"]),
+        #     deleted_jobs=L(result["deleted_jobs"]),
+        # )
 
         new_jobs = result["new_jobs"]
         deleted_jobs = result["deleted_jobs"]
@@ -528,7 +542,8 @@ class Manager(ManagerLog):
         # self._update_parents_relation(new_jobs)
 
         # Job succeeded? we can check in the DB
-        check_job_cache_state(job_id=job_id, db=self.db, states=[Cache.DONE])
+        if __debug__:
+            check_job_cache_state(job_id=job_id, db=self.db, states=[Cache.DONE])
 
         # print('job %r succeeded' % job_id)
         self.check_invariants()
@@ -574,7 +589,8 @@ class Manager(ManagerLog):
                     if parent in self.done:
                         self.done.remove(parent)
                     if parent in self.ready_todo:
-                        self.ready_todo.remove(parent)
+                        self.remove_from_ready(parent)
+                        # self.ready_todo.remove(parent)
                     if parent in self.todo:
                         self.todo.remove(parent)
                     self.check_invariants()
@@ -609,13 +625,13 @@ class Manager(ManagerLog):
         self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
-        self.ready_todo.add(job_id)
+        self.add_to_ready_({job_id})
 
         self.publish_progress()
 
         self.check_invariants()
 
-    async def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
+    def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
         pass
 
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
@@ -672,7 +688,7 @@ class Manager(ManagerLog):
         cq = CacheQueryDB(self.db)
 
         parents_todo = set(self.todo & parent_jobs)
-        self.log("considering parents", parents_todo=L(parents_todo))
+        # self.log("considering parents", parents_todo=L(parents_todo))
         for opportunity in parents_todo:
             # print('parent %r in todo' % (opportunity))
             if opportunity in self.processing:
@@ -684,7 +700,7 @@ class Manager(ManagerLog):
                     raise CompmakeBug(msg)
             assert opportunity not in self.processing
 
-            self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
+            # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
 
             its_children = direct_children(opportunity, db=self.db)
             # print('its children: %r' % its_children)
@@ -694,7 +710,7 @@ class Manager(ManagerLog):
                 # otherwise check that it is done by the DB.
                 if child in self.all_targets:
                     if not child in self.done:
-                        self.log("parent still waiting another child", opportunity=opportunity, child=child)
+                        # self.log("parent still waiting another child", opportunity=opportunity, child=child)
                         # logger.info('parent %r still waiting on %r' %
                         # (opportunity, child))
                         # still some dependency left
@@ -710,10 +726,38 @@ class Manager(ManagerLog):
                 self.log("parent is ready", opportunity=opportunity)
                 self.todo.remove(opportunity)
                 publish(self.context, "manager-job-ready", job_id=opportunity)
-                self.ready_todo.add(opportunity)
+                # self.ready_todo.add(opportunity)
+                self.add_to_ready_({opportunity})
 
         self.check_invariants()
         self.publish_progress()
+
+    def add_to_ready_(self, jobs: Collection[CMJobID]) -> None:
+        # self.log("add_to_ready_", jobs=L(jobs))
+        jobs = set(jobs) - set(self.ready_todo)
+
+        # self.check_invariants()
+
+        self.ready_todo.update(jobs)
+
+        needs_priorities = jobs - set(self.priorities)
+        self.compute_and_store_priorities(needs_priorities)
+
+        for k in jobs:
+            p = self.priorities[k]
+            heapq.heappush(self.ready_to_do_heap, (-p, k))
+
+        # self.check_invariants()
+
+    def remove_from_ready(self, job_id: CMJobID) -> None:
+        if job_id not in self.ready_todo:
+            msg = f"Removing job {job_id!r} not in ready_todo"
+            raise CompmakeBug(msg)
+        self.ready_todo.remove(job_id)
+        p = self.priorities[job_id]
+        key = (-p, job_id)
+        if key in self.ready_to_do_heap:
+            self.ready_to_do_heap.remove(key)
 
     async def check_any_finished(self) -> set[CMJobID]:
         """
@@ -764,11 +808,13 @@ class Manager(ManagerLog):
     def show_other_stats(self) -> None:
         pass
 
-    async def loop_until_something_finishes(self) -> set[CMJobID]:
+    async def loop_until_something_finishes(self) -> tuple[str, set[CMJobID]]:
         self.check_invariants()
 
         manager_wait = self.context.get_compmake_config("manager_wait")
 
+        # manager_wait = 0.001  # TMP
+        # manager_wait = None
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
         # timeout = 5.0
@@ -782,28 +828,30 @@ class Manager(ManagerLog):
         #         self.event_check()
         #         self.check_invariants()
         #
-        # for _ in range(1):  # XXX
+        i = 0
+        for _ in range(10):  # XXX
 
-        for i in range(10):
+            i += 1
             received = await self.check_any_finished()
 
             if received:
-                return received
+                return f"received some @{i}", received
             await asyncio.sleep(0)
+            #
+            # if self.ready_todo:
+            #     return f"ready_todo @{i} n={len(self.ready_todo)}", set()
 
-            if self.ready_todo:
-                break
-
-            publish(self.context, "manager-loop", processing=list(self.processing))
+            # publish(self.context, "manager-loop", processing=list(self.processing))
             # await asyncio.sleep(manager_wait)  # TODO: make param
             try:
                 await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
             except asyncio.TimeoutError:
-                pass
+                continue
 
             # Process events
             self.event_check()
             # self.check_invariants()
+        return f"stopped after {i} ", set()
 
     def event_check(self) -> None:
         pass
@@ -830,7 +878,7 @@ class Manager(ManagerLog):
                 msg = f"Actually job {job_id} is ready"
                 self.sti.logger.warn(msg)
                 self.todo.remove(job_id)
-                self.ready_todo.add(job_id)
+                self.add_to_ready_([job_id])
                 changes.add(job_id)
         return changes
 
@@ -891,10 +939,11 @@ class Manager(ManagerLog):
 
         async def loopit() -> None:
             i = 0
+            display = EveryOnceInAWhile(1)
             while self.todo or self.ready_todo or self.processing:
                 await asyncio.sleep(0)
-                if __debug__:
-                    self.log(indent(self._get_situation_string(), f"{i}: "))
+                # if __debug__:
+                #     self.log(indent(self._get_situation_string(), f"{i}: "))
                 i += 1
                 self.check_invariants()
                 # either something ready to do, or something doing
@@ -917,10 +966,12 @@ class Manager(ManagerLog):
 
                         raise CompmakeBug(msg)
 
+                # self.publish_progress()
+                t_instance_start = time.perf_counter()
+                ninstanced, waiting_on = self.instance_some_jobs()
                 self.publish_progress()
-                waiting_on = await self.instance_some_jobs()
-                self.publish_progress()
-                # logger.debug(waiting_on=waiting_on)
+
+                dt_instance = time.perf_counter() - t_instance_start
 
                 publish(self.context, "manager-wait", reasons=waiting_on)
 
@@ -928,7 +979,16 @@ class Manager(ManagerLog):
                     # We time out as there are no resources
                     publish(self.context, "manager-phase", phase="wait")
 
-                await self.loop_until_something_finishes()
+                t_loop_start = time.perf_counter()
+                why_finished, finished = await self.loop_until_something_finishes()
+                dt_loop = time.perf_counter() - t_loop_start
+                if display.now():
+                    logger.debug(
+                        f"ManagerStats instance {ninstanced} {duration_compact(dt_instance)}  wait unti {why_finished!r} "
+                        f"{len(finished)} "
+                        f"{duration_compact(dt_loop)}"
+                    )
+
                 self.check_invariants()
 
         try:
@@ -1015,6 +1075,7 @@ class Manager(ManagerLog):
         return s
 
     def check_invariants(self) -> None:
+
         if not CompmakeConstants.debug_check_invariants:
             return
         lists: dict[str, set[CMJobID]] = dict(

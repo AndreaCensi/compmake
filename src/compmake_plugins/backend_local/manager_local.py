@@ -47,7 +47,7 @@ class ManagerLocal(Manager):
         else:
             return True
 
-    async def instance_job(self, job_id: CMJobID):
+    def instance_job(self, job_id: CMJobID):
         return FakeAsync(self.sti, job_id, context=self.context, new_process=self.new_process, echo=self.echo)
 
 

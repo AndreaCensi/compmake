@@ -27,7 +27,7 @@ from compmake.constants import CANCEL_REASONS, CANCEL_REASON_HOST_FAILED
 from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, joinf, make_sure_dir_exists
 from zuper_commons.text import format_rows_as_table
-from zuper_commons.types import ZAssertionError, check_isinstance
+from zuper_commons.types import ZAssertionError
 from zuper_commons.ui import color_gray, color_orange, color_red, duration_compact, size_compact
 from zuper_utils_asyncio import SyncTaskInterface, async_errors
 from . import logger
@@ -272,37 +272,44 @@ class PmakeManager(Manager):
         if not self.get_available_subs():
             # all_subs = ", ".join(self.subs.keys())
             # procs = ", ".join(self.sub_processing)
-            # t = time.time()
-            msg = f"already {len(self.get_processing_subs())}"
+            t = time.time()
 
+            nready_to_get = 0
+            for k, v in self.subs.items():
+                if v.is_processing() and v.last.result is not None:
+
+                    nready_to_get += 1
+            # logger.info(self.get_status_str())
             # if self.sub_aborted:
             #     msg += f" ({len(self.sub_aborted)} workers aborted)"
+            msg = f"already {len(self.get_processing_subs())} @ {t}, (nready_to_get={nready_to_get})"
             resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available
         else:
             resource_available["nproc"] = (True, "")
 
-        mem = get_memory_usage()
-        max_mem_load: float = self.context.get_compmake_config("max_mem_load")
-        if mem.usage_percent > max_mem_load:
-            msg = f"Memory load {mem.usage:1.f}% > {max_mem_load:1.f}% [{mem.method}]"
-            resource_available["memory%"] = (False, msg)
-        else:
-            resource_available["memory%"] = (True, "")
-            # logger.info(mem=mem)
+        if True:  # TMP
+            mem = get_memory_usage()
+            max_mem_load: float = self.context.get_compmake_config("max_mem_load")
+            if mem.usage_percent > max_mem_load:
+                msg = f"Memory load {mem.usage:1.f}% > {max_mem_load:1.f}% [{mem.method}]"
+                resource_available["memory%"] = (False, msg)
+            else:
+                resource_available["memory%"] = (True, "")
+                # logger.info(mem=mem)
 
-        max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
+            max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
 
-        usage_GB = mem.usage / (1024**3)
-        if usage_GB > max_mem_GB:
-            msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
-            # logger.info(mem=mem)
-            # run GC
-            gc.collect()
-            resource_available["memory"] = (False, msg)
-        else:
-            resource_available["memory"] = (True, "")
+            usage_GB = mem.usage / (1024**3)
+            if usage_GB > max_mem_GB:
+                msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
+                # logger.info(mem=mem)
+                # run GC
+                gc.collect()
+                resource_available["memory"] = (False, msg)
+            else:
+                resource_available["memory"] = (True, "")
 
         # if random.randint(0, 100) < 10:
         #     logger.info(mem=mem)
@@ -320,13 +327,13 @@ class PmakeManager(Manager):
             return False
         return True
 
-    async def get_available_sub(self) -> SubName:
+    def get_available_sub(self) -> SubName:
         while True:
             name = sorted(self.get_available_subs())[0]
             sub = self.subs[name]
             if not sub.is_alive():
                 # msg = f"Sub {name} is not alive."
-                await self._cancel_and_replace_sub(name, "unknown")  # type: ignore
+                self._cancel_and_replace_sub(name, "unknown")  # type: ignore
                 continue
 
             # self.sub_available.remove(name)
@@ -334,17 +341,16 @@ class PmakeManager(Manager):
             # self.sub_processing.add(name)
             return name
 
-    @async_errors
-    async def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
+    def instance_job(self, job_id: CMJobID) -> AsyncResultInterface:
         publish(self.context, "worker-status", job_id=job_id, status="apply_async")
 
-        name = await self.get_available_sub()
+        name = self.get_available_sub()
         sub = self.subs[name]
 
         # self.job2subname[job_id] = name
 
         db = self.context.get_compmake_db()
-        check_isinstance(job_id, str)
+
         f: PossibleFuncs
         if self.new_process:
             f = "parmake_job2_new_process_1"
@@ -365,8 +371,8 @@ class PmakeManager(Manager):
                 return name
         raise KeyError(job_id)
 
-    async def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
-        await Manager.cancel_job(self, job_id, cancel_reason)
+    def cancel_job(self, job_id: CMJobID, cancel_reason: CANCEL_REASONS) -> None:
+        Manager.cancel_job(self, job_id, cancel_reason)
 
         try:
             subname = self._get_sub_for_job(job_id)
@@ -388,12 +394,12 @@ class PmakeManager(Manager):
         }
         last.result = res
 
-        msg = f"Aborting job {job_id} on sub {subname} ({cancel_reason})"
-        await self.context.write_message_console(msg)
-        await self._cancel_and_replace_sub(subname, cancel_reason)
+        # msg = f"Aborting job {job_id} on sub {subname} ({cancel_reason})"
+        # await self.context.write_message_console(msg)
+        self._cancel_and_replace_sub(subname, cancel_reason)
 
     # noinspection PyBroadException
-    async def _cancel_and_replace_sub(self, subname: SubName, cancel_reason: CANCEL_REASONS) -> SubName:
+    def _cancel_and_replace_sub(self, subname: SubName, cancel_reason: CANCEL_REASONS) -> SubName:
 
         sub = self.subs[subname]
         # if sub.is_alive():
@@ -421,8 +427,8 @@ class PmakeManager(Manager):
         # await self.context.write_message_console(msg)
 
         name = self.create_new_sub(event_queue=self.event_queue)
-        msg = f"Created new sub {name}."
-        await self.context.write_message_console(msg)
+        # msg = f"Created new sub {name}."
+        # await self.context.write_message_console(msg)
         return name
 
     def event_check(self) -> None:
@@ -523,7 +529,7 @@ class PmakeManager(Manager):
             return
         sub = self.subs[name]
         sub.set_available()
-        await self._cancel_and_replace_sub(name, CANCEL_REASON_HOST_FAILED)
+        self._cancel_and_replace_sub(name, CANCEL_REASON_HOST_FAILED)
 
     def cleanup(self) -> None:
         self.process_finished()

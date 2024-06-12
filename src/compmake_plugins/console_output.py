@@ -282,7 +282,12 @@ def color_ready(s):
     return compmake_colored(s, **Cache.styles["ready"])
 
 
+do_it = False  # TMP
+
+
 async def handle_job_done(context: Context, event: Event):
+    if not do_it:
+        return
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.DONE]:>10}"
     glyph = Cache.glyphs[Cache.DONE]
@@ -291,13 +296,18 @@ async def handle_job_done(context: Context, event: Event):
 
 
 async def handle_job_failed(context: Context, event: Event):
+    if not do_it:
+        return
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.FAILED]:>10}"
     glyph = Cache.glyphs[Cache.FAILED]
+
     await ui_message(context, color_failed(f"{glyph} {desc} {job_id}"))
 
 
 async def handle_job_processing(context: Context, event: Event):
+    if not do_it:
+        return
     job_id = event.kwargs["job_id"]
     desc = f"{Cache.state2desc[Cache.PROCESSING]:>10}"
     glyph = Cache.glyphs[Cache.PROCESSING]
@@ -306,6 +316,8 @@ async def handle_job_processing(context: Context, event: Event):
 
 #  9 ✔ 1 ⚙ 2 ▴‍
 async def handle_job_blocked(context: Context, event: Event):
+    if not do_it:
+        return
     job_id = event.kwargs["job_id"]
     blocking_job_id = event.kwargs["blocking_job_id"]
     desc = f"{Cache.state2desc[Cache.BLOCKED]:>10}"
@@ -314,6 +326,8 @@ async def handle_job_blocked(context: Context, event: Event):
 
 
 async def handle_job_ready(context: Context, event: Event):
+    if not do_it:
+        return
     job_id = event.kwargs["job_id"]
     glyph = Cache.glyphs["ready"]
     desc = f'{"ready":>10}'

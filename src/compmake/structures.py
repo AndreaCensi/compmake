@@ -442,13 +442,13 @@ class Cache:
         self.ti = None
 
     def is_timed_out(self) -> Optional[float]:
-        return getattr(self, "timed_out", None)  # XXX: TMP:
+        return self.timed_out
 
     def is_skipped_test(self):
         return "SkipTest" in self.exception
 
     def is_oom(self) -> Optional[int]:
-        return getattr(self, "oom_bytes", None)  # XXX: TMP:
+        return self.oom_bytes
 
     def __repr__(self):
         return "Cache(%s;%s;cpu:%s;wall:%s)" % (

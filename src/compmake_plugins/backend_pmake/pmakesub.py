@@ -160,7 +160,7 @@ class PmakeSub:
         if self.state != "available":
             raise ZValueError(f"Cannot apply_async() to not available")
         self.nstarted += 1
-        self.job_queue.put((job_id, function, arguments))
+        self.job_queue.put((job_id, function, arguments), block=False)
         self.state = "processing"
 
         self.last = PmakeResult(self.result_queue, self, job_id)
