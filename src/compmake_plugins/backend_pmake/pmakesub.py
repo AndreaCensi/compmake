@@ -1,3 +1,4 @@
+import asyncio
 import gc
 import multiprocessing
 import os
@@ -61,6 +62,8 @@ class PmakeSub:
     killed_by_me: bool
     killed_reason: Optional[CANCEL_REASONS]
     state: SubStates
+    total_time_processing: float
+    total_time_available: float
 
     def __repr__(self) -> str:
         if self.last is None:
@@ -118,6 +121,8 @@ class PmakeSub:
         self.pr = psutil.Process(self._proc.pid)
         self.state = "available"
         self.available_since = time.time()
+        self.total_time_processing = 0.0
+        self.total_time_available = 0.0
 
     def is_alive(self) -> bool:
         return self._proc.is_alive()
@@ -162,7 +167,7 @@ class PmakeSub:
         self.nstarted += 1
         self.job_queue.put((job_id, function, arguments), block=False)
         self.state = "processing"
-
+        self.total_time_available += time.time() - self.available_since
         self.last = PmakeResult(self.result_queue, self, job_id)
         return self.last
 
@@ -172,7 +177,7 @@ class PmakeSub:
         self.state = "available"
         self.last.invalid = True
         self.available_since = time.time()
-
+        self.total_time_processing += time.time() - self.last.started
         self.last = None
 
     def time_since_last(self) -> float:
@@ -273,13 +278,23 @@ async def pmake_worker(
     event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
     current_name = name
-    try:
-        prev = os.nice(0)
-
-        cur = os.nice(20)
-    except Exception:
-        sti.logger.error("Could not set nice level.", t=traceback.format_exc())
-        pass
+    i = 0
+    for i in range(19):
+        try:
+            os.nice(1)
+        except:
+            break
+    #
+    # try:
+    #     prev = os.nice(1)
+    #
+    #     max_nice = 19
+    #     if prev < max_nice:
+    #         diff = max_nice - prev
+    #         os.nice(diff)
+    # except Exception:
+    #     sti.logger.error("Could not set nice level.", t=traceback.format_exc())
+    #     pass
     # sti.logger.info(f"nice: {prev} -> {cur}")
 
     t_worker_start = time.time()
@@ -631,9 +646,11 @@ class PmakeResult(AsyncResultInterface):
             # maxs = size_compact(mem_stats[0])
             # curs = size_compact(mem_stats[1])
             # mem_stats_s = f'memory stats: max: {maxs} cur: {curs}'
-            timeout = 3  # FIXME
             try:
-                self.result = self.result_queue.get(block=True, timeout=timeout)
+                loop = asyncio.get_event_loop()
+                self.result = await loop.run_in_executor(None, lambda: self.result_queue.get(block=True, timeout=timeout))
+
+                # self.result = self.result_queue.get(block=True, timeout=timeout)
             except ValueError:
                 # This means that the process was killed
                 raise multiprocessing.TimeoutError() from None

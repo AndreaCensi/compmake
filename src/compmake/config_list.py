@@ -44,7 +44,7 @@ add_config_switch(
 
 add_config_switch(
     "manager_wait",
-    0.1,
+    0.01,
     desc="Sleep time, in seconds, to wait if no job has finished. ",
     #                   "Low value gives responsiveness but higher CPU usage",
     section=CONFIG_GENERAL,

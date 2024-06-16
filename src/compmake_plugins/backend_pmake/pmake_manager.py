@@ -168,7 +168,7 @@ class PmakeManager(Manager):
 
         lines = []
 
-        header = ("sub", "alive", "n", "state", "since", "has_r", "dt", "peak", "cur", "cpu", "job")
+        header = ("sub", "alive", "n", "active%", "state", "since", "has_r", "dt", "peak", "cur", "cpu", "job")
         header = tuple(color_gray(_) for _ in header)
         lines.append(header)
         for subname, sub in list(self.subs.items()):
@@ -183,6 +183,9 @@ class PmakeManager(Manager):
 
             has_r = "yes" if has_result else "no"
             cpu = sub.get_cpu_usage(1)
+
+            active_ratio = (sub.total_time_processing + 0.1) / (sub.total_time_processing + sub.total_time_available + 0.1)
+            active_ratio_s = f"{active_ratio * 100:.1f}%"
 
             peak_mem_, cur_mem_ = sub.get_mem_usage(max_delay=1)
             peak_mem = format_with_limit(peak_mem_, max_job_mem, size_compact)
@@ -209,6 +212,7 @@ class PmakeManager(Manager):
                 subname,
                 alive,
                 sub.nstarted,
+                active_ratio_s,
                 marked_available,
                 since,
                 has_r,
@@ -282,7 +286,8 @@ class PmakeManager(Manager):
             # logger.info(self.get_status_str())
             # if self.sub_aborted:
             #     msg += f" ({len(self.sub_aborted)} workers aborted)"
-            msg = f"already {len(self.get_processing_subs())} @ {t}, (nready_to_get={nready_to_get})"
+            ts = int(t) % 100
+            msg = f"already {len(self.get_processing_subs())} @ {ts}"
             resource_available["nproc"] = (False, msg)
             # this is enough to continue
             return resource_available
@@ -293,7 +298,7 @@ class PmakeManager(Manager):
             mem = get_memory_usage()
             max_mem_load: float = self.context.get_compmake_config("max_mem_load")
             if mem.usage_percent > max_mem_load:
-                msg = f"Memory load {mem.usage:1.f}% > {max_mem_load:1.f}% [{mem.method}]"
+                msg = f"Memory load {mem.usage:.1f}% > {max_mem_load:.1f}% [{mem.method}]"
                 resource_available["memory%"] = (False, msg)
             else:
                 resource_available["memory%"] = (True, "")

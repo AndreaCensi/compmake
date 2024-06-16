@@ -77,7 +77,7 @@ if TYPE_CHECKING:
 def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: CacheQueryDB) -> None:
     job_list = set(job_list)
 
-    print("clean_targets (%r)" % job_list)
+    # print("clean_targets (%r)" % job_list)
 
     # now we need to delete the definition closure
     # logger.info('getting closure')
@@ -91,13 +91,13 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
 
     other_clean -= closure
     #
-    print("deleting: %r" % closure)
-    print("only cleaning: %r" % basic)
-    print("other cleaning: %r" % other_clean)
+    # print("deleting: %r" % closure)
+    # print("only cleaning: %r" % basic)
+    # print("other cleaning: %r" % other_clean)
 
     ccr = closure | basic | other_clean
 
-    logger.info(job_list=job_list, closure=closure, ccr=ccr)
+    # logger.info(job_list=job_list, closure=closure, ccr=ccr)
     for job_id in ccr:
         # logger.info("clean_cache_relations", job_id=job_id)
         clean_cache_relations(job_id, db)
@@ -195,7 +195,12 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result: object) -> None
 
 
 def mark_as_failed(
-    job_id: CMJobID, db: StorageFilesystem, exception: Optional[str] = None, backtrace: Optional[str] = None
+    job_id: CMJobID,
+    db: StorageFilesystem,
+    exception: Optional[str] = None,
+    backtrace: Optional[str] = None,
+    result_type_qual: Optional[str] = None,
+    result_type: Optional[str] = None,
 ) -> None:
     """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
@@ -208,6 +213,9 @@ def mark_as_failed(
     cache.exception = exception
     cache.backtrace = backtrace
     cache.timestamp = time.time()
+    cache.result_type_qual = result_type_qual
+    cache.result_type = result_type
+
     set_job_cache(job_id, cache, db=db)
 
 
@@ -445,9 +453,9 @@ async def make(
     new_jobs = set()
 
     # Note: we create these here because otherwise they might be not defined
-    int_gc = IntervalTimer()
-    int_load_results = IntervalTimer()
-    int_compute = IntervalTimer()
+    int_gc = None
+    int_load_results = None
+    int_compute = None
     user_object = None
     try:
         with output_capture(not disable_capture, context, job_id, echo) as capture2:
@@ -485,6 +493,10 @@ async def make(
         raise job_interrupted_exc(job_id=job_id, deleted_jobs=list(deleted_jobs))
 
     except BaseException as e:
+        int_make.stop()
+        ti2 = ti.copy()
+        ti2.finish()
+
         bt = traceback.format_exc()
         s = "%s: %s" % (type(e).__name__, e)
         mark_as_failed(job_id, db, s, backtrace=bt)
@@ -495,10 +507,25 @@ async def make(
             cache.captured_stderr = capture2.get_logged_stderr()
             cache.captured_stdout = capture2.get_logged_stdout()
         else:
-            msg = "(Capture turned off.)"
+            msg = None
             cache.captured_stderr = msg
             cache.captured_stdout = msg
 
+        cache.int_make = int_make
+        cache.int_load_results = int_load_results
+        cache.int_compute = int_compute
+        cache.int_gc = int_gc
+        cache.int_save_results = None
+        cache.result_type_qual = e.__class__.__qualname__
+        cache.result_type = e.__class__.__name__
+
+        cache.timestamp = time.time()
+
+        cache.walltime_used = int_make.get_walltime_used()
+        cache.cputime_used = int_make.get_cputime_used()
+        cache.host = host
+        cache.jobs_defined = new_jobs
+        cache.ti = ti2
         set_job_cache(job_id, cache, db=db)
 
         job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
@@ -562,7 +589,10 @@ async def make(
     cache.cputime_used = int_make.get_cputime_used()
     cache.host = host
     cache.jobs_defined = new_jobs
-    cache.ti = ti
+    ti2 = ti.copy()
+    ti2.finish()
+
+    cache.ti = ti2
 
     with ti.timeit("set_job_cache"):
         set_job_cache(job_id, cache, db=db)

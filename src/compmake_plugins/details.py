@@ -19,6 +19,7 @@ from compmake import (
 )
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
+from zuper_typing import debug_print
 from .console_output import write_line_endl
 
 
@@ -79,27 +80,32 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
     if job_cache_exists(job_id, db=db):
         cache2 = get_job_cache(job_id, db=db)
 
+        print(debug_print(cache2))
+
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
         print(bold("Uptodate:") + "%s (%s)" % (up, reason))
+        if cache2.walltime_used:
+            print(bold("Wall Time:") + "%.4f s" % cache2.walltime_used)
+        if cache2.cputime_used:
+            print(bold("CPU Time:") + "%.4f s" % cache2.cputime_used)
+
+        print("making: %s" % cache2.int_make)
+        print("-- load: %s" % cache2.int_load_results)
+        print("-- comp: %s" % cache2.int_compute)
+        print("--   GC: %s" % cache2.int_gc)
+        print("-- save: %s" % cache2.int_save_results)
+
+        print(bold("Host:") + "%s" % cache2.host)
+
+        if cache2.ti is not None:
+            print(cache2.ti.pretty(show_wall=True, show_thread=True))
 
         if cache2.state == Cache.DONE:  # and cache.done_iterations > 1:
             # print(bold('Iterations:') + '%s' % cache.done_iterations)
-            print(bold("Wall Time:") + "%.4f s" % cache2.walltime_used)
-            print(bold("CPU Time:") + "%.4f s" % cache2.cputime_used)
-
-            print("making: %s" % cache2.int_make)
-            print("-- load: %s" % cache2.int_load_results)
-            print("-- comp: %s" % cache2.int_compute)
-            print("--   GC: %s" % cache2.int_gc)
-            print("-- save: %s" % cache2.int_save_results)
-
-            print(bold("Host:") + "%s" % cache2.host)
 
             if not job_userobject_exists(job_id, db):
                 print(red("inconsistent DB: user object does not exist."))
 
-            if cache2.ti is not None:
-                print(cache2.ti.pretty(show_wall=True, show_thread=True))
     else:
         print(bold("Status:") + "%s" % Cache.state2desc[Cache.NOT_STARTED])
         cache2 = None
@@ -151,6 +157,8 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         if cache2.state == Cache.FAILED:
             display_with_prefix(cache2.exception, prefix="exc |")
             display_with_prefix(cache2.backtrace, prefix="btr |")
+        if cache2.result_type_qual:
+            print(bold("result type:") + "%s" % cache2.result_type_qual)
 
     if True:
         job_args = get_job_args(job_id, db=db)

@@ -11,7 +11,7 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Collection, NoReturn
+from typing import Any, Collection, NoReturn, Optional
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
@@ -63,7 +63,7 @@ class AsyncResultInterface(ABC):
         """Returns True if it is ready (completed or failed)."""
 
     @abstractmethod
-    async def get(self, timeout: float = 0) -> "ParmakeJobResult":
+    async def get(self, timeout: Optional[float] = 0) -> "ParmakeJobResult":
         """Either:
         - returns a dictionary with fields:
             new_jobs: list of jobs created
@@ -181,6 +181,8 @@ class Manager(ManagerLog):
         self.once_in_a_while_show_procs = EveryOnceInAWhile(10)
         self.ready_to_do_heap = []
         self.check_invariants()
+
+        self.once_in_a_while_check_expensive = EveryOnceInAWhile(3)
 
     # ## Derived class interface
     async def process_init(self) -> None:
@@ -386,7 +388,7 @@ class Manager(ManagerLog):
         self.processing2result[job_id] = ProcessingDetails(time.time(), interface)
         publish(self.context, "manager-job-processing", job_id=job_id)
 
-    async def check_job_finished(self, job_id: CMJobID) -> bool:
+    async def check_job_finished(self, job_id: CMJobID, check_mem_etc: bool) -> bool:
         """
         Checks that the job finished succesfully or unsuccesfully.
 
@@ -414,39 +416,41 @@ class Manager(ManagerLog):
 
         time_passed = time.time() - proc_details.started
 
-        if time_passed > 5:
+        if check_mem_etc:
 
-            job_timeout = self.context.get_compmake_config("job_timeout")
-            GRACE_PERIOD = 0
-            if job_timeout is not None:
-                if time_passed > job_timeout + GRACE_PERIOD:
-                    s = f"Timed out (> {job_timeout:.1f} s)"
-                    msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
+            if time_passed > 5:
+
+                job_timeout = self.context.get_compmake_config("job_timeout")
+                GRACE_PERIOD = 0
+                if job_timeout is not None:
+                    if time_passed > job_timeout + GRACE_PERIOD:
+                        s = f"Timed out (> {job_timeout:.1f} s)"
+                        msg = f"Job {job_id} timed out after {time_passed:.1f} s > {job_timeout:.1f} s"
+                        await self.context.write_message_console(msg)
+
+                        self.cancel_job(job_id, CANCEL_REASON_TIMEOUT)
+
+                        mark_as_timed_out(job_id, self.context.get_compmake_db(), time_passed, s, backtrace="")
+                        self.job_failed(job_id, deleted_jobs=())
+
+                        publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_TIMEOUT, bt=s)
+                        return True
+
+                max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
+                max_job_mem = max_job_mem_GB * 1024**3
+                cur_mem = await async_result.get_memory_usage(max_delay=3.0)
+                if cur_mem > max_job_mem:
+                    s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
+                    msg = f"Job {job_id}: {s}"
                     await self.context.write_message_console(msg)
 
-                    self.cancel_job(job_id, CANCEL_REASON_TIMEOUT)
+                    self.cancel_job(job_id, CANCEL_REASON_OOM)
 
-                    mark_as_timed_out(job_id, self.context.get_compmake_db(), time_passed, s, backtrace="")
+                    mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
                     self.job_failed(job_id, deleted_jobs=())
 
-                    publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_TIMEOUT, bt=s)
+                    publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_OOM, bt=s)
                     return True
-
-            max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-            max_job_mem = max_job_mem_GB * 1024**3
-            cur_mem = await async_result.get_memory_usage(max_delay=3.0)
-            if cur_mem > max_job_mem:
-                s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
-                msg = f"Job {job_id}: {s}"
-                await self.context.write_message_console(msg)
-
-                self.cancel_job(job_id, CANCEL_REASON_OOM)
-
-                mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
-                self.job_failed(job_id, deleted_jobs=())
-
-                publish(self.context, "job-failed", job_id=job_id, host="XXX", reason=CANCEL_REASON_OOM, bt=s)
-                return True
 
         try:
             # if not assume_ready:
@@ -796,12 +800,26 @@ class Manager(ManagerLog):
         #             # )
         #         self.show_other_stats()
 
+        if False:
+            jobs = tuple(self.processing)
+            tasks = []
+            for job_id in jobs:
+                proc_details = self.processing2result[job_id]
+
+                async_result = proc_details.interface
+                wait = async_result.get(timeout=None)
+                tasks.append(asyncio.create_task(wait))
+            await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+        check_mem_etc = self.once_in_a_while_check_expensive.now()
         # We make a copy because processing is updated during the loop
         result = set()
         for job_id in self.processing.copy():
-            received = await self.check_job_finished(job_id)
+            received = await self.check_job_finished(job_id, check_mem_etc=check_mem_etc)
             if received:
+
                 result.add(job_id)
+                # return result  # TMP
             self.check_invariants()
         return result
 
@@ -836,17 +854,21 @@ class Manager(ManagerLog):
 
             if received:
                 return f"received some @{i}", received
-            await asyncio.sleep(0)
+            await asyncio.sleep(manager_wait)
+
             #
             # if self.ready_todo:
             #     return f"ready_todo @{i} n={len(self.ready_todo)}", set()
 
-            # publish(self.context, "manager-loop", processing=list(self.processing))
+            # publish(self.context, "manager-loop", processing=list(self.
+            # processing))
             # await asyncio.sleep(manager_wait)  # TODO: make param
-            try:
-                await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
-            except asyncio.TimeoutError:
-                continue
+
+            if False:
+                try:
+                    await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
+                except asyncio.TimeoutError:
+                    continue
 
             # Process events
             self.event_check()
@@ -939,7 +961,7 @@ class Manager(ManagerLog):
 
         async def loopit() -> None:
             i = 0
-            display = EveryOnceInAWhile(1)
+            display = EveryOnceInAWhile(5)
             while self.todo or self.ready_todo or self.processing:
                 await asyncio.sleep(0)
                 # if __debug__:
@@ -970,6 +992,7 @@ class Manager(ManagerLog):
                 t_instance_start = time.perf_counter()
                 ninstanced, waiting_on = self.instance_some_jobs()
                 self.publish_progress()
+                await asyncio.sleep(0)
 
                 dt_instance = time.perf_counter() - t_instance_start
 

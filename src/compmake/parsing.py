@@ -319,9 +319,18 @@ def jobs_exception(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
                 yield job_id
 
 
+def jobs_skipped_test(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
+    for job_id in cq.all_jobs():
+        cache = cq.get_job_cache(job_id)
+        if cache.state == Cache.FAILED:
+            if cache.is_skipped_test():
+                yield job_id
+
+
 add_alias("all", obtain_all)
 add_alias("timedout", jobs_timedout)
 add_alias("oom", jobs_oom)
+add_alias("skipped-test", jobs_skipped_test)
 add_alias("exception", jobs_exception)
 add_alias("hit-resource-limit", "timedout or oom")
 add_alias("failed", lambda context, cq: list_jobs_with_state(Cache.FAILED, context=context, cq=cq))

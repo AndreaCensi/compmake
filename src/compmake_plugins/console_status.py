@@ -80,9 +80,9 @@ def get_spins() -> list[str]:
 
     today = datetime.today()
     # change every 3 days
-    i = today.day / 3
-    i = int(math.ceil(i))
-    res = options[i % len(options)]
+    k = today.day / 3
+    k = int(math.ceil(k))
+    res = options[k % len(options)]
 
     return res
 

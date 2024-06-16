@@ -67,6 +67,7 @@ from typing import Any, Generic, Literal, NewType, Optional, TypeVar, Union
 from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
 from zuper_commons.types import TM, describe_value
 from zuper_commons.ui import duration_compact
+from zuper_typing import debug_print
 from zuper_utils_timing import TimeInfo
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
 from .types import CMJobID, ResultDict
@@ -250,13 +251,15 @@ def same_computation(jobargs1: JA, jobargs2: JA) -> tuple[Literal[True], None] |
 
 
 class IntervalTimer:
-    c1: float
-    t1: float
+    c1: Optional[float]
+    t1: Optional[float]
 
     def __init__(self):
         self.c0 = time.process_time()
         self.t0 = time.time()
         self.stopped = False
+        self.t1 = None
+        self.c1 = None
 
     def stop(self):
         self.stopped = True
@@ -280,6 +283,8 @@ class IntervalTimer:
         return self.t0, self.t1
 
     def __str__(self):
+        if not self.stopped:
+            return "Timer(not stopped)"
         tms = int((self.t1 - self.t0) * 1000)
         cms = int((self.c1 - self.c0) * 1000)
         return f"Timer(wall {tms} ms cpu {cms} ms)"
@@ -444,19 +449,20 @@ class Cache:
     def is_timed_out(self) -> Optional[float]:
         return self.timed_out
 
-    def is_skipped_test(self):
+    def is_skipped_test(self) -> bool:
         return "SkipTest" in self.exception
 
     def is_oom(self) -> Optional[int]:
         return self.oom_bytes
 
     def __repr__(self):
-        return "Cache(%s;%s;cpu:%s;wall:%s)" % (
-            Cache.state2desc[self.state],
-            self.timestamp,
-            self.cputime_used,
-            self.walltime_used,
-        )
+        # return "Cache(%s;%s;cpu:%s;wall:%s)" % (
+        #     Cache.state2desc[self.state],
+        #     self.timestamp,
+        #     self.cputime_used,
+        #     self.walltime_used,
+        # )
+        return debug_print(self.__dict__)
 
     def get_overhead(self) -> float:
         if self.int_make is None:
