@@ -90,8 +90,8 @@ def publish(context: Context, event_name: str, **kwargs: object) -> None:
     for key in kwargs.keys():
         if key not in spec.attrs:
             msg = f"Passed attribute {key!r} for event type {event_name!r} but only found attributes " f"{spec.attrs}."
-            logger.error(msg)
-            raise CompmakeException(msg)
+            logger.warning(msg)
+            # raise CompmakeException(msg)
     event = Event(event_name, **kwargs)
     # print('XXX: event', event)
     assert context.splitter is not None

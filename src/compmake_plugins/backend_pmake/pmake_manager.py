@@ -10,7 +10,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, Callable, ClassVar, Collection, NewType, cast
+from typing import Any, Callable, ClassVar, Collection, NewType, Optional, cast
 
 import psutil
 from psutil import NoSuchProcess
@@ -29,7 +29,7 @@ from zuper_commons.fs import join, joinf, make_sure_dir_exists
 from zuper_commons.text import format_rows_as_table
 from zuper_commons.types import ZAssertionError
 from zuper_commons.ui import color_gray, color_orange, color_red, duration_compact, size_compact
-from zuper_utils_asyncio import SyncTaskInterface, async_errors
+from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, async_errors, my_create_task
 from . import logger
 from .pmakesub import PmakeSub, PossibleFuncs
 
@@ -39,14 +39,15 @@ __all__ = [
 
 
 def killtree() -> None:
-    # print('killing process tree')
+    # logger.debug('killing process tree for own')
     parent = psutil.Process(os.getpid())
     for child in parent.children(recursive=True):
-        # print("child: %s"%child)
+        # logger.debug("child: %s" % child)
         try:
             child.kill()
         except NoSuchProcess:
             pass
+    logger.debug("killing process tree: done")
 
 
 SubName = NewType("SubName", str)
@@ -73,8 +74,9 @@ class PmakeManager(Manager):
         recurse: bool = False,
         new_process: bool = False,
         show_output: bool = False,
+        max_time: Optional[float] = None,
     ):
-        Manager.__init__(self, sti, context=context, recurse=recurse)
+        Manager.__init__(self, sti, context=context, recurse=recurse, max_time=max_time)
         self.num_processes = num_processes
         self.last_accepted = 0
         self.new_process = new_process
@@ -84,6 +86,14 @@ class PmakeManager(Manager):
             msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
             logger.warning(msg)
         self.cleaned = False
+
+        self.memory_check_interval = EveryOnceInAWhile(5)
+        self.memory_usage_last = get_memory_usage()
+
+    def get_memory_usage(self):
+        if self.memory_check_interval.now():
+            self.memory_usage_last = get_memory_usage()
+        return self.memory_usage_last
 
     ctx: BaseContext
     _nsubs_created: int = 0
@@ -103,6 +113,9 @@ class PmakeManager(Manager):
         self.ctx = multiprocessing.get_context(use)
 
         self.event_queue = self.ctx.Queue(1000)
+
+        self.task_pump = my_create_task(self.event_pump(), "event_pump")
+
         r = random.randint(0, 10000)
         self.event_queue_name = f"q-{id(self)}-{r}"
 
@@ -133,9 +146,10 @@ class PmakeManager(Manager):
         self.max_num_processing = self.num_processes
 
         # self.task_memory_usage = asyncio.create_task(self.check_memory_usage())
-        self.task_proc_status = asyncio.create_task(self.show_processing_status())
+        self.task_proc_status = my_create_task(self.show_processing_status(), "show_processing_status")
 
     task_proc_status: "asyncio.Task[None]"
+    task_pump: "asyncio.Task[None]"
 
     def get_available_subs(self) -> set[SubName]:
         return {k for k, v in self.subs.items() if v.is_available()}
@@ -294,8 +308,8 @@ class PmakeManager(Manager):
         else:
             resource_available["nproc"] = (True, "")
 
-        if True:  # TMP
-            mem = get_memory_usage()
+        if False:  # TMP
+            mem = self.get_memory_usage()
             max_mem_load: float = self.context.get_compmake_config("max_mem_load")
             if mem.usage_percent > max_mem_load:
                 msg = f"Memory load {mem.usage:.1f}% > {max_mem_load:.1f}% [{mem.method}]"
@@ -436,17 +450,17 @@ class PmakeManager(Manager):
         # await self.context.write_message_console(msg)
         return name
 
-    def event_check(self) -> None:
-        if not self.show_output:
-            return
+    async def event_pump(self) -> None:
         while True:
             try:
-                event = self.event_queue.get(block=False)  # @UndefinedVariable
-                event.kwargs["remote"] = True
-                # broadcast_event(self.context, event)
-                # FIXME
+                loop = asyncio.get_event_loop()
+                timeout = 1
+                event = await loop.run_in_executor(None, self.event_queue.get, timeout)  # @UndefinedVariable
+                # if 'worker-exit' in event.name:
+                #     logger.debug(event=event)
+                publish(self.context, event.name, **event.kwargs)
             except Empty:
-                break
+                continue
 
     def process_finished(self) -> None:
         status = self.get_status_str()
@@ -457,16 +471,24 @@ class PmakeManager(Manager):
         self.cleaned = True
         # print('process_finished()')
 
+        not_exited = []
+        for name, sub in self.subs.items():
+            self.subs[name].terminate()  # send token to sub
+            try:
+                self.subs[name]._proc.join(1)
+            except TimeoutError:
+                not_exited.append(name)
+                pass
+
         self.event_queue.close()
         del PmakeManager.queues[self.event_queue_name]
+        self.task_pump.cancel()
+        self.task_proc_status.cancel()
 
-        for name in self.get_processing_subs():
-            if name in self.subs:
-                self.subs[name].terminate_process()
-
-        for name in self.get_available_subs():
-            if name in self.subs:
-                self.subs[name].terminate()
+        #
+        # for name in self.get_processing_subs():
+        #     if name in self.subs:
+        #         self.subs[name].terminate_process()
 
         # XXX: in practice this never works well
         # if False:
@@ -479,18 +501,18 @@ class PmakeManager(Manager):
             self.log("Coverage not detected")
 
         # XXX: ... so we just kill them mercilessly
-        if True:
+        if False:
             #  print('killing')
-            for name in self.get_processing_subs():
-                if name in self.subs:
-                    self.subs[name].kill_process()
-                    # if pid is not None:
-                    #     try:
-                    #         os.kill(pid, signal.SIGKILL)
-                    #     except ProcessLookupError:
-                    #         pass
-                # print('killed pid %s for %s' % (name, pid))
-                # print('process_finished() finished')
+            for name, sub in self.subs.items():
+                # if name in self.subs:
+                self.subs[name].kill_process()
+                # if pid is not None:
+                #     try:
+                #         os.kill(pid, signal.SIGKILL)
+                #     except ProcessLookupError:
+                #         pass
+            # print('killed pid %s for %s' % (name, pid))
+            # print('process_finished() finished')
         #
         # if False:
         #     timeout = 100
@@ -498,7 +520,9 @@ class PmakeManager(Manager):
         #         print("joining %s" % name)
         #         self.subs[name].proc.join(timeout)
 
-        killtree()
+        # killtree()
+
+        # logger.debug('pmamke manager finished')
         # print('process_finished(): cleaned up')
 
     # Normal outcomes

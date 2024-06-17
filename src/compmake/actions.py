@@ -21,7 +21,7 @@ from typing import (
 
 from compmake_utils import OutputCapture, interpret_strings_like, setproctitle, try_pickling
 from zuper_commons.types import ZAssertionError, ZValueError, check_isinstance, describe_type
-from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling
+from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling, running_tasks
 from zuper_utils_timing import TimeInfo, new_timeinfo
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
@@ -1087,36 +1087,41 @@ async def interpret_commands(
         # nothing to do
         return None
 
-    for cmd in commands:
-        await context.set_status_line(None)
-        try:
-            publish(context, "command-starting", command=cmd)
-            # noinspection PyNoneFunctionAssignment
-            retcode = await interpret_single_command(sti, cmd, context=context, cq=cq)
+    try:
+        for cmd in commands:
+            await context.set_status_line(None)
+            try:
+                publish(context, "command-starting", command=cmd)
+                # noinspection PyNoneFunctionAssignment
+                retcode = await interpret_single_command(sti, cmd, context=context, cq=cq)
+            except KeyboardInterrupt:
+                publish(
+                    context,
+                    "command-interrupted",
+                    command=cmd,
+                    reason="KeyboardInterrupt",
+                    traceback=traceback.format_exc(),
+                )
+                raise
+            except UserError as e:
+                publish(context, "command-failed", command=cmd, reason=e)
+                raise
+            # TODO: all the rest is unexpected
 
-        except KeyboardInterrupt:
-            publish(
-                context,
-                "command-interrupted",
-                command=cmd,
-                reason="KeyboardInterrupt",
-                traceback=traceback.format_exc(),
-            )
-            raise
-        except UserError as e:
-            publish(context, "command-failed", command=cmd, reason=e)
-            raise
-        # TODO: all the rest is unexpected
-
-        if retcode == 0 or retcode is None:
-            continue
-        else:
-            if isinstance(retcode, int):
-                publish(context, "command-failed", command=cmd, reason=f"Return code {retcode!r}")
-                raise CommandFailed(f"ret code {retcode}")
+            if retcode == 0 or retcode is None:
+                continue
             else:
-                publish(context, "command-failed", command=cmd, reason=retcode)
-                raise CommandFailed(f"ret code {retcode}")
+                if isinstance(retcode, int):
+                    publish(context, "command-failed", command=cmd, reason=f"Return code {retcode!r}")
+                    raise CommandFailed(f"ret code {retcode}")
+                else:
+                    publish(context, "command-failed", command=cmd, reason=retcode)
+                    raise CommandFailed(f"ret code {retcode}")
+    except:
+        # logger.error(traceback.format_exc())
+        raise
+    finally:
+        await context.set_status_line(None)
 
 
 async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB):

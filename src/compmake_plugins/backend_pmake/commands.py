@@ -1,4 +1,4 @@
-from typing import Collection
+from typing import Collection, Optional
 
 from compmake import (
     ACTIONS,
@@ -31,6 +31,7 @@ async def parmake(
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
+    max_time: Optional[float] = None,
 ):
     """
     Parallel equivalent of make.
@@ -67,14 +68,14 @@ async def parmake(
         recurse=recurse,
         new_process=new_process,
         show_output=echo,
+        max_time=max_time,
     )
 
-    publish(context, "parmake-status", status="Adding %d targets." % len(job_list))
+    publish(context, "parmake-status", status=f"Adding {len(job_list)} targets.")
     manager.add_targets(job_list)
 
     publish(context, "parmake-status", status="Processing")
     await manager.process()
-
     return raise_error_if_manager_failed(manager)
 
 
@@ -123,6 +124,10 @@ async def rparmake(
     n: int = DefaultsToConfig("max_parallel_jobs"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
+    max_time: Optional[float] = None,
 ):
     """Shortcut to parmake with default recurse = True."""
-    return await parmake(sti, job_list=job_list, context=context, n=n, new_process=new_process, echo=echo, recurse=True)
+    r = await parmake(
+        sti, job_list=job_list, context=context, n=n, new_process=new_process, echo=echo, max_time=max_time, recurse=True
+    )
+    return r

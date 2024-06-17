@@ -2,12 +2,14 @@ import inspect
 import os
 import sys
 import traceback
+from asyncio import CancelledError
 from dataclasses import dataclass
 from typing import Any, Callable, Collection, Optional, TypeVar, Union, cast
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
 from zuper_utils_asyncio import Splitter, SyncTask, SyncTaskInterface, async_errors
+from . import logger
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -189,51 +191,50 @@ class ContextImp(Context):
         sti.started()
         event: Event
         assert self.splitter is not None
-        async for _a, event in self.splitter.read():
-            # print(event.name)
-            all_handlers = CompmakeGlobalState.EventHandlers.handlers
+        async for packet in self.splitter.read_packets():
 
-            handlers = all_handlers.get(event.name, [])
-            # sti.logger.info("broadcast", a=a, event=event, handlers=handlers)
+            for i, event in packet:
+                all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
-            if handlers:
-                for handler in handlers:
-                    if handler not in Tmp.handler_spec:
-                        Tmp.handler_spec[handler] = inspect.getfullargspec(handler)
-                    spec = Tmp.handler_spec[handler]
-                    # if not hasattr(handler, "__spec__"):
-                    #     setattr(handler, "__spec__", inspect.getfullargspec(handler))
-                    # spec = getattr(handler, "__spec__")
-                    # spec = inspect.getfullargspec(handler)
-                    # noinspection PyBroadException
-                    try:
-                        kwargs = {}
-                        if "event" in spec.args:
-                            kwargs["event"] = event
-                        if "context" in spec.args:
-                            kwargs["context"] = self
-                        await handler(**kwargs)  # type: ignore
-                        # TODO: do not catch interrupted, etc.
-                    except KeyboardInterrupt:
-                        raise
-                    except BaseException:
+                handlers = all_handlers.get(event.name, [])
+                # sti.logger.info("broadcast", a=a, event=event, handlers=handlers)
+
+                if handlers:
+                    for handler in handlers:
+                        if handler not in Tmp.handler_spec:
+                            Tmp.handler_spec[handler] = inspect.getfullargspec(handler)
+                        spec = Tmp.handler_spec[handler]
+
                         try:
-                            msg = [
-                                "compmake BUG: Error in event handler.",
-                                "  event: %s" % event.name,
-                                "handler: %s" % handler,
-                                " kwargs: %s" % list(event.kwargs.keys()),
-                                "     bt: ",
-                                indent(traceback.format_exc(), "| "),
-                            ]
-                            msg = joinlines(msg)
-                            CompmakeGlobalState.original_stderr.write(msg)
+                            kwargs = {}
+                            if "event" in spec.args:
+                                kwargs["event"] = event
+                            if "context" in spec.args:
+                                kwargs["context"] = self
+                            await handler(**kwargs)  # type: ignore
+                            # TODO: do not catch interrupted, etc.
+                        except KeyboardInterrupt:
+                            raise
+                        except CancelledError:
+                            raise
+                        except BaseException:
+                            try:
+                                msg = [
+                                    "compmake BUG: Error in event handler.",
+                                    "  event: %s" % event.name,
+                                    "handler: %s" % handler,
+                                    " kwargs: %s" % list(event.kwargs.keys()),
+                                    "     bt: ",
+                                    indent(traceback.format_exc(), "| "),
+                                ]
+                                msg = joinlines(msg)
+                                CompmakeGlobalState.original_stderr.write(msg)
 
-                        except Exception:  # OK
-                            pass
-            else:
-                for handler in CompmakeGlobalState.EventHandlers.fallback:
-                    await handler(context=self, event=event)
+                            except Exception:  # OK
+                                pass
+                else:
+                    for handler in CompmakeGlobalState.EventHandlers.fallback:
+                        await handler(context=self, event=event)
         # sti.logger.debug(f'broadcast: done gracefully (nevents = {a + 1})')
 
     def get_currently_executing(self) -> list[CMJobID]:

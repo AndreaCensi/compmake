@@ -11,7 +11,7 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Collection, NoReturn, Optional
+from typing import Any, Collection, NoReturn, Optional, cast
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
@@ -19,17 +19,18 @@ from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
-from . import ParmakeJobResult, logger
+from . import logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
 from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
 from .context import Context
+from .events_structures import Event
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .queries import direct_children, direct_parents
-from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED
-from .registrar import publish
+from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED, EVENT_WORKER_JOB_FINISHED
+from .registrar import publish, register_handler
 from .result_dict import check_ok_result, result_dict_check
 from .storage import (
     assert_job_exists,
@@ -41,7 +42,7 @@ from .storage import (
     job_exists,
     job_userobject_exists,
 )
-from .structures import Cache, StateCode
+from .structures import Cache, ParmakeJobResult, StateCode
 from .types import CMJobID, OKResult
 from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
@@ -129,7 +130,7 @@ class Manager(ManagerLog):
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
 
-    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool):
+    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: Optional[float] = None):
         self.context = context
         self.sti = sti
 
@@ -183,6 +184,8 @@ class Manager(ManagerLog):
         self.check_invariants()
 
         self.once_in_a_while_check_expensive = EveryOnceInAWhile(3)
+
+        self.max_time = max_time
 
     # ## Derived class interface
     async def process_init(self) -> None:
@@ -831,7 +834,7 @@ class Manager(ManagerLog):
 
         manager_wait = self.context.get_compmake_config("manager_wait")
 
-        # manager_wait = 0.001  # TMP
+        manager_wait = 0.5  # TMP
         # manager_wait = None
         # TODO: this should be loop_a_bit_and_then_let's try to instantiate
         # jobs in the ready queue
@@ -847,14 +850,14 @@ class Manager(ManagerLog):
         #         self.check_invariants()
         #
         i = 0
-        for _ in range(10):  # XXX
+        for _ in range(2):  # XXX
 
             i += 1
             received = await self.check_any_finished()
 
             if received:
                 return f"received some @{i}", received
-            await asyncio.sleep(manager_wait)
+            # await asyncio.sleep(manager_wait)
 
             #
             # if self.ready_todo:
@@ -864,19 +867,29 @@ class Manager(ManagerLog):
             # processing))
             # await asyncio.sleep(manager_wait)  # TODO: make param
 
-            if False:
-                try:
-                    await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
-                except asyncio.TimeoutError:
-                    continue
+            # t0 = time.time()
+            try:
+                res = await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
+            except asyncio.TimeoutError:
+                continue
+                # logger.debug(f'no jobs read in {manager_wait} seconds')
+            else:
+                found = [res]
+                while True:
+                    try:
+                        res = self.queue_ready.get_nowait()
+                    except asyncio.QueueEmpty:
+                        break
+                    found.append(res)
 
-            # Process events
-            self.event_check()
+                # dt = time.time() - t0
+                # logger.info(f"found after {dt}", found=found)
+
             # self.check_invariants()
         return f"stopped after {i} ", set()
 
-    def event_check(self) -> None:
-        pass
+    # def event_check(self) -> None:
+    #     pass
 
     queue_ready: "asyncio.Queue[CMJobID]"
 
@@ -904,18 +917,29 @@ class Manager(ManagerLog):
                 changes.add(job_id)
         return changes
 
+    # @async_errors
+    async def handle_worker_finished(
+        self,
+        context: Context,
+        event: Event,
+    ) -> None:
+        # logger.info("from: event: worker_finished", event=event)
+
+        job_id = cast(CMJobID, event.kwargs["job_id"])
+
+        self.queue_ready.put_nowait(job_id)
+
     async def process(self) -> bool:
         """Start processing jobs."""
 
         self.queue_ready = asyncio.Queue()
-        # self.splitter_ready = await Splitter.make_init(CMJobID, 'splitter-jobs-done')
-        # logger.info('Started job manager with %d jobs.' % (len(self.todo)))
+
+        register_handler(EVENT_WORKER_JOB_FINISHED, self.handle_worker_finished)
+
         self.check_invariants()
 
         self.interrupted = False
         self.loop_task = None
-
-        # self.sti.logger.user_info(pid=os.getpid())
 
         def on_sighup() -> None:
             self.sti.logger.user_error("on_sighup", pid=os.getpid(), me=self)
@@ -962,7 +986,14 @@ class Manager(ManagerLog):
         async def loopit() -> None:
             i = 0
             display = EveryOnceInAWhile(5)
+            started_at = time.time()
+            exit_at = started_at + self.max_time if self.max_time is not None else None
+
             while self.todo or self.ready_todo or self.processing:
+
+                if exit_at is not None and time.time() > exit_at:
+                    self.sti.logger.error("Time limit reached.")
+                    break
                 await asyncio.sleep(0)
                 # if __debug__:
                 #     self.log(indent(self._get_situation_string(), f"{i}: "))
@@ -1014,9 +1045,12 @@ class Manager(ManagerLog):
 
                 self.check_invariants()
 
+            # logger.debug('loopit finished')
+
         try:
             self.loop_task = my_create_task(loopit(), "Manager-loopit")
             await self.loop_task
+            # logger.info("loop_task finished")
             self.log(indent(self._get_situation_string(), "ending: "))
 
             # end while
@@ -1027,6 +1061,7 @@ class Manager(ManagerLog):
 
             self.publish_progress()
 
+            # logger.info("process_finished()....")
             self.process_finished()
 
             publish(
@@ -1042,7 +1077,7 @@ class Manager(ManagerLog):
                 blocked=self.blocked,
                 processing=self.processing,
             )
-
+            # logger.info("Manager finished.")
             return True
 
         except JobInterrupted as e:

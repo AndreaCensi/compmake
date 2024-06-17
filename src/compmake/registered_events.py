@@ -137,3 +137,7 @@ add(EventSpec("job-already-defined", ["job_id"]))
 add(EventSpec("job-redefined", ["job_id", "reason"]))
 
 add(EventSpec("compmake-bug", ["user_msg", "dev_msg"]))
+
+EVENT_WORKER_JOB_FINISHED = "worker-job-finished"
+add(EventSpec("worker-job-started", ["job_id", "worker"]))
+add(EventSpec(EVENT_WORKER_JOB_FINISHED, ["job_id", "worker"]))

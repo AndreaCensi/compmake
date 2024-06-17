@@ -7,11 +7,15 @@ import sys
 import time
 import traceback
 
+from psutil import NoSuchProcess
+
+from compmake import Event
+
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
 from typing import Any, Callable, Literal, Optional, cast
-
+from . import logger
 import psutil
 
 from compmake import (
@@ -26,6 +30,7 @@ from compmake import (
     result_dict_raise_if_error,
 )
 from compmake.constants import CANCEL_REASONS
+from compmake.registered_events import EVENT_WORKER_JOB_FINISHED
 from compmake_utils import setproctitle
 from zuper_commons.fs import FilePath, getcwd
 from zuper_commons.text import indent, joinlines
@@ -137,6 +142,15 @@ class PmakeSub:
 
     def kill_process(self) -> None:
         self.killed_by_me = True
+
+        parent = psutil.Process(self._proc.pid)
+        for child in parent.children(recursive=True):
+            logger.debug(f"killing of sub {self.name} child: {child}")
+            try:
+                child.kill()
+            except NoSuchProcess:
+                pass
+
         # noinspection PyBroadException
         try:
             self._proc.kill()
@@ -277,299 +291,314 @@ async def pmake_worker(
     job_timeout: Optional[float],
     event_queue: "Optional[multiprocessing.Queue[Any]]",
 ):
-    current_name = name
-    i = 0
-    for i in range(19):
-        try:
-            os.nice(1)
-        except:
-            break
-    #
-    # try:
-    #     prev = os.nice(1)
-    #
-    #     max_nice = 19
-    #     if prev < max_nice:
-    #         diff = max_nice - prev
-    #         os.nice(diff)
-    # except Exception:
-    #     sti.logger.error("Could not set nice level.", t=traceback.format_exc())
-    #     pass
-    # sti.logger.info(f"nice: {prev} -> {cur}")
+    try:
 
-    t_worker_start = time.time()
-    total_time_get = 0.0
-    total_time_put = 0.0
-    total_time_comp = 0.0
-    total_time_maintenance = 0.0
-    if write_log:
-        sys.stderr = sys.stdout = f = open(write_log, "w", buffering=1)  # 1 = line buffered
+        current_name = name
+        i = 0
+        for i in range(19):
+            try:
+                os.nice(1)
+            except:
+                break
+        #
+        # try:
+        #     prev = os.nice(1)
+        #
+        #     max_nice = 19
+        #     if prev < max_nice:
+        #         diff = max_nice - prev
+        #         os.nice(diff)
+        # except Exception:
+        #     sti.logger.error("Could not set nice level.", t=traceback.format_exc())
+        #     pass
+        # sti.logger.info(f"nice: {prev} -> {cur}")
 
-        def log(s: str):
-            f.write(f"{current_name}: {s}\n")
-            f.flush()
+        t_worker_start = time.time()
+        total_time_get = 0.0
+        total_time_put = 0.0
+        total_time_comp = 0.0
+        total_time_maintenance = 0.0
+        if write_log:
+            sys.stderr = sys.stdout = f = open(write_log, "w", buffering=1)  # 1 = line buffered
 
-    else:
+            def log(s: str):
+                f.write(f"{current_name}: {s}\n")
+                f.flush()
 
-        def log(s: str):
-            print(f"{current_name}: {s}")
-            pass
-
-    log("started pmake_worker()")
-    setproctitle(f"compmake:{current_name}")
-    async with setup_environment2(sti, getcwd()):
-        await sti.started_and_yield()
-        # logger.info(f"pmake_worker forked at process {os.getpid()}")
-        from coverage import process_startup  # type: ignore
-
-        if hasattr(process_startup, "coverage"):
-            # logger.info("Detected coverage wanted.")
-            delattr(process_startup, "coverage")
-            cov = process_startup()
-            if cov is None:
-                pass
-                # logger.warning("Coverage did not start.")
-            else:
-                pass
-                # logger.info("Coverage started successfully.")
         else:
-            # logger.info("Not detected coverage need.")
-            cov = None
 
-        # write_log = None
-        # warnings.warn('remove above')
+            def log(s: str):
+                print(f"{current_name}: {s}")
+                pass
 
         log("started pmake_worker()")
+        setproctitle(f"compmake:{current_name}")
+        async with setup_environment2(sti, getcwd()):
+            await sti.started_and_yield()
+            # logger.info(f"pmake_worker forked at process {os.getpid()}")
+            from coverage import process_startup  # type: ignore
 
-        # The idea is that the parent will receive it
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        def put_result(x: ResultDict) -> float:
-            log("putting result in result_queue..")
-            t01 = time.time()
-            result_queue.put(x, block=True)
-            log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
-            if signal_queue is not None:
-                log("putting result in signal_queue..")
-                t01 = time.time()
-                signal_queue.put(signal_token, block=True)
-                log(f"put result in signal_queue in {time.time() - t0:.2f} seconds")
-            log("(done)")
-            dt0 = time.time() - t01
-            nonlocal total_time_put
-            total_time_put += dt0
-            return dt0
-
-        time_to_gc = EveryOnceInAWhile(30)
-        # noinspection PyBroadException
-        memory_tracker: Any
-        memory_tracker = None
-
-        job_id: CMJobID = cast(CMJobID, "n/a")  # keep, possibly unbound
-
-        try:
-            if detailed_python_mem_stats:
-                from pympler import tracker  # type: ignore
-
-                memory_tracker = tracker.SummaryTracker()
-
-            while True:
-                total_time = time.time() - t_worker_start
-
-                sput = _format_dt(total_time_put, total_time)
-                sget = _format_dt(total_time_get, total_time)
-                scomp = _format_dt(total_time_comp, total_time)
-                smant = _format_dt(total_time_maintenance, total_time)
-                unaccounted = total_time - (total_time_comp + total_time_get + total_time_put)
-                sunaccounted = _format_dt(unaccounted, total_time)
-                log(
-                    f"worker: total {duration_compact(total_time):10} | comp {scomp}  | get {sget}    | put {sput} | mant "
-                    f"{smant}  "
-                    f"| unacc "
-                    f"{sunaccounted}"
-                )
-
-                if time_to_gc.now():
-                    t0 = time.time()
-                    log("gc start")
-                    gc.collect()
-                    log("gc end")
-                    total_time_maintenance += time.time() - t0
-
-                if detailed_python_mem_stats:
-                    t0 = time.time()
-
-                    log("detailed_python_mem_stats... ")
-
-                    # log('all objects...')
-
-                    # all_objects = muppy.get_objects()
-                    # log('summarize...')
-                    # sum1 = summary.summarize(all_objects)
-                    # log('format...')
-                    # res = joinlines(format_(sum1, limit=50))
-                    # del all_objects
-                    # del sum1
-                    # sum1 = all_objects = None
-                    # log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
-                    log("splitter_...")
-                    log(get_report_splitters_text())
-                    log(get_report_splitters_text_referrers())
-
-                    log("tasks...")
-                    active_tasks = ["-".join(k) for k in Global.active]
-
-                    log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
-                    running = [" - " + _.get_name() + f" done = {_.done()}" for _ in running_tasks]
-                    log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
-                    del running, active_tasks
-                    total_time_maintenance += time.time() - t0
-
-                if detailed_python_mem_stats:
-                    t0 = time.time()
-
-                    diff = memory_tracker.format_diff()
-                    log(f"Before loading job: \n\n" + joinlines(diff))
-                    del diff
-                    diff = None
-                    total_time_maintenance += time.time() - t0
-
-                log("Listening for job")
-                t0 = time.time()
-                try:
-                    job = job_queue.get(block=True, timeout=5)
-                except Empty:
-                    log("Could not receive anything.")
-                    continue
-                dt = time.time() - t0
-                time_to_get_job = dt
-                total_time_get += dt
-                if job == PmakeSub.EXIT_TOKEN:
-                    log("Received EXIT_TOKEN.")
-                    break
-
-                log(f"got job: {job} in {time_to_get_job:.2f} seconds")
-
-                job_id, function_name, arguments = job
-                arguments += (event_queue,)
-                funcs: dict[str, Any] = {
-                    "parmake_job2_new_process_1": parmake_job2_new_process_1,
-                    "parmake_job2": parmake_job2,
-                }
-                function = funcs[function_name]
-                if detailed_python_mem_stats:
-                    diff = memory_tracker.format_diff()
-                    log(f"Diff after loading params for {job_id}: \n\n" + joinlines(diff))
-                    del diff
-                    diff = None
-
-                current_name = f"{name}:{job_id}"
-                setproctitle(f"compmake:{current_name}")
-                try:
-                    t0 = time.time()
-                    log(f"creating task...")
-                    child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
-                    log(f"waiting for task...")
-
-                    pres: ParmakeJobResult = await child.wait_for_outcome_success_result()
-                    result = pres.rd
-                    log(f"...task finished")
-
-                    # time_to_do_job = time.time() - t0
-                    total_time_comp += pres.time_comp
-
-                    if "ti" in result:
-                        ti = cast(TimeInfo, result["ti"])
-                        log(ti.pretty())
-                        result.pop("ti")
-
-                    sti.forget_child(child)
-                    del child
-
-                    # log(f"timing: get job = {time_to_get_job:.3f} s, do job = {pres.time_comp:.3f} s")
-
-                except JobFailed as e:
-                    log("Job failed, putting notice.")
-                    log(f"result: {e}")  # debug
-                    put_result(e.get_result_dict())
-                    del e
-                except JobInterrupted as e:
-                    log("Job interrupted, putting notice.")
-                    put_result(dict(abort=str(e)))  # XXX
-                    del e
-                except CompmakeBug as e:  # XXX :to finish
-                    log("CompmakeBug")
-                    put_result(e.get_result_dict())
-                    del e
-
-                except BaseException:
-                    log(f"uncaught error: {job}")
-                    raise
+            if hasattr(process_startup, "coverage"):
+                # logger.info("Detected coverage wanted.")
+                delattr(process_startup, "coverage")
+                cov = process_startup()
+                if cov is None:
+                    pass
+                    # logger.warning("Coverage did not start.")
                 else:
-                    log(f"result: {result}")
-                    put_result(result)
-                    del result
-                finally:
-                    child = None
-                    function = None
-                    arguments = None
+                    pass
+                    # logger.info("Coverage started successfully.")
+            else:
+                # logger.info("Not detected coverage need.")
+                cov = None
 
-                del arguments, job
+            # write_log = None
+            # warnings.warn('remove above')
+
+            log("started pmake_worker()")
+
+            # The idea is that the parent will receive it
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+            def put_result(x: ResultDict) -> float:
+                log("putting result in result_queue..")
+                t01 = time.time()
+                event_queue.put_nowait(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id))
+                result_queue.put(x, block=False)
+                log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
+                if signal_queue is not None:
+                    log("putting result in signal_queue..")
+                    t01 = time.time()
+                    signal_queue.put(signal_token, block=True)
+                    log(f"put result in signal_queue in {time.time() - t0:.2f} seconds")
+                log("(done)")
+                dt0 = time.time() - t01
+                nonlocal total_time_put
+                total_time_put += dt0
+                return dt0
+
+            time_to_gc = EveryOnceInAWhile(30)
+            # noinspection PyBroadException
+            memory_tracker: Any
+            memory_tracker = None
+
+            job_id: CMJobID = cast(CMJobID, "n/a")  # keep, possibly unbound
+
+            try:
                 if detailed_python_mem_stats:
-                    import lxml
-                    import lxml.etree
-                    from pympler import muppy, summary, tracker
-                    from pympler.summary import format_
+                    from pympler import tracker  # type: ignore
 
-                    log("cleaning lxml error log...")
-                    lxml.etree.clear_error_log()
-                    log("gc.collect()...")
+                    memory_tracker = tracker.SummaryTracker()
 
-                    gc.collect()
-                    log("detailed_python_mem_stats... ")
+                while True:
+                    total_time = time.time() - t_worker_start
 
-                    log("memory tracker diff... ")
-                    diff = memory_tracker.format_diff()
-                    log(f"Diff after {job_id}: \n\n" + joinlines(diff))
+                    sput = _format_dt(total_time_put, total_time)
+                    sget = _format_dt(total_time_get, total_time)
+                    scomp = _format_dt(total_time_comp, total_time)
+                    smant = _format_dt(total_time_maintenance, total_time)
+                    unaccounted = total_time - (total_time_comp + total_time_get + total_time_put)
+                    sunaccounted = _format_dt(unaccounted, total_time)
+                    log(
+                        f"worker: total {duration_compact(total_time):10} | comp {scomp}  | get {sget}    | put {sput} | mant "
+                        f"{smant}  "
+                        f"| unacc "
+                        f"{sunaccounted}"
+                    )
 
-                log("...done.")
-                current_name = f"{name}:idle"
-                setproctitle(f"compmake:{current_name}")
+                    if time_to_gc.now():
+                        t0 = time.time()
+                        log("gc start")
+                        gc.collect()
+                        log("gc end")
+                        total_time_maintenance += time.time() - t0
 
-                # except KeyboardInterrupt: pass
-        except BaseException:
-            reason = "aborted because of uncaptured:\n" + indent(traceback.format_exc(), "| ")
-            mye = HostFailed(host="???", job_id=job_id, reason=reason, bt=traceback.format_exc())
-            log(str(mye))
-            put_result(mye.get_result_dict())
-        except:  # XXX: can this happen?
-            mye = HostFailed(host="???", job_id=job_id, reason="Uknown exception (not BaseException)", bt="not available")
-            log(str(mye))
-            put_result(mye.get_result_dict())
-            log("(put)")
+                    if detailed_python_mem_stats:
+                        t0 = time.time()
 
-        if signal_queue is not None:
-            signal_queue.close()
-        result_queue.close()
+                        log("detailed_python_mem_stats... ")
 
-        log("memory dump")
+                        # log('all objects...')
 
-        if memory_tracker is not None:
-            from pympler import muppy, summary, tracker
-            from pympler.summary import format_
+                        # all_objects = muppy.get_objects()
+                        # log('summarize...')
+                        # sum1 = summary.summarize(all_objects)
+                        # log('format...')
+                        # res = joinlines(format_(sum1, limit=50))
+                        # del all_objects
+                        # del sum1
+                        # sum1 = all_objects = None
+                        # log(f"Report pmakeworker {name} IDLE " + "\n\n" + res)
+                        log("splitter_...")
+                        log(get_report_splitters_text())
+                        log(get_report_splitters_text_referrers())
 
-            all_objects = muppy.get_objects()
-            sum1 = summary.summarize(all_objects)
-            res = joinlines(format_(sum1, limit=50))
-            log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
+                        log("tasks...")
+                        active_tasks = ["-".join(k) for k in Global.active]
 
-        if cov:
-            log("saving coverage")
-            # noinspection PyProtectedMember
-            cov._atexit()  # type: ignore
-            log("saved coverage")
+                        log(f"{len(active_tasks)} active STI tasks: {active_tasks}")
+                        running = [" - " + _.get_name() + f" done = {_.done()}" for _ in running_tasks]
+                        log(f"{len(running_tasks)} active create_task:" + "\n" + joinlines(running))
+                        del running, active_tasks
+                        total_time_maintenance += time.time() - t0
 
-        log("clean exit.")
+                    if detailed_python_mem_stats:
+                        t0 = time.time()
+
+                        diff = memory_tracker.format_diff()
+                        log(f"Before loading job: \n\n" + joinlines(diff))
+                        del diff
+                        diff = None
+                        total_time_maintenance += time.time() - t0
+
+                    log("Listening for job")
+                    t0 = time.time()
+                    # event = Event("worker-status", status="waiting-for-job", worker=name)
+                    # event_queue.put_nowait(event)
+
+                    try:
+                        job = job_queue.get(block=True, timeout=5)
+                    except Empty:
+                        log("Could not receive anything.")
+                        continue
+                    dt = time.time() - t0
+                    time_to_get_job = dt
+                    total_time_get += dt
+                    if job == PmakeSub.EXIT_TOKEN:
+                        log("Received EXIT_TOKEN.")
+                        break
+
+                    log(f"got job: {job} in {time_to_get_job:.2f} seconds")
+
+                    job_id, function_name, arguments = job
+                    event_queue.put_nowait(Event("worker-job-started", worker=name, job_id=job_id))
+
+                    arguments += (event_queue,)
+                    funcs: dict[str, Any] = {
+                        "parmake_job2_new_process_1": parmake_job2_new_process_1,
+                        "parmake_job2": parmake_job2,
+                    }
+                    function = funcs[function_name]
+                    if detailed_python_mem_stats:
+                        diff = memory_tracker.format_diff()
+                        log(f"Diff after loading params for {job_id}: \n\n" + joinlines(diff))
+                        del diff
+                        diff = None
+
+                    current_name = f"{name}:{job_id}"
+                    setproctitle(f"compmake:{current_name}")
+                    try:
+                        t0 = time.time()
+                        log(f"creating task...")
+                        child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
+                        log(f"waiting for task...")
+
+                        pres: ParmakeJobResult = await child.wait_for_outcome_success_result()
+                        result = pres.rd
+                        log(f"...task finished")
+
+                        # time_to_do_job = time.time() - t0
+                        total_time_comp += pres.time_comp
+
+                        if "ti" in result:
+                            ti = cast(TimeInfo, result["ti"])
+                            log(ti.pretty())
+                            result.pop("ti")
+
+                        sti.forget_child(child)
+                        del child
+
+                        # log(f"timing: get job = {time_to_get_job:.3f} s, do job = {pres.time_comp:.3f} s")
+
+                    except JobFailed as e:
+                        log("Job failed, putting notice.")
+                        log(f"result: {e}")  # debug
+                        put_result(e.get_result_dict())
+                        del e
+                    except JobInterrupted as e:
+                        log("Job interrupted, putting notice.")
+                        put_result(dict(abort=str(e)))  # XXX
+                        del e
+                    except CompmakeBug as e:  # XXX :to finish
+                        log("CompmakeBug")
+                        put_result(e.get_result_dict())
+                        del e
+
+                    except BaseException:
+                        log(f"uncaught error: {job}")
+                        raise
+                    else:
+                        log(f"result: {result}")
+                        put_result(result)
+                        del result
+                    finally:
+                        child = None
+                        function = None
+                        arguments = None
+
+                    del arguments, job
+                    if detailed_python_mem_stats:
+                        import lxml
+                        import lxml.etree
+                        from pympler import muppy, summary, tracker
+                        from pympler.summary import format_
+
+                        log("cleaning lxml error log...")
+                        lxml.etree.clear_error_log()
+                        log("gc.collect()...")
+
+                        gc.collect()
+                        log("detailed_python_mem_stats... ")
+
+                        log("memory tracker diff... ")
+                        diff = memory_tracker.format_diff()
+                        log(f"Diff after {job_id}: \n\n" + joinlines(diff))
+
+                    log("...done.")
+                    current_name = f"{name}:idle"
+                    setproctitle(f"compmake:{current_name}")
+
+                    # except KeyboardInterrupt: pass
+            except BaseException:
+                reason = "aborted because of uncaptured:\n" + indent(traceback.format_exc(), "| ")
+                mye = HostFailed(host="???", job_id=job_id, reason=reason, bt=traceback.format_exc())
+                log(str(mye))
+                put_result(mye.get_result_dict())
+            except:  # XXX: can this happen?
+                mye = HostFailed(host="???", job_id=job_id, reason="Uknown exception (not BaseException)", bt="not available")
+                log(str(mye))
+                put_result(mye.get_result_dict())
+                log("(put)")
+
+            if signal_queue is not None:
+                signal_queue.close()
+            result_queue.close()
+
+            log("memory dump")
+
+            if memory_tracker is not None:
+                from pympler import muppy, summary, tracker
+                from pympler.summary import format_
+
+                all_objects = muppy.get_objects()
+                sum1 = summary.summarize(all_objects)
+                res = joinlines(format_(sum1, limit=50))
+                log(f"Report for END of pmakeworker {name}" + "\n\n" + res)
+
+            if cov:
+                log("saving coverage")
+                # noinspection PyProtectedMember
+                cov._atexit()  # type: ignore
+                log("saved coverage")
+
+            log("clean exit.")
+    finally:
+        event_queue.put(Event("worker-exiting", worker=name))
+        from .pmake_manager import killtree
+
+        killtree()
+        event_queue.put(Event("worker-exit", worker=name))
+        sys.exit(0)
 
 
 async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], arguments: list[Any]) -> Any:

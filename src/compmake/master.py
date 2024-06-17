@@ -49,7 +49,9 @@ For example:
 @zapp1()
 async def main(zenv: ZappEnv) -> ExitCode:
     # async with setup_environment2(sti, os.getcwd()):
-    return await compmake_main(zenv.sti, args=zenv.args)
+    res = await compmake_main(zenv.sti, args=zenv.args)
+    # logger.info("Exiting.")
+    return res
 
 
 def limit_memory(maxsize: int) -> None:
@@ -203,7 +205,9 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None
         try:
             return await go(context2=context)
         finally:
+            logger.info("Closing context.")
             await context.aclose()
+            logger.info("Closed context.")
     else:
         # XXX: change variables
         import cProfile
