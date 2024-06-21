@@ -48,4 +48,4 @@ class MemoryCache:
         return sys.getsizeof(key)
 
     def keys(self):
-        return self.db.keys()
+        return self.db.keys0()

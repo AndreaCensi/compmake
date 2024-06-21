@@ -1,5 +1,7 @@
 """ The actual interface of some commands in commands.py """
 
+from typing import Optional
+
 from compmake import (
     CMJobID,
     Cache,
@@ -10,6 +12,7 @@ from compmake import (
     get_job,
     get_job_args,
     get_job_cache,
+    get_job_userobject,
     job_args_sizeof,
     job_cache_exists,
     job_cache_sizeof,
@@ -24,7 +27,7 @@ from .console_output import write_line_endl
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")
-async def details(sti, non_empty_job_list, context, cq, max_lines=None):
+async def details(sti, non_empty_job_list, context, cq, max_lines=None, load_result=False, load_args=False):
     """Shows the details for the given jobs including
     dependencies and stderr/stdout.
 
@@ -38,11 +41,11 @@ async def details(sti, non_empty_job_list, context, cq, max_lines=None):
         # insert a separator if there is more than one job
         if num > 0:
             print("-" * 74)
-        list_job_detail(job_id, context, cq, max_lines=max_lines)
+        list_job_detail(job_id, context, cq, max_lines=max_lines, load_result=load_result, load_args=load_args)
         num += 1
 
 
-def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
+def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optional[int], load_result: bool, load_args: bool):
     db = context.get_compmake_db()
 
     dparents = cq.direct_parents(job_id)
@@ -79,8 +82,6 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
 
     if job_cache_exists(job_id, db=db):
         cache2 = get_job_cache(job_id, db=db)
-
-        print(debug_print(cache2))
 
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
         print(bold("Uptodate:") + "%s (%s)" % (up, reason))
@@ -160,9 +161,15 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines):
         if cache2.result_type_qual:
             print(bold("result type:") + "%s" % cache2.result_type_qual)
 
-    if True:
+    if load_args:
         job_args = get_job_args(job_id, db=db)
         command, args, kwargs = job_args
         print(bold("command:") + f"{command}")
         print(bold("args:") + f"{args}")
         print(bold("kwargs:") + f"{kwargs}")
+
+    if load_result:
+        if cache2.state == Cache.DONE:
+
+            result = get_job_userobject(job_id, db=db)
+            print(bold("result:\n") + debug_print(result))

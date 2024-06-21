@@ -205,9 +205,9 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None
         try:
             return await go(context2=context)
         finally:
-            logger.info("Closing context.")
+            # logger.info("Closing context.")
             await context.aclose()
-            logger.info("Closed context.")
+            # logger.info("Closed context.")
     else:
         # XXX: change variables
         import cProfile

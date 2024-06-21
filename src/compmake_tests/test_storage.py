@@ -35,7 +35,7 @@ async def test_search(env: Env) -> None:
 
     def search(pattern: str) -> Iterator[str]:
         r = wildcard_to_regexp(pattern)
-        for k in db.keys():
+        for k in db.keys0():
             if r.match(k):
                 yield k
 

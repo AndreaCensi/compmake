@@ -161,7 +161,7 @@ def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
     # TODO: think of the difference between this and clean_target
     cache = get_job_cache(job_id, db)
     if cache.state == Cache.DONE:
-        logger.debug(f"Marking remaking {job_id}")
+        # logger.debug(f"Marking remaking {job_id}")
         cache.timestamp = Cache.TIMESTAMP_TO_REMAKE
     set_job_cache(job_id, cache, db=db)
 

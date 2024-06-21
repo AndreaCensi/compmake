@@ -223,7 +223,8 @@ class Manager(ManagerLog):
         self.log("add_targets()", targets=L(targets))
         self.check_invariants()
         for t in targets:
-            assert_job_exists(t, self.db)
+            # if __debug__:
+            #     assert_job_exists(t, self.db)
 
             if t in self.processing:
                 msg = f"Adding a job already in processing: {t!r}"
@@ -276,11 +277,6 @@ class Manager(ManagerLog):
         # ok, careful here, there might be jobs that are
         # already in processing
 
-        # XXX: we should clean the Cache of a job before making it
-        # XXX: This is where we get the additional counters 2022-11.
-        #  I removed hopefully nothing bad happens.
-        # XXX: 2023-01: I put it back. The invariants will not hold anymore.
-        # now we have .done_by_me
         self.done.update(targets_done - self.processing)
 
         todo_add = not_ready - self.processing
@@ -297,12 +293,6 @@ class Manager(ManagerLog):
         for a in todo_add:
             if a in self.ready_todo:
                 self.remove_from_ready(a)
-                # self.ready_todo.remove(a)
-        #
-        # needs_priorities = self.todo | self.ready_todo
-        # misses_priorities = needs_priorities - set(self.priorities)
-        # new_priorities = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
-        # self.priorities.update(new_priorities)
 
         self.check_invariants()
 
@@ -766,7 +756,7 @@ class Manager(ManagerLog):
         if key in self.ready_to_do_heap:
             self.ready_to_do_heap.remove(key)
 
-    async def check_any_finished(self) -> set[CMJobID]:
+    async def check_any_finished(self, expensive_checks: bool) -> set[CMJobID]:
         """
         Checks that any of the jobs finished.
 
@@ -814,11 +804,10 @@ class Manager(ManagerLog):
                 tasks.append(asyncio.create_task(wait))
             await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
-        check_mem_etc = self.once_in_a_while_check_expensive.now()
         # We make a copy because processing is updated during the loop
         result = set()
         for job_id in self.processing.copy():
-            received = await self.check_job_finished(job_id, check_mem_etc=check_mem_etc)
+            received = await self.check_job_finished(job_id, check_mem_etc=expensive_checks)
             if received:
 
                 result.add(job_id)
@@ -829,7 +818,7 @@ class Manager(ManagerLog):
     def show_other_stats(self) -> None:
         pass
 
-    async def loop_until_something_finishes(self) -> tuple[str, set[CMJobID]]:
+    async def loop_until_something_finishes(self, expensive_checks: bool) -> tuple[str, set[CMJobID]]:
         self.check_invariants()
 
         manager_wait = self.context.get_compmake_config("manager_wait")
@@ -853,7 +842,7 @@ class Manager(ManagerLog):
         for _ in range(2):  # XXX
 
             i += 1
-            received = await self.check_any_finished()
+            received = await self.check_any_finished(expensive_checks=expensive_checks)
 
             if received:
                 return f"received some @{i}", received
@@ -872,6 +861,7 @@ class Manager(ManagerLog):
                 res = await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
             except asyncio.TimeoutError:
                 continue
+
                 # logger.debug(f'no jobs read in {manager_wait} seconds')
             else:
                 found = [res]
@@ -1019,7 +1009,6 @@ class Manager(ManagerLog):
 
                         raise CompmakeBug(msg)
 
-                # self.publish_progress()
                 t_instance_start = time.perf_counter()
                 ninstanced, waiting_on = self.instance_some_jobs()
                 self.publish_progress()
@@ -1034,9 +1023,11 @@ class Manager(ManagerLog):
                     publish(self.context, "manager-phase", phase="wait")
 
                 t_loop_start = time.perf_counter()
-                why_finished, finished = await self.loop_until_something_finishes()
+                expensive_checks = self.once_in_a_while_check_expensive.now()
+
+                why_finished, finished = await self.loop_until_something_finishes(expensive_checks)
                 dt_loop = time.perf_counter() - t_loop_start
-                if display.now():
+                if False and display.now():
                     logger.debug(
                         f"ManagerStats instance {ninstanced} {duration_compact(dt_instance)}  wait unti {why_finished!r} "
                         f"{len(finished)} "
@@ -1044,6 +1035,8 @@ class Manager(ManagerLog):
                     )
 
                 self.check_invariants()
+
+                await asyncio.sleep(0.01)  # TMP
 
             # logger.debug('loopit finished')
 

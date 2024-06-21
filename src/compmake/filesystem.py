@@ -2,6 +2,7 @@ import os
 import pickle
 import sqlite3
 import stat
+import time
 import traceback
 from asyncio import CancelledError
 from typing import Iterator, NewType, Optional, TypeVar
@@ -45,6 +46,7 @@ class StorageFilesystem:
     def __init__(self, basepath: DirPath, compress: bool = True):
         if not compress:
             raise Exception()
+        self.ncursor = 0
         self.basepath = os.path.realpath(basepath)
         if not os.path.exists(self.basepath):
             os.makedirs(self.basepath, exist_ok=True)
@@ -87,11 +89,21 @@ class StorageFilesystem:
 
     @contextmanager
     def cursor(self) -> Iterator[sqlite3.Cursor]:
+        self.ncursor += 1
+        t0 = time.perf_counter()
         cur = self.con.cursor()
+        t1 = time.perf_counter()
         try:
             yield cur
         finally:
             cur.close()
+            t2 = time.perf_counter()
+            total = t2 - t0
+            if total > 0.1 or self.ncursor % 10000 == 0:
+                logger.debug(
+                    f"sqlite3: {self.ncursor} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
+                    f"{(t2 - t1) * 1000:.3f}ms"
+                )
 
     def close(self) -> None:
         self.con.close()
@@ -99,16 +111,19 @@ class StorageFilesystem:
     def __repr__(self) -> str:
         return f"FilesystemDB({self.basepath!r};{self.file_extension})"
 
+    def fetchone(self, sql: str, args: tuple) -> object:
+        with self.cursor() as cur:
+            cur.execute(sql, args)
+            return cur.fetchone()
+
     @track_time
     def sizeof(self, key: StorageKey) -> int:
-        with self.cursor() as cur:
-            # filename = self.filename_for_key(key)
-            sql = """
-                select length(blob_value) from fs_blobs where blob_key = ?
-            """
-            cur.execute(sql, (key,))
-            (res,) = cur.fetchone()
-            return res
+
+        sql = """
+            select length(blob_value) from fs_blobs where blob_key = ?
+        """
+        (res,) = self.fetchone(sql, (key,))
+        return res
         # statinfo = os.stat(filename)
         # return statinfo.st_size
 
@@ -118,16 +133,14 @@ class StorageFilesystem:
             logger.debug("R %s" % str(key))
 
         # self.check_existence()
+        sql = """
+              select blob_value from fs_blobs where blob_key = ?
+       """
 
-        with self.cursor() as cur:
-            sql = """
-                select blob_value from fs_blobs where blob_key = ?
-            """
-            cur.execute(sql, (key,))
-            one = cur.fetchone()
-            if one is None:
-                raise KeyError(key)
-            (data,) = one
+        blob_value_ = self.fetchone(sql, (key,))
+        if blob_value_ is None:
+            raise KeyError(key)
+        (data,) = blob_value_
 
         # filename = self.filename_for_key(key)
         #
@@ -239,26 +252,35 @@ class StorageFilesystem:
         sql = """
             select count(*) from fs_blobs where blob_key = ?
         """
-        with self.cursor() as cur:
-            cur.execute(sql, (key,))
-            (res,) = cur.fetchone()
-            return res > 0
+        (res,) = self.fetchone(sql, (key,))
+        #
+        # with self.cursor() as cur:
+        #     cur.execute(sql, (key,))
+        #     (res,) = cur.fetchone()
+        return res > 0
         # logger.debug('? %s %s %s' % (str(key), filename, ex))
         # return ex
 
     @track_time
-    def keys0(self, extension: Optional[str] = None) -> Iterator[StorageKey]:
+    def keys0(self) -> Iterator[StorageKey]:
         sql = """
             select blob_key from fs_blobs
         """
         with self.cursor() as cur:
             cur.execute(sql)
-            res = cur.fetchall()
-            for row in res:
+
+            # iterate over the results
+            # without loading them all in memory
+
+            for row in cur:
                 yield row[0]
 
+            # res = cur.fetchall()
+            # for row in res:
+            #     yield row[0]
+
     @track_time
-    def keys0_match(self, wildcard: str) -> list[StorageKey]:
+    def keys0_match(self, wildcard: str) -> Iterator[StorageKey]:
         sql = """
                 select blob_key from fs_blobs where blob_key like ?
             """
@@ -266,8 +288,14 @@ class StorageFilesystem:
 
         with self.cursor() as cur:
             cur.execute(sql, (wildcard,))
-            res = cur.fetchall()
-            return [row[0] for row in res]
+
+            # iterate over the results
+            # without loading them all in memory
+            for row in cur:
+                yield row[0]
+            #
+            # res = cur.fetchall()
+            # return [row[0] for row in res]
 
         # if extension is None:
         #     extension = self.file_extension
