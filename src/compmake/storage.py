@@ -293,9 +293,10 @@ def db_job_add_dynamic_children(
     job.children.update(children)
     job.dynamic_children[returned_by] = set(children)
     set_job(job_id, job, db)
-    job2 = get_job(job_id, db)
-    assert job2.children == job.children, "Race condition"
-    assert job2.dynamic_children == job.dynamic_children, "Race condition"
+    if __debug__:
+        job2 = get_job(job_id, db)
+        assert job2.children == job.children, "Race condition"
+        assert job2.dynamic_children == job.dynamic_children, "Race condition"
 
 
 def db_job_add_parent(db: StorageFilesystem, job_id: CMJobID, parent: CMJobID) -> None:
@@ -303,8 +304,9 @@ def db_job_add_parent(db: StorageFilesystem, job_id: CMJobID, parent: CMJobID) -
     # print('%s old parents list: %s' % (d, j.parents))
     j.parents.add(parent)
     set_job(job_id, j, db)
-    j2 = get_job(job_id, db)
-    assert j2.parents == j.parents, "Race condition"  # FIXME
+    if __debug__:
+        j2 = get_job(job_id, db)
+        assert j2.parents == j.parents, "Race condition"  # FIXME
 
 
 def db_job_add_parent_relation(child: CMJobID, parent: CMJobID, db: StorageFilesystem) -> None:

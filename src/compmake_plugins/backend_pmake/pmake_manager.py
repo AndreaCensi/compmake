@@ -472,23 +472,27 @@ class PmakeManager(Manager):
         # print('process_finished()')
 
         not_exited = []
+        logger.info("Terminating all processes gracefully")
         for name, sub in self.subs.items():
             self.subs[name].terminate()  # send token to sub
             try:
                 self.subs[name]._proc.join(1)
             except TimeoutError:
+                logger.info(f"Sub {name} did not exit in 1 second")
                 not_exited.append(name)
                 pass
 
-        self.event_queue.close()
-        del PmakeManager.queues[self.event_queue_name]
-        self.task_pump.cancel()
-        self.task_proc_status.cancel()
+        for name in not_exited:
+            logger.info(f"Killing {name} ")
+            self.subs[name].kill_process()
 
-        #
-        # for name in self.get_processing_subs():
-        #     if name in self.subs:
-        #         self.subs[name].terminate_process()
+        try:
+            self.event_queue.close()
+            del PmakeManager.queues[self.event_queue_name]
+            self.task_pump.cancel()
+            self.task_proc_status.cancel()
+        except:
+            pass
 
         # XXX: in practice this never works well
         # if False:
@@ -524,6 +528,8 @@ class PmakeManager(Manager):
 
         # logger.debug('pmamke manager finished')
         # print('process_finished(): cleaned up')
+
+        logger.debug("process_finished(): cleaned up")
 
     # Normal outcomes
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:

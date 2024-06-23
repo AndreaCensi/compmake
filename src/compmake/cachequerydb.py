@@ -46,10 +46,6 @@ class CacheQueryDB:
         return get_job_cache(job_id, db=self.db)
 
     @memoized_reset
-    def jobs_defined(self, job_id: CMJobID):
-        return jobs_defined(job_id, db=self.db)
-
-    @memoized_reset
     def get_job(self, job_id: CMJobID) -> Job:
         return get_job(job_id, db=self.db)
 
@@ -249,6 +245,39 @@ class CacheQueryDB:
                     stack.append(c)
 
         return result
+
+    @memoized_reset
+    def direct_uptodate_deps_inverse(
+        self,
+        job_id: CMJobID,
+    ) -> set[CMJobID]:
+        """Returns all jobs that have this as
+        a direct 'dependency'
+        the jobs that are direct parents
+        plus the jobs that were defined by it.
+
+        Assumes that the job is DONE.
+        """
+
+        dep_inv = self.direct_parents(job_id)
+
+        # Not sure if need to be here --- added when doing graph-animation for jobs in progress
+        if self.get_job_cache(job_id).state == Cache.DONE:
+            dep_inv.update(self.jobs_defined(job_id))
+        return dep_inv
+
+    @memoized_reset
+    def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]:
+        """
+        Gets the jobs defined by the given job.
+        The job must be DONE.
+        """
+        check_isinstance(job_id, str)
+        cache = self.get_job_cache(job_id)
+        if cache.state != Cache.DONE:
+            msg = "Cannot get jobs_defined for job not done " + "(status: %s)" % Cache.state2desc[cache.state]
+            raise CompmakeBug(msg)
+        return set(cache.jobs_defined)
 
 
 @contextmanager

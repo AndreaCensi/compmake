@@ -33,7 +33,6 @@ from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED, 
 from .registrar import publish, register_handler
 from .result_dict import check_ok_result, result_dict_check
 from .storage import (
-    assert_job_exists,
     db_job_add_dynamic_children,
     db_job_add_parent,
     get_job,
@@ -506,9 +505,10 @@ class Manager(ManagerLog):
             raise job_interrupted_exc(job_id)
 
     def job_is_deleted(self, job_id: CMJobID):
-        if job_exists(job_id, self.db):
-            msg = f"Job {job_id!r} declared deleted still exists"
-            raise CompmakeBug(msg)
+        if __debug__:
+            if job_exists(job_id, self.db):
+                msg = f"Job {job_id!r} declared deleted still exists"
+                raise CompmakeBug(msg)
         if job_id in self.all_targets:
             if job_id in self.todo:
                 self.todo.remove(job_id)
@@ -545,6 +545,8 @@ class Manager(ManagerLog):
         # print('job %r succeeded' % job_id)
         self.check_invariants()
 
+        cq = CacheQueryDB(self.db)
+
         # Check if the result of this job contains references
         # to other jobs
         deps = result["user_object_deps"]
@@ -553,7 +555,7 @@ class Manager(ManagerLog):
             # % (job_id, deps))
 
             # We first add extra dependencies to all those jobs
-            jobs_depending_on_this = direct_parents(job_id, self.db)
+            jobs_depending_on_this = cq.direct_parents(job_id)
             # print('need to update %s' % jobs_depending_on_this)
             for parent in jobs_depending_on_this:
                 db_job_add_dynamic_children(job_id=parent, children=deps, returned_by=job_id, db=self.db)
@@ -681,8 +683,9 @@ class Manager(ManagerLog):
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
-        parent_jobs = direct_uptodate_deps_inverse(job_id, db=self.db)
         cq = CacheQueryDB(self.db)
+
+        parent_jobs = cq.direct_uptodate_deps_inverse(job_id)
 
         parents_todo = set(self.todo & parent_jobs)
         # self.log("considering parents", parents_todo=L(parents_todo))
@@ -699,7 +702,7 @@ class Manager(ManagerLog):
 
             # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
 
-            its_children = direct_children(opportunity, db=self.db)
+            its_children = cq.direct_children(opportunity)
             # print('its children: %r' % its_children)
 
             for child in its_children:
