@@ -5,6 +5,7 @@ import os
 import platform
 import random
 import time
+import traceback
 from multiprocessing import Queue
 
 # noinspection PyProtectedMember
@@ -466,6 +467,8 @@ class PmakeManager(Manager):
         status = self.get_status_str()
         logger.debug("finished:\n" + status)
 
+    def cleanup(self) -> None:
+        logger.debug("Cleaning up")
         if self.cleaned:
             return
         self.cleaned = True
@@ -475,6 +478,8 @@ class PmakeManager(Manager):
         logger.info("Terminating all processes gracefully")
         for name, sub in self.subs.items():
             self.subs[name].terminate()  # send token to sub
+
+        for name, sub in self.subs.items():
             try:
                 self.subs[name]._proc.join(1)
             except TimeoutError:
@@ -488,10 +493,16 @@ class PmakeManager(Manager):
 
         try:
             self.event_queue.close()
+
             del PmakeManager.queues[self.event_queue_name]
+            self.event_queue = None
             self.task_pump.cancel()
             self.task_proc_status.cancel()
+            self.task_pump = None
+            self.task_proc_status = None
+            self.ctx = None
         except:
+            logger.error(traceback.format_exc())
             pass
 
         # XXX: in practice this never works well
@@ -529,7 +540,7 @@ class PmakeManager(Manager):
         # logger.debug('pmamke manager finished')
         # print('process_finished(): cleaned up')
 
-        logger.debug("process_finished(): cleaned up")
+        logger.debug("cleaned up")
 
     # Normal outcomes
     def job_failed(self, job_id: CMJobID, deleted_jobs: Collection[CMJobID]) -> None:
@@ -565,6 +576,3 @@ class PmakeManager(Manager):
         sub = self.subs[name]
         sub.set_available()
         self._cancel_and_replace_sub(name, CANCEL_REASON_HOST_FAILED)
-
-    def cleanup(self) -> None:
-        self.process_finished()

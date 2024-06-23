@@ -1041,7 +1041,8 @@ class Manager(ManagerLog):
 
                 await asyncio.sleep(0.01)  # TMP
 
-            # logger.debug('loopit finished')
+            dt = duration_compact(time.time() - started_at)
+            logger.debug(f"processing loop finished after {dt}")
 
         try:
             self.loop_task = my_create_task(loopit(), "Manager-loopit")

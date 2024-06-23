@@ -50,7 +50,8 @@ For example:
 async def main(zenv: ZappEnv) -> ExitCode:
     # async with setup_environment2(sti, os.getcwd()):
     res = await compmake_main(zenv.sti, args=zenv.args)
-    # logger.info("Exiting.")
+    logger.info("Compmake exiting.")
+
     return res
 
 
@@ -70,7 +71,7 @@ def limit_memory(maxsize: int) -> None:
 
 async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None) -> ExitCode:
     # limit_memory(2 * 1024 * 1024 * 1024)
-    sti.started()
+    await sti.started_and_yield()
     if not "" in sys.path:
         sys.path.append("")
 
