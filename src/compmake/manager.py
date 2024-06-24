@@ -28,7 +28,6 @@ from .events_structures import Event
 from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
-from .queries import direct_children, direct_parents
 from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED, EVENT_WORKER_JOB_FINISHED
 from .registrar import publish, register_handler
 from .result_dict import check_ok_result, result_dict_check
@@ -43,7 +42,7 @@ from .storage import (
 )
 from .structures import Cache, ParmakeJobResult, StateCode
 from .types import CMJobID, OKResult
-from .uptodate import direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure
+from .uptodate import direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 
 __all__ = [
@@ -108,6 +107,7 @@ class ManagerLog:
 class ProcessingDetails:
     started: float
     interface: AsyncResultInterface
+    timeout: Optional[float]
 
 
 class Manager(ManagerLog):
@@ -124,7 +124,6 @@ class Manager(ManagerLog):
     failed: set[CMJobID]
     blocked: set[CMJobID]
     ready_todo: set[CMJobID]
-    processing: set[CMJobID]
     processing2result: dict[CMJobID, ProcessingDetails]
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
@@ -158,7 +157,7 @@ class Manager(ManagerLog):
         # V
         # processing and processing2result have the same keys
         # (it's redundant)
-        self.processing = set()
+        # self.processing = set()
         # this hash contains  job_id -> async result
         self.processing2result = {}
         # |
@@ -225,7 +224,7 @@ class Manager(ManagerLog):
             # if __debug__:
             #     assert_job_exists(t, self.db)
 
-            if t in self.processing:
+            if t in self.processing2result:
                 msg = f"Adding a job already in processing: {t!r}"
                 raise CompmakeBug(msg)
 
@@ -275,13 +274,14 @@ class Manager(ManagerLog):
 
         # ok, careful here, there might be jobs that are
         # already in processing
+        processing = set(self.processing2result)
 
-        self.done.update(targets_done - self.processing)
+        self.done.update(targets_done - processing)
 
-        todo_add = not_ready - self.processing
-        self.todo.update(not_ready - self.processing)
+        todo_add = not_ready - processing
+        self.todo.update(not_ready - processing)
         # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
-        ready_add = ready_todo - self.processing
+        ready_add = ready_todo - processing
         # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
 
         self.add_to_ready_(ready_add)
@@ -358,7 +358,7 @@ class Manager(ManagerLog):
             ("blocked", self.blocked),
             ("failed", self.failed),
             ("ready", self.ready_todo),
-            ("processing", self.processing),
+            ("processing", set(self.processing2result)),
             ("proc2result", self.processing2result),
         ]
 
@@ -375,9 +375,15 @@ class Manager(ManagerLog):
 
         interface = self.instance_job(job_id)
 
-        self.processing.add(job_id)
+        # self.processing.add(job_id)
 
-        self.processing2result[job_id] = ProcessingDetails(time.time(), interface)
+        job = get_job(job_id, self.db)
+        if job.needs_context:
+            timeout = self.context.get_compmake_config("job_timeout_dynamic")
+        else:
+            timeout = self.context.get_compmake_config("job_timeout")
+
+        self.processing2result[job_id] = ProcessingDetails(time.time(), interface, timeout=timeout)
         publish(self.context, "manager-job-processing", job_id=job_id)
 
     async def check_job_finished(self, job_id: CMJobID, check_mem_etc: bool) -> bool:
@@ -399,7 +405,7 @@ class Manager(ManagerLog):
         def bug() -> None:
             self._raise_bug("check_job_finished", job_id)
 
-        if job_id not in self.processing:
+        if job_id not in self.processing2result:
             bug()
 
         proc_details = self.processing2result[job_id]
@@ -411,8 +417,7 @@ class Manager(ManagerLog):
         if check_mem_etc:
 
             if time_passed > 5:
-
-                job_timeout = self.context.get_compmake_config("job_timeout")
+                job_timeout = proc_details.timeout
                 GRACE_PERIOD = 0
                 if job_timeout is not None:
                     if time_passed > job_timeout + GRACE_PERIOD:
@@ -496,7 +501,7 @@ class Manager(ManagerLog):
             await self.host_failed(job_id)
             publish(self.context, "manager-host-failed", host=e.host, job_id=job_id, reason=e.reason, bt=e.bt)
             return True
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             # self.job_failed(job_id) # not sure
             # No, don't mark as failed
             # (even though knowing where it was interrupted was good)
@@ -577,7 +582,7 @@ class Manager(ManagerLog):
 
                     if parent in self.done:
                         msg = f" parent {job_id} of {parent} is already done?"
-                        warnings.warn("not sure of this...")
+                        warnings.warn(msg)
                         # raise CompmakeBug(msg)#
 
                     self.all_targets.remove(parent)
@@ -621,7 +626,7 @@ class Manager(ManagerLog):
 
         # from .ui.visualization import error
         # error('Host failed, rescheduling job %r.' % job_id)
-        self.processing.remove(job_id)
+        # self.processing.remove(job_id)
         del self.processing2result[job_id]
         # rescheduling
         self.add_to_ready_({job_id})
@@ -638,13 +643,12 @@ class Manager(ManagerLog):
         mark any parent as failed as well."""
         self.log("job_failed", job_id=job_id, deleted_jobs=deleted_jobs)
         self.check_invariants()
-        assert job_id in self.processing
+        assert job_id in self.processing2result
 
         for _ in deleted_jobs:
             self.job_is_deleted(_)
 
         self.failed.add(job_id)
-        self.processing.remove(job_id)
         del self.processing2result[job_id]
 
         self.check_invariants()
@@ -674,9 +678,8 @@ class Manager(ManagerLog):
         self.log("job_succeeded", job_id=job_id)
         self.check_invariants()
         publish(self.context, "manager-job-done", job_id=job_id)
-        assert job_id in self.processing
+        assert job_id in self.processing2result
 
-        self.processing.remove(job_id)
         del self.processing2result[job_id]
         self.done.add(job_id)
         self.done_by_me.add(job_id)
@@ -691,14 +694,14 @@ class Manager(ManagerLog):
         # self.log("considering parents", parents_todo=L(parents_todo))
         for opportunity in parents_todo:
             # print('parent %r in todo' % (opportunity))
-            if opportunity in self.processing:
+            if opportunity in self.processing2result:
                 msg = f"Parent {opportunity!r} of {job_id!r} already processing"
                 if CompmakeConstants.try_recover:
                     print(msg)
                     continue
                 else:
                     raise CompmakeBug(msg)
-            assert opportunity not in self.processing
+            assert opportunity not in self.processing2result
 
             # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
 
@@ -797,7 +800,7 @@ class Manager(ManagerLog):
         #         self.show_other_stats()
 
         if False:
-            jobs = tuple(self.processing)
+            jobs = tuple(self.processing2result)
             tasks = []
             for job_id in jobs:
                 proc_details = self.processing2result[job_id]
@@ -809,12 +812,11 @@ class Manager(ManagerLog):
 
         # We make a copy because processing is updated during the loop
         result = set()
-        for job_id in self.processing.copy():
+        for job_id in set(self.processing2result):
             received = await self.check_job_finished(job_id, check_mem_etc=expensive_checks)
             if received:
 
                 result.add(job_id)
-                # return result  # TMP
             self.check_invariants()
         return result
 
@@ -963,7 +965,7 @@ class Manager(ManagerLog):
                 failed=self.failed,
                 blocked=self.blocked,
                 ready=self.ready_todo,
-                processing=self.processing,
+                processing=set(self.processing2result),
             )
             return True
 
@@ -982,7 +984,7 @@ class Manager(ManagerLog):
             started_at = time.time()
             exit_at = started_at + self.max_time if self.max_time is not None else None
 
-            while self.todo or self.ready_todo or self.processing:
+            while self.todo or self.ready_todo or self.processing2result:
 
                 if exit_at is not None and time.time() > exit_at:
                     self.sti.logger.error("Time limit reached.")
@@ -994,7 +996,7 @@ class Manager(ManagerLog):
                 self.check_invariants()
                 # either something ready to do, or something doing
                 # otherwise, we are completely blocked
-                if (not self.ready_todo) and (not self.processing):
+                if (not self.ready_todo) and (not self.processing2result):
                     msg = (
                         "Nothing ready to do, and nothing cooking. "
                         "This probably means that the Compmake job "
@@ -1021,7 +1023,7 @@ class Manager(ManagerLog):
 
                 publish(self.context, "manager-wait", reasons=waiting_on)
 
-                if self.ready_todo and not self.processing:
+                if self.ready_todo and not self.processing2result:
                     # We time out as there are no resources
                     publish(self.context, "manager-phase", phase="wait")
 
@@ -1039,7 +1041,7 @@ class Manager(ManagerLog):
 
                 self.check_invariants()
 
-                await asyncio.sleep(0.01)  # TMP
+                # await asyncio.sleep(0.01)  # TMP
 
             dt = duration_compact(time.time() - started_at)
             logger.debug(f"processing loop finished after {dt}")
@@ -1053,7 +1055,8 @@ class Manager(ManagerLog):
             # end while
             assert not self.todo
             assert not self.ready_todo
-            assert not self.processing
+            assert not self.processing2result
+
             self.check_invariants()
 
             self.publish_progress()
@@ -1072,7 +1075,7 @@ class Manager(ManagerLog):
                 failed=self.failed,
                 ready=self.ready_todo,
                 blocked=self.blocked,
-                processing=self.processing,
+                processing=self.processing2result,
             )
             # logger.info("Manager finished.")
             return True
@@ -1096,7 +1099,7 @@ class Manager(ManagerLog):
             blocked=self.blocked,
             failed=self.failed,
             ready=self.ready_todo,
-            processing=self.processing,
+            processing=self.processing2result,
             deleted=self.deleted,
             done_by_me=self.done_by_me,
         )
@@ -1111,7 +1114,7 @@ class Manager(ManagerLog):
             failed=self.failed,
             ready=self.ready_todo,
             deleted=self.deleted,
-            processing=self.processing,
+            processing=set(self.processing2result),
         )
         s = ""
         for t in sorted(lists):
@@ -1140,7 +1143,7 @@ class Manager(ManagerLog):
             blocked=self.blocked,
             failed=self.failed,
             ready_todo=self.ready_todo,
-            processing=self.processing,
+            processing=set(self.processing2result),
             deleted=self.deleted,
         )
 

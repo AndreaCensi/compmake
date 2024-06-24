@@ -99,7 +99,7 @@ class StorageFilesystem:
             cur.close()
             t2 = time.perf_counter()
             total = t2 - t0
-            if total > 0.05 or self.ncursor % 10000 == 0:
+            if total > 0.05:  # or self.ncursor % 10000 == 0:
                 logger.debug(
                     f"\nsqlite3: {self.ncursor} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
                     f"{(t2 - t1) * 1000:.3f}ms for {desc}\n"

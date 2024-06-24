@@ -147,6 +147,13 @@ add_config_switch(
     section=CONFIG_GENERAL,
 )
 
+add_config_switch(
+    "job_timeout_dynamic",
+    3600,
+    desc="Maximum job timeout for dynamic jobs (seconds).",
+    section=CONFIG_GENERAL,
+)
+
 psystem = platform.system()
 defaults = {
     "Linux": "spawn",  # spawn is the cleanest
