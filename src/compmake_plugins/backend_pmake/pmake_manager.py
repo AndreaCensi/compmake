@@ -90,6 +90,7 @@ class PmakeManager(Manager):
 
         self.memory_check_interval = EveryOnceInAWhile(5)
         self.memory_usage_last = get_memory_usage()
+        self.started_at = time.time()
 
     def get_memory_usage(self):
         if self.memory_check_interval.now():
@@ -240,7 +241,11 @@ class PmakeManager(Manager):
             lines.append(line)
 
         table = format_rows_as_table(lines, style="lefts")
-        return table
+
+        dt = time.time() - self.started_at
+        s = f"Update at {duration_compact(dt)}\n"
+
+        return s + table
 
     def show_other_stats(self) -> None:
         logger.info(
