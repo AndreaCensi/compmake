@@ -676,8 +676,10 @@ class PmakeResult(AsyncResultInterface):
             # curs = size_compact(mem_stats[1])
             # mem_stats_s = f'memory stats: max: {maxs} cur: {curs}'
             try:
-                loop = asyncio.get_event_loop()
-                self.result = await loop.run_in_executor(None, lambda: self.result_queue.get(block=True, timeout=timeout))
+                # loop = asyncio.get_event_loop()
+                # self.result = await loop.run_in_executor(None, lambda: self.result_queue.get(block=True, timeout=timeout))
+
+                self.result = self.result_queue.get(block=True, timeout=timeout)
 
                 # self.result = self.result_queue.get(block=True, timeout=timeout)
             except ValueError:

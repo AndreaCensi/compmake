@@ -416,7 +416,7 @@ class Manager(ManagerLog):
 
         if check_mem_etc:
 
-            if time_passed > 5:
+            if time_passed > 1:
                 job_timeout = proc_details.timeout
                 GRACE_PERIOD = 0
                 if job_timeout is not None:
@@ -435,13 +435,13 @@ class Manager(ManagerLog):
 
                 max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
                 max_job_mem = max_job_mem_GB * 1024**3
-                cur_mem = await async_result.get_memory_usage(max_delay=3.0)
+                cur_mem = await async_result.get_memory_usage(max_delay=1.0)
                 if cur_mem > max_job_mem:
+                    self.cancel_job(job_id, CANCEL_REASON_OOM)
+
                     s = f"OOM ( {size_compact(cur_mem)} > {size_compact(max_job_mem)}  )"
                     msg = f"Job {job_id}: {s}"
                     await self.context.write_message_console(msg)
-
-                    self.cancel_job(job_id, CANCEL_REASON_OOM)
 
                     mark_as_oom(job_id, self.context.get_compmake_db(), cur_mem, s, backtrace="")
                     self.job_failed(job_id, deleted_jobs=())
