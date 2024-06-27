@@ -364,7 +364,7 @@ async def pmake_worker(
                 log("putting result in result_queue..")
                 t01 = time.time()
                 event_queue.put_nowait(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id))
-                result_queue.put(x, block=False)
+                result_queue.put(x, block=True)
                 log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
                 if signal_queue is not None:
                     log("putting result in signal_queue..")
