@@ -64,7 +64,8 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optio
     job = get_job(job_id, db=db)
     # TODO: make it work in Python3K
     print(bold("Job ID:") + f"{job_id}")
-    print(bold("Defined by:") + f"{job.defined_by}")
+    defined_by = "".join(f"- {x}\n" for x in job.defined_by)
+    print(bold("Defined by:\n") + defined_by)
     # logger.info(job=job.__dict__)
     print(bold("needs_context:") + f"{job.needs_context}")
 
