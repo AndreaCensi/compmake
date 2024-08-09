@@ -2,6 +2,25 @@
 name = "compmake-z7"
 version = "7.2"
 authors = [{name = "Andrea Censi", email = "AndreaCensi@users.noreply.github.com"}]
+dependencies = [
+    "PyYAML",
+    "Pympler",
+    "SystemCmd-z7",
+    "coverage",
+    "dill",
+    "lxml",
+    "networkx",
+    "numpy",
+    "psutil",
+    "pyreadline",
+    "setproctitle",
+    "zuper-commons-z7",
+    "zuper-graphs-z7",
+    "zuper-typing-z7",
+    "zuper-utils-asyncio-z7",
+    "zuper-utils-timing-z7",
+    "zuper-zapp-interfaces-z7",
+    "zuper-zapp-z7",]
 
 [tool.poetry]
 name = "compmake-z7"
@@ -39,6 +58,7 @@ zuper-zapp-interfaces-z7 = "*"
 zuper-zapp-z7 = "*"
 
 [tool.poetry.group.test.dependencies]
+python = "^3.12"
 
 [tool.poetry.scripts]
 compmake = "compmake:main"
