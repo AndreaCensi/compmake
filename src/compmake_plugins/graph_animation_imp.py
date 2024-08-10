@@ -57,7 +57,7 @@ async def update_graph(context: Context, event: Event):
     cmd0 = [
         "dot",
         "-Tpng",
-        "-Gsize=%s,%s\!" % (size[0] / dpi, size[1] / dpi),
+        "-Gsize=%s,%s!" % (size[0] / dpi, size[1] / dpi),
         "-Gdpi=%s" % dpi,
         "-o" + png,
         filename,
