@@ -196,7 +196,7 @@ def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
             res = db[key]
     except Exception as e:
         msg = f"Could not load user object for job {job_id}"
-        from compmake import mark_as_failed
+        from . import mark_as_failed
 
         mark_as_failed(job_id, db, msg, traceback.format_exc())
         raise SerializationError(msg) from e

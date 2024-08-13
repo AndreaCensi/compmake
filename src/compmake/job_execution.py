@@ -69,8 +69,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         await context.write_message_console(f"Error: could not deserialize job {job_id!r}, perhaps remake parent {parent}")
 
         if False:
-
-            from compmake import mark_as_failed
+            from . import mark_as_failed
 
             msg = f"Could not deserialize child job {job_id!r}"
             mark_as_failed(parent, db, msg, traceback.format_exc())
