@@ -142,7 +142,10 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
         if cache.state in (Cache.FAILED, Cache.DONE):
             if cache.cputime_used is not None:
-                cp = my_percentile(cache.cputime_used, all_times)
+                if not all_times:
+                    cp = 50.0
+                else:
+                    cp = my_percentile(cache.cputime_used, all_times)
             else:
                 cp = 50.0
             pstats.by_job[job_id] = PersistentStatsOne(
@@ -155,7 +158,6 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
             )
 
     if total == 0:
-
         print(pad_to_screen("No jobs found."))
         return
 
@@ -224,7 +226,10 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
         speed_scores = duration_compact(speed_score)
         speed_scores = f"{speed_score:5.2f}"
 
-        compute_time_percentile = my_percentile(speed_score, all_times)
+        if not all_times:
+            compute_time_percentile = 50.0
+        else:
+            compute_time_percentile = my_percentile(speed_score, all_times)
 
         pstats.by_command[function_id] = PersistentStatsOne(
             prob_success=function_stats[Cache.DONE].njobs / t.njobs,
@@ -255,7 +260,6 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
 
 def my_percentile(speed_score: float, all_times: np.array) -> float:
-
     nlower = np.sum(all_times < speed_score)
     p = 100.0 * nlower / len(all_times)
     # nbigger = len([x for x in all_times if x > speed_score])
