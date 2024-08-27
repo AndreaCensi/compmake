@@ -142,7 +142,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
         if cache.state in (Cache.FAILED, Cache.DONE):
             if cache.cputime_used is not None:
-                if not all_times:
+                if not len(all_times):
                     cp = 50.0
                 else:
                     cp = my_percentile(cache.cputime_used, all_times)
@@ -226,7 +226,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
         speed_scores = duration_compact(speed_score)
         speed_scores = f"{speed_score:5.2f}"
 
-        if not all_times:
+        if not len(all_times):
             compute_time_percentile = 50.0
         else:
             compute_time_percentile = my_percentile(speed_score, all_times)
