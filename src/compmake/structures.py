@@ -60,12 +60,13 @@
 
 """
 
+import math
 import time
 from dataclasses import dataclass
 from typing import Any, Generic, Literal, NewType, Optional, TypeVar, Union
 
 from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
-from zuper_commons.types import TM, describe_value
+from zuper_commons.types import TM, describe_value, ZAssertionError
 from zuper_commons.ui import duration_compact
 from zuper_typing import debug_print
 from zuper_utils_timing import TimeInfo
@@ -551,6 +552,11 @@ class PersistentStatsOne:
     average_compute_time: float
     compute_time_percentile: float
     prob_timedout: float
+
+    def __post_init__(self):
+        for k, v in self.__dict__.items():
+            if math.isnan(v):
+                raise ZAssertionError(f"Got Nan for {k}", me=self)
 
 
 @dataclass

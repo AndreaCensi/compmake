@@ -2,7 +2,7 @@ import traceback
 
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
-from .actions import clean_other_jobs, interpret_commands
+from .actions import interpret_commands
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context

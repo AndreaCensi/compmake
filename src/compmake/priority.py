@@ -1,8 +1,10 @@
+import math
 import os
 from dataclasses import dataclass
 from typing import Any, Collection, Optional, cast
 
 from zuper_commons.fs import safe_pickle_load
+from zuper_commons.types import ZAssertionError
 from . import logger
 from .cachequerydb import CacheQueryDB
 from .structures import Cache, Job, PersistentStats
@@ -46,6 +48,11 @@ else:
 
 def compute_priority(job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB) -> float:
     res, how = compute_priority_(job_id=job_id, priorities=priorities, targets=targets, cq=cq)
+
+    if math.isnan(res):
+        logger.error(f"Got NaN for {job_id} {how}")
+        res = 0.0
+
     # if how != ['cached']:
     #     logger.info(f'Priority {res:5.2f} {job_id} {" ".join(how)}')
     return res
@@ -57,6 +64,12 @@ class StatsForPriority:
     prob_oom: float
     prob_timedout: float
     compute_time_percentile: float
+
+    # check that none of these are Nan
+    def __post_init__(self):
+        for k, v in self.__dict__.items():
+            if math.isnan(v):
+                raise ZAssertionError(f"Got Nan for {k}", me=self)
 
 
 def estimate_stats(job_id: CMJobID, job: Job, cache: Cache) -> StatsForPriority:
@@ -190,7 +203,7 @@ def compute_priority_(
         # priority = base_priority + sum(parents_priority)
 
     bonus_time = (100.0 - sfp.compute_time_percentile) / 100.0
-    priority = (base_priority) * (1 + sfp.prob_success) * (1 + bonus_time) + parent_bonus
+    priority = base_priority * (1.0 + sfp.prob_success) * (1 + bonus_time) + parent_bonus
     #
     # if pstats is not None:
     #     if job.command_desc in pstats.by_command:

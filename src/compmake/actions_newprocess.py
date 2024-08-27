@@ -2,11 +2,11 @@ import os
 from typing import cast
 
 from compmake_utils import safe_pickle_load
-from zuper_commons.fs import DirPath, RelDirPath, abspath, getcwd, join, mkdirs_thread_safe
+from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe, RelDirPath
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
-from . import ParmakeJobResult, logger
+from . import logger, ParmakeJobResult
 from .constants import CompmakeConstants
 from .exceptions import CompmakeBug, JobFailed
 from .result_dict import result_dict_check

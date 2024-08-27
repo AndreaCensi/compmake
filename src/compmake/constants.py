@@ -1,16 +1,16 @@
-__all__ = [
-    "CompmakeConstants",
-    "DefaultsToConfig",
-]
-
 import warnings
-from typing import ClassVar, Collection, Iterator, Literal, Protocol, TYPE_CHECKING, cast
+from typing import cast, ClassVar, Collection, Iterator, Literal, Protocol, TYPE_CHECKING
 
 from .types import CMJobID
 
 if TYPE_CHECKING:
     from .context import Context
     from .cachequerydb import CacheQueryDB
+
+__all__ = [
+    "CompmakeConstants",
+    "DefaultsToConfig",
+]
 
 
 class JobIterator(Protocol):

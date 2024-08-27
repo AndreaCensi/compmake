@@ -3,7 +3,7 @@ import inspect
 import traceback
 from typing import Any, Callable, Mapping, Optional, TypedDict
 
-from zuper_commons.types import TM, ZValueError, add_context, check_isinstance
+from zuper_commons.types import add_context, check_isinstance, TM, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
 from .context import Context

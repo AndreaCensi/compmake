@@ -6,32 +6,21 @@ import traceback
 from asyncio import CancelledError
 from contextlib import contextmanager
 from logging import Formatter
-from typing import (
-    Any,
-    Callable,
-    Collection,
-    Concatenate,
-    Iterator,
-    Optional,
-    ParamSpec,
-    TYPE_CHECKING,
-    TypeVar,
-    cast,
-)
+from typing import Any, Callable, cast, Collection, Concatenate, Iterator, Optional, ParamSpec, TYPE_CHECKING, TypeVar
 
-from compmake_utils import OutputCapture, interpret_strings_like, setproctitle, try_pickling
-from zuper_commons.types import ZAssertionError, ZValueError, check_isinstance, describe_type
-from zuper_utils_asyncio import SyncTaskInterface, is_this_task_cancelling, running_tasks
-from zuper_utils_timing import TimeInfo, new_timeinfo
+from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
+from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
+from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
+from zuper_utils_timing import new_timeinfo, TimeInfo
 from . import logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
-from .exceptions import CommandFailed, CompmakeBug, CompmakeException, UserError, job_failed_exc, job_interrupted_exc
+from .exceptions import CommandFailed, CompmakeBug, CompmakeException, job_failed_exc, job_interrupted_exc, UserError
 from .filesystem import StorageFilesystem
-from .helpers import UIState, get_commands
-from .job_execution import JobComputeResult, job_compute
+from .helpers import get_commands, UIState
+from .job_execution import job_compute, JobComputeResult
 from .parsing import parse_job_list
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
@@ -431,7 +420,6 @@ async def make(
     already = set(context.get_jobs_defined_in_this_session())
 
     if TMP_DISABLE_CAPTURE:
-
         logging.StreamHandler.emit = my_emit  # type: ignore
 
     def get_deleted_jobs() -> set[CMJobID]:

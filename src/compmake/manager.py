@@ -11,21 +11,21 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Collection, NoReturn, Optional, cast
+from typing import Any, cast, Collection, NoReturn, Optional
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
 from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import duration_compact, size_compact
-from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, my_create_task
+from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from . import logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
-from .constants import CANCEL_REASONS, CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CompmakeConstants
+from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
 from .context import Context
 from .events_structures import Event
-from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted, job_interrupted_exc
+from .exceptions import CompmakeBug, HostFailed, job_interrupted_exc, JobFailed, JobInterrupted
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
 from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED, EVENT_WORKER_JOB_FINISHED
@@ -329,7 +329,9 @@ class Manager(ManagerLog):
                 break
 
             job_id = self.next_job()
-            assert job_id in self.ready_todo
+            if job_id not in self.ready_todo:
+                msg = f"Job {job_id!r} not in ready_todo"
+                raise CompmakeBug(msg, ready=self.ready_todo, job_id=job_id)
 
             # self.log("chosen next_job", job_id=job_id)
             self.check_invariants()
@@ -452,7 +454,6 @@ class Manager(ManagerLog):
         try:
             # if not assume_ready:
             if not async_result.ready():
-
                 return False
 
             # if assume_ready:
@@ -815,7 +816,6 @@ class Manager(ManagerLog):
         for job_id in set(self.processing2result):
             received = await self.check_job_finished(job_id, check_mem_etc=expensive_checks)
             if received:
-
                 result.add(job_id)
             self.check_invariants()
         return result

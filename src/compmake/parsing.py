@@ -25,9 +25,9 @@
 
 import types
 from collections import namedtuple
-from typing import Any, Iterator, Optional, cast
+from typing import Any, cast, Iterator, Optional
 
-from zuper_commons.types import ZValueError, check_isinstance
+from zuper_commons.types import check_isinstance, ZValueError
 from .cachequerydb import CacheQueryDB
 from .constants import AliasT, CompmakeConstants
 from .context import Context
@@ -315,7 +315,6 @@ def jobs_exception(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
         cache = cq.get_job_cache(job_id)
         if cache.state == Cache.FAILED:
             if cache.is_oom() is None and cache.is_timed_out() is None and not cache.is_skipped_test():
-
                 yield job_id
 
 
