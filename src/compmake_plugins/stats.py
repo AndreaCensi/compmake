@@ -150,11 +150,11 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
             else:
                 cp = 50.0
             pstats.by_job[job_id] = PersistentStatsOne(
-                prob_success=1 if cache.state == Cache.DONE else 0,
-                prob_failure=1 if cache.state == Cache.FAILED else 0,
-                prob_timedout=1 if cache.is_timed_out() else 0,
-                prob_oom=1 if cache.is_oom() else 0,
-                average_compute_time=cache.cputime_used or 0,
+                prob_success=1.0 if cache.state == Cache.DONE else 0.0,
+                prob_failure=1.0 if cache.state == Cache.FAILED else 0.0,
+                prob_timedout=1.0 if cache.is_timed_out() else 0.0,
+                prob_oom=1.0 if cache.is_oom() else 0.0,
+                average_compute_time=cache.cputime_used or 0.0,
                 compute_time_percentile=cp,
             )
 
