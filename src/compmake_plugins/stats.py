@@ -58,9 +58,12 @@ class Stats:
         self.njobs += 1
         if cache.state == Cache.DONE:
             self.njobs_completed += 1
-            self.total_cpu += cache.cputime_used
-            self.total_wall += cache.walltime_used
+            self.total_cpu += cache.cputime_used or 0
+            self.total_wall += cache.walltime_used or 0
             self.overhead += cache.get_overhead()
+
+
+Outcomes = StateCode | Literal["all", "oom", "timedout", "exception", "skipped", "skipped-exception"]
 
 
 async def display_stats(job_list: Collection[CMJobID], context: Context, write: bool) -> None:
@@ -82,9 +85,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
     # initialize counters to 0
     states2count = dict(list(map(lambda x: (x, 0), states_order)))
 
-    Outcomes = StateCode | Literal["all", "oom", "timedout", "exception", "skipped", "skipped-exception"]
-
-    def empty_dict():
+    def empty_dict() -> dict[str, dict[Outcomes, Stats]]:
         return dict(list(map(lambda x: (x, Stats()), states_order)) + [("all", Stats())])
 
     function2state2count: dict[str, dict[Outcomes, Stats]] = defaultdict(empty_dict)
@@ -93,14 +94,14 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     pstats = PersistentStats(by_command={}, by_job={})
 
-    all_times = []
+    all_times0: list[float] = []
 
     for job_id in job_list:
         cache = cq.get_job_cache(job_id)
 
         if cache.cputime_used is not None:
-            all_times.append(cache.cputime_used)
-    all_times = np.array(all_times)
+            all_times0.append(cache.cputime_used)
+    all_times = np.array(all_times0)
 
     for job_id in job_list:
         cache = cq.get_job_cache(job_id)
@@ -198,7 +199,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     for i, function_id in enumerate(ordered):
         function_stats = function2state2count[function_id]
-        alls = []
+        alls: list[str] = []
         for state, desc in states:
             st = function_stats[state]
             s = f"{st.njobs:7d} {desc}"

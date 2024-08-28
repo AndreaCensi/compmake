@@ -12,7 +12,7 @@ __all__ = [
 debug_padding = False
 
 
-def pad_to_screen(s: str, pad=" ", last=None) -> str:
+def pad_to_screen(s: str, pad: str = " ", last: str | None = None) -> str:
     """
     Pads a string to the terminal size.
 
@@ -34,7 +34,9 @@ def check_not_bytes(x: str):
         raise Exception(msg)
 
 
-def pad_to_screen_length(s: str, desired_screen_length: int, pad=" ", last=None, align_right=False) -> str:
+def pad_to_screen_length(
+    s: str, desired_screen_length: int, pad: str = " ", last: str | None = None, align_right: bool = False
+) -> str:
     assert len(pad) == 1, pad
     """
         Pads a string so that it will appear of the given size
