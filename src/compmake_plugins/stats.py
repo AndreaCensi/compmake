@@ -153,7 +153,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
                 prob_failure=1 if cache.state == Cache.FAILED else 0,
                 prob_timedout=1 if cache.is_timed_out() else 0,
                 prob_oom=1 if cache.is_oom() else 0,
-                average_compute_time=cache.cputime_used,
+                average_compute_time=cache.cputime_used or 0,
                 compute_time_percentile=cp,
             )
 
@@ -196,13 +196,6 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     ordered = sorted(function2count, key=sorting_key)
 
-    # all_times = []
-    # for function_id in ordered:
-    #     t = function2count[function_id]
-    #     speed_score = t.total_cpu / (1 + t.njobs_completed)
-    #     all_times.append(speed_score)
-
-    # percentiles = compute_all_percentiles(all_times)
     for i, function_id in enumerate(ordered):
         function_stats = function2state2count[function_id]
         alls = []

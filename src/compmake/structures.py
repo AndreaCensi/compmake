@@ -555,6 +555,8 @@ class PersistentStatsOne:
 
     def __post_init__(self):
         for k, v in self.__dict__.items():
+            if v is None:
+                raise ZAssertionError(f"Got None for {k}", me=self)
             if math.isnan(v):
                 raise ZAssertionError(f"Got Nan for {k}", me=self)
 
