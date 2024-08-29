@@ -46,7 +46,6 @@
     "compmake.actions_newprocess",
     "compmake.cachequerydb",
     "compmake.colored",
-    "compmake.coloredlog",
     "compmake.commands",
     "compmake.commands_html",
     "compmake.config_html",
