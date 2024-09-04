@@ -11,7 +11,7 @@ from multiprocessing import Queue
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, Callable, ClassVar, Collection, NewType, Optional, cast
+from typing import Any, Callable, cast, ClassVar, Collection, NewType, Optional
 
 import psutil
 from psutil import NoSuchProcess
@@ -24,13 +24,13 @@ from compmake import (
     Manager,
     publish,
 )
-from compmake.constants import CANCEL_REASONS, CANCEL_REASON_HOST_FAILED
+from compmake.constants import CANCEL_REASON_HOST_FAILED, CANCEL_REASONS
 from compmake_utils import get_memory_usage
 from zuper_commons.fs import join, joinf, make_sure_dir_exists
 from zuper_commons.text import format_rows_as_table
 from zuper_commons.types import ZAssertionError
 from zuper_commons.ui import color_gray, color_orange, color_red, duration_compact, size_compact
-from zuper_utils_asyncio import EveryOnceInAWhile, SyncTaskInterface, async_errors, my_create_task
+from zuper_utils_asyncio import async_errors, EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from . import logger
 from .pmakesub import PmakeSub, PossibleFuncs
 
@@ -163,7 +163,6 @@ class PmakeManager(Manager):
     async def show_processing_status(self, interval: float = 5) -> None:
 
         while True:
-
             table = self.get_status_str()
             await self.context.write_message_console(table)
 
@@ -301,7 +300,6 @@ class PmakeManager(Manager):
             nready_to_get = 0
             for k, v in self.subs.items():
                 if v.is_processing() and v.last.result is not None:
-
                     nready_to_get += 1
             # logger.info(self.get_status_str())
             # if self.sub_aborted:

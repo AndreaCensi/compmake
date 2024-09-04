@@ -1,7 +1,7 @@
 import sys
 from io import StringIO
 
-from compmake import Cache, Context, Event, compmake_colored, register_handler, ui_message
+from compmake import Cache, compmake_colored, Context, Event, register_handler, ui_message
 from compmake_utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
 
 # sys.stdout will be changed later
@@ -282,7 +282,7 @@ def color_ready(s):
     return compmake_colored(s, **Cache.styles["ready"])
 
 
-do_it = False  # TMP
+do_it = True
 
 
 async def handle_job_done(context: Context, event: Event):
