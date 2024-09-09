@@ -29,7 +29,8 @@ async def job_defined(context: Context, event: Event):
         return
     global counter
     counter += 1
-    console_write("compmake: defining job #%d %s" % (counter, event.kwargs["job_id"]))
+    await context.write_message_console(f"compmake: defining job {counter:d} {event.kwargs['job_id']}\n")
+    # console_write(f"compmake: defining job #{counter:d} {event.kwargs['job_id']}\n")
 
 
 register_handler("job-redefined", job_redefined)

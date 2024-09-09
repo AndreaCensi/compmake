@@ -365,7 +365,7 @@ async def make(
 
     init_progress_tracking(progress_callback)
 
-    disable_capture = True
+    disable_capture = False
 
     # if disable_capture:
     #     logger.warning("Capture is disabled")
@@ -393,7 +393,7 @@ async def make(
     # TODO: add whether we should just capture and not echo
     old_emit = logging.StreamHandler.emit
 
-    TMP_DISABLE_CAPTURE = True
+    TMP_DISABLE_CAPTURE = False
 
     class Store:
         nhidden = 0
