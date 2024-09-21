@@ -50,7 +50,7 @@ For example:
 async def main(zenv: ZappEnv) -> ExitCode:
     # async with setup_environment2(sti, os.getcwd()):
     res = await compmake_main(zenv.sti, args=zenv.args)
-    logger.info("Compmake exiting.")
+    # logger.info("Compmake exiting.")
 
     return res
 
