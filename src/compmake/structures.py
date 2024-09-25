@@ -63,10 +63,10 @@
 import math
 import time
 from dataclasses import dataclass
-from typing import Any, Generic, Literal, NewType, Optional, TypeVar, Union
+from typing import Any, Literal, NewType, Optional, Union
 
-from compmake_utils.pickle_frustration import PickleContextDesc, pickle_main_context_save
-from zuper_commons.types import TM, describe_value, ZAssertionError
+from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
+from zuper_commons.types import describe_value, TM, ZAssertionError
 from zuper_commons.ui import duration_compact
 from zuper_typing import debug_print
 from zuper_utils_timing import TimeInfo
@@ -87,11 +87,9 @@ __all__ = [
     "timing_summary",
 ]
 
-X = TypeVar("X")
-
 
 @dataclass
-class Promise(Generic[X]):
+class Promise[X]:
     job_id: CMJobID
 
 

@@ -7,10 +7,7 @@ if TYPE_CHECKING:
     from .context import Context
     from .cachequerydb import CacheQueryDB
 
-__all__ = [
-    "CompmakeConstants",
-    "DefaultsToConfig",
-]
+__all__ = ["CANCEL_REASON_OOM", "CANCEL_REASON_TIMEOUT", "CompmakeConstants", "DefaultsToConfig"]
 
 
 class JobIterator(Protocol):
