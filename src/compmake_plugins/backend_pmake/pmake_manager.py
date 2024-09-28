@@ -114,7 +114,7 @@ class PmakeManager(Manager):
             logger.warning(f"Using 'fork' on {platform.system()} is unsafe")
         self.ctx = multiprocessing.get_context(use)
 
-        self.event_queue = self.ctx.Queue(1000)
+        self.event_queue = self.ctx.Queue(10000)
 
         self.task_pump = my_create_task(self.event_pump(), "event_pump")
 
@@ -454,12 +454,13 @@ class PmakeManager(Manager):
         # await self.context.write_message_console(msg)
         return name
 
+    @async_errors
     async def event_pump(self) -> None:
         while True:
             try:
                 loop = asyncio.get_event_loop()
                 timeout = 1
-                event = await loop.run_in_executor(None, self.event_queue.get, timeout)  # @UndefinedVariable
+                event = await loop.run_in_executor(None, self.event_queue.get, True, timeout)  # @UndefinedVariable
                 # if 'worker-exit' in event.name:
                 #     logger.debug(event=event)
                 publish(self.context, event.name, **event.kwargs)

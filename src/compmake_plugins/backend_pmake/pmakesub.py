@@ -269,7 +269,6 @@ def at_exit_delete(proc: Process) -> None:
 
 
 def _format_dt(dt: float, reference: Optional[float] = None):
-
     s = f"{duration_compact(dt):10}"
     if reference is not None and reference > dt > 0:
         perc = 100 * dt / reference
@@ -363,7 +362,7 @@ async def pmake_worker(
             def put_result(x: ResultDict) -> float:
                 log("putting result in result_queue..")
                 t01 = time.time()
-                event_queue.put_nowait(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id))
+                event_queue.put(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id))
                 result_queue.put(x, block=True)
                 log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
                 if signal_queue is not None:
@@ -471,7 +470,7 @@ async def pmake_worker(
                     log(f"got job: {job} in {time_to_get_job:.2f} seconds")
 
                     job_id, function_name, arguments = job
-                    event_queue.put_nowait(Event("worker-job-started", worker=name, job_id=job_id))
+                    event_queue.put(Event("worker-job-started", worker=name, job_id=job_id))
 
                     arguments += (event_queue,)
                     funcs: dict[str, Any] = {
