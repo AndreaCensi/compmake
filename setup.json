@@ -25,7 +25,8 @@
   "entry_points": {
     "console_scripts": [
       "compmake = compmake:main",
-      "compmake-profile = compmake:compmake_profile_main"
+      "compmake-profile = compmake:compmake_profile_main",
+      "compmake-tracemalloc = compmake:compmake_tracemalloc_main"
     ]
   },
   "zip_safe": true,

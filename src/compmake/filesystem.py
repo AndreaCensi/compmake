@@ -396,6 +396,11 @@ def create_scripts(basepath: DirPath) -> None:
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
+    s = f"#!/bin/bash\ncompmake-tracemalloc {basepath} $* \n"
+    f = join(basepath, "tracemalloc")
+    write_ustring_to_utf8_file(s, f, quiet=True)
+    chmod_plus_x(f)
+
     s = f"#!/bin/bash\nPYTHONOPTIMIZE=1 compmake-profile {basepath} $* \n"
     f = join(basepath, "profile-optimize")
     write_ustring_to_utf8_file(s, f, quiet=True)

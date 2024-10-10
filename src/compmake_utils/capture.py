@@ -85,7 +85,7 @@ class OutputCapture:
         publish_stderr: Callable[[list[str]], None],
     ):
         self.prefix = prefix
-        sys.stderr.write(f"OutputCapture({self.prefix!r})\n")
+        # sys.stderr.write(f"OutputCapture({self.prefix!r})\n")
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
 
@@ -108,7 +108,7 @@ class OutputCapture:
     def deactivate(self) -> None:
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
-        sys.stderr.write(f"OutputCapture({self.prefix!r}): deactivatd \n")
+        # sys.stderr.write(f"OutputCapture({self.prefix!r}): deactivatd \n")
 
     def get_logged_stdout(self) -> str:
         return self.stdout_replacement.get_value_text_type()  # buffer.getvalue()

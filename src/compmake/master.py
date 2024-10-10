@@ -1,10 +1,12 @@
 import cProfile
+import linecache
 import os
 import pstats
 import resource
 import subprocess
 import sys
 import traceback
+import tracemalloc
 from asyncio import CancelledError
 from optparse import OptionParser
 from typing import Optional, cast
@@ -31,6 +33,7 @@ from .types import CMJobID
 __all__ = [
     "compmake_main",
     "compmake_profile_main",
+    "compmake_tracemalloc_main",
     "main",
 ]
 
@@ -80,6 +83,7 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None
     parser = OptionParser(version=__version__, usage=usage)
 
     parser.add_option("--profile", default=False, action="store_true", help="Use Python profiler")
+    parser.add_option("--tracemalloc", default=False, action="store_true", help="Use tracemalloc memory profiler")
 
     parser.add_option("--contracts", default=False, action="store_true", help="Activate PyContracts")
     parser.add_option("--gui", default=False, action="store_true", help="Use text gui")
@@ -202,26 +206,44 @@ async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None
             # sys.exit(retcode)
             return cast(ExitCode, retcode)
 
-    if not options.profile:
-        try:
+    try:
+
+        if options.profile:
+            # XXX: change variables
+            import cProfile
+
+            cProfile.runctx("await go(context)", globals(), locals(), "out/compmake.profile")
+            import pstats
+
+            p = pstats.Stats("out/compmake.profile")
+            n = 50
+            p.sort_stats("cumulative").print_stats(n)
+            p.sort_stats("time").print_stats(n)
+
+            return ExitCode.OK
+        elif options.tracemalloc:
+            import tracemalloc
+
+            tracemalloc.start()
+            try:
+                return await go(context)
+
+            finally:
+
+                snapshot = tracemalloc.take_snapshot()
+                top_stats = snapshot.statistics("lineno")
+
+                print("[ Top 10 ]")
+                for stat in top_stats[:10]:
+                    print(stat)
+
+        else:
+
             return await go(context2=context)
-        finally:
-            # logger.info("Closing context.")
-            await context.aclose()
-            # logger.info("Closed context.")
-    else:
-        # XXX: change variables
-        import cProfile
-
-        cProfile.runctx("await go(context)", globals(), locals(), "out/compmake.profile")
-        import pstats
-
-        p = pstats.Stats("out/compmake.profile")
-        n = 50
-        p.sort_stats("cumulative").print_stats(n)
-        p.sort_stats("time").print_stats(n)
-
-        return ExitCode.OK
+    finally:
+        # logger.info("Closing context.")
+        await context.aclose()
+        # logger.info("Closed context.")
 
 
 def write_atomic(filename: FilePath, contents: str):
@@ -275,7 +297,7 @@ def compmake_profile_main() -> ExitCode:
     db = StorageFilesystem(storage)  # OK: profile
     job = get_job(job_id, db)
     command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
-    logger.info(job=job)
+    # logger.info(job=job)
     if job.needs_context:
         msg = "Cannot profile a job that needs context."
         raise ZException(msg)
@@ -303,3 +325,105 @@ def compmake_profile_main() -> ExitCode:
         subprocess.check_call(command)
 
     return ExitCode.OK
+
+
+def compmake_tracemalloc_main() -> ExitCode:
+    args = sys.argv[1:]
+    logger.info("args: %s" % args)
+    storage = cast(DirPath, args[0])
+    job_id = cast(CMJobID, args[1])
+
+    db = StorageFilesystem(storage)  # OK: profile
+    job = get_job(job_id, db)
+    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
+    # logger.info(job=job)
+    if job.needs_context:
+        msg = "Cannot profile a job that needs context."
+        raise ZException(msg)
+    from guppy import hpy
+
+    hp = hpy()
+    hp.setref()
+    heap1 = hp.heap()
+    print(heap1.bytype)
+    try:
+        large_list = [i for i in range(1000000)]  # Line A
+        another_list = [i * 2 for i in range(500000)]  # Line B
+        text = " " * 1000000  # Line C
+        del text
+        del large_list
+        del another_list
+        _user_object = command(*args, **kwargs)
+
+    finally:
+        heap2 = hp.heap()
+
+        print(heap2.bytype)
+        # print("Memory allocations by frame (line of code):")
+        # for item in by_frame[:10]:
+        #     print(item)
+        # Compare snapshots
+        diff = heap2 - heap1
+        print(diff)
+    return ExitCode.OK
+
+
+def compmake_tracemalloc_main_old() -> ExitCode:
+    args = sys.argv[1:]
+    logger.info("args: %s" % args)
+    storage = cast(DirPath, args[0])
+    job_id = cast(CMJobID, args[1])
+
+    db = StorageFilesystem(storage)  # OK: profile
+    job = get_job(job_id, db)
+    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
+    # logger.info(job=job)
+    if job.needs_context:
+        msg = "Cannot profile a job that needs context."
+        raise ZException(msg)
+
+    import tracemalloc
+
+    tracemalloc.start()
+    try:
+        _user_object = command(*args, **kwargs)
+
+    finally:
+        current, peak = tracemalloc.get_traced_memory()
+        print(f"Current memory usage: {current / 1024 / 1024:.2f} MB")
+        print(f"Peak memory usage: {peak / 1024 / 1024:.2f} MB")
+
+        snapshot = tracemalloc.take_snapshot()
+        # top_stats = snapshot.statistics('lineno')
+
+        # print("[ Top 10 ]")
+        # for stat in top_stats[:20]:
+        #     print(stat)
+
+        display_top(snapshot, limit=100)
+    return ExitCode.OK
+
+
+def display_top(snapshot, key_type="lineno", limit: int = 10):
+    snapshot = snapshot.filter_traces(
+        (
+            tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+            tracemalloc.Filter(False, "<unknown>"),
+        )
+    )
+    top_stats = snapshot.statistics(key_type)
+
+    print("Top %s lines" % limit)
+    for index, stat in enumerate(top_stats[:limit], 1):
+        frame = stat.traceback[0]
+        print("#%s: %s:%s: %.1f KiB" % (index, frame.filename, frame.lineno, stat.size / 1024))
+        line = linecache.getline(frame.filename, frame.lineno).strip()
+        if line:
+            print("    %s" % line)
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print("%s other: %.1f KiB" % (len(other), size / 1024))
+    total = sum(stat.size for stat in top_stats)
+    print("Total allocated size: %.1f KiB" % (total / 1024))

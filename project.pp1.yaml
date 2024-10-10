@@ -31,6 +31,7 @@ tests_require: []
 console_scripts:
   compmake: compmake:main
   compmake-profile: compmake:compmake_profile_main
+  compmake-tracemalloc: compmake:compmake_tracemalloc_main
 
 nose:
   modules:

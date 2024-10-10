@@ -17,6 +17,7 @@ from .types import CMJobID
 __all__ = [
     "JobCompute",
     "JobComputeResult",
+    "get_cmd_args_kwargs",
     "job_compute",
 ]
 
