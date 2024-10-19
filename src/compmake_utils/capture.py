@@ -90,7 +90,7 @@ class OutputCapture:
         self.old_stderr = sys.stderr
 
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
-
+        prefix = ""  # TMP # XXX: this is a hack, the prefix is the job name
         # FIXME: perhaps we should use compmake_colored
         t1 = lambda s: "%s|%s" % (termcolor_colored(prefix, "white", attrs=["dark"]), s)
         t2 = lambda s: RESET + pad_to_screen(t1(s))

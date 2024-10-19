@@ -405,3 +405,8 @@ def create_scripts(basepath: DirPath) -> None:
     f = join(basepath, "profile-optimize")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
+
+    s = f"#!/bin/bash\nPYTHONOPTIMIZE=1 memray run compmake-profile {basepath} $* \n"
+    f = join(basepath, "cm-memray")
+    write_ustring_to_utf8_file(s, f, quiet=True)
+    chmod_plus_x(f)

@@ -8,8 +8,11 @@ import sys
 import traceback
 import tracemalloc
 from asyncio import CancelledError
+from io import StringIO
 from optparse import OptionParser
+from pstats import f8, func_std_string
 from typing import Optional, cast
+import re
 
 from compmake_utils import setproctitle
 from zuper_commons.cmds import ExitCode
@@ -307,11 +310,20 @@ def compmake_profile_main() -> ExitCode:
         with profiler:
             _user_object = command(*args, **kwargs)
     finally:
-        p = pstats.Stats(profiler)
+        # p = pstats.Stats(profiler)
+        p = CustomStats(profiler)
         n = 50
 
         p.sort_stats("cumulative").print_stats(n)
         p.sort_stats("time").print_stats(n)
+        #
+        # s = io.getvalue()
+        # # replace all instances of digits/digits with the first part
+        #
+        # new_text = re.sub(r'\b(\d+)/\d+\b', r'\1', s)
+
+        # print(new_text)
+
         fn = f"{job_id}.profile"
         profiler.dump_stats(fn)
         logger.info(f"Wrote profile to {fn}")
@@ -427,3 +439,28 @@ def display_top(snapshot, key_type="lineno", limit: int = 10):
         print("%s other: %.1f KiB" % (len(other), size / 1024))
     total = sum(stat.size for stat in top_stats)
     print("Total allocated size: %.1f KiB" % (total / 1024))
+
+
+import pstats
+import sys
+
+
+class CustomStats(pstats.Stats):
+
+    def print_line(self, func):  # hack: should print percentages
+        cc, nc, tt, ct, callers = self.stats[func]
+        c = str(nc)
+        # if nc != cc:
+        #     c = c + '/' + str(cc)
+        print(c.rjust(9), end=" ", file=self.stream)
+        print(f8(tt), end=" ", file=self.stream)
+        if nc == 0:
+            print(" " * 8, end=" ", file=self.stream)
+        else:
+            print(f8(tt / nc), end=" ", file=self.stream)
+        print(f8(ct), end=" ", file=self.stream)
+        if cc == 0:
+            print(" " * 8, end=" ", file=self.stream)
+        else:
+            print(f8(ct / cc), end=" ", file=self.stream)
+        print(func_std_string(func), file=self.stream)
