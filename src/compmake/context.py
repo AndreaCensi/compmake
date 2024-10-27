@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Collection
 from typing import (
     Any,
-    Callable,
-    Collection,
     Concatenate,
-    Optional,
     ParamSpec,
     TYPE_CHECKING,
     TypeVar,
@@ -32,8 +30,8 @@ class JobInterface(ABC):
         self,
         f: "Callable[Concatenate[JobInterface, P], X]",
         *args: P.args,
-        job_id: Optional[str] = None,
-        command_name: Optional[str] = None,
+        job_id: str | None = None,
+        command_name: str | None = None,
         **kwargs: P.kwargs,
     ) -> "Promise[X]": ...
 
@@ -42,8 +40,8 @@ class JobInterface(ABC):
         self,
         command_: Callable[P, X],
         *args: P.args,
-        command_name: Optional[str] = None,
-        job_id: Optional[str] = None,
+        command_name: str | None = None,
+        job_id: str | None = None,
         **kwargs: P.kwargs,
     ) -> "Promise[X]": ...
 
@@ -72,7 +70,7 @@ class Context(JobInterface, ABC):
     def get_comp_prefix(self) -> str: ...
 
     @abstractmethod
-    def comp_prefix(self, prefix: Optional[str]) -> None: ...
+    def comp_prefix(self, prefix: str | None) -> None: ...
 
     #
     # @abstractmethod
@@ -81,7 +79,7 @@ class Context(JobInterface, ABC):
     #
 
     @abstractmethod
-    async def comp_store(self, x: object, job_id: Optional[str] = None) -> Promise: ...
+    async def comp_store(self, x: object, job_id: str | None = None) -> Promise: ...
 
     @abstractmethod
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: list[str]) -> None: ...
@@ -105,7 +103,7 @@ class Context(JobInterface, ABC):
     async def write_message_console(self, s: str) -> None: ...
 
     @abstractmethod
-    async def set_status_line(self, s: Optional[str]) -> None: ...
+    async def set_status_line(self, s: str | None) -> None: ...
 
     @abstractmethod
     async def aclose(self) -> None: ...

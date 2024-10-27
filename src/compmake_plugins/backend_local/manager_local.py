@@ -9,10 +9,10 @@ from compmake import (
     CMJobID,
     CompmakeBug,
     Context,
-    Manager,
-    ParmakeJobResult,
     make,
+    Manager,
     parmake_job2_new_process_1,
+    ParmakeJobResult,
     result_dict_raise_if_error,
     ui_warning,
 )
@@ -52,7 +52,6 @@ class ManagerLocal(Manager):
 
 
 class FakeAsync(AsyncResultInterface):
-
     context: Context
 
     def __init__(self, sti: SyncTaskInterface, job_id: CMJobID, context: Context, new_process: bool, echo: bool):

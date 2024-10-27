@@ -4,9 +4,10 @@ import sys
 import time
 import traceback
 from asyncio import CancelledError
+from collections.abc import Callable, Collection, Iterator
 from contextlib import contextmanager
 from logging import Formatter
-from typing import Any, Callable, cast, Collection, Concatenate, Iterator, Optional, ParamSpec, TYPE_CHECKING, TypeVar
+from typing import Any, cast, Concatenate, TYPE_CHECKING
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
@@ -155,7 +156,7 @@ def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
     set_job_cache(job_id, cache, db=db)
 
 
-def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency: Optional[CMJobID] = None) -> None:  # XXX
+def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency: CMJobID | None = None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
     cache.exception = f"Failure of dependency {dependency!r}"
     cache.backtrace = ""
@@ -186,10 +187,10 @@ def mark_as_done(job_id: CMJobID, db: StorageFilesystem, result: object) -> None
 def mark_as_failed(
     job_id: CMJobID,
     db: StorageFilesystem,
-    exception: Optional[str] = None,
-    backtrace: Optional[str] = None,
-    result_type_qual: Optional[str] = None,
-    result_type: Optional[str] = None,
+    exception: str | None = None,
+    backtrace: str | None = None,
+    result_type_qual: str | None = None,
+    result_type: str | None = None,
 ) -> None:
     """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
@@ -209,7 +210,7 @@ def mark_as_failed(
 
 
 def mark_as_timed_out(
-    job_id: CMJobID, db: StorageFilesystem, timed_out: float, exception: Optional[str] = None, backtrace: Optional[str] = None
+    job_id: CMJobID, db: StorageFilesystem, timed_out: float, exception: str | None = None, backtrace: str | None = None
 ) -> None:
     """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
@@ -229,7 +230,7 @@ def mark_as_timed_out(
 
 
 def mark_as_oom(
-    job_id: CMJobID, db: StorageFilesystem, oom_bytes: int, exception: Optional[str] = None, backtrace: Optional[str] = None
+    job_id: CMJobID, db: StorageFilesystem, oom_bytes: int, exception: str | None = None, backtrace: str | None = None
 ) -> None:
     """Marks job_id  as failed"""
     cache = Cache(Cache.FAILED)
@@ -259,7 +260,7 @@ def output_capture(
     context,
     job_id: CMJobID,
     echo: bool,
-) -> Iterator[Optional[OutputCapture]]:
+) -> Iterator[OutputCapture | None]:
     if not enabled:
         yield None
         return
@@ -290,7 +291,7 @@ async def make(
     job_id: CMJobID,
     context: Context,
     echo: bool = False,
-    ti: Optional[TimeInfo] = None,
+    ti: TimeInfo | None = None,
 ) -> MakeResult:
     """
     Makes a single job.
@@ -340,7 +341,7 @@ async def make(
         job = get_job(job_id, db=db)
     with ti.timeit("reading cache"):
         cache = get_job_cache(job_id, db=db)
-    prev_defined_jobs: Optional[set[CMJobID]]
+    prev_defined_jobs: set[CMJobID] | None
     if cache.state == Cache.DONE:
         prev_defined_jobs = set(cache.jobs_defined)
         # print('%s had previously defined %s' % (job_id, prev_defined_jobs))
@@ -486,7 +487,7 @@ async def make(
         ti2.finish()
 
         bt = traceback.format_exc()
-        s = "%s: %s" % (type(e).__name__, e)
+        s = "{}: {}".format(type(e).__name__, e)
         mark_as_failed(job_id, db, s, backtrace=bt)
         deleted_jobs = get_deleted_jobs()
 
@@ -560,7 +561,7 @@ async def make(
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        logger.warning("Expensive garbage collection detected at the end of %s: %s" % (job_id, int_gc))
+        logger.warning("Expensive garbage collection detected at the end of {}: {}".format(job_id, int_gc))
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make
@@ -621,7 +622,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
             counters[job_prefix] = 2
 
         if job_prefix:
-            yield "%s-%s" % (job_prefix, base)
+            yield "{}-{}".format(job_prefix, base)
             while counters[job_prefix] <= max_options:
                 yield "%s-%s-%d" % (job_prefix, base, counters[job_prefix])
                 counters[job_prefix] += 1
@@ -739,11 +740,13 @@ class WarningStorage:
     warned: set[Callable[..., Any]] = set()
 
 
-P = ParamSpec("P")
-X = TypeVar("X")
+# P = ParamSpec("P")
+# X = TypeVar("X")
 
 
-def comp_(
+def comp_[
+    **P, X
+](
     context: Context,
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
     *args0: P.args,
@@ -938,7 +941,7 @@ def comp_(
 
     for c in children:
         if not job_exists(c, db):
-            msg = "Job %r references a job %r that doesnt exist." % (job_id, c)
+            msg = "Job {!r} references a job {!r} that doesnt exist.".format(job_id, c)
             raise ValueError(msg)
 
     all_args = (command, args, kwargs)
@@ -1177,7 +1180,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = "Could not parse %s=%s as %s." % (k, v, type(default_value))
+                    msg = "Could not parse {}={} as {}.".format(k, v, type(default_value))
                     raise UserError(msg)
         else:
             other.append(a)

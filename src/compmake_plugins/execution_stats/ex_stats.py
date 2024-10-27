@@ -1,6 +1,6 @@
-from typing import Optional, Union, cast
+from typing import cast
 
-from compmake import CMJobID, Cache, Context, Promise, get_job_cache
+from compmake import Cache, CMJobID, Context, get_job_cache, Promise
 
 __all__ = [
     "compmake_execution_stats",
@@ -10,7 +10,7 @@ from compmake import CacheQueryDB
 from zuper_commons.types import check_isinstance
 
 
-def compmake_execution_stats(context: Context, promise: Union[CMJobID, Promise], use_job_id: Optional[CMJobID] = None):
+def compmake_execution_stats(context: Context, promise: CMJobID | Promise, use_job_id: CMJobID | None = None):
     """
     Returns a promise for a the execution stats of a job
     and its dependencies.
@@ -41,7 +41,7 @@ def count_resources(context, the_job):
     db = context.get_compmake_db()
     cache = get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
-        msg = "The job %s was supposed to be finished: %s" % (the_job, cache)
+        msg = "The job {} was supposed to be finished: {}".format(the_job, cache)
         raise Exception(msg)
 
     cq = CacheQueryDB(db)
@@ -51,7 +51,7 @@ def count_resources(context, the_job):
 
     res = {}
     for j in children:
-        res[j] = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)], job_id="count-%s-%s" % (the_job, j))
+        res[j] = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)], job_id="count-{}-{}".format(the_job, j))
 
     return context.comp(finalize_result, res)
 
@@ -61,7 +61,7 @@ def my_get_job_cache(context, the_job):
     db = context.get_compmake_db()
     cache = get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
-        msg = "The job %s was supposed to be finished: %s" % (the_job, cache)
+        msg = "The job {} was supposed to be finished: {}".format(the_job, cache)
         raise Exception(msg)
     return cache
 

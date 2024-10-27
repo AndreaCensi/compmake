@@ -1,6 +1,6 @@
 from typing import cast
 
-from compmake import CMJobID, Cache, get_job_cache
+from compmake import Cache, CMJobID, get_job_cache
 from .test_compmake import assert_MakeFailed
 from .utils import Env, run_with_env
 
@@ -18,7 +18,7 @@ def check_job_states(db, **expected):
     for job_id, expected_status in expected.items():
         status = get_job_cache(job_id, db=db).state
         if status != expected_status:
-            msg = "For job %r I expected status %s but got status %s." % (job_id, expected_status, status)
+            msg = "For job {!r} I expected status {} but got status {}.".format(job_id, expected_status, status)
             raise Exception(msg)
 
 

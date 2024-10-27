@@ -145,7 +145,7 @@ def break_lines(prefix: str, line: str, postfix: str, max_size: int) -> list[str
 
     if max_space < 10:
         msg = "Weird max space: %s" % max_space
-        msg += " max_size: %s prefix: %s postfix: %s" % (max_size, prefix_len, postfix_len)
+        msg += " max_size: {} prefix: {} postfix: {}".format(max_size, prefix_len, postfix_len)
         raise ValueError(msg)
 
     # XXX: might have problems with colors
@@ -156,7 +156,7 @@ def break_lines(prefix: str, line: str, postfix: str, max_size: int) -> list[str
         # pad = '+' if debug_padding else ' '
         #         pad = ' '
         #         subline = pad_to_screen_length(subline, max_space, pad=pad)
-        line = "%s%s%s" % (prefix, subline, postfix)
+        line = "{}{}{}".format(prefix, subline, postfix)
         lines.append(line)
     return lines
 
@@ -181,7 +181,7 @@ def break_lines_simple(prefix: str, s: str, postfix: str) -> list[str]:
         # pad = '+' if debug_padding else ' '
         #         pad = ' '
         #         subline = pad_to_screen_length(subline, max_space, pad=pad)
-        line = "%s%s%s" % (prefix, subline, postfix)
+        line = "{}{}{}".format(prefix, subline, postfix)
         lines.append(line)
     return lines
 
@@ -201,7 +201,7 @@ def break_lines_and_pad(prefix, line, postfix, max_size):
         # pad = '+' if debug_padding else ' '
         pad = " "
         subline = pad_to_screen_length(subline, max_space, pad=pad)
-        line = "%s%s%s" % (prefix, subline, postfix)
+        line = "{}{}{}".format(prefix, subline, postfix)
         lines.append(line)
     return lines
 

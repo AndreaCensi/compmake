@@ -1,7 +1,8 @@
 import math
 import os
+from collections.abc import Collection
 from dataclasses import dataclass
-from typing import Any, Collection, Optional, cast
+from typing import Any, cast
 
 from zuper_commons.fs import safe_pickle_load
 from zuper_commons.types import ZAssertionError
@@ -17,7 +18,7 @@ __all__ = [
 
 
 def compute_priorities(
-    all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: Optional[dict[CMJobID, float]] = None
+    all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: dict[CMJobID, float] | None = None
 ) -> dict[CMJobID, float]:
     """Computes the priority for all_targets.
 
@@ -37,7 +38,7 @@ def compute_priorities(
 MAX_PRIORITY = 1000.0
 
 PSTATS_FILE = "pstats.pickle"
-pstats: Optional[PersistentStats]
+pstats: PersistentStats | None
 if os.path.exists(PSTATS_FILE):
     pstats = cast(PersistentStats, safe_pickle_load(PSTATS_FILE))
     # n = len(pstats.by_command)

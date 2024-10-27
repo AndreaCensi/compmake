@@ -1,15 +1,6 @@
 from typing import Any, cast
 
-from compmake import (
-    Cache,
-    CompmakeBug,
-    Context,
-    check_job_cache_state,
-    clean_other_jobs,
-    direct_children,
-    get_job,
-    jobs_defined,
-)
+from compmake import Cache, check_job_cache_state, clean_other_jobs, CompmakeBug, Context, direct_children, get_job, jobs_defined
 from compmake.types import CMJobID
 from zuper_commons.test_utils import assert_raises, my_assert_equal
 from . import logger

@@ -1,6 +1,7 @@
 import sys
 from collections import namedtuple
-from typing import Any, Awaitable, ClassVar, Optional, Protocol
+from collections.abc import Awaitable
+from typing import Any, ClassVar, Protocol
 
 from compmake_utils import AvgSystemStats
 from zuper_commons.types import ZValueError
@@ -27,7 +28,7 @@ class CompmakeGlobalState:
     original_stderr = sys.stderr
     original_stdout = sys.stdout
 
-    compmake_status: ClassVar[Optional[str]] = None
+    compmake_status: ClassVar[str | None] = None
 
     class EventHandlers:
         # event name -> list of functions
@@ -46,7 +47,7 @@ class CompmakeGlobalState:
     config_sections: "dict[str, ConfigSection]" = {}
 
     # Cached list of options for completions in console
-    cached_completions: ClassVar[Optional[list[str]]] = None
+    cached_completions: ClassVar[list[str] | None] = None
 
 
 def get_compmake_config0(key: str) -> Any:
@@ -79,5 +80,5 @@ def is_interactive_session() -> bool:
     return get_compmake_status() == CompmakeConstants.compmake_status_interactive
 
 
-def get_compmake_status() -> Optional[str]:
+def get_compmake_status() -> str | None:
     return CompmakeGlobalState.compmake_status

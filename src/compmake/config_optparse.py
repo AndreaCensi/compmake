@@ -41,4 +41,4 @@ def option_callback(option, opt, value, par, switch):
     try:
         set_config_from_strings(switch.name, value)
     except:  # OK
-        raise OptionValueError('Could not parse value "%s" passed to "%s".' % (value, opt))
+        raise OptionValueError('Could not parse value "{}" passed to "{}".'.format(value, opt))

@@ -25,7 +25,8 @@
 
 import types
 from collections import namedtuple
-from typing import Any, cast, Iterator, Optional
+from collections.abc import Iterator
+from typing import Any, cast
 
 from zuper_commons.types import check_isinstance, ZValueError
 from .cachequerydb import CacheQueryDB
@@ -87,7 +88,7 @@ def eval_alias(alias: str, context: Context, cq: CacheQueryDB) -> Iterator[CMJob
         # can be generator; no assert_list_of_strings(result)
         yield from result
     else:
-        msg = 'I cannot interpret alias "%s" -> "%s".' % (alias, value)
+        msg = 'I cannot interpret alias "{}" -> "{}".'.format(alias, value)
         raise ValueError(msg)
 
 
@@ -121,8 +122,7 @@ def expand_job_list_token(token: str, context: Context, cq: CacheQueryDB) -> Ite
     if token.find("*") > -1:
         try:
             jobs = cq.all_jobs_pattern(token)
-            for _ in jobs:
-                yield _
+            yield from jobs
 
         except ZValueError as e:
             raise UserError(f"Could not find any match for {token}") from e
@@ -146,8 +146,7 @@ def expand_job_list_tokens(tokens: list[str], context: Context, cq: CacheQueryDB
         # if not isinstance(token, str):
         #     # print tokens XXX
         #     pass
-        for job in expand_job_list_token(token, context, cq):
-            yield job
+        yield from expand_job_list_token(token, context, cq)
 
 
 class Operators:
@@ -239,23 +238,19 @@ def list_levelX_jobs(context: Context, cq: CacheQueryDB, X: int) -> Iterator[CMJ
 
 
 def list_level1_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
-    for x in list_levelX_jobs(context, cq, 1):
-        yield x
+    yield from list_levelX_jobs(context, cq, 1)
 
 
 def list_level2_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
-    for x in list_levelX_jobs(context, cq, 2):
-        yield x
+    yield from list_levelX_jobs(context, cq, 2)
 
 
 def list_level3_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
-    for x in list_levelX_jobs(context, cq, 3):
-        yield x
+    yield from list_levelX_jobs(context, cq, 3)
 
 
 def list_level4_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
-    for x in list_levelX_jobs(context, cq, 4):
-        yield x
+    yield from list_levelX_jobs(context, cq, 4)
 
 
 def is_root_job(job: Job) -> bool:
@@ -290,8 +285,7 @@ def list_bottom_jobs(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 
 
 def obtain_all(context: Context, cq: CacheQueryDB):
-    for job_id in cq.all_jobs():
-        yield job_id
+    yield from cq.all_jobs()
 
 
 def jobs_timedout(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
@@ -368,7 +362,7 @@ def a_not_started(context: Context, cq: CacheQueryDB) -> Iterator[CMJobID]:
 add_alias("not_started", a_not_started)
 
 
-def parse_job_list(tokens: list[str] | str, context: Context, cq: Optional[CacheQueryDB] = None) -> list[CMJobID]:
+def parse_job_list(tokens: list[str] | str, context: Context, cq: CacheQueryDB | None = None) -> list[CMJobID]:
     """
     Parses a job list. tokens can be:
 
@@ -421,7 +415,7 @@ def eval_ops(ops: list[str | Operators.Op], context: Context, cq: CacheQueryDB) 
         left, right = list_split(ops, ops.index(Operators.INTERSECTION))
         if not left or not right:
             msg = """ INTERSECTION requires only a right argument.
-            Interpreting "%s" INTERSECTION "%s". """ % (
+            Interpreting "{}" INTERSECTION "{}". """.format(
                 " ".join(str(_) for _ in left),
                 " ".join(str(_) for _ in right),
             )
@@ -436,7 +430,7 @@ def eval_ops(ops: list[str | Operators.Op], context: Context, cq: CacheQueryDB) 
         left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
         if not left or not right:
             msg = """ EXCEPT requires a left and right argument.
-            Interpreting "%s" EXCEPT "%s". """ % (
+            Interpreting "{}" EXCEPT "{}". """.format(
                 " ".join(str(_) for _ in left),
                 " ".join(str(_) for _ in right),
             )
@@ -451,8 +445,8 @@ def eval_ops(ops: list[str | Operators.Op], context: Context, cq: CacheQueryDB) 
     elif Operators.NOT in ops:
         left, right = list_split(ops, ops.index(Operators.NOT))
         if left or not right:  # forbid left, require right
-            msg = """ NOT requires only a right argument. Interpreting "%s" NOT
-                    "%s". """ % (
+            msg = """ NOT requires only a right argument. Interpreting "{}" NOT
+                    "{}". """.format(
                 " ".join(str(_) for _ in left),
                 " ".join(str(_) for _ in right),
             )

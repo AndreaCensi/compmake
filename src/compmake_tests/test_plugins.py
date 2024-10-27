@@ -8,7 +8,7 @@ async def test_plugin_details(env: Env) -> None:
     jobs = await env.get_jobs("all")
     for job_id in jobs:
         await env.assert_cmd_success("details %s" % job_id)
-    await env.assert_cmd_success("details %s %s" % (jobs[0], jobs[1]))
+    await env.assert_cmd_success("details {} {}".format(jobs[0], jobs[1]))
 
 
 @run_with_env
@@ -54,9 +54,9 @@ async def test_dump(env: Env) -> None:
     dirname = env.db.basepath
     jobs = await env.get_jobs("done")
     for job_id in jobs:
-        await env.assert_cmd_success("dump directory=%s %s" % (dirname, job_id))
+        await env.assert_cmd_success("dump directory={} {}".format(dirname, job_id))
 
     # TODO: add check that it fails for not done
     jobs = await env.get_jobs("not done")
     for job_id in jobs:
-        await env.assert_cmd_success("dump directory=%s %s" % (dirname, job_id))
+        await env.assert_cmd_success("dump directory={} {}".format(dirname, job_id))

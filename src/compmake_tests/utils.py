@@ -1,26 +1,27 @@
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import AsyncIterator, Awaitable, Callable, Optional, TypeVar, cast
+from typing import cast, TypeVar
 from unittest import SkipTest
 
 from compmake import (
-    CMJobID,
+    all_jobs,
     CacheQueryDB,
+    CMJobID,
     CommandFailed,
     ContextImp,
+    get_job,
     Job,
     MakeFailed,
-    StorageFilesystem,
-    all_jobs,
-    get_job,
     parse_job_list,
     read_rc_files,
+    StorageFilesystem,
 )
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import getcwd
 from zuper_commons.test_utils import my_assert_equal
 from zuper_commons.types import ZAssertionError, ZException, ZValueError
-from zuper_utils_asyncio import SyncTaskInterface, create_sync_task2
+from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
 
@@ -73,9 +74,9 @@ class Env:
 
     async def assert_job_uptodate(self, job_id: CMJobID, status):
         res = await self.up_to_date(job_id)
-        self.assert_equal(res, status, "Want %r uptodate? %s" % (job_id, status))
+        self.assert_equal(res, status, "Want {!r} uptodate? {}".format(job_id, status))
 
-    def assert_equal(self, first: X, second: X, msg: Optional[str] = None):
+    def assert_equal(self, first: X, second: X, msg: str | None = None):
         my_assert_equal(first, second, msg)
 
     async def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):
@@ -86,7 +87,7 @@ class Env:
         try:
             self.assert_equal_set(js, jobs)
         except:
-            print("expr %r -> %s" % (expr, js))
+            print("expr {!r} -> {}".format(expr, js))
             print("differs from %s" % jobs)
             raise
 
@@ -142,11 +143,11 @@ class Env:
 
     async def up_to_date(self, job_id: str) -> bool:
         up, reason, timestamp = self.cq.up_to_date(cast(CMJobID, job_id))
-        self.sti.logger.info("up_to_date(%r): %s, %r, %s" % (job_id, up, reason, timestamp))
+        self.sti.logger.info("up_to_date({!r}): {}, {!r}, {}".format(job_id, up, reason, timestamp))
         return up
 
 
-async def make_environment(sti: SyncTaskInterface, rootd: Optional[str] = None) -> Env:
+async def make_environment(sti: SyncTaskInterface, rootd: str | None = None) -> Env:
     if rootd is None:
         rootd = mkdtemp()
     sti.logger.info(f"Using rootd={rootd!r}")
@@ -156,7 +157,7 @@ async def make_environment(sti: SyncTaskInterface, rootd: Optional[str] = None) 
 
 
 @asynccontextmanager
-async def environment(sti: SyncTaskInterface, rootd: Optional[str] = None) -> AsyncIterator[Env]:
+async def environment(sti: SyncTaskInterface, rootd: str | None = None) -> AsyncIterator[Env]:
     env = await make_environment(sti, rootd)
     try:
         yield env

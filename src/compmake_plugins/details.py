@@ -1,13 +1,10 @@
 """ The actual interface of some commands in commands.py """
 
-from typing import Optional
-
 from compmake import (
-    CMJobID,
     Cache,
     CacheQueryDB,
-    VISUALIZATION,
     children,
+    CMJobID,
     compmake_colored,
     get_job,
     get_job_args,
@@ -19,6 +16,7 @@ from compmake import (
     job_userobject_exists,
     job_userobject_sizeof,
     ui_command,
+    VISUALIZATION,
 )
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
@@ -45,7 +43,7 @@ async def details(sti, non_empty_job_list, context, cq, max_lines=None, load_res
         num += 1
 
 
-def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optional[int], load_result: bool, load_args: bool):
+def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int | None, load_result: bool, load_args: bool):
     db = context.get_compmake_db()
 
     dparents = cq.direct_parents(job_id)
@@ -85,7 +83,7 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optio
         cache2 = get_job_cache(job_id, db=db)
 
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
-        print(bold("Uptodate:") + "%s (%s)" % (up, reason))
+        print(bold("Uptodate:") + "{} ({})".format(up, reason))
         if cache2.walltime_used:
             print(bold("Wall Time:") + "%.4f s" % cache2.walltime_used)
         if cache2.cputime_used:
@@ -139,7 +137,7 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optio
                 lines = [warn] + lines[-max_lines:]
 
         for line in lines:
-            s = "%s%s" % (prefix, transform(line))
+            s = "{}{}".format(prefix, transform(line))
             write_line_endl(s)
             # if six.PY2:
             # s = s.encode('utf-8')
@@ -171,6 +169,5 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: Optio
 
     if load_result:
         if cache2.state == Cache.DONE:
-
             result = get_job_userobject(job_id, db=db)
             print(bold("result:\n") + debug_print(result))

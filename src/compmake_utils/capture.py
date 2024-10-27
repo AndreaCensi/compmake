@@ -1,6 +1,6 @@
 import sys
+from collections.abc import Callable
 from io import StringIO
-from typing import Callable
 
 from .coloredterm import termcolor_colored
 from .strings_with_escapes import pad_to_screen
@@ -92,14 +92,14 @@ class OutputCapture:
         # t1 = lambda s: '%s|%s' % (prefix, colored(s, 'cyan', attrs=['dark']))
         prefix = ""  # TMP # XXX: this is a hack, the prefix is the job name
         # FIXME: perhaps we should use compmake_colored
-        t1 = lambda s: "%s|%s" % (termcolor_colored(prefix, "white", attrs=["dark"]), s)
+        t1 = lambda s: "{}|{}".format(termcolor_colored(prefix, "white", attrs=["dark"]), s)
         t2 = lambda s: RESET + pad_to_screen(t1(s))
         dest = {True: sys.stdout, False: None}[echo_stdout]
         self.stdout_replacement = StreamCapture(transform=t2, dest=dest, after_lines=publish_stdout)
         sys.stdout = self.stdout_replacement
 
         # t3 = lambda s: '%s|%s' % (prefix, colored(s, 'red', attrs=['dark']))
-        t3 = lambda s: "%s|%s" % (termcolor_colored(prefix, "red", attrs=["dark"]), s)
+        t3 = lambda s: "{}|{}".format(termcolor_colored(prefix, "red", attrs=["dark"]), s)
         t4 = lambda s: RESET + pad_to_screen(t3(s))
         dest = {True: sys.stderr, False: None}[echo_stderr]
         self.stderr_replacement = StreamCapture(transform=t4, dest=dest, after_lines=publish_stderr)

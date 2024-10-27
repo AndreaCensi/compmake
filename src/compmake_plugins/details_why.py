@@ -1,8 +1,8 @@
 from collections import defaultdict
+from collections.abc import Collection
 from dataclasses import dataclass
-from typing import Collection, Optional
 
-from compmake import CMJobID, Cache, CacheQueryDB, Context, VISUALIZATION, get_job_cache, job_cache_exists, ui_command
+from compmake import Cache, CacheQueryDB, CMJobID, Context, get_job_cache, job_cache_exists, ui_command, VISUALIZATION
 from zuper_commons.text import format_rows_as_table, joinlines
 from zuper_commons.ui import color_gray
 from zuper_utils_asyncio import SyncTaskInterface
@@ -103,7 +103,7 @@ class DetailWhyOne:
     complete: str
 
 
-def details_why_one(job_id, context, cq: CacheQueryDB) -> Optional[DetailWhyOne]:
+def details_why_one(job_id, context, cq: CacheQueryDB) -> DetailWhyOne | None:
     db = context.get_compmake_db()
 
     if job_cache_exists(job_id, db):

@@ -1,21 +1,22 @@
 """ The actual interface of some commands in commands.py """
 
 from collections import defaultdict
+from collections.abc import Collection
 from dataclasses import dataclass
-from typing import Collection, Literal
+from typing import Literal
 
 import numpy as np
 
 from compmake import (
-    CMJobID,
     Cache,
     CacheQueryDB,
+    CMJobID,
+    compmake_colored,
     CompmakeConstants,
     Context,
     StateCode,
-    VISUALIZATION,
-    compmake_colored,
     ui_command,
+    VISUALIZATION,
 )
 from compmake.constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
 from compmake.priority import PSTATS_FILE
@@ -190,7 +191,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
         (Cache.NOT_STARTED, "🗉"),
     ]
 
-    totals = defaultdict(lambda: 0)
+    totals = defaultdict(int)
 
     def sorting_key(x: str):
         return function2count[x].total_wall

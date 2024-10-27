@@ -24,14 +24,14 @@ class TimeTrack:
         if self.td < min_td:
             return
 
-        msg = "wall %6.2fms clock %6.2fms" % (self.td * 1000, self.cd * 1000)
+        msg = "wall {:6.2f}ms clock {:6.2f}ms".format(self.td * 1000, self.cd * 1000)
         if self.what:
             what = str(self.what)
             MAX = 120
             if len(what) > MAX:
                 what = what[: (MAX - 3)] + "..."
             # msg = '%s - %s' % (msg, what)
-            msg = "%s - %s" % (msg, what)
+            msg = "{} - {}".format(msg, what)
         # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()
@@ -48,7 +48,7 @@ class TimeTrack:
     @staticmethod
     def decorator(f):
         def wrapper(self, *args, **kwargs):
-            sargs = ", ".join(["{0}".format(x) for x in args])
+            sargs = ", ".join([f"{x}" for x in args])
             if args and kwargs:
                 sargs += ", "
             sargs += ", ".join([f"{k}={v!r}" for (k, v) in kwargs.items()])

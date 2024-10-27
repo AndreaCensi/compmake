@@ -1,5 +1,3 @@
-from typing import List
-
 from .strings_with_escapes import get_length_on_screen, pad_to_screen_length
 
 __all__ = [
@@ -93,7 +91,7 @@ class TableFormatter:
         return self.sep.join(ss).rstrip()
 
 
-def groups_match(it, groupsize) -> List:
+def groups_match(it, groupsize) -> list:
     content = list(it)
     gs = list(groups(content, groupsize))
     ngroups = len(gs)

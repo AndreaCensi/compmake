@@ -1,18 +1,18 @@
 import os
 from collections import defaultdict
-from typing import Collection
+from collections.abc import Collection
 
 from compmake import (
-    CMJobID,
-    COMMANDS_ADVANCED,
     Cache,
     CacheQueryDB,
+    CMJobID,
+    COMMANDS_ADVANCED,
     Context,
-    UserError,
     definition_closure,
     top_targets,
     ui_command,
     ui_info,
+    UserError,
 )
 from zuper_utils_asyncio import SyncTaskInterface
 

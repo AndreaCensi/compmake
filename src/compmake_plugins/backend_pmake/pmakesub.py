@@ -1,4 +1,3 @@
-import asyncio
 import gc
 import multiprocessing
 import os
@@ -6,28 +5,27 @@ import signal
 import sys
 import time
 import traceback
-
-from psutil import NoSuchProcess
-
-from compmake import Event
+from collections.abc import Callable
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext, Process
 from queue import Empty
-from typing import Any, Callable, Literal, Optional, cast
-from . import logger
+from typing import Any, cast, Literal
+
 import psutil
+from psutil import NoSuchProcess
 
 from compmake import (
     AsyncResultInterface,
     CMJobID,
     CompmakeBug,
+    Event,
     HostFailed,
     JobFailed,
     JobInterrupted,
-    ResultDict,
     parmake_job2_new_process_1,
     result_dict_raise_if_error,
+    ResultDict,
 )
 from compmake.constants import CANCEL_REASONS
 from compmake.registered_events import EVENT_WORKER_JOB_FINISHED
@@ -38,15 +36,16 @@ from zuper_commons.types import TM, ZAssertionError, ZValueError
 from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import (
     EveryOnceInAWhile,
-    Global,
-    SyncTaskInterface,
     get_report_splitters_text,
     get_report_splitters_text_referrers,
+    Global,
     running_tasks,
+    SyncTaskInterface,
 )
 from zuper_utils_timing import TimeInfo
 from zuper_zapp import async_run_simple1, setup_environment2
-from .parmake_job2_imp import ParmakeJobResult, parmake_job2
+from . import logger
+from .parmake_job2_imp import parmake_job2, ParmakeJobResult
 
 __all__ = [
     "PmakeSub",
@@ -59,13 +58,13 @@ SubStates = Literal["available", "processing", "dead"]
 
 
 class PmakeSub:
-    last: "Optional[PmakeResult]"
+    last: "PmakeResult | None"
     EXIT_TOKEN = "please-exit"
     job_queue: "multiprocessing.Queue[str | tuple[CMJobID, PossibleFuncs, tuple[Any, ...]]]"
     result_queue: "multiprocessing.Queue[ResultDict]"
     _proc: Process
     killed_by_me: bool
-    killed_reason: Optional[CANCEL_REASONS]
+    killed_reason: CANCEL_REASONS | None
     state: SubStates
     total_time_processing: float
     total_time_available: float
@@ -85,13 +84,13 @@ class PmakeSub:
         self,
         *,
         name: str,
-        signal_queue: "Optional[multiprocessing.Queue[Any]]",
-        event_queue: "Optional[multiprocessing.Queue[Any]]",
+        signal_queue: "multiprocessing.Queue[Any] | None",
+        event_queue: "multiprocessing.Queue[Any] | None",
         signal_token: str,
         ctx: BaseContext,
-        write_log: Optional[FilePath],
+        write_log: FilePath | None,
         detailed_python_mem_stats: bool,
-        job_timeout: Optional[float],
+        job_timeout: float | None,
     ):
         self.nstarted = 0
         self.name = name
@@ -268,7 +267,7 @@ def at_exit_delete(proc: Process) -> None:
 #                 DPInternalError.assert_never(un)
 
 
-def _format_dt(dt: float, reference: Optional[float] = None):
+def _format_dt(dt: float, reference: float | None = None):
     s = f"{duration_compact(dt):10}"
     if reference is not None and reference > dt > 0:
         perc = 100 * dt / reference
@@ -283,12 +282,12 @@ async def pmake_worker(
     name: str,
     job_queue: "multiprocessing.Queue[str | tuple[CMJobID, Callable[..., Any], list[Any]]]",
     result_queue: "multiprocessing.Queue[ResultDict]",
-    signal_queue: "Optional[multiprocessing.Queue[Any]]",
+    signal_queue: "multiprocessing.Queue[Any] | None",
     signal_token: str,
-    write_log: Optional[FilePath],
+    write_log: FilePath | None,
     detailed_python_mem_stats: bool,
-    job_timeout: Optional[float],
-    event_queue: "Optional[multiprocessing.Queue[Any]]",
+    job_timeout: float | None,
+    event_queue: "multiprocessing.Queue[Any] | None",
 ):
     try:
 
@@ -615,7 +614,7 @@ async def funcwrap(sti: SyncTaskInterface, function: Callable[..., Any], argumen
 class PmakeResult(AsyncResultInterface):
     """Wrapper for the async result object obtained by pool.apply_async"""
 
-    result: Optional[ResultDict]
+    result: ResultDict | None
     result_queue: "multiprocessing.Queue[ResultDict]"
 
     def __init__(self, result_queue: "multiprocessing.Queue[ResultDict]", psub: "PmakeSub", job_id: CMJobID):

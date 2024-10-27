@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 __all__ = [
     "Event",
@@ -11,10 +10,10 @@ class EventSpec:
     """This is a specification of the events that can be generated"""
 
     name: str
-    desc: Optional[str]
+    desc: str | None
     attrs: list[str]
 
-    def __init__(self, name: str, attrs: Optional[list[str]] = None, desc: Optional[str] = None):
+    def __init__(self, name: str, attrs: list[str] | None = None, desc: str | None = None):
         if attrs is None:
             attrs = []
         self.name = name

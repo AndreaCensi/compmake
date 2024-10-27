@@ -1,7 +1,8 @@
 import sys
 import types
 from collections import namedtuple
-from typing import Any, Awaitable, Callable, ClassVar, Optional, TextIO, TypeVar, Union
+from collections.abc import Awaitable, Callable
+from typing import Any, ClassVar, TextIO, TypeVar
 
 from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
@@ -38,13 +39,13 @@ class UIState:
     # section name -> Section
     sections: dict[str, Section] = {}
 
-    last_section_name: Optional[str] = None  # XXX
+    last_section_name: str | None = None  # XXX
 
 
 # ############ Definition of UI sections ##############
 
 
-def ui_section(section_name: str, desc: Optional[str] = None, order: Optional[int] = None, experimental: bool = False):
+def ui_section(section_name: str, desc: str | None = None, order: int | None = None, experimental: bool = False):
     if not section_name in UIState.sections:
         UIState.sections[section_name] = Section(
             name=section_name, desc=desc, order=order, commands=[], experimental=experimental
@@ -76,12 +77,12 @@ ui_section(COMMANDS_ADVANCED, order=4, desc="These are advanced commands not for
 # This is a decorator with arguments --
 # see http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 # for an explanation. Also see for additional trick
-CommandShape = Callable[..., Awaitable[Optional[int]]]
+CommandShape = Callable[..., Awaitable[int | None]]
 
 Y = TypeVar("Y", bound=CommandShape)
 
 
-def wrap(func: Y, name: Optional[str], alias: Optional[str | list[str]], section: Optional[str], dbchange: bool) -> Y:
+def wrap(func: Y, name: str | None, alias: str | list[str] | None, section: str | None, dbchange: bool) -> Y:
     """Decorator for a UI command -- wrapper for register_command"""
     if name is None:
         name = getattr(func, "__name__", str(func))
@@ -94,9 +95,9 @@ FT = TypeVar("FT", bound=CommandShape)
 
 
 def ui_command(
-    name: Optional[str] = None,
-    alias: Optional[Union[str, list[str]]] = None,
-    section: Optional[str] = None,
+    name: str | None = None,
+    alias: str | list[str] | None = None,
+    section: str | None = None,
     dbchange=False,
 ) -> Callable[[FT], FT]:
     if alias is None:
@@ -112,8 +113,8 @@ def ui_command(
 def register_command(
     name: str,
     func: Callable[..., Any],
-    docs: Optional[str],
-    alias: Optional[list[str] | str],
+    docs: str | None,
+    alias: list[str] | str | None,
     section: str,
     dbchange: bool,
 ):
@@ -217,4 +218,4 @@ def list_commands_with_sections(file: TextIO = sys.stdout):  # @ReservedAssignme
             n = name.ljust(max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=["bold"])
-            file.write("  | %s  %s\n" % (n, short_doc))
+            file.write("  | {}  {}\n".format(n, short_doc))

@@ -1,4 +1,5 @@
-from typing import Callable, ClassVar
+from collections.abc import Callable
+from typing import ClassVar
 
 from compmake_utils import get_screen_columns
 from zuper_commons.text import indent, joinlines

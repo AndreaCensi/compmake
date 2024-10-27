@@ -57,7 +57,7 @@ async def update_graph(context: Context, event: Event):
     cmd0 = [
         "dot",
         "-Tpng",
-        "-Gsize=%s,%s!" % (size[0] / dpi, size[1] / dpi),
+        "-Gsize={},{}!".format(size[0] / dpi, size[1] / dpi),
         "-Gdpi=%s" % dpi,
         "-o" + png,
         filename,
@@ -74,7 +74,7 @@ async def update_graph(context: Context, event: Event):
         "-background",
         "white",
         "-extent",
-        "%sx%s" % (size[0], size[1]),
+        "{}x{}".format(size[0], size[1]),
         png2,
     ]
     system_cmd_result(".", cmd, display_stdout=True, display_stderr=True, raise_on_error=True)
@@ -90,7 +90,7 @@ def graph_animation(job_list, context, dirname="compmake-graph-animation", dpi=1
     """
     possible = ["none", "id", "function"]
     if not label in possible:
-        msg = "Invalid label method %r not in %r." % (label, possible)
+        msg = "Invalid label method {!r} not in {!r}.".format(label, possible)
         raise ValueError(msg)
 
     Global.dirname = dirname

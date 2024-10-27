@@ -4,8 +4,6 @@ __all__ = [
     "AvgSystemStats",
 ]
 
-from typing import Optional
-
 try:
     import psutil  # @UnusedImport
 except ImportError:
@@ -84,7 +82,7 @@ class AvgSystemStats:
 
 
 class Collect:
-    last_time: Optional[float]
+    last_time: float | None
 
     def __init__(self, name: str, function, interval: float, history_len: int):
         self.name = name

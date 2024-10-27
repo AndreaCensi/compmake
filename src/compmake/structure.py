@@ -88,5 +88,5 @@ def show_config(context: Context) -> str:
 
             s1 = compmake_colored(name.rjust(max_len_name), attrs=["bold"])
             s2 = compmake_colored(value.rjust(max_len_val), attrs=attrs)
-            b += "  | %s  %s  %s\n" % (s1, s2, desc)
+            b += "  | {}  {}  {}\n".format(s1, s2, desc)
     return b

@@ -32,15 +32,15 @@ async def test_syntax(env: Env) -> None:
         cache.state = state
         set_job_cache(CMJobID(job_id), cache, db=env.db)
 
-    all_jobs = set([job_id for job_id, state in jobs])
-    selectf = lambda S: set([nid for nid, state_ in jobs if state_ == S])
+    all_jobs = {job_id for job_id, state in jobs}
+    selectf = lambda S: {nid for nid, state_ in jobs if state_ == S}
     failed = selectf(Cache.FAILED)
     done = selectf(Cache.DONE)
     #         self.in_progress = selectf(Cache.IN_PROGRESS)
     not_started = selectf(Cache.NOT_STARTED)
 
     def selection(crit) -> set:
-        return set([nid_ for nid_, state_ in jobs if crit(nid_, state_)])
+        return {nid_ for nid_, state_ in jobs if crit(nid_, state_)}
 
     def expandsTo(A, B):
         """A, B can be:
@@ -67,7 +67,7 @@ async def test_syntax(env: Env) -> None:
         try:
             my_assert_equal(set(a), set(b))
         except:  # pragma: no cover
-            sys.stdout.write("Comparing:\n\t- %s\n\t   -> %s \n\t- %s\n\t   -> %s. \n" % (A, a, B, b))
+            sys.stdout.write("Comparing:\n\t- {}\n\t   -> {} \n\t- {}\n\t   -> {}. \n".format(A, a, B, b))
             raise
 
     def syntaxError(s: str):

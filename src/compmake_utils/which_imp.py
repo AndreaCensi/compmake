@@ -4,7 +4,7 @@ __all__ = [
     "which",
 ]
 
-from typing import Iterator
+from collections.abc import Iterator
 
 
 def is_exe(fpath: str) -> bool:

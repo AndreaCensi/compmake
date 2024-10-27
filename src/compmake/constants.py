@@ -1,5 +1,6 @@
 import warnings
-from typing import cast, ClassVar, Collection, Iterator, Literal, Protocol, TYPE_CHECKING
+from collections.abc import Collection, Iterator
+from typing import cast, ClassVar, Literal, Protocol, TYPE_CHECKING
 
 from .types import CMJobID
 

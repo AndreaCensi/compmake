@@ -1,7 +1,8 @@
 import asyncio
 import inspect
 import traceback
-from typing import Any, Callable, Mapping, Optional, TypedDict
+from collections.abc import Callable, Mapping
+from typing import Any, TypedDict
 
 from zuper_commons.types import add_context, check_isinstance, TM, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
@@ -43,7 +44,7 @@ def get_cmd_args_kwargs(job_id: CMJobID, db: StorageFilesystem) -> tuple[Callabl
 
 class JobCompute:
     # currently executing job id
-    current_job_id: Optional[CMJobID] = None
+    current_job_id: CMJobID | None = None
 
 
 class JobComputeResult(TypedDict):
@@ -174,7 +175,7 @@ async def execute_with_context(
 
     if args:
         if isinstance(args[0], Context) and args[0] != context:
-            msg = "%s(%s, %s)" % (command, args, kwargs2)
+            msg = "{}({}, {})".format(command, args, kwargs2)
             raise ValueError(msg)
 
     # context is one of the arguments

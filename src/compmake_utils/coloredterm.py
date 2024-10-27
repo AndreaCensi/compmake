@@ -2,12 +2,12 @@ __all__ = [
     "termcolor_colored",
 ]
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from zuper_commons.ui import get_colorize_function
 
 
-def termcolor_colored(x: str, color: str, on_color: Optional[str] = None, attrs: Optional[Sequence[str]] = None):
+def termcolor_colored(x: str, color: str, on_color: str | None = None, attrs: Sequence[str] | None = None):
     cf = get_colorize_function(color, on_color, attrs)
     colorize = True
     # TODO: no colorize during tests

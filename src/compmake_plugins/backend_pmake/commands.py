@@ -1,11 +1,11 @@
-from typing import Collection, Optional
+from collections.abc import Collection
 
 from compmake import (
     ACTIONS,
+    ask_if_sure_remake,
     CMJobID,
     Context,
     DefaultsToConfig,
-    ask_if_sure_remake,
     mark_to_remake,
     publish,
     raise_error_if_manager_failed,
@@ -31,7 +31,7 @@ async def parmake(
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
-    max_time: Optional[float] = None,
+    max_time: float | None = None,
 ):
     """
     Parallel equivalent of make.
@@ -124,7 +124,7 @@ async def rparmake(
     n: int = DefaultsToConfig("max_parallel_jobs"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
-    max_time: Optional[float] = None,
+    max_time: float | None = None,
 ):
     """Shortcut to parmake with default recurse = True."""
     r = await parmake(

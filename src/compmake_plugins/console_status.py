@@ -4,11 +4,11 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import ClassVar, Literal, cast
+from typing import cast, ClassVar, Literal
 
-from compmake import CompmakeGlobalState, Context, Event, compmake_colored, publish, register_handler, ui_error
+from compmake import compmake_colored, CompmakeGlobalState, Context, Event, publish, register_handler, ui_error
 from compmake.registered_events import EVENT_MANAGER_PROGRESS
-from compmake_utils import getTerminalSize, get_length_on_screen
+from compmake_utils import get_length_on_screen, getTerminalSize
 from zuper_commons.text import indent
 from .tracker import Tracker
 
@@ -232,7 +232,7 @@ def get_string(level: Levels) -> str:
                     # XXX: this is never used somehow, see tracker
                     # that's where the code is executed to display iterations
                     if isinstance(frame.iterations[0], int) and isinstance(frame.iterations[1], int):
-                        x += ["%s of %s" % (frame.iterations[0] + 1, frame.iterations[1])]
+                        x += ["{} of {}".format(frame.iterations[0] + 1, frame.iterations[1])]
                     else:
                         perc = frame.iterations[0] * 100.0 / frame.iterations[1]
                         x += ["%.1f%%" % perc]
@@ -287,8 +287,8 @@ async def handle_event(context: Context, event: Event) -> None:
     options_right = []
 
     if status:
-        options_right.append("%s %s " % (status, job_counts(context)))
-        options_right.append("%s %s %s" % (wait_reasons(), status, job_counts(context)))
+        options_right.append("{} {} ".format(status, job_counts(context)))
+        options_right.append("{} {} {}".format(wait_reasons(), status, job_counts(context)))
 
     options_right.append(job_counts(context))
 

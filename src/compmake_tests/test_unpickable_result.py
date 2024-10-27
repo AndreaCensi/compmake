@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from compmake import CompmakeConstants, set_compmake_status
 from .utils import Env, run_with_env

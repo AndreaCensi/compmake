@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from zuper_commons.text import indent
 from zuper_commons.types import ZException
@@ -99,10 +99,10 @@ class JobFailedExceptionDict(TypedDict):
     job_id: CMJobID
     reason: str
     bt: str
-    deleted_jobs: Optional[list[CMJobID]]
+    deleted_jobs: list[CMJobID] | None
 
 
-def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: Optional[list[CMJobID]] = None):
+def job_failed_exc(job_id: CMJobID, reason: str, bt: str, deleted_jobs: list[CMJobID] | None = None):
     raise JobFailed(job_id=job_id, reason=reason, bt=bt, deleted_jobs=deleted_jobs) from None
 
 
@@ -152,10 +152,10 @@ class JobFailed(CompmakeException):
 
 class JobInterruptedExceptionDict(TypedDict):
     job_id: CMJobID
-    deleted_jobs: Optional[list[CMJobID]]
+    deleted_jobs: list[CMJobID] | None
 
 
-def job_interrupted_exc(job_id: CMJobID, deleted_jobs: Optional[list[CMJobID]] = None):
+def job_interrupted_exc(job_id: CMJobID, deleted_jobs: list[CMJobID] | None = None):
     return JobInterrupted(job_id=job_id, deleted_jobs=deleted_jobs)
 
 
@@ -210,7 +210,7 @@ class HostFailed(CompmakeException):
         self.job_id = job_id
         self.reason = reason
         self.bt = bt
-        self.msg = "Host %r failed for %r: %s\n%s" % (
+        self.msg = "Host {!r} failed for {!r}: {}\n{}".format(
             self.host,
             self.job_id,
             self.reason,

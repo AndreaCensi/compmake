@@ -1,11 +1,9 @@
-from typing import Union
-
 __all__ = [
     "interpret_strings_like",
 ]
 
 
-def interpret_strings_like(args: Union[str, list[str]], reference_value: Union[int, float, str]) -> Union[int, float, str]:
+def interpret_strings_like(args: str | list[str], reference_value: int | float | str) -> int | float | str:
     if not isinstance(args, list):
         args = [args]
 

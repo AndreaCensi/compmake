@@ -1,12 +1,12 @@
 """ The actual interface of some commands in commands.py """
 
 from compmake import (
+    all_jobs,
+    children,
     CMJobID,
     COMMANDS_ADVANCED,
     CompmakeBug,
     Context,
-    all_jobs,
-    children,
     direct_children,
     direct_parents,
     get_job,
@@ -46,7 +46,7 @@ async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Co
     if errors:
         msg = f"Inconsistency with {len(errors)} jobs:"
         for job_id, es in errors.items():
-            msg += "\n- job %r:\n%s" % (job_id, "\n".join(es))
+            msg += "\n- job {!r}:\n{}".format(job_id, "\n".join(es))
         msg += "\n"
         if raise_if_error:
             raise CompmakeBug(msg)
@@ -84,7 +84,7 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
         if defb == "root":
             continue
         if not job_exists(defb, db=db):
-            s = "%r defined by %r but %r not existing." % (job_id, defined_by, defb)
+            s = "{!r} defined by {!r} but {!r} not existing.".format(job_id, defined_by, defb)
             e(s)
 
     for dp in dparents:

@@ -1,18 +1,17 @@
 """ The actual interface of some commands in commands.py """
 
 import os
+from collections.abc import Sequence
 from time import time
-from typing import Dict, Sequence
 
 from compmake import (
-    CMJobID,
     Cache,
+    cache_has_large_overhead,
     CacheQueryDB,
+    CMJobID,
+    compmake_colored,
     CompmakeConstants,
     Context,
-    VISUALIZATION,
-    cache_has_large_overhead,
-    compmake_colored,
     is_root_job,
     job_args_sizeof,
     job_cache_exists,
@@ -23,8 +22,9 @@ from compmake import (
     timing_summary,
     ui_command,
     ui_message,
+    VISUALIZATION,
 )
-from compmake_utils import TableFormatter, get_screen_columns
+from compmake_utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import color_yellow, duration_compact, size_compact
 from zuper_utils_asyncio import SyncTaskInterface
 
@@ -330,7 +330,7 @@ def format_size(nbytes: int) -> str:
     return f"{mb:.2f} MB"
 
 
-def get_sizes(job_id, db) -> Dict:
+def get_sizes(job_id, db) -> dict:
     """Returns byte sizes for jobs pieces.
 
     Returns dict with keys 'args','cache','result','total'.

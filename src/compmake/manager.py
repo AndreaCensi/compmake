@@ -9,9 +9,10 @@ import time
 import traceback
 import warnings
 from abc import ABC, abstractmethod
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, cast, Collection, NoReturn, Optional
+from typing import Any, cast, NoReturn
 from uuid import uuid4
 
 from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
@@ -62,7 +63,7 @@ class AsyncResultInterface(ABC):
         """Returns True if it is ready (completed or failed)."""
 
     @abstractmethod
-    async def get(self, timeout: Optional[float] = 0) -> "ParmakeJobResult":
+    async def get(self, timeout: float | None = 0) -> "ParmakeJobResult":
         """Either:
         - returns a dictionary with fields:
             new_jobs: list of jobs created
@@ -107,7 +108,7 @@ class ManagerLog:
 class ProcessingDetails:
     started: float
     interface: AsyncResultInterface
-    timeout: Optional[float]
+    timeout: float | None
 
 
 class Manager(ManagerLog):
@@ -128,7 +129,7 @@ class Manager(ManagerLog):
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
 
-    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: Optional[float] = None):
+    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: float | None = None):
         self.context = context
         self.sti = sti
 
@@ -864,7 +865,7 @@ class Manager(ManagerLog):
             # t0 = time.time()
             try:
                 res = await asyncio.wait_for(self.queue_ready.get(), timeout=manager_wait)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
 
                 # logger.debug(f'no jobs read in {manager_wait} seconds')
@@ -1166,7 +1167,7 @@ class Manager(ManagerLog):
 
             if ss != lists[result]:
                 msg = "These two sets should be the same:\n"
-                msg += " %s = %s\n" % (" + ".join(list(sets)), result)
+                msg += " {} = {}\n".format(" + ".join(list(sets)), result)
                 msg += f" first = {ss}\n"
                 msg += f" second = {lists[result]}\n"
                 msg += f" first-second = {ss - lists[result]}\n"

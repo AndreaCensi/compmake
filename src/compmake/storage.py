@@ -3,10 +3,11 @@
 """
 
 import traceback
-from typing import Any, Callable, Collection, Iterator, Mapping, cast
+from collections.abc import Callable, Collection, Iterator, Mapping
+from typing import Any, cast
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
-from zuper_commons.types import TM, add_context, check_isinstance
+from zuper_commons.types import add_context, check_isinstance, TM
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException, SerializationError
 from .filesystem import StorageFilesystem, StorageKey
 from .structures import Cache, Job

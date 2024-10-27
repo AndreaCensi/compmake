@@ -1,9 +1,9 @@
 import asyncio
 import builtins
-from typing import Any, AsyncIterator, Optional, cast
+from collections.abc import AsyncIterator
+from typing import Any, cast
 
 from zuper_utils_asyncio import SyncTaskInterface
-from .actions import clean_other_jobs
 from .cachequerydb import CacheQueryDB
 from .context import Context
 from .exceptions import CommandFailed, CompmakeBug, MakeFailed, ShellExitRequested
@@ -266,7 +266,7 @@ async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
 
 
 # noinspection PyUnresolvedReferences
-def ask_question(question: str, allowed: Optional[dict[str, bool]] = None) -> bool:
+def ask_question(question: str, allowed: dict[str, bool] | None = None) -> bool:
     """Asks a yes/no question to the user"""
     readline = get_readline()
     if allowed is None:

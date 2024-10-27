@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from zuper_commons.ui import get_colorize_function
 from .state import get_compmake_config0
@@ -12,7 +12,7 @@ class ColoredCached:
     functions = {}
 
 
-def compmake_colored(x: str, color: Optional[str] = None, on_color: Optional[str] = None, attrs: Sequence[str] = None) -> str:
+def compmake_colored(x: str, color: str | None = None, on_color: str | None = None, attrs: Sequence[str] = None) -> str:
     colorize = get_compmake_config0("colorize")
     if not colorize:
         return x

@@ -1,25 +1,21 @@
 import cProfile
 import linecache
 import os
-import pstats
 import resource
 import subprocess
-import sys
 import traceback
 import tracemalloc
 from asyncio import CancelledError
-from io import StringIO
 from optparse import OptionParser
 from pstats import f8, func_std_string
-from typing import Optional, cast
-import re
+from typing import cast
 
 from compmake_utils import setproctitle
 from zuper_commons.cmds import ExitCode
-from zuper_commons.fs import DirPath, FilePath, RelDirPath, dirname, join
+from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import ZappEnv, zapp1
+from zuper_zapp import zapp1, ZappEnv
 from . import __version__
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
@@ -75,7 +71,7 @@ def limit_memory(maxsize: int) -> None:
         print(f"Could not set memory RLIMIT_RSS: {e}")
 
 
-async def compmake_main(sti: SyncTaskInterface, args: Optional[list[str]] = None) -> ExitCode:
+async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -> ExitCode:
     # limit_memory(2 * 1024 * 1024 * 1024)
     await sti.started_and_yield()
     if not "" in sys.path:
@@ -428,7 +424,7 @@ def display_top(snapshot, key_type="lineno", limit: int = 10):
     print("Top %s lines" % limit)
     for index, stat in enumerate(top_stats[:limit], 1):
         frame = stat.traceback[0]
-        print("#%s: %s:%s: %.1f KiB" % (index, frame.filename, frame.lineno, stat.size / 1024))
+        print("#{}: {}:{}: {:.1f} KiB".format(index, frame.filename, frame.lineno, stat.size / 1024))
         line = linecache.getline(frame.filename, frame.lineno).strip()
         if line:
             print("    %s" % line)
@@ -436,7 +432,7 @@ def display_top(snapshot, key_type="lineno", limit: int = 10):
     other = top_stats[limit:]
     if other:
         size = sum(stat.size for stat in other)
-        print("%s other: %.1f KiB" % (len(other), size / 1024))
+        print("{} other: {:.1f} KiB".format(len(other), size / 1024))
     total = sum(stat.size for stat in top_stats)
     print("Total allocated size: %.1f KiB" % (total / 1024))
 

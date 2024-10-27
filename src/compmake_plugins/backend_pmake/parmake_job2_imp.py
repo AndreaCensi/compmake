@@ -1,10 +1,11 @@
 import os
 import sys
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from multiprocessing import Queue
 from queue import Full
-from typing import Any, Iterator, cast
+from typing import Any, cast
 
 from compmake import (
     CMJobID,
@@ -15,9 +16,9 @@ from compmake import (
     JobFailed,
     JobInterrupted,
     JobProgressEvent,
+    make,
     MakeResult,
     ParmakeJobResult,
-    make,
     publish,
     register_handler,
     remove_all_handlers,

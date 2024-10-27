@@ -1,14 +1,14 @@
 import time
-from typing import Collection
+from collections.abc import Collection
 
 from compmake import (
     ACTIONS,
-    CMJobID,
+    ask_if_sure_remake,
     Cache,
+    CMJobID,
     Context,
     DefaultsToConfig,
     IntervalTimer,
-    ask_if_sure_remake,
     mark_to_remake,
     raise_error_if_manager_failed,
     set_job_cache,

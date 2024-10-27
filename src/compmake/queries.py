@@ -1,8 +1,8 @@
 """ Contains queries of the job DB. """
 
 import warnings
+from collections.abc import Collection, Iterator
 from contextlib import contextmanager
-from typing import Collection, Iterator
 
 from zuper_commons.types import check_isinstance
 from .exceptions import CompmakeBug

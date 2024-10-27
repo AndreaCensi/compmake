@@ -94,7 +94,7 @@ register_handler("job-failed", job_failed)
 async def job_interrupted(context: Context, event: Event):
     await ui_error(
         context,
-        my_prefix + "Job %r interrupted:\n %s" % (event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")),
+        my_prefix + "Job {!r} interrupted:\n {}".format(event.kwargs["job_id"], indent(event.kwargs["bt"], "> ")),
     )
 
 

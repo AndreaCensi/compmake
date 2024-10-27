@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from .utils import Env, run_with_env
 
@@ -33,7 +33,7 @@ def mockup8(context):
 
 
 class TestDynamicFailure:
-    do_fail: Optional[Callable] = None
+    do_fail: Callable | None = None
 
 
 @run_with_env

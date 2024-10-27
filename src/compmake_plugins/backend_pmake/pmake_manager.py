@@ -6,12 +6,13 @@ import platform
 import random
 import time
 import traceback
+from collections.abc import Callable, Collection
 from multiprocessing import Queue
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, Callable, cast, ClassVar, Collection, NewType, Optional
+from typing import Any, cast, ClassVar, NewType
 
 import psutil
 from psutil import NoSuchProcess
@@ -75,7 +76,7 @@ class PmakeManager(Manager):
         recurse: bool = False,
         new_process: bool = False,
         show_output: bool = False,
-        max_time: Optional[float] = None,
+        max_time: float | None = None,
     ):
         Manager.__init__(self, sti, context=context, recurse=recurse, max_time=max_time)
         self.num_processes = num_processes

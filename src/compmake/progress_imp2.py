@@ -1,5 +1,5 @@
 import time
-from typing import ClassVar, Optional, Protocol, Union
+from typing import ClassVar, Protocol
 
 from zuper_commons.types import describe_type
 from .structures import ProgressStage
@@ -33,8 +33,8 @@ def init_progress_tracking(my_callback: CallbackType):
 
 def progress(
     taskname: str,
-    iterations: tuple[Union[int, float], Union[int, float]],
-    iteration_desc: Optional[str] = None,
+    iterations: tuple[int | float, int | float],
+    iteration_desc: str | None = None,
 ):
     """
      Function used by the user to describe the state of the computation.

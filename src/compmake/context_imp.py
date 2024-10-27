@@ -3,12 +3,13 @@ import os
 import sys
 import traceback
 from asyncio import CancelledError
+from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Any, Callable, cast, Collection, Optional, TypeVar, Union
+from typing import Any, cast, TypeVar
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
-from zuper_utils_asyncio import async_errors, Splitter, SyncTask, SyncTaskInterface
+from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
 from .context import Context
@@ -39,16 +40,16 @@ class UIMessage:
 class ContextImp(Context):
     currently_executing: list[CMJobID]
     objectid2job: dict[int, Promise]
-    name: Optional[str]
+    name: str | None
     _jobs_defined_in_this_session: set[CMJobID]
     _currently_executing: list[CMJobID]
     generate_job_id_counters: dict[str, int]
 
     def __init__(
         self,
-        db: "Optional[Union[str, StorageFilesystem]]" = None,
-        currently_executing: Optional[list[CMJobID]] = None,
-        name: Optional[str] = None,
+        db: "str | StorageFilesystem | None" = None,
+        currently_executing: list[CMJobID] | None = None,
+        name: str | None = None,
     ):
         """
         db: if a string, it is used as path for the DB
@@ -91,8 +92,8 @@ class ContextImp(Context):
         self.status_line = None
         self.objectid2job = {}
 
-    status_line: Optional[str]
-    splitter: Optional[Splitter[Event]]
+    status_line: str | None
+    splitter: Splitter[Event] | None
     # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
     sti: SyncTaskInterface
 
@@ -124,7 +125,7 @@ class ContextImp(Context):
 
         sti.add_shutdown_handler(on_shutdown)
 
-    br: "Optional[SyncTask[None]]"
+    br: "SyncTask[None] | None"
 
     async def aclose(self) -> None:
         # self.sti.logger.debug("aclosing contextimp")
@@ -275,7 +276,7 @@ class ContextImp(Context):
     def comp(self, command_: Callable[..., Any], *args: Any, **kwargs: Any) -> Promise:
         return comp_(self, command_, *args, **kwargs)
 
-    def comp_store(self, x: object, job_id: Optional[CMJobID] = None) -> Promise:
+    def comp_store(self, x: object, job_id: CMJobID | None = None) -> Promise:
         return comp_store_(x=x, context=self, job_id=job_id)
 
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
@@ -347,7 +348,7 @@ class ContextImp(Context):
                 print("\r" + self.status_line + "\r", end="", file=sys.stderr)
         # self.splitter_ui_console.push(uim)
 
-    async def set_status_line(self, s: Optional[str]) -> None:
+    async def set_status_line(self, s: str | None) -> None:
         self.status_line = s
         if s:
             interactive = self.get_compmake_config("interactive")
@@ -365,7 +366,7 @@ class ContextImp(Context):
         return set_compmake_config0(c, v)
 
 
-def comp_store_(x: Any, context: ContextImp, job_id: Optional[CMJobID] = None) -> Promise:
+def comp_store_(x: Any, context: ContextImp, job_id: CMJobID | None = None) -> Promise:
     """
 
     Stores the object as a job, keeping track of whether

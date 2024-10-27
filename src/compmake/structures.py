@@ -63,7 +63,7 @@
 import math
 import time
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Optional, Union
+from typing import Any, Literal, NewType
 
 from compmake_utils.pickle_frustration import pickle_main_context_save, PickleContextDesc
 from zuper_commons.types import describe_value, TM, ZAssertionError
@@ -250,8 +250,8 @@ def same_computation(jobargs1: JA, jobargs2: JA) -> tuple[Literal[True], None] |
 
 
 class IntervalTimer:
-    c1: Optional[float]
-    t1: Optional[float]
+    c1: float | None
+    t1: float | None
 
     def __init__(self):
         self.c0 = time.process_time()
@@ -378,34 +378,34 @@ class Cache:
     }
 
     state: StateCode
-    timestamp_started: Optional[float]
+    timestamp_started: float | None
     """ time start """
     timestamp: float
     """ time end """
 
-    int_load_results: Optional[IntervalTimer]
-    int_make: Optional[IntervalTimer]
-    int_compute: Optional[IntervalTimer]
-    int_save_results: Optional[IntervalTimer]
-    int_gc: Optional[IntervalTimer]
+    int_load_results: IntervalTimer | None
+    int_make: IntervalTimer | None
+    int_compute: IntervalTimer | None
+    int_save_results: IntervalTimer | None
+    int_gc: IntervalTimer | None
     jobs_defined: set[CMJobID]
     hashes_dependencies: dict[str, object]
-    exception: Optional[str]
-    backtrace: Optional[str]
-    captured_stdout: Optional[str]
-    captured_stderr: Optional[str]
-    walltime_used: Optional[float]
-    cputime_used: Optional[float]
+    exception: str | None
+    backtrace: str | None
+    captured_stdout: str | None
+    captured_stderr: str | None
+    walltime_used: float | None
+    cputime_used: float | None
 
-    result_type: Optional[str]
-    result_type_qual: Optional[str]
+    result_type: str | None
+    result_type_qual: str | None
 
-    timed_out: Optional[float]
+    timed_out: float | None
 
-    ti: Optional[TimeInfo]
+    ti: TimeInfo | None
 
     """ name of result type """
-    host: Optional[str]
+    host: str | None
 
     def __init__(self, state: StateCode):
         assert state in Cache.allowed_states
@@ -445,13 +445,13 @@ class Cache:
         self.host = None
         self.ti = None
 
-    def is_timed_out(self) -> Optional[float]:
+    def is_timed_out(self) -> float | None:
         return self.timed_out
 
     def is_skipped_test(self) -> bool:
         return "SkipTest" in self.exception
 
-    def is_oom(self) -> Optional[int]:
+    def is_oom(self) -> int | None:
         return self.oom_bytes
 
     def __repr__(self):
@@ -507,15 +507,15 @@ def timing_summary(cache: Cache) -> str:
 
 class ProgressStage:
     name: str
-    iterations: tuple[Union[float, int], Union[float, int]]
-    iteration_desc: Optional[str]
-    last_broadcast: Optional[float]
+    iterations: tuple[float | int, float | int]
+    iteration_desc: str | None
+    last_broadcast: float | None
 
     def __init__(
         self,
         name: str,
-        iterations: tuple[Union[float, int], Union[float, int]],
-        iteration_desc: Optional[str],
+        iterations: tuple[float | int, float | int],
+        iteration_desc: str | None,
     ):
         self.name = name
         self.iterations = iterations

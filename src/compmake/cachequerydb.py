@@ -1,5 +1,5 @@
+from collections.abc import Collection, Iterator
 from contextlib import contextmanager
-from typing import Collection, Iterator, Union
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
@@ -8,7 +8,7 @@ from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem
-from .queries import direct_children, direct_parents, jobs_defined
+from .queries import direct_children, direct_parents
 from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
@@ -212,11 +212,11 @@ class CacheQueryDB:
                         if not child in seen:
                             stack.append(child)
 
-            todo_and_ready = set([job_id for job_id in todo if self.dependencies_up_to_date(job_id)])
+            todo_and_ready = {job_id for job_id in todo if self.dependencies_up_to_date(job_id)}
 
             return todo, done, todo_and_ready
 
-    def tree_children_and_uodeps(self, jobs: Union[CMJobID, set[CMJobID]]):
+    def tree_children_and_uodeps(self, jobs: CMJobID | set[CMJobID]):
         """Closure of the relation children and dependencies of userobject."""
         stack: list[CMJobID] = []
         if isinstance(jobs, str):

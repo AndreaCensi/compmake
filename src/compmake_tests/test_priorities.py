@@ -1,7 +1,6 @@
 from typing import Any
 
 from compmake import CompmakeConstants, set_compmake_status
-from zuper_commons.test_utils import my_assert_equal
 from .utils import Env, run_with_env
 
 

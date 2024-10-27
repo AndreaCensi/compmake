@@ -1,8 +1,8 @@
 """ The actual interface of some commands in commands.py """
 
-from compmake import CacheQueryDB, Context, VISUALIZATION, ui_command
+from compmake import CacheQueryDB, Context, ui_command, VISUALIZATION
 from zuper_commons.text import joinlines
-from zuper_utils_asyncio import SyncTaskInterface, get_report_splitters_text
+from zuper_utils_asyncio import get_report_splitters_text, SyncTaskInterface
 
 __all__ = [
     "memstats",

@@ -5,7 +5,8 @@ import stat
 import time
 import traceback
 from asyncio import CancelledError
-from typing import Iterator, NewType, Optional, TypeVar
+from collections.abc import Iterator
+from typing import NewType, TypeVar
 
 import dill
 
@@ -88,7 +89,7 @@ class StorageFilesystem:
         create_scripts(self.basepath)
 
     @contextmanager
-    def cursor(self, desc: Optional[str] = "no-desc", /) -> Iterator[sqlite3.Cursor]:
+    def cursor(self, desc: str | None = "no-desc", /) -> Iterator[sqlite3.Cursor]:
         self.ncursor += 1
         t0 = time.perf_counter()
         cur = self.con.cursor()
@@ -111,7 +112,7 @@ class StorageFilesystem:
     def __repr__(self) -> str:
         return f"FilesystemDB({self.basepath!r};{self.file_extension})"
 
-    def fetchone(self, sql: str, args: tuple, *, desc: Optional[str] = "") -> object:
+    def fetchone(self, sql: str, args: tuple, *, desc: str | None = "") -> object:
         with self.cursor(f"{desc}/fetchone") as cur:
             cur.execute(sql, args)
             return cur.fetchone()
