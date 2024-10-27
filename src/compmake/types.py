@@ -1,4 +1,4 @@
-from typing import NewType, TypedDict, Union
+from typing import NewType, TypedDict
 
 __all__ = [
     "AbortResult",
@@ -60,4 +60,4 @@ class InterruptedResult(TypedDict):
     deleted_jobs: list[CMJobID]
 
 
-ResultDict = Union[OKResult, FailResult, BugResult, InterruptedResult, AbortResult]
+ResultDict = OKResult | FailResult | BugResult | InterruptedResult | AbortResult
