@@ -6,7 +6,7 @@ import time
 import traceback
 from asyncio import CancelledError
 from collections.abc import Iterator
-from typing import NewType, TypeVar
+from typing import NewType
 
 import dill
 
@@ -26,10 +26,8 @@ __all__ = [
     "StorageKey",
 ]
 
-X = TypeVar("X")
 
-
-def track_time(x: X) -> X:
+def track_time[X](x: X) -> X:
     return x
 
 

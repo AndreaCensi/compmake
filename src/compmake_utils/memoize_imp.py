@@ -1,14 +1,13 @@
 import functools
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 __all__ = [
     "memoized_reset",
 ]
 
-X = TypeVar("X")
 if TYPE_CHECKING:
 
-    def memoized_reset(x: X) -> X:
+    def memoized_reset[X](x: X) -> X:
         return x
 
 else:

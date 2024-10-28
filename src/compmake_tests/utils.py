@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import cast, TypeVar
+from typing import cast
 from unittest import SkipTest
 
 from compmake import (
@@ -24,8 +24,6 @@ from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
-
-X = TypeVar("X")
 
 
 class Env:
@@ -76,7 +74,7 @@ class Env:
         res = await self.up_to_date(job_id)
         self.assert_equal(res, status, "Want {!r} uptodate? {}".format(job_id, status))
 
-    def assert_equal(self, first: X, second: X, msg: str | None = None):
+    def assert_equal[X](self, first: X, second: X, msg: str | None = None):
         my_assert_equal(first, second, msg)
 
     async def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):

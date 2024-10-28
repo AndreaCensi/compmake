@@ -5,7 +5,7 @@ import traceback
 from asyncio import CancelledError
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Any, cast, TypeVar
+from typing import Any, cast
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
@@ -390,8 +390,5 @@ class Tmp:
     handler_spec: dict[Any, Any] = {}
 
 
-X = TypeVar("X")
-
-
-def load_static_storage(x: X) -> X:  # XXX: this uses double the memory though
+def load_static_storage[X](x: X) -> X:  # XXX: this uses double the memory though
     return x

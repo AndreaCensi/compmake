@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Any, TypeVar
+from typing import Any
 
 from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
@@ -27,10 +27,7 @@ def get_job_userobject_resolved(job_id: CMJobID, db: StorageFilesystem) -> objec
     return substitute_dependencies(ob, db)
 
 
-X = TypeVar("X")
-
-
-def substitute_dependencies(a: X, db: StorageFilesystem) -> X:
+def substitute_dependencies[X](a: X, db: StorageFilesystem) -> X:
     # XXX: this is a workaround
     if leave_it_alone(a):
         return deepcopy(a)

@@ -740,10 +740,6 @@ class WarningStorage:
     warned: set[Callable[..., Any]] = set()
 
 
-# P = ParamSpec("P")
-# X = TypeVar("X")
-
-
 def comp_[
     **P, X
 ](

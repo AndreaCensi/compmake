@@ -3,9 +3,8 @@ from collections.abc import Callable, Collection
 from typing import (
     Any,
     Concatenate,
-    ParamSpec,
+    Self,
     TYPE_CHECKING,
-    TypeVar,
 )
 
 from zuper_utils_asyncio import SyncTaskInterface
@@ -16,9 +15,6 @@ __all__ = [
     "Context",
 ]
 
-P = ParamSpec("P")
-X = TypeVar("X")
-
 if TYPE_CHECKING:
     from .filesystem import StorageFilesystem
 
@@ -26,24 +22,28 @@ if TYPE_CHECKING:
 class JobInterface(ABC):
     # setting up jobs
     @abstractmethod
-    def comp_dynamic(
+    def comp_dynamic[
+        **P, X
+    ](
         self,
-        f: "Callable[Concatenate[JobInterface, P], X]",
+        f: Callable[Concatenate[Self, P], X],
         *args: P.args,
         job_id: str | None = None,
         command_name: str | None = None,
         **kwargs: P.kwargs,
-    ) -> "Promise[X]": ...
+    ) -> Promise[X]: ...
 
     @abstractmethod
-    def comp(
+    def comp[
+        **P, X
+    ](
         self,
         command_: Callable[P, X],
         *args: P.args,
         command_name: str | None = None,
         job_id: str | None = None,
         **kwargs: P.kwargs,
-    ) -> "Promise[X]": ...
+    ) -> Promise[X]: ...
 
 
 class Context(JobInterface, ABC):
