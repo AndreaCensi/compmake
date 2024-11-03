@@ -55,11 +55,12 @@ async def job_failed(context: Context, event: Event):
     if not yes:
         return
     job_id = event.kwargs["job_id"]
-    reason = event.kwargs["reason"]
+    reason: str = event.kwargs["reason"]
     bt = event.kwargs["bt"]
 
     if "SkipTest" in reason:
-        await ui_error(context, my_prefix + " SkipTest")
+        first_line, _, _ = reason.partition("\n")
+        await ui_error(context, my_prefix + " SkipTest: " + first_line)
         return
     # s = reason.strip
     content = ""
