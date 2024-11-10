@@ -13,6 +13,7 @@ from .types import CMJobID
 
 __all__ = [
     "Context",
+    "JobInterface",
 ]
 
 if TYPE_CHECKING:

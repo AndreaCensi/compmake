@@ -69,4 +69,5 @@ else:
             """Support instance methods."""
             fn = functools.partial(self.__call__, obj)
             fn.reset = functools.partial(self._deletefunccache, obj)
+            fn.its_cache = functools.partial(self._getcache, obj)
             return fn

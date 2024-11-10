@@ -9,6 +9,7 @@ from typing import Any, cast
 
 from compmake import (
     CMJobID,
+    COMPMAKE_DEBUG,
     CompmakeConstants,
     Context,
     ContextImp,
@@ -157,7 +158,7 @@ async def parmake_job2(
                 #     "deleted_jobs": list(res["deleted_jobs"]),
                 # }
                 res["user_object"] = None
-                if __debug__:
+                if COMPMAKE_DEBUG:
                     result_dict_check(res)
                 res["ti"] = ti
 

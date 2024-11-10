@@ -4,6 +4,7 @@ import sqlite3
 import stat
 import time
 import traceback
+from abc import ABC, abstractmethod
 from asyncio import CancelledError
 from collections.abc import Iterator
 from typing import NewType
@@ -23,6 +24,7 @@ from .exceptions import SerializationError
 
 __all__ = [
     "StorageFilesystem",
+    "StorageFilesystemSessionInterface",
     "StorageKey",
 ]
 
@@ -87,6 +89,11 @@ class StorageFilesystem:
         create_scripts(self.basepath)
 
     @contextmanager
+    def session(self) -> "Iterator[StorageFilesystemSession]":
+        with self.cursor() as cur:
+            yield StorageFilesystemSession(self, cur)
+
+    @contextmanager
     def cursor(self, desc: str | None = "no-desc", /) -> Iterator[sqlite3.Cursor]:
         self.ncursor += 1
         t0 = time.perf_counter()
@@ -145,27 +152,10 @@ class StorageFilesystem:
             raise KeyError(key)
         (data,) = blob_value_
 
-        # filename = self.filename_for_key(key)
-        #
-        # if not os.path.exists(filename):
-        #     msg = f"Could not find key {key!r}."
-        #     msg += f"\n file: {filename}"
-        #     raise CompmakeBug(msg)
-
         if self.method == "pickle":
             return pickle.loads(data)
-            # try:
-            #     return safe_pickle_load(filename)
-            # except Exception as e:
-            #     msg = f"Could not unpickle data for key {key!r}. \n file: {filename}"
-            #     logger.error(msg)
-            #     # logger.exception(e)
-            #     msg += "\n" + traceback.format_exc()
-            #     raise CompmakeBug(msg)
         elif self.method == "dill":
             return dill.loads(data)
-            # with safe_read(filename, "rb") as f:
-            #     return dill.load(f)
         else:
             raise NotImplementedError(self.method)
 
@@ -251,24 +241,6 @@ class StorageFilesystem:
         sql = """select blob_key from fs_blobs where blob_key = ?"""
         blob_value_ = self.fetchone(sql, (key,), desc=f"{key}/get")
         return blob_value_ is not None
-        # #
-        # # filename = self.filename_for_key(key)
-        # # ex = os.path.exists(filename)
-        #
-        # sql = """
-        #     select count(*) from fs_blobs where blob_key = ?
-        # """
-        # sql = """
-        # select exists (select 1 from fs_blobs where blob_key = ?);
-        # """
-        # (res,) = self.fetchone(sql, (key,), desc=f'{key}/contains')
-        # #
-        # # with self.cursor() as cur:
-        # #     cur.execute(sql, (key,))
-        # #     (res,) = cur.fetchone()
-        # return res > 0
-        # # logger.debug('? %s %s %s' % (str(key), filename, ex))
-        # return ex
 
     @track_time
     def keys0(self) -> Iterator[StorageKey]:
@@ -285,17 +257,39 @@ class StorageFilesystem:
         for row in rows:
             yield row[0]
 
-            # res = cur.fetchall()
-            # for row in res:
-            #     yield row[0]
-
     @track_time
     def keys0_match(self, wildcard: str) -> Iterator[StorageKey]:
-        sql = """
-                select blob_key from fs_blobs where blob_key like ?
-            """
-        wildcard = wildcard.replace("*", "%")
+        use_like = False
+        if use_like:
 
+            sql = """
+                    select blob_key from fs_blobs where blob_key like ?
+                """
+            wildcard = wildcard.replace("*", "%")
+        else:
+            sql = """
+                    select blob_key from fs_blobs where blob_key glob ? 
+                """
+        # something to try
+        # language=sqlite
+        __ = """
+        
+explain query plan select sum(1) from fs_blobs where blob_key like 'cm-args-%';
+-- SCAN fs_blobs USING COVERING INDEX sqlite_autoindex_fs_blobs_1
+
+explain query plan select sum(1) from fs_blobs where blob_key glob 'cm-args-*';
+-- SEARCH fs_blobs USING COVERING INDEX sqlite_autoindex_fs_blobs_1 (blob_key>? AND blob_key<?)
+
+
+
+-- 9 ms,
+explain query plan select sum(1) from fs_blobs where blob_key glob 'cm-job-ct-mcdp_dp_tests-jobs_comptests-dp_pos-mbd_NWU_m-*';
+-- 107 ms,
+explain query plan select sum(1) from fs_blobs where blob_key like 'cm-job-ct-mcdp_dp_tests-jobs_comptests-dp_pos-mbd_NWU_m-%';
+
+        
+        
+        """
         with self.cursor(f"keys_match/{wildcard}") as cur:
             cur.execute(sql, (wildcard,))
 
@@ -345,6 +339,45 @@ class StorageFilesystem:
     #         extension = self.file_extension
     #     f = self.key2basename(key) + extension
     #     return join(self.basepath, f)
+
+
+class StorageFilesystemSessionInterface(ABC):
+    @abstractmethod
+    def get_one(self, key: StorageKey) -> object:
+        pass
+
+
+class StorageFilesystemSession(StorageFilesystemSessionInterface):
+
+    def __init__(self, db: StorageFilesystem, cursor: sqlite3.Cursor):
+        self.db = db
+        self.cursor = cursor
+
+    def get_one(self, key: StorageKey) -> object:
+        return get_one(self.cursor, key, self.db.method)
+
+
+def get_one(cursor: sqlite3.Cursor, key: StorageKey, method: str):
+    if trace_queries:
+        logger.debug("R %s" % str(key))
+
+        # self.check_existence()
+    sql = """
+                 select blob_value from fs_blobs where blob_key = ?
+          """
+
+    cursor.execute(sql, (key,))
+    blob_value_ = cursor.fetchone()
+    if blob_value_ is None:
+        raise KeyError(key)
+    (data,) = blob_value_
+
+    if method == "pickle":
+        return pickle.loads(data)
+    elif method == "dill":
+        return dill.loads(data)
+    else:
+        raise NotImplementedError(method)
 
 
 def chmod_plus_x(filename: FilePath) -> None:

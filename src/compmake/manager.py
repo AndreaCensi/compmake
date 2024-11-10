@@ -20,7 +20,7 @@ from zuper_commons.text import indent, joinlines, joinpars
 from zuper_commons.types import ZException
 from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
-from . import logger
+from . import COMPMAKE_DEBUG, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
 from .cachequerydb import CacheQueryDB
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
@@ -471,7 +471,7 @@ class Manager(ManagerLog):
             # print('here result: %s' % result)
             result_dict_check(result)
 
-            if __debug__:
+            if COMPMAKE_DEBUG:
                 check_job_cache_state(job_id, states=[Cache.DONE], db=self.db)
 
             self.job_succeeded(job_id)
@@ -492,7 +492,7 @@ class Manager(ManagerLog):
         except JobFailed as e:
             # it is the responsibility of the executer to mark_job_as_failed,
             # so we can check that
-            if __debug__:
+            if COMPMAKE_DEBUG:
                 check_job_cache_state(job_id, states=[Cache.FAILED], db=self.db)
             rd = e.get_result_dict()
             self.job_failed(job_id, deleted_jobs=rd["deleted_jobs"])
@@ -512,7 +512,7 @@ class Manager(ManagerLog):
             raise job_interrupted_exc(job_id)
 
     def job_is_deleted(self, job_id: CMJobID):
-        if __debug__:
+        if COMPMAKE_DEBUG:
             if job_exists(job_id, self.db):
                 msg = f"Job {job_id!r} declared deleted still exists"
                 raise CompmakeBug(msg)
@@ -546,7 +546,7 @@ class Manager(ManagerLog):
         # self._update_parents_relation(new_jobs)
 
         # Job succeeded? we can check in the DB
-        if __debug__:
+        if COMPMAKE_DEBUG:
             check_job_cache_state(job_id=job_id, db=self.db, states=[Cache.DONE])
 
         # print('job %r succeeded' % job_id)

@@ -18,6 +18,7 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
+from compmake.cachequerydb import CacheQuerySessionInterface
 from compmake.constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
 from compmake.priority import PSTATS_FILE
 from compmake.structures import PersistentStats, PersistentStatsOne
@@ -69,7 +70,7 @@ Outcomes = StateCode | Literal["all", "oom", "timedout", "exception", "skipped",
 
 async def display_stats(job_list: Collection[CMJobID], context: Context, write: bool) -> None:
     db0 = context.get_compmake_db()
-    cq = CacheQueryDB(db0)
+    cq0 = CacheQueryDB(db0)
     states_order = [
         Cache.NOT_STARTED,
         Cache.PROCESSING,
@@ -83,11 +84,11 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
         "exception",
     ]
 
-    # initialize counters to 0
-    states2count = dict(list(map(lambda x: (x, 0), states_order)))
-
     def empty_dict() -> dict[str, dict[Outcomes, Stats]]:
         return dict(list(map(lambda x: (x, Stats()), states_order)) + [("all", Stats())])
+
+    # initialize counters to 0
+    states2count = dict(list(map(lambda x: (x, 0), states_order)))
 
     function2state2count: dict[str, dict[Outcomes, Stats]] = defaultdict(empty_dict)
     function2count: dict[str, Stats] = defaultdict(Stats)
@@ -97,67 +98,70 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     all_times0: list[float] = []
 
-    for job_id in job_list:
-        cache = cq.get_job_cache(job_id)
+    cqs: CacheQuerySessionInterface
+    with cq0.session() as cqs:
 
-        if cache.cputime_used is not None:
-            all_times0.append(cache.cputime_used)
-    all_times = np.array(all_times0)
+        for job_id in job_list:
+            cache = cqs.get_job_cache(job_id)
 
-    for job_id in job_list:
-        cache = cq.get_job_cache(job_id)
-        states2count[cache.state] += 1
-        total += 1
-        job = cq.get_job(job_id)
-        function_id = job.command_desc
-        # initialize record if not present
-        # if not function_id in function2state2count:
-        #     function2state2count[function_id] = dict(list(map(lambda x: (x, Stats()), states_order)) + [("all", Stats())])
-        # update
-        fss = function2state2count[function_id]
-        fss[cache.state].update(cache)
-
-        function2count[function_id].update(cache)
-        fsall = function2state2count["all"]
-        fsall[cache.state].update(cache)
-        function2count["all"].update(cache)
-        # function2count['all'].update(cache)
-        if cache.state == Cache.FAILED:
-            if cache.is_oom():
-                fsall[CANCEL_REASON_OOM].update(cache)
-                fss[CANCEL_REASON_OOM].update(cache)
-            elif cache.is_timed_out():
-                fsall[CANCEL_REASON_TIMEOUT].update(cache)
-                fss[CANCEL_REASON_TIMEOUT].update(cache)
-            elif cache.is_skipped_test():
-                fsall["skipped-exception"].update(cache)
-                fss["skipped-exception"].update(cache)
-            else:
-                fsall["exception"].update(cache)
-                fss["exception"].update(cache)
-
-        if "Skipped" in (cache.result_type_qual or ""):
-            fsall["skipped"].update(cache)
-            fss["skipped"].update(cache)
-        if total == 100:  # XXX: use standard method
-            print("Loading a large number of jobs...\r")
-
-        if cache.state in (Cache.FAILED, Cache.DONE):
             if cache.cputime_used is not None:
-                if not len(all_times):
-                    cp = 50.0
+                all_times0.append(cache.cputime_used)
+        all_times = np.array(all_times0)
+
+        for job_id in job_list:
+            cache = cqs.get_job_cache(job_id)
+            states2count[cache.state] += 1
+            total += 1
+            job = cqs.get_job(job_id)
+            function_id = job.command_desc
+            # initialize record if not present
+            # if not function_id in function2state2count:
+            #     function2state2count[function_id] = dict(list(map(lambda x: (x, Stats()), states_order)) + [("all", Stats())])
+            # update
+            fss = function2state2count[function_id]
+            fss[cache.state].update(cache)
+
+            function2count[function_id].update(cache)
+            fsall = function2state2count["all"]
+            fsall[cache.state].update(cache)
+            function2count["all"].update(cache)
+            # function2count['all'].update(cache)
+            if cache.state == Cache.FAILED:
+                if cache.is_oom():
+                    fsall[CANCEL_REASON_OOM].update(cache)
+                    fss[CANCEL_REASON_OOM].update(cache)
+                elif cache.is_timed_out():
+                    fsall[CANCEL_REASON_TIMEOUT].update(cache)
+                    fss[CANCEL_REASON_TIMEOUT].update(cache)
+                elif cache.is_skipped_test():
+                    fsall["skipped-exception"].update(cache)
+                    fss["skipped-exception"].update(cache)
                 else:
-                    cp = my_percentile(cache.cputime_used, all_times)
-            else:
-                cp = 50.0
-            pstats.by_job[job_id] = PersistentStatsOne(
-                prob_success=1.0 if cache.state == Cache.DONE else 0.0,
-                prob_failure=1.0 if cache.state == Cache.FAILED else 0.0,
-                prob_timedout=1.0 if cache.is_timed_out() else 0.0,
-                prob_oom=1.0 if cache.is_oom() else 0.0,
-                average_compute_time=cache.cputime_used or 0.0,
-                compute_time_percentile=cp,
-            )
+                    fsall["exception"].update(cache)
+                    fss["exception"].update(cache)
+
+            if "Skipped" in (cache.result_type_qual or ""):
+                fsall["skipped"].update(cache)
+                fss["skipped"].update(cache)
+            if total == 100:  # XXX: use standard method
+                print("Loading a large number of jobs...\r")
+
+            if cache.state in (Cache.FAILED, Cache.DONE):
+                if cache.cputime_used is not None:
+                    if not len(all_times):
+                        cp = 50.0
+                    else:
+                        cp = my_percentile(cache.cputime_used, all_times)
+                else:
+                    cp = 50.0
+                pstats.by_job[job_id] = PersistentStatsOne(
+                    prob_success=1.0 if cache.state == Cache.DONE else 0.0,
+                    prob_failure=1.0 if cache.state == Cache.FAILED else 0.0,
+                    prob_timedout=1.0 if cache.is_timed_out() else 0.0,
+                    prob_oom=1.0 if cache.is_oom() else 0.0,
+                    average_compute_time=cache.cputime_used or 0.0,
+                    compute_time_percentile=cp,
+                )
 
     if total == 0:
         print(pad_to_screen("No jobs found."))

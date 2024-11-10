@@ -1,5 +1,7 @@
+from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator
 from contextlib import contextmanager
+from typing import Any, Callable
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
@@ -7,9 +9,9 @@ from . import logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
-from .filesystem import StorageFilesystem
+from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
 from .queries import direct_children, direct_parents
-from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job_exists
+from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job2cachekey, job2key, job_exists
 from .structures import Cache, Job
 from .types import CMJobID
 
@@ -17,6 +19,47 @@ __all__ = [
     "CacheQueryDB",
     "definition_closure",
 ]
+
+
+class CacheQuerySessionInterface(ABC):
+
+    @abstractmethod
+    def get_job(self, job_id: CMJobID) -> Job: ...
+
+    @abstractmethod
+    def get_job_cache(self, job_id: CMJobID) -> Cache: ...
+
+
+class CacheQuerySession(CacheQuerySessionInterface):
+
+    def __init__(self, cq: "CacheQueryDB", session: StorageFilesystemSessionInterface):
+        self.session = session
+        self.cq = cq
+
+    def _get(self, cache: dict, tokey: Callable[[CMJobID], StorageKey], arg: CMJobID) -> Any:
+        if arg in cache:
+            return cache[arg]
+
+        key = tokey(arg)
+        data = self.session.get_one(key)
+
+        cache[arg] = data
+        return data
+
+    def get_job_cache(self, job_id: CMJobID) -> Cache:
+        cache = self.cq.get_job_cache.its_cache()  # type: ignore
+
+        try:
+            return self._get(cache, job2cachekey, job_id)
+        except KeyError as e:
+
+            cache = Cache(Cache.NOT_STARTED)
+            return cache
+            # raise ZValueError(job_id) from e
+
+    def get_job(self, job_id: CMJobID) -> Cache:
+        cache = self.cq.get_job.its_cache()  # type: ignore
+        return self._get(cache, job2key, job_id)
 
 
 class CacheQueryDB:
@@ -29,6 +72,11 @@ class CacheQueryDB:
 
     def __init__(self, db: StorageFilesystem):
         self.db = db
+
+    @contextmanager
+    def session(self) -> Iterator[CacheQuerySessionInterface]:
+        with self.db.session() as session:
+            yield CacheQuerySession(self, session)
 
     def invalidate(self) -> None:
         self.get_job_cache.reset()  # type: ignore
@@ -295,6 +343,7 @@ def definition_closure(jobs: Collection[CMJobID], db: StorageFilesystem) -> set[
     jobs = set(jobs)
 
     cq = CacheQueryDB(db)
+
     stack = set(jobs)
     result: set[CMJobID] = set()
     while stack:

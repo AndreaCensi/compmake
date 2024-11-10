@@ -13,7 +13,7 @@ from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, 
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
 from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
 from zuper_utils_timing import new_timeinfo, TimeInfo
-from . import logger
+from . import COMPMAKE_DEBUG, logger
 from .cachequerydb import CacheQueryDB, definition_closure
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
@@ -799,7 +799,7 @@ def comp_[
         return None  # XXX # type: ignore
 
     # Check that this is a pickable function
-    if __debug__:
+    if COMPMAKE_DEBUG:
         try:
             try_pickling(command)
         except Exception as e:

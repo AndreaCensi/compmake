@@ -7,6 +7,7 @@ from typing import Any, TypedDict
 from zuper_commons.types import add_context, check_isinstance, TM, ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
+from . import COMPMAKE_DEBUG
 from .context import Context
 from .dependencies import collect_dependencies, substitute_dependencies
 from .exceptions import CompmakeBug, SerializationError
@@ -181,7 +182,7 @@ async def execute_with_context(
     # context is one of the arguments
     assert context in args
 
-    if __debug__:
+    if COMPMAKE_DEBUG:
 
         try:
             _bound = sig.bind(*args, **kwargs2)
