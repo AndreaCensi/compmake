@@ -361,9 +361,17 @@ async def pmake_worker(
             def put_result(x: ResultDict) -> float:
                 log("putting result in result_queue..")
                 t01 = time.time()
-                event_queue.put(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id))
                 result_queue.put(x, block=True)
                 log(f"put result in result_queue in {time.time() - t01:.2f} seconds")
+
+                log("putting notification in result_queue..")
+                try:
+                    event_queue.put(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id), timeout=1)
+                except Exception as e:
+                    log(f"Could not put in event queue: {str(e)}")
+                else:
+                    log(f"put notification in event_queue")
+
                 if signal_queue is not None:
                     log("putting result in signal_queue..")
                     t01 = time.time()
@@ -468,24 +476,30 @@ async def pmake_worker(
 
                     log(f"got job: {job} in {time_to_get_job:.2f} seconds")
 
-                    job_id, function_name, arguments = job
-                    event_queue.put(Event("worker-job-started", worker=name, job_id=job_id))
-
-                    arguments += (event_queue,)
-                    funcs: dict[str, Any] = {
-                        "parmake_job2_new_process_1": parmake_job2_new_process_1,
-                        "parmake_job2": parmake_job2,
-                    }
-                    function = funcs[function_name]
-                    if detailed_python_mem_stats:
-                        diff = memory_tracker.format_diff()
-                        log(f"Diff after loading params for {job_id}: \n\n" + joinlines(diff))
-                        del diff
-                        diff = None
-
-                    current_name = f"{name}:{job_id}"
-                    setproctitle(f"compmake:{current_name}")
                     try:
+                        job_id, function_name, arguments = job
+                        try:
+                            event_queue.put(Event("worker-job-started", worker=name, job_id=job_id), timeout=0.1)
+                        except Exception as e:
+                            log(f"Could not put in event queue: {e}")
+                        else:
+                            pass
+
+                        arguments += (event_queue,)
+                        funcs: dict[str, Any] = {
+                            "parmake_job2_new_process_1": parmake_job2_new_process_1,
+                            "parmake_job2": parmake_job2,
+                        }
+                        function = funcs[function_name]
+                        if detailed_python_mem_stats:
+                            diff = memory_tracker.format_diff()
+                            log(f"Diff after loading params for {job_id}: \n\n" + joinlines(diff))
+                            del diff
+                            diff = None
+
+                        current_name = f"{name}:{job_id}"
+                        setproctitle(f"compmake:{current_name}")
+
                         t0 = time.time()
                         log(f"creating task...")
                         child = await sti.create_child_task2(job_id, funcwrap, function, arguments)
@@ -524,7 +538,9 @@ async def pmake_worker(
 
                     except BaseException:
                         log(f"uncaught error: {job}")
-                        raise
+
+                        put_result(dict(abort=str(e)))
+                        # raise
                     else:
                         log(f"result: {result}")
                         put_result(result)

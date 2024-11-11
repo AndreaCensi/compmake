@@ -6,6 +6,7 @@ import platform
 import random
 import time
 import traceback
+from asyncio import CancelledError
 from collections.abc import Callable, Collection
 from multiprocessing import Queue
 
@@ -171,7 +172,7 @@ class PmakeManager(Manager):
 
     def get_status_str(self) -> str:
         max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-        max_job_mem = max_job_mem_GB * 1024**3
+        max_job_mem = max_job_mem_GB * 1024 ** 3
         job_timeout = self.context.get_compmake_config("job_timeout")
 
         def format_with_limit(value: int, limit: int, f: Callable[[int], str]) -> str:
@@ -325,7 +326,7 @@ class PmakeManager(Manager):
 
             max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
 
-            usage_GB = mem.usage / (1024**3)
+            usage_GB = mem.usage / (1024 ** 3)
             if usage_GB > max_mem_GB:
                 msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
                 # logger.info(mem=mem)
@@ -461,7 +462,15 @@ class PmakeManager(Manager):
             try:
                 loop = asyncio.get_event_loop()
                 timeout = 1
-                event = await loop.run_in_executor(None, self.event_queue.get, True, timeout)  # @UndefinedVariable
+                try:
+                    event = await loop.run_in_executor(None, self.event_queue.get, True, timeout)  # @UndefinedVariable
+                except Empty:
+                    continue
+                except CancelledError:
+                    raise
+                except BaseException as e:
+                    logger.error("Got weird exception", tb=traceback.format_exc())
+                    continue
                 # if 'worker-exit' in event.name:
                 #     logger.debug(event=event)
                 publish(self.context, event.name, **event.kwargs)
