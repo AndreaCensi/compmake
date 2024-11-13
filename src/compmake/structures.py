@@ -92,6 +92,9 @@ __all__ = [
 class Promise[X]:
     job_id: CMJobID
 
+    def pretend(self) -> X:
+        return self  # type: ignore
+
 
 @dataclass
 class Job:
