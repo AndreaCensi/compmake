@@ -6,13 +6,13 @@ from .types import CMJobID
 
 if TYPE_CHECKING:
     from .context import Context
-    from .cachequerydb import CacheQueryDB
+    from .cachequerydb import CacheQueryDB, CacheQuerySessionInterface
 
 __all__ = ["CANCEL_REASON_OOM", "CANCEL_REASON_TIMEOUT", "CompmakeConstants", "DefaultsToConfig"]
 
 
 class JobIterator(Protocol):
-    def __call__(self, context: "Context", cq: "CacheQueryDB") -> Iterator[CMJobID]: ...
+    def __call__(self, context: "Context", cqs: "CacheQuerySessionInterface") -> Iterator[CMJobID]: ...
 
 
 AliasT = str | JobIterator

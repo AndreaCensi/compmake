@@ -105,8 +105,8 @@ def progress(
             ):
                 progress_stack_updated()
                 stage.last_broadcast = time.time()
-            if stage.last_broadcast is None:
-                stage.last_broadcast = time.time()
+            # if stage.last_broadcast is None:
+            #     stage.last_broadcast = time.time()
             break
     else:
         # If we are here, we haven't found taskname in the stack.

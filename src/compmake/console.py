@@ -41,7 +41,7 @@ def get_readline() -> Any:
         except BaseException as e:
             try:
                 # noinspection PyUnresolvedReferences
-                import pyreadline as readline  # @UnresolvedImport
+                import pyreadline as readline  # @UnresolvedImport # pyrighy: ignore
 
                 return readline
             except Exception as e2:
@@ -182,7 +182,7 @@ COMPMAKE_HISTORY_FILENAME = ".compmake_history.txt"
 import os
 
 
-async def compmake_console_lines(context: Context) -> AsyncIterator[str]:
+async def compmake_console_lines(context: Context) -> AsyncIterator[tuple[str, asyncio.Event]]:
     """Returns lines with at least one character."""
     readline = get_readline()
     from .context_imp import ContextImp

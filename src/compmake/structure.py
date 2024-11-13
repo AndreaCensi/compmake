@@ -30,7 +30,7 @@ def add_config_switch(name, default_value, allowed=None, desc=None, section=None
     config_sections[section].switches.append(name)
 
 
-def set_config_from_strings(name: str, args) -> None:
+def set_config_from_strings(name: str, args: list[str]) -> None:
     """Sets config from an array of arguments"""
     config_switches = CompmakeGlobalState.config_switches
     if not name in config_switches:

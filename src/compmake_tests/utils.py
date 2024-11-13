@@ -68,7 +68,9 @@ class Env:
 
     async def get_jobs(self, expression: str):
         """Returns the list of jobs corresponding to the given expression."""
-        return list(parse_job_list(expression, context=self.cc))
+        cq = CacheQueryDB(self.db)
+        with cq.session() as cqs:
+            return list(parse_job_list(expression, cqs))
 
     async def assert_job_uptodate(self, job_id: CMJobID, status):
         res = await self.up_to_date(job_id)

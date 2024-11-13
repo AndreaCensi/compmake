@@ -128,6 +128,7 @@ class Manager(ManagerLog):
     processing2result: dict[CMJobID, ProcessingDetails]
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
+    ready_to_do_heap: list[tuple[float, CMJobID]]
 
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: float | None = None):
         self.context = context
@@ -214,7 +215,7 @@ class Manager(ManagerLog):
         # for k in self.ready_todo:
         #     pass
 
-        p, best = heapq.heappop(self.ready_to_do_heap)
+        _p, best = heapq.heappop(self.ready_to_do_heap)
         # logger.info("next_job", best=best, p=p, prio=self.priority_queue[:2] + ['..'] + self.priority_queue[-2:])
         return best
 
@@ -477,7 +478,7 @@ class Manager(ManagerLog):
             self.job_succeeded(job_id)
             self.check_invariants()
 
-            self.check_job_finished_handle_result(job_id, result)
+            self.check_job_finished_handle_result(job_id, result) # pyright: ignore
             self.check_invariants()
             # this will schedule the parents, so let's do it later
 
@@ -813,7 +814,7 @@ class Manager(ManagerLog):
             await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
         # We make a copy because processing is updated during the loop
-        result = set()
+        result: set[CMJobID] = set()
         for job_id in set(self.processing2result):
             received = await self.check_job_finished(job_id, check_mem_etc=expensive_checks)
             if received:
@@ -891,12 +892,12 @@ class Manager(ManagerLog):
 
     async def repair_todo(self) -> set[CMJobID]:
         db = self.context.get_compmake_db()
-        changes = set()
+        changes: set[CMJobID] = set()
         for job_id in list(self.todo):
             job = get_job(job_id, db)
             cache = get_job_cache(job_id, db)
-            res = {}
-            waiting_on = set()
+            res: dict[CMJobID, str] = {}
+            waiting_on: set[CMJobID] = set()
             for dependency in job.children:
                 dependency_status = get_job_cache(dependency, db)
 

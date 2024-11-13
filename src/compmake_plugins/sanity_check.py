@@ -2,7 +2,7 @@
 
 from compmake import (
     all_jobs,
-    children,
+    CacheQueryDB, children,
     CMJobID,
     COMMANDS_ADVANCED,
     CompmakeBug,
@@ -28,11 +28,12 @@ async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Co
 
     # Do not use cq
     if not args:
-        job_list = all_jobs(db=db)
+        job_list = list(all_jobs(db=db))
     else:
-        job_list = parse_job_list(args, context=context)
+        cq = CacheQueryDB(db)
+        with cq.session() as cqs:
+            job_list = list(parse_job_list(args, cqs=cqs))
 
-    job_list = list(job_list)
     # print('Checking consistency of %d jobs.' % len(job_list))
     errors = {}
     for job_id in job_list:

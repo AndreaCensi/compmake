@@ -741,7 +741,7 @@ class WarningStorage:
 
 
 def comp_[
-    **P, X
+** P, X
 ](
     context: Context,
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
@@ -1201,16 +1201,16 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
             raise UserError(msg)
 
-        job_list = parse_job_list(args, context=context, cq=cq)
+        with cq.session() as cqs:
+            job_list = list(parse_job_list(args, cqs=cqs))
 
         # TODO: check non empty
-        job_list = list(job_list)
         CompmakeConstants.aliases["last"] = job_list
         kwargs["non_empty_job_list"] = job_list
 
     if "job_list" in function_args:
-        job_list = parse_job_list(args, context=context, cq=cq)
-        job_list = list(job_list)
+        with cq.session() as cqs:
+            job_list = list(parse_job_list(args, cqs=cqs))
         CompmakeConstants.aliases["last"] = job_list
         # TODO: this does not survive reboots
         # logger.info('setting alias "last"' )

@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import ClassVar
+from typing import ClassVar, cast
 
 from compmake_utils import get_screen_columns
 from zuper_commons.text import indent, joinlines
@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-def clean_console_line(stream):
+def clean_console_line(stream) -> None:
     s = "\r" + (" " * (get_screen_columns() - 0)) + "\r"  # was : 2
     stream.write(s)
 
@@ -114,7 +114,7 @@ class DefaultConsole:
 async def handle_ui_status_summary(context: Context, event: Event) -> None:
     if not DefaultConsole.active:
         return
-    line = event.kwargs["string"]
+    line = cast(str, event.kwargs["string"])
     await context.set_status_line(line)
     # if context.get_compmake_config("console_status"):
     #

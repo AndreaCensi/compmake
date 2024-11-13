@@ -7,7 +7,7 @@ import traceback
 from abc import ABC, abstractmethod
 from asyncio import CancelledError
 from collections.abc import Iterator
-from typing import NewType
+from typing import Callable, NewType
 
 import dill
 
@@ -346,6 +346,11 @@ class StorageFilesystemSessionInterface(ABC):
     def get_one(self, key: StorageKey) -> object:
         pass
 
+    @abstractmethod
+    def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
+                              my_key2x: Callable[[StorageKey], X], pattern: str, /) -> Iterator[X]:
+        ...
+
 
 class StorageFilesystemSession(StorageFilesystemSessionInterface):
 
@@ -355,6 +360,21 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
 
     def get_one(self, key: StorageKey) -> object:
         return get_one(self.cursor, key, self.db.method)
+
+    def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
+                              my_key2x: Callable[[StorageKey], X], pattern, /) -> Iterator[X]:
+        ...
+
+        pattern = my_x2key(pattern)
+        # language=sqlite
+        sql = """
+            select blob_key from fs_blobs where blob_key glob ? 
+        """
+
+        self.cursor.execute(sql, (pattern,))
+
+        for row in self.cursor:
+            yield row[0]
 
 
 def get_one(cursor: sqlite3.Cursor, key: StorageKey, method: str):

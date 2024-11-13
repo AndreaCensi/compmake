@@ -4,7 +4,7 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from typing import Any, cast
 
-from zuper_commons.fs import safe_pickle_load
+from zuper_commons.fs import safe_pickle_load, FilePath
 from zuper_commons.types import ZAssertionError
 from . import logger
 from .cachequerydb import CacheQueryDB
@@ -37,7 +37,7 @@ def compute_priorities(
 
 MAX_PRIORITY = 1000.0
 
-PSTATS_FILE = "pstats.pickle"
+PSTATS_FILE = cast(FilePath, "pstats.pickle")
 pstats: PersistentStats | None
 if os.path.exists(PSTATS_FILE):
     pstats = cast(PersistentStats, safe_pickle_load(PSTATS_FILE))
@@ -137,7 +137,7 @@ def compute_priority_(
     """Computes the priority for one job. It uses caching results in
     self.priorities if they are found."""
 
-    circumstances = []
+    circumstances: list[str] = []
     if job_id in priorities:
         return priorities[job_id], ["cached"]
 
@@ -194,7 +194,8 @@ def compute_priority_(
         parent_bonus = 0.0
     else:
         circumstances.append("inherit-parents-priority")
-        pf = lambda p: compute_priority(p, priorities, targets, cq=cq)
+        def pf(p: CMJobID) -> float:
+            return compute_priority(p, priorities, targets, cq=cq)
         # it was -1
         parents_priority = list(map(pf, parents_which_are_targets))
         max_p = max(parents_priority)

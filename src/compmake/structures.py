@@ -133,13 +133,13 @@ def make_job(
     """
     children = set(children)
 
-    parents = set()
+    parents: set[CMJobID] = set()
 
     assert len(defined_by) >= 1, defined_by
     assert defined_by[0] == "root", defined_by
     # str -> set(str), where the key is one
     # of the direct children
-    dynamic_children = {}
+    dynamic_children: dict[CMJobID, set[CMJobID]] = {}
 
     pickle_main_context = pickle_main_context_save()
 
@@ -266,14 +266,16 @@ class IntervalTimer:
         self.c1 = time.process_time()
         self.t1 = time.time()
 
-    def get_walltime_used(self):
+    def get_walltime_used(self)-> float:
         if not self.stopped:
             raise ValueError("not stopped")
+        assert self.t1 is not None
         return self.t1 - self.t0
 
-    def get_cputime_used(self):
+    def get_cputime_used(self) -> float:
         if not self.stopped:
             raise ValueError("not stopped")
+        assert self.c1 is not None
         return self.c1 - self.c0
 
     def walltime_interval(self):
@@ -284,6 +286,8 @@ class IntervalTimer:
     def __str__(self):
         if not self.stopped:
             return "Timer(not stopped)"
+        assert self.t1 is not None
+        assert self.c1 is not None
         tms = int((self.t1 - self.t0) * 1000)
         cms = int((self.c1 - self.c0) * 1000)
         return f"Timer(wall {tms} ms cpu {cms} ms)"
@@ -338,7 +342,7 @@ class Cache:
     stateupdate2color = {
         # (state, uptodate)
         (NOT_STARTED, False): {},
-        (PROCESSING): {"color": "yellow", "attrs": ["concealed"]},
+        (PROCESSING, True): {"color": "yellow", "attrs": ["concealed"]},
         (PROCESSING, False): {"color": "yellow", "attrs": ["concealed"]},
         (FAILED, False): {"color": "red"},
         (BLOCKED, True): {"color": "brown"},
@@ -449,7 +453,10 @@ class Cache:
         return self.timed_out
 
     def is_skipped_test(self) -> bool:
-        return "SkipTest" in self.exception
+        if self.exception is not None:
+            return "SkipTest" in self.exception
+        else:
+            return False
 
     def is_oom(self) -> int | None:
         return self.oom_bytes

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from collections.abc import Collection, Iterator
+from collections.abc import Callable, Collection, Iterator
 from contextlib import contextmanager
-from typing import Any, Callable
+from typing import cast
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
@@ -11,12 +11,13 @@ from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
 from .queries import direct_children, direct_parents
-from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job2cachekey, job2key, job_exists
+from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job2cachekey, job2key, job_exists, key2job
 from .structures import Cache, Job
 from .types import CMJobID
 
 __all__ = [
     "CacheQueryDB",
+    "CacheQuerySessionInterface",
     "definition_closure",
 ]
 
@@ -24,10 +25,31 @@ __all__ = [
 class CacheQuerySessionInterface(ABC):
 
     @abstractmethod
+    def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]: ...
+
+    @abstractmethod
     def get_job(self, job_id: CMJobID) -> Job: ...
 
     @abstractmethod
     def get_job_cache(self, job_id: CMJobID) -> Cache: ...
+
+    @abstractmethod
+    def all_jobs(self) -> Iterator[CMJobID]: ...
+
+    @abstractmethod
+    def job_exists(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def all_jobs_pattern(self, pattern: str) -> Iterator[CMJobID]: ...
+
+    @abstractmethod
+    def dependencies_up_to_date(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def direct_parents(self, job_id: CMJobID) -> set[CMJobID]: ...
+
+    @abstractmethod
+    def direct_children(self, job_id: CMJobID) -> set[CMJobID]: ...
 
 
 class CacheQuerySession(CacheQuerySessionInterface):
@@ -36,30 +58,53 @@ class CacheQuerySession(CacheQuerySessionInterface):
         self.session = session
         self.cq = cq
 
-    def _get(self, cache: dict, tokey: Callable[[CMJobID], StorageKey], arg: CMJobID) -> Any:
+    def direct_parents(self, job_id: CMJobID) -> set[CMJobID]:
+        job = self.get_job(job_id)
+        return set(job.parents)
+
+    def direct_children(self, job_id: CMJobID) -> set[CMJobID]:
+        job = self.get_job(job_id)
+        return set(job.children)
+
+    def _get[Y](self, cache: dict[CMJobID, Y], tokey: Callable[[CMJobID], StorageKey], arg: CMJobID) -> Y:
         if arg in cache:
             return cache[arg]
 
         key = tokey(arg)
         data = self.session.get_one(key)
+        data_y = cast(Y, data)
+        cache[arg] = data_y
+        return data_y
 
-        cache[arg] = data
-        return data
+    def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
+        return self.cq.up_to_date(job_id)  # FIXME: not using session
+
+    def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
+        return self.cq.dependencies_up_to_date(job_id)  # FIXME: not using session
+
+    def job_exists(self, job_id: CMJobID) -> bool:
+        return self.cq.job_exists(job_id)  # FIXME: not using session
 
     def get_job_cache(self, job_id: CMJobID) -> Cache:
         cache = self.cq.get_job_cache.its_cache()  # type: ignore
 
         try:
             return self._get(cache, job2cachekey, job_id)
-        except KeyError as e:
+        except KeyError:
 
             cache = Cache(Cache.NOT_STARTED)
             return cache
             # raise ZValueError(job_id) from e
 
-    def get_job(self, job_id: CMJobID) -> Cache:
+    def get_job(self, job_id: CMJobID) -> Job:
         cache = self.cq.get_job.its_cache()  # type: ignore
         return self._get(cache, job2key, job_id)
+
+    def all_jobs(self) -> Iterator[CMJobID]:
+        yield from self.session.list_all_transform(job2key, key2job, "*")
+
+    def all_jobs_pattern(self, pattern: str) -> Iterator[CMJobID]:
+        yield from self.session.list_all_transform(job2key, key2job, pattern)
 
 
 class CacheQueryDB:
@@ -98,10 +143,9 @@ class CacheQueryDB:
         return get_job(job_id, db=self.db)
 
     @memoized_reset
-    def all_jobs(self) -> list[CMJobID]:
+    def all_jobs(self) -> Iterator[CMJobID]:
         # NOTE: very important, do not memoize iterator
-        res = list(all_jobs(db=self.db))
-        return res
+        yield from all_jobs(db=self.db)
 
     @memoized_reset
     def all_jobs_pattern(self, pattern: str) -> list[CMJobID]:
