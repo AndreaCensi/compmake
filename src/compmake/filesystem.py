@@ -96,6 +96,8 @@ class StorageFilesystem:
     @contextmanager
     def cursor(self, desc: str | None = "no-desc", /) -> Iterator[sqlite3.Cursor]:
         self.ncursor += 1
+        # if self.ncursor > 100:  # TMP
+        #     raise Exception(f"Too many cursors {self.ncursor}")
         t0 = time.perf_counter()
         cur = self.con.cursor()
         t1 = time.perf_counter()
@@ -348,7 +350,15 @@ class StorageFilesystemSessionInterface(ABC):
 
     @abstractmethod
     def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
-                              my_key2x: Callable[[StorageKey], X], pattern: str, /) -> Iterator[X]:
+                              my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]:
+        ...
+
+    @abstractmethod
+    def sizeof(self, key: StorageKey) -> int:
+        ...
+
+    @abstractmethod
+    def exists(self, key: StorageKey) -> bool:
         ...
 
 
@@ -358,11 +368,31 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
         self.db = db
         self.cursor = cursor
 
+    def sizeof(self, key: StorageKey) -> int:
+        sql = """
+                   select length(blob_value) from fs_blobs where blob_key = ?
+               """
+        (res,) = self._fetchone(
+            sql,
+            (key,),
+            desc=f"{key}/sizeof",
+        )
+        return res
+
+    def exists(self, key: StorageKey) -> bool:
+        sql = """select blob_key from fs_blobs where blob_key = ?"""
+        blob_value_ = self._fetchone(sql, (key,), desc=f"{key}/get")
+        return blob_value_ is not None
+
+    def _fetchone(self, sql: str, args: tuple, *, desc: str | None = "") -> object:
+        self.cursor.execute(sql, args)
+        return self.cursor.fetchone()
+
     def get_one(self, key: StorageKey) -> object:
         return get_one(self.cursor, key, self.db.method)
 
     def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
-                              my_key2x: Callable[[StorageKey], X], pattern, /) -> Iterator[X]:
+                              my_key2x: Callable[[StorageKey], X], pattern, /) -> list[X]:
         ...
 
         pattern = my_x2key(pattern)
@@ -373,8 +403,8 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
 
         self.cursor.execute(sql, (pattern,))
 
-        for row in self.cursor:
-            yield row[0]
+        jobs = [my_key2x(row[0]) for row in self.cursor]
+        return jobs
 
 
 def get_one(cursor: sqlite3.Cursor, key: StorageKey, method: str):

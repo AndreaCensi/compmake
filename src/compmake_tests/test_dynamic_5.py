@@ -1,6 +1,6 @@
 from typing import cast
 
-from compmake import clean_other_jobs, definition_closure
+from compmake import clean_other_jobs, definition_closure, Context
 from compmake.types import CMJobID
 
 
@@ -8,11 +8,11 @@ def g2():
     pass
 
 
-def gd(context):
+def gd(context: Context):
     context.comp(g2)
 
 
-def fd(context):
+def fd(context: Context):
     context.comp_dynamic(gd)
 
 
@@ -21,15 +21,15 @@ def i2():
 
 
 # noinspection PyShadowingBuiltins
-def id(context):
+def id(context: Context):
     context.comp(i2)
 
 
-def hd(context):
+def hd(context: Context):
     context.comp_dynamic(id)
 
 
-def mockup5(context, both):
+def mockup5(context: Context, both: bool):
     context.comp_dynamic(fd)
     if both:
         context.comp_dynamic(hd)

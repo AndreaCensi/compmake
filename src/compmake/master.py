@@ -7,7 +7,7 @@ import traceback
 import tracemalloc
 from asyncio import CancelledError
 from optparse import OptionParser
-from pstats import f8, func_std_string
+from pstats import f8, func_std_string  # type: ignore
 from typing import cast
 
 from compmake_utils import setproctitle
@@ -94,8 +94,8 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
     parser.add_option(
         "--retcodefile",
         help="If given, the return value is written in this "
-        "file. Useful to check when compmake finished in "
-        "a grid environment. ",
+             "file. Useful to check when compmake finished in "
+             "a grid environment. ",
         default=None,
     )
 

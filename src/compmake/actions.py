@@ -58,6 +58,7 @@ __all__ = [
     "mark_as_failed",
     "mark_as_notstarted",
     "mark_to_remake",
+    "mark_as_oom", "mark_as_timed_out",
 ]
 
 if TYPE_CHECKING:
@@ -747,7 +748,7 @@ def comp_[
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
     *args0: P.args,
     **kwargs: P.kwargs,
-) -> Promise:
+) -> Promise[X]:
     """
     Main method to define a computation step.
 
@@ -796,6 +797,7 @@ def comp_[
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
+        # noinspection PyTypeChecker
         return None  # XXX # type: ignore
 
     # Check that this is a pickable function
@@ -1050,7 +1052,7 @@ def comp_[
 
 
 async def interpret_commands(
-    sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator=";"
+    sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator: str = ";"
 ) -> None:
     """
     Interprets what could possibly be a list of commands (separated by ";")

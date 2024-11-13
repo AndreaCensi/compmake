@@ -22,7 +22,7 @@ from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from . import COMPMAKE_DEBUG, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
-from .cachequerydb import CacheQueryDB
+from .cachequerydb import CacheQueryDB, list_todo_targets
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
 from .context import Context
 from .events_structures import Event
@@ -246,54 +246,56 @@ class Manager(ManagerLog):
 
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
-        # Note this would not work for recursive jobs
-        targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
-        not_ready = targets_todo_plus_deps - ready_todo
+        with cq.session() as cqs:
 
-        self.log(
-            "computed todo",
-            targets_todo_plus_deps=L(targets_todo_plus_deps),
-            targets_done=L(targets_done),
-            ready_todo=L(ready_todo),
-            not_ready=L(not_ready),
-        )
+            # Note this would not work for recursive jobs
+            targets_todo_plus_deps, targets_done, ready_todo = list_todo_targets(targets, cqs)
+            not_ready = targets_todo_plus_deps - ready_todo
 
-        self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
+            self.log(
+                "computed todo",
+                targets_todo_plus_deps=L(targets_todo_plus_deps),
+                targets_done=L(targets_done),
+                ready_todo=L(ready_todo),
+                not_ready=L(not_ready),
+            )
 
-        # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
-        # print('           targets_done: %s ' % targets_done)
-        # print('             ready_todo: %s ' % ready_todo)
-        # both done and todo jobs are added to self.all_targets
+            self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
 
-        # let's check the additional jobs exist
-        for d in targets_todo_plus_deps - set(targets):
-            if not job_exists(d, self.db):
-                msg = "Adding job that does not exist: %r." % d
-                raise CompmakeBug(msg)
+            # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
+            # print('           targets_done: %s ' % targets_done)
+            # print('             ready_todo: %s ' % ready_todo)
+            # both done and todo jobs are added to self.all_targets
 
-        self.all_targets.update(targets_todo_plus_deps)
-        self.all_targets.update(targets_done)
+            # let's check the additional jobs exist
+            for d in targets_todo_plus_deps - set(targets):
+                if not cqs.job_exists(d):
+                    msg = "Adding job that does not exist: %r." % d
+                    raise CompmakeBug(msg)
 
-        # ok, careful here, there might be jobs that are
-        # already in processing
-        processing = set(self.processing2result)
+            self.all_targets.update(targets_todo_plus_deps)
+            self.all_targets.update(targets_done)
 
-        self.done.update(targets_done - processing)
+            # ok, careful here, there might be jobs that are
+            # already in processing
+            processing = set(self.processing2result)
 
-        todo_add = not_ready - processing
-        self.todo.update(not_ready - processing)
-        # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
-        ready_add = ready_todo - processing
-        # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
+            self.done.update(targets_done - processing)
 
-        self.add_to_ready_(ready_add)
-        # this is a quick fix but I'm sure more thought is to be given
-        for a in ready_add:
-            if a in self.todo:
-                self.todo.remove(a)
-        for a in todo_add:
-            if a in self.ready_todo:
-                self.remove_from_ready(a)
+            todo_add = not_ready - processing
+            self.todo.update(not_ready - processing)
+            # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
+            ready_add = ready_todo - processing
+            # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
+
+            self.add_to_ready_(ready_add)
+            # this is a quick fix but I'm sure more thought is to be given
+            for a in ready_add:
+                if a in self.todo:
+                    self.todo.remove(a)
+            for a in todo_add:
+                if a in self.ready_todo:
+                    self.remove_from_ready(a)
 
         self.check_invariants()
 
@@ -308,8 +310,9 @@ class Manager(ManagerLog):
     def compute_and_store_priorities(self, jobs: Collection[CMJobID]):
         misses_priorities = set(jobs)
         cq = CacheQueryDB(self.db)
-        res = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
-        self.priorities.update(res)
+        with cq.session() as cqs:
+            res = compute_priorities(misses_priorities, cqs=cqs, priorities=self.priorities)
+            self.priorities.update(res)
 
     def instance_some_jobs(self) -> tuple[int, dict[str, str]]:
         """
@@ -438,7 +441,7 @@ class Manager(ManagerLog):
                         return True
 
                 max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-                max_job_mem = max_job_mem_GB * 1024**3
+                max_job_mem = max_job_mem_GB * 1024 ** 3
                 cur_mem = await async_result.get_memory_usage(max_delay=1.0)
                 if cur_mem > max_job_mem:
                     self.cancel_job(job_id, CANCEL_REASON_OOM)
@@ -478,7 +481,7 @@ class Manager(ManagerLog):
             self.job_succeeded(job_id)
             self.check_invariants()
 
-            self.check_job_finished_handle_result(job_id, result) # pyright: ignore
+            self.check_job_finished_handle_result(job_id, result)  # pyright: ignore
             self.check_invariants()
             # this will schedule the parents, so let's do it later
 
@@ -658,10 +661,7 @@ class Manager(ManagerLog):
 
         publish(self.context, "manager-job-failed", job_id=job_id)
 
-        # TODO: more efficient query
-        # parent_jobs = set(parents(job_id, db=self.db))
-
-        parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)
+        parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)  # TODO: efficiency
 
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
@@ -689,51 +689,53 @@ class Manager(ManagerLog):
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
-        cq = CacheQueryDB(self.db)
+        cq0 = CacheQueryDB(self.db)
 
-        parent_jobs = cq.direct_uptodate_deps_inverse(job_id)
+        parent_jobs = cq0.direct_uptodate_deps_inverse(job_id)
 
-        parents_todo = set(self.todo & parent_jobs)
-        # self.log("considering parents", parents_todo=L(parents_todo))
-        for opportunity in parents_todo:
-            # print('parent %r in todo' % (opportunity))
-            if opportunity in self.processing2result:
-                msg = f"Parent {opportunity!r} of {job_id!r} already processing"
-                if CompmakeConstants.try_recover:
-                    print(msg)
-                    continue
+        with cq0.session() as cqs:
+
+            parents_todo = set(self.todo & parent_jobs)
+            # self.log("considering parents", parents_todo=L(parents_todo))
+            for opportunity in parents_todo:
+                # print('parent %r in todo' % (opportunity))
+                if opportunity in self.processing2result:
+                    msg = f"Parent {opportunity!r} of {job_id!r} already processing"
+                    if CompmakeConstants.try_recover:
+                        print(msg)
+                        continue
+                    else:
+                        raise CompmakeBug(msg)
+                assert opportunity not in self.processing2result
+
+                # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
+
+                its_children = cqs.direct_children(opportunity)
+                # print('its children: %r' % its_children)
+
+                for child in its_children:
+                    # If child is part of all_targets, check that it is done
+                    # otherwise check that it is done by the DB.
+                    if child in self.all_targets:
+                        if not child in self.done:
+                            # self.log("parent still waiting another child", opportunity=opportunity, child=child)
+                            # logger.info('parent %r still waiting on %r' %
+                            # (opportunity, child))
+                            # still some dependency left
+                            break
+                    else:
+                        up, _, _ = cqs.up_to_date(child)
+                        if not up:
+                            # print('The child %s is not up_to_date' % child)
+                            break
+
                 else:
-                    raise CompmakeBug(msg)
-            assert opportunity not in self.processing2result
-
-            # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
-
-            its_children = cq.direct_children(opportunity)
-            # print('its children: %r' % its_children)
-
-            for child in its_children:
-                # If child is part of all_targets, check that it is done
-                # otherwise check that it is done by the DB.
-                if child in self.all_targets:
-                    if not child in self.done:
-                        # self.log("parent still waiting another child", opportunity=opportunity, child=child)
-                        # logger.info('parent %r still waiting on %r' %
-                        # (opportunity, child))
-                        # still some dependency left
-                        break
-                else:
-                    up, _, _ = cq.up_to_date(child)
-                    if not up:
-                        # print('The child %s is not up_to_date' % child)
-                        break
-
-            else:
-                # print('parent %r is now ready' % (opportunity))
-                self.log("parent is ready", opportunity=opportunity)
-                self.todo.remove(opportunity)
-                publish(self.context, "manager-job-ready", job_id=opportunity)
-                # self.ready_todo.add(opportunity)
-                self.add_to_ready_({opportunity})
+                    # print('parent %r is now ready' % (opportunity))
+                    self.log("parent is ready", opportunity=opportunity)
+                    self.todo.remove(opportunity)
+                    publish(self.context, "manager-job-ready", job_id=opportunity)
+                    # self.ready_todo.add(opportunity)
+                    self.add_to_ready_({opportunity})
 
         self.check_invariants()
         self.publish_progress()
@@ -952,8 +954,8 @@ class Manager(ManagerLog):
 
         loop = asyncio.get_event_loop()
 
-        loop.add_signal_handler(signal.SIGHUP, on_sighup)
-        loop.add_signal_handler(signal.SIGTERM, on_sigterm)
+        loop.add_signal_handler(signal.SIGHUP, on_sighup)  # type: ignore
+        loop.add_signal_handler(signal.SIGTERM, on_sigterm)  # type: ignore
 
         if not self.todo and not self.ready_todo:
             publish(

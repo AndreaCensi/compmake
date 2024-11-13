@@ -5,12 +5,11 @@ from typing import cast
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
-from . import logger
+from . import job2jobargskey, job2userobjectkey, logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
-from .queries import direct_children, direct_parents
 from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job2cachekey, job2key, job_exists, key2job
 from .structures import Cache, Job
 from .types import CMJobID
@@ -19,25 +18,77 @@ __all__ = [
     "CacheQueryDB",
     "CacheQuerySessionInterface",
     "definition_closure",
+    "list_todo_targets",
 ]
 
 
 class CacheQuerySessionInterface(ABC):
 
     @abstractmethod
-    def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]: ...
+    def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
+        """
+
+                    Check that the job is up to date.
+                    We are up to date if:
+                    *) we are in the up_to_date_cache
+                       (nothing uptodate can become not uptodate so this is generally safe)
+                    OR
+                    1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+                    2) the children are up to date AND
+
+                    3a) Original case:
+
+                        the children timestamp is older than this timestamp
+
+                    3b) New strategy
+
+                        the hash of the cache is the same as the hash of the arguments
+
+                    Returns a pair:
+
+                        boolean, explanation
+
+                    """
+        ...
+
+    # jobs
 
     @abstractmethod
     def get_job(self, job_id: CMJobID) -> Job: ...
 
     @abstractmethod
+    def job_exists(self, job_id: CMJobID) -> bool: ...
+
+    # job cache
+
+    @abstractmethod
     def get_job_cache(self, job_id: CMJobID) -> Cache: ...
 
     @abstractmethod
-    def all_jobs(self) -> Iterator[CMJobID]: ...
+    def job_cache_sizeof(self, job_id: CMJobID) -> int: ...
 
     @abstractmethod
-    def job_exists(self, job_id: CMJobID) -> bool: ...
+    def job_cache_exists(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]:
+        ...
+
+    # user object
+
+    @abstractmethod
+    def job_userobject_exists(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def job_userobject_sizeof(self, job_id: CMJobID) -> int: ...
+
+    # args
+
+    @abstractmethod
+    def job_args_sizeof(self, job_id: CMJobID) -> int: ...
+
+    @abstractmethod
+    def all_jobs(self) -> list[CMJobID]: ...
 
     @abstractmethod
     def all_jobs_pattern(self, pattern: str) -> Iterator[CMJobID]: ...
@@ -54,9 +105,37 @@ class CacheQuerySessionInterface(ABC):
 
 class CacheQuerySession(CacheQuerySessionInterface):
 
+    def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]:
+
+        cache = self.get_job_cache(job_id)
+        if cache.state != Cache.DONE:
+            msg = "Cannot get jobs_defined for job not done " + "(status: %s)" % Cache.state2desc[cache.state]
+            raise CompmakeBug(msg)
+        return set(cache.jobs_defined)
+
     def __init__(self, cq: "CacheQueryDB", session: StorageFilesystemSessionInterface):
         self.session = session
         self.cq = cq
+
+    def job_cache_sizeof(self, job_id: CMJobID) -> int:
+        key = job2cachekey(job_id)
+        return self.session.sizeof(key)
+
+    def job_cache_exists(self, job_id: CMJobID) -> bool:
+        key = job2cachekey(job_id)
+        return self.session.exists(key)
+
+    def job_userobject_exists(self, job_id: CMJobID) -> bool:
+        key = job2userobjectkey(job_id)
+        return self.session.exists(key)
+
+    def job_userobject_sizeof(self, job_id: CMJobID) -> int:
+        key = job2userobjectkey(job_id)
+        return self.session.sizeof(key)
+
+    def job_args_sizeof(self, job_id: CMJobID) -> int:
+        key = job2jobargskey(job_id)
+        return self.session.sizeof(key)
 
     def direct_parents(self, job_id: CMJobID) -> set[CMJobID]:
         job = self.get_job(job_id)
@@ -77,13 +156,14 @@ class CacheQuerySession(CacheQuerySessionInterface):
         return data_y
 
     def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
-        return self.cq.up_to_date(job_id)  # FIXME: not using session
+        return _up_to_date_actual(job_id, self)
 
     def dependencies_up_to_date(self, job_id: CMJobID) -> bool:
-        return self.cq.dependencies_up_to_date(job_id)  # FIXME: not using session
+        return _dependencies_up_to_date(job_id, self)
 
     def job_exists(self, job_id: CMJobID) -> bool:
-        return self.cq.job_exists(job_id)  # FIXME: not using session
+        key = job2key(job_id)
+        return self.session.exists(key)
 
     def get_job_cache(self, job_id: CMJobID) -> Cache:
         cache = self.cq.get_job_cache.its_cache()  # type: ignore
@@ -100,11 +180,144 @@ class CacheQuerySession(CacheQuerySessionInterface):
         cache = self.cq.get_job.its_cache()  # type: ignore
         return self._get(cache, job2key, job_id)
 
-    def all_jobs(self) -> Iterator[CMJobID]:
-        yield from self.session.list_all_transform(job2key, key2job, "*")
+    def all_jobs(self) -> list[CMJobID]:
+        return list(self.session.list_all_transform(job2key, key2job, "*"))
 
-    def all_jobs_pattern(self, pattern: str) -> Iterator[CMJobID]:
-        yield from self.session.list_all_transform(job2key, key2job, pattern)
+    def all_jobs_pattern(self, pattern: str) -> list[CMJobID]:
+        return list(self.session.list_all_transform(job2key, key2job, pattern))
+
+
+def _dependencies_up_to_date(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> bool:
+    for child in cqs.direct_children(job_id):
+        child_up, _, _ = cqs.up_to_date(child)
+        if not child_up:
+            return False
+    return True
+
+
+def _up_to_date_actual(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> tuple[bool, str, float]:
+    with db_error_wrap("_up_to_date_actual()", job_id=job_id):
+        cache = cqs.get_job_cache(job_id)  # OK
+
+        if cache.state == Cache.NOT_STARTED:
+            return False, "Not started", cache.timestamp
+
+        if cache.timestamp == Cache.TIMESTAMP_TO_REMAKE:
+            return False, "Marked invalid", cache.timestamp
+
+        dependencies = cqs.direct_children(job_id)
+
+        for child in dependencies:
+            if not cqs.job_exists(child):
+                if CompmakeConstants.tolerate_db_inconsistencies:
+                    logger.warn(f"Skipping not existing child {child} of {job_id}")
+                    # TODO: find out why
+                    continue
+            child_up, _, child_timestamp = cqs.up_to_date(child)
+            if not child_up:
+                return False, f"At least: Dep {child!r} not up to date.", cache.timestamp
+            else:
+                if child_timestamp > cache.timestamp:
+                    return False, f"At least: Dep {child!r} have been updated.", cache.timestamp
+
+        # plus jobs that defined it
+        defined_by = list(cqs.get_job(job_id).defined_by)
+        defined_by.remove(CMJobID("root"))
+        dependencies.update(defined_by)
+
+        for defby in defined_by:
+            defby_up, _, _ = cqs.up_to_date(defby)
+            if not defby_up:
+                return False, f"Definer {defby!r} not up to date.", cache.timestamp
+            # don't check timestamp for definers
+
+        # FIXME BUG if I start (in progress), children get updated,
+        # I still finish the computation instead of starting again
+        if cache.state == Cache.FAILED:
+            return False, "Failed", cache.timestamp
+
+        assert cache.state == Cache.DONE
+
+        return True, "", cache.timestamp
+
+
+def list_todo_targets(jobs: Collection[CMJobID], cqs: CacheQuerySessionInterface) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
+    """
+    Returns a tuple (todo, jobs_done, ready):
+     todo:  set of job ids to do (children that are not up to date)
+     done:  top level targets (in jobs) that are already done.
+     ready: ready to do (dependencies_up_to_date)
+    """
+    with db_error_wrap("list_todo_targets()", jobs=jobs):
+        for j in jobs:
+            if not cqs.job_exists(j):
+                raise CompmakeBug("Job does not exist", job_id=j)
+
+        todo: set[CMJobID] = set()
+        done: set[CMJobID] = set()
+        seen: set[CMJobID] = set()
+        stack: list[CMJobID] = list()
+        stack.extend(jobs)
+
+        class A:
+            count = 0
+
+        def summary():
+            A.count += 1
+            if A.count % 100 != 0:
+                return
+
+        while stack:
+            summary()
+
+            job_id = stack.pop()
+            seen.add(job_id)
+            res = cqs.up_to_date(job_id)
+
+            up, _, _ = res
+            if up:
+                done.add(job_id)
+            else:
+                todo.add(job_id)
+                for child in cqs.direct_children(job_id):
+                    if not cqs.job_exists(child):
+                        msg = f"Job {job_id!r} references a not existing job {child!r}. "
+                        msg += (
+                            "This might happen when you change a dynamic job "
+                            "so that it changes the jobs it created. "
+                            'Try "delete not root" to fix the DB.'
+                        )
+                        if CompmakeConstants.tolerate_db_inconsistencies:
+                            logger.warn(msg)
+                        else:
+                            raise CompmakeBug(msg)
+                    if not child in seen:
+                        stack.append(child)
+
+        todo_and_ready = {job_id for job_id in todo if cqs.dependencies_up_to_date(job_id)}
+
+        return todo, done, todo_and_ready
+
+
+def direct_uptodate_deps_inverse(
+
+    job_id: CMJobID,
+    cqs: CacheQuerySessionInterface,
+) -> set[CMJobID]:
+    """Returns all jobs that have this as
+    a direct 'dependency'
+    the jobs that are direct parents
+    plus the jobs that were defined by it.
+
+    Assumes that the job is DONE.
+    """
+
+    dep_inv = cqs.direct_parents(job_id)
+
+    # Not sure if need to be here --- added when doing graph-animation for jobs in progress
+    if cqs.get_job_cache(job_id).state == Cache.DONE:
+        dep_inv.update(cqs.jobs_defined(job_id))
+    return dep_inv
 
 
 class CacheQueryDB:
@@ -143,9 +356,9 @@ class CacheQueryDB:
         return get_job(job_id, db=self.db)
 
     @memoized_reset
-    def all_jobs(self) -> Iterator[CMJobID]:
+    def all_jobs(self) -> list[CMJobID]:
         # NOTE: very important, do not memoize iterator
-        yield from all_jobs(db=self.db)
+        return list(all_jobs(db=self.db))
 
     @memoized_reset
     def all_jobs_pattern(self, pattern: str) -> list[CMJobID]:
@@ -158,6 +371,7 @@ class CacheQueryDB:
 
     @memoized_reset
     def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
+
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 
@@ -208,11 +422,13 @@ class CacheQueryDB:
 
     @memoized_reset
     def direct_children(self, job_id: CMJobID) -> set[CMJobID]:
-        return direct_children(job_id, db=self.db)
+        computation = self.get_job(job_id)
+        return set(computation.children)
 
     @memoized_reset
     def direct_parents(self, job_id: CMJobID) -> set[CMJobID]:
-        return direct_parents(job_id, db=self.db)
+        computation = self.get_job(job_id)
+        return set(computation.parents)
 
     @memoized_reset
     def parents(self, job_id: CMJobID) -> set[CMJobID]:
@@ -250,63 +466,6 @@ class CacheQueryDB:
                     stack.append(c)
 
         return list(result)
-
-    def list_todo_targets(self, jobs: Collection[CMJobID]) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
-        """
-        Returns a tuple (todo, jobs_done, ready):
-         todo:  set of job ids to do (children that are not up to date)
-         done:  top level targets (in jobs) that are already done.
-         ready: ready to do (dependencies_up_to_date)
-        """
-        with db_error_wrap("list_todo_targets()", jobs=jobs):
-            for j in jobs:
-                if not self.job_exists(j):
-                    raise CompmakeBug("Job does not exist", job_id=j)
-
-            todo: set[CMJobID] = set()
-            done: set[CMJobID] = set()
-            seen: set[CMJobID] = set()
-            stack: list[CMJobID] = list()
-            stack.extend(jobs)
-
-            class A:
-                count = 0
-
-            def summary():
-                A.count += 1
-                if A.count % 100 != 0:
-                    return
-
-            while stack:
-                summary()
-
-                job_id = stack.pop()
-                seen.add(job_id)
-                res = self.up_to_date(job_id)
-
-                up, _, _ = res
-                if up:
-                    done.add(job_id)
-                else:
-                    todo.add(job_id)
-                    for child in self.direct_children(job_id):
-                        if not self.job_exists(child):
-                            msg = f"Job {job_id!r} references a not existing job {child!r}. "
-                            msg += (
-                                "This might happen when you change a dynamic job "
-                                "so that it changes the jobs it created. "
-                                'Try "delete not root" to fix the DB.'
-                            )
-                            if CompmakeConstants.tolerate_db_inconsistencies:
-                                logger.warn(msg)
-                            else:
-                                raise CompmakeBug(msg)
-                        if not child in seen:
-                            stack.append(child)
-
-            todo_and_ready = {job_id for job_id in todo if self.dependencies_up_to_date(job_id)}
-
-            return todo, done, todo_and_ready
 
     def tree_children_and_uodeps(self, jobs: CMJobID | set[CMJobID]):
         """Closure of the relation children and dependencies of userobject."""

@@ -36,7 +36,7 @@ def summary(_: Any) -> None:
     pass
 
 
-def mockup6(context: Context, both):
+def mockup6(context: Context, both: bool):
     res = [context.comp_dynamic(fd)]
     if both:
         res.append(context.comp_dynamic(hd))

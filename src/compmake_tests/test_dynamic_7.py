@@ -8,11 +8,11 @@ def g2():
 
 
 def gd(context: Context) -> str:
-    return context.comp(g2)
+    return context.comp(g2).pretend()
 
 
 def fd(context: Context) -> str:
-    return context.comp_dynamic(gd)
+    return context.comp_dynamic(gd).pretend()
 
 
 def mockup7(context: Env) -> str:

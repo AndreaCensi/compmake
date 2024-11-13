@@ -92,6 +92,9 @@ __all__ = [
 class Promise[X]:
     job_id: CMJobID
 
+    def pretend(self) -> X:
+        return self  # type: ignore
+
 
 @dataclass
 class Job:
@@ -266,7 +269,7 @@ class IntervalTimer:
         self.c1 = time.process_time()
         self.t1 = time.time()
 
-    def get_walltime_used(self)-> float:
+    def get_walltime_used(self) -> float:
         if not self.stopped:
             raise ValueError("not stopped")
         assert self.t1 is not None

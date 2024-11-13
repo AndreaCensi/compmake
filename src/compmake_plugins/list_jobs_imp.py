@@ -3,28 +3,23 @@
 import os
 from collections.abc import Sequence
 from time import time
+from typing import Collection
 
 from compmake import (
     Cache,
     cache_has_large_overhead,
     CacheQueryDB,
-    CMJobID,
+    CacheQuerySessionInterface, CMJobID,
     compmake_colored,
     CompmakeConstants,
     Context,
     is_root_job,
-    job_args_sizeof,
-    job_cache_exists,
-    job_cache_sizeof,
-    job_userobject_exists,
-    job_userobject_sizeof,
     parse_job_list,
     timing_summary,
     ui_command,
     ui_message,
     VISUALIZATION,
 )
-from typing import Collection
 from compmake_utils import get_screen_columns, TableFormatter
 from zuper_commons.ui import color_yellow, duration_compact, size_compact
 from zuper_utils_asyncio import SyncTaskInterface
@@ -156,7 +151,7 @@ async def list_jobs(
             if sorting == "name":
                 return ji
             elif sorting == "size":
-                return get_sizes(ji, cq0.db)["total"]  # FIXME
+                return get_sizes2(ji, cqs)["total"]  # FIXME
             elif sorting == "duration":
                 c = cqs.get_job_cache(ji)
                 return c.int_compute.get_cputime_used() if c.int_compute else -10
@@ -254,8 +249,8 @@ async def list_jobs(
             else:
                 tf.cell("")  # when
 
-            db = context.get_compmake_db()
-            sizes = get_sizes(job_id, db=db)
+            # db = context.get_compmake_db()
+            sizes = get_sizes2(job_id, cqs)
             size_s = format_size(sizes["total"])
             tf.cell(size_s)
 
@@ -333,21 +328,44 @@ def format_size(nbytes: int) -> str:
     return f"{mb:.2f} MB"
 
 
-def get_sizes(job_id, db) -> dict:
+#
+# def get_sizes(job_id, db) -> dict:
+#     """Returns byte sizes for jobs pieces.
+#
+#     Returns dict with keys 'args','cache','result','total'.
+#     """
+#     res = {}
+#     res["args"] = job_args_sizeof(job_id, db)
+#
+#     if job_cache_exists(job_id, db):
+#         res["cache"] = job_cache_sizeof(job_id, db)
+#     else:
+#         res["cache"] = 0
+#
+#     if job_userobject_exists(job_id, db):
+#         res["result"] = job_userobject_sizeof(job_id, db)
+#     else:
+#         res["result"] = 0
+#
+#     res["total"] = res["cache"] + res["args"] + res["result"]
+#     return res
+
+
+def get_sizes2(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> dict:
     """Returns byte sizes for jobs pieces.
 
     Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
-    res["args"] = job_args_sizeof(job_id, db)
+    res["args"] = cqs.job_args_sizeof(job_id)  # , db)
 
-    if job_cache_exists(job_id, db):
-        res["cache"] = job_cache_sizeof(job_id, db)
+    if cqs.job_cache_exists(job_id):
+        res["cache"] = cqs.job_cache_sizeof(job_id)  # , db)
     else:
         res["cache"] = 0
 
-    if job_userobject_exists(job_id, db):
-        res["result"] = job_userobject_sizeof(job_id, db)
+    if cqs.job_userobject_exists(job_id):
+        res["result"] = cqs.job_userobject_sizeof(job_id)
     else:
         res["result"] = 0
 

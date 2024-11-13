@@ -5,14 +5,13 @@ from typing import cast, ClassVar, Literal, Protocol, TYPE_CHECKING
 from .types import CMJobID
 
 if TYPE_CHECKING:
-    from .context import Context
-    from .cachequerydb import CacheQueryDB, CacheQuerySessionInterface
+    from .cachequerydb import CacheQuerySessionInterface
 
-__all__ = ["CANCEL_REASON_OOM", "CANCEL_REASON_TIMEOUT", "CompmakeConstants", "DefaultsToConfig"]
+__all__ = ["CANCEL_REASON_OOM", "CANCEL_REASON_TIMEOUT", "CompmakeConstants", "DefaultsToConfig", "CANCEL_REASONS", "CANCEL_REASON_USER", "CANCEL_REASON_HOST_FAILED", ]
 
 
 class JobIterator(Protocol):
-    def __call__(self, context: "Context", cqs: "CacheQuerySessionInterface") -> Iterator[CMJobID]: ...
+    def __call__(self, cqs: "CacheQuerySessionInterface", /) -> Iterator[CMJobID]: ...
 
 
 AliasT = str | JobIterator

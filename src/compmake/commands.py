@@ -29,7 +29,6 @@ __all__ = [
 ]
 
 
-# noinspection PyUnusedLocal,PyShadowingBuiltins
 @ui_command(alias=["exit"])
 async def quit(sti: SyncTaskInterface, context):
     """Exits Compmake's console."""

@@ -4,7 +4,7 @@ from compmake import (
     definition_closure,
     direct_uptodate_deps_inverse,
     direct_uptodate_deps_inverse_closure,
-    jobs_defined,
+    jobs_defined, Context
 )
 from compmake.types import CMJobID
 from .utils import Env, run_with_env
@@ -18,14 +18,14 @@ def other():
     pass
 
 
-def fd(context):
+def fd(context: Context):
     context.comp(always)
     print("fd sees %s" % TestDynamic8.define_other)
     if TestDynamic8.define_other:
         context.comp(other)
 
 
-def mockup8(context):
+def mockup8(context: Context):
     context.comp_dynamic(fd)
 
 

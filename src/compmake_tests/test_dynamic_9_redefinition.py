@@ -1,13 +1,13 @@
 import unittest
 
 from .utils import Env, run_with_env
+from compmake import Context
 
-
-def g(b1, b2):
+def g(b1: int, b2: int):
     pass
 
 
-def f(context, level):
+def f(context: Context, level: int):
     if level == 0:
         context.comp(g, 1, 1)
     else:
@@ -16,7 +16,7 @@ def f(context, level):
         context.comp_dynamic(f, level - 1)
 
 
-def mockup(context):
+def mockup(context: Context):
     context.comp_dynamic(f, 5)
 
 

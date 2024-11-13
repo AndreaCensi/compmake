@@ -9,6 +9,7 @@ __all__ = [
     "EVENT_MANAGER_PHASE",
     "EVENT_MANAGER_PROGRESS",
     "EVENT_MANAGER_SUCCEEDED",
+    "EVENT_WORKER_JOB_FINISHED",
     "JobProgressEvent",
     "compmake_registered_events",
 ]
@@ -54,8 +55,8 @@ add(
         "manager-loop",
         ["processing"],
         desc="called each time the manager loops waiting for jobs"
-        "to finish. processing is the list of jobs currently "
-        "processing.",
+             "to finish. processing is the list of jobs currently "
+             "processing.",
     )
 )
 # These are called when the manager updates its data structure

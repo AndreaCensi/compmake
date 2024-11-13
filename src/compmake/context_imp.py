@@ -5,7 +5,7 @@ import traceback
 from asyncio import CancelledError
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, cast, Concatenate
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
@@ -39,7 +39,7 @@ class UIMessage:
 
 class ContextImp(Context):
     currently_executing: list[CMJobID]
-    objectid2job: dict[int, Promise]
+    objectid2job: dict[int, Promise[Any]]
     name: str | None
     _jobs_defined_in_this_session: set[CMJobID]
     _currently_executing: list[CMJobID]
@@ -91,7 +91,7 @@ class ContextImp(Context):
         # self.splitter_ui_console = None
         self.status_line = None
         self.objectid2job = {}
-
+    rc_files_read: list[str]
     status_line: str | None
     splitter: Splitter[Event] | None
     # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
@@ -261,7 +261,7 @@ class ContextImp(Context):
     def get_comp_prefix(self) -> str:
         return self._job_prefix
 
-    def comp_prefix(self, prefix: str):
+    def comp_prefix(self, prefix: str | None):
         if prefix is not None:
             if " " in prefix:
                 msg = "Invalid job prefix %r." % prefix
@@ -270,16 +270,16 @@ class ContextImp(Context):
         self._job_prefix = prefix
 
     # setting up jobs
-    def comp_dynamic(self, f: Callable[..., Any], *args: Any, **kwargs: Any) -> Promise:
+    def comp_dynamic[**PS, Y](self, f: Callable[Concatenate[Context, PS], Y], *args: Any, **kwargs: Any) -> Promise[Y]:
         return comp_(self, f, *args, needs_context=True, **kwargs)
 
-    def comp(self, command_: Callable[..., Any], *args: Any, **kwargs: Any) -> Promise:
+    def comp[**PS, Y](self, command_: Callable[PS, Y], *args: PS.args, **kwargs: PS.kwargs) -> Promise[Y]:
         return comp_(self, command_, *args, **kwargs)
 
-    def comp_store(self, x: object, job_id: CMJobID | None = None) -> Promise:
+    def comp_store[X](self, x: X, job_id: str | None = None) -> Promise[X]:
         return comp_store_(x=x, context=self, job_id=job_id)
 
-    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: str):
+    async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: list[str]):
         """
         Returns:
 
