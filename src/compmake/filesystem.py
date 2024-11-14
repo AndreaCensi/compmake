@@ -126,7 +126,6 @@ class StorageFilesystem:
 
     @track_time
     def sizeof(self, key: StorageKey) -> int:
-
         sql = """
             select length(blob_value) from fs_blobs where blob_key = ?
         """
@@ -263,7 +262,6 @@ class StorageFilesystem:
     def keys0_match(self, wildcard: str) -> Iterator[StorageKey]:
         use_like = False
         if use_like:
-
             sql = """
                     select blob_key from fs_blobs where blob_key like ?
                 """
@@ -349,21 +347,18 @@ class StorageFilesystemSessionInterface(ABC):
         pass
 
     @abstractmethod
-    def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
-                              my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]:
-        ...
+    def list_all_transform[
+        X
+    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]: ...
 
     @abstractmethod
-    def sizeof(self, key: StorageKey) -> int:
-        ...
+    def sizeof(self, key: StorageKey) -> int: ...
 
     @abstractmethod
-    def exists(self, key: StorageKey) -> bool:
-        ...
+    def exists(self, key: StorageKey) -> bool: ...
 
 
 class StorageFilesystemSession(StorageFilesystemSessionInterface):
-
     def __init__(self, db: StorageFilesystem, cursor: sqlite3.Cursor):
         self.db = db
         self.cursor = cursor
@@ -391,8 +386,9 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
     def get_one(self, key: StorageKey) -> object:
         return get_one(self.cursor, key, self.db.method)
 
-    def list_all_transform[X](self, my_x2key: Callable[[X], StorageKey],
-                              my_key2x: Callable[[StorageKey], X], pattern, /) -> list[X]:
+    def list_all_transform[
+        X
+    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern, /) -> list[X]:
         ...
 
         pattern = my_x2key(pattern)

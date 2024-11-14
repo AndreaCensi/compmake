@@ -1,5 +1,5 @@
 """
-    These are all wrappers around the raw methods in storage
+These are all wrappers around the raw methods in storage
 """
 
 import traceback

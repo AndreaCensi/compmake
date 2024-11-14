@@ -57,8 +57,9 @@ __all__ = [
     "mark_as_done",
     "mark_as_failed",
     "mark_as_notstarted",
+    "mark_as_oom",
+    "mark_as_timed_out",
     "mark_to_remake",
-    "mark_as_oom", "mark_as_timed_out",
 ]
 
 if TYPE_CHECKING:
@@ -742,7 +743,7 @@ class WarningStorage:
 
 
 def comp_[
-** P, X
+    **P, X
 ](
     context: Context,
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],

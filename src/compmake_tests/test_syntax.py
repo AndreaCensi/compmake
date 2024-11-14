@@ -74,7 +74,6 @@ async def test_syntax(env: Env) -> None:
 
     def syntaxError(s: str):
         def f(x) -> list[str]:  # it's a generator, you should try to read it
-
             cq = CacheQueryDB(db=env.db)
             with cq.session() as cqs:
                 return list(parse_job_list(x, cqs))

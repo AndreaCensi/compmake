@@ -1,4 +1,4 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from compmake import (
     Cache,

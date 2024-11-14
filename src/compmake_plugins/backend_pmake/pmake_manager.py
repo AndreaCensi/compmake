@@ -163,7 +163,6 @@ class PmakeManager(Manager):
 
     @async_errors
     async def show_processing_status(self, interval: float = 5) -> None:
-
         while True:
             table = self.get_status_str()
             await self.context.write_message_console(table)
@@ -172,7 +171,7 @@ class PmakeManager(Manager):
 
     def get_status_str(self) -> str:
         max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-        max_job_mem = max_job_mem_GB * 1024 ** 3
+        max_job_mem = max_job_mem_GB * 1024**3
         job_timeout = self.context.get_compmake_config("job_timeout")
 
         def format_with_limit(value: int, limit: int, f: Callable[[int], str]) -> str:
@@ -189,7 +188,6 @@ class PmakeManager(Manager):
         header = tuple(color_gray(_) for _ in header)
         lines.append(header)
         for subname, sub in list(self.subs.items()):
-
             # processing = "proc" if subname in self.sub_processing else "idle"
             alive = "alive" if sub.is_alive() else "dead"
             marked_available = sub.state
@@ -326,7 +324,7 @@ class PmakeManager(Manager):
 
             max_mem_GB: float = self.context.get_compmake_config("max_mem_GB")
 
-            usage_GB = mem.usage / (1024 ** 3)
+            usage_GB = mem.usage / (1024**3)
             if usage_GB > max_mem_GB:
                 msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
                 # logger.info(mem=mem)
@@ -341,7 +339,6 @@ class PmakeManager(Manager):
         return resource_available
 
     def can_accept_job(self, reasons: dict[str, str]) -> bool:
-
         resources = self.get_resources_status()
         some_missing = False
         for k, v in resources.items():
@@ -425,7 +422,6 @@ class PmakeManager(Manager):
 
     # noinspection PyBroadException
     def _cancel_and_replace_sub(self, subname: SubName, cancel_reason: CANCEL_REASONS) -> SubName:
-
         sub = self.subs[subname]
         # if sub.is_alive():
 

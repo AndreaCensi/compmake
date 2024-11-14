@@ -247,7 +247,6 @@ class Manager(ManagerLog):
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
         with cq.session() as cqs:
-
             # Note this would not work for recursive jobs
             targets_todo_plus_deps, targets_done, ready_todo = list_todo_targets(targets, cqs)
             not_ready = targets_todo_plus_deps - ready_todo
@@ -422,7 +421,6 @@ class Manager(ManagerLog):
         time_passed = time.time() - proc_details.started
 
         if check_mem_etc:
-
             if time_passed > 1:
                 job_timeout = proc_details.timeout
                 GRACE_PERIOD = 0
@@ -441,7 +439,7 @@ class Manager(ManagerLog):
                         return True
 
                 max_job_mem_GB = self.context.get_compmake_config("max_job_mem_GB")
-                max_job_mem = max_job_mem_GB * 1024 ** 3
+                max_job_mem = max_job_mem_GB * 1024**3
                 cur_mem = await async_result.get_memory_usage(max_delay=1.0)
                 if cur_mem > max_job_mem:
                     self.cancel_job(job_id, CANCEL_REASON_OOM)
@@ -694,7 +692,6 @@ class Manager(ManagerLog):
         parent_jobs = cq0.direct_uptodate_deps_inverse(job_id)
 
         with cq0.session() as cqs:
-
             parents_todo = set(self.todo & parent_jobs)
             # self.log("considering parents", parents_todo=L(parents_todo))
             for opportunity in parents_todo:
@@ -849,7 +846,6 @@ class Manager(ManagerLog):
         #
         i = 0
         for _ in range(2):  # XXX
-
             i += 1
             received = await self.check_any_finished(expensive_checks=expensive_checks)
 
@@ -989,7 +985,6 @@ class Manager(ManagerLog):
             exit_at = started_at + self.max_time if self.max_time is not None else None
 
             while self.todo or self.ready_todo or self.processing2result:
-
                 if exit_at is not None and time.time() > exit_at:
                     self.sti.logger.error("Time limit reached.")
                     break
@@ -1137,7 +1132,6 @@ class Manager(ManagerLog):
         return s
 
     def check_invariants(self) -> None:
-
         if not CompmakeConstants.debug_check_invariants:
             return
         lists: dict[str, set[CMJobID]] = dict(

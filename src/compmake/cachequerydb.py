@@ -5,12 +5,23 @@ from typing import cast
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import check_isinstance
-from . import job2jobargskey, job2userobjectkey, logger
+from . import logger
+from .storage import job2jobargskey, job2userobjectkey
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError
 from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
-from .storage import all_jobs, all_jobs_pattern, get_job, get_job_cache, get_job_userobject, job2cachekey, job2key, job_exists, key2job
+from .storage import (
+    all_jobs,
+    all_jobs_pattern,
+    get_job,
+    get_job_cache,
+    get_job_userobject,
+    job2cachekey,
+    job2key,
+    job_exists,
+    key2job,
+)
 from .structures import Cache, Job
 from .types import CMJobID
 
@@ -23,32 +34,31 @@ __all__ = [
 
 
 class CacheQuerySessionInterface(ABC):
-
     @abstractmethod
     def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
         """
 
-                    Check that the job is up to date.
-                    We are up to date if:
-                    *) we are in the up_to_date_cache
-                       (nothing uptodate can become not uptodate so this is generally safe)
-                    OR
-                    1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
-                    2) the children are up to date AND
+        Check that the job is up to date.
+        We are up to date if:
+        *) we are in the up_to_date_cache
+           (nothing uptodate can become not uptodate so this is generally safe)
+        OR
+        1) we have a cache AND the timestamp is not 0 (force remake) or -1 (temp)
+        2) the children are up to date AND
 
-                    3a) Original case:
+        3a) Original case:
 
-                        the children timestamp is older than this timestamp
+            the children timestamp is older than this timestamp
 
-                    3b) New strategy
+        3b) New strategy
 
-                        the hash of the cache is the same as the hash of the arguments
+            the hash of the cache is the same as the hash of the arguments
 
-                    Returns a pair:
+        Returns a pair:
 
-                        boolean, explanation
+            boolean, explanation
 
-                    """
+        """
         ...
 
     # jobs
@@ -71,8 +81,7 @@ class CacheQuerySessionInterface(ABC):
     def job_cache_exists(self, job_id: CMJobID) -> bool: ...
 
     @abstractmethod
-    def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]:
-        ...
+    def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]: ...
 
     # user object
 
@@ -104,18 +113,16 @@ class CacheQuerySessionInterface(ABC):
 
 
 class CacheQuerySession(CacheQuerySessionInterface):
+    def __init__(self, cq: "CacheQueryDB", session: StorageFilesystemSessionInterface):
+        self.session = session
+        self.cq = cq
 
     def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]:
-
         cache = self.get_job_cache(job_id)
         if cache.state != Cache.DONE:
             msg = "Cannot get jobs_defined for job not done " + "(status: %s)" % Cache.state2desc[cache.state]
             raise CompmakeBug(msg)
         return set(cache.jobs_defined)
-
-    def __init__(self, cq: "CacheQueryDB", session: StorageFilesystemSessionInterface):
-        self.session = session
-        self.cq = cq
 
     def job_cache_sizeof(self, job_id: CMJobID) -> int:
         key = job2cachekey(job_id)
@@ -171,7 +178,6 @@ class CacheQuerySession(CacheQuerySessionInterface):
         try:
             return self._get(cache, job2cachekey, job_id)
         except KeyError:
-
             cache = Cache(Cache.NOT_STARTED)
             return cache
             # raise ZValueError(job_id) from e
@@ -241,7 +247,9 @@ def _up_to_date_actual(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> tupl
         return True, "", cache.timestamp
 
 
-def list_todo_targets(jobs: Collection[CMJobID], cqs: CacheQuerySessionInterface) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
+def list_todo_targets(
+    jobs: Collection[CMJobID], cqs: CacheQuerySessionInterface
+) -> tuple[set[CMJobID], set[CMJobID], set[CMJobID]]:
     """
     Returns a tuple (todo, jobs_done, ready):
      todo:  set of job ids to do (children that are not up to date)
@@ -300,7 +308,6 @@ def list_todo_targets(jobs: Collection[CMJobID], cqs: CacheQuerySessionInterface
 
 
 def direct_uptodate_deps_inverse(
-
     job_id: CMJobID,
     cqs: CacheQuerySessionInterface,
 ) -> set[CMJobID]:
@@ -371,7 +378,6 @@ class CacheQueryDB:
 
     @memoized_reset
     def up_to_date(self, job_id: CMJobID) -> tuple[bool, str, float]:
-
         with db_error_wrap("up_to_date()", job_id=job_id):
             return self._up_to_date_actual(job_id)
 

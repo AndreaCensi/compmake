@@ -1,11 +1,6 @@
 from typing import cast
 
-from compmake import (
-    definition_closure,
-    direct_uptodate_deps_inverse,
-    direct_uptodate_deps_inverse_closure,
-    jobs_defined, Context
-)
+from compmake import definition_closure, direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure, jobs_defined, Context
 from compmake.types import CMJobID
 from .utils import Env, run_with_env
 

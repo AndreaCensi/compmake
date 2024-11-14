@@ -26,6 +26,7 @@ from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
 from typing import Any
 
+
 class Env:
     rootd: str
     sti: SyncTaskInterface
@@ -79,7 +80,7 @@ class Env:
     def assert_equal[X](self, first: X, second: X, msg: str | None = None):
         my_assert_equal(first, second, msg)
 
-    async def assert_jobs_equal(self, expr: str, jobs: Collection[str], ignore_dyn_reports: bool=True):
+    async def assert_jobs_equal(self, expr: str, jobs: Collection[str], ignore_dyn_reports: bool = True):
         # js = 'not-valid-yet'
         js = await self.get_jobs(expr)
         if ignore_dyn_reports:

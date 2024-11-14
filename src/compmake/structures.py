@@ -1,61 +1,61 @@
 """
-    A Job represents the computation as passed by the user.
-    It contains only the "action" but not the state.
-    (The state of the computation is represented by a Cache object.)
+A Job represents the computation as passed by the user.
+It contains only the "action" but not the state.
+(The state of the computation is represented by a Cache object.)
 
-    A Cache object can be in one of the following states:
+A Cache object can be in one of the following states:
 
-    *) non-existent / or NOT_STARTED
-       (no difference between these states)
+*) non-existent / or NOT_STARTED
+   (no difference between these states)
 
-    *) IN_PROGRESS: The yielding mechanism is taking care of
-       the incremental computation.
+*) IN_PROGRESS: The yielding mechanism is taking care of
+   the incremental computation.
 
-       computation:  current computation
-       user_object:  None / invalid
-       timestamp:    None / timestamp
-       tmp_result:   set to the temporary result (if any)
+   computation:  current computation
+   user_object:  None / invalid
+   timestamp:    None / timestamp
+   tmp_result:   set to the temporary result (if any)
 
-       In this state, we also publish a progress report.
+   In this state, we also publish a progress report.
 
-    *) DONE:  The computation has been completed
+*) DONE:  The computation has been completed
 
-       computation:  current computation
-       user_object: the result of the computation
-       timestamp:   when computation was completed
-       timetaken:   time taken by the computation
-       tmp_result:  None
-
-
-    *) FAILED
-       The computation has failed for some reason
-
-       computation:  failed computation
-
-    Note that user_object and tmp_result are stored separately
-    from the Cache element.
-
-    DB Layout:
-
-        'job_id:computation'       Job object
-        'job_id:cache'             Cache object
-        'job_id:user_object'       Result of the computation
-        'job_id:user_object_tmp'
+   computation:  current computation
+   user_object: the result of the computation
+   timestamp:   when computation was completed
+   timetaken:   time taken by the computation
+   tmp_result:  None
 
 
+*) FAILED
+   The computation has failed for some reason
 
-    Up-to-date or not?
-    =================
+   computation:  failed computation
 
-    Here we have to be careful because of the fact that we have
-    the special state MORE_REQUESTED.
-    Is it a computation done if MORE_REQUESTED? Well, we could say
-    no, because when more is completed, the parents will need to be
-    redone. However, the use case is that:
-    1) you do the all computation
-    2) you explicity ask MORE for some targets
-    3) you explicitly ask to redo the parents of those targets
-    Therefore, a MORE_REQUESTED state is considered as uptodate.
+Note that user_object and tmp_result are stored separately
+from the Cache element.
+
+DB Layout:
+
+    'job_id:computation'       Job object
+    'job_id:cache'             Cache object
+    'job_id:user_object'       Result of the computation
+    'job_id:user_object_tmp'
+
+
+
+Up-to-date or not?
+=================
+
+Here we have to be careful because of the fact that we have
+the special state MORE_REQUESTED.
+Is it a computation done if MORE_REQUESTED? Well, we could say
+no, because when more is completed, the parents will need to be
+redone. However, the use case is that:
+1) you do the all computation
+2) you explicity ask MORE for some targets
+3) you explicitly ask to redo the parents of those targets
+Therefore, a MORE_REQUESTED state is considered as uptodate.
 
 
 """

@@ -1,23 +1,23 @@
 """
-    Main function:
+Main function:
 
-        parse_job_list(tokens, context)
+    parse_job_list(tokens, context)
 
-    Canonical forms:
-        [A] except [B]     =>   A minus the elements in B
-        [A] in [B]         =>   intersection of A and B
+Canonical forms:
+    [A] except [B]     =>   A minus the elements in B
+    [A] in [B]         =>   intersection of A and B
 
-    Rewriting:
-        not [job_list]     =>   $all except [job_list]
-        except [job_list]  =>   $all except [job_list]
+Rewriting:
+    not [job_list]     =>   $all except [job_list]
+    except [job_list]  =>   $all except [job_list]
 
-    Association:
+Association:
 
-        [A] except [B] except [C] == [A] except ([B] except [C])
-        [A] in [B] in [C] == [A] in ([B] in [C])
+    [A] except [B] except [C] == [A] except ([B] except [C])
+    [A] in [B] in [C] == [A] in ([B] in [C])
 
-    Priority:
-        in > except > not
+Priority:
+    in > except > not
 
 
 
@@ -412,12 +412,11 @@ def eval_ops(ops: list[str | Op], cqs: CacheQuerySessionInterface) -> Iterator[C
     """Evaluates an expression.
     ops: list of strings and int representing operators"""
     with add_context(ops=ops):
-
         check_isinstance(ops, list)
 
         def list_split(l: list[str | Op], index: int) -> tuple[list[str | Op], list[str | Op]]:
             """Splits a list in two"""
-            return l[0:index], l[index + 1:]
+            return l[0:index], l[index + 1 :]
 
         # The sequence of the following operations
         # defines the associativity rules

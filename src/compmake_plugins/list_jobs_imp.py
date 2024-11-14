@@ -1,4 +1,4 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 import os
 from collections.abc import Sequence
@@ -9,7 +9,8 @@ from compmake import (
     Cache,
     cache_has_large_overhead,
     CacheQueryDB,
-    CacheQuerySessionInterface, CMJobID,
+    CacheQuerySessionInterface,
+    CMJobID,
     compmake_colored,
     CompmakeConstants,
     Context,
@@ -103,7 +104,7 @@ def minimal_names(objects: Sequence[str]) -> tuple[str, list[str], str]:
     n1 = len(prefix)
     n2 = len(postfix)
     # remove it
-    minimal = [o[n1: len(o) - n2] for o in objects]
+    minimal = [o[n1 : len(o) - n2] for o in objects]
 
     # recreate them to check everything is ok
     objects2 = [prefix + m + postfix for m in minimal]

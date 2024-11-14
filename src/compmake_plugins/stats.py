@@ -1,4 +1,4 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from collections import defaultdict
 from collections.abc import Collection
@@ -100,8 +100,7 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     cqs: CacheQuerySessionInterface
     with cq0.session() as cqs:
-
-        print(f'Loading {len(job_list)} jobs')
+        print(f"Loading {len(job_list)} jobs")
 
         # print('Loading timing caches')
         for job_id in job_list:
@@ -270,6 +269,7 @@ def my_percentile(speed_score: float, all_times: np.array) -> float:
     # nbigger = len([x for x in all_times if x > speed_score])
     # p = 100 * nbigger / len(all_times)
     return p
+
 
 #
 # def compute_all_percentiles(P):

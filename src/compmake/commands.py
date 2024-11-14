@@ -1,4 +1,4 @@
-""" These are the commands available from the CLI.
+"""These are the commands available from the CLI.
 
 There are 3 special variables:
 - 'args': list of all command line arguments

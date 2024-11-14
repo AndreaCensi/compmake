@@ -204,7 +204,6 @@ def redirect_std(stdout_fn: str, stderr_fn: str, skip: bool) -> Iterator[None]:
     sys.stderr.write(f"Activating stderr -> {stderr_fn}\n")
 
     with open(stdout_fn, "w", buffering=1) as new_stdout, open(stderr_fn, "w", buffering=1) as new_stderr:
-
         old_stdout = sys.stdout
         old_stderr = sys.stderr
         sys.stdout = new_stdout

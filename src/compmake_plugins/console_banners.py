@@ -1,4 +1,4 @@
-""" Implements the initial and final banner """
+"""Implements the initial and final banner"""
 
 from compmake import all_jobs, compmake_colored, Context, Event, register_handler, version
 

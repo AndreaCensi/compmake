@@ -8,7 +8,8 @@ from compmake import (
     is_job_userobject_available,
     ui_command,
     ui_info,
-    ui_message,Context,
+    ui_message,
+    Context,
 )
 from zuper_typing import debug_print
 from zuper_utils_asyncio import SyncTaskInterface
@@ -16,7 +17,7 @@ from compmake import CMJobID
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-async def dump(sti: SyncTaskInterface, non_empty_job_list: list[CMJobID], context: Context, directory: str ="."):
+async def dump(sti: SyncTaskInterface, non_empty_job_list: list[CMJobID], context: Context, directory: str = "."):
     """Dumps the result of jobs as pickle files.
 
     Arguments:

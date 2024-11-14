@@ -1,8 +1,9 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from compmake import (
     all_jobs,
-    CacheQueryDB, children,
+    CacheQueryDB,
+    children,
     CMJobID,
     COMMANDS_ADVANCED,
     CompmakeBug,

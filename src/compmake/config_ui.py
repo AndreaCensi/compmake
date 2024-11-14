@@ -43,7 +43,7 @@ async def config(sti: SyncTaskInterface, args: list[str], context: Context):
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-async def config_html(sti: SyncTaskInterface, output_file: str=""):
+async def config_html(sti: SyncTaskInterface, output_file: str = ""):
     """Dumps the config description in html on the specified file."""
     if output_file:
         f = open(output_file, "w")

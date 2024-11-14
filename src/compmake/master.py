@@ -94,8 +94,8 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
     parser.add_option(
         "--retcodefile",
         help="If given, the return value is written in this "
-             "file. Useful to check when compmake finished in "
-             "a grid environment. ",
+        "file. Useful to check when compmake finished in "
+        "a grid environment. ",
         default=None,
     )
 
@@ -206,7 +206,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
             return cast(ExitCode, retcode)
 
     try:
-
         if options.profile:
             # XXX: change variables
             import cProfile
@@ -228,7 +227,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
                 return await go(context)
 
             finally:
-
                 snapshot = tracemalloc.take_snapshot()
                 top_stats = snapshot.statistics("lineno")
 
@@ -237,7 +235,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
                     print(stat)
 
         else:
-
             return await go(context2=context)
     finally:
         # logger.info("Closing context.")
@@ -442,7 +439,6 @@ import sys
 
 
 class CustomStats(pstats.Stats):
-
     def print_line(self, func):  # hack: should print percentages
         cc, nc, tt, ct, callers = self.stats[func]
         c = str(nc)

@@ -3,6 +3,7 @@ import unittest
 from .utils import Env, run_with_env
 from compmake import Context
 
+
 def g(b1: int, b2: int):
     pass
 

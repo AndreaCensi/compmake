@@ -290,7 +290,6 @@ async def pmake_worker(
     event_queue: "multiprocessing.Queue[Any] | None",
 ):
     try:
-
         current_name = name
         i = 0
         for i in range(19):
@@ -683,7 +682,6 @@ class PmakeResult(AsyncResultInterface):
             raise ZAssertionError("This result is invalid.")
 
         if self.result is None:
-
             if not self.psub.is_alive():
                 raise multiprocessing.TimeoutError()
 

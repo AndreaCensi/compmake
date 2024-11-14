@@ -1,6 +1,6 @@
 from collections import namedtuple, OrderedDict
 
-from compmake import all_jobs, Cache, CacheQueryDB, COMMANDS_ADVANCED, ui_command
+from compmake import Cache, CacheQueryDB, CacheQuerySessionInterface, COMMANDS_ADVANCED, ui_command
 from zuper_utils_asyncio import SyncTaskInterface
 
 
@@ -12,64 +12,65 @@ async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"
     from networkx import DiGraph
 
     db = context.get_compmake_db()
-    if not job_list:
-        #        job_list = list(top_targets(db))
-        job_list = all_jobs(db)
-    # plus all the jobs that were defined by them
-    job_list = set(job_list)
-    #    job_list.update(definition_closure(job_list, db))
 
     G = DiGraph()
     cq = CacheQueryDB(db)
-
-    for job_id in job_list:
-        cache = cq.get_job_cache(job_id)
-        if cache.state != Cache.DONE:
-            continue
-        length = cache.int_make.get_cputime_used()
-        attr_dict = dict(cache=cache, length=length)
-        G.add_node(job_id, **attr_dict)
-
-        dependencies = cq.direct_children(job_id)
-        for c in dependencies:
-            G.add_edge(c, job_id)
-
-        defined = cq.jobs_defined(job_id)
-        for c in defined:
-            G.add_edge(job_id, c)
-
-    order = list(topological_sort(G))
-    print(f"topological order: {order}")
-    for job_id in order:
-        print(f"considering: {job_id}")
-
-        cache = cq.get_job_cache(job_id)
-        if cache.state != Cache.DONE:
-            msg = f"The job {job_id} is not done."
-            raise Exception(msg)
-        length = G.nodes[job_id]["length"]
-        pre = list(G.predecessors(job_id))
-
-        print("{} pred {}".format(job_id, pre))
-        if not pre:
-            T0 = 0
-            G.nodes[job_id]["CP"] = None
+    cqs: CacheQuerySessionInterface
+    with cq.session() as cqs:
+        del cq
+        if not job_list:
+            job_list = set(cqs.all_jobs())
         else:
-            # find predecessor with highest T1
-            for _ in pre:
-                print(f"predecessor {_} = {dict(G.nodes[_])}")
+            job_list = set(job_list)
 
-            T1s = list(G.nodes[_]["T1"] for _ in pre)
-            i = int(np.argmax(T1s))
-            T0 = T1s[i]
-            G.nodes[job_id]["CP"] = pre[i]
-        T1 = T0 + length
-        G.nodes[job_id]["T0"] = T0
-        G.nodes[job_id]["T1"] = T1
+        for job_id in job_list:
+            cache = cqs.get_job_cache(job_id)
+            if cache.state != Cache.DONE:
+                continue
+            length = cache.int_make.get_cputime_used()
+            attr_dict = dict(cache=cache, length=length)
+            G.add_node(job_id, **attr_dict)
 
-        G.nodes[job_id]["critical"] = False
+            dependencies = cqs.direct_children(job_id)
+            for c in dependencies:
+                G.add_edge(c, job_id)
 
-        print(f"concluded {job_id} = {G.nodes[job_id]}")
+            defined = cqs.jobs_defined(job_id)
+            for c in defined:
+                G.add_edge(job_id, c)
+
+        order = list(topological_sort(G))
+        print(f"topological order: {order}")
+        for job_id in order:
+            print(f"considering: {job_id}")
+
+            cache = cqs.get_job_cache(job_id)
+            if cache.state != Cache.DONE:
+                msg = f"The job {job_id} is not done."
+                raise Exception(msg)
+            length = G.nodes[job_id]["length"]
+            pre = list(G.predecessors(job_id))
+
+            print("{} pred {}".format(job_id, pre))
+            if not pre:
+                T0 = 0
+                G.nodes[job_id]["CP"] = None
+            else:
+                # find predecessor with highest T1
+                for _ in pre:
+                    print(f"predecessor {_} = {dict(G.nodes[_])}")
+
+                T1s = list(G.nodes[_]["T1"] for _ in pre)
+                i = int(np.argmax(T1s))
+                T0 = T1s[i]
+                G.nodes[job_id]["CP"] = pre[i]
+            T1 = T0 + length
+            G.nodes[job_id]["T0"] = T0
+            G.nodes[job_id]["T1"] = T1
+
+            G.nodes[job_id]["critical"] = False
+
+            print(f"concluded {job_id} = {G.nodes[job_id]}")
 
     sg_ideal = SimpleGantt()
 

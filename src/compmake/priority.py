@@ -47,7 +47,9 @@ else:
     pstats = None
 
 
-def compute_priority(job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cqs: CacheQuerySessionInterface) -> float:
+def compute_priority(
+    job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cqs: CacheQuerySessionInterface
+) -> float:
     res, how = compute_priority_(job_id=job_id, priorities=priorities, targets=targets, cqs=cqs)
 
     if math.isnan(res):
@@ -100,7 +102,6 @@ def estimate_stats(job_id: CMJobID, job: Job, cache: Cache) -> StatsForPriority:
             compute_time_percentile = 50.0
             prob_timedout = SMALL_NONZERO
     elif pstats and job_id in pstats.by_job:
-
         pstats_one = pstats.by_job[job_id]
         prob_success = pstats_one.prob_success
         prob_oom = pstats_one.prob_oom
@@ -109,7 +110,6 @@ def estimate_stats(job_id: CMJobID, job: Job, cache: Cache) -> StatsForPriority:
         compute_time_percentile = pstats_one.compute_time_percentile
 
     elif pstats and job.command_desc in pstats.by_command:
-
         pstats_one = pstats.by_command[job.command_desc]
         prob_success = pstats_one.prob_success
         compute_time_percentile = pstats_one.compute_time_percentile

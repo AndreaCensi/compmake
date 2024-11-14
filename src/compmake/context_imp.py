@@ -91,6 +91,7 @@ class ContextImp(Context):
         # self.splitter_ui_console = None
         self.status_line = None
         self.objectid2job = {}
+
     rc_files_read: list[str]
     status_line: str | None
     splitter: Splitter[Event] | None
@@ -192,7 +193,6 @@ class ContextImp(Context):
         event: Event
         assert self.splitter is not None
         async for packet in self.splitter.read_packets():
-
             for i, event in packet:
                 all_handlers = CompmakeGlobalState.EventHandlers.handlers
 

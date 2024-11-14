@@ -23,7 +23,6 @@ async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], c
         counter[r.first_line].append(r)
 
     def sorting_key(x: str):
-
         isnotimplemented = 0 if "implemented" in x.lower() else 1
         isskipped = 0 if "SkipTest" in x else 1
         istimedout = 0 if "Timed out" in x else 1

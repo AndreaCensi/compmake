@@ -7,7 +7,15 @@ from .types import CMJobID
 if TYPE_CHECKING:
     from .cachequerydb import CacheQuerySessionInterface
 
-__all__ = ["CANCEL_REASON_OOM", "CANCEL_REASON_TIMEOUT", "CompmakeConstants", "DefaultsToConfig", "CANCEL_REASONS", "CANCEL_REASON_USER", "CANCEL_REASON_HOST_FAILED", ]
+__all__ = [
+    "CANCEL_REASONS",
+    "CANCEL_REASON_HOST_FAILED",
+    "CANCEL_REASON_OOM",
+    "CANCEL_REASON_TIMEOUT",
+    "CANCEL_REASON_USER",
+    "CompmakeConstants",
+    "DefaultsToConfig",
+]
 
 
 class JobIterator(Protocol):
