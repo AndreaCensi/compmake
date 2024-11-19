@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Collection, Iterator
+from collections.abc import Callable, Collection, Iterator, Mapping
 from contextlib import contextmanager
-from typing import cast
+from typing import Any, cast
 
 from compmake_utils import memoized_reset
-from zuper_commons.types import check_isinstance
+from zuper_commons.types import add_context, check_isinstance, TM
 from . import logger
 from .storage import job2jobargskey, job2userobjectkey
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
-from .exceptions import CompmakeBug, CompmakeDBError
+from .exceptions import CompmakeBug, CompmakeDBError, SerializationError
 from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
 from .storage import (
     all_jobs,
@@ -111,6 +111,28 @@ class CacheQuerySessionInterface(ABC):
     @abstractmethod
     def direct_children(self, job_id: CMJobID) -> set[CMJobID]: ...
 
+    @abstractmethod
+    def get_job_args(self, job_id: CMJobID) -> tuple[Callable[..., Any], TM[Any], Mapping[str, Any]]: ...
+
+    @abstractmethod
+    def get_job_userobject(self, job_id: CMJobID) -> Any: ...
+
+    def recursive_parents(self, job_id: CMJobID) -> set[CMJobID]:
+        t: set[CMJobID] = set()
+        parents_jobs = self.direct_parents(job_id)
+        for p in parents_jobs:
+            t.add(p)
+            t.update(self.recursive_parents(p))
+        return t
+
+    def recursive_children(self, job_id: CMJobID) -> set[CMJobID]:
+        """Returns children, children of children, etc."""
+        t: set[CMJobID] = set()
+        for c in self.direct_children(job_id):
+            t.add(c)
+            t.update(self.recursive_children(c))
+        return t
+
 
 class CacheQuerySession(CacheQuerySessionInterface):
     def __init__(self, cq: "CacheQueryDB", session: StorageFilesystemSessionInterface):
@@ -185,6 +207,28 @@ class CacheQuerySession(CacheQuerySessionInterface):
     def get_job(self, job_id: CMJobID) -> Job:
         cache = self.cq.get_job.its_cache()  # type: ignore
         return self._get(cache, job2key, job_id)
+
+    def get_job_args(self, job_id: CMJobID) -> tuple[Callable[..., Any], TM[Any], Mapping[str, Any]]:
+        from compmake_utils.pickle_frustration import pickle_main_context_load
+
+        job = self.get_job(job_id)
+        pickle_main_context = job.pickle_main_context
+        try:
+            with pickle_main_context_load(pickle_main_context):
+                return self._get({}, job2jobargskey, job_id)
+        except Exception as e:
+            raise SerializationError(f"Could not load job args for job {job_id}") from e
+
+    def get_job_userobject(self, job_id: CMJobID) -> Any:
+
+        try:
+            with add_context(op="loading", job_id=job_id):
+                return self._get({}, job2userobjectkey, job_id)
+        except Exception as e:
+            msg = f"Could not load user object for job {job_id}"
+            # from . import mark_as_failed # TMP removed this
+            # mark_as_failed(job_id, db, msg, traceback.format_exc())
+            raise SerializationError(msg) from e
 
     def all_jobs(self) -> list[CMJobID]:
         return list(self.session.list_all_transform(job2key, key2job, "*"))

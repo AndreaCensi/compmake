@@ -3,6 +3,7 @@ from collections.abc import Callable, Collection
 from typing import (
     Any,
     Concatenate,
+    Mapping,
     Self,
     TYPE_CHECKING,
 )
@@ -14,6 +15,8 @@ from .types import CMJobID
 __all__ = [
     "Context",
     "JobInterface",
+    "SimpleJobInterface",
+    "SimpleJobInterfaceGen",
 ]
 
 if TYPE_CHECKING:
@@ -31,6 +34,7 @@ class JobInterface(ABC):
         *args: P.args,
         job_id: str | None = None,
         command_name: str | None = None,
+        compmake_tags: Mapping[str, str | int] | None = None,
         **kwargs: P.kwargs,
     ) -> Promise[X]: ...
 
@@ -43,8 +47,24 @@ class JobInterface(ABC):
         *args: P.args,
         command_name: str | None = None,
         job_id: str | None = None,
+        compmake_tags: Mapping[str, str | int] | None = None,
         **kwargs: P.kwargs,
     ) -> Promise[X]: ...
+
+
+class SimpleJobInterfaceGen[D](ABC):
+    @abstractmethod
+    def comp[
+        **P, X
+    ](self, f: Callable[P, X], *args: P.args, **kwargs: P.kwargs,) -> X: ...
+
+    @abstractmethod
+    def comp_dynamic[
+        **P, X
+    ](self, f: "Callable[Concatenate[SimpleJobInterface, P], X]", *args: P.args, **kwargs: P.kwargs,) -> X: ...
+
+
+type SimpleJobInterface = SimpleJobInterfaceGen[SimpleJobInterfaceGen[Any]]
 
 
 class Context(JobInterface, ABC):
@@ -72,6 +92,11 @@ class Context(JobInterface, ABC):
 
     @abstractmethod
     def comp_prefix(self, prefix: str | None) -> None: ...
+
+    @abstractmethod
+    def with_params(
+        self, job_id: str | None = None, command_name: str | None = None, tags: Mapping[str, str | int] | None = None
+    ) -> SimpleJobInterface: ...
 
     #
     # @abstractmethod

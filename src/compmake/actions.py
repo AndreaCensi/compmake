@@ -821,6 +821,7 @@ def comp_[
 
         else:
             command_desc = type(command).__name__
+    tags = kwargs.pop(CompmakeConstants.tags_key, {})
 
     args: list[object] = list(args0)  # args is a  tuple
 
@@ -961,6 +962,7 @@ def comp_[
         is_async=is_async,
         needs_sti=needs_sti,
         needs_ti=needs_ti,
+        tags=dict(tags),
     )
 
     # Need to inherit the pickle

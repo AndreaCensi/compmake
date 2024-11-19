@@ -96,6 +96,9 @@ class Promise[X]:
         return self  # type: ignore
 
 
+Tags = dict[str, int | str]
+
+
 @dataclass
 class Job:
     job_id: CMJobID
@@ -114,6 +117,7 @@ class Job:
     dynamic_children: dict[CMJobID, set[CMJobID]]
     pickle_main_context: PickleContextDesc
     command_desc: str
+    tags: Tags
 
 
 def make_job(
@@ -125,6 +129,7 @@ def make_job(
     is_async: bool,
     needs_sti: bool,
     needs_ti: bool,
+    tags: Tags,
 ) -> Job:
     """
 
@@ -158,6 +163,7 @@ def make_job(
         is_async=is_async,
         needs_sti=needs_sti,
         needs_ti=needs_ti,
+        tags=tags,
     )
 
 

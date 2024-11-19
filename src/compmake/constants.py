@@ -39,6 +39,7 @@ class CompmakeConstants:
     job_id_key = "job_id"
     extra_dep_key = "extra_dep"
     command_name_key = "command_name"
+    tags_key = "compmake_tags"
 
     # Compmake returns:
     # 0                      if everything all right

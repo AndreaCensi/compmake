@@ -5,14 +5,15 @@ import traceback
 from asyncio import CancelledError
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Any, cast, Concatenate
+from typing import Any, cast, Concatenate, Mapping
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
 from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
+from . import SimpleJobInterface
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
-from .context import Context
+from .context import Context, SimpleJobInterfaceGen
 from .events_structures import Event
 from .exceptions import UserError
 from .filesystem import StorageFilesystem
@@ -44,6 +45,12 @@ class ContextImp(Context):
     _jobs_defined_in_this_session: set[CMJobID]
     _currently_executing: list[CMJobID]
     generate_job_id_counters: dict[str, int]
+
+    rc_files_read: list[str]
+    status_line: str | None
+    splitter: Splitter[Event] | None
+    # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
+    sti: SyncTaskInterface
 
     def __init__(
         self,
@@ -92,11 +99,11 @@ class ContextImp(Context):
         self.status_line = None
         self.objectid2job = {}
 
-    rc_files_read: list[str]
-    status_line: str | None
-    splitter: Splitter[Event] | None
-    # splitter_ui_console: Optional[Splitter[Union[UIMessage, Prompt]]]
-    sti: SyncTaskInterface
+    def with_params(
+        self, job_id: str | None = None, command_name: str | None = None, tags: Mapping[str, str | int] | None = None
+    ) -> SimpleJobInterface:
+        interface = MySimpleQAInterface(self, job_id=job_id, command_name=command_name, tags=dict(tags or {}))
+        return interface  # type: ignore
 
     async def init(self, sti: SyncTaskInterface) -> None:
         self.sti = sti
@@ -392,3 +399,26 @@ class Tmp:
 
 def load_static_storage[X](x: X) -> X:  # XXX: this uses double the memory though
     return x
+
+
+class MySimpleQAInterface(SimpleJobInterfaceGen[Context]):
+    def __init__(
+        self, master: "Context", job_id: str | None = None, command_name: str | None = None, tags: Mapping[str, str] | None = None
+    ):
+        self.master = master
+        self.job_id = job_id
+        self.command_name = command_name
+        self.tags = dict(tags or {})
+
+    def comp[
+        **P, X
+    ](self, f: Callable[P, X], *args: P.args, **kwargs: P.kwargs,) -> X:
+        return self.master.comp(f, *args, job_id=self.job_id, command_name=self.command_name, compmake_tags=self.tags, **kwargs)
+
+    def comp_dynamic[
+        **P, X
+    ](self, f: "Callable[Concatenate[Context, P], X]", *args: P.args, **kwargs: P.kwargs,) -> X:
+        ...
+        return self.master.comp_dynamic(
+            f, *args, job_id=self.job_id, command_name=self.command_name, compmake_tags=self.tags, **kwargs
+        )
