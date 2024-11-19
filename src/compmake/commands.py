@@ -6,8 +6,10 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 """
 
+from compmake.types import CMJobID
 from compmake_utils import safe_pickle_dump
 from zuper_utils_asyncio import SyncTaskInterface
+from zuper_commons.fs import FilePath
 from .actions import clean_targets, make
 from .cachequerydb import CacheQueryDB
 from .console import ask_question
@@ -18,6 +20,7 @@ from .manager import Manager
 from .state import get_compmake_status
 from .storage import all_jobs, delete_all_job_data
 from .visualization import ui_error, ui_info
+from .context import Context
 
 ui_section(GENERAL)
 
@@ -30,7 +33,7 @@ __all__ = [
 
 
 @ui_command(alias=["exit"])
-async def quit(sti: SyncTaskInterface, context):
+async def quit(sti: SyncTaskInterface, context: Context):
     """Exits Compmake's console."""
     raise ShellExitRequested()
 
@@ -46,7 +49,7 @@ def raise_error_if_manager_failed(manager: Manager) -> None:
 
 
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-async def delete(sti: SyncTaskInterface, job_list, context):
+async def delete(sti: SyncTaskInterface, job_list: list[CMJobID], context: Context):
     """Remove completely the job from the DB. Useful for generated jobs (
     "delete not root")."""
 
@@ -58,7 +61,7 @@ async def delete(sti: SyncTaskInterface, job_list, context):
 
 
 @ui_command(section=ACTIONS, dbchange=True)
-async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
+async def clean(sti: SyncTaskInterface, job_list: list[CMJobID], context: Context, cq: CacheQueryDB):
     """
     Cleans the result of the selected computation (or everything if
     nothing specified).
@@ -91,7 +94,7 @@ async def clean(sti: SyncTaskInterface, job_list, context, cq: CacheQueryDB):
 
 # TODO: add hidden
 @ui_command(section=COMMANDS_ADVANCED, dbchange=True)
-async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
+async def make_single(sti: SyncTaskInterface, job_list: list[CMJobID], context: Context, out_result: FilePath):
     """Makes a single job -- not for users, but for slave mode."""
     # print("make_single", job_list, out_result)
 
@@ -115,7 +118,7 @@ async def make_single(sti: SyncTaskInterface, job_list, context, out_result):
         raise
 
 
-def ask_if_sure_remake(non_empty_job_list):
+def ask_if_sure_remake(non_empty_job_list: list[CMJobID]) -> bool:
     """If interactive, ask the user yes or no. Otherwise returns True."""
     if get_compmake_status() == CompmakeConstants.compmake_status_interactive:
         question = f"Should I clean and remake {len(non_empty_job_list)} jobs? [y/n] "

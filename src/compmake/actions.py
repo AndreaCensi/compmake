@@ -4,7 +4,7 @@ import sys
 import time
 import traceback
 from asyncio import CancelledError
-from collections.abc import Callable, Collection, Iterator
+from collections.abc import Callable, Collection, Iterator, Mapping
 from contextlib import contextmanager
 from logging import Formatter
 from typing import Any, cast, Concatenate, TYPE_CHECKING
@@ -14,7 +14,7 @@ from zuper_commons.types import check_isinstance, describe_type, ZAssertionError
 from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
 from zuper_utils_timing import new_timeinfo, TimeInfo
 from . import COMPMAKE_DEBUG, logger
-from .cachequerydb import CacheQueryDB, definition_closure
+from .cachequerydb import CacheQueryDB, CacheQuerySessionInterface
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
@@ -70,16 +70,17 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
     job_list = set(job_list)
 
     # print("clean_targets (%r)" % job_list)
+    cqs: CacheQuerySessionInterface
+    with cq.session() as cqs:
+        # now we need to delete the definition closure
+        # logger.info('getting closure')
+        closure = cqs.definition_closure(job_list)
 
-    # now we need to delete the definition closure
-    # logger.info('getting closure')
-    closure = definition_closure(job_list, db)
+        basic = job_list - closure
 
-    basic = job_list - closure
-
-    other_clean: set[CMJobID] = set()
-    for job_id in job_list:
-        other_clean.update(cq.parents(job_id))
+        other_clean: set[CMJobID] = set()
+        for job_id in job_list:
+            other_clean.update(cqs.recursive_parents(job_id))
 
     other_clean -= closure
     #
@@ -259,7 +260,7 @@ formatter = Formatter(FORMAT)
 @contextmanager
 def output_capture(
     enabled: bool,
-    context,
+    context: Context,
     job_id: CMJobID,
     echo: bool,
 ) -> Iterator[OutputCapture | None]:
@@ -489,7 +490,7 @@ async def make(
         ti2.finish()
 
         bt = traceback.format_exc()
-        s = "{}: {}".format(type(e).__name__, e)
+        s = f"{type(e).__name__}: {e}"
         mark_as_failed(job_id, db, s, backtrace=bt)
         deleted_jobs = get_deleted_jobs()
 
@@ -563,7 +564,7 @@ async def make(
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        logger.warning("Expensive garbage collection detected at the end of {}: {}".format(job_id, int_gc))
+        logger.warning(f"Expensive garbage collection detected at the end of {job_id}: {int_gc}")
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make
@@ -624,7 +625,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
             counters[job_prefix] = 2
 
         if job_prefix:
-            yield "{}-{}".format(job_prefix, base)
+            yield f"{job_prefix}-{base}"
             while counters[job_prefix] <= max_options:
                 yield "%s-%s-%d" % (job_prefix, base, counters[job_prefix])
                 counters[job_prefix] += 1
@@ -726,7 +727,9 @@ def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesys
     """Deletes all jobs given and the jobs that they defined.
     Returns the set of jobs deleted."""
     jobs = set(jobs)
-    closure = definition_closure(jobs, db)
+    cq = CacheQueryDB(db)
+    with cq.session() as cqs:
+        closure = cqs.definition_closure(jobs)
 
     all_the_jobs = jobs | closure
     for job_id in all_the_jobs:
@@ -821,7 +824,9 @@ def comp_[
 
         else:
             command_desc = type(command).__name__
-    tags = kwargs.pop(CompmakeConstants.tags_key, {})
+    else:
+        command_desc = str(command_desc)
+    tags = cast(Mapping[str, str | int], kwargs.pop(CompmakeConstants.tags_key, {}))
 
     args: list[object] = list(args0)  # args is a  tuple
 
@@ -941,7 +946,7 @@ def comp_[
 
     for c in children:
         if not job_exists(c, db):
-            msg = "Job {!r} references a job {!r} that doesnt exist.".format(job_id, c)
+            msg = f"Job {job_id!r} references a job {c!r} that doesnt exist."
             raise ValueError(msg)
 
     all_args = (command, args, kwargs)
@@ -1181,7 +1186,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = "Could not parse {}={} as {}.".format(k, v, type(default_value))
+                    msg = f"Could not parse {k}={v} as {type(default_value)}."
                     raise UserError(msg)
         else:
             other.append(a)

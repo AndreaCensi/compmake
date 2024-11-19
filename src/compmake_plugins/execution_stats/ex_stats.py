@@ -41,7 +41,7 @@ def count_resources(context, the_job):
     db = context.get_compmake_db()
     cache = get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
-        msg = "The job {} was supposed to be finished: {}".format(the_job, cache)
+        msg = f"The job {the_job} was supposed to be finished: {cache}"
         raise Exception(msg)
 
     cq = CacheQueryDB(db)
@@ -51,7 +51,7 @@ def count_resources(context, the_job):
 
     res = {}
     for j in children:
-        res[j] = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)], job_id="count-{}-{}".format(the_job, j))
+        res[j] = context.comp_dynamic(my_get_job_cache, j, extra_dep=[Promise(j)], job_id=f"count-{the_job}-{j}")
 
     return context.comp(finalize_result, res)
 
@@ -61,7 +61,7 @@ def my_get_job_cache(context, the_job):
     db = context.get_compmake_db()
     cache = get_job_cache(the_job, db=db)
     if cache.state != Cache.DONE:
-        msg = "The job {} was supposed to be finished: {}".format(the_job, cache)
+        msg = f"The job {the_job} was supposed to be finished: {cache}"
         raise Exception(msg)
     return cache
 

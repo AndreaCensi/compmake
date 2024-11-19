@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from copy import deepcopy
-from typing import Any
+from typing import Any, cast
 
 from zuper_commons.types import ZException, ZValueError
 from .exceptions import CompmakeBug
@@ -83,13 +84,13 @@ def collect_dependencies(ob: Any) -> set[CMJobID]:
             return set()
 
         depends: set[CMJobID] = set()
-        child: object
         if isinstance(ob, (list, tuple)):
-            for child in ob:
-                depends.update(collect_dependencies(child))
+            ob = cast(Sequence[CMJobID], ob)
+            for job_id in ob:
+                depends.update(collect_dependencies(job_id))
         if isinstance(ob, dict):
-            for child in ob.values():
-                depends.update(collect_dependencies(child))
+            for job_id in ob.values():
+                depends.update(collect_dependencies(job_id))
         return depends
 
 

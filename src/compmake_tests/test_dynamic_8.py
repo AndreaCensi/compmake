@@ -1,6 +1,7 @@
 from typing import cast
 
-from compmake import definition_closure, direct_uptodate_deps_inverse, direct_uptodate_deps_inverse_closure, jobs_defined, Context
+from compmake import Context, direct_uptodate_deps_inverse_closure
+from compmake.cachequerydb import direct_uptodate_deps_inverse
 from compmake.types import CMJobID
 from .utils import Env, run_with_env
 
@@ -31,7 +32,7 @@ class TestDynamic8:
 @run_with_env
 async def test_dynamic8(env: Env) -> None:
     #         """ Re-execution creates more jobs.  """
-    mockup8(env)
+    mockup8(env.cc)
     # run it
     TestDynamic8.define_other = True
     await env.assert_cmd_success("make recurse=1")
@@ -47,7 +48,7 @@ async def test_dynamic8(env: Env) -> None:
 @run_with_env
 async def test_dynamic8_clean(env: Env) -> None:
     #         """ Re-execution creates more jobs.  """
-    mockup8(env)
+    mockup8(env.cc)
     # run it
     TestDynamic8.define_other = True
     await env.assert_cmd_success("make recurse=1")
@@ -57,12 +58,13 @@ async def test_dynamic8_clean(env: Env) -> None:
     TestDynamic8.define_other = False
     j = cast(CMJobID, "fd")
     await env.assert_jobs_equal("done", ["fd", "fd-always", "fd-other"])
-    env.assert_equal_set(jobs_defined(j, env.db), ["fd-always", "fd-other"])
 
-    env.assert_equal_set(definition_closure([j], env.db), ["fd-always", "fd-other"])
-    direct = direct_uptodate_deps_inverse(j, env.db)
-    env.assert_equal_set(direct, ["fd-always", "fd-other"])
-    direct_closure = direct_uptodate_deps_inverse_closure(j, env.db)
+    with env.session() as cqs:
+        env.assert_equal_set(cqs.jobs_defined(j), ["fd-always", "fd-other"])
+        env.assert_equal_set(cqs.definition_closure([j]), ["fd-always", "fd-other"])
+        direct = direct_uptodate_deps_inverse(j, cqs)
+        env.assert_equal_set(direct, ["fd-always", "fd-other"])
+        direct_closure = direct_uptodate_deps_inverse_closure(j, cqs)
     env.assert_equal_set(direct_closure, ["fd-always", "fd-other"])
 
     await env.assert_cmd_success("clean fd")
@@ -76,7 +78,7 @@ async def test_dynamic8_clean(env: Env) -> None:
 @run_with_env
 async def test_dynamic8_inverse(env: Env) -> None:
     """Re-execution creates fewer jobs."""
-    mockup8(env)
+    mockup8(env.cc)
     # run it
     TestDynamic8.define_other = False
     await env.assert_cmd_success("make recurse=1")

@@ -48,7 +48,7 @@ def set_config_from_strings(name: str, args: list[str]) -> None:
     set_compmake_config0(name, value)
 
 
-def add_config_section(name, desc=None, order=0):
+def add_config_section(name: str, desc: str | None = None, order: int = 0):
     config_sections = CompmakeGlobalState.config_sections
 
     if name in config_sections:
@@ -88,5 +88,5 @@ def show_config(context: Context) -> str:
 
             s1 = compmake_colored(name.rjust(max_len_name), attrs=["bold"])
             s2 = compmake_colored(value.rjust(max_len_val), attrs=attrs)
-            b += "  | {}  {}  {}\n".format(s1, s2, desc)
+            b += f"  | {s1}  {s2}  {desc}\n"
     return b

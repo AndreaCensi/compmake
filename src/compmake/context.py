@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Mapping
 from typing import (
     Any,
     Concatenate,
-    Mapping,
     Self,
     TYPE_CHECKING,
 )
@@ -105,7 +104,7 @@ class Context(JobInterface, ABC):
     #
 
     @abstractmethod
-    async def comp_store(self, x: object, job_id: str | None = None) -> Promise: ...
+    async def comp_store[X](self, x: X, job_id: str | None = None) -> Promise[X]: ...
 
     @abstractmethod
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: list[str]) -> None: ...

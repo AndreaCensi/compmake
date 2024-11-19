@@ -58,7 +58,7 @@ async def interpret_commands_wrap(sti: SyncTaskInterface, commands: str, context
         raise CompmakeBug(msg) from e
 
 
-async def batch_command(sti: SyncTaskInterface, s, context, cq):
+async def batch_command(sti: SyncTaskInterface, s: str, context: Context, cq: CacheQueryDB) -> None:
     """
     Executes one command (could be a sequence)
 

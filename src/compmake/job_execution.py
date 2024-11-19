@@ -175,7 +175,7 @@ async def execute_with_context(
 
     if args:
         if isinstance(args[0], Context) and args[0] != context:
-            msg = "{}({}, {})".format(command, args, kwargs2)
+            msg = f"{command}({args}, {kwargs2})"
             raise ValueError(msg)
 
     # context is one of the arguments

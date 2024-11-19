@@ -3,7 +3,7 @@
 import os
 from collections.abc import Sequence
 from time import time
-from typing import Collection
+from collections.abc import Collection
 
 from compmake import (
     Cache,

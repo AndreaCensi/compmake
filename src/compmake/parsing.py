@@ -87,7 +87,7 @@ def eval_alias(alias: str, cqs: CacheQuerySessionInterface) -> Iterator[CMJobID]
             # can be generator; no assert_list_of_strings(result)
             yield from result
     else:
-        msg = 'I cannot interpret alias "{}" -> "{}".'.format(alias, value)
+        msg = f'I cannot interpret alias "{alias}" -> "{value}".'
         raise ValueError(msg)
 
 
@@ -294,8 +294,7 @@ def list_bottom_jobs(cqs: CacheQuerySessionInterface) -> Iterator[CMJobID]:
 
 def obtain_all(cqs: CacheQuerySessionInterface) -> Iterator[CMJobID]:
     jobs = cqs.all_jobs()
-    for job_id in jobs:
-        yield job_id
+    yield from jobs
 
 
 def jobs_timedout(cqs: CacheQuerySessionInterface) -> Iterator[CMJobID]:

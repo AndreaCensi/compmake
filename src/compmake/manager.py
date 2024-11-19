@@ -22,7 +22,7 @@ from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from . import COMPMAKE_DEBUG, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
-from .cachequerydb import CacheQueryDB, list_todo_targets
+from .cachequerydb import CacheQueryDB, direct_uptodate_deps_inverse, list_todo_targets
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
 from .context import Context
 from .events_structures import Event
@@ -659,7 +659,9 @@ class Manager(ManagerLog):
 
         publish(self.context, "manager-job-failed", job_id=job_id)
 
-        parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)  # TODO: efficiency
+        cq = CacheQueryDB(self.db)
+        with cq.session() as cqs:
+            parent_jobs = direct_uptodate_deps_inverse_closure(job_id, cqs)
 
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
@@ -689,9 +691,10 @@ class Manager(ManagerLog):
 
         cq0 = CacheQueryDB(self.db)
 
-        parent_jobs = cq0.direct_uptodate_deps_inverse(job_id)
+        # parent_jobs = cq0.direct_uptodate_deps_inverse(job_id)
 
         with cq0.session() as cqs:
+            parent_jobs = direct_uptodate_deps_inverse(job_id, cqs)
             parents_todo = set(self.todo & parent_jobs)
             # self.log("considering parents", parents_todo=L(parents_todo))
             for opportunity in parents_todo:

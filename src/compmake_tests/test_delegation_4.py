@@ -1,17 +1,19 @@
 from .utils import Env, run_with_env
+from compmake import Context
 
 
-def rec(context, n):
+def rec(context: Context, n: int) -> int:
     if n == 0:
         return 0
-    return context.comp(add, n, context.comp_dynamic(rec, n - 1, job_id="rec-%d" % n))
+    x = context.comp_dynamic(rec, n - 1, job_id="rec-%d" % n).pretend()
+    return context.comp(add, n, x).pretend()
 
 
-def add(a, b):
+def add(a: int, b: int) -> int:
     return a + b
 
 
-def f(x):
+def f(x: int):
     if not x == 15:
         raise ValueError("Expected 5 + 4 + 3 + 2 + 1 + 0 = 15, not %s" % x)
 

@@ -2,18 +2,18 @@ import os
 import pickle
 
 from compmake import (
+    CMJobID,
     COMMANDS_ADVANCED,
+    Context,
     get_job_userobject,
     get_job_userobject_resolved,
     is_job_userobject_available,
     ui_command,
     ui_info,
     ui_message,
-    Context,
 )
 from zuper_typing import debug_print
 from zuper_utils_asyncio import SyncTaskInterface
-from compmake import CMJobID
 
 
 @ui_command(section=COMMANDS_ADVANCED)

@@ -1,12 +1,13 @@
+from compmake import JobInterface
+from .utils import Env, run_with_env
+
+
 def f():
     pass
 
 
-def g(context):
+def g(context: JobInterface):
     context.comp(f, job_id="ciao")  # this will become ciao-0
-
-
-from .utils import Env, run_with_env
 
 
 @run_with_env

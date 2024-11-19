@@ -1,6 +1,6 @@
 from typing import cast
 
-from compmake import clean_other_jobs, definition_closure, Context
+from compmake import clean_other_jobs, JobInterface
 from compmake.types import CMJobID
 
 
@@ -8,11 +8,11 @@ def g2():
     pass
 
 
-def gd(context: Context):
+def gd(context: JobInterface):
     context.comp(g2)
 
 
-def fd(context: Context):
+def fd(context: JobInterface):
     context.comp_dynamic(gd)
 
 
@@ -21,15 +21,15 @@ def i2():
 
 
 # noinspection PyShadowingBuiltins
-def id(context: Context):
+def id(context: JobInterface):
     context.comp(i2)
 
 
-def hd(context: Context):
+def hd(context: JobInterface):
     context.comp_dynamic(id)
 
 
-def mockup5(context: Context, both: bool):
+def mockup5(context: JobInterface, both: bool):
     context.comp_dynamic(fd)
     if both:
         context.comp_dynamic(hd)
@@ -49,8 +49,9 @@ async def test_dynamic5(env: Env) -> None:
 
     await env.assert_cmd_success("details hd-id")
     await env.assert_cmd_success("details hd-id-i2")
-    env.assert_equal_set(definition_closure(cast(list[CMJobID], ["hd-id"]), env.db), ["hd-id-i2"])
-    env.assert_equal_set(definition_closure(cast(list[CMJobID], ["hd"]), env.db), ["hd-id", "hd-id-i2"])
+    with env.session() as cqs:
+        env.assert_equal_set(cqs.definition_closure(cast(list[CMJobID], ["hd-id"])), ["hd-id-i2"])
+        env.assert_equal_set(cqs.definition_closure(cast(list[CMJobID], ["hd"])), ["hd-id", "hd-id-i2"])
     # now redo it
 
     async with environment(env.sti, env.rootd) as env2:

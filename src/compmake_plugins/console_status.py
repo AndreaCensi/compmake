@@ -232,7 +232,7 @@ def get_string(level: Levels) -> str:
                     # XXX: this is never used somehow, see tracker
                     # that's where the code is executed to display iterations
                     if isinstance(frame.iterations[0], int) and isinstance(frame.iterations[1], int):
-                        x += ["{} of {}".format(frame.iterations[0] + 1, frame.iterations[1])]
+                        x += [f"{frame.iterations[0] + 1} of {frame.iterations[1]}"]
                     else:
                         perc = frame.iterations[0] * 100.0 / frame.iterations[1]
                         x += ["%.1f%%" % perc]
@@ -287,8 +287,8 @@ async def handle_event(context: Context, event: Event) -> None:
     options_right = []
 
     if status:
-        options_right.append("{} {} ".format(status, job_counts(context)))
-        options_right.append("{} {} {}".format(wait_reasons(), status, job_counts(context)))
+        options_right.append(f"{status} {job_counts(context)} ")
+        options_right.append(f"{wait_reasons()} {status} {job_counts(context)}")
 
     options_right.append(job_counts(context))
 

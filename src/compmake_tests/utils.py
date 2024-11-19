@@ -1,7 +1,8 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import cast, Collection
+from typing import Any, cast
+from collections.abc import Collection
 from unittest import SkipTest
 
 from compmake import (
@@ -12,6 +13,7 @@ from compmake import (
     ContextImp,
     get_job,
     Job,
+    JobInterface,
     MakeFailed,
     parse_job_list,
     read_rc_files,
@@ -24,10 +26,9 @@ from zuper_commons.types import ZAssertionError, ZException, ZValueError
 from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
 from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
-from typing import Any
 
 
-class Env:
+class Env(JobInterface):
     rootd: str
     sti: SyncTaskInterface
     db: StorageFilesystem
@@ -75,7 +76,7 @@ class Env:
 
     async def assert_job_uptodate(self, job_id: CMJobID, status: bool):
         res = await self.up_to_date(job_id)
-        self.assert_equal(res, status, "Want {!r} uptodate? {}".format(job_id, status))
+        self.assert_equal(res, status, f"Want {job_id!r} uptodate? {status}")
 
     def assert_equal[X](self, first: X, second: X, msg: str | None = None):
         my_assert_equal(first, second, msg)
@@ -88,7 +89,7 @@ class Env:
         try:
             self.assert_equal_set(js, jobs)
         except:
-            print("expr {!r} -> {}".format(expr, js))
+            print(f"expr {expr!r} -> {js}")
             print("differs from %s" % jobs)
             raise
 
@@ -143,9 +144,13 @@ class Env:
         self.cq.invalidate()
 
     async def up_to_date(self, job_id: str) -> bool:
-        up, reason, timestamp = self.cq.up_to_date(cast(CMJobID, job_id))
-        self.sti.logger.info("up_to_date({!r}): {}, {!r}, {}".format(job_id, up, reason, timestamp))
+        with self.cq.session() as cqs:
+            up, reason, timestamp = cqs.up_to_date(cast(CMJobID, job_id))
+        self.sti.logger.info(f"up_to_date({job_id!r}): {up}, {reason!r}, {timestamp}")
         return up
+
+    def session(self):
+        return self.cq.session()
 
 
 async def make_environment(sti: SyncTaskInterface, rootd: str | None = None) -> Env:

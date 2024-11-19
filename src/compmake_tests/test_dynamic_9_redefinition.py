@@ -1,7 +1,7 @@
 import unittest
 
-from .utils import Env, run_with_env
 from compmake import Context
+from .utils import Env, run_with_env
 
 
 def g(b1: int, b2: int):
@@ -41,7 +41,7 @@ def mockup(context: Context):
 
 @run_with_env
 async def test_dynamic9_red_rmake(env: Env) -> None:
-    mockup(env)
+    mockup(env.cc)
     env.sti.logger.info("part 1")
     await env.assert_cmd_success("rmake")
     await env.assert_cmd_success("ls")

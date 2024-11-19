@@ -1,12 +1,9 @@
-from .cachequerydb import definition_closure
-from .filesystem import StorageFilesystem
-from .queries import direct_parents, jobs_defined, parents
-from .storage import get_job_cache
+from .cachequerydb import CacheQuerySessionInterface
 from .structures import Cache
 from .types import CMJobID
 
 __all__ = [
-    "direct_uptodate_deps_inverse",
+    # "direct_uptodate_deps_inverse",
     "direct_uptodate_deps_inverse_closure",
     # "up_to_date",
 ]
@@ -59,39 +56,40 @@ __all__ = [
 #         dependencies.add(last)
 #     return dependencies
 
+#
+# def direct_uptodate_deps_inverse(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
+#     """Returns all jobs that have this as
+#     a direct 'dependency'
+#     the jobs that are direct parents
+#     plus the jobs that were defined by it.
+#
+#     Assumes that the job is DONE.
+#     """
+#
+#     dep_inv = direct_parents(job_id, db)
+#
+#     # Not sure if need to be here --- added when doing graph-animation for jobs in progress
+#     if get_job_cache(job_id, db).state == Cache.DONE:
+#         dep_inv.update(jobs_defined(job_id, db))
+#     return dep_inv
 
-def direct_uptodate_deps_inverse(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
-    """Returns all jobs that have this as
-    a direct 'dependency'
-    the jobs that are direct parents
-    plus the jobs that were defined by it.
 
-    Assumes that the job is DONE.
-    """
-
-    dep_inv = direct_parents(job_id, db)
-
-    # Not sure if need to be here --- added when doing graph-animation for jobs in progress
-    if get_job_cache(job_id, db).state == Cache.DONE:
-        dep_inv.update(jobs_defined(job_id, db))
-    return dep_inv
-
-
-def direct_uptodate_deps_inverse_closure(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
+def direct_uptodate_deps_inverse_closure(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> set[CMJobID]:
     """
     Closure of direct_uptodate_deps_inverse:
     all jobs that depend on this.
     """
     # all parents
-    dep_inv = parents(job_id, db)
+
+    dep_inv = set(cqs.recursive_parents(job_id))
     # plus their definition closure
 
-    closure = definition_closure(dep_inv, db)
+    closure = cqs.definition_closure(dep_inv)
     # this is not true in general
     # assert not closure & dep_inv
     dep_inv.update(closure)
     # plus the ones that were defined by it
-
-    if get_job_cache(job_id, db).state == Cache.DONE:
-        dep_inv.update(jobs_defined(job_id, db))
+    cache = cqs.get_job_cache(job_id)
+    if cache.state == Cache.DONE:
+        dep_inv.update(cqs.jobs_defined(job_id))
     return dep_inv

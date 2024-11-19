@@ -483,11 +483,13 @@ class Cache:
         if self.int_make is None:
             return 0.0
         else:
-            return (
-                self.int_load_results.get_walltime_used()
-                + self.int_save_results.get_walltime_used()
-                + self.int_gc.get_walltime_used()
-            )
+
+            def wu(x: IntervalTimer | None) -> float:
+                if x is None:
+                    return 0.0
+                return x.get_walltime_used()
+
+            return wu(self.int_load_results) + wu(self.int_save_results) + wu(self.int_gc)
 
 
 def cache_has_large_overhead(cache: Cache) -> bool:

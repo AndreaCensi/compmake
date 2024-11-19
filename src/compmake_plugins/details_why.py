@@ -2,7 +2,7 @@ from collections import defaultdict
 from collections.abc import Collection
 from dataclasses import dataclass
 
-from compmake import Cache, CacheQueryDB, CMJobID, Context, get_job_cache, job_cache_exists, ui_command, VISUALIZATION
+from compmake import Cache, CacheQueryDB, CacheQuerySessionInterface, CMJobID, Context, ui_command, VISUALIZATION
 from zuper_commons.text import format_rows_as_table, joinlines
 from zuper_commons.ui import color_gray
 from zuper_utils_asyncio import SyncTaskInterface
@@ -12,11 +12,12 @@ from zuper_utils_asyncio import SyncTaskInterface
 async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], context: Context, cq: CacheQueryDB) -> None:
     """Shows the last line of the error"""
     entries: list[DetailWhyOne] = []
-    for job_id in non_empty_job_list:
-        details = details_why_one(job_id, context, cq)
+    with cq.session() as cqs:
+        for job_id in non_empty_job_list:
+            details = details_why_one(job_id, cqs)
 
-        if details is not None:
-            entries.append(details)
+            if details is not None:
+                entries.append(details)
 
     counter: dict[str, list[DetailWhyOne]] = defaultdict(list)
     for r in entries:
@@ -28,7 +29,7 @@ async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], c
         istimedout = 0 if "Timed out" in x else 1
         isoom = 0 if "Out of memory" in x else 1
         number_of_jobs = len(counter[x])
-        return (istimedout, isoom, isskipped, isnotimplemented, number_of_jobs, x)
+        return istimedout, isoom, isskipped, isnotimplemented, number_of_jobs, x
 
         # lambda x: (len(x[1]), x[0]))
         # return r.first_line
@@ -102,11 +103,9 @@ class DetailWhyOne:
     complete: str
 
 
-def details_why_one(job_id, context, cq: CacheQueryDB) -> DetailWhyOne | None:
-    db = context.get_compmake_db()
-
-    if job_cache_exists(job_id, db):
-        cache = get_job_cache(job_id, db)
+def details_why_one(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> DetailWhyOne | None:
+    if cqs.job_cache_exists(job_id):
+        cache = cqs.get_job_cache(job_id)
 
         status = Cache.state2desc[cache.state]
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:

@@ -218,4 +218,4 @@ def list_commands_with_sections(file: TextIO = sys.stdout):  # @ReservedAssignme
             n = name.ljust(max_len)
             if not is_experimental:
                 n = compmake_colored(n, attrs=["bold"])
-            file.write("  | {}  {}\n".format(n, short_doc))
+            file.write(f"  | {n}  {short_doc}\n")

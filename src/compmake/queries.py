@@ -77,7 +77,7 @@ def top_targets(db: StorageFilesystem):
     """Returns a list of all jobs which are not needed by anybody"""
     cq = CacheQueryDB(db)
     with cq.session() as cqs:
-        return [x for x in cqs.all_jobs() if not cq.direct_parents(x)]
+        return [x for x in cqs.all_jobs() if not cqs.direct_parents(x)]
 
 
 # def bottom_targets(db):

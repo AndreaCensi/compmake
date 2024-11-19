@@ -51,7 +51,7 @@ async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"
             length = G.nodes[job_id]["length"]
             pre = list(G.predecessors(job_id))
 
-            print("{} pred {}".format(job_id, pre))
+            print(f"{job_id} pred {pre}")
             if not pre:
                 T0 = 0
                 G.nodes[job_id]["CP"] = None
@@ -85,7 +85,7 @@ async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"
     print("Critical path:")
     for job_id in reversed(path):
         length = G.nodes[job_id]["length"]
-        print("-  {:.1f} s   {}".format(length, job_id))
+        print(f"-  {length:.1f} s   {job_id}")
 
     for job_id in by_ideal_completion:
         T0 = G.nodes[job_id]["T0"]
@@ -219,13 +219,13 @@ class SimpleGantt:
         for job_id, e in self.entries.items():
             classes = ["critical"] if e.critical else []
             c = " ".join(classes)
-            s += '\n<tr class="{}"><td>{}</td><td style="display: block;">'.format(c, job_id[:20])
+            s += f'\n<tr class="{c}"><td>{job_id[:20]}</td><td style="display: block;">'
             for id_period, (t0, t1) in e.periods.items():
                 r0 = normalize_ts(t0)
                 w = normalize_length(t1 - t0)
                 #                print('%s %10s %10s %10s w %s' % (job_id[:10], id_period, t0, t1, w))
-                style = "display:block; margin-left: {}px; width: {}px; height: 10px".format(r0, w)
-                s += "\n<span class='{}' style='{}'></span>".format(id_period, style)
+                style = f"display:block; margin-left: {r0}px; width: {w}px; height: 10px"
+                s += f"\n<span class='{id_period}' style='{style}'></span>"
             s += "\n</td></tr>"
         s += "\n</table>"
 

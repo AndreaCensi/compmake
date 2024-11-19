@@ -86,7 +86,7 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
         if defb == "root":
             continue
         if not job_exists(defb, db=db):
-            s = "{!r} defined by {!r} but {!r} not existing.".format(job_id, defined_by, defb)
+            s = f"{job_id!r} defined by {defined_by!r} but {defb!r} not existing."
             e(s)
 
     for dp in dparents:

@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import ClassVar, cast
+from typing import cast, ClassVar
 
 from compmake_utils import get_screen_columns
 from zuper_commons.text import indent, joinlines

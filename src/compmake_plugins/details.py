@@ -80,7 +80,7 @@ def list_job_detail(
         cache2 = cqs.get_job_cache(job_id)
 
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
-        print(bold("Uptodate:") + "{} ({})".format(up, reason))
+        print(bold("Uptodate:") + f"{up} ({reason})")
         if cache2.walltime_used:
             print(bold("Wall Time:") + "%.4f s" % cache2.walltime_used)
         if cache2.cputime_used:
@@ -134,7 +134,7 @@ def list_job_detail(
                 lines = [warn] + lines[-max_lines:]
 
         for line in lines:
-            s = "{}{}".format(prefix, transform(line))
+            s = f"{prefix}{transform(line)}"
             write_line_endl(s)
             # if six.PY2:
             # s = s.encode('utf-8')

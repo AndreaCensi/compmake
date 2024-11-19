@@ -5,7 +5,8 @@ import traceback
 from asyncio import CancelledError
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
-from typing import Any, cast, Concatenate, Mapping
+from typing import Any, cast, Concatenate
+from collections.abc import Mapping
 
 from zuper_commons.fs import DirPath
 from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines

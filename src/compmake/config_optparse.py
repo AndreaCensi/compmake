@@ -1,5 +1,5 @@
-from optparse import OptionGroup, OptionValueError
-
+from optparse import OptionGroup, OptionValueError, OptionParser
+from typing import Any
 from .state import CompmakeGlobalState
 from .structure import set_config_from_strings
 
@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 
-def config_populate_optparser(parser) -> None:
+def config_populate_optparser(parser: OptionParser) -> None:
     config_switches = CompmakeGlobalState.config_switches
     config_sections = CompmakeGlobalState.config_sections
 
@@ -21,7 +21,7 @@ def config_populate_optparser(parser) -> None:
         for name in switches:
             switch = config_switches[name]
 
-            command = "--%s" % switch.name
+            command = f"--{switch.name}"
 
             group.add_option(
                 command,
@@ -37,8 +37,8 @@ def config_populate_optparser(parser) -> None:
 
 
 # noinspection PyUnusedLocal
-def option_callback(option, opt, value, par, switch):
+def option_callback(option: Any, opt: Any, value: Any, par: Any, switch: Any):
     try:
         set_config_from_strings(switch.name, value)
     except:  # OK
-        raise OptionValueError('Could not parse value "{}" passed to "{}".'.format(value, opt))
+        raise OptionValueError(f'Could not parse value "{value}" passed to "{opt}".')

@@ -69,7 +69,7 @@ async def test_syntax(env: Env) -> None:
         try:
             my_assert_equal(set(a), set(b))
         except:  # pragma: no cover
-            sys.stdout.write("Comparing:\n\t- {}\n\t   -> {} \n\t- {}\n\t   -> {}. \n".format(A, a, B, b))
+            sys.stdout.write(f"Comparing:\n\t- {A}\n\t   -> {a} \n\t- {B}\n\t   -> {b}. \n")
             raise
 
     def syntaxError(s: str):
