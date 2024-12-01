@@ -12,6 +12,7 @@ from typing import Any, cast, Concatenate, TYPE_CHECKING
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.text import indent
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
+from zuper_commons.ui import color_orange
 from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
 from zuper_utils_timing import new_timeinfo, TimeInfo
 from . import COMPMAKE_DEBUG, logger
@@ -1134,6 +1135,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     else:
         ignore_error = False
 
+    commands_line_pretty = color_orange(commands_line)
     commands = commands_line.split()
 
     command_name = commands[0]
@@ -1143,7 +1145,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         command_name = UIState.alias2name[command_name]
 
     if not command_name in ui_commands:
-        msg = f"Unknown command {command_name!r} (try 'help'). "
+        msg = f"Unknown command {color_orange(command_name)} (try 'help'). "
         raise UserError(msg, known=sorted(ui_commands))
 
     # XXX: use more elegant method
@@ -1206,57 +1208,57 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
     if "cq" in function_args:
         kwargs["cq"] = cq
-
-    if "non_empty_job_list" in function_args:
-        if not args:
-            msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
-            raise UserError(msg)
-
-        with cq.session() as cqs:
-            job_list = list(parse_job_list(args, cqs=cqs))
-
-            if not job_list:
-                msg = f"Could not find any job to process."
-                raise UserError(msg)
-
-        # TODO: check non empty
-        CompmakeConstants.aliases["last"] = job_list
-        kwargs["non_empty_job_list"] = job_list
-
-    if "job_list" in function_args:
-        with cq.session() as cqs:
-            job_list = list(parse_job_list(args, cqs=cqs))
-            if args and not job_list:
-                msg = f"Could not find any job to process."
-                raise UserError(msg)
-
-        CompmakeConstants.aliases["last"] = job_list
-        # TODO: this does not survive reboots
-        # logger.info('setting alias "last"' )
-        kwargs["job_list"] = job_list
-
-    if "context" in function_args:
-        kwargs["context"] = context
-
-    for x in args_without_default:
-        if not x in kwargs:
-            msg = f"Required argument {x!r} not given."
-            raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
-
-    if "sti" in function_args:
-        kwargs["sti"] = sti
-
-    is_async = inspect.iscoroutinefunction(function)
-
-    res: object
     try:
+        if "non_empty_job_list" in function_args:
+            if not args:
+                msg = f"The command {color_orange(command_name)} requires a non empty list of jobs as argument."
+                raise UserError(msg)
+
+            with cq.session() as cqs:
+                job_list = list(parse_job_list(args, cqs=cqs))
+
+                if not job_list:
+                    msg = f"Could not find any job to process."
+                    raise UserError(msg)
+
+            # TODO: check non empty
+            CompmakeConstants.aliases["last"] = job_list
+            kwargs["non_empty_job_list"] = job_list
+
+        if "job_list" in function_args:
+            with cq.session() as cqs:
+                job_list = list(parse_job_list(args, cqs=cqs))
+                if args and not job_list:
+                    msg = f"Could not find any job to process."
+                    raise UserError(msg)
+
+            CompmakeConstants.aliases["last"] = job_list
+            # TODO: this does not survive reboots
+            # logger.info('setting alias "last"' )
+            kwargs["job_list"] = job_list
+
+        if "context" in function_args:
+            kwargs["context"] = context
+
+        for x in args_without_default:
+            if not x in kwargs:
+                msg = f"Required argument {x!r} not given."
+                raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
+
+        if "sti" in function_args:
+            kwargs["sti"] = sti
+
+        is_async = inspect.iscoroutinefunction(function)
+
+        res: object
+
         if is_async:
             res = await function(**kwargs)
         else:
             res = function(**kwargs)
         if (res is not None) and (res != 0):
 
-            msg = f"Command {commands_line!r} failed:\n"
+            msg = f"Command {commands_line_pretty} failed:\n"
             msg += indent(str(res), "  ")
             if ignore_error:
                 logger.warning(msg)
@@ -1265,10 +1267,13 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         return None
     except CompmakeException as e:
         if ignore_error:
-            logger.warning(f"Command {commands_line!r} failed but ignoring: {e}")
+            logger.user_info(f"Command {commands_line_pretty} failed but ignoring:\n{e}")
             return None
         else:
             raise
+    except:
+        # logger.error(f"Command {commands_line!r} failed: {traceback.format_exc()}")
+        raise
     finally:
         if dbchange:
             cq.invalidate()
