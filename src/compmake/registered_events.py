@@ -92,7 +92,7 @@ add(
         EVENT_MANAGER_SUCCEEDED,
         [
             "nothing_to_do",  # there was nothing to do (bool)
-            "targets",
+            "targets",  # top-level targets
             "all_targets",
             "done",
             "todo",
@@ -100,6 +100,7 @@ add(
             "ready",
             "processing",
             "blocked",
+            "done_by_me",
         ],
     )
 )

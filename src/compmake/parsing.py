@@ -410,82 +410,82 @@ def parse_job_list(tokens: list[str] | str, cqs: CacheQuerySessionInterface) -> 
 def eval_ops(ops: list[str | Op], cqs: CacheQuerySessionInterface) -> Iterator[CMJobID]:
     """Evaluates an expression.
     ops: list of strings and int representing operators"""
-    with add_context(ops=ops):
-        check_isinstance(ops, list)
+    # with add_context(ops=ops):
+    check_isinstance(ops, list)
 
-        def list_split(l: list[str | Op], index: int) -> tuple[list[str | Op], list[str | Op]]:
-            """Splits a list in two"""
-            return l[0:index], l[index + 1 :]
+    def list_split(l: list[str | Op], index: int) -> tuple[list[str | Op], list[str | Op]]:
+        """Splits a list in two"""
+        return l[0:index], l[index + 1 :]
 
-        # The sequence of the following operations
-        # defines the associativity rules
+    # The sequence of the following operations
+    # defines the associativity rules
 
-        # in > except > not
+    # in > except > not
 
-        if Operators.INTERSECTION in ops:
-            left, right = list_split(ops, ops.index(Operators.INTERSECTION))
-            if not left or not right:
-                msg = """ INTERSECTION requires only a right argument.
-                Interpreting "{}" INTERSECTION "{}". """.format(
-                    " ".join(str(_) for _ in left),
-                    " ".join(str(_) for _ in right),
-                )
-                raise CompmakeSyntaxError(msg)
-            left = eval_ops(ops=left, cqs=cqs)
-            right = set(eval_ops(ops=right, cqs=cqs))
-            for x in left:
-                if x in right:
-                    yield x
-
-        elif Operators.DIFFERENCE in ops:
-            left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
-            if not left or not right:
-                msg = """ EXCEPT requires a left and right argument.
-                Interpreting "{}" EXCEPT "{}". """.format(
-                    " ".join(str(_) for _ in left),
-                    " ".join(str(_) for _ in right),
-                )
-                raise CompmakeSyntaxError(msg)
-
-            left = eval_ops(ops=left, cqs=cqs)
-            right = set(eval_ops(ops=right, cqs=cqs))
-            for x in left:
-                if x not in right:
-                    yield x
-
-        elif Operators.NOT in ops:
-            left, right = list_split(ops, ops.index(Operators.NOT))
-            if left or not right:  # forbid left, require right
-                msg = """ NOT requires only a right argument. Interpreting "{}" NOT
-                        "{}". """.format(
-                    " ".join(str(_) for _ in left),
-                    " ".join(str(_) for _ in right),
-                )
-                raise CompmakeSyntaxError(msg)
-
-            right_res = set(eval_ops(ops=right, cqs=cqs))
-            # if not all_jobs:
-            # assert False
-            # print("NOT")
-            #         print(' all_jobs evalatued to %r' % (all_jobs))
-            #         print(' right ops %r evalatued to %r' % (right, right_res))
-            #         result = []
-            for x in cqs.all_jobs():
-                if x not in right_res:
-                    yield x
-                    #
-                    #             in_right = x in right_res
-                    #             print('   is %r in not set -> %s' % (x,
-                    # in_right))
-                    #             if not in_right:
-                    #                 result.append(x)
-                    #         print(' result -> %s' % result)
-                    #         for x in result:
-                    #             yield x
-
-        else:
-            # no operators: simple list
-            # cannot do this anymore, now it's a generator.
-            # assert_list_of_strings(ops)
-            for x in expand_job_list_tokens(cast(list[str], ops), cqs=cqs):
+    if Operators.INTERSECTION in ops:
+        left, right = list_split(ops, ops.index(Operators.INTERSECTION))
+        if not left or not right:
+            msg = """ INTERSECTION requires only a right argument.
+            Interpreting "{}" INTERSECTION "{}". """.format(
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
+            )
+            raise CompmakeSyntaxError(msg)
+        left = eval_ops(ops=left, cqs=cqs)
+        right = set(eval_ops(ops=right, cqs=cqs))
+        for x in left:
+            if x in right:
                 yield x
+
+    elif Operators.DIFFERENCE in ops:
+        left, right = list_split(ops, ops.index(Operators.DIFFERENCE))
+        if not left or not right:
+            msg = """ EXCEPT requires a left and right argument.
+            Interpreting "{}" EXCEPT "{}". """.format(
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
+            )
+            raise CompmakeSyntaxError(msg)
+
+        left = eval_ops(ops=left, cqs=cqs)
+        right = set(eval_ops(ops=right, cqs=cqs))
+        for x in left:
+            if x not in right:
+                yield x
+
+    elif Operators.NOT in ops:
+        left, right = list_split(ops, ops.index(Operators.NOT))
+        if left or not right:  # forbid left, require right
+            msg = """ NOT requires only a right argument. Interpreting "{}" NOT
+                    "{}". """.format(
+                " ".join(str(_) for _ in left),
+                " ".join(str(_) for _ in right),
+            )
+            raise CompmakeSyntaxError(msg)
+
+        right_res = set(eval_ops(ops=right, cqs=cqs))
+        # if not all_jobs:
+        # assert False
+        # print("NOT")
+        #         print(' all_jobs evalatued to %r' % (all_jobs))
+        #         print(' right ops %r evalatued to %r' % (right, right_res))
+        #         result = []
+        for x in cqs.all_jobs():
+            if x not in right_res:
+                yield x
+                #
+                #             in_right = x in right_res
+                #             print('   is %r in not set -> %s' % (x,
+                # in_right))
+                #             if not in_right:
+                #                 result.append(x)
+                #         print(' result -> %s' % result)
+                #         for x in result:
+                #             yield x
+
+    else:
+        # no operators: simple list
+        # cannot do this anymore, now it's a generator.
+        # assert_list_of_strings(ops)
+        for x in expand_job_list_tokens(cast(list[str], ops), cqs=cqs):
+            yield x

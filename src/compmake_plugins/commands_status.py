@@ -1,6 +1,7 @@
 from compmake import Context, Event, register_handler, ui_error, ui_info
 from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
 from zuper_commons.text import indent
+from zuper_commons.ui import color_brown
 
 
 # TODO: command-succeeded: {'command': '
@@ -17,8 +18,12 @@ register_handler("command-interrupted", command_interrupted)
 
 async def command_failed(context: Context, event: Event):
     c = event.kwargs["command"]
-    r = event.kwargs["reason"]
-    await ui_error(context, f"Command {c!r} failed: {r}")
+    r: str = event.kwargs["reason"]
+
+    cl = color_brown(c)
+    msg = f"Command {cl} failed:\n"
+    msg += indent(r, "| ")
+    await ui_error(context, msg)
 
 
 register_handler("command-failed", command_failed)
@@ -135,30 +140,56 @@ if True:  # debugging
     register_handler("manager-job-failed", ignore)
     register_handler("manager-job-processing", ignore)
 
+from . import logger
+
 
 async def manager_succeeded(context: Context, event: Event):
     if event.kwargs["nothing_to_do"]:
         await ui_info(context, "Nothing to do.")
     else:
-        ntargets = len(event.kwargs["all_targets"])
+        # logger.info("Manager succeeded.", event=event)
+
+        all_targets = len(event.kwargs["all_targets"])
         ndone = len(event.kwargs["done"])
         nfailed = len(event.kwargs["failed"])
         nblocked = len(event.kwargs["blocked"])
-        if ntargets:
-            s = f"Processed {ntargets} jobs ("
-            ss = []
-            if ndone:
-                ss.append(f"{ndone} done")
-            if nfailed:
-                ss.append(f"{nfailed} failed")
-            if nblocked:
-                ss.append(f"{nblocked} blocked")
-            s += ", ".join(ss)
-            s += ")."
-            if nfailed:
-                await ui_error(context, s)
-            else:
-                await ui_info(context, s)
+        ndone_by_me = len(event.kwargs["done_by_me"])
+        ntargets = len(event.kwargs["targets"])
+
+        done_already = ndone - ndone_by_me
+        closure = all_targets - ntargets
+        values: dict[str, int] = {
+            "done_already": done_already,
+            "done_by_me": ndone_by_me,
+            "processing": 0,
+            "failed": nfailed,
+            "blocked": nblocked,
+            "ready": 0,
+            "todo": 0,
+        }
+
+        from .console_status import format_job_counts, job_counts_style
+
+        jc = format_job_counts(values, job_counts_style["normal"], ", ")
+
+        # if ntargets:
+        s = f"Processed {ntargets} targets, {closure} closure: "
+        # ss = []
+        s += jc
+        # if ndone_before:
+        #     ss.append(f"{ndone_before} done before")
+        # if ndone_by_me:
+        #     ss.append(f"{ndone_by_me} done now")
+        # if nfailed:
+        #     ss.append(f"{nfailed} failed")
+        # if nblocked:
+        #     ss.append(f"{nblocked} blocked")
+        # s += ", ".join(ss)
+        s += "."
+        if nfailed:
+            await ui_error(context, s)
+        else:
+            await ui_info(context, s)
 
 
 register_handler(EVENT_MANAGER_SUCCEEDED, manager_succeeded)  # TODO: maybe write sth

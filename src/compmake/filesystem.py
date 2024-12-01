@@ -40,6 +40,8 @@ trace_queries = False
 
 StorageKey = NewType("StorageKey", str)
 
+DEBUG_STORAGE = False
+
 
 class StorageFilesystem:
     basepath: DirPath
@@ -113,13 +115,15 @@ class StorageFilesystem:
             t2 = time.perf_counter()
             total = t2 - t0
             if total > 0.05:  # or self.ncursor % 10000 == 0:
-                logger.debug(
-                    f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
-                    f"{(t2 - t1) * 1000:.3f}ms for {desc}\n"
-                )
+                if DEBUG_STORAGE:
+                    logger.debug(
+                        f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
+                        f"{(t2 - t1) * 1000:.3f}ms for {desc}\n"
+                    )
 
     def close(self) -> None:
-        logger.debug(f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions}, now closing\n")
+        if DEBUG_STORAGE:
+            logger.debug(f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions}, now closing\n")
         self.con.close()
 
     def __repr__(self) -> str:

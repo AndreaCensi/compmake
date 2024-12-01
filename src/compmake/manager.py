@@ -141,6 +141,8 @@ class Manager(ManagerLog):
         self.recurse = recurse
 
         # top-level targets added by users
+        self.top_level_targets = set()
+
         self.targets = set()
 
         # top-level targets + all their dependencies
@@ -218,6 +220,12 @@ class Manager(ManagerLog):
         _p, best = heapq.heappop(self.ready_to_do_heap)
         # logger.info("next_job", best=best, p=p, prio=self.priority_queue[:2] + ['..'] + self.priority_queue[-2:])
         return best
+
+    def add_top_level_targets(self, targets: Collection[CMJobID]) -> None:
+        # logger.info("Adding top-level targets", targets=targets)
+        targets = set(targets)
+        self.top_level_targets.update(targets)
+        self.add_targets(targets)
 
     def add_targets(self, targets: Collection[CMJobID]):
         self.log("add_targets()", targets=L(targets))
@@ -961,7 +969,7 @@ class Manager(ManagerLog):
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=True,
-                targets=self.targets,
+                targets=self.top_level_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -969,6 +977,7 @@ class Manager(ManagerLog):
                 blocked=self.blocked,
                 ready=self.ready_todo,
                 processing=set(self.processing2result),
+                done_by_me=self.done_by_me,
             )
             return True
 
@@ -1070,7 +1079,7 @@ class Manager(ManagerLog):
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=False,
-                targets=self.targets,
+                targets=self.top_level_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -1078,6 +1087,7 @@ class Manager(ManagerLog):
                 ready=self.ready_todo,
                 blocked=self.blocked,
                 processing=self.processing2result,
+                done_by_me=self.done_by_me,
             )
             # logger.info("Manager finished.")
             return True
@@ -1094,7 +1104,7 @@ class Manager(ManagerLog):
         publish(
             self.context,
             EVENT_MANAGER_PROGRESS,
-            targets=self.targets,
+            targets=self.top_level_targets,
             done=self.done,
             all_targets=self.all_targets,
             todo=self.todo,

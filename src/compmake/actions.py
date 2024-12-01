@@ -10,6 +10,7 @@ from logging import Formatter
 from typing import Any, cast, Concatenate, TYPE_CHECKING
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
+from zuper_commons.text import indent
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
 from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
 from zuper_utils_timing import new_timeinfo, TimeInfo
@@ -1214,6 +1215,10 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         with cq.session() as cqs:
             job_list = list(parse_job_list(args, cqs=cqs))
 
+            if not job_list:
+                msg = f"Could not find any job to process."
+                raise UserError(msg)
+
         # TODO: check non empty
         CompmakeConstants.aliases["last"] = job_list
         kwargs["non_empty_job_list"] = job_list
@@ -1221,6 +1226,10 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     if "job_list" in function_args:
         with cq.session() as cqs:
             job_list = list(parse_job_list(args, cqs=cqs))
+            if args and not job_list:
+                msg = f"Could not find any job to process."
+                raise UserError(msg)
+
         CompmakeConstants.aliases["last"] = job_list
         # TODO: this does not survive reboots
         # logger.info('setting alias "last"' )
@@ -1246,7 +1255,9 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         else:
             res = function(**kwargs)
         if (res is not None) and (res != 0):
-            msg = f"Command {commands_line!r} failed: {res}"
+
+            msg = f"Command {commands_line!r} failed:\n"
+            msg += indent(str(res), "  ")
             if ignore_error:
                 logger.warning(msg)
             else:

@@ -99,30 +99,32 @@ def spinner(context: Context) -> str:
     return spins[i]
 
 
+job_counts_style = {
+    "normal": {
+        "done_already": dict(color="darkgreen", text="NUM ok"),
+        "done_by_me": dict(color="green", text="NUM done"),
+        "failed": dict(color="red", text="NUM failed"),
+        "blocked": dict(text="NUM blocked"),
+        "ready": dict(color="yellow", text="NUM ready"),
+        "processing": dict(color="blue", text="NUM proc"),
+        "todo": dict(color="cyan", text="NUM todo"),
+    },
+    "compact": {
+        "done_already": dict(color="darkgreen", text="NUM ok"),
+        "done_by_me": dict(color="green", text="NUM ✔"),
+        "failed": dict(color="red", text="NUM ✗"),
+        "blocked": dict(text="NUM ⌘"),
+        "ready": dict(color="yellow", text="NUM ▴‍"),
+        "processing": dict(color="blue", text="NUM ⚙"),
+        "todo": dict(color="cyan", text="NUM ☯"),
+    },
+}
+
+
 def job_counts(context: Context) -> str:
     console_status_style = context.get_compmake_config("console_status_style")
 
-    styles = {
-        "normal": {
-            "done_already": dict(color="darkgreen", text="NUM ok"),
-            "done_by_me": dict(color="green", text="NUM done"),
-            "failed": dict(color="red", text="NUM failed"),
-            "blocked": dict(text="NUM blocked"),
-            "ready": dict(color="yellow", text="NUM ready"),
-            "processing": dict(color="blue", text="NUM proc"),
-            "todo": dict(color="cyan", text="NUM todo"),
-        },
-        "compact": {
-            "done_already": dict(color="darkgreen", text="NUM ok"),
-            "done_by_me": dict(color="green", text="NUM ✔"),
-            "failed": dict(color="red", text="NUM ✗"),
-            "blocked": dict(text="NUM ⌘"),
-            "ready": dict(color="yellow", text="NUM ▴‍"),
-            "processing": dict(color="blue", text="NUM ⚙"),
-            "todo": dict(color="cyan", text="NUM ☯"),
-        },
-    }
-    style = styles[console_status_style]
+    style = job_counts_style[console_status_style]
 
     values: dict[str, int] = {
         "done_already": len(tracker.done - tracker.done_by_me),
@@ -133,7 +135,10 @@ def job_counts(context: Context) -> str:
         "ready": len(tracker.ready),
         "todo": len(tracker.todo),
     }
+    return format_job_counts(values, style)
 
+
+def format_job_counts(values: dict[str, int], style: dict[str, dict[str, str]], sep: str = " ") -> str:
     ss: list[str] = []
     for k, v in values.items():
         if k not in style:
@@ -144,8 +149,7 @@ def job_counts(context: Context) -> str:
             if "color" in sk:
                 text = compmake_colored(text, color=sk["color"])
             ss.append(text)
-
-    return " ".join(ss)
+    return sep.join(ss)
 
 
 def wait_reasons() -> str:
