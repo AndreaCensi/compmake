@@ -9,11 +9,11 @@ from zuper_utils_asyncio import SyncTaskInterface
 
 
 @ui_command(section=VISUALIZATION)
-async def why(sti: SyncTaskInterface, non_empty_job_list: Collection[CMJobID], context: Context, cq: CacheQueryDB) -> None:
+async def why(sti: SyncTaskInterface, job_list: Collection[CMJobID], context: Context, cq: CacheQueryDB) -> None:
     """Shows the last line of the error"""
     entries: list[DetailWhyOne] = []
     with cq.session() as cqs:
-        for job_id in non_empty_job_list:
+        for job_id in job_list:
             details = details_why_one(job_id, cqs)
 
             if details is not None:
