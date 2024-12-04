@@ -18,7 +18,7 @@ def check_job_states(db, **expected):
     for job_id, expected_status in expected.items():
         status = get_job_cache(job_id, db=db).state
         if status != expected_status:
-            msg = "For job {!r} I expected status {} but got status {}.".format(job_id, expected_status, status)
+            msg = f"For job {job_id!r} I expected status {expected_status} but got status {status}."
             raise Exception(msg)
 
 

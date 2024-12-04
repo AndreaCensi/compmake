@@ -22,7 +22,7 @@ from zuper_commons.ui import duration_compact, size_compact
 from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
 from . import COMPMAKE_DEBUG, logger
 from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
-from .cachequerydb import CacheQueryDB
+from .cachequerydb import CacheQueryDB, direct_uptodate_deps_inverse, list_todo_targets
 from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
 from .context import Context
 from .events_structures import Event
@@ -128,6 +128,7 @@ class Manager(ManagerLog):
     processing2result: dict[CMJobID, ProcessingDetails]
     priorities: dict[CMJobID, float]
     done_by_me: set[CMJobID]
+    ready_to_do_heap: list[tuple[float, CMJobID]]
 
     def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: float | None = None):
         self.context = context
@@ -140,6 +141,8 @@ class Manager(ManagerLog):
         self.recurse = recurse
 
         # top-level targets added by users
+        self.top_level_targets = set()
+
         self.targets = set()
 
         # top-level targets + all their dependencies
@@ -214,9 +217,15 @@ class Manager(ManagerLog):
         # for k in self.ready_todo:
         #     pass
 
-        p, best = heapq.heappop(self.ready_to_do_heap)
+        _p, best = heapq.heappop(self.ready_to_do_heap)
         # logger.info("next_job", best=best, p=p, prio=self.priority_queue[:2] + ['..'] + self.priority_queue[-2:])
         return best
+
+    def add_top_level_targets(self, targets: Collection[CMJobID]) -> None:
+        # logger.info("Adding top-level targets", targets=targets)
+        targets = set(targets)
+        self.top_level_targets.update(targets)
+        self.add_targets(targets)
 
     def add_targets(self, targets: Collection[CMJobID]):
         self.log("add_targets()", targets=L(targets))
@@ -245,54 +254,55 @@ class Manager(ManagerLog):
 
         # logger.info('Checking dependencies...')
         cq = CacheQueryDB(self.db)
-        # Note this would not work for recursive jobs
-        targets_todo_plus_deps, targets_done, ready_todo = cq.list_todo_targets(targets)
-        not_ready = targets_todo_plus_deps - ready_todo
+        with cq.session() as cqs:
+            # Note this would not work for recursive jobs
+            targets_todo_plus_deps, targets_done, ready_todo = list_todo_targets(targets, cqs)
+            not_ready = targets_todo_plus_deps - ready_todo
 
-        self.log(
-            "computed todo",
-            targets_todo_plus_deps=L(targets_todo_plus_deps),
-            targets_done=L(targets_done),
-            ready_todo=L(ready_todo),
-            not_ready=L(not_ready),
-        )
+            self.log(
+                "computed todo",
+                targets_todo_plus_deps=L(targets_todo_plus_deps),
+                targets_done=L(targets_done),
+                ready_todo=L(ready_todo),
+                not_ready=L(not_ready),
+            )
 
-        self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
+            self.log("targets_todo_plus_deps", targets_todo_plus_deps=L(sorted(targets_todo_plus_deps)))
 
-        # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
-        # print('           targets_done: %s ' % targets_done)
-        # print('             ready_todo: %s ' % ready_todo)
-        # both done and todo jobs are added to self.all_targets
+            # print(' targets_todo_plus_deps: %s ' % targets_todo_plus_deps)
+            # print('           targets_done: %s ' % targets_done)
+            # print('             ready_todo: %s ' % ready_todo)
+            # both done and todo jobs are added to self.all_targets
 
-        # let's check the additional jobs exist
-        for d in targets_todo_plus_deps - set(targets):
-            if not job_exists(d, self.db):
-                msg = "Adding job that does not exist: %r." % d
-                raise CompmakeBug(msg)
+            # let's check the additional jobs exist
+            for d in targets_todo_plus_deps - set(targets):
+                if not cqs.job_exists(d):
+                    msg = "Adding job that does not exist: %r." % d
+                    raise CompmakeBug(msg)
 
-        self.all_targets.update(targets_todo_plus_deps)
-        self.all_targets.update(targets_done)
+            self.all_targets.update(targets_todo_plus_deps)
+            self.all_targets.update(targets_done)
 
-        # ok, careful here, there might be jobs that are
-        # already in processing
-        processing = set(self.processing2result)
+            # ok, careful here, there might be jobs that are
+            # already in processing
+            processing = set(self.processing2result)
 
-        self.done.update(targets_done - processing)
+            self.done.update(targets_done - processing)
 
-        todo_add = not_ready - processing
-        self.todo.update(not_ready - processing)
-        # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
-        ready_add = ready_todo - processing
-        # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
+            todo_add = not_ready - processing
+            self.todo.update(not_ready - processing)
+            # self.log("add_targets():adding to todo", todo_add=L(todo_add), todo=L(self.todo))
+            ready_add = ready_todo - processing
+            # self.log("add_targets():adding to ready", ready=L(self.ready_todo), ready_add=L(ready_add))
 
-        self.add_to_ready_(ready_add)
-        # this is a quick fix but I'm sure more thought is to be given
-        for a in ready_add:
-            if a in self.todo:
-                self.todo.remove(a)
-        for a in todo_add:
-            if a in self.ready_todo:
-                self.remove_from_ready(a)
+            self.add_to_ready_(ready_add)
+            # this is a quick fix but I'm sure more thought is to be given
+            for a in ready_add:
+                if a in self.todo:
+                    self.todo.remove(a)
+            for a in todo_add:
+                if a in self.ready_todo:
+                    self.remove_from_ready(a)
 
         self.check_invariants()
 
@@ -307,8 +317,9 @@ class Manager(ManagerLog):
     def compute_and_store_priorities(self, jobs: Collection[CMJobID]):
         misses_priorities = set(jobs)
         cq = CacheQueryDB(self.db)
-        res = compute_priorities(misses_priorities, cq=cq, priorities=self.priorities)
-        self.priorities.update(res)
+        with cq.session() as cqs:
+            res = compute_priorities(misses_priorities, cqs=cqs, priorities=self.priorities)
+            self.priorities.update(res)
 
     def instance_some_jobs(self) -> tuple[int, dict[str, str]]:
         """
@@ -418,7 +429,6 @@ class Manager(ManagerLog):
         time_passed = time.time() - proc_details.started
 
         if check_mem_etc:
-
             if time_passed > 1:
                 job_timeout = proc_details.timeout
                 GRACE_PERIOD = 0
@@ -477,7 +487,7 @@ class Manager(ManagerLog):
             self.job_succeeded(job_id)
             self.check_invariants()
 
-            self.check_job_finished_handle_result(job_id, result)
+            self.check_job_finished_handle_result(job_id, result)  # pyright: ignore
             self.check_invariants()
             # this will schedule the parents, so let's do it later
 
@@ -657,10 +667,9 @@ class Manager(ManagerLog):
 
         publish(self.context, "manager-job-failed", job_id=job_id)
 
-        # TODO: more efficient query
-        # parent_jobs = set(parents(job_id, db=self.db))
-
-        parent_jobs = direct_uptodate_deps_inverse_closure(job_id, db=self.db)
+        cq = CacheQueryDB(self.db)
+        with cq.session() as cqs:
+            parent_jobs = direct_uptodate_deps_inverse_closure(job_id, cqs)
 
         parents_todo = set(self.todo & parent_jobs)
         for p in parents_todo:
@@ -688,51 +697,53 @@ class Manager(ManagerLog):
 
         # parent_jobs = set(direct_parents(job_id, db=self.db))
 
-        cq = CacheQueryDB(self.db)
+        cq0 = CacheQueryDB(self.db)
 
-        parent_jobs = cq.direct_uptodate_deps_inverse(job_id)
+        # parent_jobs = cq0.direct_uptodate_deps_inverse(job_id)
 
-        parents_todo = set(self.todo & parent_jobs)
-        # self.log("considering parents", parents_todo=L(parents_todo))
-        for opportunity in parents_todo:
-            # print('parent %r in todo' % (opportunity))
-            if opportunity in self.processing2result:
-                msg = f"Parent {opportunity!r} of {job_id!r} already processing"
-                if CompmakeConstants.try_recover:
-                    print(msg)
-                    continue
+        with cq0.session() as cqs:
+            parent_jobs = direct_uptodate_deps_inverse(job_id, cqs)
+            parents_todo = set(self.todo & parent_jobs)
+            # self.log("considering parents", parents_todo=L(parents_todo))
+            for opportunity in parents_todo:
+                # print('parent %r in todo' % (opportunity))
+                if opportunity in self.processing2result:
+                    msg = f"Parent {opportunity!r} of {job_id!r} already processing"
+                    if CompmakeConstants.try_recover:
+                        print(msg)
+                        continue
+                    else:
+                        raise CompmakeBug(msg)
+                assert opportunity not in self.processing2result
+
+                # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
+
+                its_children = cqs.direct_children(opportunity)
+                # print('its children: %r' % its_children)
+
+                for child in its_children:
+                    # If child is part of all_targets, check that it is done
+                    # otherwise check that it is done by the DB.
+                    if child in self.all_targets:
+                        if not child in self.done:
+                            # self.log("parent still waiting another child", opportunity=opportunity, child=child)
+                            # logger.info('parent %r still waiting on %r' %
+                            # (opportunity, child))
+                            # still some dependency left
+                            break
+                    else:
+                        up, _, _ = cqs.up_to_date(child)
+                        if not up:
+                            # print('The child %s is not up_to_date' % child)
+                            break
+
                 else:
-                    raise CompmakeBug(msg)
-            assert opportunity not in self.processing2result
-
-            # self.log("considering opportuniny", opportunity=opportunity, job_id=job_id)
-
-            its_children = cq.direct_children(opportunity)
-            # print('its children: %r' % its_children)
-
-            for child in its_children:
-                # If child is part of all_targets, check that it is done
-                # otherwise check that it is done by the DB.
-                if child in self.all_targets:
-                    if not child in self.done:
-                        # self.log("parent still waiting another child", opportunity=opportunity, child=child)
-                        # logger.info('parent %r still waiting on %r' %
-                        # (opportunity, child))
-                        # still some dependency left
-                        break
-                else:
-                    up, _, _ = cq.up_to_date(child)
-                    if not up:
-                        # print('The child %s is not up_to_date' % child)
-                        break
-
-            else:
-                # print('parent %r is now ready' % (opportunity))
-                self.log("parent is ready", opportunity=opportunity)
-                self.todo.remove(opportunity)
-                publish(self.context, "manager-job-ready", job_id=opportunity)
-                # self.ready_todo.add(opportunity)
-                self.add_to_ready_({opportunity})
+                    # print('parent %r is now ready' % (opportunity))
+                    self.log("parent is ready", opportunity=opportunity)
+                    self.todo.remove(opportunity)
+                    publish(self.context, "manager-job-ready", job_id=opportunity)
+                    # self.ready_todo.add(opportunity)
+                    self.add_to_ready_({opportunity})
 
         self.check_invariants()
         self.publish_progress()
@@ -813,7 +824,7 @@ class Manager(ManagerLog):
             await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
         # We make a copy because processing is updated during the loop
-        result = set()
+        result: set[CMJobID] = set()
         for job_id in set(self.processing2result):
             received = await self.check_job_finished(job_id, check_mem_etc=expensive_checks)
             if received:
@@ -846,7 +857,6 @@ class Manager(ManagerLog):
         #
         i = 0
         for _ in range(2):  # XXX
-
             i += 1
             received = await self.check_any_finished(expensive_checks=expensive_checks)
 
@@ -891,12 +901,12 @@ class Manager(ManagerLog):
 
     async def repair_todo(self) -> set[CMJobID]:
         db = self.context.get_compmake_db()
-        changes = set()
+        changes: set[CMJobID] = set()
         for job_id in list(self.todo):
             job = get_job(job_id, db)
             cache = get_job_cache(job_id, db)
-            res = {}
-            waiting_on = set()
+            res: dict[CMJobID, str] = {}
+            waiting_on: set[CMJobID] = set()
             for dependency in job.children:
                 dependency_status = get_job_cache(dependency, db)
 
@@ -951,15 +961,15 @@ class Manager(ManagerLog):
 
         loop = asyncio.get_event_loop()
 
-        loop.add_signal_handler(signal.SIGHUP, on_sighup)
-        loop.add_signal_handler(signal.SIGTERM, on_sigterm)
+        loop.add_signal_handler(signal.SIGHUP, on_sighup)  # type: ignore
+        loop.add_signal_handler(signal.SIGTERM, on_sigterm)  # type: ignore
 
         if not self.todo and not self.ready_todo:
             publish(
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=True,
-                targets=self.targets,
+                targets=self.top_level_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -967,6 +977,7 @@ class Manager(ManagerLog):
                 blocked=self.blocked,
                 ready=self.ready_todo,
                 processing=set(self.processing2result),
+                done_by_me=self.done_by_me,
             )
             return True
 
@@ -986,7 +997,6 @@ class Manager(ManagerLog):
             exit_at = started_at + self.max_time if self.max_time is not None else None
 
             while self.todo or self.ready_todo or self.processing2result:
-
                 if exit_at is not None and time.time() > exit_at:
                     self.sti.logger.error("Time limit reached.")
                     break
@@ -1069,7 +1079,7 @@ class Manager(ManagerLog):
                 self.context,
                 EVENT_MANAGER_SUCCEEDED,
                 nothing_to_do=False,
-                targets=self.targets,
+                targets=self.top_level_targets,
                 done=self.done,
                 all_targets=self.all_targets,
                 todo=self.todo,
@@ -1077,6 +1087,7 @@ class Manager(ManagerLog):
                 ready=self.ready_todo,
                 blocked=self.blocked,
                 processing=self.processing2result,
+                done_by_me=self.done_by_me,
             )
             # logger.info("Manager finished.")
             return True
@@ -1093,7 +1104,7 @@ class Manager(ManagerLog):
         publish(
             self.context,
             EVENT_MANAGER_PROGRESS,
-            targets=self.targets,
+            targets=self.top_level_targets,
             done=self.done,
             all_targets=self.all_targets,
             todo=self.todo,
@@ -1134,7 +1145,6 @@ class Manager(ManagerLog):
         return s
 
     def check_invariants(self) -> None:
-
         if not CompmakeConstants.debug_check_invariants:
             return
         lists: dict[str, set[CMJobID]] = dict(

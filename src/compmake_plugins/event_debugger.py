@@ -1,4 +1,4 @@
-""" This plugin dumps all events received. """
+"""This plugin dumps all events received."""
 
 import sys
 

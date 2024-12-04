@@ -290,7 +290,6 @@ async def pmake_worker(
     event_queue: "multiprocessing.Queue[Any] | None",
 ):
     try:
-
         current_name = name
         i = 0
         for i in range(19):
@@ -529,17 +528,20 @@ async def pmake_worker(
                         del e
                     except JobInterrupted as e:
                         log("Job interrupted, putting notice.")
-                        put_result(dict(abort=str(e)))  # XXX
+                        # e = HostFailed(host=res["host"], job_id=res["job_id"], bt=res["bt"], reason=res["reason"])
+                        # mye = HostFailed(host="???", job_id=job_id, reason=str(e), bt=traceback.format_exc())
+                        put_result(e.get_result_dict())
                         del e
                     except CompmakeBug as e:  # XXX :to finish
                         log("CompmakeBug")
                         put_result(e.get_result_dict())
                         del e
 
-                    except BaseException:
+                    except BaseException as e:
                         log(f"uncaught error: {job}")
+                        mye = HostFailed(host="???", job_id=job_id, reason=str(e), bt=traceback.format_exc())
 
-                        put_result(dict(abort=str(e)))
+                        put_result(mye.get_result_dict())
                         # raise
                     else:
                         log(f"result: {result}")
@@ -680,7 +682,6 @@ class PmakeResult(AsyncResultInterface):
             raise ZAssertionError("This result is invalid.")
 
         if self.result is None:
-
             if not self.psub.is_alive():
                 raise multiprocessing.TimeoutError()
 

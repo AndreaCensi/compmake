@@ -1,23 +1,20 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 import os
 from collections.abc import Sequence
 from time import time
+from collections.abc import Collection
 
 from compmake import (
     Cache,
     cache_has_large_overhead,
     CacheQueryDB,
+    CacheQuerySessionInterface,
     CMJobID,
     compmake_colored,
     CompmakeConstants,
     Context,
     is_root_job,
-    job_args_sizeof,
-    job_cache_exists,
-    job_cache_sizeof,
-    job_userobject_exists,
-    job_userobject_sizeof,
     parse_job_list,
     timing_summary,
     ui_command,
@@ -55,17 +52,17 @@ async def ls(
         ls reason=1  # show why jobs are not uptodate
     """
 
-    if not args:
-        job_list = cq.all_jobs()
-    else:
-        job_list = parse_job_list(tokens=args, context=context, cq=cq)
+    with cq.session() as cqs:
+        if not args:
+            job_list = list(cqs.all_jobs())
+        else:
+            job_list = list(parse_job_list(args, cqs))
 
-    job_list = list(job_list)
     CompmakeConstants.aliases["last"] = job_list
     await list_jobs(
         context,
         job_list,
-        cq=cq,
+        cq0=cq,
         complete_names=complete_names,
         reason=reason,
         all_details=all_details,
@@ -122,8 +119,8 @@ SORTING = ["name", "size", "duration", "date"]
 
 async def list_jobs(
     context: Context,
-    job_list,
-    cq: CacheQueryDB,
+    job_list: Collection[CMJobID],
+    cq0: CacheQueryDB,
     complete_names: bool = False,
     all_details: bool = False,
     reason: bool = False,
@@ -149,176 +146,178 @@ async def list_jobs(
 
     max_len = columns - len(other)
 
-    def get_key(ji: CMJobID) -> object:
-        if sorting == "name":
-            return ji
-        elif sorting == "size":
-            return get_sizes(ji, cq.db)["total"]
-        elif sorting == "duration":
-            c = cq.get_job_cache(ji)
-            return c.int_compute.get_cputime_used() if c.int_compute else -10
-            return c.cputime_used or -10
-        elif sorting == "date":
-            c = cq.get_job_cache(ji)
-            return c.timestamp
-        else:
-            raise ValueError(sorting)
+    with cq0.session() as cqs:
 
-    def format_job_id(ajob_id: CMJobID) -> str:
-        if complete_names or len(ajob_id) < max_len:
-            return ajob_id
-        else:
-            b = 15
-            r = max_len - b - len(" ... ")
-            return ajob_id[:15] + color_yellow("*") + ajob_id[-r:]
-
-    # abbreviates the names
-    #     if not complete_names:
-    #         prefix, abbreviated, postfix = minimal_names(job_list)
-    #         job_list = abbreviated
-
-    jlen = max(len(format_job_id(x)) for x in job_list)
-
-    cpu_total = []
-    wall_total = []
-
-    tf = TableFormatter(sep="  ")
-    job_list.sort(key=get_key, reverse=reverse)
-
-    for job_id in job_list:
-        tf.row()
-
-        cache = cq.get_job_cache(job_id)
-
-        # TODO: only ask up_to_date if necessary
-        up, up_reason, up_ts = cq.up_to_date(job_id)
-
-        job = cq.get_job(job_id)
-
-        is_root = is_root_job(job)
-        if not is_root:
-            msg = (job_id, job, job.defined_by)
-            assert len(job.defined_by) >= 1, msg
-            assert job.defined_by[0] == "root", msg
-
-            level = len(job.defined_by) - 1
-            assert level >= 1
-            tf.cell(f"{level}")
-        else:
-            tf.cell("")
-
-        if job.needs_context:
-            tf.cell("d")
-        else:
-            tf.cell("")
-
-        job_name_formatted = format_job_id(job_id).ljust(jlen)
-
-        # de-emphasize utility jobs
-        is_utility = "context" in job_id or "dynrep" in job_id
-        if is_utility:
-            job_name_formatted = compmake_colored(job_name_formatted, **format_utility_job)
-
-        # tf.cell(format_job_id(job_id))
-        tf.cell(job_name_formatted)
-
-        tag = Cache.state2desc[cache.state]
-        if cache.state == Cache.FAILED:
-            if cache.is_timed_out():
-                tag = "timedout"
-            elif cache.is_oom():
-                tag = "OOM"
-
-        k = (cache.state, up)
-        assert k in Cache.stateupdate2color, f"I found strange state {str(k)}"
-
-        tag_s = compmake_colored(tag, **Cache.stateupdate2color[k])
-        if not up and cache.state in [Cache.DONE, Cache.FAILED]:
-            tag_s += "*"
-        tf.cell(tag_s)
-
-        if reason:
-            tf.cell(up_reason)
-            tf.cell(duration_compact(time() - up_ts))
-
-        if cache.state in [Cache.DONE, Cache.FAILED]:
-            when = duration_compact(time() - cache.timestamp)
-            when_s = f"({when} ago)"
-
-            when_s = compmake_colored(when_s, **format_when)
-
-            tf.cell(when_s)
-        else:
-            tf.cell("")  # when
-
-        db = context.get_compmake_db()
-        sizes = get_sizes(job_id, db=db)
-        size_s = format_size(sizes["total"])
-        tf.cell(size_s)
-
-        if not show_output_type:
-            s = ""
-        else:
-            if (cache.state in [Cache.DONE]) and hasattr(cache, "result_type_qual"):
-                s = cache.result_type_qual
-                if "NoneType" in s:
-                    s = ""
+        def get_key(ji: CMJobID) -> str | float:
+            if sorting == "name":
+                return ji
+            elif sorting == "size":
+                return get_sizes2(ji, cqs)["total"]  # FIXME
+            elif sorting == "duration":
+                c = cqs.get_job_cache(ji)
+                return c.int_compute.get_cputime_used() if c.int_compute else -10
+                return c.cputime_used or -10
+            elif sorting == "date":
+                c = cqs.get_job_cache(ji)
+                return c.timestamp
             else:
-                s = ""
+                raise ValueError(sorting)
 
-        tf.cell(s)
-
-        if cache.state in [Cache.DONE]:
-            wall_total.append(cache.walltime_used)
-            cpu = cache.cputime_used
-            cpu_total.append(cpu)
-
-            if cpu > 5 or cache_has_large_overhead(cache) or all_details or (sorting == "duration"):  # TODO: add param
-                # s_cpu = duration_compact(cpu)
-                s_cpu = timing_summary(cache)
+        def format_job_id(ajob_id: CMJobID) -> str:
+            if complete_names or len(ajob_id) < max_len:
+                return ajob_id
             else:
-                s_cpu = ""
+                b = 15
+                r = max_len - b - len(" ... ")
+                return ajob_id[:15] + color_yellow("*") + ajob_id[-r:]
 
-            tf.cell(s_cpu)
+        # abbreviates the names
+        #     if not complete_names:
+        #         prefix, abbreviated, postfix = minimal_names(job_list)
+        #         job_list = abbreviated
 
-        else:
-            tf.cell("")  # cpu
+        jlen = max(len(format_job_id(x)) for x in job_list)
 
-        if cache.state in [Cache.FAILED]:
-            if (to := cache.is_timed_out()) is not None:
-                tf.cell(f"timedout {duration_compact(to)}")
-            elif nbytes := cache.is_oom():
-                tf.cell(f"OOM      {size_compact(nbytes)}")
+        cpu_total = []
+        wall_total = []
+
+        tf = TableFormatter(sep="  ")
+        job_list.sort(key=get_key, reverse=reverse)
+
+        for job_id in job_list:
+            tf.row()
+
+            cache = cqs.get_job_cache(job_id)
+
+            # TODO: only ask up_to_date if necessary
+            up, up_reason, up_ts = cqs.up_to_date(job_id)
+
+            job = cqs.get_job(job_id)
+
+            is_root = is_root_job(job)
+            if not is_root:
+                msg = (job_id, job, job.defined_by)
+                assert len(job.defined_by) >= 1, msg
+                assert job.defined_by[0] == "root", msg
+
+                level = len(job.defined_by) - 1
+                assert level >= 1
+                tf.cell(f"{level}")
             else:
                 tf.cell("")
+
+            if job.needs_context:
+                tf.cell("d")
+            else:
+                tf.cell("")
+
+            job_name_formatted = format_job_id(job_id).ljust(jlen)
+
+            # de-emphasize utility jobs
+            is_utility = "context" in job_id or "dynrep" in job_id
+            if is_utility:
+                job_name_formatted = compmake_colored(job_name_formatted, **format_utility_job)
+
+            # tf.cell(format_job_id(job_id))
+            tf.cell(job_name_formatted)
+
+            tag = Cache.state2desc[cache.state]
+            if cache.state == Cache.FAILED:
+                if cache.is_timed_out():
+                    tag = "timedout"
+                elif cache.is_oom():
+                    tag = "OOM"
+
+            k = (cache.state, up)
+            assert k in Cache.stateupdate2color, f"I found strange state {str(k)}"
+
+            tag_s = compmake_colored(tag, **Cache.stateupdate2color[k])
+            if not up and cache.state in [Cache.DONE, Cache.FAILED]:
+                tag_s += "*"
+            tf.cell(tag_s)
+
+            if reason:
+                tf.cell(up_reason)
+                tf.cell(duration_compact(time() - up_ts))
+
+            if cache.state in [Cache.DONE, Cache.FAILED]:
+                when = duration_compact(time() - cache.timestamp)
+                when_s = f"({when} ago)"
+
+                when_s = compmake_colored(when_s, **format_when)
+
+                tf.cell(when_s)
+            else:
+                tf.cell("")  # when
+
+            # db = context.get_compmake_db()
+            sizes = get_sizes2(job_id, cqs)
+            size_s = format_size(sizes["total"])
+            tf.cell(size_s)
+
+            if not show_output_type:
+                s = ""
+            else:
+                if (cache.state in [Cache.DONE]) and hasattr(cache, "result_type_qual"):
+                    s = cache.result_type_qual
+                    if "NoneType" in s:
+                        s = ""
+                else:
+                    s = ""
+
+            tf.cell(s)
+
+            if cache.state in [Cache.DONE]:
+                wall_total.append(cache.walltime_used)
+                cpu = cache.cputime_used
+                cpu_total.append(cpu)
+
+                if cpu > 5 or cache_has_large_overhead(cache) or all_details or (sorting == "duration"):  # TODO: add param
+                    # s_cpu = duration_compact(cpu)
+                    s_cpu = timing_summary(cache)
+                else:
+                    s_cpu = ""
+
+                tf.cell(s_cpu)
+
+            else:
+                tf.cell("")  # cpu
+
+            if cache.state in [Cache.FAILED]:
+                if (to := cache.is_timed_out()) is not None:
+                    tf.cell(f"timedout {duration_compact(to)}")
+                elif nbytes := cache.is_oom():
+                    tf.cell(f"OOM      {size_compact(nbytes)}")
+                else:
+                    tf.cell("")
+            else:
+                tf.cell("")
+
+        tf.done()
+
+        ind = "  "
+
+        do_one_column = len(job_list) <= 5
+
+        if do_one_column:
+            for line in tf.get_lines():
+                string = ind + line
+                await ui_message(context, string)
         else:
-            tf.cell("")
+            linewidth = get_screen_columns()
+            # print('*'*linewidth)
+            # sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
+            sep = "   " + compmake_colored("|", **format_separator) + "   "
 
-    tf.done()
-
-    ind = "  "
-
-    do_one_column = len(job_list) <= 5
-
-    if do_one_column:
-        for line in tf.get_lines():
-            string = ind + line
+            for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
+                string = ind + line
+                await ui_message(context, string)
+        if cpu_total:
+            cpu_time = duration_compact(sum(cpu_total))
+            wall_time = duration_compact(sum(wall_total))
+            string = f" total {len(job_list)} jobs   CPU time: {cpu_time}   wall: {wall_time}"
+            # print(scpu)
             await ui_message(context, string)
-    else:
-        linewidth = get_screen_columns()
-        # print('*'*linewidth)
-        # sep = '   ' + compmake_colored('|', color='white', attrs=['dark']) + '   '
-        sep = "   " + compmake_colored("|", **format_separator) + "   "
-
-        for line in tf.get_lines_multi(linewidth - len(ind), sep=sep):
-            string = ind + line
-            await ui_message(context, string)
-    if cpu_total:
-        cpu_time = duration_compact(sum(cpu_total))
-        wall_time = duration_compact(sum(wall_total))
-        string = f" total {len(job_list)} jobs   CPU time: {cpu_time}   wall: {wall_time}"
-        # print(scpu)
-        await ui_message(context, string)
 
 
 def format_size(nbytes: int) -> str:
@@ -330,21 +329,44 @@ def format_size(nbytes: int) -> str:
     return f"{mb:.2f} MB"
 
 
-def get_sizes(job_id, db) -> dict:
+#
+# def get_sizes(job_id, db) -> dict:
+#     """Returns byte sizes for jobs pieces.
+#
+#     Returns dict with keys 'args','cache','result','total'.
+#     """
+#     res = {}
+#     res["args"] = job_args_sizeof(job_id, db)
+#
+#     if job_cache_exists(job_id, db):
+#         res["cache"] = job_cache_sizeof(job_id, db)
+#     else:
+#         res["cache"] = 0
+#
+#     if job_userobject_exists(job_id, db):
+#         res["result"] = job_userobject_sizeof(job_id, db)
+#     else:
+#         res["result"] = 0
+#
+#     res["total"] = res["cache"] + res["args"] + res["result"]
+#     return res
+
+
+def get_sizes2(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> dict:
     """Returns byte sizes for jobs pieces.
 
     Returns dict with keys 'args','cache','result','total'.
     """
     res = {}
-    res["args"] = job_args_sizeof(job_id, db)
+    res["args"] = cqs.job_args_sizeof(job_id)  # , db)
 
-    if job_cache_exists(job_id, db):
-        res["cache"] = job_cache_sizeof(job_id, db)
+    if cqs.job_cache_exists(job_id):
+        res["cache"] = cqs.job_cache_sizeof(job_id)  # , db)
     else:
         res["cache"] = 0
 
-    if job_userobject_exists(job_id, db):
-        res["result"] = job_userobject_sizeof(job_id, db)
+    if cqs.job_userobject_exists(job_id):
+        res["result"] = cqs.job_userobject_sizeof(job_id)
     else:
         res["result"] = 0
 

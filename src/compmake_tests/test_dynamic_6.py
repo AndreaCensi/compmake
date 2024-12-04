@@ -36,7 +36,7 @@ def summary(_: Any) -> None:
     pass
 
 
-def mockup6(context: Context, both):
+def mockup6(context: Context, both: bool):
     res = [context.comp_dynamic(fd)]
     if both:
         res.append(context.comp_dynamic(hd))
@@ -70,7 +70,7 @@ async def test_dynamic6(env: Env) -> None:
     # now redo it
     async with environment(env.sti, env.rootd) as env2:
         logger.info("running again with both=False")
-        mockup6(env2, both=False)
+        mockup6(env2.cc, both=False)
         await clean_other_jobs(env.sti, context=env2.cc)
 
         await env.assert_jobs_equal("all", ["fd", "fd-gd", "fd-gd-g2", "summary"])

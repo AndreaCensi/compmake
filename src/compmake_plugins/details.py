@@ -1,23 +1,15 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from compmake import (
     Cache,
     CacheQueryDB,
-    children,
+    CacheQuerySessionInterface,
     CMJobID,
     compmake_colored,
-    get_job,
-    get_job_args,
-    get_job_cache,
-    get_job_userobject,
-    job_args_sizeof,
-    job_cache_exists,
-    job_cache_sizeof,
-    job_userobject_exists,
-    job_userobject_sizeof,
     ui_command,
     VISUALIZATION,
 )
+from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
 from zuper_typing import debug_print
@@ -25,7 +17,7 @@ from .console_output import write_line_endl
 
 
 @ui_command(section=VISUALIZATION, alias="lsl")
-async def details(sti, non_empty_job_list, context, cq, max_lines=None, load_result=False, load_args=False):
+async def details(sti, non_empty_job_list, context, cq: CacheQueryDB, max_lines=None, load_result=False, load_args=False):
     """Shows the details for the given jobs including
     dependencies and stderr/stdout.
 
@@ -35,23 +27,26 @@ async def details(sti, non_empty_job_list, context, cq, max_lines=None, load_res
         details max_lines=1000
     """
     num = 0
-    for job_id in non_empty_job_list:
-        # insert a separator if there is more than one job
-        if num > 0:
-            print("-" * 74)
-        list_job_detail(job_id, context, cq, max_lines=max_lines, load_result=load_result, load_args=load_args)
-        num += 1
+    with cq.session() as cqs:
+        for job_id in non_empty_job_list:
+            # insert a separator if there is more than one job
+            if num > 0:
+                print("-" * 74)
+            list_job_detail(job_id, context, cqs, max_lines=max_lines, load_result=load_result, load_args=load_args)
+            num += 1
 
 
-def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int | None, load_result: bool, load_args: bool):
-    db = context.get_compmake_db()
+def list_job_detail(
+    job_id: CMJobID, context, cqs: CacheQuerySessionInterface, max_lines: int | None, load_result: bool, load_args: bool
+):
+    # db = context.get_compmake_db()
 
-    dparents = cq.direct_parents(job_id)
-    all_parents = cq.parents(job_id)
+    dparents = cqs.direct_parents(job_id)
+    all_parents = cqs.recursive_parents(job_id)
     other_parents = set(all_parents) - set(dparents)
 
     # TODO: use quicker up to date
-    up, reason, _ = cq.up_to_date(job_id)
+    up, reason, _ = cqs.up_to_date(job_id)
 
     red = lambda x: compmake_colored(x, "red")
     bold = lambda x: compmake_colored((x + " ").rjust(15), attrs=["bold"])
@@ -59,18 +54,20 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
     def format_list(x):
         return "\n- ".join([""] + sorted(x))
 
-    job = get_job(job_id, db=db)
+    job = cqs.get_job(job_id)
+
     # TODO: make it work in Python3K
     print(bold("Job ID:") + f"{job_id}")
-    defined_by = "".join(f"- {x}\n" for x in job.defined_by)
-    print(bold("Defined by:\n") + defined_by)
+    print(bold("Tags:") + f"{job.tags}")
+    defined_by = joinlines(f"- {x}" for x in job.defined_by)
+    print(bold("Defined by:") + "\n" + defined_by)
     # logger.info(job=job.__dict__)
     print(bold("needs_context:") + f"{job.needs_context}")
 
-    dchildren = cq.direct_children(job_id)
+    dchildren = cqs.direct_children(job_id)
     print(bold("Dependencies: (direct)") + f" ({len(dchildren)}) " + format_list(dchildren))
 
-    all_children = children(job_id, db=db)  # XXX
+    all_children = cqs.recursive_children(job_id)
     other_children = set(all_children) - set(dchildren)
     print(bold("Dependencies: (other)") + " (%d) " % len(other_children) + format_list(other_children))
 
@@ -79,11 +76,11 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
     print(bold("Depending on this (direct):") + format_list(dparents))
     print(bold("Depending on this (other):") + format_list(other_parents))
 
-    if job_cache_exists(job_id, db=db):
-        cache2 = get_job_cache(job_id, db=db)
+    if cqs.job_cache_exists(job_id):
+        cache2 = cqs.get_job_cache(job_id)
 
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
-        print(bold("Uptodate:") + "{} ({})".format(up, reason))
+        print(bold("Uptodate:") + f"{up} ({reason})")
         if cache2.walltime_used:
             print(bold("Wall Time:") + "%.4f s" % cache2.walltime_used)
         if cache2.cputime_used:
@@ -103,24 +100,24 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
         if cache2.state == Cache.DONE:  # and cache.done_iterations > 1:
             # print(bold('Iterations:') + '%s' % cache.done_iterations)
 
-            if not job_userobject_exists(job_id, db):
+            if not cqs.job_userobject_exists(job_id):
                 print(red("inconsistent DB: user object does not exist."))
 
     else:
         print(bold("Status:") + "%s" % Cache.state2desc[Cache.NOT_STARTED])
         cache2 = None
 
-    jobargs_size = job_args_sizeof(job_id, db)
+    jobargs_size = cqs.job_args_sizeof(job_id)
     print(bold("      args size: ") + size_compact(jobargs_size))
 
-    if job_cache_exists(job_id, db):
-        cache_size = job_cache_sizeof(job_id, db)
+    if cqs.job_cache_exists(job_id):
+        cache_size = cqs.job_cache_sizeof(job_id)
         print(bold("     cache size: ") + size_compact(cache_size))
     else:
         cache_size = 0
 
-    if job_userobject_exists(job_id, db):
-        userobject_size = job_userobject_sizeof(job_id, db)
+    if cqs.job_userobject_exists(job_id):
+        userobject_size = cqs.job_userobject_sizeof(job_id)
         print(bold("userobject size: ") + size_compact(userobject_size))
     else:
         userobject_size = 0
@@ -137,7 +134,7 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
                 lines = [warn] + lines[-max_lines:]
 
         for line in lines:
-            s = "{}{}".format(prefix, transform(line))
+            s = f"{prefix}{transform(line)}"
             write_line_endl(s)
             # if six.PY2:
             # s = s.encode('utf-8')
@@ -161,7 +158,7 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
             print(bold("result type:") + "%s" % cache2.result_type_qual)
 
     if load_args:
-        job_args = get_job_args(job_id, db=db)
+        job_args = cqs.get_job_args(job_id)
         command, args, kwargs = job_args
         print(bold("command:") + f"{command}")
         print(bold("args:") + f"{args}")
@@ -169,5 +166,5 @@ def list_job_detail(job_id: CMJobID, context, cq: CacheQueryDB, max_lines: int |
 
     if load_result:
         if cache2.state == Cache.DONE:
-            result = get_job_userobject(job_id, db=db)
+            result = cqs.get_job_userobject(job_id)
             print(bold("result:\n") + debug_print(result))

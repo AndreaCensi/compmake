@@ -114,7 +114,6 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         return res1
     else:
         if job.is_async:
-
             if job.needs_sti:
                 kwargs["sti"] = sti
 
@@ -176,14 +175,13 @@ async def execute_with_context(
 
     if args:
         if isinstance(args[0], Context) and args[0] != context:
-            msg = "{}({}, {})".format(command, args, kwargs2)
+            msg = f"{command}({args}, {kwargs2})"
             raise ValueError(msg)
 
     # context is one of the arguments
     assert context in args
 
     if COMPMAKE_DEBUG:
-
         try:
             _bound = sig.bind(*args, **kwargs2)
         except TypeError as e:

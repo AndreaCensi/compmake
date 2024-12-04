@@ -1,4 +1,4 @@
-from compmake import get_job
+from compmake import get_job, JobInterface
 from compmake.types import CMJobID
 from zuper_commons.test_utils import my_assert_equal
 from .utils import Env, environment, run_with_env
@@ -8,15 +8,15 @@ def g():
     return 2
 
 
-def f(context):
+def f(context: JobInterface):
     return context.comp(g)
 
 
-def e(context):
+def e(context: JobInterface):
     return context.comp_dynamic(f)
 
 
-def h(i):
+def h(i: int):
     assert i == 2
 
 

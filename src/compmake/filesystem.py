@@ -8,16 +8,19 @@ from abc import ABC, abstractmethod
 from asyncio import CancelledError
 from collections.abc import Iterator
 from typing import NewType
-
+from collections.abc import Callable
+from zuper_commons.types import TM
 import dill
-
+from typing import Any
 from zuper_commons.fs import (
     DirPath,
     FilePath,
     join,
     write_ustring_to_utf8_file,
+    realpath,
 )
 from zuper_commons.types import contextmanager
+from zuper_commons.fs import joinf
 from zuper_utils_timing import new_timeinfo
 from . import logger
 from .exceptions import SerializationError
@@ -37,6 +40,8 @@ trace_queries = False
 
 StorageKey = NewType("StorageKey", str)
 
+DEBUG_STORAGE = False
+
 
 class StorageFilesystem:
     basepath: DirPath
@@ -48,7 +53,8 @@ class StorageFilesystem:
         if not compress:
             raise Exception()
         self.ncursor = 0
-        self.basepath = os.path.realpath(basepath)
+        self.nsessions = 0
+        self.basepath = realpath(basepath)
         if not os.path.exists(self.basepath):
             os.makedirs(self.basepath, exist_ok=True)
         self.fn = os.path.join(self.basepath, "db.sqlite")
@@ -68,7 +74,7 @@ class StorageFilesystem:
                 # cur.execute(sql)
                 self.con.commit()
 
-        self.method = method = "pickle"
+        self.method = "pickle"
         # self.method = method= "dill"
         # check_format = False  # XXX: quadratic complexity!
         # others = []
@@ -90,12 +96,15 @@ class StorageFilesystem:
 
     @contextmanager
     def session(self) -> "Iterator[StorageFilesystemSession]":
+        self.nsessions += 1
         with self.cursor() as cur:
             yield StorageFilesystemSession(self, cur)
 
     @contextmanager
     def cursor(self, desc: str | None = "no-desc", /) -> Iterator[sqlite3.Cursor]:
         self.ncursor += 1
+        # if self.ncursor > 1000:  # TMP
+        #     raise Exception(f"Too many cursors {self.ncursor}")
         t0 = time.perf_counter()
         cur = self.con.cursor()
         t1 = time.perf_counter()
@@ -106,25 +115,27 @@ class StorageFilesystem:
             t2 = time.perf_counter()
             total = t2 - t0
             if total > 0.05:  # or self.ncursor % 10000 == 0:
-                logger.debug(
-                    f"\nsqlite3: {self.ncursor} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
-                    f"{(t2 - t1) * 1000:.3f}ms for {desc}\n"
-                )
+                if DEBUG_STORAGE:
+                    logger.debug(
+                        f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions} total {total * 1000:.3f}ms open {(t1 - t0) * 1000:.3f}ms, close "
+                        f"{(t2 - t1) * 1000:.3f}ms for {desc}\n"
+                    )
 
     def close(self) -> None:
+        if DEBUG_STORAGE:
+            logger.debug(f"\nsqlite3: cursors={self.ncursor} sessions={self.nsessions}, now closing\n")
         self.con.close()
 
     def __repr__(self) -> str:
         return f"FilesystemDB({self.basepath!r};{self.file_extension})"
 
-    def fetchone(self, sql: str, args: tuple, *, desc: str | None = "") -> object:
+    def fetchone(self, sql: str, args: TM[Any], *, desc: str | None = "") -> TM[object] | None:
         with self.cursor(f"{desc}/fetchone") as cur:
             cur.execute(sql, args)
             return cur.fetchone()
 
     @track_time
     def sizeof(self, key: StorageKey) -> int:
-
         sql = """
             select length(blob_value) from fs_blobs where blob_key = ?
         """
@@ -133,6 +144,7 @@ class StorageFilesystem:
             (key,),
             desc=f"{key}/sizeof",
         )
+        assert isinstance(res, int)
         return res
         # statinfo = os.stat(filename)
         # return statinfo.st_size
@@ -261,7 +273,6 @@ class StorageFilesystem:
     def keys0_match(self, wildcard: str) -> Iterator[StorageKey]:
         use_like = False
         if use_like:
-
             sql = """
                     select blob_key from fs_blobs where blob_key like ?
                 """
@@ -346,15 +357,57 @@ class StorageFilesystemSessionInterface(ABC):
     def get_one(self, key: StorageKey) -> object:
         pass
 
+    @abstractmethod
+    def list_all_transform[
+        X
+    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]: ...
+
+    @abstractmethod
+    def sizeof(self, key: StorageKey) -> int: ...
+
+    @abstractmethod
+    def exists(self, key: StorageKey) -> bool: ...
+
 
 class StorageFilesystemSession(StorageFilesystemSessionInterface):
-
     def __init__(self, db: StorageFilesystem, cursor: sqlite3.Cursor):
         self.db = db
         self.cursor = cursor
 
+    def sizeof(self, key: StorageKey) -> int:
+        sql = """
+                   select length(blob_value) from fs_blobs where blob_key = ?
+               """
+        (res,) = self._fetchone(sql, (key,), desc=f"{key}/sizeof")
+        return res
+
+    def exists(self, key: StorageKey) -> bool:
+        sql = """select blob_key from fs_blobs where blob_key = ?"""
+        blob_value_ = self._fetchone(sql, (key,), desc=f"{key}/get")
+        return blob_value_ is not None
+
+    def _fetchone(self, sql: str, args: TM[Any], *, desc: str | None = "") -> object:
+        self.cursor.execute(sql, args)
+        return self.cursor.fetchone()
+
     def get_one(self, key: StorageKey) -> object:
         return get_one(self.cursor, key, self.db.method)
+
+    def list_all_transform[
+        X
+    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]:
+        ...
+
+        pattern = my_x2key(pattern)  # type: ignore
+        # language=sqlite
+        sql = """
+            select blob_key from fs_blobs where blob_key glob ? 
+        """
+
+        self.cursor.execute(sql, (pattern,))
+
+        jobs = [my_key2x(row[0]) for row in self.cursor]
+        return jobs
 
 
 def get_one(cursor: sqlite3.Cursor, key: StorageKey, method: str):
@@ -375,7 +428,7 @@ def get_one(cursor: sqlite3.Cursor, key: StorageKey, method: str):
     if method == "pickle":
         return pickle.loads(data)
     elif method == "dill":
-        return dill.loads(data)
+        return dill.loads(data)  # type: ignore
     else:
         raise NotImplementedError(method)
 
@@ -405,12 +458,12 @@ def create_scripts(basepath: DirPath) -> None:
     }
     for fn, cmd in filename2cmd.items():
         s = f'#!/bin/bash\ncompmake {basepath} -c "{cmd} $*"\n'
-        f = join(basepath, fn)
+        f = joinf(basepath, fn)
         write_ustring_to_utf8_file(s, f, quiet=True)
         chmod_plus_x(f)
 
     s = f"#!/bin/bash\ncompmake {basepath} \n"
-    f = join(basepath, "console")
+    f = joinf(basepath, "console")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
     # s = f"#!/bin/bash\ncompmake {basepath} \n"
@@ -419,26 +472,26 @@ def create_scripts(basepath: DirPath) -> None:
     # chmod_plus_x(f)
 
     s = f'#!/bin/bash\ncompmake {basepath} -c "$*" \n'
-    f = join(basepath, "cm")
+    f = joinf(basepath, "cm")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = f"#!/bin/bash\ncompmake-profile {basepath} $* \n"
-    f = join(basepath, "profile")
+    f = joinf(basepath, "profile")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = f"#!/bin/bash\ncompmake-tracemalloc {basepath} $* \n"
-    f = join(basepath, "tracemalloc")
+    f = joinf(basepath, "tracemalloc")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = f"#!/bin/bash\nPYTHONOPTIMIZE=1 compmake-profile {basepath} $* \n"
-    f = join(basepath, "profile-optimize")
+    f = joinf(basepath, "profile-optimize")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)
 
     s = f"#!/bin/bash\nPYTHONOPTIMIZE=1 memray run compmake-profile {basepath} $* \n"
-    f = join(basepath, "cm-memray")
+    f = joinf(basepath, "cm-memray")
     write_ustring_to_utf8_file(s, f, quiet=True)
     chmod_plus_x(f)

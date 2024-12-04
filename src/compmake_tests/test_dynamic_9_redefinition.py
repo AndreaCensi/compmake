@@ -1,13 +1,14 @@
 import unittest
 
+from compmake import Context
 from .utils import Env, run_with_env
 
 
-def g(b1, b2):
+def g(b1: int, b2: int):
     pass
 
 
-def f(context, level):
+def f(context: Context, level: int):
     if level == 0:
         context.comp(g, 1, 1)
     else:
@@ -16,7 +17,7 @@ def f(context, level):
         context.comp_dynamic(f, level - 1)
 
 
-def mockup(context):
+def mockup(context: Context):
     context.comp_dynamic(f, 5)
 
 
@@ -40,7 +41,7 @@ def mockup(context):
 
 @run_with_env
 async def test_dynamic9_red_rmake(env: Env) -> None:
-    mockup(env)
+    mockup(env.cc)
     env.sti.logger.info("part 1")
     await env.assert_cmd_success("rmake")
     await env.assert_cmd_success("ls")

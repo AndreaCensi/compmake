@@ -4,17 +4,19 @@ import sys
 import time
 import traceback
 from asyncio import CancelledError
-from collections.abc import Callable, Collection, Iterator
+from collections.abc import Callable, Collection, Iterator, Mapping
 from contextlib import contextmanager
 from logging import Formatter
 from typing import Any, cast, Concatenate, TYPE_CHECKING
 
 from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
+from zuper_commons.text import indent
 from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
+from zuper_commons.ui import color_orange
 from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
 from zuper_utils_timing import new_timeinfo, TimeInfo
 from . import COMPMAKE_DEBUG, logger
-from .cachequerydb import CacheQueryDB, definition_closure
+from .cachequerydb import CacheQueryDB, CacheQuerySessionInterface
 from .constants import CompmakeConstants, DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
@@ -57,6 +59,8 @@ __all__ = [
     "mark_as_done",
     "mark_as_failed",
     "mark_as_notstarted",
+    "mark_as_oom",
+    "mark_as_timed_out",
     "mark_to_remake",
 ]
 
@@ -68,16 +72,17 @@ def clean_targets(job_list: Collection[CMJobID], db: StorageFilesystem, cq: Cach
     job_list = set(job_list)
 
     # print("clean_targets (%r)" % job_list)
+    cqs: CacheQuerySessionInterface
+    with cq.session() as cqs:
+        # now we need to delete the definition closure
+        # logger.info('getting closure')
+        closure = cqs.definition_closure(job_list)
 
-    # now we need to delete the definition closure
-    # logger.info('getting closure')
-    closure = definition_closure(job_list, db)
+        basic = job_list - closure
 
-    basic = job_list - closure
-
-    other_clean: set[CMJobID] = set()
-    for job_id in job_list:
-        other_clean.update(cq.parents(job_id))
+        other_clean: set[CMJobID] = set()
+        for job_id in job_list:
+            other_clean.update(cqs.recursive_parents(job_id))
 
     other_clean -= closure
     #
@@ -257,7 +262,7 @@ formatter = Formatter(FORMAT)
 @contextmanager
 def output_capture(
     enabled: bool,
-    context,
+    context: Context,
     job_id: CMJobID,
     echo: bool,
 ) -> Iterator[OutputCapture | None]:
@@ -487,7 +492,7 @@ async def make(
         ti2.finish()
 
         bt = traceback.format_exc()
-        s = "{}: {}".format(type(e).__name__, e)
+        s = f"{type(e).__name__}: {e}"
         mark_as_failed(job_id, db, s, backtrace=bt)
         deleted_jobs = get_deleted_jobs()
 
@@ -561,7 +566,7 @@ async def make(
     #    print('int_load_results: %s' % int_load_results)
     #    print('int_compute: %s' % int_compute)
     if int_gc.get_walltime_used() > 1.0:
-        logger.warning("Expensive garbage collection detected at the end of {}: {}".format(job_id, int_gc))
+        logger.warning(f"Expensive garbage collection detected at the end of {job_id}: {int_gc}")
     #    print('int_save_results: %s' % int_save_results)
 
     cache.int_make = int_make
@@ -622,7 +627,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
             counters[job_prefix] = 2
 
         if job_prefix:
-            yield "{}-{}".format(job_prefix, base)
+            yield f"{job_prefix}-{base}"
             while counters[job_prefix] <= max_options:
                 yield "%s-%s-%d" % (job_prefix, base, counters[job_prefix])
                 counters[job_prefix] += 1
@@ -724,7 +729,9 @@ def delete_jobs_recurse_definition(jobs: Collection[CMJobID], db: StorageFilesys
     """Deletes all jobs given and the jobs that they defined.
     Returns the set of jobs deleted."""
     jobs = set(jobs)
-    closure = definition_closure(jobs, db)
+    cq = CacheQueryDB(db)
+    with cq.session() as cqs:
+        closure = cqs.definition_closure(jobs)
 
     all_the_jobs = jobs | closure
     for job_id in all_the_jobs:
@@ -747,7 +754,7 @@ def comp_[
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
     *args0: P.args,
     **kwargs: P.kwargs,
-) -> Promise:
+) -> Promise[X]:
     """
     Main method to define a computation step.
 
@@ -796,6 +803,7 @@ def comp_[
             WarningStorage.warned.add(command)
 
     if get_compmake_status() == CompmakeConstants.compmake_status_slave:
+        # noinspection PyTypeChecker
         return None  # XXX # type: ignore
 
     # Check that this is a pickable function
@@ -818,6 +826,9 @@ def comp_[
 
         else:
             command_desc = type(command).__name__
+    else:
+        command_desc = str(command_desc)
+    tags = cast(Mapping[str, str | int], kwargs.pop(CompmakeConstants.tags_key, {}))
 
     args: list[object] = list(args0)  # args is a  tuple
 
@@ -937,7 +948,7 @@ def comp_[
 
     for c in children:
         if not job_exists(c, db):
-            msg = "Job {!r} references a job {!r} that doesnt exist.".format(job_id, c)
+            msg = f"Job {job_id!r} references a job {c!r} that doesnt exist."
             raise ValueError(msg)
 
     all_args = (command, args, kwargs)
@@ -958,6 +969,7 @@ def comp_[
         is_async=is_async,
         needs_sti=needs_sti,
         needs_ti=needs_ti,
+        tags=dict(tags),
     )
 
     # Need to inherit the pickle
@@ -1050,7 +1062,7 @@ def comp_[
 
 
 async def interpret_commands(
-    sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator=";"
+    sti: SyncTaskInterface, commands_str: str, context: Context, cq: CacheQueryDB, separator: str = ";"
 ) -> None:
     """
     Interprets what could possibly be a list of commands (separated by ";")
@@ -1123,6 +1135,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     else:
         ignore_error = False
 
+    commands_line_pretty = color_orange(commands_line)
     commands = commands_line.split()
 
     command_name = commands[0]
@@ -1132,7 +1145,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         command_name = UIState.alias2name[command_name]
 
     if not command_name in ui_commands:
-        msg = f"Unknown command {command_name!r} (try 'help'). "
+        msg = f"Unknown command {color_orange(command_name)} (try 'help'). "
         raise UserError(msg, known=sorted(ui_commands))
 
     # XXX: use more elegant method
@@ -1176,7 +1189,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
                 try:
                     kwargs[k] = interpret_strings_like(v, default_value)
                 except ValueError:
-                    msg = "Could not parse {}={} as {}.".format(k, v, type(default_value))
+                    msg = f"Could not parse {k}={v} as {type(default_value)}."
                     raise UserError(msg)
         else:
             other.append(a)
@@ -1195,48 +1208,58 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
     if "cq" in function_args:
         kwargs["cq"] = cq
-
-    if "non_empty_job_list" in function_args:
-        if not args:
-            msg = f"The command {command_name!r} requires a non empty list of jobs as argument."
-            raise UserError(msg)
-
-        job_list = parse_job_list(args, context=context, cq=cq)
-
-        # TODO: check non empty
-        job_list = list(job_list)
-        CompmakeConstants.aliases["last"] = job_list
-        kwargs["non_empty_job_list"] = job_list
-
-    if "job_list" in function_args:
-        job_list = parse_job_list(args, context=context, cq=cq)
-        job_list = list(job_list)
-        CompmakeConstants.aliases["last"] = job_list
-        # TODO: this does not survive reboots
-        # logger.info('setting alias "last"' )
-        kwargs["job_list"] = job_list
-
-    if "context" in function_args:
-        kwargs["context"] = context
-
-    for x in args_without_default:
-        if not x in kwargs:
-            msg = f"Required argument {x!r} not given."
-            raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
-
-    if "sti" in function_args:
-        kwargs["sti"] = sti
-
-    is_async = inspect.iscoroutinefunction(function)
-
-    res: object
     try:
+        if "non_empty_job_list" in function_args:
+            if not args:
+                msg = f"The command {color_orange(command_name)} requires a non empty list of jobs as argument."
+                raise UserError(msg)
+
+            with cq.session() as cqs:
+                job_list = list(parse_job_list(args, cqs=cqs))
+
+                if not job_list:
+                    msg = f"Could not find any job to process."
+                    raise UserError(msg)
+
+            # TODO: check non empty
+            CompmakeConstants.aliases["last"] = job_list
+            kwargs["non_empty_job_list"] = job_list
+
+        if "job_list" in function_args:
+            with cq.session() as cqs:
+                job_list = list(parse_job_list(args, cqs=cqs))
+                if args and not job_list:
+                    msg = f"Could not find any job to process."
+                    raise UserError(msg)
+
+            CompmakeConstants.aliases["last"] = job_list
+            # TODO: this does not survive reboots
+            # logger.info('setting alias "last"' )
+            kwargs["job_list"] = job_list
+
+        if "context" in function_args:
+            kwargs["context"] = context
+
+        for x in args_without_default:
+            if not x in kwargs:
+                msg = f"Required argument {x!r} not given."
+                raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
+
+        if "sti" in function_args:
+            kwargs["sti"] = sti
+
+        is_async = inspect.iscoroutinefunction(function)
+
+        res: object
+
         if is_async:
             res = await function(**kwargs)
         else:
             res = function(**kwargs)
         if (res is not None) and (res != 0):
-            msg = f"Command {commands_line!r} failed: {res}"
+
+            msg = f"Command {commands_line_pretty} failed:\n"
+            msg += indent(str(res), "  ")
             if ignore_error:
                 logger.warning(msg)
             else:
@@ -1244,10 +1267,13 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         return None
     except CompmakeException as e:
         if ignore_error:
-            logger.warning(f"Command {commands_line!r} failed but ignoring: {e}")
+            logger.user_info(f"Command {commands_line_pretty} failed but ignoring:\n{e}")
             return None
         else:
             raise
+    except:
+        # logger.error(f"Command {commands_line!r} failed: {traceback.format_exc()}")
+        raise
     finally:
         if dbchange:
             cq.invalidate()

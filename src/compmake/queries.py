@@ -1,13 +1,14 @@
-""" Contains queries of the job DB. """
+"""Contains queries of the job DB."""
 
 import warnings
 from collections.abc import Collection, Iterator
 from contextlib import contextmanager
 
 from zuper_commons.types import check_isinstance
+from .cachequerydb import CacheQueryDB
 from .exceptions import CompmakeBug
 from .filesystem import StorageFilesystem
-from .storage import all_jobs, get_job, get_job_cache
+from .storage import get_job, get_job_cache
 from .structures import Cache
 from .types import CMJobID
 
@@ -74,7 +75,9 @@ def children(job_id: CMJobID, db: StorageFilesystem) -> set[CMJobID]:
 
 def top_targets(db: StorageFilesystem):
     """Returns a list of all jobs which are not needed by anybody"""
-    return [x for x in all_jobs(db=db) if not direct_parents(x, db=db)]
+    cq = CacheQueryDB(db)
+    with cq.session() as cqs:
+        return [x for x in cqs.all_jobs() if not cqs.direct_parents(x)]
 
 
 # def bottom_targets(db):

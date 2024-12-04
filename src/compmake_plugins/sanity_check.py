@@ -1,7 +1,8 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from compmake import (
     all_jobs,
+    CacheQueryDB,
     children,
     CMJobID,
     COMMANDS_ADVANCED,
@@ -28,11 +29,12 @@ async def check_consistency(sti: SyncTaskInterface, args: list[str], context: Co
 
     # Do not use cq
     if not args:
-        job_list = all_jobs(db=db)
+        job_list = list(all_jobs(db=db))
     else:
-        job_list = parse_job_list(args, context=context)
+        cq = CacheQueryDB(db)
+        with cq.session() as cqs:
+            job_list = list(parse_job_list(args, cqs=cqs))
 
-    job_list = list(job_list)
     # print('Checking consistency of %d jobs.' % len(job_list))
     errors = {}
     for job_id in job_list:
@@ -84,7 +86,7 @@ async def check_job(job_id: CMJobID, context: Context) -> tuple[bool, list[str]]
         if defb == "root":
             continue
         if not job_exists(defb, db=db):
-            s = "{!r} defined by {!r} but {!r} not existing.".format(job_id, defined_by, defb)
+            s = f"{job_id!r} defined by {defined_by!r} but {defb!r} not existing."
             e(s)
 
     for dp in dparents:

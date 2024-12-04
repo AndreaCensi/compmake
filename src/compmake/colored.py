@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import Any
 
 from zuper_commons.ui import get_colorize_function
 from .state import get_compmake_config0
@@ -9,10 +10,10 @@ __all__ = [
 
 
 class ColoredCached:
-    functions = {}
+    functions: dict[Any, Any] = {}
 
 
-def compmake_colored(x: str, color: str | None = None, on_color: str | None = None, attrs: Sequence[str] = None) -> str:
+def compmake_colored(x: str, color: str | None = None, on_color: str | None = None, attrs: Sequence[str] | None = None) -> str:
     colorize = get_compmake_config0("colorize")
     if not colorize:
         return x

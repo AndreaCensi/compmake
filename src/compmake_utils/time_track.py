@@ -24,14 +24,14 @@ class TimeTrack:
         if self.td < min_td:
             return
 
-        msg = "wall {:6.2f}ms clock {:6.2f}ms".format(self.td * 1000, self.cd * 1000)
+        msg = f"wall {self.td * 1000:6.2f}ms clock {self.cd * 1000:6.2f}ms"
         if self.what:
             what = str(self.what)
             MAX = 120
             if len(what) > MAX:
                 what = what[: (MAX - 3)] + "..."
             # msg = '%s - %s' % (msg, what)
-            msg = "{} - {}".format(msg, what)
+            msg = f"{msg} - {what}"
         # stream.write(msg)
         #         stream.write('\n')
         #         stream.flush()

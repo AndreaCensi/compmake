@@ -1,61 +1,61 @@
 """
-    A Job represents the computation as passed by the user.
-    It contains only the "action" but not the state.
-    (The state of the computation is represented by a Cache object.)
+A Job represents the computation as passed by the user.
+It contains only the "action" but not the state.
+(The state of the computation is represented by a Cache object.)
 
-    A Cache object can be in one of the following states:
+A Cache object can be in one of the following states:
 
-    *) non-existent / or NOT_STARTED
-       (no difference between these states)
+*) non-existent / or NOT_STARTED
+   (no difference between these states)
 
-    *) IN_PROGRESS: The yielding mechanism is taking care of
-       the incremental computation.
+*) IN_PROGRESS: The yielding mechanism is taking care of
+   the incremental computation.
 
-       computation:  current computation
-       user_object:  None / invalid
-       timestamp:    None / timestamp
-       tmp_result:   set to the temporary result (if any)
+   computation:  current computation
+   user_object:  None / invalid
+   timestamp:    None / timestamp
+   tmp_result:   set to the temporary result (if any)
 
-       In this state, we also publish a progress report.
+   In this state, we also publish a progress report.
 
-    *) DONE:  The computation has been completed
+*) DONE:  The computation has been completed
 
-       computation:  current computation
-       user_object: the result of the computation
-       timestamp:   when computation was completed
-       timetaken:   time taken by the computation
-       tmp_result:  None
-
-
-    *) FAILED
-       The computation has failed for some reason
-
-       computation:  failed computation
-
-    Note that user_object and tmp_result are stored separately
-    from the Cache element.
-
-    DB Layout:
-
-        'job_id:computation'       Job object
-        'job_id:cache'             Cache object
-        'job_id:user_object'       Result of the computation
-        'job_id:user_object_tmp'
+   computation:  current computation
+   user_object: the result of the computation
+   timestamp:   when computation was completed
+   timetaken:   time taken by the computation
+   tmp_result:  None
 
 
+*) FAILED
+   The computation has failed for some reason
 
-    Up-to-date or not?
-    =================
+   computation:  failed computation
 
-    Here we have to be careful because of the fact that we have
-    the special state MORE_REQUESTED.
-    Is it a computation done if MORE_REQUESTED? Well, we could say
-    no, because when more is completed, the parents will need to be
-    redone. However, the use case is that:
-    1) you do the all computation
-    2) you explicity ask MORE for some targets
-    3) you explicitly ask to redo the parents of those targets
-    Therefore, a MORE_REQUESTED state is considered as uptodate.
+Note that user_object and tmp_result are stored separately
+from the Cache element.
+
+DB Layout:
+
+    'job_id:computation'       Job object
+    'job_id:cache'             Cache object
+    'job_id:user_object'       Result of the computation
+    'job_id:user_object_tmp'
+
+
+
+Up-to-date or not?
+=================
+
+Here we have to be careful because of the fact that we have
+the special state MORE_REQUESTED.
+Is it a computation done if MORE_REQUESTED? Well, we could say
+no, because when more is completed, the parents will need to be
+redone. However, the use case is that:
+1) you do the all computation
+2) you explicity ask MORE for some targets
+3) you explicitly ask to redo the parents of those targets
+Therefore, a MORE_REQUESTED state is considered as uptodate.
 
 
 """
@@ -96,6 +96,9 @@ class Promise[X]:
         return self  # type: ignore
 
 
+Tags = dict[str, int | str]
+
+
 @dataclass
 class Job:
     job_id: CMJobID
@@ -114,6 +117,7 @@ class Job:
     dynamic_children: dict[CMJobID, set[CMJobID]]
     pickle_main_context: PickleContextDesc
     command_desc: str
+    tags: Tags
 
 
 def make_job(
@@ -125,6 +129,7 @@ def make_job(
     is_async: bool,
     needs_sti: bool,
     needs_ti: bool,
+    tags: Tags,
 ) -> Job:
     """
 
@@ -136,13 +141,13 @@ def make_job(
     """
     children = set(children)
 
-    parents = set()
+    parents: set[CMJobID] = set()
 
     assert len(defined_by) >= 1, defined_by
     assert defined_by[0] == "root", defined_by
     # str -> set(str), where the key is one
     # of the direct children
-    dynamic_children = {}
+    dynamic_children: dict[CMJobID, set[CMJobID]] = {}
 
     pickle_main_context = pickle_main_context_save()
 
@@ -158,6 +163,7 @@ def make_job(
         is_async=is_async,
         needs_sti=needs_sti,
         needs_ti=needs_ti,
+        tags=tags,
     )
 
 
@@ -269,14 +275,16 @@ class IntervalTimer:
         self.c1 = time.process_time()
         self.t1 = time.time()
 
-    def get_walltime_used(self):
+    def get_walltime_used(self) -> float:
         if not self.stopped:
             raise ValueError("not stopped")
+        assert self.t1 is not None
         return self.t1 - self.t0
 
-    def get_cputime_used(self):
+    def get_cputime_used(self) -> float:
         if not self.stopped:
             raise ValueError("not stopped")
+        assert self.c1 is not None
         return self.c1 - self.c0
 
     def walltime_interval(self):
@@ -287,6 +295,8 @@ class IntervalTimer:
     def __str__(self):
         if not self.stopped:
             return "Timer(not stopped)"
+        assert self.t1 is not None
+        assert self.c1 is not None
         tms = int((self.t1 - self.t0) * 1000)
         cms = int((self.c1 - self.c0) * 1000)
         return f"Timer(wall {tms} ms cpu {cms} ms)"
@@ -341,7 +351,7 @@ class Cache:
     stateupdate2color = {
         # (state, uptodate)
         (NOT_STARTED, False): {},
-        (PROCESSING): {"color": "yellow", "attrs": ["concealed"]},
+        (PROCESSING, True): {"color": "yellow", "attrs": ["concealed"]},
         (PROCESSING, False): {"color": "yellow", "attrs": ["concealed"]},
         (FAILED, False): {"color": "red"},
         (BLOCKED, True): {"color": "brown"},
@@ -452,7 +462,10 @@ class Cache:
         return self.timed_out
 
     def is_skipped_test(self) -> bool:
-        return "SkipTest" in self.exception
+        if self.exception is not None:
+            return "SkipTest" in self.exception
+        else:
+            return False
 
     def is_oom(self) -> int | None:
         return self.oom_bytes
@@ -470,11 +483,13 @@ class Cache:
         if self.int_make is None:
             return 0.0
         else:
-            return (
-                self.int_load_results.get_walltime_used()
-                + self.int_save_results.get_walltime_used()
-                + self.int_gc.get_walltime_used()
-            )
+
+            def wu(x: IntervalTimer | None) -> float:
+                if x is None:
+                    return 0.0
+                return x.get_walltime_used()
+
+            return wu(self.int_load_results) + wu(self.int_save_results) + wu(self.int_gc)
 
 
 def cache_has_large_overhead(cache: Cache) -> bool:

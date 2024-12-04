@@ -1,14 +1,15 @@
+from compmake import JobInterface
 from .test_compmake import Env
 from .utils import run_with_env
 
 
-def f(a):
+def f(a: int):
     print("f()")
     if not a == 2:
         raise ValueError("Expected 2, not %s" % a)
 
 
-def g(context):
+def g(context: JobInterface):
     """This function returns a Promise to another job."""
     print("g()")
     return context.comp(g_delegated)

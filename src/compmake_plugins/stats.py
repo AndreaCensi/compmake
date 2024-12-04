@@ -1,4 +1,4 @@
-""" The actual interface of some commands in commands.py """
+"""The actual interface of some commands in commands.py"""
 
 from collections import defaultdict
 from collections.abc import Collection
@@ -100,7 +100,9 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
 
     cqs: CacheQuerySessionInterface
     with cq0.session() as cqs:
+        print(f"Loading {len(job_list)} jobs")
 
+        # print('Loading timing caches')
         for job_id in job_list:
             cache = cqs.get_job_cache(job_id)
 
@@ -108,11 +110,13 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
                 all_times0.append(cache.cputime_used)
         all_times = np.array(all_times0)
 
+        # print('Loading rest')
         for job_id in job_list:
+            job = cqs.get_job(job_id)
             cache = cqs.get_job_cache(job_id)
             states2count[cache.state] += 1
             total += 1
-            job = cqs.get_job(job_id)
+
             function_id = job.command_desc
             # initialize record if not present
             # if not function_id in function2state2count:
@@ -143,14 +147,15 @@ async def display_stats(job_list: Collection[CMJobID], context: Context, write: 
             if "Skipped" in (cache.result_type_qual or ""):
                 fsall["skipped"].update(cache)
                 fss["skipped"].update(cache)
-            if total == 100:  # XXX: use standard method
-                print("Loading a large number of jobs...\r")
+            # if total in [100, 500, 1000, 5000, 10000, 50_000, 100_000, 500_000, 1_000_000]:  # XXX: use standard method
+            #     print("Loading more than large number of jobs...\r")
 
             if cache.state in (Cache.FAILED, Cache.DONE):
                 if cache.cputime_used is not None:
                     if not len(all_times):
                         cp = 50.0
                     else:
+                        # cp = -1
                         cp = my_percentile(cache.cputime_used, all_times)
                 else:
                     cp = 50.0

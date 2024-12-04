@@ -1,5 +1,5 @@
 """
-    These are all wrappers around the raw methods in storage
+These are all wrappers around the raw methods in storage
 """
 
 import traceback
@@ -64,15 +64,13 @@ def all_jobs(db: StorageFilesystem, force_db: bool = False) -> Iterator[CMJobID]
     Otherwise, use local cache.
     """
     pattern = job2key(CMJobID("*"))
-    for raw in db.keys0_match(pattern):
-        key = cast(StorageKey, raw)
+    for key in db.keys0_match(pattern):
         yield key2job(key)
 
 
 def all_jobs_pattern(db: StorageFilesystem, pattern: str) -> Iterator[CMJobID]:
     pattern = job2key(CMJobID(pattern))
-    for raw in db.keys0_match(pattern):
-        key = cast(StorageKey, raw)
+    for key in db.keys0_match(pattern):
         yield key2job(key)
 
 

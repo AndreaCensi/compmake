@@ -1,6 +1,6 @@
 import sys
 
-from compmake import Cache, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
+from compmake import Cache, CacheQueryDB, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
 from compmake.types import CMJobID
 from zuper_commons.test_utils import assert_raises, my_assert_equal
 from .utils import Env, run_with_env
@@ -57,7 +57,9 @@ async def test_syntax(env: Env) -> None:
             elif isinstance(X, type(lambda: 0)):
                 return selection(X)
             elif isinstance(X, str):
-                return set(parse_job_list(X, context=env.cc))
+                cq = CacheQueryDB(db=env.db)
+                with cq.session() as cqs:
+                    return set(parse_job_list(X, cqs))
             else:
                 raise AssertionError("Wrong type %s" % type(X))
 
@@ -67,12 +69,14 @@ async def test_syntax(env: Env) -> None:
         try:
             my_assert_equal(set(a), set(b))
         except:  # pragma: no cover
-            sys.stdout.write("Comparing:\n\t- {}\n\t   -> {} \n\t- {}\n\t   -> {}. \n".format(A, a, B, b))
+            sys.stdout.write(f"Comparing:\n\t- {A}\n\t   -> {a} \n\t- {B}\n\t   -> {b}. \n")
             raise
 
     def syntaxError(s: str):
         def f(x) -> list[str]:  # it's a generator, you should try to read it
-            return list(parse_job_list(x, context=env.cc))
+            cq = CacheQueryDB(db=env.db)
+            with cq.session() as cqs:
+                return list(parse_job_list(x, cqs))
 
         with assert_raises(CompmakeSyntaxError):
             f(s)

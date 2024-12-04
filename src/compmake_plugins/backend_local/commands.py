@@ -51,7 +51,7 @@ async def make(
         job_list = list(top_targets(db=db))
 
     manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
-    manager.add_targets(job_list)
+    manager.add_top_level_targets(job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 
@@ -121,7 +121,7 @@ async def remake(
 
     manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
 
-    manager.add_targets(non_empty_job_list)
+    manager.add_top_level_targets(non_empty_job_list)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 

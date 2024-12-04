@@ -9,7 +9,7 @@ def add(s: str, other: Any = None) -> None:
 
 
 class TestOrder:
-    order = []
+    order: list[str] = []
 
 
 @run_with_env
@@ -26,7 +26,7 @@ async def test_order(env: Env) -> None:
     # my_assert_equal(["B", "D", "A", "C"], TestOrder.order)
 
 
-def assert_precedes(order, a, b):
+def assert_precedes(order: list[str], a: str, b: str):
     assert a in order
     assert b in order
     assert order.index(a) < order.index(b)

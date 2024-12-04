@@ -1,7 +1,8 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import cast
+from typing import Any, cast
+from collections.abc import Collection
 from unittest import SkipTest
 
 from compmake import (
@@ -12,6 +13,7 @@ from compmake import (
     ContextImp,
     get_job,
     Job,
+    JobInterface,
     MakeFailed,
     parse_job_list,
     read_rc_files,
@@ -26,7 +28,7 @@ from zuper_zapp import async_run_timeout, setup_environment2
 from zuper_zapp.utils import with_log_control
 
 
-class Env:
+class Env(JobInterface):
     rootd: str
     sti: SyncTaskInterface
     db: StorageFilesystem
@@ -37,10 +39,10 @@ class Env:
         self.rootd = root
         self.sti = sti
 
-    def comp(self, *args, **kwargs):
+    def comp(self, *args: Any, **kwargs: Any) -> Any:
         return self.cc.comp(*args, **kwargs)
 
-    def comp_dynamic(self, *args, **kwargs):
+    def comp_dynamic(self, *args: Any, **kwargs: Any) -> Any:
         return self.cc.comp_dynamic(*args, **kwargs)
 
     async def init(self):
@@ -60,24 +62,26 @@ class Env:
         """Returns the list of jobs corresponding to the given expression."""
         return sorted(list(all_jobs(self.db)))
 
-    async def get_job(self, job_id) -> Job:
+    async def get_job(self, job_id: CMJobID) -> Job:
         return get_job(job_id=job_id, db=self.db)
 
-    async def assert_defined_by(self, job_id, expected):
+    async def assert_defined_by(self, job_id: CMJobID, expected: list[CMJobID]):
         my_assert_equal((await self.get_job(job_id)).defined_by, expected)
 
     async def get_jobs(self, expression: str):
         """Returns the list of jobs corresponding to the given expression."""
-        return list(parse_job_list(expression, context=self.cc))
+        cq = CacheQueryDB(self.db)
+        with cq.session() as cqs:
+            return list(parse_job_list(expression, cqs))
 
-    async def assert_job_uptodate(self, job_id: CMJobID, status):
+    async def assert_job_uptodate(self, job_id: CMJobID, status: bool):
         res = await self.up_to_date(job_id)
-        self.assert_equal(res, status, "Want {!r} uptodate? {}".format(job_id, status))
+        self.assert_equal(res, status, f"Want {job_id!r} uptodate? {status}")
 
     def assert_equal[X](self, first: X, second: X, msg: str | None = None):
         my_assert_equal(first, second, msg)
 
-    async def assert_jobs_equal(self, expr: str, jobs, ignore_dyn_reports=True):
+    async def assert_jobs_equal(self, expr: str, jobs: Collection[str], ignore_dyn_reports: bool = True):
         # js = 'not-valid-yet'
         js = await self.get_jobs(expr)
         if ignore_dyn_reports:
@@ -85,11 +89,11 @@ class Env:
         try:
             self.assert_equal_set(js, jobs)
         except:
-            print("expr {!r} -> {}".format(expr, js))
+            print(f"expr {expr!r} -> {js}")
             print("differs from %s" % jobs)
             raise
 
-    def assert_equal_set(self, a, b):
+    def assert_equal_set[X](self, a: Collection[X], b: Collection[X]) -> None:
         sa = set(a)
         sb = set(b)
         if sa != sb:
@@ -140,9 +144,13 @@ class Env:
         self.cq.invalidate()
 
     async def up_to_date(self, job_id: str) -> bool:
-        up, reason, timestamp = self.cq.up_to_date(cast(CMJobID, job_id))
-        self.sti.logger.info("up_to_date({!r}): {}, {!r}, {}".format(job_id, up, reason, timestamp))
+        with self.cq.session() as cqs:
+            up, reason, timestamp = cqs.up_to_date(cast(CMJobID, job_id))
+        self.sti.logger.info(f"up_to_date({job_id!r}): {up}, {reason!r}, {timestamp}")
         return up
+
+    def session(self):
+        return self.cq.session()
 
 
 async def make_environment(sti: SyncTaskInterface, rootd: str | None = None) -> Env:
@@ -175,7 +183,7 @@ def raise_exit(f):
     return f2
 
 
-def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCode]:
+def run_with_env(f: Callable[[Env], Awaitable[ExitCode | None]]) -> Callable[[], ExitCode | None]:
     if not f.__name__.startswith("test_"):
         msg = 'Better to start test names with "test_".'
         raise ZValueError(msg, f=f, name=f.__name__, qual=f.__qualname__)
@@ -191,7 +199,7 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
                 async with with_log_control(False):  # XXX
                     async with environment(sti, rootd=None) as env:
                         try:
-                            res = await f(env)
+                            await f(env)
                         except SkipTest:
                             raise
                         except BaseException as e:
@@ -212,7 +220,7 @@ def run_with_env(f: Callable[[Env], Awaitable[ExitCode]]) -> Callable[[], ExitCo
 
 
 @asynccontextmanager
-async def assert_raises_async(ExceptionType) -> AsyncIterator[None]:
+async def assert_raises_async(ExceptionType: type[Exception]) -> AsyncIterator[None]:
     try:
         yield
     except ExceptionType:

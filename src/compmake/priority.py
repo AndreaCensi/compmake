@@ -4,10 +4,10 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from typing import Any, cast
 
-from zuper_commons.fs import safe_pickle_load
+from zuper_commons.fs import FilePath, safe_pickle_load
 from zuper_commons.types import ZAssertionError
 from . import logger
-from .cachequerydb import CacheQueryDB
+from .cachequerydb import CacheQuerySessionInterface
 from .structures import Cache, Job, PersistentStats
 from .types import CMJobID
 
@@ -18,7 +18,7 @@ __all__ = [
 
 
 def compute_priorities(
-    all_targets: Collection[CMJobID], cq: CacheQueryDB, priorities: dict[CMJobID, float] | None = None
+    all_targets: Collection[CMJobID], cqs: CacheQuerySessionInterface, priorities: dict[CMJobID, float] | None = None
 ) -> dict[CMJobID, float]:
     """Computes the priority for all_targets.
 
@@ -28,7 +28,7 @@ def compute_priorities(
         priorities = {}
     all_targets = set(all_targets)
     for job_id in all_targets:
-        p = compute_priority(job_id=job_id, priorities=priorities, targets=all_targets, cq=cq)
+        p = compute_priority(job_id=job_id, priorities=priorities, targets=all_targets, cqs=cqs)
         # if job_id not in priorities:
         #     logger.debug(f'Priority {p} {job_id}')
         priorities[job_id] = p
@@ -37,7 +37,7 @@ def compute_priorities(
 
 MAX_PRIORITY = 1000.0
 
-PSTATS_FILE = "pstats.pickle"
+PSTATS_FILE = cast(FilePath, "pstats.pickle")
 pstats: PersistentStats | None
 if os.path.exists(PSTATS_FILE):
     pstats = cast(PersistentStats, safe_pickle_load(PSTATS_FILE))
@@ -47,8 +47,10 @@ else:
     pstats = None
 
 
-def compute_priority(job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB) -> float:
-    res, how = compute_priority_(job_id=job_id, priorities=priorities, targets=targets, cq=cq)
+def compute_priority(
+    job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cqs: CacheQuerySessionInterface
+) -> float:
+    res, how = compute_priority_(job_id=job_id, priorities=priorities, targets=targets, cqs=cqs)
 
     if math.isnan(res):
         logger.error(f"Got NaN for {job_id} {how}")
@@ -100,7 +102,6 @@ def estimate_stats(job_id: CMJobID, job: Job, cache: Cache) -> StatsForPriority:
             compute_time_percentile = 50.0
             prob_timedout = SMALL_NONZERO
     elif pstats and job_id in pstats.by_job:
-
         pstats_one = pstats.by_job[job_id]
         prob_success = pstats_one.prob_success
         prob_oom = pstats_one.prob_oom
@@ -109,7 +110,6 @@ def estimate_stats(job_id: CMJobID, job: Job, cache: Cache) -> StatsForPriority:
         compute_time_percentile = pstats_one.compute_time_percentile
 
     elif pstats and job.command_desc in pstats.by_command:
-
         pstats_one = pstats.by_command[job.command_desc]
         prob_success = pstats_one.prob_success
         compute_time_percentile = pstats_one.compute_time_percentile
@@ -132,27 +132,27 @@ REGULAR_PRIORITY = 10.0
 
 
 def compute_priority_(
-    job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cq: CacheQueryDB
+    job_id: CMJobID, priorities: dict[CMJobID, float], targets: Collection[CMJobID], cqs: CacheQuerySessionInterface
 ) -> tuple[float, Any]:
     """Computes the priority for one job. It uses caching results in
     self.priorities if they are found."""
 
-    circumstances = []
+    circumstances: list[str] = []
     if job_id in priorities:
         return priorities[job_id], ["cached"]
 
     # Dynamic jobs are the most important
-    job = cq.get_job(job_id)
+    job = cqs.get_job(job_id)
     if job.needs_context:
         nlevel = len(job.defined_by)
         circumstances.append("dynamic")
         base_priority = DYNAMIC_PRIORITY - nlevel
         return base_priority, circumstances
 
-    parents = set(cq.direct_parents(job_id))
+    parents = set(cqs.direct_parents(job_id))
     parents_which_are_targets = [x for x in parents if x in targets]
 
-    cache = cq.get_job_cache(job_id)
+    cache = cqs.get_job_cache(job_id)
 
     sfp = estimate_stats(job_id, job, cache)
 
@@ -194,7 +194,10 @@ def compute_priority_(
         parent_bonus = 0.0
     else:
         circumstances.append("inherit-parents-priority")
-        pf = lambda p: compute_priority(p, priorities, targets, cq=cq)
+
+        def pf(p: CMJobID) -> float:
+            return compute_priority(p, priorities, targets, cqs=cqs)
+
         # it was -1
         parents_priority = list(map(pf, parents_which_are_targets))
         max_p = max(parents_priority)

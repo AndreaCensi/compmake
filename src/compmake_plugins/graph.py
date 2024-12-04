@@ -5,10 +5,10 @@ from collections.abc import Collection
 from compmake import (
     Cache,
     CacheQueryDB,
+    CacheQuerySessionInterface,
     CMJobID,
     COMMANDS_ADVANCED,
     Context,
-    definition_closure,
     top_targets,
     ui_command,
     ui_info,
@@ -77,21 +77,23 @@ async def graph(
     print("Getting all jobs in tree")
 
     cq = CacheQueryDB(db)
-    job_list = set(job_list)
-    # all the dependencies
-    job_list.update(cq.tree(job_list))
+    cqs: CacheQuerySessionInterface
+    with cq.session() as cqs:
+        job_list = set(job_list)
+        # all the dependencies
+        job_list.update(cqs.recursive_children_efficient(job_list))
 
-    # plus all the jobs that were defined by them
-    job_list.update(definition_closure(job_list, db))
+        # plus all the jobs that were defined by them
+        job_list.update(cqs.definition_closure(job_list))
 
-    job_list = set(job_list)
+        job_list = set(job_list)
 
-    #     print('closure: %s' % sorted(job_list))
+        #     print('closure: %s' % sorted(job_list))
 
-    if cluster:
-        ggraph = create_graph2_clusters(cq, job_list, label=label, color=color, processing=processing)
-    else:
-        ggraph = create_graph1(cq, job_list, label=label, color=color, processing=processing)
+        if cluster:
+            ggraph = create_graph2_clusters(cqs, job_list, label=label, color=color, processing=processing)
+        else:
+            ggraph = create_graph1(cqs, job_list, label=label, color=color, processing=processing)
     print(f"Writing graph on {filename!r}.")
     # TODO: add check?
 
@@ -111,8 +113,8 @@ async def graph(
     await ui_info(context, f"Written output on files {filename}, {output}.")
 
 
-def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID]):
-    cache = cq.get_job_cache(x)
+def get_color_for(x: CMJobID, cqs: CacheQuerySessionInterface, processing: Collection[CMJobID]):
+    cache = cqs.get_job_cache(x)
 
     # state2color = {
     #     Cache.NOT_STARTED: "grey",
@@ -130,7 +132,7 @@ def get_color_for(x: CMJobID, cq: CacheQueryDB, processing: Collection[CMJobID])
     return Cache.state2color[state]
 
 
-def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
+def get_node_label(cqs: CacheQuerySessionInterface, job_id: CMJobID, label):
     possible = ["none", "id", "function"]
     if not label in possible:
         msg = f"Invalid label method {label!r} not in {possible!r}."
@@ -140,7 +142,7 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     if label == "id":
         return job_id
     if label == "function":
-        job = cq.get_job(job_id)
+        job = cqs.get_job(job_id)
         return f"{job.command_desc}()"
     raise AssertionError
     #
@@ -148,7 +150,9 @@ def get_node_label(cq: CacheQueryDB, job_id: CMJobID, label):
     #
 
 
-def create_graph1(cq: CacheQueryDB, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]):
+def create_graph1(
+    cqs: CacheQuerySessionInterface, job_list: Collection[CMJobID], label, color: bool, processing: Collection[CMJobID]
+):
     print("Creating graph")
     job_list = list(job_list)
     print(f"create_graph1({job_list})")
@@ -158,12 +162,12 @@ def create_graph1(cq: CacheQueryDB, job_list: Collection[CMJobID], label, color:
 
     job2node = {}
     for job_id in job_list:
-        job_label = get_node_label(cq, job_id, label)
+        job_label = get_node_label(cqs, job_id, label)
         job2node[job_id] = ggraph.newItem(job_label)
 
         if color:
             ggraph.styleAppend(job_id, "style", "filled")
-            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cq, processing)["color"])
+            ggraph.styleAppend(job_id, "fillcolor", get_color_for(job_id, cqs, processing)["color"])
             ggraph.styleApply(job_id, job2node[job_id])
         else:
             ggraph.styleAppend(job_id, "style", "filled")
@@ -174,7 +178,7 @@ def create_graph1(cq: CacheQueryDB, job_list: Collection[CMJobID], label, color:
     for job_id in job_list:
         # c = get_computation(job_id)
         # children_id = [x.job_id for x in c.depends]
-        for child in cq.direct_children(job_id):
+        for child in cqs.direct_children(job_id):
             # arrows follows flux of data
             print(f"{job2node[child]}->{job2node[job_id]}")
             ggraph.newLink(job2node[child], job2node[job_id])

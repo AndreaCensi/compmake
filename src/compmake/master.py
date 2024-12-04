@@ -7,7 +7,7 @@ import traceback
 import tracemalloc
 from asyncio import CancelledError
 from optparse import OptionParser
-from pstats import f8, func_std_string
+from pstats import f8, func_std_string  # type: ignore
 from typing import cast
 
 from compmake_utils import setproctitle
@@ -206,7 +206,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
             return cast(ExitCode, retcode)
 
     try:
-
         if options.profile:
             # XXX: change variables
             import cProfile
@@ -228,7 +227,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
                 return await go(context)
 
             finally:
-
                 snapshot = tracemalloc.take_snapshot()
                 top_stats = snapshot.statistics("lineno")
 
@@ -237,7 +235,6 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
                     print(stat)
 
         else:
-
             return await go(context2=context)
     finally:
         # logger.info("Closing context.")
@@ -424,7 +421,7 @@ def display_top(snapshot, key_type="lineno", limit: int = 10):
     print("Top %s lines" % limit)
     for index, stat in enumerate(top_stats[:limit], 1):
         frame = stat.traceback[0]
-        print("#{}: {}:{}: {:.1f} KiB".format(index, frame.filename, frame.lineno, stat.size / 1024))
+        print(f"#{index}: {frame.filename}:{frame.lineno}: {stat.size / 1024:.1f} KiB")
         line = linecache.getline(frame.filename, frame.lineno).strip()
         if line:
             print("    %s" % line)
@@ -432,7 +429,7 @@ def display_top(snapshot, key_type="lineno", limit: int = 10):
     other = top_stats[limit:]
     if other:
         size = sum(stat.size for stat in other)
-        print("{} other: {:.1f} KiB".format(len(other), size / 1024))
+        print(f"{len(other)} other: {size / 1024:.1f} KiB")
     total = sum(stat.size for stat in top_stats)
     print("Total allocated size: %.1f KiB" % (total / 1024))
 
@@ -442,7 +439,6 @@ import sys
 
 
 class CustomStats(pstats.Stats):
-
     def print_line(self, func):  # hack: should print percentages
         cc, nc, tt, ct, callers = self.stats[func]
         c = str(nc)

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Mapping
 from typing import (
     Any,
     Concatenate,
@@ -14,6 +14,8 @@ from .types import CMJobID
 __all__ = [
     "Context",
     "JobInterface",
+    "SimpleJobInterface",
+    "SimpleJobInterfaceGen",
 ]
 
 if TYPE_CHECKING:
@@ -31,6 +33,7 @@ class JobInterface(ABC):
         *args: P.args,
         job_id: str | None = None,
         command_name: str | None = None,
+        compmake_tags: Mapping[str, str | int] | None = None,
         **kwargs: P.kwargs,
     ) -> Promise[X]: ...
 
@@ -43,8 +46,24 @@ class JobInterface(ABC):
         *args: P.args,
         command_name: str | None = None,
         job_id: str | None = None,
+        compmake_tags: Mapping[str, str | int] | None = None,
         **kwargs: P.kwargs,
     ) -> Promise[X]: ...
+
+
+class SimpleJobInterfaceGen[D](ABC):
+    @abstractmethod
+    def comp[
+        **P, X
+    ](self, f: Callable[P, X], *args: P.args, **kwargs: P.kwargs,) -> X: ...
+
+    @abstractmethod
+    def comp_dynamic[
+        **P, X
+    ](self, f: "Callable[Concatenate[SimpleJobInterface, P], X]", *args: P.args, **kwargs: P.kwargs,) -> X: ...
+
+
+type SimpleJobInterface = SimpleJobInterfaceGen[SimpleJobInterfaceGen[Any]]
 
 
 class Context(JobInterface, ABC):
@@ -73,6 +92,11 @@ class Context(JobInterface, ABC):
     @abstractmethod
     def comp_prefix(self, prefix: str | None) -> None: ...
 
+    @abstractmethod
+    def with_params(
+        self, job_id: str | None = None, command_name: str | None = None, tags: Mapping[str, str | int] | None = None
+    ) -> SimpleJobInterface: ...
+
     #
     # @abstractmethod
     # async def comp_async(self, command_, *args, **kwargs):
@@ -80,7 +104,7 @@ class Context(JobInterface, ABC):
     #
 
     @abstractmethod
-    async def comp_store(self, x: object, job_id: str | None = None) -> Promise: ...
+    async def comp_store[X](self, x: X, job_id: str | None = None) -> Promise[X]: ...
 
     @abstractmethod
     async def interpret_commands_wrap(self, sti: SyncTaskInterface, commands: list[str]) -> None: ...

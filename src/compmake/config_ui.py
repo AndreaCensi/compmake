@@ -16,7 +16,7 @@ __all__ = [
 
 
 @ui_command(section=GENERAL)
-async def config(sti: SyncTaskInterface, args, context: Context):
+async def config(sti: SyncTaskInterface, args: list[str], context: Context):
     """Get/set configuration parameters.
 
     Usage:
@@ -43,7 +43,7 @@ async def config(sti: SyncTaskInterface, args, context: Context):
 
 
 @ui_command(section=COMMANDS_ADVANCED)
-async def config_html(sti, output_file=""):
+async def config_html(sti: SyncTaskInterface, output_file: str = ""):
     """Dumps the config description in html on the specified file."""
     if output_file:
         f = open(output_file, "w")
