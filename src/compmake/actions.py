@@ -747,9 +747,7 @@ class WarningStorage:
     warned: set[Callable[..., Any]] = set()
 
 
-def comp_[
-    **P, X
-](
+def comp_[**P, X](
     context: Context,
     command_: Callable[P, X] | Callable[Concatenate[Context, P], X],
     *args0: P.args,
@@ -1257,7 +1255,6 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         else:
             res = function(**kwargs)
         if (res is not None) and (res != 0):
-
             msg = f"Command {commands_line_pretty} failed:\n"
             msg += indent(str(res), "  ")
             if ignore_error:

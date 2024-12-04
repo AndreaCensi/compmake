@@ -358,9 +358,9 @@ class StorageFilesystemSessionInterface(ABC):
         pass
 
     @abstractmethod
-    def list_all_transform[
-        X
-    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]: ...
+    def list_all_transform[X](
+        self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /
+    ) -> list[X]: ...
 
     @abstractmethod
     def sizeof(self, key: StorageKey) -> int: ...
@@ -393,9 +393,9 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
     def get_one(self, key: StorageKey) -> object:
         return get_one(self.cursor, key, self.db.method)
 
-    def list_all_transform[
-        X
-    ](self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /) -> list[X]:
+    def list_all_transform[X](
+        self, my_x2key: Callable[[X], StorageKey], my_key2x: Callable[[StorageKey], X], pattern: str, /
+    ) -> list[X]:
         ...
 
         pattern = my_x2key(pattern)  # type: ignore

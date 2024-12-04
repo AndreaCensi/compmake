@@ -411,14 +411,20 @@ class MySimpleQAInterface(SimpleJobInterfaceGen[Context]):
         self.command_name = command_name
         self.tags = dict(tags or {})
 
-    def comp[
-        **P, X
-    ](self, f: Callable[P, X], *args: P.args, **kwargs: P.kwargs,) -> X:
+    def comp[**P, X](
+        self,
+        f: Callable[P, X],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> X:
         return self.master.comp(f, *args, job_id=self.job_id, command_name=self.command_name, compmake_tags=self.tags, **kwargs)
 
-    def comp_dynamic[
-        **P, X
-    ](self, f: "Callable[Concatenate[Context, P], X]", *args: P.args, **kwargs: P.kwargs,) -> X:
+    def comp_dynamic[**P, X](
+        self,
+        f: "Callable[Concatenate[Context, P], X]",
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> X:
         ...
         return self.master.comp_dynamic(
             f, *args, job_id=self.job_id, command_name=self.command_name, compmake_tags=self.tags, **kwargs

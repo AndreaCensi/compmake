@@ -25,9 +25,7 @@ if TYPE_CHECKING:
 class JobInterface(ABC):
     # setting up jobs
     @abstractmethod
-    def comp_dynamic[
-        **P, X
-    ](
+    def comp_dynamic[**P, X](
         self,
         f: Callable[Concatenate[Self, P], X],
         *args: P.args,
@@ -38,9 +36,7 @@ class JobInterface(ABC):
     ) -> Promise[X]: ...
 
     @abstractmethod
-    def comp[
-        **P, X
-    ](
+    def comp[**P, X](
         self,
         command_: Callable[P, X],
         *args: P.args,
@@ -53,14 +49,20 @@ class JobInterface(ABC):
 
 class SimpleJobInterfaceGen[D](ABC):
     @abstractmethod
-    def comp[
-        **P, X
-    ](self, f: Callable[P, X], *args: P.args, **kwargs: P.kwargs,) -> X: ...
+    def comp[**P, X](
+        self,
+        f: Callable[P, X],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> X: ...
 
     @abstractmethod
-    def comp_dynamic[
-        **P, X
-    ](self, f: "Callable[Concatenate[SimpleJobInterface, P], X]", *args: P.args, **kwargs: P.kwargs,) -> X: ...
+    def comp_dynamic[**P, X](
+        self,
+        f: "Callable[Concatenate[SimpleJobInterface, P], X]",
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> X: ...
 
 
 type SimpleJobInterface = SimpleJobInterfaceGen[SimpleJobInterfaceGen[Any]]
