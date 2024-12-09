@@ -41,10 +41,12 @@ from .storage import (
     job_exists,
     set_job,
     set_job_args,
+    set_job_backtrace_exception,
     set_job_cache,
+    set_job_eod,
     set_job_userobject,
 )
-from .structures import Cache, IntervalTimer, Promise, same_computation
+from .structures import Cache, ExecOutputData, IntervalTimer, Promise, same_computation
 from .types import CMJobID, MakeResult
 from .visualization import ui_info
 
@@ -212,6 +214,7 @@ def mark_as_failed(
     cache.result_type = result_type
 
     set_job_cache(job_id, cache, db=db)
+    set_job_backtrace_exception(job_id, db, exception=exception, backtrace=backtrace)
 
 
 def mark_as_timed_out(
@@ -474,13 +477,18 @@ async def make(
         mark_as_failed(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
 
         cache = get_job_cache(job_id, db=db)
+
+        outdata = ExecOutputData(None, None, None, None)
+
         if capture2 is not None:
-            cache.captured_stderr = capture2.get_logged_stderr()
-            cache.captured_stdout = capture2.get_logged_stdout()
+            outdata.stderr = capture2.get_logged_stderr()
+            outdata.stdout = capture2.get_logged_stdout()
         else:
             msg = "(Capture turned off.)"
-            cache.captured_stderr = msg
-            cache.captured_stdout = msg
+            outdata.captured_stderr = msg
+            outdata.captured_stdout = msg
+
+        set_job_eod(job_id, outdata, db=db)
 
         set_job_cache(job_id, cache, db=db)
 
@@ -497,13 +505,16 @@ async def make(
         deleted_jobs = get_deleted_jobs()
 
         cache = get_job_cache(job_id, db=db)
+
+        outdata = ExecOutputData(None, None, None, None)
+
         if capture2 is not None:
-            cache.captured_stderr = capture2.get_logged_stderr()
-            cache.captured_stdout = capture2.get_logged_stdout()
+            outdata.stderr = capture2.get_logged_stderr()
+            outdata.stdout = capture2.get_logged_stdout()
         else:
             msg = None
-            cache.captured_stderr = msg
-            cache.captured_stdout = msg
+            outdata.stderr = msg
+            outdata.stdout = msg
 
         cache.int_make = int_make
         cache.int_load_results = int_load_results
@@ -521,6 +532,7 @@ async def make(
         cache.jobs_defined = new_jobs
         cache.ti = ti2
         set_job_cache(job_id, cache, db=db)
+        set_job_eod(job_id, outdata, db=db)
 
         job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
     finally:

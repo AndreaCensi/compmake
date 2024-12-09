@@ -73,6 +73,8 @@ class CompmakeConstants:
 
     aliases: ClassVar[dict[str, AliasT | str | Collection[str]]] = {}
 
+    # save_stdout_stderr_in_cache = False
+
 
 if CompmakeConstants.debug_check_invariants:
     msg = "CompmakeConstants.debug_check_invariants is True; much slower"

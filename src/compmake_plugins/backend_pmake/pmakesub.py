@@ -315,6 +315,7 @@ async def pmake_worker(
         total_time_put = 0.0
         total_time_comp = 0.0
         total_time_maintenance = 0.0
+        original_stderr = sys.stderr
         if write_log:
             sys.stderr = sys.stdout = f = open(write_log, "w", buffering=1)  # 1 = line buffered
 
@@ -367,7 +368,9 @@ async def pmake_worker(
                 try:
                     event_queue.put(Event(EVENT_WORKER_JOB_FINISHED, worker=name, job_id=job_id), timeout=1)
                 except Exception as e:
-                    log(f"Could not put in event queue: {str(e)}")
+                    log(f"Could not put EVENT_WORKER_JOB_FINISHED in event queue:\n{traceback.format_exc()}")
+                    original_stderr.write(f"Could not put EVENT_WORKER_JOB_FINISHED in event queue:\n{traceback.format_exc()}\n")
+                    original_stderr.flush()
                 else:
                     log(f"put notification in event_queue")
 
@@ -480,7 +483,9 @@ async def pmake_worker(
                         try:
                             event_queue.put(Event("worker-job-started", worker=name, job_id=job_id), timeout=0.1)
                         except Exception as e:
-                            log(f"Could not put in event queue: {e}")
+                            log(f"Could not put worker-job-started in event queue: {traceback.format_exc()}")
+                            original_stderr.write(f"Could not put worker-job-started in event queue:\n{traceback.format_exc()}")
+                            original_stderr.flush()
                         else:
                             pass
 

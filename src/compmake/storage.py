@@ -11,7 +11,7 @@ from zuper_commons.types import add_context, check_isinstance, TM
 from . import COMPMAKE_DEBUG
 from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException, SerializationError
 from .filesystem import StorageFilesystem, StorageKey
-from .structures import Cache, Job
+from .structures import Cache, ExecOutputData, Job
 from .types import CMJobID
 
 __all__ = [
@@ -113,6 +113,11 @@ def job2cachekey(job_id: CMJobID) -> StorageKey:
     return cast(StorageKey, f"{prefix}{job_id}")
 
 
+def outdata2cachekey(job_id: CMJobID) -> StorageKey:
+    prefix = "cm-outdata-"
+    return cast(StorageKey, f"{prefix}{job_id}")
+
+
 def get_job_cache(job_id: CMJobID, db: StorageFilesystem) -> Cache:
     assert isinstance(job_id, str)
     # assert isinstance(db, StorageFilesystem)
@@ -162,6 +167,47 @@ def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem) -> None:
     check_isinstance(cache.backtrace, (type(None), str))
     key = job2cachekey(job_id)
     db[key] = cache
+
+
+def set_job_eod(job_id: CMJobID, o: ExecOutputData, db: StorageFilesystem) -> None:
+    assert isinstance(o, ExecOutputData)
+    check_isinstance(o.stderr, str)
+    check_isinstance(o.stdout, str)
+    check_isinstance(o.exception, (type(None), str))
+    check_isinstance(o.backtrace, (type(None), str))
+    key = outdata2cachekey(job_id)
+    db[key] = o
+
+
+def job_eod_exists(job_id: CMJobID, db: StorageFilesystem) -> bool:
+    key = outdata2cachekey(job_id)
+    return key in db
+
+
+def get_job_eod(job_id: CMJobID, db: StorageFilesystem) -> ExecOutputData:
+    if job_eod_exists(job_id, db):
+        key = outdata2cachekey(job_id)
+        return db[key]
+    else:
+        return ExecOutputData(
+            stdout=None,
+            stderr=None,
+            exception=None,
+            backtrace=None,
+        )
+
+
+def set_job_backtrace_exception(
+    job_id: CMJobID,
+    db: StorageFilesystem,
+    *,
+    exception: str,
+    backtrace: str,
+) -> None:
+    o = get_job_eod(job_id, db)
+    o.exception = exception
+    o.backtrace = backtrace
+    set_job_eod(job_id, o, db)
 
 
 def delete_job_cache(job_id: CMJobID, db: StorageFilesystem) -> None:

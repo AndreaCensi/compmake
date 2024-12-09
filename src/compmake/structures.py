@@ -75,6 +75,7 @@ from .types import CMJobID, ResultDict
 
 __all__ = [
     "Cache",
+    "ExecOutputData",
     "IntervalTimer",
     "Job",
     "ParmakeJobResult",
@@ -302,6 +303,14 @@ class IntervalTimer:
         return f"Timer(wall {tms} ms cpu {cms} ms)"
 
 
+@dataclass
+class ExecOutputData:
+    stdout: str | None
+    stderr: str | None
+    exception: str | None
+    backtrace: str | None
+
+
 StateCode = NewType("StateCode", int)
 
 
@@ -410,6 +419,7 @@ class Cache:
     walltime_used: float | None
     cputime_used: float | None
 
+    """ name of result type """
     result_type: str | None
     result_type_qual: str | None
 
@@ -417,7 +427,6 @@ class Cache:
 
     ti: TimeInfo | None
 
-    """ name of result type """
     host: str | None
 
     def __init__(self, state: StateCode):
