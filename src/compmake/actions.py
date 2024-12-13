@@ -44,6 +44,7 @@ from .storage import (
     set_job_backtrace_exception,
     set_job_cache,
     set_job_eod,
+    set_job_stdout_stderr,
     set_job_userobject,
 )
 from .structures import Cache, ExecOutputData, IntervalTimer, Promise, same_computation
@@ -165,9 +166,10 @@ def mark_to_remake(job_id: CMJobID, db: StorageFilesystem) -> None:
 
 def mark_as_blocked(job_id: CMJobID, db: StorageFilesystem, dependency: CMJobID | None = None) -> None:  # XXX
     cache = Cache(Cache.BLOCKED)
-    cache.exception = f"Failure of dependency {dependency!r}"
-    cache.backtrace = ""
+    exception = f"Failure of dependency {dependency!r}"
+    backtrace = ""
     set_job_cache(job_id, cache, db=db)
+    set_job_backtrace_exception(job_id, db, exception=exception, backtrace=backtrace)
 
 
 def mark_as_notstarted(job_id: CMJobID, db: StorageFilesystem) -> None:  # XXX
@@ -207,8 +209,8 @@ def mark_as_failed(
         exception = str(exception)
 
     check_isinstance(backtrace, (type(None), str))
-    cache.exception = exception
-    cache.backtrace = backtrace
+    # cache.exception = exception
+    # cache.backtrace = backtrace
     cache.timestamp = time.time()
     cache.result_type_qual = result_type_qual
     cache.result_type = result_type
@@ -230,11 +232,12 @@ def mark_as_timed_out(
         exception = str(exception)
 
     check_isinstance(backtrace, (type(None), str))
-    cache.exception = exception
-    cache.backtrace = backtrace
+    # cache.exception = exception
+    # cache.backtrace = backtrace
     cache.timestamp = time.time()
     cache.timed_out = timed_out
     set_job_cache(job_id, cache, db=db)
+    set_job_backtrace_exception(job_id, db, exception=exception, backtrace=backtrace)
 
 
 def mark_as_oom(
@@ -250,11 +253,12 @@ def mark_as_oom(
         exception = str(exception)
 
     check_isinstance(backtrace, (type(None), str))
-    cache.exception = exception
-    cache.backtrace = backtrace
+    # cache.exception = exception
+    # cache.backtrace = backtrace
     cache.timestamp = time.time()
     cache.oom_bytes = oom_bytes
     set_job_cache(job_id, cache, db=db)
+    set_job_backtrace_exception(job_id, db, exception=exception, backtrace=backtrace)
 
 
 FORMAT = "%(name)10s|%(filename)15s:%(lineno)-4s - %(funcName)-15s| %(message)s"
@@ -368,6 +372,8 @@ async def make(
     cache.jobs_defined = prev_defined_jobs
     with ti.timeit("set cache"):
         set_job_cache(job_id, cache, db=db)
+        eod1 = ExecOutputData(None, None, None, None)
+        set_job_eod(job_id, eod1, db=db)
 
     def progress_callback(stack: Any) -> None:
         publish(context, "job-progress-plus", job_id=job_id, host=host, stack=stack)
@@ -454,6 +460,7 @@ async def make(
     int_load_results = None
     int_compute = None
     user_object = None
+    capture2 = None
     try:
         with output_capture(not disable_capture, context, job_id, echo) as capture2:
             with ti.timeit("job_compute") as tisub:
@@ -478,17 +485,16 @@ async def make(
 
         cache = get_job_cache(job_id, db=db)
 
-        outdata = ExecOutputData(None, None, None, None)
-
         if capture2 is not None:
-            outdata.stderr = capture2.get_logged_stderr()
-            outdata.stdout = capture2.get_logged_stdout()
+            stderr = capture2.get_logged_stderr()
+            stdout = capture2.get_logged_stdout()
         else:
             msg = "(Capture turned off.)"
-            outdata.captured_stderr = msg
-            outdata.captured_stdout = msg
-
-        set_job_eod(job_id, outdata, db=db)
+            stdout = msg
+            stderr = msg
+        set_job_stdout_stderr(job_id, db, stdout=stdout, stderr=stderr)
+        set_job_backtrace_exception(job_id, db, exception="KeyboardInterrupt: " + str(e), backtrace=bt)
+        # set_job_eod(job_id, outdata, db=db)
 
         set_job_cache(job_id, cache, db=db)
 
@@ -506,15 +512,13 @@ async def make(
 
         cache = get_job_cache(job_id, db=db)
 
-        outdata = ExecOutputData(None, None, None, None)
-
         if capture2 is not None:
-            outdata.stderr = capture2.get_logged_stderr()
-            outdata.stdout = capture2.get_logged_stdout()
+            stderr = capture2.get_logged_stderr()
+            stdout = capture2.get_logged_stdout()
         else:
             msg = None
-            outdata.stderr = msg
-            outdata.stdout = msg
+            stderr = msg
+            stdout = msg
 
         cache.int_make = int_make
         cache.int_load_results = int_load_results
@@ -532,7 +536,8 @@ async def make(
         cache.jobs_defined = new_jobs
         cache.ti = ti2
         set_job_cache(job_id, cache, db=db)
-        set_job_eod(job_id, outdata, db=db)
+        set_job_stdout_stderr(job_id, db, stdout=stdout, stderr=stderr)
+        set_job_backtrace_exception(job_id, db, exception=s, backtrace=bt)
 
         job_failed_exc(job_id=job_id, reason=s, bt=bt, deleted_jobs=list(deleted_jobs))
     finally:
@@ -549,7 +554,7 @@ async def make(
 
     # print('Now %s has defined %s' % (job_id, new_jobs))
     deleted_jobs: set[CMJobID]
-    if prev_defined_jobs is not None:
+    if prev_defined_jobs:
         # did we defined fewer jobs this time around?
         # then we need to delete them
         todelete: set[CMJobID] = set()
@@ -1120,12 +1125,12 @@ async def interpret_commands(
             if retcode == 0 or retcode is None:
                 continue
             else:
-                if isinstance(retcode, int):
-                    publish(context, "command-failed", command=cmd, reason=f"Return code {retcode!r}")
-                    raise CommandFailed(f"ret code {retcode}")
-                else:
-                    publish(context, "command-failed", command=cmd, reason=retcode)
-                    raise CommandFailed(f"ret code {retcode}")
+                # if isinstance(retcode, int):
+                publish(context, "command-failed", command=cmd, reason=f"Return code {retcode!r}")
+                raise CommandFailed(f"ret code {retcode}")
+            # else:
+            #     publish(context, "command-failed", command=cmd, reason=retcode)
+            #     raise CommandFailed(f"ret code {retcode}")
     except:
         # logger.error(traceback.format_exc())
         raise
@@ -1133,7 +1138,7 @@ async def interpret_commands(
         await context.set_status_line(None)
 
 
-async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB):
+async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, context: Context, cq: CacheQueryDB) -> int | None:
     """Returns None or raises CommandFailed"""
     check_isinstance(commands_line, str)
 

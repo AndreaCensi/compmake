@@ -161,18 +161,33 @@ def job_cache_sizeof(job_id: CMJobID, db: StorageFilesystem) -> int:
 
 def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem) -> None:
     assert isinstance(cache, Cache)
-    check_isinstance(cache.captured_stderr, (type(None), str))
-    check_isinstance(cache.captured_stdout, (type(None), str))
-    check_isinstance(cache.exception, (type(None), str))
-    check_isinstance(cache.backtrace, (type(None), str))
+    # check_isinstance(cache.captured_stderr, (type(None), str))
+    # check_isinstance(cache.captured_stdout, (type(None), str))
+    # check_isinstance(cache.exception, (type(None), str))
+    # check_isinstance(cache.backtrace, (type(None), str))
     key = job2cachekey(job_id)
     db[key] = cache
 
 
+from . import logger
+
+
 def set_job_eod(job_id: CMJobID, o: ExecOutputData, db: StorageFilesystem) -> None:
     assert isinstance(o, ExecOutputData)
-    check_isinstance(o.stderr, str)
-    check_isinstance(o.stdout, str)
+
+    # def some(x: str | None) -> str:
+    #     if x is None:
+    #         return 'None'
+    #     return x[:23] + '...'
+    #
+    # logger.info(f'seetting EOD for {job_id}',
+    #             stderr=some(o.stderr),
+    #             stdout=some(o.stdout),
+    #             exception=some(o.exception),
+    #             backtrace=some(o.backtrace)
+    #             )
+    check_isinstance(o.stderr, (type(None), str))
+    check_isinstance(o.stdout, (type(None), str))
     check_isinstance(o.exception, (type(None), str))
     check_isinstance(o.backtrace, (type(None), str))
     key = outdata2cachekey(job_id)
@@ -207,6 +222,19 @@ def set_job_backtrace_exception(
     o = get_job_eod(job_id, db)
     o.exception = exception
     o.backtrace = backtrace
+    set_job_eod(job_id, o, db)
+
+
+def set_job_stdout_stderr(
+    job_id: CMJobID,
+    db: StorageFilesystem,
+    *,
+    stdout: str,
+    stderr: str,
+) -> None:
+    o = get_job_eod(job_id, db)
+    o.stdout = stdout
+    o.stderr = stderr
     set_job_eod(job_id, o, db)
 
 

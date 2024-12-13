@@ -270,6 +270,9 @@ class IntervalTimer:
         self.t1 = None
         self.c1 = None
 
+    def __repr__(self):
+        return "IntervalTimer(%s)" % self
+
     def stop(self):
         self.stopped = True
 
@@ -412,10 +415,10 @@ class Cache:
     int_gc: IntervalTimer | None
     jobs_defined: set[CMJobID]
     hashes_dependencies: dict[str, object]
-    exception: str | None
-    backtrace: str | None
-    captured_stdout: str | None
-    captured_stderr: str | None
+    # exception: str | None
+    # backtrace: str | None
+    # captured_stdout: str | None
+    # captured_stderr: str | None
     walltime_used: float | None
     cputime_used: float | None
 
@@ -443,10 +446,10 @@ class Cache:
         self.jobs_defined = set()
 
         # in case of failure
-        self.exception = None  # a short string
-        self.backtrace = None  # a long string
-        self.captured_stdout = None
-        self.captured_stderr = None
+        # self.exception = None  # a short string
+        # self.backtrace = None  # a long string
+        # self.captured_stdout = None
+        # self.captured_stderr = None
 
         # total
         self.cputime_used = None
@@ -471,10 +474,10 @@ class Cache:
         return self.timed_out
 
     def is_skipped_test(self) -> bool:
-        if self.exception is not None:
-            return "SkipTest" in self.exception
-        else:
-            return False
+        if self.result_type_qual is not None:
+            return "SkipTest" in self.result_type_qual
+
+        return False
 
     def is_oom(self) -> int | None:
         return self.oom_bytes

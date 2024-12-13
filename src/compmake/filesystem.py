@@ -103,7 +103,7 @@ class StorageFilesystem:
     @contextmanager
     def cursor(self, desc: str | None = "no-desc", /) -> Iterator[sqlite3.Cursor]:
         self.ncursor += 1
-        # if self.ncursor > 1000:  # TMP
+        # if self.ncursor > 1000:
         #     raise Exception(f"Too many cursors {self.ncursor}")
         t0 = time.perf_counter()
         cur = self.con.cursor()

@@ -1,4 +1,5 @@
 import sys
+from typing import TextIO
 
 from .helpers import COMMANDS_ADVANCED, ui_command, UIState
 
@@ -8,7 +9,7 @@ __all__ = [
 ]
 
 
-def create_commands_html(file=sys.stdout):  # @ReservedAssignment
+def create_commands_html(file: TextIO = sys.stdout) -> None:  # @ReservedAssignment
     ordered_sections = sorted(UIState.sections.values(), key=lambda section_: section_.order)
 
     file.write("<table class='compmake-config'>\n")

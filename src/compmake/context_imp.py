@@ -278,7 +278,7 @@ class ContextImp(Context):
         self._job_prefix = prefix
 
     # setting up jobs
-    def comp_dynamic[**PS, Y](self, f: Callable[Concatenate[Context, PS], Y], *args: Any, **kwargs: Any) -> Promise[Y]:
+    def comp_dynamic[**PS, Y](self, f: Callable[Concatenate[Context, PS], Y], *args: PS.args, **kwargs: PS.kwargs) -> Promise[Y]:
         return comp_(self, f, *args, needs_context=True, **kwargs)
 
     def comp[**PS, Y](self, command_: Callable[PS, Y], *args: PS.args, **kwargs: PS.kwargs) -> Promise[Y]:

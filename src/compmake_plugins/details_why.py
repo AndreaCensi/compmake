@@ -109,7 +109,8 @@ def details_why_one(job_id: CMJobID, cqs: CacheQuerySessionInterface) -> DetailW
 
         status = Cache.state2desc[cache.state]
         if cache.state in [Cache.FAILED, Cache.BLOCKED]:
-            whys = cache.exception
+            eod = cqs.get_job_eod(job_id)
+            whys = eod.exception or "(no exception in eod)"
             whys = whys.strip()
             lines = whys.splitlines()
             if lines:

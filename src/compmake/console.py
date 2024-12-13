@@ -102,7 +102,7 @@ async def interactive_console(sti: SyncTaskInterface, context: Context) -> None:
 def get_completions(context: Context) -> list[str]:
     db = context.get_compmake_db()
     if CompmakeGlobalState.cached_completions is None:
-        available = get_commands().keys()
+        available = list(get_commands().keys())
         available.extend(list(all_jobs(db=db)))  # give it a list
         # TODO: add function type "myfunc()"
         CompmakeGlobalState.cached_completions = available

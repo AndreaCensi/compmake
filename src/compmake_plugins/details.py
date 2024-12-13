@@ -1,5 +1,7 @@
 """The actual interface of some commands in commands.py"""
 
+import pickle
+
 from compmake import (
     Cache,
     CacheQueryDB,
@@ -9,6 +11,7 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
+from . import logger
 from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
@@ -33,6 +36,7 @@ async def details(sti, non_empty_job_list, context, cq: CacheQueryDB, max_lines=
             if num > 0:
                 print("-" * 74)
             list_job_detail(job_id, context, cqs, max_lines=max_lines, load_result=load_result, load_args=load_args)
+
             num += 1
 
 
@@ -79,6 +83,10 @@ def list_job_detail(
     if cqs.job_cache_exists(job_id):
         cache2 = cqs.get_job_cache(job_id)
 
+        # logger.info(cache2=cache2)
+        # with open(f"{job_id}.cache.pickle", "wb") as f:
+        #     pickle.dump(cache2, f)
+
         print(bold("Status:") + "%s" % Cache.state2desc[cache2.state])
         print(bold("Uptodate:") + f"{up} ({reason})")
         if cache2.walltime_used:
@@ -116,16 +124,24 @@ def list_job_detail(
     else:
         cache_size = 0
 
+    if cqs.job_eod_exists(job_id):
+        eod_size = cqs.job_eod_sizeof(job_id)
+        print(bold("       eod size: ") + size_compact(eod_size))
+        # eod = cqs.get_job_eod(job_id)
+        # logger.info(eod=eod)  # TMP
+    else:
+        eod_size = 0
+
     if cqs.job_userobject_exists(job_id):
         userobject_size = cqs.job_userobject_sizeof(job_id)
         print(bold("userobject size: ") + size_compact(userobject_size))
     else:
         userobject_size = 0
 
-    total = jobargs_size + cache_size + userobject_size
+    total = jobargs_size + cache_size + userobject_size + eod_size
     print(bold("          Total: ") + "%s" % size_compact(total))
 
-    def display_with_prefix(buffer, prefix="", transform=lambda x: x):  # @ReservedAssignment
+    def display_with_prefix(buffer: str, prefix: str = "", transform=lambda x: x):  # @ReservedAssignment
         check_isinstance(buffer, str)
         lines = buffer.splitlines()
         if max_lines is not None:
@@ -141,21 +157,25 @@ def list_job_detail(
             # sys.stdout.buffer.write(s)
 
     if cache2 is not None:
-        stdout = cache2.captured_stdout
+        eod = cqs.get_job_eod(job_id)
+        stdout = eod.stdout or ""
         if stdout and stdout.strip():
             display_with_prefix("-----> captured stdout <-----")
             display_with_prefix(stdout, prefix="|")
 
-        stderr = cache2.captured_stderr
+        stderr = eod.stderr or ""
         if stderr and stderr.strip():
             display_with_prefix("-----> captured stderr <-----")
             display_with_prefix(stderr, prefix="|")
 
         if cache2.state == Cache.FAILED:
-            display_with_prefix(cache2.exception, prefix="exc |")
-            display_with_prefix(cache2.backtrace, prefix="btr |")
+            display_with_prefix(eod.exception or "", prefix="exc |")
+            display_with_prefix(eod.backtrace or "", prefix="btr |")
+
         if cache2.result_type_qual:
-            print(bold("result type:") + "%s" % cache2.result_type_qual)
+            print(bold("     result type:") + "%s" % cache2.result_type)
+        if cache2.result_type_qual:
+            print(bold("qual result type:") + "%s" % cache2.result_type_qual)
 
     if load_args:
         job_args = cqs.get_job_args(job_id)

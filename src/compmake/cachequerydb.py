@@ -7,7 +7,7 @@ from methodtools import lru_cache as lru_cache_method0  # type: ignore
 
 from compmake_utils import memoized_reset
 from zuper_commons.types import add_context, check_isinstance, TM
-from . import logger
+from . import ExecOutputData, logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
 from .exceptions import CompmakeBug, CompmakeDBError, SerializationError
@@ -23,6 +23,7 @@ from .storage import (
     job2userobjectkey,
     job_exists,
     key2job,
+    outdata2cachekey,
 )
 from .structures import Cache, Job
 from .types import CMJobID
@@ -80,10 +81,19 @@ class CacheQuerySessionInterface(ABC):
     def get_job_cache(self, job_id: CMJobID) -> Cache: ...
 
     @abstractmethod
+    def get_job_eod(self, job_id: CMJobID) -> ExecOutputData: ...
+
+    @abstractmethod
     def job_cache_sizeof(self, job_id: CMJobID) -> int: ...
 
     @abstractmethod
     def job_cache_exists(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def job_eod_exists(self, job_id: CMJobID) -> bool: ...
+
+    @abstractmethod
+    def job_eod_sizeof(self, job_id: CMJobID) -> int: ...
 
     @abstractmethod
     def jobs_defined(self, job_id: CMJobID) -> set[CMJobID]: ...
@@ -199,6 +209,28 @@ class CacheQuerySession(CacheQuerySessionInterface):
             msg = "Cannot get jobs_defined for job not done " + "(status: %s)" % Cache.state2desc[cache.state]
             raise CompmakeBug(msg)
         return set(cache.jobs_defined)
+
+    def get_job_eod(self, job_id: CMJobID) -> ExecOutputData:
+        key = outdata2cachekey(job_id)
+        if self.session.exists(key):
+            data = self.session.get_one(key)
+            data_eod = cast(ExecOutputData, data)
+            return data_eod
+        else:
+            return ExecOutputData(
+                stdout=None,
+                stderr=None,
+                exception=None,
+                backtrace=None,
+            )
+
+    def job_eod_exists(self, job_id: CMJobID) -> bool:
+        key = outdata2cachekey(job_id)
+        return self.session.exists(key)
+
+    def job_eod_sizeof(self, job_id: CMJobID) -> int:
+        key = outdata2cachekey(job_id)
+        return self.session.sizeof(key)
 
     def job_cache_sizeof(self, job_id: CMJobID) -> int:
         key = job2cachekey(job_id)

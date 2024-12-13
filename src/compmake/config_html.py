@@ -1,11 +1,12 @@
 from .state import CompmakeGlobalState
+from typing import Any
 
 __all__ = [
     "create_config_html",
 ]
 
 
-def create_config_html(file):  # @ReservedAssignment
+def create_config_html(file: Any):  # @ReservedAssignment
     config_switches = CompmakeGlobalState.config_switches
     config_sections = CompmakeGlobalState.config_sections
 
