@@ -116,7 +116,7 @@ class PmakeManager(Manager):
             logger.warning(f"Using 'fork' on {platform.system()} is unsafe")
         self.ctx = multiprocessing.get_context(use)
 
-        self.event_queue = self.ctx.Queue(10000)
+        self.event_queue = self.ctx.Queue(15_000)
 
         self.task_pump = my_create_task(self.event_pump(), "event_pump")
 
@@ -381,7 +381,7 @@ class PmakeManager(Manager):
             args = (job_id, db.basepath)
         else:
             f = "parmake_job2"
-            logdir = join(db.basepath, f"parmake_job2_logs")
+            logdir = join(db.basepath, "parmake_job2_logs")
             args = (job_id, db.basepath, self.event_queue_name, self.show_output, logdir)
 
         async_result = sub.apply_async(job_id, f, args)
@@ -454,24 +454,43 @@ class PmakeManager(Manager):
 
     @async_errors
     async def event_pump(self) -> None:
+        nfound = 0
+        nfoundafter = 0
+        ntimesempty = 0
         while True:
             try:
                 loop = asyncio.get_event_loop()
                 timeout = 1
+
                 try:
                     event = await loop.run_in_executor(None, self.event_queue.get, True, timeout)  # @UndefinedVariable
                 except Empty:
+                    ntimesempty += 1
                     continue
                 except CancelledError:
                     raise
-                except BaseException as e:
+                except BaseException:
                     logger.error("Got weird exception", tb=traceback.format_exc())
                     continue
                 # if 'worker-exit' in event.name:
                 #     logger.debug(event=event)
+                nfound += 1
+                logger.debug(f"event_pump,  {ntimesempty=} {nfound=} {nfoundafter=}")
                 publish(self.context, event.name, **event.kwargs)
+                while True:
+                    try:
+                        event = self.event_queue.get_nowait()
+                    except Empty:
+                        break
+                    publish(self.context, event.name, **event.kwargs)
+                    nfoundafter += 1
+
             except Empty:
                 continue
+            except CancelledError:
+                raise
+            except:
+                logger.error("Got weird exception for event queue, but continuing", tb=traceback.format_exc())
 
     def process_finished(self) -> None:
         status = self.get_status_str()
