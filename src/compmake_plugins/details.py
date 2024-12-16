@@ -1,7 +1,5 @@
 """The actual interface of some commands in commands.py"""
 
-import pickle
-
 from compmake import (
     Cache,
     CacheQueryDB,
@@ -11,7 +9,6 @@ from compmake import (
     ui_command,
     VISUALIZATION,
 )
-from . import logger
 from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact

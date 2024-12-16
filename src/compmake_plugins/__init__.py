@@ -33,6 +33,7 @@ from . import (
     reload_module,
     sanity_check,
     stats,
+    append_to_file,
 )  # handle *before* console_status; handle *after*  console_output,
 
 _ = (
@@ -58,6 +59,7 @@ _ = (
     reload_module,
     sanity_check,
     stats,
+    append_to_file,
 )
 logger.hello_module_finished(__name__)
 

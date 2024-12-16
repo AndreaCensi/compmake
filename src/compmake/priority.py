@@ -202,12 +202,12 @@ def compute_priority_(
         parents_priority = list(map(pf, parents_which_are_targets))
         max_p = max(parents_priority)
 
-        parent_bonus = max_p
+        parent_bonus = max_p * 0.9
         # priority = max(base_priority, max(parents_priority) / 1.1)
         # priority = base_priority + sum(parents_priority)
 
     bonus_time = (100.0 - sfp.compute_time_percentile) / 100.0
-    priority = base_priority * (1.0 + sfp.prob_success) * (1 + bonus_time) + parent_bonus
+    priority = max(base_priority * (1.0 + sfp.prob_success) * (1 + bonus_time), parent_bonus)
     #
     # if pstats is not None:
     #     if job.command_desc in pstats.by_command:

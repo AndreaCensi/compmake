@@ -640,7 +640,7 @@ def generate_job_id(base: str, context: "ContextImp") -> CMJobID:
 
     def get_options() -> Iterator[str]:
         counters = context.generate_job_id_counters
-        if not job_prefix in counters:
+        if job_prefix not in counters:
             counters[job_prefix] = 2
 
         if job_prefix:
@@ -796,7 +796,7 @@ def comp_[**P, X](
 
     # noinspection PyUnresolvedReferences
     if hasattr(command, "__module__") and command.__module__ == "__main__":
-        if not command in WarningStorage.warned:
+        if command not in WarningStorage.warned:
             if WarningStorage.warned:
                 # already warned for another function
                 msg = "(Same warning for function %r.)" % command.__name__
@@ -1008,14 +1008,14 @@ def comp_[**P, X](
 
             # fixing this
             for x, deps in old_job.dynamic_children.items():
-                if not x in c.children:
+                if x not in c.children:
                     # not a child any more
                     # FIXME: ok but note it might be a dependence of a child
                     # continue
                     pass
                 c.dynamic_children[x] = deps
                 for j in deps:
-                    if not j in c.children:
+                    if j not in c.children:
                         c.children.add(j)
 
         if old_job.parents != c.parents:
@@ -1159,7 +1159,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     if command_name in UIState.alias2name:
         command_name = UIState.alias2name[command_name]
 
-    if not command_name in ui_commands:
+    if command_name not in ui_commands:
         msg = f"Unknown command {color_orange(command_name)} (try 'help'). "
         raise UserError(msg, known=sorted(ui_commands))
 
@@ -1185,15 +1185,22 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
         if a.find("=") > 0:
             k, v = a.split("=")
 
-            if not k in signature.parameters:
+            if k not in signature.parameters:
+                available = list(signature.parameters)
+                toremove = ["self", "context", "cq", "sti", "args", "non_empty_job_list", "job_list"]
+                for x in toremove:
+                    if x in available:
+                        available.remove(x)
+
+                availables = ", ".join(available)
                 msg = (
                     f"You passed the argument {k!r} for command {cmd.name!r}, "
-                    f"but the only available arguments are {signature.parameters}."
+                    f"but the only available arguments are: {availables}."
                 )
                 raise UserError(msg)
 
             # look if we have a default value
-            if not k in defaults:
+            if k not in defaults:
                 # no default, pass as string
                 kwargs[k] = v
             else:
@@ -1214,7 +1221,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
     function_args = signature.parameters
     # set default values
     for argname, argdefault in defaults.items():
-        if not argname in kwargs and isinstance(argdefault, DefaultsToConfig):
+        if argname not in kwargs and isinstance(argdefault, DefaultsToConfig):
             v = context.get_compmake_config(argdefault.switch)
             kwargs[argname] = v
 
@@ -1233,7 +1240,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
                 job_list = list(parse_job_list(args, cqs=cqs))
 
                 if not job_list:
-                    msg = f"Could not find any job to process."
+                    msg = "Could not find any job to process."
                     raise UserError(msg)
 
             # TODO: check non empty
@@ -1244,7 +1251,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             with cq.session() as cqs:
                 job_list = list(parse_job_list(args, cqs=cqs))
                 if args and not job_list:
-                    msg = f"Could not find any job to process."
+                    msg = "Could not find any job to process."
                     raise UserError(msg)
 
             CompmakeConstants.aliases["last"] = job_list
@@ -1256,7 +1263,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
             kwargs["context"] = context
 
         for x in args_without_default:
-            if not x in kwargs:
+            if x not in kwargs:
                 msg = f"Required argument {x!r} not given."
                 raise UserError(msg, args_without_default=args_without_default, kwargs=kwargs)
 

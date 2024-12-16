@@ -160,7 +160,7 @@ class CacheQuerySessionInterface(ABC):
             seen.add(job_id)
 
             for c in self.direct_parents(job_id):
-                if not c in result:
+                if c not in result:
                     result.add(c)
                     if c not in seen:
                         seen.add(c)
@@ -180,7 +180,7 @@ class CacheQuerySessionInterface(ABC):
             seen.add(job_id)
 
             for c in self.direct_children(job_id):
-                if not c in result:
+                if c not in result:
                     result.add(c)
 
                     if c not in seen:
@@ -302,14 +302,14 @@ class CacheQuerySession(CacheQuerySessionInterface):
         return self._get(cache, job2key, job_id)
 
     def get_job_args(self, job_id: CMJobID) -> tuple[Callable[..., Any], TM[Any], Mapping[str, Any]]:
-        cache = self.cq.get_job_args.its_cache()  # type: ignore
+        # cache = self.cq.get_job_args.its_cache()  # type: ignore
         from compmake_utils.pickle_frustration import pickle_main_context_load
 
         job = self.get_job(job_id)
         pickle_main_context = job.pickle_main_context
         try:
             with pickle_main_context_load(pickle_main_context):
-                return self._get(cache, job2jobargskey, job_id)
+                return self._get({}, job2jobargskey, job_id)
         except Exception as e:
             raise SerializationError(f"Could not load job args for job {job_id}") from e
 
@@ -456,7 +456,7 @@ def list_todo_targets(
                             logger.warn(msg)
                         else:
                             raise CompmakeBug(msg)
-                    if not child in seen:
+                    if child not in seen:
                         stack.append(child)
 
         todo_and_ready = {job_id for job_id in todo if cqs.dependencies_up_to_date(job_id)}
@@ -655,7 +655,7 @@ class CacheQueryDB:
             for c in descendants(job_id):
                 if not self.job_exists(c):
                     raise ValueError(c)
-                if not c in result:
+                if c not in result:
                     result.add(c)
                     stack.append(c)
 

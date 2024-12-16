@@ -4,6 +4,7 @@ import os
 from collections.abc import Sequence
 from time import time
 from collections.abc import Collection
+from typing import Literal
 
 from compmake import (
     Cache,
@@ -19,6 +20,7 @@ from compmake import (
     timing_summary,
     ui_command,
     ui_message,
+    UserError,
     VISUALIZATION,
 )
 from compmake_utils import get_screen_columns, TableFormatter
@@ -114,7 +116,9 @@ def minimal_names(objects: Sequence[str]) -> tuple[str, list[str], str]:
     return prefix, minimal, postfix
 
 
-SORTING = ["name", "size", "duration", "date"]
+SORTING = ["name", "size", "duration", "date", "state"]
+
+Sorting = Literal["name", "size", "duration", "date", "state"]
 
 
 async def list_jobs(
@@ -125,19 +129,29 @@ async def list_jobs(
     all_details: bool = False,
     reason: bool = False,
     show_output_type: bool = False,
-    sorting: str = "duration",
+    sorting: Sorting = "duration",
 ):
     if sorting.startswith("-"):
         reverse = True
         sorting = sorting[1:]
     else:
         reverse = False
+
+    if sorting not in SORTING:
+        raise UserError(f"Invalid sorting: {sorting!r}. Sorting must be one of: {', '.join(SORTING)}.")
+
     job_list = list(job_list)
     # print('%s jobs in total' % len(job_list))
     if not job_list:
         string = "No jobs found."
         await ui_message(context, string)
         return
+
+    msg = f'Sorting by "{sorting}". '
+    if reverse:
+        msg += "Reversed. "
+    msg += f"\nAll sorting: {', '.join(SORTING)}. Use -X to reverse the sort. "
+    await ui_message(context, msg)
 
     # other material to appear on screen
     other = "  2   d   failed*    (23dde m  okdeo ago)"
@@ -160,6 +174,9 @@ async def list_jobs(
             elif sorting == "date":
                 c = cqs.get_job_cache(ji)
                 return c.timestamp
+            elif sorting == "state":
+                c = cqs.get_job_cache(ji)
+                return c.state
             else:
                 raise ValueError(sorting)
 

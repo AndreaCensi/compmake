@@ -23,12 +23,15 @@ Priority:
 
 """
 
+import os
 import types
 from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any, cast
 
+from zuper_commons.fs import read_ustring_from_utf8_file
 from zuper_commons.types import add_context, check_isinstance, ZValueError
+from . import logger
 from .cachequerydb import CacheQuerySessionInterface
 from .constants import CompmakeConstants, JobIterator
 from .exceptions import CompmakeSyntaxError, UserError
@@ -38,6 +41,7 @@ from .types import CMJobID
 __all__ = [
     "is_root_job",
     "parse_job_list",
+    "parse_jobs_from_file",
 ]
 
 CompmakeConstants.aliases["last"] = "*"
@@ -126,6 +130,10 @@ def expand_job_list_token(token: str, cqs: CacheQuerySessionInterface) -> Iterat
 
         except ZValueError as e:
             raise UserError(f"Could not find any match for {token}") from e
+
+    elif token.startswith("file:"):
+        filename = token[len("file:") :]
+        yield from jobs_from_file(filename)
     elif is_alias(token):
         yield from eval_alias(token, cqs)
     elif token.endswith("()"):
@@ -147,6 +155,26 @@ def expand_job_list_tokens(tokens: list[str], cqs: CacheQuerySessionInterface) -
         #     # print tokens XXX
         #     pass
         yield from expand_job_list_token(token, cqs)
+
+
+def jobs_from_file(filename: str) -> list[CMJobID]:
+    # format: one job per line, remove # comments, strip strings, ignore empty lines
+    if not os.path.exists(filename):
+        raise UserError(f"File not found: {filename}")
+
+    current = read_ustring_from_utf8_file(filename)
+    jobs = parse_jobs_from_file(current)
+    logger.info(f"Loaded {len(jobs)} jobs from file {filename}")
+    return jobs
+
+
+def parse_jobs_from_file(data: str) -> list[CMJobID]:
+    jobs = []
+    for line in data.splitlines():
+        line = line.split("#")[0].strip()  # Remove comments and strip whitespace
+        if line:  # Ignore empty lines
+            jobs.append(cast(CMJobID, line))
+    return jobs
 
 
 @dataclass(frozen=True, unsafe_hash=True)

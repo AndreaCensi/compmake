@@ -457,6 +457,8 @@ class PmakeManager(Manager):
         nfound = 0
         nfoundafter = 0
         ntimesempty = 0
+        interval = 60
+        once = EveryOnceInAWhile(interval)
         while True:
             try:
                 loop = asyncio.get_event_loop()
@@ -475,7 +477,6 @@ class PmakeManager(Manager):
                 # if 'worker-exit' in event.name:
                 #     logger.debug(event=event)
                 nfound += 1
-                logger.debug(f"event_pump,  {ntimesempty=} {nfound=} {nfoundafter=}")
                 publish(self.context, event.name, **event.kwargs)
                 while True:
                     try:
@@ -484,6 +485,9 @@ class PmakeManager(Manager):
                         break
                     publish(self.context, event.name, **event.kwargs)
                     nfoundafter += 1
+
+                if once.now():
+                    logger.debug(f"event_pump (every {duration_compact(interval)}),  {ntimesempty=} {nfound=} {nfoundafter=}")
 
             except Empty:
                 continue
