@@ -213,7 +213,7 @@ async def list_jobs(
         tf = TableFormatter(sep="  ")
         job_list.sort(key=get_key, reverse=reverse)
         nunknown = 0
-        tf.row_complete([""] * 9)
+        tf.row_complete([""] * 15)  # is 12 usually
         for job_id in job_list:
             tf.row()
 
