@@ -15,7 +15,6 @@ from typing import Any
 from zuper_commons.fs import (
     DirPath,
     FilePath,
-    join,
     write_ustring_to_utf8_file,
     realpath,
 )
@@ -139,11 +138,14 @@ class StorageFilesystem:
         sql = """
             select length(blob_value) from fs_blobs where blob_key = ?
         """
-        (res,) = self.fetchone(
+        row = self.fetchone(
             sql,
             (key,),
             desc=f"{key}/sizeof",
         )
+        if row is None:
+            raise KeyError(key)
+        (res,) = row
         assert isinstance(res, int)
         return res
         # statinfo = os.stat(filename)
@@ -378,7 +380,10 @@ class StorageFilesystemSession(StorageFilesystemSessionInterface):
         sql = """
                    select length(blob_value) from fs_blobs where blob_key = ?
                """
-        (res,) = self._fetchone(sql, (key,), desc=f"{key}/sizeof")
+        row = self._fetchone(sql, (key,), desc=f"{key}/sizeof")
+        if row is None:
+            raise KeyError(key)
+        (res,) = row
         return res
 
     def exists(self, key: StorageKey) -> bool:

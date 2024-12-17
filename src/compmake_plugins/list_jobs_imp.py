@@ -24,7 +24,7 @@ from compmake import (
     VISUALIZATION,
 )
 from compmake_utils import get_screen_columns, TableFormatter
-from zuper_commons.ui import color_yellow, duration_compact, size_compact
+from zuper_commons.ui import color_orange, color_yellow, duration_compact, size_compact
 from zuper_utils_asyncio import SyncTaskInterface
 
 format_utility_job = dict()
@@ -61,7 +61,7 @@ async def ls(
             job_list = list(parse_job_list(args, cqs))
 
     CompmakeConstants.aliases["last"] = job_list
-    await list_jobs(
+    return await list_jobs(
         context,
         job_list,
         cq0=cq,
@@ -71,7 +71,6 @@ async def ls(
         show_output_type=show_output_type,
         sorting=sorting,
     )
-    return 0
 
 
 def minimal_names(objects: Sequence[str]) -> tuple[str, list[str], str]:
@@ -166,17 +165,30 @@ async def list_jobs(
             if sorting == "name":
                 return ji
             elif sorting == "size":
-                return get_sizes2(ji, cqs)["total"]  # FIXME
+                try:
+                    return get_sizes2(ji, cqs)["total"]  # FIXME
+                except KeyError:
+                    return -1
             elif sorting == "duration":
-                c = cqs.get_job_cache(ji)
-                return c.int_compute.get_cputime_used() if c.int_compute else -10
-                return c.cputime_used or -10
+                try:
+                    c = cqs.get_job_cache(ji)
+
+                    return c.int_compute.get_cputime_used() if c.int_compute else -10
+                except KeyError:
+                    return -10
+                # return c.cputime_used or -10
             elif sorting == "date":
-                c = cqs.get_job_cache(ji)
-                return c.timestamp
+                try:
+                    c = cqs.get_job_cache(ji)
+                    return c.timestamp
+                except KeyError:
+                    return -1
             elif sorting == "state":
-                c = cqs.get_job_cache(ji)
-                return c.state
+                try:
+                    c = cqs.get_job_cache(ji)
+                    return c.state
+                except KeyError:
+                    return -1
             else:
                 raise ValueError(sorting)
 
@@ -200,16 +212,26 @@ async def list_jobs(
 
         tf = TableFormatter(sep="  ")
         job_list.sort(key=get_key, reverse=reverse)
-
+        nunknown = 0
+        tf.row_complete([""] * 9)
         for job_id in job_list:
             tf.row()
+
+            try:
+                job = cqs.get_job(job_id)
+            except KeyError:
+                tf.cell("!")
+                tf.cell("!")
+                tf.cell(color_orange(job_id))
+
+                tf.cell(color_orange("not found"))
+                nunknown += 1
+                continue
 
             cache = cqs.get_job_cache(job_id)
 
             # TODO: only ask up_to_date if necessary
             up, up_reason, up_ts = cqs.up_to_date(job_id)
-
-            job = cqs.get_job(job_id)
 
             is_root = is_root_job(job)
             if not is_root:
@@ -335,6 +357,10 @@ async def list_jobs(
             string = f" total {len(job_list)} jobs   CPU time: {cpu_time}   wall: {wall_time}"
             # print(scpu)
             await ui_message(context, string)
+
+        if nunknown:
+            await ui_message(context, color_orange(f"Warning: {nunknown} jobs not found in the database."))
+        return 0 if nunknown == 0 else 1
 
 
 def format_size(nbytes: int) -> str:

@@ -1,3 +1,4 @@
+from zuper_commons.types import ZValueError
 from .strings_with_escapes import get_length_on_screen, pad_to_screen_length
 
 __all__ = [
@@ -6,13 +7,18 @@ __all__ = [
 
 
 class TableFormatter:
-    def __init__(self, sep="|"):
+    def __init__(self, sep: str = "|"):
         self.rows = []
         self.cur_row = None
         self.sep = sep
 
         self.padleft = lambda s, l: pad_to_screen_length(s, l)
         self.strlen = get_length_on_screen
+
+    def row_complete(self, cols: list[str]) -> None:
+        if self.cur_row is not None:
+            self._push_row()
+        self.rows.append(cols)
 
     def row(self):
         if self.cur_row is not None:
@@ -22,10 +28,20 @@ class TableFormatter:
 
     def _push_row(self):
         if self.rows:
-            if not len(self.rows[0]) == len(self.cur_row):
-                msg = "Invalid row: %s" % str(self.cur_row)
-                raise ValueError(msg)
-        self.rows.append(self.cur_row)
+            ncols = len(self.rows[0])
+            the_row = list(self.cur_row)
+
+            if ncols < len(the_row):
+                msg = "Invalid row"
+                raise ZValueError(msg, first_row=self.rows[0], cur_row=the_row)
+
+            while len(the_row) < ncols:
+                the_row.append("")
+
+        else:
+            the_row = self.cur_row
+
+        self.rows.append(the_row)
 
     def cell(self, s):
         if self.cur_row is None:
