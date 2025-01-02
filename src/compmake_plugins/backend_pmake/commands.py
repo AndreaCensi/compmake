@@ -3,6 +3,7 @@ from collections.abc import Collection
 from compmake import (
     ACTIONS,
     ask_if_sure_remake,
+    CacheQueryDB,
     CMJobID,
     Context,
     DefaultsToConfig,
@@ -11,6 +12,7 @@ from compmake import (
     raise_error_if_manager_failed,
     top_targets,
     ui_command,
+    UserError,
 )
 from zuper_utils_asyncio import SyncTaskInterface
 from .pmake_manager import PmakeManager
@@ -30,6 +32,7 @@ async def parmake(
     n: int = DefaultsToConfig("max_parallel_jobs"),
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
+    ignore_unknown: bool = False,
     echo: bool = DefaultsToConfig("echo"),
     max_time: float | None = None,
 ):
@@ -72,7 +75,24 @@ async def parmake(
     )
 
     publish(context, "parmake-status", status=f"Adding {len(job_list)} targets.")
-    manager.add_top_level_targets(job_list)
+
+    use_jobs = []
+    cq = CacheQueryDB(db)
+    not_existing = []
+    with cq.session() as session:
+        for job in job_list:
+            if session.job_exists(job):
+                use_jobs.append(job)
+            else:
+                not_existing.append(job)
+
+    if not_existing:
+        if ignore_unknown:
+            sti.logger.warn("Ignoring these jobs:", not_existing=not_existing)
+        else:
+            raise UserError("Several jobs do not exist. Use ignore_unknown=1 to ignore them", not_existing=not_existing)
+
+    manager.add_top_level_targets(use_jobs)
 
     publish(context, "parmake-status", status="Processing")
     await manager.process()
@@ -123,11 +143,20 @@ async def rparmake(
     context,
     n: int = DefaultsToConfig("max_parallel_jobs"),
     new_process: bool = DefaultsToConfig("new_process"),
+    ignore_unknown: bool = False,
     echo: bool = DefaultsToConfig("echo"),
     max_time: float | None = None,
 ):
     """Shortcut to parmake with default recurse = True."""
     r = await parmake(
-        sti, job_list=job_list, context=context, n=n, new_process=new_process, echo=echo, max_time=max_time, recurse=True
+        sti,
+        ignore_unknown=ignore_unknown,
+        job_list=job_list,
+        context=context,
+        n=n,
+        new_process=new_process,
+        echo=echo,
+        max_time=max_time,
+        recurse=True,
     )
     return r

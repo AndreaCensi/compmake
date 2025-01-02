@@ -1,6 +1,6 @@
 from compmake import Context, Event, register_handler, ui_error, ui_info
 from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
-from zuper_commons.text import indent
+from zuper_commons.text import indent, joinlines
 from zuper_commons.ui import color_brown
 
 
@@ -35,7 +35,7 @@ my_prefix = ""
 async def command_line_interrupted(context: Context, event: Event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
-    if not ";" in command:
+    if ";" not in command:
         return
     await ui_error(context, my_prefix + f"Command sequence {command!r} interrupted.")
 
@@ -46,7 +46,7 @@ register_handler("command-line-interrupted", command_line_interrupted)
 async def command_line_failed(context: Context, event: Event):
     # Only write something if it is more than one
     command = event.kwargs["command"]
-    if not ";" in command:
+    if ";" not in command:
         return
     reason = event.kwargs["reason"]
     await ui_error(context, my_prefix + f"Command sequence {command!r} failed: \n{reason}")
@@ -80,7 +80,7 @@ async def job_failed(context: Context, event: Event):
     if len(lines) > MAX_LINES * 2:
         nskipped = len(lines) - 2 * MAX_LINES
         lines = lines[:MAX_LINES] + [f"...\n {nskipped} lines\n...\n"] + lines[-MAX_LINES:]
-        content = "\n".join(lines)
+        content = joinlines(lines)
 
     msg = f"Job {job_id!r} failed:\n"
     msg += content
@@ -139,8 +139,6 @@ if True:  # debugging
     register_handler("manager-job-done", ignore)
     register_handler("manager-job-failed", ignore)
     register_handler("manager-job-processing", ignore)
-
-from . import logger
 
 
 async def manager_succeeded(context: Context, event: Event):

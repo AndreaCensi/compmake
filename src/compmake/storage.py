@@ -42,6 +42,7 @@ __all__ = [
     "job_userobject_exists",
     "job_userobject_sizeof",
     "key2job",
+    "outdata2cachekey",
     "set_job",
     "set_job_args",
     "set_job_cache",
@@ -167,9 +168,6 @@ def set_job_cache(job_id: CMJobID, cache: Cache, db: StorageFilesystem) -> None:
     # check_isinstance(cache.backtrace, (type(None), str))
     key = job2cachekey(job_id)
     db[key] = cache
-
-
-from . import logger
 
 
 def set_job_eod(job_id: CMJobID, o: ExecOutputData, db: StorageFilesystem) -> None:
@@ -360,7 +358,7 @@ def db_job_add_dynamic_children(
     job_id: CMJobID, children: Collection[CMJobID], returned_by: CMJobID, db: StorageFilesystem
 ) -> None:
     job = get_job(job_id, db)
-    if not returned_by in job.children:
+    if returned_by not in job.children:
         msg = f"{job_id!r} does not know it has child  {returned_by!r}"
         raise CompmakeBug(msg)
 

@@ -32,6 +32,7 @@ from .types import CMJobID
 __all__ = [
     "compmake_main",
     "compmake_profile_main",
+    "compmake_run_main",
     "compmake_tracemalloc_main",
     "main",
 ]
@@ -74,7 +75,7 @@ def limit_memory(maxsize: int) -> None:
 async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -> ExitCode:
     # limit_memory(2 * 1024 * 1024 * 1024)
     await sti.started_and_yield()
-    if not "" in sys.path:
+    if "" not in sys.path:
         sys.path.append("")
 
     setproctitle("compmake-main")
@@ -328,6 +329,25 @@ def compmake_profile_main() -> ExitCode:
         logger.info(f"Wrote stats to {fn}")
         command = ["pyprof2calltree", "-i", fn, "-o", f"{job_id}.pstat.calltree"]
         subprocess.check_call(command)
+
+    return ExitCode.OK
+
+
+def compmake_run_main() -> ExitCode:
+    args = sys.argv[1:]
+    logger.info("args: %s" % args)
+    storage = cast(DirPath, args[0])
+    job_id = cast(CMJobID, args[1])
+
+    db = StorageFilesystem(storage)  # OK: profile
+    job = get_job(job_id, db)
+    command, args, kwargs = get_cmd_args_kwargs(job_id, db=db)
+    # logger.info(job=job)
+    if job.needs_context:
+        msg = "Cannot profile a job that needs context."
+        raise ZException(msg)
+
+    _user_object = command(*args, **kwargs)
 
     return ExitCode.OK
 

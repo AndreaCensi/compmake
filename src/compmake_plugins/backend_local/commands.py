@@ -5,6 +5,7 @@ from compmake import (
     ACTIONS,
     ask_if_sure_remake,
     Cache,
+    CacheQueryDB,
     CMJobID,
     Context,
     DefaultsToConfig,
@@ -15,6 +16,7 @@ from compmake import (
     set_job_userobject,
     top_targets,
     ui_command,
+    UserError,
 )
 from zuper_utils_asyncio import SyncTaskInterface
 from .manager_local import ManagerLocal
@@ -31,6 +33,7 @@ async def make(
     job_list: Collection[CMJobID],
     context: Context,
     echo: bool = DefaultsToConfig("echo"),
+    ignore_unknown: bool = False,
     new_process: bool = DefaultsToConfig("new_process"),
     recurse: bool = DefaultsToConfig("recurse"),
 ):
@@ -49,9 +52,24 @@ async def make(
     db = context.get_compmake_db()
     if not job_list:
         job_list = list(top_targets(db=db))
+    use_jobs = []
+    cq = CacheQueryDB(db)
+    not_existing = []
+    with cq.session() as session:
+        for job in job_list:
+            if session.job_exists(job):
+                use_jobs.append(job)
+            else:
+                not_existing.append(job)
+
+    if not_existing:
+        if ignore_unknown:
+            sti.logger.warn("Ignoring these jobs:", not_existing=not_existing)
+        else:
+            raise UserError("Several jobs do not exist. Use ignore_unknown=1 to ignore them", not_existing=not_existing)
 
     manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
-    manager.add_top_level_targets(job_list)
+    manager.add_top_level_targets(use_jobs)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 
@@ -116,12 +134,19 @@ async def remake(
         return
 
     db = context.get_compmake_db()
-    for job in non_empty_job_list:
+    cq = CacheQueryDB(db)
+    existing = set()
+    with cq.session() as cqs:
+        for job in non_empty_job_list:
+            if cqs.job_exists(job):
+                existing.add(job)
+
+    for job in existing:
         mark_to_remake(job, db=db)
 
     manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
 
-    manager.add_top_level_targets(non_empty_job_list)
+    manager.add_top_level_targets(existing)
     await manager.process()
     return raise_error_if_manager_failed(manager)
 
