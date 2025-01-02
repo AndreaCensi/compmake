@@ -26,6 +26,7 @@
     "console_scripts": [
       "compmake = compmake:main",
       "compmake-profile = compmake:compmake_profile_main",
+      "compmake-run = compmake:compmake_run_main",
       "compmake-tracemalloc = compmake:compmake_tracemalloc_main"
     ]
   },
@@ -87,6 +88,7 @@
     "compmake.uptodate",
     "compmake.visualization",
     "compmake_plugins",
+    "compmake_plugins.append_to_file",
     "compmake_plugins.backend_local",
     "compmake_plugins.backend_local.commands",
     "compmake_plugins.backend_local.manager_local",

@@ -25,6 +25,7 @@ dependencies = [
 [project.scripts]
 compmake = "compmake:main"
 compmake-profile = "compmake:compmake_profile_main"
+compmake-run = "compmake:compmake_run_main"
 compmake-tracemalloc = "compmake:compmake_tracemalloc_main"
 
 [project.optional-dependencies]
@@ -72,6 +73,7 @@ python = ">=3.12"
 [tool.poetry.scripts]
 compmake = "compmake:main"
 compmake-profile = "compmake:compmake_profile_main"
+compmake-run = "compmake:compmake_run_main"
 compmake-tracemalloc = "compmake:compmake_tracemalloc_main"
 
 [build-system]
