@@ -1,9 +1,8 @@
 """The actual interface of some commands in commands.py"""
 
 import os
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from time import time
-from collections.abc import Collection
 from typing import Literal
 
 from compmake import (
@@ -198,7 +197,7 @@ async def list_jobs(
             else:
                 b = 15
                 r = max_len - b - len(" ... ")
-                return ajob_id[:15] + color_yellow("*") + ajob_id[-r:]
+                return ajob_id[:15] + color_yellow("%") + ajob_id[-r:]
 
         # abbreviates the names
         #     if not complete_names:
