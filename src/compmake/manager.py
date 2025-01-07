@@ -130,7 +130,7 @@ class Manager(ManagerLog):
     done_by_me: set[CMJobID]
     ready_to_do_heap: list[tuple[float, CMJobID]]
 
-    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: float | None = None):
+    def __init__(self, sti: SyncTaskInterface, context: Context, recurse: bool, max_time: float | None):
         self.context = context
         self.sti = sti
 
@@ -725,7 +725,7 @@ class Manager(ManagerLog):
                     # If child is part of all_targets, check that it is done
                     # otherwise check that it is done by the DB.
                     if child in self.all_targets:
-                        if not child in self.done:
+                        if child not in self.done:
                             # self.log("parent still waiting another child", opportunity=opportunity, child=child)
                             # logger.info('parent %r still waiting on %r' %
                             # (opportunity, child))
@@ -1224,7 +1224,7 @@ def check_job_cache_state(job_id: CMJobID, states: list[StateCode], db: StorageF
         raise CompmakeBug(msg)
     else:
         cache = get_job_cache(job_id, db)
-        if not cache.state in states:
+        if cache.state not in states:
             possible = [Cache.state2desc[s] for s in states]
             found = Cache.state2desc[cache.state]
             msg = f"Wrong state for {job_id!r}: {found} instead of {possible!r} "

@@ -140,6 +140,14 @@ add_config_switch(
     section=CONFIG_PARALLEL,
 )
 
+# TODO: to reimplement
+add_config_switch(
+    "max_time",
+    3600 * 10,
+    desc="Maximum time allowed to run.",
+    section=CONFIG_PARALLEL,
+)
+
 add_config_switch(
     "job_timeout",
     3600,

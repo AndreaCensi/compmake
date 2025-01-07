@@ -29,8 +29,10 @@ __all__ = [
 class ManagerLocal(Manager):
     """Specialization of manager for local execution"""
 
-    def __init__(self, sti: SyncTaskInterface, new_process: bool, echo: bool, context: Context, recurse: bool):
-        Manager.__init__(self, sti, context=context, recurse=recurse)
+    def __init__(
+        self, sti: SyncTaskInterface, new_process: bool, echo: bool, context: Context, recurse: bool, max_time: float | None
+    ):
+        Manager.__init__(self, sti, context=context, recurse=recurse, max_time=max_time)
         self.new_process = new_process
         self.echo = echo
 

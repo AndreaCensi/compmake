@@ -34,7 +34,7 @@ async def parmake(
     new_process: bool = DefaultsToConfig("new_process"),
     ignore_unknown: bool = False,
     echo: bool = DefaultsToConfig("echo"),
-    max_time: float | None = None,
+    max_time: float | None = DefaultsToConfig("max_time"),
 ):
     """
     Parallel equivalent of make.
@@ -108,6 +108,7 @@ async def parremake(
     recurse: bool = DefaultsToConfig("recurse"),
     new_process: bool = DefaultsToConfig("new_process"),
     echo: bool = DefaultsToConfig("echo"),
+    max_time: bool = DefaultsToConfig("max_time"),
 ):
     """
     Parallel equivalent of "remake".
@@ -129,6 +130,7 @@ async def parremake(
         recurse=recurse,
         new_process=new_process,
         show_output=echo,
+        max_time=max_time,
     )
 
     manager.add_top_level_targets(non_empty_job_list)

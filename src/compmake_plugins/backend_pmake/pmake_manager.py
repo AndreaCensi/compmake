@@ -74,10 +74,11 @@ class PmakeManager(Manager):
         sti: SyncTaskInterface,
         context: Context,
         num_processes: int,
+        *,
         recurse: bool = False,
         new_process: bool = False,
         show_output: bool = False,
-        max_time: float | None = None,
+        max_time: float | None,
     ):
         Manager.__init__(self, sti, context=context, recurse=recurse, max_time=max_time)
         self.num_processes = num_processes

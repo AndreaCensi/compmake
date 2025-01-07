@@ -36,6 +36,7 @@ async def make(
     ignore_unknown: bool = False,
     new_process: bool = DefaultsToConfig("new_process"),
     recurse: bool = DefaultsToConfig("recurse"),
+    max_time: float | None = DefaultsToConfig("max_time"),
 ):
     """
     Makes selected targets; or all targets if none specified.
@@ -68,7 +69,7 @@ async def make(
         else:
             raise UserError("Several jobs do not exist. Use ignore_unknown=1 to ignore them", not_existing=not_existing)
 
-    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
+    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo, max_time=max_time)
     manager.add_top_level_targets(use_jobs)
     await manager.process()
     return raise_error_if_manager_failed(manager)
@@ -117,6 +118,7 @@ async def remake(
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
     recurse: bool = DefaultsToConfig("recurse"),
+    max_time: float | None = DefaultsToConfig("max_time"),
 ):
     """
     Remake the selected targets (equivalent to invalidate and make).
@@ -144,7 +146,7 @@ async def remake(
     for job in existing:
         mark_to_remake(job, db=db)
 
-    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo)
+    manager = ManagerLocal(sti=sti, context=context, recurse=recurse, new_process=new_process, echo=echo, max_time=max_time)
 
     manager.add_top_level_targets(existing)
     await manager.process()
@@ -158,6 +160,9 @@ async def rmake(
     context: Context,
     echo: bool = DefaultsToConfig("echo"),
     new_process: bool = DefaultsToConfig("new_process"),
+    max_time: float | None = DefaultsToConfig("max_time"),
 ):
     """make with recurse = 1"""
-    return await make(sti, job_list=job_list, context=context, echo=echo, new_process=new_process, recurse=True)
+    return await make(
+        sti, job_list=job_list, context=context, echo=echo, new_process=new_process, recurse=True, max_time=max_time
+    )
