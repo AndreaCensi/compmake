@@ -11,7 +11,8 @@ __all__ = [
 
 def wildcard_to_regexp(arg):
     """ Returns a regular expression from a shell wildcard expression. """
-    return re.compile('\A' + arg.replace('*', '.*') + '\Z')
+    # Use raw strings to avoid escape sequence warnings in Python 3
+    return re.compile(r'\A' + arg.replace('*', '.*') + r'\Z')
 
 
 def expand_wildcard(wildcard, universe):

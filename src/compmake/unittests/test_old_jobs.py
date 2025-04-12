@@ -1,38 +1,45 @@
 # -*- coding: utf-8 -*-
+import pytest
+import os
 from compmake import Context, StorageFilesystem
 from compmake.jobs.storage import all_jobs
 from compmake.state import set_compmake_config
 from compmake.ui.visualization import info
-from nose.tools import istest
-from tempfile import mkdtemp
-import unittest
 
 
 def g():
     pass
 
+
 def h():
     pass
 
-@istest
-class Utils(unittest.TestCase):
+
+class TestBase:
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmp_path):
+        # Use pytest's tmp_path fixture for test isolation
+        self.test_dir = tmp_path
+
     def all_jobs(self, root):
         """ Returns the list of jobs corresponding to the given expression. """
         db = StorageFilesystem(root, compress=True)
         return sorted(list(all_jobs(db)))
 
+
+class TestCleaning1(TestBase):
     
-@istest
-class TestCleaning1(Utils):
-    
-    def test_cleaning_other(self):
-        root = mkdtemp()
+    def test_cleaning_other(self, tmp_path):
+        # Use a unique path for each test
+        root = os.path.join(str(tmp_path), "test_cleaning_other")
+        os.makedirs(root, exist_ok=True)
+        
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['g','h'])
+        assert jobs1 == ['g', 'h']
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['g'])
+        assert jobs2 == ['g']
     
     def run_first(self, root):
         db = StorageFilesystem(root, compress=True)
@@ -59,17 +66,19 @@ def f2(context):
     context.comp(g)
      
 
-@istest
-class TestCleaning2(Utils):
+class TestCleaning2(TestBase):
     
-    def test_cleaning2(self):
-        root = mkdtemp()
+    def test_cleaning2(self, tmp_path):
+        # Use a unique path for each test
+        root = os.path.join(str(tmp_path), "test_cleaning2")
+        os.makedirs(root, exist_ok=True)
+        
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['f', 'f-g', 'f-h'])
+        assert jobs1 == ['f', 'f-g', 'f-h']
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['f', 'f-g'])
+        assert jobs2 == ['f', 'f-g']
     
     def run_first(self, root):
         info('run_first()')
@@ -97,20 +106,29 @@ def e2(context):
     context.comp_dynamic(f2, job_id='f')
         
 
-@istest
-class TestCleaning3(Utils):
+class TestCleaning3(TestBase):
     """ Now with multi level """
     
-#     @expected_failure
-    def test_cleaning3(self):
-        set_compmake_config('check_params', True)
-        root = mkdtemp()
+    # Preserve configuration with fixture
+    @pytest.fixture(autouse=True)
+    def save_config(self):
+        # Save original config and set for this test
+        original_check_params = set_compmake_config('check_params', True)
+        yield
+        # Restore after test
+        set_compmake_config('check_params', original_check_params)
+    
+    def test_cleaning3(self, tmp_path):
+        # Use a unique path for each test
+        root = os.path.join(str(tmp_path), "test_cleaning3")
+        os.makedirs(root, exist_ok=True)
+        
         self.run_first(root)
         jobs1 = self.all_jobs(root)
-        self.assertEqual(jobs1, ['e', 'f', 'f-g', 'f-h'])
+        assert jobs1 == ['e', 'f', 'f-g', 'f-h']
         self.run_second(root)
         jobs2 = self.all_jobs(root)
-        self.assertEqual(jobs2, ['e', 'f', 'f-g'])
+        assert jobs2 == ['e', 'f', 'f-g']
     
     def run_first(self, root):
         print('run_first()')

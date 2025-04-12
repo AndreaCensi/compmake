@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+import pytest
 from compmake.context import Context
 from compmake.jobs import get_job
 from compmake.storage.filesystem import StorageFilesystem
-from nose.tools import istest
 from tempfile import mkdtemp
-import unittest
 
 def g():
     return 2
@@ -25,8 +24,7 @@ def define_jobs(root):
     cc.comp(h, cc.comp_dynamic(e)) 
     return db, cc
 
-@istest
-class TestDelegation5(unittest.TestCase):
+class TestDelegation5:
     """ 
         Here's the problem: when the master are overwritten then
         the additional dependencies are lost.
@@ -36,12 +34,12 @@ class TestDelegation5(unittest.TestCase):
         root = mkdtemp()
         db, cc = define_jobs(root)
         job0 = get_job('h', db)
-        self.assertEqual(job0.children, set(['e']))
+        assert job0.children == set(['e'])
         
         cc.batch_command('make;ls')
         
         job = get_job('h', db)
-        self.assertEqual(job.children, set(['e', 'e-f', 'e-f-g']))
+        assert job.children == set(['e', 'e-f', 'e-f-g'])
         print('parents: %s' % job.parents)
         print('children: %s' % job.children)
 
@@ -51,5 +49,4 @@ class TestDelegation5(unittest.TestCase):
         db, cc = define_jobs(root)
         cc.batch_command('check_consistency raise_if_error=1')
         job2 = get_job('h', db)
-        self.assertEqual(job2.children, set(['e', 'e-f', 'e-f-g']))
-            
+        assert job2.children == set(['e', 'e-f', 'e-f-g'])

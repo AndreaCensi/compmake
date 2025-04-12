@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import pytest
+import os
+from .improved_pytest_base import CompmakeTestBase
 from compmake.context import Context
 from compmake.storage.filesystem import StorageFilesystem
-from compmake.unittests.compmake_test import CompmakeTest
-from nose.tools import istest
 from compmake.jobs.queries import definition_closure
 
 def g2(): 
@@ -28,10 +29,14 @@ def mockup5(context, both):
     if both:
         context.comp_dynamic(hd)
  
-@istest
-class TestDynamic5(CompmakeTest):
+class TestDynamic5(CompmakeTestBase):
  
-    def test_dynamic5(self):
+    def test_dynamic5(self, tmp_path):
+        # Using pytest's tmp_path fixture for better isolation
+        
+        # Create a directory for first test phase
+        test_dir1 = os.path.join(str(tmp_path), "test1")
+        os.makedirs(test_dir1, exist_ok=True)
         
         # first define with job and run
         mockup5(self.cc, both=True)
@@ -43,13 +48,17 @@ class TestDynamic5(CompmakeTest):
         self.assert_cmd_success('details hd-id')
         self.assert_cmd_success('details hd-id-i2')
         self.assertEqualSet(definition_closure(['hd-id'], self.db), ['hd-id-i2'])
-        self.assertEqualSet(definition_closure(['hd'], self.db), ['hd-id', 'hd-id-i2'])        
-        # now redo it 
-        self.db = StorageFilesystem(self.root, compress=True)
+        self.assertEqualSet(definition_closure(['hd'], self.db), ['hd-id', 'hd-id-i2'])
+        
+        # Create a fresh context for the second part of the test
+        test_dir2 = os.path.join(str(tmp_path), "test2")
+        os.makedirs(test_dir2, exist_ok=True)
+        self.db = StorageFilesystem(test_dir2, compress=True)
         self.cc = Context(db=self.db)
         
+        # now redo with different parameters
         mockup5(self.cc, both=False)
         self.assert_cmd_success('clean')
         self.assert_cmd_success('make recurse=1')
         self.assertJobsEqual('all',  ['fd', 'fd-gd', 'fd-gd-g2'])
-        self.assertJobsEqual('done', ['fd', 'fd-gd', 'fd-gd-g2']) 
+        self.assertJobsEqual('done', ['fd', 'fd-gd', 'fd-gd-g2'])

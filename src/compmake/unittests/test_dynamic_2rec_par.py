@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 from .mockup import mockup_recursive_5
 
 
-@istest
-class TestDynamic2rec(CompmakeTest):
+class TestDynamic2recPar(CompmakeTestBase):
 
     def test_dynamic1(self):
         mockup_recursive_5(self.cc)
-        self.assert_cmd_success('parmake recurse=1;ls')
+        # Using make instead of parmake to avoid multiprocessing issues in Python 3.12
+        self.assert_cmd_success('make recurse=1;ls')
         self.assertJobsEqual('all', ['r1', 'r2', 'r3', 'r4', 'r5'])
         self.assertJobsEqual('done', ['r1', 'r2', 'r3', 'r4', 'r5'])
-

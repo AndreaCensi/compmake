@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from .compmake_test import CompmakeTest
-from nose.tools import istest
-
-
+import pytest
+from .pytest_base import CompmakeTestBase
 
 def cases():
     """ Note this uses TestDynamic1.howmany """
@@ -28,9 +26,7 @@ def mockup_dynamic1(context):
     values = context.comp(cases, job_id='values')
     context.comp_dynamic(generate_tsts, values, job_id='generate')
 
-@istest
-class TestDynamic1(CompmakeTest):
-
+class TestDynamic1(CompmakeTestBase):
     howmany = None  # used by cases()
 
     def test_dynamic1_cleaning(self):
@@ -58,8 +54,7 @@ class TestDynamic1(CompmakeTest):
                                       'actual0', 'actual1', 'actual2', 
                                       'generate-finish'])
 
-        # Now let's suppose we re-run values and it generates different number of mcdp_lang_tests
-
+        # Now let's suppose we re-run values and it generates different number of tests
         # Now let's increase it to 4
         TestDynamic1.howmany = 4
                 
@@ -72,7 +67,7 @@ class TestDynamic1(CompmakeTest):
         # but finish is not updtodate
         self.assertJobsEqual('uptodate', ['generate', 'values', 'actual0', 'actual1', 'actual2'])
         # some others are not
-        self.assertJobsEqual('todo', [ 'actual3'])
+        self.assertJobsEqual('todo', ['actual3'])
 
 
         # now 2 jobs

@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
-from compmake.unittests.compmake_test import CompmakeTest
-from nose.tools import istest
-
+import pytest
+from .pytest_base import CompmakeTestBase
 
 def always():
     print('always()')
     pass
 
-
 def other():
     print('other()')
     pass
-
 
 def dep():
     res = TestDynamic9.define_other
     print('other() returns %s' % res)
     return res
-
 
 def fd(context, dep):
     context.comp(always)
@@ -25,14 +21,11 @@ def fd(context, dep):
     if dep:
         context.comp(other)
 
-
 def mockup9(context):
     depres = context.comp(dep)
     context.comp_dynamic(fd, dep=depres)
 
-
-@istest
-class TestDynamic9(CompmakeTest):
+class TestDynamic9(CompmakeTestBase):
     define_other = True
 
     def test_dynamic9(self):

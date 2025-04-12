@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
 from .. import set_compmake_status, CompmakeConstants
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+from .pytest_base import CompmakeTestBase
 
 
 def f1():
@@ -9,8 +9,7 @@ def f1():
     return lambda x: None #@UnusedVariable
 
 
-@istest
-class TestUnpickable(CompmakeTest):
+class TestUnpickable(CompmakeTestBase):
 
     def mySetUp(self):
         # TODO: use tmp dir
@@ -21,4 +20,3 @@ class TestUnpickable(CompmakeTest):
         self.cc.batch_command('clean')
         
         self.assert_cmd_fail('make')
-        

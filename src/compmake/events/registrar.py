@@ -45,7 +45,14 @@ def register_handler(event_name, handler):
         The event name might contain asterisks. "*" matches all.
     """
     import inspect
-    spec = inspect.getargspec(handler)
+    import sys
+    
+    # Use getfullargspec in Python 3, fallback to getargspec in Python 2
+    if sys.version_info[0] >= 3:
+        spec = inspect.getfullargspec(handler)
+    else:
+        spec = inspect.getargspec(handler)
+        
     args = set(spec.args)
     possible_args = set(['event', 'context', 'self'])
     # to be valid 
@@ -91,12 +98,18 @@ def publish(context, event_name, **kwargs):
 @contract(context=Context, event=Event)
 def broadcast_event(context, event):
     import inspect
+    import sys
     all_handlers = CompmakeGlobalState.EventHandlers.handlers
 
     handlers = all_handlers.get(event.name, [])
     if handlers:
         for handler in handlers:
-            spec = inspect.getargspec(handler)
+            # Use getfullargspec in Python 3, fallback to getargspec in Python 2
+            if sys.version_info[0] >= 3:
+                spec = inspect.getfullargspec(handler)
+            else:
+                spec = inspect.getargspec(handler)
+                
             try:
                 kwargs = {}
                 if 'event' in spec.args:

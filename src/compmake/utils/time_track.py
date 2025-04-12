@@ -12,13 +12,15 @@ __all__ = [
 
 class TimeTrack(object):
     def __init__(self, what=None):
+        from .compat import get_cpu_time
         self.t0 = time.time()
-        self.c0 = time.clock()
+        self.c0 = get_cpu_time()
         self.what = what
 
     def show(self, stream=sys.stdout, min_td=0.001):  # @UnusedVariable
+        from .compat import get_cpu_time
         self.t1 = time.time()
-        self.c1 = time.clock()
+        self.c1 = get_cpu_time()
         self.cd = self.c1 - self.c0
         self.td = self.t1 - self.t0
 

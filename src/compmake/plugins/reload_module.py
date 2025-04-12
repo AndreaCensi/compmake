@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
-import imp
+# Use importlib.reload instead of deprecated imp.reload
 import os
 import pwd
+import sys
+
+# Import the appropriate reload function based on Python version
+if sys.version_info[0] >= 3:
+    from importlib import reload
+else:
+    # Python 2 - use imp.reload
+    import imp
+    reload = imp.reload
 
 from ..exceptions import UserError
 from ..ui import COMMANDS_ADVANCED, ui_command, user_error, info
@@ -33,7 +42,8 @@ def reload(module):  # @ReservedAssignment
         raise UserError('Cannot find module "%s": %s.' % (module, e))
 
     try:
-        imp.reload(m)
+        # Use the appropriate reload function
+        reload(m)
     except Exception as e:
         msg = ('Obtained this exception while reloading the module: %s' % e)
         raise UserError(msg)

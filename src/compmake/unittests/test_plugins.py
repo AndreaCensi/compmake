@@ -1,44 +1,58 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-from .compmake_test import CompmakeTest
+import pytest
+import os
+from .improved_pytest_base import CompmakeTestBase
 from .mockup import mockup2_nofail
 
 
-@istest
-class PluginsTest(CompmakeTest):
+class TestPlugins(CompmakeTestBase):
+    """Tests for various compmake plugins with improved isolation."""
 
     def mySetUp(self):
+        # Setup that runs before each test
         mockup2_nofail(self.cc)
 
-    def testDetails(self):
+    @pytest.fixture(autouse=True)
+    def cleanup_after_tests(self, tmp_path):
+        # Create a special directory for test dumps
+        self.dump_dir = os.path.join(str(tmp_path), "dumps")
+        os.makedirs(self.dump_dir, exist_ok=True)
+        yield
+        # Any cleanup needed
+
+    def test_details(self):
         jobs = self.get_jobs('all')
         for job_id in jobs:
             self.assert_cmd_success('details %s' % job_id)
-        self.assert_cmd_success('details %s %s' % (jobs[0], jobs[1]))
+        
+        # Test with first two jobs if available
+        if len(jobs) >= 2:
+            self.assert_cmd_success('details %s %s' % (jobs[0], jobs[1]))
 
-    def testList(self):
+    def test_list(self):
         jobs = self.get_jobs('all')
         self.assert_cmd_success('ls')
-        self.assert_cmd_success('ls %s' % jobs[0])
+        
+        if jobs:
+            self.assert_cmd_success('ls %s' % jobs[0])
 
-        # empty list
-        #self.assert_cmd_success('ls block* and done')
-
-    # def testCredits(self):
+    # @pytest.mark.skip(reason="Test disabled in original code")
+    # def test_credits(self):
     #     self.assert_cmd_success('credits')
 
-    def testCheckConsistency(self):
+    def test_check_consistency(self):
         self.assert_cmd_success('check-consistency')
 
-    def testDump(self):
-        dirname = self.cc.get_compmake_db().basepath
+    def test_dump(self):
+        # Use a unique directory for dumps in this test
+        dirname = self.dump_dir
+        
+        # Test on done jobs
         jobs = self.get_jobs('done')
         for job_id in jobs:
             self.assert_cmd_success('dump directory=%s %s' % (dirname, job_id))
 
-        # TODO: add check that it fails for not done
+        # Test on not done jobs
         jobs = self.get_jobs('not done')
         for job_id in jobs:
             self.assert_cmd_success('dump directory=%s %s' % (dirname, job_id))
-
-

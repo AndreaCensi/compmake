@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 from compmake.unittests.mockup import mockup_recursive_5
 
 
-
-@istest
-class TestDynamic2(CompmakeTest):
+class TestDynamic2(CompmakeTestBase):
 
     def test_dynamic2(self):
         mockup_recursive_5(self.cc)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+import pytest
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse_closure
 from compmake.jobs.queries import definition_closure, jobs_defined
 from compmake.jobs.uptodate import direct_uptodate_deps_inverse
-
-from compmake.unittests.compmake_test import CompmakeTest
-from nose.tools import istest
+from .pytest_base import CompmakeTestBase
 
 def always():
     pass
@@ -21,14 +20,12 @@ def fd(context):
 def mockup8(context):
     context.comp_dynamic(fd)
  
-@istest
-class TestDynamic8(CompmakeTest):
+class TestDynamic8(CompmakeTestBase):
     
     define_other = True
     
-
     def test_dynamic8_remake(self):
-#         """ Re-execution creates more jobs.  """ 
+        # """ Re-execution creates more jobs.  """ 
         mockup8(self.cc)
         # run it
         TestDynamic8.define_other = True
@@ -42,7 +39,7 @@ class TestDynamic8(CompmakeTest):
         self.assertJobsEqual('all', ['fd', 'fd-always'])
 
     def test_dynamic8_clean(self):
-#         """ Re-execution creates more jobs.  """ 
+        # """ Re-execution creates more jobs.  """ 
         mockup8(self.cc)
         # run it
         TestDynamic8.define_other = True
@@ -53,8 +50,7 @@ class TestDynamic8(CompmakeTest):
         TestDynamic8.define_other = False
                 
         self.assertJobsEqual('done', ['fd', 'fd-always', 'fd-other'])
-        self.assertEqualSet(jobs_defined('fd', self.db),                              ['fd-always', 'fd-other'])
-        
+        self.assertEqualSet(jobs_defined('fd', self.db), ['fd-always', 'fd-other'])
         
         self.assertEqualSet(definition_closure(['fd'], self.db), ['fd-always', 'fd-other'])
         direct = direct_uptodate_deps_inverse('fd', self.db)
@@ -68,7 +64,6 @@ class TestDynamic8(CompmakeTest):
         self.assert_cmd_success('make fd')
         # now the "other" job should disappear
         self.assertJobsEqual('all', ['fd', 'fd-always'])
-
 
     def test_dynamic8_inverse(self):
         """ Re-execution creates fewer jobs. """ 

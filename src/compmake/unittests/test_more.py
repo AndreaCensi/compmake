@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from . import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 from ..jobs import direct_children, direct_parents, make
 from ..exceptions import UserError
-from nose.tools import istest
 
 
 def f1(*arg, **kwargs):
@@ -25,56 +25,54 @@ def uses_id(a, b, job_id):
     pass
 
 
-@istest
-class Test1(CompmakeTest):
+class TestMore(CompmakeTestBase):
     def mySetUp(self):
         pass
 
-    def testAdding(self):
+    def test_adding(self):
         self.comp(f1)
-        self.assertTrue(True)
+        assert True
 
-    def testID(self):
+    def test_id(self):
         """ Check that the job id is correctly parsed """
         job_id = 'terminus'
         c = self.comp(f1, job_id=job_id)
-        self.assertEqual(c.job_id, job_id)
+        assert c.job_id == job_id
         make(job_id, context=self.cc)
-        self.assertTrue(True)
+        assert True
 
-    def testID2(self):
+    def test_id2(self):
         """ Make sure we set up a warning if the job_id key
             is already used """
-        self.assertTrue(self.comp(f1, job_id='ciao'))
-        self.assertRaises(UserError, self.comp, f1, job_id='ciao')
+        assert self.comp(f1, job_id='ciao')
+        with pytest.raises(UserError):
+            self.comp(f1, job_id='ciao')
 
-    def testDep(self):
+    def test_dep(self):
         """ Testing advanced dependencies discovery """
         cf1 = self.comp(f1)
         cf2 = self.comp(f2, cf1)
-        self.assertTrue(cf1.job_id in direct_children(cf2.job_id, db=self.db))
-        self.assertTrue(cf2.job_id in direct_parents(cf1.job_id, db=self.db))
+        assert cf1.job_id in direct_children(cf2.job_id, db=self.db)
+        assert cf2.job_id in direct_parents(cf1.job_id, db=self.db)
 
-    def testDep2(self):
+    def test_dep2(self):
         """ Testing advanced dependencies discovery (double) """
         cf1 = self.comp(f1)
         cf2 = self.comp(f2, cf1, cf1)
-        self.assertTrue(cf1.job_id in direct_children(cf2.job_id, db=self.db))
-        self.assertEqual(1, len(direct_children(cf2.job_id, db=self.db)))
-        self.assertEqual(1, len(direct_parents(cf1.job_id, db=self.db)))
+        assert cf1.job_id in direct_children(cf2.job_id, db=self.db)
+        assert 1 == len(direct_children(cf2.job_id, db=self.db))
+        assert 1 == len(direct_parents(cf1.job_id, db=self.db))
 
-    def testDep3(self):
+    def test_dep3(self):
         """ Testing advanced dependencies discovery in dicts"""
         cf1 = self.comp(f1)
         cf2 = self.comp(f2, [1, {'ciao': cf1}])
-        self.assertTrue(cf1.job_id in direct_children(cf2.job_id, db=self.db))
-        self.assertTrue(cf2.job_id in direct_parents(cf1.job_id, db=self.db))
+        assert cf1.job_id in direct_children(cf2.job_id, db=self.db)
+        assert cf2.job_id in direct_parents(cf1.job_id, db=self.db)
 
-    def testJOBparam(self):
+    def test_job_param(self):
         """ We should issue a warning if job_id is used
             as a parameter in the function """
         self.comp(uses_id)
-        self.assertRaises(UserError, self.comp, uses_id, job_id='myjobid')
-
-
-
+        with pytest.raises(UserError):
+            self.comp(uses_id, job_id='myjobid')

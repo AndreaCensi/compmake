@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 
 
 def rec(context, n):
@@ -18,8 +17,7 @@ def f(x):
         raise ValueError('Expected 5 + 4 + 3 + 2 + 1 + 0 = 15, not %s' % x)
 
 
-@istest
-class TestDelegation4(CompmakeTest):
+class TestDelegation4(CompmakeTestBase):
     """ Similar to TestDelegation2 and 3, but here the jobs are not named
         exclusively with job_id=... """
 

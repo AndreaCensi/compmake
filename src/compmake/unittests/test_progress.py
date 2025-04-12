@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
+import pytest
 from ..jobs import init_progress_tracking
 from compmake import progress
 from contracts import ContractNotRespected
-from nose.tools import istest, nottest
-import unittest
 
 
-@istest
-class TestProgress(unittest.TestCase):
+class TestProgress:
+
+    def setup_method(self):
+        self.stack = None
+        init_progress_tracking(self.stack_update)
 
     def stack_update(self, stack):
         #print "found %s" % stack
         self.stack = stack
 
     def assert_stack_len(self, d):
-        self.assertEqual(d, len(self.stack))
-
-    def setUp(self):
-        init_progress_tracking(self.stack_update)
+        assert d == len(self.stack)
 
     def test_bad(self):
         """ Many ways to call it in the wrong way. """
-        self.assertRaises((ValueError, ContractNotRespected),
-                          progress, 'task', 1)
+        with pytest.raises((ValueError, ContractNotRespected)):
+            progress('task', 1)
 
-    @nottest # FIXME, known failure
+    @pytest.mark.skip(reason="Known failure, needs fixing")
     def test_hierarchy_flat(self):
         """ Testing basic case. """
         init_progress_tracking(lambda _: None)
@@ -34,7 +33,7 @@ class TestProgress(unittest.TestCase):
         progress('A', (1, 2))
         self.assert_stack_len(1)
 
-    @nottest # FIXME, known failure
+    @pytest.mark.skip(reason="Known failure, needs fixing")
     def test_hierarchy_flat2(self):
         data = {}
 

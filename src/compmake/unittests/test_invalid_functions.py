@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from compmake.unittests.compmake_test import CompmakeTest
-
+import pytest
+from .pytest_base import CompmakeTestBase
 from ..exceptions import UserError
 
 
@@ -14,15 +12,15 @@ def uses_nested(context):
 
 
 def uses_lambda(context):
-
     context.comp(lambda x: x, 1)
 
 
-@istest
-class TestInvalidFunctions(CompmakeTest):
+class TestInvalidFunctions(CompmakeTestBase):
 
     def test_invalid_function_nested(self):
-        self.assertRaises(UserError, uses_nested, self.cc)
+        with pytest.raises(UserError):
+            uses_nested(self.cc)
 
     def test_invalid_function_lambda(self):
-        self.assertRaises(UserError, uses_lambda, self.cc)
+        with pytest.raises(UserError):
+            uses_lambda(self.cc)

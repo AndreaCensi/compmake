@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 from compmake import compmake_execution_stats
 from contracts.utils import check_isinstance
 from compmake.jobs.dependencies import get_job_userobject_resolved
@@ -19,8 +18,7 @@ def hh(context):
     return context.comp_dynamic(gg)
 
 
-@istest
-class TestExecutionStats(CompmakeTest):
+class TestExecutionStats(CompmakeTestBase):
     
     def test_execution_stats(self):
         # schedule some commands
@@ -37,7 +35,7 @@ class TestExecutionStats(CompmakeTest):
         res['wall_time']
 
         print(res)
-        self.assertEqual(res['jobs'], set(['gg-ff', 'gg']))
+        assert res['jobs'] == set(['gg-ff', 'gg'])
 
     def test_execution_stats2(self):
         # schedule some commands
@@ -53,7 +51,7 @@ class TestExecutionStats(CompmakeTest):
 
         print(res)
 
-        self.assertEqual(res['jobs'], set(['hh-gg-ff', 'hh-gg', 'hh']))
+        assert res['jobs'] == set(['hh-gg-ff', 'hh-gg', 'hh'])
         
 
 def check_result(res):

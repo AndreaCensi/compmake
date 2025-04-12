@@ -8,3 +8,5 @@ decorator
 future
 networkx==2.2
 six
+pytest>=7.0.0
+# nose has been completely removed - Python 3.12 compatibility

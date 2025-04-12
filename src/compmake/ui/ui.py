@@ -8,7 +8,7 @@ from ..jobs import (CacheQueryDB, all_jobs, collect_dependencies, get_job,
     job_exists, parse_job_list, set_job, set_job_args)
 from ..jobs.storage import get_job_args
 from ..structures import Job, Promise, same_computation
-from ..utils import interpret_strings_like, try_pickling
+from ..utils import interpret_strings_like, try_pickling, get_arg_spec
 from .helpers import UIState, get_commands
 from .visualization import warning
 from compmake.constants import DefaultsToConfig
@@ -230,7 +230,7 @@ def comp_(context, command_, *args, **kwargs):
     if CompmakeConstants.job_id_key in kwargs:
         # make sure that command does not have itself a job_id key
         try:
-            argspec = inspect.getargspec(command)
+            argspec = get_arg_spec(command)
         except TypeError:
             # Assume Cython function
             # XXX: write test
@@ -519,7 +519,7 @@ def interpret_single_command(commands_line, context, cq):
     # look for  key=value pairs
     other = []
     kwargs = {}
-    argspec = inspect.getargspec(function)
+    argspec = get_arg_spec(function)
 
     defaults = get_defaults(argspec)
     args_without_default = get_args_without_defaults(argspec)

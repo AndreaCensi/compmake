@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
-
-from nose.tools import istest
-
-from . import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 from ..jobs import get_job_cache, set_job_cache
 from ..structures import Cache
 from ..exceptions import UserError, CompmakeSyntaxError
@@ -14,8 +12,7 @@ def dummy():
     pass
 
 
-@istest
-class Test1(CompmakeTest):
+class TestSyntax(CompmakeTestBase):
     def mySetUp(self):
         # Removed when refactoring
         # remove_all_jobs()
@@ -87,12 +84,14 @@ class Test1(CompmakeTest):
         def f(x):  # it's a generator, you should try to read it
             return list(parse_job_list(x, context=self.cc))
 
-        self.assertRaises(CompmakeSyntaxError, f, s)
+        with pytest.raises(CompmakeSyntaxError):
+            f(s)
 
     def userError(self, s):
-        self.assertRaises(UserError, parse_job_list, s)
+        with pytest.raises(UserError):
+            parse_job_list(s)
 
-    def testCatchErrors(self):
+    def test_catch_errors(self):
         self.syntaxError('not')
         self.syntaxError('all not')
         self.syntaxError('all not')
@@ -100,7 +99,7 @@ class Test1(CompmakeTest):
         self.syntaxError('in $all')
         self.syntaxError('all not e')
 
-    def testSpecial(self):
+    def test_special(self):
         """ Test that the special variables work"""
         self.expandsTo('  ', set())
         self.expandsTo('all', self.all)
@@ -109,12 +108,12 @@ class Test1(CompmakeTest):
         self.expandsTo('DONE', self.done)
 #         self.expandsTo('in_progress', self.in_progress)
 
-    def testBasicUnion(self):
+    def test_basic_union(self):
         """ Testing basic union operator """
-        self.expandsTo('failed e', self.failed.union('e'))
-        self.expandsTo('e failed', self.failed.union('e'))
+        self.expandsTo('failed e', self.failed.union(set(['e'])))
+        self.expandsTo('e failed', self.failed.union(set(['e'])))
 
-    def testNot(self):
+    def test_not(self):
         all_not_e = self.selection(lambda job, _: job != 'e')
         self.expandsTo('e', ['e'])
         self.expandsTo('e*', ['e'])
@@ -132,14 +131,11 @@ class Test1(CompmakeTest):
         self.expandsTo('a in all  ', 'a')
         self.expandsTo('all in all  ', 'all')
 
-    def testFailed(self):
+    def test_failed(self):
         self.expandsTo('all except failed',
                        lambda _, state: state != Cache.FAILED)
         self.expandsTo('not failed', lambda _, state: state != Cache.FAILED)
 
-    def testIntersection(self):
+    def test_intersection(self):
         self.expandsTo('a b in a b c', ['a', 'b'])
         self.expandsTo('a b c in d e', [])
-
-    def tearDown(self):
-        pass

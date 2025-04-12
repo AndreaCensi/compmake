@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
-from .compmake_test import CompmakeTest
+import pytest
+from .pytest_base import CompmakeTestBase
 
 
 def f(a):
@@ -21,8 +20,7 @@ def g_delegated():
     return 1 + 1
 
 
-@istest
-class TestDelegation(CompmakeTest):
+class TestDelegation(CompmakeTestBase):
 
     def test_delegation_1(self):
         context = self.cc
@@ -38,13 +36,11 @@ class TestDelegation(CompmakeTest):
         
 
     def test_delegation_2(self):
-            context = self.cc
-    
-            g_res = context.comp_dynamic(g)
-            context.comp(f, g_res)
-    
-            self.assert_cmd_success('ls')
-            self.assert_cmd_success('stats')
-            self.assert_cmd_success('make')
-        
-        
+        context = self.cc
+
+        g_res = context.comp_dynamic(g)
+        context.comp(f, g_res)
+
+        self.assert_cmd_success('ls')
+        self.assert_cmd_success('stats')
+        self.assert_cmd_success('make')

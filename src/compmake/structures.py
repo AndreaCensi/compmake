@@ -161,14 +161,16 @@ class IntervalTimer(object):
 
     def __init__(self):
         import time
-        self.c0 = time.clock()
+        from .utils.compat import get_cpu_time
+        self.c0 = get_cpu_time()
         self.t0 = time.time()
         self.stopped = False
 
     def stop(self):
         self.stopped = True
         import time
-        self.c1 = time.clock()
+        from .utils.compat import get_cpu_time
+        self.c1 = get_cpu_time()
         self.t1 = time.time()
 
     def get_walltime_used(self):

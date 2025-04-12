@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
+import pytest
 from .. import set_compmake_status, CompmakeConstants
-from .compmake_test import CompmakeTest
+from .pytest_base import CompmakeTestBase
 
 
 def bottom():
@@ -17,8 +16,7 @@ def top(x):  # @UnusedVariable
     TestOrder.order.append('top')
 
 
-@istest
-class TestOrder(CompmakeTest):
+class TestOrder(CompmakeTestBase):
 
     order = []
 
@@ -36,7 +34,7 @@ class TestOrder(CompmakeTest):
         self.cc.batch_command('clean')
         self.cc.batch_command('make')
 
-        self.assertEqual(['bottom', 'top', 'bottom', 'top'], TestOrder.order)
+        assert TestOrder.order == ['bottom', 'top', 'bottom', 'top']
 
     def test_order_2(self):
         # choose wisely here
@@ -47,8 +45,7 @@ class TestOrder(CompmakeTest):
         self.cc.batch_command('clean')
         self.cc.batch_command('make')
 
-        self.assertEqual(['bottom2', 'bottom', 'top', 'bottom', 'top'],
-                         TestOrder.order)
+        assert TestOrder.order == ['bottom2', 'bottom', 'top', 'bottom', 'top']
 
     def test_order_3(self):
         # choose wisely here
@@ -59,5 +56,4 @@ class TestOrder(CompmakeTest):
         self.cc.batch_command('clean')
         self.cc.batch_command('make')
 
-        self.assertEqual(['bottom', 'bottom2', 'top', 'bottom2', 'top'],
-                         TestOrder.order)
+        assert TestOrder.order == ['bottom', 'bottom2', 'top', 'bottom2', 'top']

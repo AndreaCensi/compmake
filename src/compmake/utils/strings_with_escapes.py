@@ -13,7 +13,8 @@ __all__ = [
 
 def remove_escapes(s):
     check_not_bytes(s)
-    escape = re.compile('\x1b\[..?m')
+    # Use raw string to avoid escape sequence warning in Python 3
+    escape = re.compile(r'\x1b\[..?m')
     return escape.sub("", s)
 
 

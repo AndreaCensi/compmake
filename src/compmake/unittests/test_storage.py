@@ -1,36 +1,33 @@
 # -*- coding: utf-8 -*-
-from nose.tools import istest
-
+import pytest
 from compmake.utils import wildcard_to_regexp
+from .pytest_base import CompmakeTestBase
 
-from . import CompmakeTest
 
-
-@istest
-class Simple(CompmakeTest):
+class TestSimple(CompmakeTestBase):
     def mySetUp(self):
         pass
 
-    def testExists1(self):
+    def test_exists1(self):
         key = 'not-existent'
-        assert (not key in self.db)
+        assert not key in self.db
 
-    def testExists2(self):
+    def test_exists2(self):
         k = 'ciao'
         v = {'complex': 123}
         db = self.db
         if k in db:
             del db[k]
-        self.assertFalse(k in db)
+        assert not k in db
         db[k] = v
-        self.assertTrue(k in db)
+        assert k in db
         del db[k]
-        self.assertFalse(k in db)
+        assert not k in db
         db[k] = v
         del db[k]
-        self.assertFalse(k in db)
+        assert not k in db
 
-    def testSearch(self):
+    def test_search(self):
         db = self.db
 
         def search(pattern):
@@ -39,11 +36,10 @@ class Simple(CompmakeTest):
                 if r.match(k):
                     yield k
 
-        self.assertEqual([], list(search('*')))
+        assert list(search('*')) == []
         db['key1'] = 1
         db['key2'] = 1
-        self.assertEqual([], list(search('ciao*')))
-        self.assertEqual(['key1'], list(search('key1')))
-        self.assertEqual(['key1'], list(search('*1')))
-        self.assertEqual([], list(search('d*1')))
-
+        assert list(search('ciao*')) == []
+        assert list(search('key1')) == ['key1']
+        assert list(search('*1')) == ['key1']
+        assert list(search('d*1')) == []

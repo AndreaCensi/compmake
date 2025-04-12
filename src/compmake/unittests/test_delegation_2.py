@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from .compmake_test import CompmakeTest
-from nose.tools import istest
-
-
+import pytest
+from .pytest_base import CompmakeTestBase
 
 
 def rec(context, n):
@@ -20,8 +18,7 @@ def f(x):
         raise ValueError('Expected 5 + 4 + 3 + 2 + 1 + 0 = 15, not %s' % x)
 
 
-@istest
-class TestDelegation2(CompmakeTest):
+class TestDelegation2(CompmakeTestBase):
 
     def test_delegation_2(self):
         context = self.cc

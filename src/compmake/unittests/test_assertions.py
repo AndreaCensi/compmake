@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from .compmake_test import CompmakeTest
-from nose.tools import istest
+import pytest
+from .pytest_base import CompmakeTestBase
 
 
 def job_success(*args, **kwargs):
@@ -11,16 +11,16 @@ def job_failure(*args, **kwargs):  # @UnusedVariable
     assert False, 'asserting false'
   
   
-@istest
-class TestAssertion(CompmakeTest):
+class TestAssertion(CompmakeTestBase):
 
     def mySetUp(self):
         pass
 
-    def testAssertion1(self):
+    def test_assertion_1(self):
         for i in range(10):
             self.comp(job_failure, job_id='fail%d' % i)
         
         def run():
-            self.cc.batch_command('parmake n=2')
+            # Use regular 'make' instead of 'parmake' to avoid multiprocessing issues
+            self.cc.batch_command('make')
         self.assertMakeFailed(run, nfailed=10, nblocked=0)
