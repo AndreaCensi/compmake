@@ -19,7 +19,7 @@ install_requires:
 - pyreadline
 - setproctitle
 - zuper-commons-z7
-- zuper-graphs-z7
+#- zuper-graphs-z7
 - zuper-typing-z7
 - zuper-utils-asyncio-z7
 - zuper-utils-timing-z7

@@ -1,6 +1,8 @@
 [project]
 name = "compmake-z7"
 version = "7.2"
+readme = ""
+description = ""
 authors = [{name = "Andrea Censi", email = "AndreaCensi@users.noreply.github.com"}]
 dependencies = [
     "PyYAML",
@@ -15,7 +17,6 @@ dependencies = [
     "pyreadline",
     "setproctitle",
     "zuper-commons-z7",
-    "zuper-graphs-z7",
     "zuper-typing-z7",
     "zuper-utils-asyncio-z7",
     "zuper-utils-timing-z7",
@@ -60,7 +61,6 @@ psutil = "*"
 pyreadline = "*"
 setproctitle = "*"
 zuper-commons-z7 = "*"
-zuper-graphs-z7 = "*"
 zuper-typing-z7 = "*"
 zuper-utils-asyncio-z7 = "*"
 zuper-utils-timing-z7 = "*"
