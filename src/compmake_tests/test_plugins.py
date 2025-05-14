@@ -1,5 +1,8 @@
-from .mockup import mockup2_fails, mockup2_nofail, mockup3
-from .utils import Env, run_with_env
+from .mockup import mockup2_fails
+from .mockup import mockup2_nofail
+from .mockup import mockup3
+from .utils import Env
+from .utils import run_with_env
 
 
 @run_with_env
@@ -25,10 +28,17 @@ async def test_plugin_check_consistency(env: Env) -> None:
     await env.assert_cmd_success("check-consistency")
 
 
-@run_with_env
-async def test_plugin_graph(env: Env) -> None:
-    await mockup2_nofail(env)
-    await env.assert_cmd_success("graph")
+try:
+    import zuper_graphs_draw
+except ImportError:
+    pass
+else:
+    _ = zuper_graphs_draw
+
+    @run_with_env
+    async def test_plugin_graph(env: Env) -> None:
+        await mockup2_nofail(env)
+        await env.assert_cmd_success("graph")
 
 
 @run_with_env
