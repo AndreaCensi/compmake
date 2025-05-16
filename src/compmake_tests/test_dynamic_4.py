@@ -1,6 +1,6 @@
 from .mockup_dynamic_4 import mockup_dyn4
-
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 @run_with_env

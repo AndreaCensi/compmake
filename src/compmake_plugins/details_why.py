@@ -2,10 +2,18 @@ from collections import defaultdict
 from collections.abc import Collection
 from dataclasses import dataclass
 
-from compmake import Cache, CacheQueryDB, CacheQuerySessionInterface, CMJobID, Context, ui_command, VISUALIZATION
-from zuper_commons.text import format_rows_as_table, joinlines
+from zuper_commons.text import format_rows_as_table
+from zuper_commons.text import joinlines
 from zuper_commons.ui import color_gray
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import VISUALIZATION
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CacheQuerySessionInterface
+from compmake import CMJobID
+from compmake import Context
+from compmake import ui_command
 
 
 @ui_command(section=VISUALIZATION)

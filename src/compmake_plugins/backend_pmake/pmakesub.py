@@ -8,44 +8,51 @@ import traceback
 from collections.abc import Callable
 
 # noinspection PyProtectedMember
-from multiprocessing.context import BaseContext, Process
+from multiprocessing.context import BaseContext
+from multiprocessing.context import Process
 from queue import Empty
-from typing import Any, cast, Literal
+from typing import Any
+from typing import Literal
+from typing import cast
 
 import psutil
 from psutil import NoSuchProcess
+from zuper_commons.fs import FilePath
+from zuper_commons.fs import getcwd
+from zuper_commons.text import indent
+from zuper_commons.text import joinlines
+from zuper_commons.types import TM
+from zuper_commons.types import ZAssertionError
+from zuper_commons.types import ZValueError
+from zuper_commons.ui import duration_compact
+from zuper_commons.ui import size_compact
+from zuper_utils_asyncio import EveryOnceInAWhile
+from zuper_utils_asyncio import Global
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import get_report_splitters_text
+from zuper_utils_asyncio import get_report_splitters_text_referrers
+from zuper_utils_asyncio import running_tasks
+from zuper_utils_timing import TimeInfo
+from zuper_zapp import async_run_simple1
+from zuper_zapp import setup_environment2
 
-from compmake import (
-    AsyncResultInterface,
-    CMJobID,
-    CompmakeBug,
-    Event,
-    HostFailed,
-    JobFailed,
-    JobInterrupted,
-    parmake_job2_new_process_1,
-    result_dict_raise_if_error,
-    ResultDict,
-)
+from compmake import AsyncResultInterface
+from compmake import CMJobID
+from compmake import CompmakeBug
+from compmake import Event
+from compmake import HostFailed
+from compmake import JobFailed
+from compmake import JobInterrupted
+from compmake import ResultDict
+from compmake import parmake_job2_new_process_1
+from compmake import result_dict_raise_if_error
 from compmake.constants import CANCEL_REASONS
 from compmake.registered_events import EVENT_WORKER_JOB_FINISHED
 from compmake_utils import setproctitle
-from zuper_commons.fs import FilePath, getcwd
-from zuper_commons.text import indent, joinlines
-from zuper_commons.types import TM, ZAssertionError, ZValueError
-from zuper_commons.ui import duration_compact, size_compact
-from zuper_utils_asyncio import (
-    EveryOnceInAWhile,
-    get_report_splitters_text,
-    get_report_splitters_text_referrers,
-    Global,
-    running_tasks,
-    SyncTaskInterface,
-)
-from zuper_utils_timing import TimeInfo
-from zuper_zapp import async_run_simple1, setup_environment2
+
 from . import logger
-from .parmake_job2_imp import parmake_job2, ParmakeJobResult
+from .parmake_job2_imp import ParmakeJobResult
+from .parmake_job2_imp import parmake_job2
 
 __all__ = [
     "PmakeSub",
@@ -561,7 +568,9 @@ async def pmake_worker(
                     if detailed_python_mem_stats:
                         import lxml
                         import lxml.etree
-                        from pympler import muppy, summary, tracker
+                        from pympler import muppy
+                        from pympler import summary
+                        from pympler import tracker
                         from pympler.summary import format_
 
                         log("cleaning lxml error log...")
@@ -598,7 +607,9 @@ async def pmake_worker(
             log("memory dump")
 
             if memory_tracker is not None:
-                from pympler import muppy, summary, tracker
+                from pympler import muppy
+                from pympler import summary
+                from pympler import tracker
                 from pympler.summary import format_
 
                 all_objects = muppy.get_objects()

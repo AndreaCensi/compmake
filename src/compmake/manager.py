@@ -8,41 +8,71 @@ import signal
 import time
 import traceback
 import warnings
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, cast, NoReturn
+from typing import Any
+from typing import NoReturn
+from typing import cast
 from uuid import uuid4
 
-from zuper_commons.fs import AbsDirPath, abspath, joind, joinf, make_sure_dir_exists
-from zuper_commons.text import indent, joinlines, joinpars
+from zuper_commons.fs import AbsDirPath
+from zuper_commons.fs import abspath
+from zuper_commons.fs import joind
+from zuper_commons.fs import joinf
+from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.text import indent
+from zuper_commons.text import joinlines
+from zuper_commons.text import joinpars
 from zuper_commons.types import ZException
-from zuper_commons.ui import duration_compact, size_compact
-from zuper_utils_asyncio import EveryOnceInAWhile, my_create_task, SyncTaskInterface
-from . import COMPMAKE_DEBUG, logger
-from .actions import mark_as_blocked, mark_as_oom, mark_as_timed_out
-from .cachequerydb import CacheQueryDB, direct_uptodate_deps_inverse, list_todo_targets
-from .constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT, CANCEL_REASONS, CompmakeConstants
+from zuper_commons.ui import duration_compact
+from zuper_commons.ui import size_compact
+from zuper_utils_asyncio import EveryOnceInAWhile
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import my_create_task
+
+from . import COMPMAKE_DEBUG  # ok
+from . import logger
+from .actions import mark_as_blocked
+from .actions import mark_as_oom
+from .actions import mark_as_timed_out
+from .cachequerydb import CacheQueryDB
+from .cachequerydb import direct_uptodate_deps_inverse
+from .cachequerydb import list_todo_targets
+from .constants import CANCEL_REASON_OOM
+from .constants import CANCEL_REASON_TIMEOUT
+from .constants import CANCEL_REASONS
+from .constants import CompmakeConstants
 from .context import Context
 from .events_structures import Event
-from .exceptions import CompmakeBug, HostFailed, job_interrupted_exc, JobFailed, JobInterrupted
+from .exceptions import CompmakeBug
+from .exceptions import HostFailed
+from .exceptions import JobFailed
+from .exceptions import JobInterrupted
+from .exceptions import job_interrupted_exc
 from .filesystem import StorageFilesystem
 from .priority import compute_priorities
-from .registered_events import EVENT_MANAGER_PROGRESS, EVENT_MANAGER_SUCCEEDED, EVENT_WORKER_JOB_FINISHED
-from .registrar import publish, register_handler
-from .result_dict import check_ok_result, result_dict_check
-from .storage import (
-    db_job_add_dynamic_children,
-    db_job_add_parent,
-    get_job,
-    get_job_cache,
-    job_cache_exists,
-    job_exists,
-    job_userobject_exists,
-)
-from .structures import Cache, ParmakeJobResult, StateCode
-from .types import CMJobID, OKResult
+from .registered_events import EVENT_MANAGER_PROGRESS
+from .registered_events import EVENT_MANAGER_SUCCEEDED
+from .registered_events import EVENT_WORKER_JOB_FINISHED
+from .registrar import publish
+from .registrar import register_handler
+from .result_dict import check_ok_result
+from .result_dict import result_dict_check
+from .storage import db_job_add_dynamic_children
+from .storage import db_job_add_parent
+from .storage import get_job
+from .storage import get_job_cache
+from .storage import job_cache_exists
+from .storage import job_exists
+from .storage import job_userobject_exists
+from .structures import Cache
+from .structures import ParmakeJobResult
+from .structures import StateCode
+from .types import CMJobID
+from .types import OKResult
 from .uptodate import direct_uptodate_deps_inverse_closure
 from .visualization import ui_error
 

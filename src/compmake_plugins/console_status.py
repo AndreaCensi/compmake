@@ -4,12 +4,23 @@ import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import cast, ClassVar, Literal
+from typing import ClassVar
+from typing import Literal
+from typing import cast
 
-from compmake import compmake_colored, CompmakeGlobalState, Context, Event, publish, register_handler, ui_error
-from compmake.registered_events import EVENT_MANAGER_PROGRESS
-from compmake_utils import get_length_on_screen, getTerminalSize
 from zuper_commons.text import indent
+
+from compmake import CompmakeGlobalState
+from compmake import Context
+from compmake import Event
+from compmake import compmake_colored
+from compmake import publish
+from compmake import register_handler
+from compmake import ui_error
+from compmake.registered_events import EVENT_MANAGER_PROGRESS
+from compmake_utils import get_length_on_screen
+from compmake_utils import getTerminalSize
+
 from .tracker import Tracker
 
 stream = sys.stderr

@@ -1,9 +1,8 @@
 from contextlib import asynccontextmanager
 from typing import cast
 
-from compmake import (
-    MakeFailed,
-)
+from compmake import MakeFailed
+
 from .utils import Env
 
 

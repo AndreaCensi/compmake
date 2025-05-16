@@ -1,13 +1,18 @@
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
-from compmake import direct_children, direct_parents, make, UserError
+from zuper_commons.test_utils import assert_raises
+from zuper_commons.test_utils import my_assert
+from zuper_commons.test_utils import my_assert_equal
+
+from compmake import UserError
+from compmake import direct_children
+from compmake import direct_parents
+from compmake import make
 from compmake.types import CMJobID
-from zuper_commons.test_utils import (
-    assert_raises,
-    my_assert,
-    my_assert_equal,
-)
-from .utils import Env, run_with_env
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def f1(*args: Any, **kwargs: Any) -> None:

@@ -1,13 +1,18 @@
 from typing import cast
 
-from compmake import Cache, CMJobID, Context, get_job_cache, Promise
+from compmake import Cache
+from compmake import CMJobID
+from compmake import Context
+from compmake import Promise
+from compmake import get_job_cache
 
 __all__ = [
     "compmake_execution_stats",
 ]
 
-from compmake import CacheQueryDB
 from zuper_commons.types import check_isinstance
+
+from compmake import CacheQueryDB
 
 
 def compmake_execution_stats(context: Context, promise: CMJobID | Promise, use_job_id: CMJobID | None = None):

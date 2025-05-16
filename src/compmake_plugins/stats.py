@@ -6,26 +6,27 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
-
-from compmake import (
-    Cache,
-    CacheQueryDB,
-    CMJobID,
-    compmake_colored,
-    CompmakeConstants,
-    Context,
-    StateCode,
-    ui_command,
-    VISUALIZATION,
-)
-from compmake.cachequerydb import CacheQuerySessionInterface
-from compmake.constants import CANCEL_REASON_OOM, CANCEL_REASON_TIMEOUT
-from compmake.priority import PSTATS_FILE
-from compmake.structures import PersistentStats, PersistentStatsOne
-from compmake_utils import pad_to_screen
 from zuper_commons.fs import safe_pickle_dump
 from zuper_commons.ui import duration_compact
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import VISUALIZATION
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import CompmakeConstants
+from compmake import Context
+from compmake import StateCode
+from compmake import compmake_colored
+from compmake import ui_command
+from compmake.cachequerydb import CacheQuerySessionInterface
+from compmake.constants import CANCEL_REASON_OOM
+from compmake.constants import CANCEL_REASON_TIMEOUT
+from compmake.priority import PSTATS_FILE
+from compmake.structures import PersistentStats
+from compmake.structures import PersistentStatsOne
+from compmake_utils import pad_to_screen
+
 from . import logger
 
 _logger = logger

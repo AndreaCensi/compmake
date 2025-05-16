@@ -3,6 +3,7 @@ from typing import cast
 
 from zuper_commons.fs import friendly_path
 from zuper_utils_asyncio import SyncTaskInterface
+
 from .cachequerydb import CacheQueryDB
 from .context import Context
 from .visualization import ui_info
@@ -13,8 +14,8 @@ __all__ = [
 
 
 async def read_commands_from_file(sti: SyncTaskInterface, filename: str, context: Context):
-    from .interpret import interpret_commands_wrap
     from .context_imp import ContextImp
+    from .interpret import interpret_commands_wrap
 
     context = cast(ContextImp, context)
     filename = os.path.realpath(filename)

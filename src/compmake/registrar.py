@@ -1,15 +1,22 @@
-from typing import cast, TypeVar
+from typing import TypeVar
+from typing import cast
 
-from zuper_commons.fs import abspath, joind, joinf, make_sure_dir_exists
+from zuper_commons.fs import abspath
+from zuper_commons.fs import joind
+from zuper_commons.fs import joinf
+from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import wildcard_to_regexp
-from zuper_commons.types import ZException, ZValueError
+from zuper_commons.types import ZException
+from zuper_commons.types import ZValueError
+
 from . import logger
 from .context import Context
 from .events_structures import Event
 from .exceptions import CompmakeException
 from .filesystem import StorageFilesystem
 from .registered_events import compmake_registered_events
-from .state import CompmakeGlobalState, EventHandlerInterface
+from .state import CompmakeGlobalState
+from .state import EventHandlerInterface
 
 __all__ = [
     "publish",
@@ -89,7 +96,7 @@ def publish(context: Context, event_name: str, **kwargs: object) -> None:
     spec = compmake_registered_events[event_name]
     for key in kwargs.keys():
         if key not in spec.attrs:
-            msg = f"Passed attribute {key!r} for event type {event_name!r} but only found attributes " f"{spec.attrs}."
+            msg = f"Passed attribute {key!r} for event type {event_name!r} but only found attributes {spec.attrs}."
             logger.warning(msg)
             # raise CompmakeException(msg)
     event = Event(event_name, **kwargs)

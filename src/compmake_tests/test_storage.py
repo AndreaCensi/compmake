@@ -1,10 +1,14 @@
 from collections.abc import Iterator
 from typing import cast
 
-from compmake import StorageKey
-from zuper_commons.test_utils import my_assert, my_assert_equal
+from zuper_commons.test_utils import my_assert
+from zuper_commons.test_utils import my_assert_equal
 from zuper_commons.text import wildcard_to_regexp
-from .utils import Env, run_with_env
+
+from compmake import StorageKey
+
+from .utils import Env
+from .utils import run_with_env
 
 
 @run_with_env

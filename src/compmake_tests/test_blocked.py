@@ -1,8 +1,12 @@
 from typing import cast
 
-from compmake import Cache, CMJobID, get_job_cache
+from compmake import Cache
+from compmake import CMJobID
+from compmake import get_job_cache
+
 from .test_compmake import assert_MakeFailed
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 def job_success(*args, **kwargs):

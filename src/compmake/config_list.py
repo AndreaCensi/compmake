@@ -1,7 +1,8 @@
 import platform
 from multiprocessing import cpu_count
 
-from .structure import add_config_section, add_config_switch
+from .structure import add_config_section
+from .structure import add_config_switch
 
 __all__ = [
     "CONFIG_APPEARANCE",
@@ -22,7 +23,7 @@ add_config_section(name=CONFIG_PARALLEL, desc="", order=3)
 add_config_switch(
     "recurse",
     False,
-    desc="Default choice for parmake and make whether to run " "generated jobs.",
+    desc="Default choice for parmake and make whether to run generated jobs.",
     section=CONFIG_GENERAL,
 )
 
@@ -53,21 +54,21 @@ add_config_switch(
 add_config_switch(
     "echo",
     True,
-    desc="Show the output of a job in the console. See " "echo_stdout and echo_stderr.",
+    desc="Show the output of a job in the console. See echo_stdout and echo_stderr.",
     section=CONFIG_APPEARANCE,
 )
 
 add_config_switch(
     "echo_stdout",
     True,
-    desc="If true and 'echo' is true, the job output to stdout " "is shown.",
+    desc="If true and 'echo' is true, the job output to stdout is shown.",
     section=CONFIG_APPEARANCE,
 )
 
 add_config_switch(
     "echo_stderr",
     True,
-    desc="If true and 'echo' is true, the job output to stderr " "is shown.",
+    desc="If true and 'echo' is true, the job output to stderr is shown.",
     section=CONFIG_APPEARANCE,
 )
 
@@ -88,7 +89,7 @@ add_config_switch("colorize", True, desc="Use colors in terminals if possible.",
 add_config_switch(
     "interactive",
     True,
-    desc="Assumes that this is an interactive console. (Uses " "\\r to repaint line.)",
+    desc="Assumes that this is an interactive console. (Uses \\r to repaint line.)",
     section=CONFIG_APPEARANCE,
 )
 

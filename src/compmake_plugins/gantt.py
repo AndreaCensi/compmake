@@ -1,15 +1,21 @@
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
+from collections import namedtuple
 
-from compmake import Cache, CacheQueryDB, CacheQuerySessionInterface, COMMANDS_ADVANCED, ui_command
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import COMMANDS_ADVANCED
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CacheQuerySessionInterface
+from compmake import ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED)
 async def gantt(sti: SyncTaskInterface, job_list, context, filename="gantt.html"):
     """"""
-    from networkx.algorithms.dag import topological_sort
     import numpy as np
     from networkx import DiGraph
+    from networkx.algorithms.dag import topological_sort
 
     db = context.get_compmake_db()
 

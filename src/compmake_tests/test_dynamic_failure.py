@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 def g2():

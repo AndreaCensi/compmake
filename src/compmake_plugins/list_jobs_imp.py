@@ -1,30 +1,34 @@
 """The actual interface of some commands in commands.py"""
 
 import os
-from collections.abc import Collection, Sequence
+from collections.abc import Collection
+from collections.abc import Sequence
 from time import time
 from typing import Literal
 
-from compmake import (
-    Cache,
-    cache_has_large_overhead,
-    CacheQueryDB,
-    CacheQuerySessionInterface,
-    CMJobID,
-    compmake_colored,
-    CompmakeConstants,
-    Context,
-    is_root_job,
-    parse_job_list,
-    timing_summary,
-    ui_command,
-    ui_message,
-    UserError,
-    VISUALIZATION,
-)
-from compmake_utils import get_screen_columns, TableFormatter
-from zuper_commons.ui import color_orange, color_yellow, duration_compact, size_compact
+from zuper_commons.ui import color_orange
+from zuper_commons.ui import color_yellow
+from zuper_commons.ui import duration_compact
+from zuper_commons.ui import size_compact
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import VISUALIZATION
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CacheQuerySessionInterface
+from compmake import CMJobID
+from compmake import CompmakeConstants
+from compmake import Context
+from compmake import UserError
+from compmake import cache_has_large_overhead
+from compmake import compmake_colored
+from compmake import is_root_job
+from compmake import parse_job_list
+from compmake import timing_summary
+from compmake import ui_command
+from compmake import ui_message
+from compmake_utils import TableFormatter
+from compmake_utils import get_screen_columns
 
 format_utility_job = dict()
 format_separator = dict()

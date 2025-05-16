@@ -1,4 +1,5 @@
-from typing import NewType, TypedDict
+from typing import NewType
+from typing import TypedDict
 
 __all__ = [
     "AbortResult",

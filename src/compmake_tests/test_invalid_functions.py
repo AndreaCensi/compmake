@@ -1,6 +1,10 @@
-from compmake import Context, UserError
 from zuper_commons.test_utils import assert_raises
-from .utils import Env, run_with_env
+
+from compmake import Context
+from compmake import UserError
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def uses_nested(context: Context) -> None:

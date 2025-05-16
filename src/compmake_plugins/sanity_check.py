@@ -1,24 +1,23 @@
 """The actual interface of some commands in commands.py"""
 
-from compmake import (
-    all_jobs,
-    CacheQueryDB,
-    children,
-    CMJobID,
-    COMMANDS_ADVANCED,
-    CompmakeBug,
-    Context,
-    direct_children,
-    direct_parents,
-    get_job,
-    job_exists,
-    parents,
-    parse_job_list,
-    ui_command,
-    ui_error,
-    ui_info,
-)
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import COMMANDS_ADVANCED
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import CompmakeBug
+from compmake import Context
+from compmake import all_jobs
+from compmake import children
+from compmake import direct_children
+from compmake import direct_parents
+from compmake import get_job
+from compmake import job_exists
+from compmake import parents
+from compmake import parse_job_list
+from compmake import ui_command
+from compmake import ui_error
+from compmake import ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED, alias="check-consistency")

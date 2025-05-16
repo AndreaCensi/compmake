@@ -3,15 +3,29 @@ These are all wrappers around the raw methods in storage
 """
 
 import traceback
-from collections.abc import Callable, Collection, Iterator, Mapping
-from typing import Any, cast
+from collections.abc import Callable
+from collections.abc import Collection
+from collections.abc import Iterator
+from collections.abc import Mapping
+from typing import Any
+from typing import cast
+
+from zuper_commons.types import TM
+from zuper_commons.types import add_context
+from zuper_commons.types import check_isinstance
 
 from compmake_utils.pickle_frustration import pickle_main_context_load
-from zuper_commons.types import add_context, check_isinstance, TM
+
 from . import COMPMAKE_DEBUG
-from .exceptions import CompmakeBug, CompmakeDBError, CompmakeException, SerializationError
-from .filesystem import StorageFilesystem, StorageKey
-from .structures import Cache, ExecOutputData, Job
+from .exceptions import CompmakeBug
+from .exceptions import CompmakeDBError
+from .exceptions import CompmakeException
+from .exceptions import SerializationError
+from .filesystem import StorageFilesystem
+from .filesystem import StorageKey
+from .structures import Cache
+from .structures import ExecOutputData
+from .structures import Job
 from .types import CMJobID
 
 __all__ = [
@@ -45,7 +59,10 @@ __all__ = [
     "outdata2cachekey",
     "set_job",
     "set_job_args",
+    "set_job_backtrace_exception",
     "set_job_cache",
+    "set_job_eod",
+    "set_job_stdout_stderr",
     "set_job_userobject",
 ]
 KEY_JOB_PREFIX = "cm-job-"
@@ -268,7 +285,7 @@ def get_job_userobject(job_id: CMJobID, db: StorageFilesystem) -> object:
             res = db[key]
     except Exception as e:
         msg = f"Could not load user object for job {job_id}"
-        from . import mark_as_failed
+        from . import mark_as_failed  # ok
 
         mark_as_failed(job_id, db, msg, traceback.format_exc())
         raise SerializationError(msg) from e

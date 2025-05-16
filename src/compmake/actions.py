@@ -4,51 +4,80 @@ import sys
 import time
 import traceback
 from asyncio import CancelledError
-from collections.abc import Callable, Collection, Iterator, Mapping
+from collections.abc import Callable
+from collections.abc import Collection
+from collections.abc import Iterator
+from collections.abc import Mapping
 from contextlib import contextmanager
 from logging import Formatter
-from typing import Any, cast, Concatenate, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Concatenate
+from typing import cast
 
-from compmake_utils import interpret_strings_like, OutputCapture, setproctitle, try_pickling
 from zuper_commons.text import indent
-from zuper_commons.types import check_isinstance, describe_type, ZAssertionError, ZValueError
+from zuper_commons.types import ZAssertionError
+from zuper_commons.types import ZValueError
+from zuper_commons.types import check_isinstance
+from zuper_commons.types import describe_type
 from zuper_commons.ui import color_orange
-from zuper_utils_asyncio import is_this_task_cancelling, SyncTaskInterface
-from zuper_utils_timing import new_timeinfo, TimeInfo
-from . import COMPMAKE_DEBUG, logger
-from .cachequerydb import CacheQueryDB, CacheQuerySessionInterface
-from .constants import CompmakeConstants, DefaultsToConfig
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import is_this_task_cancelling
+from zuper_utils_timing import TimeInfo
+from zuper_utils_timing import new_timeinfo
+
+from compmake_utils import OutputCapture
+from compmake_utils import interpret_strings_like
+from compmake_utils import setproctitle
+from compmake_utils import try_pickling
+
+from . import COMPMAKE_DEBUG  # ok
+from . import logger
+from .cachequerydb import CacheQueryDB
+from .cachequerydb import CacheQuerySessionInterface
+from .constants import CompmakeConstants
+from .constants import DefaultsToConfig
 from .context import Context
 from .dependencies import collect_dependencies
-from .exceptions import CommandFailed, CompmakeBug, CompmakeException, job_failed_exc, job_interrupted_exc, UserError
+from .exceptions import CommandFailed
+from .exceptions import CompmakeBug
+from .exceptions import CompmakeException
+from .exceptions import UserError
+from .exceptions import job_failed_exc
+from .exceptions import job_interrupted_exc
 from .filesystem import StorageFilesystem
-from .helpers import get_commands, UIState
-from .job_execution import job_compute, JobComputeResult
+from .helpers import UIState
+from .helpers import get_commands
+from .job_execution import JobComputeResult
+from .job_execution import job_compute
 from .parsing import parse_job_list
 from .progress_imp2 import init_progress_tracking
 from .queries import direct_parents
 from .registrar import publish
 from .state import get_compmake_status
-from .storage import (
-    all_jobs,
-    db_job_add_parent_relation,
-    delete_all_job_data,
-    delete_job_cache,
-    get_job,
-    get_job_args,
-    get_job_cache,
-    job_cache_exists,
-    job_exists,
-    set_job,
-    set_job_args,
-    set_job_backtrace_exception,
-    set_job_cache,
-    set_job_eod,
-    set_job_stdout_stderr,
-    set_job_userobject,
-)
-from .structures import Cache, ExecOutputData, IntervalTimer, Promise, same_computation
-from .types import CMJobID, MakeResult
+from .storage import all_jobs
+from .storage import db_job_add_parent_relation
+from .storage import delete_all_job_data
+from .storage import delete_job_cache
+from .storage import get_job
+from .storage import get_job_args
+from .storage import get_job_cache
+from .storage import job_cache_exists
+from .storage import job_exists
+from .storage import set_job
+from .storage import set_job_args
+from .storage import set_job_backtrace_exception
+from .storage import set_job_cache
+from .storage import set_job_eod
+from .storage import set_job_stdout_stderr
+from .storage import set_job_userobject
+from .structures import Cache
+from .structures import ExecOutputData
+from .structures import IntervalTimer
+from .structures import Promise
+from .structures import same_computation
+from .types import CMJobID
+from .types import MakeResult
 from .visualization import ui_info
 
 __all__ = [
@@ -133,7 +162,7 @@ def clean_cache_relations(job_id: CMJobID, db: StorageFilesystem) -> None:
     if cache.state == Cache.DONE:
         for parent in direct_parents(job_id, db):
             if not job_exists(parent, db):
-                msg = "Could not find job %r (parent of %s) - ok if the job was deleted" " otherwise it is a bug" % (
+                msg = "Could not find job %r (parent of %s) - ok if the job was deleted otherwise it is a bug" % (
                     parent,
                     job_id,
                 )
@@ -1194,8 +1223,7 @@ async def interpret_single_command(sti: SyncTaskInterface, commands_line: str, c
 
                 availables = ", ".join(available)
                 msg = (
-                    f"You passed the argument {k!r} for command {cmd.name!r}, "
-                    f"but the only available arguments are: {availables}."
+                    f"You passed the argument {k!r} for command {cmd.name!r}, but the only available arguments are: {availables}."
                 )
                 raise UserError(msg)
 

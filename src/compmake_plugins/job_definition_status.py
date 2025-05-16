@@ -1,6 +1,9 @@
 import sys
 
-from compmake import compmake_colored, Context, Event, register_handler
+from compmake import Context
+from compmake import Event
+from compmake import compmake_colored
+from compmake import register_handler
 from compmake_utils import get_screen_columns
 
 stream = sys.stderr

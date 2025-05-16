@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from zuper_commons.ui import get_colorize_function
+
 from .state import get_compmake_config0
 
 __all__ = [

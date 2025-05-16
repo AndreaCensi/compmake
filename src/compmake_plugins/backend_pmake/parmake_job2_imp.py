@@ -5,32 +5,36 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from multiprocessing import Queue
 from queue import Full
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
-from compmake import (
-    CMJobID,
-    COMPMAKE_DEBUG,
-    CompmakeConstants,
-    Context,
-    ContextImp,
-    Event,
-    JobFailed,
-    JobInterrupted,
-    JobProgressEvent,
-    make,
-    MakeResult,
-    ParmakeJobResult,
-    publish,
-    register_handler,
-    remove_all_handlers,
-    result_dict_check,
-)
-from compmake_utils import setproctitle
 from zuper_commons import ZLogger
-from zuper_commons.fs import DirPath, join, mkdirs_thread_safe
+from zuper_commons.fs import DirPath
+from zuper_commons.fs import join
+from zuper_commons.fs import mkdirs_thread_safe
 from zuper_commons.types import check_isinstance
-from zuper_utils_asyncio import MyAsyncExitStack, SyncTaskInterface
-from zuper_utils_timing import TimeInfo, timeit_wall
+from zuper_utils_asyncio import MyAsyncExitStack
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_timing import TimeInfo
+from zuper_utils_timing import timeit_wall
+
+from compmake import COMPMAKE_DEBUG
+from compmake import CMJobID
+from compmake import CompmakeConstants
+from compmake import Context
+from compmake import ContextImp
+from compmake import Event
+from compmake import JobFailed
+from compmake import JobInterrupted
+from compmake import JobProgressEvent
+from compmake import MakeResult
+from compmake import ParmakeJobResult
+from compmake import make
+from compmake import publish
+from compmake import register_handler
+from compmake import remove_all_handlers
+from compmake import result_dict_check
+from compmake_utils import setproctitle
 
 __all__ = [
     "parmake_job2",

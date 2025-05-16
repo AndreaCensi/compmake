@@ -1,6 +1,7 @@
 from typing import cast
 
-from compmake import clean_other_jobs, JobInterface
+from compmake import JobInterface
+from compmake import clean_other_jobs
 from compmake.types import CMJobID
 
 
@@ -35,7 +36,9 @@ def mockup5(context: JobInterface, both: bool):
         context.comp_dynamic(hd)
 
 
-from .utils import Env, environment, run_with_env
+from .utils import Env
+from .utils import environment
+from .utils import run_with_env
 
 
 @run_with_env

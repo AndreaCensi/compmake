@@ -1,11 +1,15 @@
 from collections.abc import Sequence
 from copy import deepcopy
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
-from zuper_commons.types import ZException, ZValueError
+from zuper_commons.types import ZException
+from zuper_commons.types import ZValueError
+
 from .exceptions import CompmakeBug
 from .filesystem import StorageFilesystem
-from .storage import get_job_userobject, job_userobject_exists
+from .storage import get_job_userobject
+from .storage import job_userobject_exists
 from .structures import Promise
 from .types import CMJobID
 

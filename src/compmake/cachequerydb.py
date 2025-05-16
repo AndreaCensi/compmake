@@ -1,36 +1,49 @@
-from abc import ABC, abstractmethod
-from collections.abc import Callable, Collection, Iterator, Mapping
+from abc import ABC
+from abc import abstractmethod
+from collections.abc import Callable
+from collections.abc import Collection
+from collections.abc import Iterator
+from collections.abc import Mapping
 from contextlib import contextmanager
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 from methodtools import lru_cache as lru_cache_method0  # type: ignore
+from zuper_commons.types import TM
+from zuper_commons.types import add_context
+from zuper_commons.types import check_isinstance
 
 from compmake_utils import memoized_reset
-from zuper_commons.types import add_context, check_isinstance, TM
-from . import ExecOutputData, logger
+
+from . import logger
 from .constants import CompmakeConstants
 from .dependencies import collect_dependencies
-from .exceptions import CompmakeBug, CompmakeDBError, SerializationError
-from .filesystem import StorageFilesystem, StorageFilesystemSessionInterface, StorageKey
-from .storage import (
-    all_jobs,
-    get_job,
-    get_job_cache,
-    get_job_userobject,
-    job2cachekey,
-    job2jobargskey,
-    job2key,
-    job2userobjectkey,
-    job_exists,
-    key2job,
-    outdata2cachekey,
-)
-from .structures import Cache, Job
+from .exceptions import CompmakeBug
+from .exceptions import CompmakeDBError
+from .exceptions import SerializationError
+from .filesystem import StorageFilesystem
+from .filesystem import StorageFilesystemSessionInterface
+from .filesystem import StorageKey
+from .storage import all_jobs
+from .storage import get_job
+from .storage import get_job_cache
+from .storage import get_job_userobject
+from .storage import job2cachekey
+from .storage import job2jobargskey
+from .storage import job2key
+from .storage import job2userobjectkey
+from .storage import job_exists
+from .storage import key2job
+from .storage import outdata2cachekey
+from .structures import Cache
+from .structures import ExecOutputData
+from .structures import Job
 from .types import CMJobID
 
 __all__ = [
     "CacheQueryDB",
     "CacheQuerySessionInterface",
+    "direct_uptodate_deps_inverse",
     "list_todo_targets",
 ]
 

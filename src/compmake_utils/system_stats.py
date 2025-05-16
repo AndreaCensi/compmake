@@ -9,7 +9,7 @@ try:
 except ImportError:
     from . import logger
 
-    logger.warning('Package "psutil" not found; load balancing ' "and system stats (CPU, MEM) not available.")
+    logger.warning('Package "psutil" not found; load balancing and system stats (CPU, MEM) not available.')
 
 
 class AvgSystemStats:

@@ -1,4 +1,7 @@
-from compmake import CMJobID, Context, Event, register_handler
+from compmake import CMJobID
+from compmake import Context
+from compmake import Event
+from compmake import register_handler
 
 __all__ = [
     "Tracker",

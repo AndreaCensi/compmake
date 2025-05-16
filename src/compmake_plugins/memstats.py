@@ -1,8 +1,13 @@
 """The actual interface of some commands in commands.py"""
 
-from compmake import CacheQueryDB, Context, ui_command, VISUALIZATION
 from zuper_commons.text import joinlines
-from zuper_utils_asyncio import get_report_splitters_text, SyncTaskInterface
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import get_report_splitters_text
+
+from compmake import VISUALIZATION
+from compmake import CacheQueryDB
+from compmake import Context
+from compmake import ui_command
 
 __all__ = [
     "memstats",
@@ -15,8 +20,9 @@ async def memstats(sti: SyncTaskInterface, context: Context, cq: CacheQueryDB) -
 
     report = get_report_splitters_text()
     await context.write_message_console(report)
+    from pympler import muppy
+    from pympler import summary
     from pympler.summary import format_
-    from pympler import muppy, summary
 
     await context.write_message_console("Collecting memory stats 1...")
     all_objects = muppy.get_objects()

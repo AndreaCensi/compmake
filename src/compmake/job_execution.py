@@ -1,19 +1,31 @@
 import asyncio
 import inspect
 import traceback
-from collections.abc import Callable, Mapping
-from typing import Any, TypedDict
+from collections.abc import Callable
+from collections.abc import Mapping
+from typing import Any
+from typing import TypedDict
 
-from zuper_commons.types import add_context, check_isinstance, TM, ZValueError
+from zuper_commons.types import TM
+from zuper_commons.types import ZValueError
+from zuper_commons.types import add_context
+from zuper_commons.types import check_isinstance
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_utils_timing import TimeInfo
+
 from . import COMPMAKE_DEBUG
 from .context import Context
-from .dependencies import collect_dependencies, substitute_dependencies
-from .exceptions import CompmakeBug, SerializationError
+from .dependencies import collect_dependencies
+from .dependencies import substitute_dependencies
+from .exceptions import CompmakeBug
+from .exceptions import SerializationError
 from .filesystem import StorageFilesystem
-from .storage import get_job, get_job_args, get_job_cache, job_userobject_exists
-from .structures import IntervalTimer, Job
+from .storage import get_job
+from .storage import get_job_args
+from .storage import get_job_cache
+from .storage import job_userobject_exists
+from .structures import IntervalTimer
+from .structures import Job
 from .types import CMJobID
 
 __all__ = [
@@ -72,7 +84,7 @@ async def job_compute(sti: SyncTaskInterface, job: Job, context: Context, ti: Ti
         await context.write_message_console(f"Error: could not deserialize job {job_id!r}, perhaps remake parent {parent}")
 
         if False:
-            from . import mark_as_failed
+            from . import mark_as_failed  # ok
 
             msg = f"Could not deserialize child job {job_id!r}"
             mark_as_failed(parent, db, msg, traceback.format_exc())

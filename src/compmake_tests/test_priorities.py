@@ -1,7 +1,10 @@
 from typing import Any
 
-from compmake import CompmakeConstants, set_compmake_status
-from .utils import Env, run_with_env
+from compmake import CompmakeConstants
+from compmake import set_compmake_status
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def add(s: str, other: Any = None) -> None:

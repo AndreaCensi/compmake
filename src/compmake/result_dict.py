@@ -1,8 +1,14 @@
 from typing import cast
 
-from zuper_commons.types import check_isinstance, ZAssertionError
-from .exceptions import CompmakeBug, HostFailed, JobFailed, JobInterrupted
-from .types import OKResult, ResultDict
+from zuper_commons.types import ZAssertionError
+from zuper_commons.types import check_isinstance
+
+from .exceptions import CompmakeBug
+from .exceptions import HostFailed
+from .exceptions import JobFailed
+from .exceptions import JobInterrupted
+from .types import OKResult
+from .types import ResultDict
 
 __all__ = [
     "check_ok_result",
@@ -55,7 +61,10 @@ def result_dict_check(res: ResultDict) -> None:
         raise ZAssertionError(msg, res=res)
 
 
-from .types import FailResult, AbortResult, BugResult, InterruptedResult
+from .types import AbortResult
+from .types import BugResult
+from .types import FailResult
+from .types import InterruptedResult
 
 
 def result_dict_raise_if_error(res: ResultDict) -> OKResult:

@@ -1,7 +1,12 @@
 import unittest
 
-from compmake import init_progress_tracking, progress
-from zuper_commons.test_utils import assert_raises, istest, known_failure, my_assert_equal
+from zuper_commons.test_utils import assert_raises
+from zuper_commons.test_utils import istest
+from zuper_commons.test_utils import known_failure
+from zuper_commons.test_utils import my_assert_equal
+
+from compmake import init_progress_tracking
+from compmake import progress
 
 
 @istest

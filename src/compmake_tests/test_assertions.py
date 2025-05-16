@@ -1,5 +1,6 @@
 from .test_compmake import assert_MakeFailed
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 def job_success(*args, **kwargs):

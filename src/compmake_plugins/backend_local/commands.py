@@ -1,24 +1,24 @@
 import time
 from collections.abc import Collection
 
-from compmake import (
-    ACTIONS,
-    ask_if_sure_remake,
-    Cache,
-    CacheQueryDB,
-    CMJobID,
-    Context,
-    DefaultsToConfig,
-    IntervalTimer,
-    mark_to_remake,
-    raise_error_if_manager_failed,
-    set_job_cache,
-    set_job_userobject,
-    top_targets,
-    ui_command,
-    UserError,
-)
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import ACTIONS
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import Context
+from compmake import DefaultsToConfig
+from compmake import IntervalTimer
+from compmake import UserError
+from compmake import ask_if_sure_remake
+from compmake import mark_to_remake
+from compmake import raise_error_if_manager_failed
+from compmake import set_job_cache
+from compmake import set_job_userobject
+from compmake import top_targets
+from compmake import ui_command
+
 from .manager_local import ManagerLocal
 
 __all__ = [

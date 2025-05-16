@@ -3,23 +3,35 @@ import os
 import sys
 import traceback
 from asyncio import CancelledError
-from collections.abc import Callable, Collection
-from dataclasses import dataclass
-from typing import Any, cast, Concatenate
+from collections.abc import Callable
+from collections.abc import Collection
 from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Any
+from typing import Concatenate
+from typing import cast
 
 from zuper_commons.fs import DirPath
-from zuper_commons.text import CLEAR_ENTIRE_LINE, indent, joinlines
-from zuper_utils_asyncio import async_errors, Splitter, SyncTaskInterface
-from . import SimpleJobInterface
+from zuper_commons.text import CLEAR_ENTIRE_LINE
+from zuper_commons.text import indent
+from zuper_commons.text import joinlines
+from zuper_utils_asyncio import Splitter
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import async_errors
+
 from .actions import comp_
 from .cachequerydb import CacheQueryDB
-from .context import Context, SimpleJobInterfaceGen
+from .context import Context
+from .context import SimpleJobInterface
+from .context import SimpleJobInterfaceGen
 from .events_structures import Event
 from .exceptions import UserError
 from .filesystem import StorageFilesystem
-from .interpret import batch_command, interpret_commands_wrap
-from .state import CompmakeGlobalState, get_compmake_config0, set_compmake_config0
+from .interpret import batch_command
+from .interpret import interpret_commands_wrap
+from .state import CompmakeGlobalState
+from .state import get_compmake_config0
+from .state import set_compmake_config0
 from .structures import Promise
 from .types import CMJobID
 

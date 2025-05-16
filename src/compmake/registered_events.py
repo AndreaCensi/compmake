@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from .events_structures import Event, EventSpec
+from .events_structures import Event
+from .events_structures import EventSpec
 from .types import CMJobID
 
 compmake_registered_events: dict[str, EventSpec] = {}
@@ -54,9 +55,7 @@ add(
     EventSpec(
         "manager-loop",
         ["processing"],
-        desc="called each time the manager loops waiting for jobs"
-        "to finish. processing is the list of jobs currently "
-        "processing.",
+        desc="called each time the manager loops waiting for jobsto finish. processing is the list of jobs currently processing.",
     )
 )
 # These are called when the manager updates its data structure

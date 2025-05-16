@@ -1,13 +1,15 @@
-from abc import ABC, abstractmethod
-from collections.abc import Callable, Collection, Mapping
-from typing import (
-    Any,
-    Concatenate,
-    Self,
-    TYPE_CHECKING,
-)
+from abc import ABC
+from abc import abstractmethod
+from collections.abc import Callable
+from collections.abc import Collection
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Concatenate
+from typing import Self
 
 from zuper_utils_asyncio import SyncTaskInterface
+
 from .structures import Promise
 from .types import CMJobID
 

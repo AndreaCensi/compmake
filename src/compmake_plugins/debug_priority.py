@@ -1,4 +1,7 @@
-from compmake import CacheQueryDB, COMMANDS_ADVANCED, compute_priorities, ui_command
+from compmake import COMMANDS_ADVANCED
+from compmake import CacheQueryDB
+from compmake import compute_priorities
+from compmake import ui_command
 
 
 @ui_command(section=COMMANDS_ADVANCED)

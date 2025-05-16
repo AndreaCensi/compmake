@@ -7,34 +7,48 @@ import random
 import time
 import traceback
 from asyncio import CancelledError
-from collections.abc import Callable, Collection
+from collections.abc import Callable
+from collections.abc import Collection
 from multiprocessing import Queue
 
 # noinspection PyProtectedMember
 from multiprocessing.context import BaseContext
 from queue import Empty
-from typing import Any, cast, ClassVar, NewType
+from typing import Any
+from typing import ClassVar
+from typing import NewType
+from typing import cast
 
 import psutil
 from psutil import NoSuchProcess
-
-from compmake import (
-    AsyncResultInterface,
-    CMJobID,
-    Context,
-    FailResult,
-    Manager,
-    publish,
-)
-from compmake.constants import CANCEL_REASON_HOST_FAILED, CANCEL_REASONS
-from compmake_utils import get_memory_usage
-from zuper_commons.fs import join, joinf, make_sure_dir_exists
+from zuper_commons.fs import join
+from zuper_commons.fs import joinf
+from zuper_commons.fs import make_sure_dir_exists
 from zuper_commons.text import format_rows_as_table
 from zuper_commons.types import ZAssertionError
-from zuper_commons.ui import color_gray, color_orange, color_red, duration_compact, size_compact
-from zuper_utils_asyncio import async_errors, EveryOnceInAWhile, my_create_task, SyncTaskInterface
+from zuper_commons.ui import color_gray
+from zuper_commons.ui import color_orange
+from zuper_commons.ui import color_red
+from zuper_commons.ui import duration_compact
+from zuper_commons.ui import size_compact
+from zuper_utils_asyncio import EveryOnceInAWhile
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import async_errors
+from zuper_utils_asyncio import my_create_task
+
+from compmake import AsyncResultInterface
+from compmake import CMJobID
+from compmake import Context
+from compmake import FailResult
+from compmake import Manager
+from compmake import publish
+from compmake.constants import CANCEL_REASON_HOST_FAILED
+from compmake.constants import CANCEL_REASONS
+from compmake_utils import get_memory_usage
+
 from . import logger
-from .pmakesub import PmakeSub, PossibleFuncs
+from .pmakesub import PmakeSub
+from .pmakesub import PossibleFuncs
 
 __all__ = [
     "PmakeManager",
@@ -327,7 +341,7 @@ class PmakeManager(Manager):
 
             usage_GB = mem.usage / (1024**3)
             if usage_GB > max_mem_GB:
-                msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [" f"{mem.method}]"
+                msg = f"Memory used {usage_GB:.1f}GB > {max_mem_GB:.1f}GB (usage {mem.usage_percent:.1f}%) [{mem.method}]"
                 # logger.info(mem=mem)
                 # run GC
                 gc.collect()

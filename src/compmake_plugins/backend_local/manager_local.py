@@ -3,20 +3,18 @@ import os
 import time
 
 import psutil
-
-from compmake import (
-    AsyncResultInterface,
-    CMJobID,
-    CompmakeBug,
-    Context,
-    make,
-    Manager,
-    parmake_job2_new_process_1,
-    ParmakeJobResult,
-    result_dict_raise_if_error,
-    ui_warning,
-)
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import AsyncResultInterface
+from compmake import CMJobID
+from compmake import CompmakeBug
+from compmake import Context
+from compmake import Manager
+from compmake import ParmakeJobResult
+from compmake import make
+from compmake import parmake_job2_new_process_1
+from compmake import result_dict_raise_if_error
+from compmake import ui_warning
 
 tr = None
 
@@ -38,7 +36,7 @@ class ManagerLocal(Manager):
 
         self.sti = sti
         if new_process and echo:
-            msg = "Compmake does not yet support echoing stdout/stderr " "when jobs are run in a new process."
+            msg = "Compmake does not yet support echoing stdout/stderr when jobs are run in a new process."
             ui_warning(self.context, msg)
 
     def can_accept_job(self, reasons):

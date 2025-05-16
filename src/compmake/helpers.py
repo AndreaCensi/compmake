@@ -1,12 +1,19 @@
 import sys
 import types
 from collections import namedtuple
-from collections.abc import Awaitable, Callable
-from typing import Any, ClassVar, TextIO, TypeVar
+from collections.abc import Awaitable
+from collections.abc import Callable
+from typing import Any
+from typing import ClassVar
+from typing import TextIO
+from typing import TypeVar
 
-from compmake_utils import docstring_components, docstring_trim
 from zuper_commons.types import ZValueError
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake_utils import docstring_components
+from compmake_utils import docstring_trim
+
 from . import logger
 from .colored import compmake_colored
 from .exceptions import UserError
@@ -174,7 +181,7 @@ async def help(sti: SyncTaskInterface, args: list[str]) -> None:  # @ReservedAss
         list_commands_with_sections()
     else:
         if len(args) > 1:
-            msg = 'The "help" command expects at most one parameter.' " (got: %s)" % args
+            msg = 'The "help" command expects at most one parameter. (got: %s)' % args
             raise UserError(msg)
 
         c = args[0]

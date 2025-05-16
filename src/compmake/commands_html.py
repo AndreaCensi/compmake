@@ -1,7 +1,9 @@
 import sys
 from typing import TextIO
 
-from .helpers import COMMANDS_ADVANCED, ui_command, UIState
+from .helpers import COMMANDS_ADVANCED
+from .helpers import UIState
+from .helpers import ui_command
 
 __all__ = [
     "commands_html",

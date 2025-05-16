@@ -2,13 +2,18 @@ import math
 import os
 from collections.abc import Collection
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
-from zuper_commons.fs import FilePath, safe_pickle_load
+from zuper_commons.fs import FilePath
+from zuper_commons.fs import safe_pickle_load
 from zuper_commons.types import ZAssertionError
+
 from . import logger
 from .cachequerydb import CacheQuerySessionInterface
-from .structures import Cache, Job, PersistentStats
+from .structures import Cache
+from .structures import Job
+from .structures import PersistentStats
 from .types import CMJobID
 
 _logger = logger

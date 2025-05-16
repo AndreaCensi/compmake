@@ -1,17 +1,18 @@
 import os
 from datetime import datetime
 
-from compmake import (
-    CacheQueryDB,
-    CMJobID,
-    Context,
-    ui_command,
-    ui_message,
-    VISUALIZATION,
-)
-from compmake.parsing import parse_jobs_from_file
-from zuper_commons.fs import make_sure_dir_exists, read_ustring_from_utf8_file, write_ustring_to_utf8_file
+from zuper_commons.fs import make_sure_dir_exists
+from zuper_commons.fs import read_ustring_from_utf8_file
+from zuper_commons.fs import write_ustring_to_utf8_file
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import VISUALIZATION
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import Context
+from compmake import ui_command
+from compmake import ui_message
+from compmake.parsing import parse_jobs_from_file
 
 format_utility_job = dict()
 format_separator = dict()

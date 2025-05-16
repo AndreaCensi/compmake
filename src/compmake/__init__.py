@@ -11,44 +11,40 @@ logger.hello_module(name=__name__, filename=__file__, version=__version__, date=
 
 COMPMAKE_DEBUG = False
 
-from .types import *
+from .actions import *
+from .actions_newprocess import *
+from .cachequerydb import *
+from .colored import *
+from .commands import *
+from .commands_html import *
+from .config_list import *
+from .config_ui import *
 from .constants import *
+from .context import *
+from .context_imp import *
+from .dependencies import *
+from .events_structures import *
+from .exceptions import *
+from .filesystem import *
+from .helpers import *
+from .job_execution import *
+from .manager import *
+from .master import *
+from .parsing import *
+from .priority import *
+from .progress_imp2 import *
+from .queries import *
+from .readrcfiles import *
+from .registered_events import *
+from .registrar import *
+from .result_dict import *
 from .state import *
 from .storage import *
 from .structures import *
-from .exceptions import *
-from .progress_imp2 import *
-from .state import *
-from .context import *
-from .master import *
-from .registrar import *
-from .priority import *
-from .helpers import *
-from .structures import *
-from .visualization import *
-from .uptodate import *
-from .parsing import *
-from .cachequerydb import *
-from .filesystem import *
-from .queries import *
+from .types import *
 from .ui import *
-from .actions import *
-from .progress_imp2 import *
-from .dependencies import *
-from .manager import *
-from .commands import *
-from .helpers import *
-from .colored import *
-from .result_dict import *
-from .actions_newprocess import *
-from .context_imp import *
-from .config_ui import *
-from .config_list import *
-from .readrcfiles import *
-from .job_execution import *
-from .commands_html import *
-from .events_structures import *
-from .registered_events import *
+from .uptodate import *
+from .visualization import *
 
 # Default initialization
 set_compmake_status(CompmakeConstants.compmake_status_embedded)

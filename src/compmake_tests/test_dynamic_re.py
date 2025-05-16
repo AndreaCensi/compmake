@@ -1,5 +1,7 @@
-from .test_dynamic_1 import mockup_dynamic1, TestDynamic1
-from .utils import Env, run_with_env
+from .test_dynamic_1 import TestDynamic1
+from .test_dynamic_1 import mockup_dynamic1
+from .utils import Env
+from .utils import run_with_env
 
 
 @run_with_env

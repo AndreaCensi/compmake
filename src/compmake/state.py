@@ -1,10 +1,14 @@
 import sys
 from collections import namedtuple
 from collections.abc import Awaitable
-from typing import Any, ClassVar, Protocol
+from typing import Any
+from typing import ClassVar
+from typing import Protocol
+
+from zuper_commons.types import ZValueError
 
 from compmake_utils import AvgSystemStats
-from zuper_commons.types import ZValueError
+
 from .constants import CompmakeConstants
 from .context import Context
 from .events_structures import Event

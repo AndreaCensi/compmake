@@ -1,14 +1,17 @@
 """Contains queries of the job DB."""
 
 import warnings
-from collections.abc import Collection, Iterator
+from collections.abc import Collection
+from collections.abc import Iterator
 from contextlib import contextmanager
 
 from zuper_commons.types import check_isinstance
+
 from .cachequerydb import CacheQueryDB
 from .exceptions import CompmakeBug
 from .filesystem import StorageFilesystem
-from .storage import get_job, get_job_cache
+from .storage import get_job
+from .storage import get_job_cache
 from .structures import Cache
 from .types import CMJobID
 

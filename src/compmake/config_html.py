@@ -1,5 +1,6 @@
-from .state import CompmakeGlobalState
 from typing import Any
+
+from .state import CompmakeGlobalState
 
 __all__ = [
     "create_config_html",

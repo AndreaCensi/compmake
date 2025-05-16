@@ -1,8 +1,14 @@
 import os
 
-from compmake import COMMANDS_ADVANCED, Context, Event, register_handler, ui_command
-from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
 from zuper_commons.fs import make_sure_dir_exists
+
+from compmake import COMMANDS_ADVANCED
+from compmake import Context
+from compmake import Event
+from compmake import register_handler
+from compmake import ui_command
+from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
+
 from .graph import graph
 
 

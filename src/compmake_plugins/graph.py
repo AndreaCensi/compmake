@@ -2,19 +2,18 @@ import os
 from collections import defaultdict
 from collections.abc import Collection
 
-from compmake import (
-    Cache,
-    CacheQueryDB,
-    CacheQuerySessionInterface,
-    CMJobID,
-    COMMANDS_ADVANCED,
-    Context,
-    top_targets,
-    ui_command,
-    ui_info,
-    UserError,
-)
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import COMMANDS_ADVANCED
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CacheQuerySessionInterface
+from compmake import CMJobID
+from compmake import Context
+from compmake import UserError
+from compmake import top_targets
+from compmake import ui_command
+from compmake import ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED)
@@ -71,7 +70,7 @@ async def graph(
         pass
     except:
         gvgen_url = "https://github.com/stricaud/gvgen"
-        msg = 'To use the "graph" command you have to install the "gvgen" ' "package from %s" % gvgen_url
+        msg = 'To use the "graph" command you have to install the "gvgen" package from %s' % gvgen_url
         raise UserError(msg)
 
     print("Getting all jobs in tree")

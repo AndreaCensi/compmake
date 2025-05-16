@@ -27,15 +27,23 @@ import os
 import types
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 from zuper_commons.fs import read_ustring_from_utf8_file
-from zuper_commons.types import add_context, check_isinstance, ZValueError
+from zuper_commons.types import ZValueError
+from zuper_commons.types import add_context
+from zuper_commons.types import check_isinstance
+
 from . import logger
 from .cachequerydb import CacheQuerySessionInterface
-from .constants import CompmakeConstants, JobIterator
-from .exceptions import CompmakeSyntaxError, UserError
-from .structures import Cache, Job, StateCode
+from .constants import CompmakeConstants
+from .constants import JobIterator
+from .exceptions import CompmakeSyntaxError
+from .exceptions import UserError
+from .structures import Cache
+from .structures import Job
+from .structures import StateCode
 from .types import CMJobID
 
 __all__ = [

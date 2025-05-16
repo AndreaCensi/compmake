@@ -1,8 +1,19 @@
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
-from compmake import Cache, check_job_cache_state, clean_other_jobs, CompmakeBug, Context, direct_children, get_job, jobs_defined
+from zuper_commons.test_utils import assert_raises
+from zuper_commons.test_utils import my_assert_equal
+
+from compmake import Cache
+from compmake import CompmakeBug
+from compmake import Context
+from compmake import check_job_cache_state
+from compmake import clean_other_jobs
+from compmake import direct_children
+from compmake import get_job
+from compmake import jobs_defined
 from compmake.types import CMJobID
-from zuper_commons.test_utils import assert_raises, my_assert_equal
+
 from . import logger
 
 
@@ -43,7 +54,9 @@ def mockup6(context: Context, both: bool):
     context.comp(summary, res)
 
 
-from .utils import Env, environment, run_with_env
+from .utils import Env
+from .utils import environment
+from .utils import run_with_env
 
 
 @run_with_env

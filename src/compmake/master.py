@@ -7,26 +7,38 @@ import traceback
 import tracemalloc
 from asyncio import CancelledError
 from optparse import OptionParser
-from pstats import f8, func_std_string  # type: ignore
+from pstats import f8  # type: ignore
+from pstats import func_std_string  # type: ignore
 from typing import cast
 
-from compmake_utils import setproctitle
 from zuper_commons.cmds import ExitCode
-from zuper_commons.fs import dirname, DirPath, FilePath, join, RelDirPath
+from zuper_commons.fs import DirPath
+from zuper_commons.fs import FilePath
+from zuper_commons.fs import RelDirPath
+from zuper_commons.fs import dirname
+from zuper_commons.fs import join
 from zuper_commons.types import ZException
 from zuper_utils_asyncio import SyncTaskInterface
-from zuper_zapp import zapp1, ZappEnv
+from zuper_zapp import ZappEnv
+from zuper_zapp import zapp1
+
+from compmake_utils import setproctitle
+
 from . import __version__
 from .config_optparse import config_populate_optparser
 from .constants import CompmakeConstants
 from .context import Context
 from .context_imp import ContextImp
-from .exceptions import CommandFailed, CompmakeBug, MakeFailed, UserError
+from .exceptions import CommandFailed
+from .exceptions import CompmakeBug
+from .exceptions import MakeFailed
+from .exceptions import UserError
 from .filesystem import StorageFilesystem
 from .job_execution import get_cmd_args_kwargs
 from .readrcfiles import read_rc_files
 from .state import set_compmake_status
-from .storage import all_jobs, get_job
+from .storage import all_jobs
+from .storage import get_job
 from .types import CMJobID
 
 __all__ = [
@@ -94,9 +106,7 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
 
     parser.add_option(
         "--retcodefile",
-        help="If given, the return value is written in this "
-        "file. Useful to check when compmake finished in "
-        "a grid environment. ",
+        help="If given, the return value is written in this file. Useful to check when compmake finished in a grid environment. ",
         default=None,
     )
 
@@ -128,11 +138,11 @@ async def compmake_main(sti: SyncTaskInterface, args: list[str] | None = None) -
 
     # XXX make sure this is the default
     if not args:
-        msg = "I expect at least one argument (db path)." ' Use "compmake -h" for usage information.'
+        msg = 'I expect at least one argument (db path). Use "compmake -h" for usage information.'
         raise UserError(msg)
 
     if len(args) >= 2:
-        msg = 'I only expect one argument. Use "compmake -h" for usage ' "information."
+        msg = 'I only expect one argument. Use "compmake -h" for usage information.'
         msg += "\n args: %s" % args
         raise UserError(msg)
 

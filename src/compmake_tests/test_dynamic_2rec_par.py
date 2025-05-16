@@ -1,7 +1,8 @@
 from unittest import SkipTest
 
 from .mockup import mockup_recursive_5
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 @run_with_env

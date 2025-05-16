@@ -6,21 +6,33 @@ There are 3 special variables:
 - 'non_empty_job_list': same, but error if not specified.
 """
 
+from zuper_commons.fs import FilePath
+from zuper_utils_asyncio import SyncTaskInterface
+
 from compmake.types import CMJobID
 from compmake_utils import safe_pickle_dump
-from zuper_utils_asyncio import SyncTaskInterface
-from zuper_commons.fs import FilePath
-from .actions import clean_targets, make
+
+from .actions import clean_targets
+from .actions import make
 from .cachequerydb import CacheQueryDB
 from .console import ask_question
 from .constants import CompmakeConstants
-from .exceptions import JobFailed, MakeFailed, ShellExitRequested, UserError
-from .helpers import ACTIONS, COMMANDS_ADVANCED, GENERAL, ui_command, ui_section
+from .context import Context
+from .exceptions import JobFailed
+from .exceptions import MakeFailed
+from .exceptions import ShellExitRequested
+from .exceptions import UserError
+from .helpers import ACTIONS
+from .helpers import COMMANDS_ADVANCED
+from .helpers import GENERAL
+from .helpers import ui_command
+from .helpers import ui_section
 from .manager import Manager
 from .state import get_compmake_status
-from .storage import all_jobs, delete_all_job_data
-from .visualization import ui_error, ui_info
-from .context import Context
+from .storage import all_jobs
+from .storage import delete_all_job_data
+from .visualization import ui_error
+from .visualization import ui_info
 
 ui_section(GENERAL)
 

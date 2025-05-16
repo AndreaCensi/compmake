@@ -1,8 +1,16 @@
 import sys
 from io import StringIO
 
-from compmake import Cache, compmake_colored, Context, Event, register_handler, ui_message
-from compmake_utils import get_length_on_screen, get_screen_columns, pad_to_screen, pad_to_screen_length
+from compmake import Cache
+from compmake import Context
+from compmake import Event
+from compmake import compmake_colored
+from compmake import register_handler
+from compmake import ui_message
+from compmake_utils import get_length_on_screen
+from compmake_utils import get_screen_columns
+from compmake_utils import pad_to_screen
+from compmake_utils import pad_to_screen_length
 
 # sys.stdout will be changed later
 stream = sys.stdout
@@ -330,7 +338,7 @@ async def handle_job_ready(context: Context, event: Event):
         return
     job_id = event.kwargs["job_id"]
     glyph = Cache.glyphs["ready"]
-    desc = f'{"ready":>10}'
+    desc = f"{'ready':>10}"
     await ui_message(context, color_ready(f"{glyph} {desc} {job_id}"))
 
 

@@ -1,7 +1,9 @@
 import time
-from typing import ClassVar, Protocol
+from typing import ClassVar
+from typing import Protocol
 
 from zuper_commons.types import describe_type
+
 from .structures import ProgressStage
 
 __all__ = [

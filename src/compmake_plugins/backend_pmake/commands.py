@@ -1,20 +1,20 @@
 from collections.abc import Collection
 
-from compmake import (
-    ACTIONS,
-    ask_if_sure_remake,
-    CacheQueryDB,
-    CMJobID,
-    Context,
-    DefaultsToConfig,
-    mark_to_remake,
-    publish,
-    raise_error_if_manager_failed,
-    top_targets,
-    ui_command,
-    UserError,
-)
 from zuper_utils_asyncio import SyncTaskInterface
+
+from compmake import ACTIONS
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import Context
+from compmake import DefaultsToConfig
+from compmake import UserError
+from compmake import ask_if_sure_remake
+from compmake import mark_to_remake
+from compmake import publish
+from compmake import raise_error_if_manager_failed
+from compmake import top_targets
+from compmake import ui_command
+
 from .pmake_manager import PmakeManager
 
 __all__ = [

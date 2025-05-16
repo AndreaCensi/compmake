@@ -52,8 +52,8 @@ def getTerminalSize():
 def ioctl_GWINSZ(fd):
     try:
         import fcntl
-        import termios
         import struct
+        import termios
 
         # noinspection PyTypeChecker
         s = fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234")

@@ -1,6 +1,7 @@
 from compmake import Context
 
-from .utils import Env, run_with_env
+from .utils import Env
+from .utils import run_with_env
 
 
 def cases():

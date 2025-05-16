@@ -2,11 +2,16 @@ import traceback
 
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
+
 from .actions import interpret_commands
 from .cachequerydb import CacheQueryDB
 from .constants import CompmakeConstants
 from .context import Context
-from .exceptions import CommandFailed, CompmakeBug, JobInterrupted, ShellExitRequested, UserError
+from .exceptions import CommandFailed
+from .exceptions import CompmakeBug
+from .exceptions import JobInterrupted
+from .exceptions import ShellExitRequested
+from .exceptions import UserError
 from .readrcfiles import read_rc_files
 from .registrar import publish
 from .state import set_compmake_status

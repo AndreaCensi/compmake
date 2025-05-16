@@ -1,7 +1,10 @@
-from compmake import Context
 from zuper_commons.test_utils import assert_raises
 from zuper_utils_asyncio import SyncTaskInterface
-from .utils import Env, run_with_env
+
+from compmake import Context
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def f1(sti: SyncTaskInterface) -> int:

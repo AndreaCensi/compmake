@@ -1,31 +1,37 @@
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator
+from collections.abc import Awaitable
+from collections.abc import Callable
+from collections.abc import Collection
 from contextlib import asynccontextmanager
 from tempfile import mkdtemp
-from typing import Any, cast
-from collections.abc import Collection
+from typing import Any
+from typing import cast
 from unittest import SkipTest
 
-from compmake import (
-    all_jobs,
-    CacheQueryDB,
-    CMJobID,
-    CommandFailed,
-    ContextImp,
-    get_job,
-    Job,
-    JobInterface,
-    MakeFailed,
-    parse_job_list,
-    read_rc_files,
-    StorageFilesystem,
-)
 from zuper_commons.cmds import ExitCode
 from zuper_commons.fs import getcwd
 from zuper_commons.test_utils import my_assert_equal
-from zuper_commons.types import ZAssertionError, ZException, ZValueError
-from zuper_utils_asyncio import create_sync_task2, SyncTaskInterface
-from zuper_zapp import async_run_timeout, setup_environment2
+from zuper_commons.types import ZAssertionError
+from zuper_commons.types import ZException
+from zuper_commons.types import ZValueError
+from zuper_utils_asyncio import SyncTaskInterface
+from zuper_utils_asyncio import create_sync_task2
+from zuper_zapp import async_run_timeout
+from zuper_zapp import setup_environment2
 from zuper_zapp.utils import with_log_control
+
+from compmake import CacheQueryDB
+from compmake import CMJobID
+from compmake import CommandFailed
+from compmake import ContextImp
+from compmake import Job
+from compmake import JobInterface
+from compmake import MakeFailed
+from compmake import StorageFilesystem
+from compmake import all_jobs
+from compmake import get_job
+from compmake import parse_job_list
+from compmake import read_rc_files
 
 
 class Env(JobInterface):

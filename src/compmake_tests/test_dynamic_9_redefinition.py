@@ -1,7 +1,9 @@
 import unittest
 
 from compmake import Context
-from .utils import Env, run_with_env
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def g(b1: int, b2: int):

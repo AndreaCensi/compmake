@@ -1,18 +1,18 @@
 """The actual interface of some commands in commands.py"""
 
-from compmake import (
-    Cache,
-    CacheQueryDB,
-    CacheQuerySessionInterface,
-    CMJobID,
-    compmake_colored,
-    ui_command,
-    VISUALIZATION,
-)
 from zuper_commons.text import joinlines
 from zuper_commons.types import check_isinstance
 from zuper_commons.ui import size_compact
 from zuper_typing import debug_print
+
+from compmake import VISUALIZATION
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CacheQuerySessionInterface
+from compmake import CMJobID
+from compmake import compmake_colored
+from compmake import ui_command
+
 from .console_output import write_line_endl
 
 

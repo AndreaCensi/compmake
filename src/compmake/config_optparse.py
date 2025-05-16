@@ -1,5 +1,8 @@
-from optparse import OptionGroup, OptionValueError, OptionParser
+from optparse import OptionGroup
+from optparse import OptionParser
+from optparse import OptionValueError
 from typing import Any
+
 from .state import CompmakeGlobalState
 from .structure import set_config_from_strings
 

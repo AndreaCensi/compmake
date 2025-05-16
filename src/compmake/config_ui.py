@@ -1,13 +1,18 @@
 import sys
 
 from zuper_utils_asyncio import SyncTaskInterface
+
 from .config_html import create_config_html
 from .context import Context
 from .exceptions import UserError
-from .helpers import COMMANDS_ADVANCED, GENERAL, ui_command
+from .helpers import COMMANDS_ADVANCED
+from .helpers import GENERAL
+from .helpers import ui_command
 from .state import CompmakeGlobalState
-from .structure import set_config_from_strings, show_config
-from .visualization import ui_info, ui_message
+from .structure import set_config_from_strings
+from .structure import show_config
+from .visualization import ui_info
+from .visualization import ui_message
 
 __all__ = [
     "config",

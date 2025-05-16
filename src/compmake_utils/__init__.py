@@ -9,20 +9,18 @@ from .docstring import *
 from .format_exceptions import *
 from .frozen import *
 from .get_memory_cgroup import *
-
 from .memoize_imp import *
 from .pickling_utils import *
 from .proctitle import *
 from .safe_pickle import *
 from .strings_with_escapes import *
 from .system_stats import *
-from .system_stats import *
+from .table_formatter import *
 from .terminal_size import *
 from .time_track import *
 from .timedate import *
 from .values_interpretation import *
 from .which_imp import *
-from .table_formatter import *
 
 # def find_print_statements():
 #     import sys

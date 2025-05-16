@@ -1,9 +1,18 @@
 import sys
 
-from compmake import Cache, CacheQueryDB, CompmakeSyntaxError, get_job_cache, parse_job_list, set_job_cache
+from zuper_commons.test_utils import assert_raises
+from zuper_commons.test_utils import my_assert_equal
+
+from compmake import Cache
+from compmake import CacheQueryDB
+from compmake import CompmakeSyntaxError
+from compmake import get_job_cache
+from compmake import parse_job_list
+from compmake import set_job_cache
 from compmake.types import CMJobID
-from zuper_commons.test_utils import assert_raises, my_assert_equal
-from .utils import Env, run_with_env
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def dummy() -> None:  # pragma: no cover

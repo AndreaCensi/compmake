@@ -1,16 +1,26 @@
 import os
 from typing import cast
 
-from compmake_utils import safe_pickle_load
-from zuper_commons.fs import abspath, DirPath, getcwd, join, mkdirs_thread_safe, RelDirPath
+from zuper_commons.fs import DirPath
+from zuper_commons.fs import RelDirPath
+from zuper_commons.fs import abspath
+from zuper_commons.fs import getcwd
+from zuper_commons.fs import join
+from zuper_commons.fs import mkdirs_thread_safe
 from zuper_commons.text import indent
 from zuper_utils_asyncio import SyncTaskInterface
 from zuper_zapp_interfaces import get_pi
-from . import logger, ParmakeJobResult
+
+from compmake_utils import safe_pickle_load
+
+from . import logger
 from .constants import CompmakeConstants
-from .exceptions import CompmakeBug, JobFailed
+from .exceptions import CompmakeBug
+from .exceptions import JobFailed
 from .result_dict import result_dict_check
-from .types import CMJobID, ResultDict
+from .structures import ParmakeJobResult
+from .types import CMJobID
+from .types import ResultDict
 
 __all__ = [
     "parmake_job2_new_process_1",

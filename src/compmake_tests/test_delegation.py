@@ -1,4 +1,5 @@
 from compmake import JobInterface
+
 from .test_compmake import Env
 from .utils import run_with_env
 

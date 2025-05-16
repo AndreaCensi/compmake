@@ -1,6 +1,11 @@
-from compmake import CompmakeDBError, Context
 from zuper_commons.test_utils import my_assert_equal
-from .utils import assert_raises_async, Env, run_with_env
+
+from compmake import CompmakeDBError
+from compmake import Context
+
+from .utils import Env
+from .utils import assert_raises_async
+from .utils import run_with_env
 
 
 def g2():

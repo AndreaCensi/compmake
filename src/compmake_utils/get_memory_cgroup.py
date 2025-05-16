@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass
 
 import psutil
-
 from zuper_commons.types import ZException
 
 __all__ = [

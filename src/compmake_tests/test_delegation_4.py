@@ -1,5 +1,7 @@
-from .utils import Env, run_with_env
 from compmake import Context
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def rec(context: Context, n: int) -> int:

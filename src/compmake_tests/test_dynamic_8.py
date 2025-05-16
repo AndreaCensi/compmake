@@ -1,9 +1,12 @@
 from typing import cast
 
-from compmake import Context, direct_uptodate_deps_inverse_closure
+from compmake import Context
+from compmake import direct_uptodate_deps_inverse_closure
 from compmake.cachequerydb import direct_uptodate_deps_inverse
 from compmake.types import CMJobID
-from .utils import Env, run_with_env
+
+from .utils import Env
+from .utils import run_with_env
 
 
 def always():

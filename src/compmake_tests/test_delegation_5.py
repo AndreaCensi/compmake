@@ -1,7 +1,12 @@
-from compmake import get_job, JobInterface
-from compmake.types import CMJobID
 from zuper_commons.test_utils import my_assert_equal
-from .utils import Env, environment, run_with_env
+
+from compmake import JobInterface
+from compmake import get_job
+from compmake.types import CMJobID
+
+from .utils import Env
+from .utils import environment
+from .utils import run_with_env
 
 
 def g():

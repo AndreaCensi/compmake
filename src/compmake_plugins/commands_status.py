@@ -1,7 +1,13 @@
-from compmake import Context, Event, register_handler, ui_error, ui_info
-from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
-from zuper_commons.text import indent, joinlines
+from zuper_commons.text import indent
+from zuper_commons.text import joinlines
 from zuper_commons.ui import color_brown
+
+from compmake import Context
+from compmake import Event
+from compmake import register_handler
+from compmake import ui_error
+from compmake import ui_info
+from compmake.registered_events import EVENT_MANAGER_SUCCEEDED
 
 
 # TODO: command-succeeded: {'command': '
@@ -166,7 +172,8 @@ async def manager_succeeded(context: Context, event: Event):
             "todo": 0,
         }
 
-        from .console_status import format_job_counts, job_counts_style
+        from .console_status import format_job_counts
+        from .console_status import job_counts_style
 
         jc = format_job_counts(values, job_counts_style["normal"], ", ")
 

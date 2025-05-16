@@ -1,9 +1,13 @@
 from collections.abc import Callable
-from typing import cast, ClassVar
+from typing import ClassVar
+from typing import cast
+
+from zuper_commons.text import indent
+from zuper_commons.text import joinlines
+from zuper_commons.ui import get_colorize_function
 
 from compmake_utils import get_screen_columns
-from zuper_commons.text import indent, joinlines
-from zuper_commons.ui import get_colorize_function
+
 from .context import Context
 from .events_structures import Event
 from .registrar import register_handler

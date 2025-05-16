@@ -1,7 +1,12 @@
 import os
 import pwd
 
-from compmake import COMMANDS_ADVANCED, Context, ui_command, ui_error, ui_info, UserError
+from compmake import COMMANDS_ADVANCED
+from compmake import Context
+from compmake import UserError
+from compmake import ui_command
+from compmake import ui_error
+from compmake import ui_info
 
 
 @ui_command(section=COMMANDS_ADVANCED)

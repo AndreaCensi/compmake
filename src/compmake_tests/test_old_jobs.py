@@ -1,6 +1,10 @@
-from compmake import clean_other_jobs
 from zuper_commons.test_utils import my_assert_equal
-from .utils import Env, environment, run_with_env
+
+from compmake import clean_other_jobs
+
+from .utils import Env
+from .utils import environment
+from .utils import run_with_env
 
 
 def g():

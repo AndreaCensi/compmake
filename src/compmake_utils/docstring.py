@@ -76,5 +76,5 @@ def docstring_components_test() -> None:  # TODO: move this to the tests
     res = docstring_components(docstring_components.__doc__)
     print(res)
 
-    assert res["first"] == "Removes leading whitespace and returns a dict " 'with fields "first" and "rest".'
+    assert res["first"] == 'Removes leading whitespace and returns a dict with fields "first" and "rest".'
     assert res["rest"] == "This is the rest."
