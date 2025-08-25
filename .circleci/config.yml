@@ -8,13 +8,13 @@ workflows:
   version: 2
   test:
     jobs:
-    - test-312-src:
+    - test-313-src:
         context: <<pipeline.parameters.context_name>>
         filters:
           tags:
             ignore: /.*/
 jobs:
-  test-312-src:
+  test-313-src:
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -29,7 +29,8 @@ jobs:
       Z_SERVICE_PROC: zuper_proc_local.proc
       Z_SERVICE_FS: zuper_fs_local.use_local_fs
     docker:
-    - image: docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.12:${Z_DISTRO}
+    - image: 
+        docker.io/${DOCKER_TARGET_ORG}/${DOCKER_REPO_PREFIX}zuper-ci-3.13:${Z_DISTRO}
       # auth:
       #   username: $DOCKER_USERNAME
       #   password: $DOCKER_PASSWORD
@@ -216,4 +217,4 @@ jobs:
           timeout 1m ./codecov || true
     resource_class: andreacensi/r2
 
-# sigil 207e1df48a0c9dd9c9e04f899c807a7d
+# sigil a8a890ff166e4d1e716901c7b86e663a
