@@ -15,6 +15,7 @@ workflows:
             ignore: /.*/
 jobs:
   test-313-src:
+    max_auto_reruns: 0
     environment:
       COLUMNS: '160'
       # default is /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -90,6 +91,12 @@ jobs:
           rm .requirements_tests.txt
 
     - run:
+        name: Add more packages
+        command: |-
+          export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
+          echo PIP_INDEX_URL="${PIP_INDEX_URL}"
+          python3 -m pip install zuper-notes-z7 zuper-loghandle-z7 zuper-fs-local-z7 zuper-proc-local-z7
+    - run:
         name: Python stats
         # language=bash
         command: |
@@ -145,18 +152,6 @@ jobs:
           else
               echo "Target $TARGET not defined"
           fi
-    # - run:
-    #     name: Notebooks
-    #     command: |
-    #       make -C notebooks cleanup all
-
-
-    - run:
-        name: Add more packages
-        command: |-
-          export PIP_INDEX_URL="${PIP_INDEX_URL_SRC}"
-          echo PIP_INDEX_URL="${PIP_INDEX_URL}"
-          python3 -m pip install zuper-notes-z7 zuper-loghandle-z7 zuper-fs-local-z7 zuper-proc-local-z7
     - run:
         name: compmake_tests
         command: |
@@ -217,4 +212,4 @@ jobs:
           timeout 1m ./codecov || true
     resource_class: andreacensi/r2
 
-# sigil e96feff65ae67dd8ae928e763b3d4502
+# sigil 048446f2b02715ef5232467156a41a19
