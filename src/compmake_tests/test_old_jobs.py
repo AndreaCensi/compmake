@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 from zuper_commons.test_utils import my_assert_equal
 
 from compmake import clean_other_jobs
+from compmake.state import CompmakeGlobalState
 
 from .utils import Env
 from .utils import environment
@@ -84,14 +87,23 @@ def e2(context):
 
 @run_with_env
 async def test_cleaning3(env: Env) -> None:
-    env.cc.set_compmake_config("check_params", True)
-    await cleaning3_first(env)
-    jobs1 = await env.all_jobs()
-    my_assert_equal(jobs1, ["e", "f", "f-g", "f-h"])
-    async with environment(env.sti, env.rootd) as env2:
-        await cleaning3_second(env2)
-    jobs2 = await env.all_jobs()
-    my_assert_equal(jobs2, ["e", "f", "f-g"])
+    # Contexts share this configuration; restore it even if the test fails.
+    with patch.dict(CompmakeGlobalState.compmake_config, check_params=True):
+        await cleaning3_first(env)
+        jobs1 = await env.all_jobs()
+        my_assert_equal(jobs1, ["e", "f", "f-g", "f-h"])
+        async with environment(env.sti, env.rootd) as env2:
+            await cleaning3_second(env2)
+        jobs2 = await env.all_jobs()
+        my_assert_equal(jobs2, ["e", "f", "f-g"])
+
+
+def test_cleaning3_restores_config() -> None:
+    # Run the real test and check the setting seen by subsequent tests.
+    config = CompmakeGlobalState.compmake_config
+    with patch.dict(config, check_params=False):
+        test_cleaning3()
+        my_assert_equal(config["check_params"], False)
 
 
 async def cleaning3_first(env: Env):

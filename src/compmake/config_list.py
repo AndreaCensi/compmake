@@ -1,5 +1,6 @@
 import platform
-from multiprocessing import cpu_count
+
+from joblib import cpu_count
 
 from .structure import add_config_section
 from .structure import add_config_switch
@@ -114,7 +115,7 @@ add_config_switch(
 add_config_switch(
     "max_parallel_jobs",
     cpu_count(),
-    desc="Maximum number of parallel jobs. Default is cpu_count().",
+    desc="Maximum number of parallel jobs. Defaults to CPUs available under affinity and container quotas.",
     section=CONFIG_PARALLEL,
 )
 

@@ -10,6 +10,7 @@ dependencies = [
     "SystemCmd-z7",
     "coverage",
     "dill",
+    "joblib",
     "lxml",
     "networkx",
     "numpy",
@@ -54,6 +55,7 @@ Pympler = "*"
 SystemCmd-z7 = "*"
 coverage = "*"
 dill = "*"
+joblib = "*"
 lxml = "*"
 networkx = "*"
 numpy = "*"

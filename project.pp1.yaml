@@ -12,6 +12,7 @@ install_requires:
 - SystemCmd-z7
 - coverage
 - dill
+- joblib
 - lxml # just for cleanup!
 - networkx
 - numpy
