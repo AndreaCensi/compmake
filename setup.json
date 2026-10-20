@@ -5,7 +5,9 @@
     "SystemCmd-z7",
     "coverage",
     "dill",
+    "joblib",
     "lxml",
+    "methodtools",
     "networkx",
     "numpy",
     "psutil",
@@ -144,7 +146,7 @@
     "compmake_utils.values_interpretation",
     "compmake_utils.which_imp"
   ],
-  "version": "7.2",
+  "version": "7.4",
   "author": "Andrea Censi",
   "author_email": "AndreaCensi@users.noreply.github.com",
   "url": "https://github.com/AndreaCensi/compmake"

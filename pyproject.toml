@@ -1,6 +1,6 @@
 [project]
 name = "compmake-z7"
-version = "7.2"
+version = "7.4"
 readme = ""
 description = ""
 authors = [{name = "Andrea Censi", email = "AndreaCensi@users.noreply.github.com"}]
@@ -12,6 +12,7 @@ dependencies = [
     "dill",
     "joblib",
     "lxml",
+    "methodtools",
     "networkx",
     "numpy",
     "psutil",
@@ -36,7 +37,7 @@ test = [
 
 [tool.poetry]
 name = "compmake-z7"
-version = "7.2"
+version = "7.4"
 description = ""
 authors = ["Andrea Censi <AndreaCensi@users.noreply.github.com>"]
 packages = [
@@ -57,6 +58,7 @@ coverage = "*"
 dill = "*"
 joblib = "*"
 lxml = "*"
+methodtools = "*"
 networkx = "*"
 numpy = "*"
 psutil = "*"
